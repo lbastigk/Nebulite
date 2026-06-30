@@ -9,8 +9,20 @@
 //------------------------------------------
 // Includes
 
+// Standard library
+#include <memory>
+#include <span>
+
 // Nebulite
+#include "Interaction/Execution/FuncTree.hpp"
 #include "Module/Base/TransformationModule.hpp"
+
+//------------------------------------------
+// Forward declarations
+
+namespace Nebulite::Data {
+class JsonScope;
+} // namespace Nebulite::Data
 
 //------------------------------------------
 namespace Nebulite::Module::Transformation {

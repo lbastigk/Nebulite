@@ -89,8 +89,8 @@ public:
     static void bindFunctionStatic(
         FuncTreeType* tree,
         Func functionPtr,
-        std::string_view const& name,
-        std::string_view const& helpDescription
+        std::string_view name,
+        std::string_view helpDescription
     );
 
     template <typename Obj, typename Func, typename FuncTreeType>
@@ -98,8 +98,8 @@ public:
         FuncTreeType* tree,
         Obj* objectPtr,
         Func functionPtr,
-        std::string_view const& name,
-        std::string_view const& helpDescription
+        std::string_view name,
+        std::string_view helpDescription
     );
 
     //------------------------------------------
@@ -108,22 +108,22 @@ public:
     template <typename R, typename C, typename... Ps>
     void bindFunction(
         R (C::*functionPtr)(Ps...),
-        std::string_view const& name,
-        std::string_view const& helpDescription
+        std::string_view name,
+        std::string_view helpDescription
     );
 
     template <typename R, typename C, typename... Ps>
     void bindFunction(
         R (C::*functionPtr)(Ps...) const,
-        std::string_view const& name,
-        std::string_view const& helpDescription
+        std::string_view name,
+        std::string_view helpDescription
     );
 
     template <typename Func>
     void bindFunction(
         Func functionPtr,
-        std::string_view const& name,
-        std::string_view const& helpDescription
+        std::string_view name,
+        std::string_view helpDescription
     );
 
     //------------------------------------------
@@ -137,7 +137,7 @@ public:
      *                        First line is shown in the general help, full description in detailed help
      * @throws std::runtime_error if the category already exists.
      */
-    void bindCategory(std::string_view const& name, std::string_view const& helpDescription) const {
+    void bindCategory(std::string_view const name, std::string_view const helpDescription) const {
         funcTree->bindCategory(name, helpDescription);
     }
 
@@ -149,7 +149,7 @@ public:
      * @param name Name of the variable in the command tree.
      * @param helpDescription Description of the variable, shown in the help command.
      */
-    void bindVariable(bool* variablePtr, std::string_view const& name, std::string_view const& helpDescription) const {
+    void bindVariable(bool* variablePtr, std::string_view const name, std::string_view const helpDescription) const {
         // Bind a variable to the FuncTree
         funcTree->bindVariable(variablePtr, name, helpDescription);
     }

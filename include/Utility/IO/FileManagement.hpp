@@ -26,7 +26,7 @@ public:
      * @param innerDir The inner directory to append to the base directory.
      * @return The combined path as a string.
      */
-    static std::string CombinePaths(std::string_view const& baseDir, std::string_view const& innerDir);
+    static std::string CombinePaths(std::string_view baseDir, std::string_view innerDir);
 
     /**
      * @brief Loads the contents of a file into a string.
@@ -35,7 +35,7 @@ public:
      * @return The contents of the file as a string. If the file cannot be read,
      *         an empty string is returned.
      */
-    static std::string LoadFile(std::string_view const& link);
+    static std::string LoadFile(std::string_view link);
 
     /**
      * @brief Writes a string to a file.
@@ -45,7 +45,7 @@ public:
      * @param text The text to write to the file.
      * @return True on success, false on failure
      */
-    [[nodiscard]] static bool WriteFile(std::string_view const& filename, std::string_view const& text);
+    [[nodiscard]] static bool WriteFile(std::string_view filename, std::string_view text);
 
     /**
      * @brief Returns the preferred directory separator for the platform.
@@ -65,14 +65,14 @@ public:
      * @param path The path to the file to check.
      * @return True if the file exists, false otherwise.
      */
-    static bool fileExists(std::string_view const& path);
+    static bool fileExists(std::string_view path);
 
     /**
      * @brief Checks if a given path is a directory
      * @param path The path to check
      * @return True if the directory exists, false otherwise
      */
-    static bool isDirectory(std::string_view const& path);
+    static bool isDirectory(std::string_view path);
 
     /**
      * @brief List files in a directory
@@ -80,7 +80,7 @@ public:
      * @param dir The directory to search
      * @return A vector of file names in the directory. If the directory cannot be accessed, an empty vector is returned.
      */
-    static std::vector<std::string> listFilesInDirectory(std::string_view const& dir);
+    static std::vector<std::string> listFilesInDirectory(std::string_view dir);
 
     /**
      * @brief Lists files and directories in a directory
@@ -88,7 +88,7 @@ public:
      * @param dir The directory to search
      * @return A vector of file and directory names in the directory. If the directory cannot be accessed, an empty vector is returned.
      */
-     static std::vector<std::string> listContentInDirectory(std::string_view const& dir);
+     static std::vector<std::string> listContentInDirectory(std::string_view dir);
 };
 } // namespace Nebulite::Utility::IO
 #endif // UTILITY_IO_FILEMANAGEMENT_HPP

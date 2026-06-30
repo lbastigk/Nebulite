@@ -95,9 +95,9 @@ Constants::Event Audio::playSoundWithFilter(std::span<std::string_view const> co
 
     auto const [num, den] = [&]() -> std::pair<std::vector<double>, std::vector<double>> {
         try {
-            auto parse = [](std::string_view const& str) {
+            auto parse = [](std::string_view const str) {
                 return Utility::StringHandler::split(str, ',')
-                    | std::views::transform([](std::string_view const& coeff) {
+                    | std::views::transform([](std::string_view const coeff) {
                         return std::stod(std::string(coeff));
                     })
                     | std::ranges::to<std::vector<double>>();

@@ -287,7 +287,7 @@ public:
     /**
      * @brief Binds a variable to the FuncTree.
      */
-    void bindVariable(bool* varPtr, std::string_view const& name, std::string_view const& helpDescription) const {
+    void bindVariable(bool* varPtr, std::string_view const name, std::string_view const helpDescription) const {
         funcTree->bindVariable(varPtr, name, helpDescription);
     }
 
@@ -511,7 +511,7 @@ protected:
      * @param serialOrLinkWithCommands The serialization string or link with commands to split.
      * @return A vector of tokens. First token is the serialization or link, subsequent tokens are commands.
      */
-    [[nodiscard]] static std::vector<std::string> stringToDeserializeTokens(std::string_view const& serialOrLinkWithCommands);
+    [[nodiscard]] static std::vector<std::string> stringToDeserializeTokens(std::string_view serialOrLinkWithCommands);
 
     /**
      * @brief Base deserialization function to be called by derived classes in their own deserialization.

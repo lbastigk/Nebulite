@@ -25,10 +25,10 @@ namespace Nebulite::Utility {
 
 std::string StringHandler::createPaddedTable(std::vector<std::string> const& words, std::size_t const rowSize){
     // Find largest word
-    auto maxSize = std::ranges::max_element(words, [](std::string_view const& a, std::string_view const& b) {
+    auto maxSize = std::ranges::max_element(words, [](std::string_view const a, std::string_view const b) {
         return a.size() < b.size();
     })->length();
-    return std::accumulate(words.begin(), words.end(), std::string{}, [maxSize, rowSize](std::string_view const& acc, std::string_view const& a) {
+    return std::accumulate(words.begin(), words.end(), std::string{}, [maxSize, rowSize](std::string_view const acc, std::string_view const a) {
         std::string const paddedEntry = a + std::string(maxSize - a.length() + 1, ' ');
         if (rowSize > 0) {
             // Determine linebreaks
@@ -41,7 +41,7 @@ std::string StringHandler::createPaddedTable(std::vector<std::string> const& wor
     });
 }
 
-std::string StringHandler::replaceAll(std::string target, std::string_view const& toReplace, std::string_view const& replacer) {
+std::string StringHandler::replaceAll(std::string target, std::string_view const toReplace, std::string_view const replacer) {
     if (toReplace.empty())
         return target;
     return target
@@ -52,13 +52,13 @@ std::string StringHandler::replaceAll(std::string target, std::string_view const
 
 // [VALIDATE]
 
-bool StringHandler::containsAnyOf(std::string_view const& str, std::string_view const& chars) {
+bool StringHandler::containsAnyOf(std::string_view const str, std::string_view const chars) {
     return std::ranges::any_of(str, [&](char const c) {
         return chars.contains(c);
     });
 }
 
-bool StringHandler::isNumber(std::string_view const& str) {
+bool StringHandler::isNumber(std::string_view const str) {
     // Check if all characters are digits, +, -, or .
     // Then check if count of . is at most 1
     // Then check if + or - is only at the start
@@ -132,7 +132,7 @@ void handleEmptyToken(QuoteParseState const& state, std::vector<std::string>& re
     }
 }
 
-std::string processQuoteToken(std::string_view const& token, char const quoteChar, bool& quoteState) {
+std::string processQuoteToken(std::string_view const token, char const quoteChar, bool& quoteState) {
     auto cleanToken = token.substr(1); // Remove opening quote
     quoteState = true;
 
@@ -145,7 +145,7 @@ std::string processQuoteToken(std::string_view const& token, char const quoteCha
     return std::string(cleanToken);
 }
 
-void handleQuoteStart(std::string_view const& token, QuoteParseState& state, std::vector<std::string>& result) {
+void handleQuoteStart(std::string_view const token, QuoteParseState& state, std::vector<std::string>& result) {
     if (token[0] == doubleQuote) {
         std::string const cleanToken = processQuoteToken(token, doubleQuote, state.inDoubleQuote);
         result.push_back(cleanToken);
@@ -158,7 +158,7 @@ void handleQuoteStart(std::string_view const& token, QuoteParseState& state, std
     }
 }
 
-void handleQuoteEnd(std::string_view const& token, char const quoteChar, bool& quoteState, std::vector<std::string>& result) {
+void handleQuoteEnd(std::string_view const token, char const quoteChar, bool& quoteState, std::vector<std::string>& result) {
     quoteState = false;
     auto cleanToken = std::string(token);
 
@@ -172,7 +172,7 @@ void handleQuoteEnd(std::string_view const& token, char const quoteChar, bool& q
     }
 }
 
-void handleQuotedToken(std::string_view const& token, QuoteParseState& state, std::vector<std::string>& result) {
+void handleQuotedToken(std::string_view const token, QuoteParseState& state, std::vector<std::string>& result) {
     if (state.inDoubleQuote && !token.empty() && token.back() == doubleQuote) {
         handleQuoteEnd(token, doubleQuote, state.inDoubleQuote, result);
     } else if (state.inSingleQuote && !token.empty() && token.back() == singleQuote) {
@@ -188,7 +188,7 @@ void handleQuotedToken(std::string_view const& token, QuoteParseState& state, st
 
 // [Args]
 
-StringHandler::ParseResult StringHandler::parseQuotedArguments(std::string_view const& cmd) {
+StringHandler::ParseResult StringHandler::parseQuotedArguments(std::string_view const cmd) {
     std::vector<std::string_view> const tokens = split(cmd, ' ');
     std::vector<std::string> result;
     QuoteParseState state;
@@ -231,7 +231,7 @@ std::string StringHandler::recombineArgs(std::span<std::string_view const> const
 
 // [SPLIT]
 
-std::vector<std::string_view> StringHandler::split(std::string_view const& input, char const delimiter, bool const keepDelimiter){
+std::vector<std::string_view> StringHandler::split(std::string_view const input, char const delimiter, bool const keepDelimiter){
     std::vector<std::string_view> tokens;
     if (!keepDelimiter) {
         std::size_t start = 0;
@@ -285,7 +285,7 @@ std::array constexpr pairs = {
     std::make_pair('{',  '}')
 };
 
-int depth(std::string_view const& input) {
+int depth(std::string_view const input) {
     int count = 0;
     for (auto const& c : input) {
         for (auto const& [opening, closing] : pairs) {
@@ -299,7 +299,7 @@ int depth(std::string_view const& input) {
     return count;
 }
 
-int depthOf(std::string_view const& input, char const& delimiter) {
+int depthOf(std::string_view const input, char const& delimiter) {
     int count = 0;
     for (auto const& c : input) {
         for (auto const& [opening, closing] : pairs) {
@@ -317,7 +317,7 @@ int depthOf(std::string_view const& input, char const& delimiter) {
 } // namespace
 
 std::vector<std::string_view>
-StringHandler::splitOnSameDepth(std::string_view const& input, char const delimiter){
+StringHandler::splitOnSameDepth(std::string_view const input, char const delimiter){
     auto const basicSplitResult = split(input, delimiter, true);
     std::vector<std::string_view> result;
     std::string_view current;
@@ -364,7 +364,7 @@ char StringHandler::delimiterToClosingChar(Delimiter const delimiter) {
 }
 
 std::vector<std::string_view>
-StringHandler::splitOnSameDepthOf(std::string_view const& input, Delimiter const delimiter) {
+StringHandler::splitOnSameDepthOf(std::string_view const input, Delimiter const delimiter) {
     auto const openingChar = delimiterToOpeningChar(delimiter);
     auto const closingChar = delimiterToClosingChar(delimiter);
     auto const basicSplitResult = split(input, openingChar, true);

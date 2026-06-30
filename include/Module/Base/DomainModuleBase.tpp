@@ -28,8 +28,8 @@ template <typename Func, typename FuncTreeType>
 void DomainModuleBase::bindFunctionStatic(
     FuncTreeType* tree,
     Func functionPtr,
-    std::string_view const& name,
-    std::string_view const& helpDescription
+    std::string_view name,
+    std::string_view helpDescription
 ) {
     // Delegate to FuncTree helper to construct FunctionPtr and bind
     auto fp = FuncTreeType::makeFunctionPtr(functionPtr);
@@ -49,8 +49,8 @@ void DomainModuleBase::bindFunctionStatic(
     FuncTreeType* tree,
     Obj* objectPtr,
     Func functionPtr,
-    std::string_view const& name,
-    std::string_view const& helpDescription
+    std::string_view name,
+    std::string_view helpDescription
 ) {
     static_assert(std::is_member_function_pointer_v<Func>, "This overload requires a member function pointer.");
 
@@ -72,8 +72,8 @@ void DomainModuleBase::bindFunctionStatic(
 template <typename R, typename C, typename... Ps>
 void DomainModuleBase::bindFunction(
     R (C::*functionPtr)(Ps...),
-    std::string_view const& name,
-    std::string_view const& helpDescription
+    std::string_view name,
+    std::string_view helpDescription
 ) {
     // forward to static helper, binding 'this' as the object pointer of type C*
     bindFunctionStatic(funcTree.get(), static_cast<C*>(this), functionPtr, name, helpDescription);
@@ -83,8 +83,8 @@ void DomainModuleBase::bindFunction(
 template <typename R, typename C, typename... Ps>
 void DomainModuleBase::bindFunction(
     R (C::*functionPtr)(Ps...) const,
-    std::string_view const& name,
-    std::string_view const& helpDescription
+    std::string_view name,
+    std::string_view helpDescription
 ) {
     // forward to static helper, binding 'this' as the object pointer of type C*
     bindFunctionStatic(funcTree.get(), static_cast<const C*>(this), functionPtr, name, helpDescription);
@@ -94,8 +94,8 @@ void DomainModuleBase::bindFunction(
 template <typename Func>
 void DomainModuleBase::bindFunction(
     Func functionPtr,
-    std::string_view const& name,
-    std::string_view const& helpDescription
+    std::string_view name,
+    std::string_view helpDescription
 ) {
     bindFunctionStatic(funcTree.get(), functionPtr, name, helpDescription);
 }

@@ -252,7 +252,7 @@ RulesetCompiler::AnyRuleset RulesetCompiler::getRuleset(Data::JsonScope const& d
     return Ruleset;
 }
 
-std::optional<std::shared_ptr<Ruleset>> RulesetCompiler::parseSingle(std::string_view const& identifier, Execution::Domain& self) {
+std::optional<std::shared_ptr<Ruleset>> RulesetCompiler::parseSingle(std::string_view const identifier, Execution::Domain& self) {
     Data::JsonScope tempDoc;
     auto const root = Data::ScopedKey("");
     tempDoc.set(root, identifier);

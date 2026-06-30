@@ -30,7 +30,7 @@ namespace {
 struct OperationInfo {
     Assignment::Operation op;
     std::string_view symbol;
-    constexpr OperationInfo(Assignment::Operation const o, std::string_view const& s) noexcept : op(o), symbol(s) {}
+    constexpr OperationInfo(Assignment::Operation const o, std::string_view const s) noexcept : op(o), symbol(s) {}
 };
 
 std::array constexpr supportedOperations = {
@@ -42,7 +42,7 @@ std::array constexpr supportedOperations = {
 
 } // namespace
 
-bool Assignment::parse(std::string_view const& str) {
+bool Assignment::parse(std::string_view const str) {
     // 1.) Derive context
     onType = ContextDeriver::getTypeFromString(str);
     if (onType == ContextDeriver::TargetType::resource) {

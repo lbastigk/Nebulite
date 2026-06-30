@@ -84,7 +84,7 @@ bool JsonRvalueTransformer::parse(std::vector<std::string_view> const& transform
     std::string call;
     call.reserve(funcName.size() + 1 + 128); // funcName + space + typical transformation size
 
-    return std::ranges::all_of(transformationList, [&](std::string_view const& transformation) {
+    return std::ranges::all_of(transformationList, [&](std::string_view const transformation) {
         call.clear();
         call.append(funcName);
         call.push_back(' ');

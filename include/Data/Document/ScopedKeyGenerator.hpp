@@ -27,7 +27,7 @@ struct OpData {
     constexpr OpData()
         : type(OpType::Member), indexValue(0) {}
 
-    explicit constexpr OpData(std::string_view const& name) // NOLINT
+    explicit constexpr OpData(std::string_view name) // NOLINT
         : type(OpType::Member), memberName(name), indexValue(0) {}
 
     explicit constexpr OpData(std::size_t index) // NOLINT
@@ -48,14 +48,14 @@ class ScopedKeyGenerator {
     std::size_t count_ = 0;
 
 public:
-    explicit constexpr ScopedKeyGenerator(std::string_view const& base)
+    explicit constexpr ScopedKeyGenerator(std::string_view const base)
         : base_(base), ops_() {}
 
-    constexpr ScopedKeyGenerator(std::string_view const& base, const std::array<OpData, MaxOps>& ops, std::size_t count)
+    constexpr ScopedKeyGenerator(std::string_view const base, const std::array<OpData, MaxOps>& ops, std::size_t const count)
         : base_(base), ops_(ops), count_(count) {}
 
     // Chain operations at compile-time
-    constexpr ScopedKeyGenerator addMember(std::string_view const& member) const {
+    constexpr ScopedKeyGenerator addMember(std::string_view const member) const {
         auto result = *this;
         if (result.count_ < MaxOps) {
             result.ops_[result.count_] = OpData(member);
@@ -67,7 +67,7 @@ public:
         return result;
     }
 
-    constexpr ScopedKeyGenerator addIndex(std::size_t index) const {
+    constexpr ScopedKeyGenerator addIndex(std::size_t const index) const {
         auto result = *this;
         if (result.count_ < MaxOps) {
             result.ops_[result.count_] = OpData(index);

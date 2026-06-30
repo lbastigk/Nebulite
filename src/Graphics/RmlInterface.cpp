@@ -375,7 +375,7 @@ std::vector<std::pair<size_t, std::string>> RmlInterface::listOpenedDocuments() 
 
 // Context Management
 
-bool RmlInterface::loadDocument(std::string_view const& name, std::string_view const& path, Interaction::Context const& ctx, Interaction::ContextScope const& ctxScope) {
+bool RmlInterface::loadDocument(std::string_view const name, std::string_view const path, Interaction::Context const& ctx, Interaction::ContextScope const& ctxScope) {
     auto const document = Utility::IO::FileManagement::LoadFile(path);
     Rml::ElementDocument* doc = context->LoadDocumentFromMemory(document);
     if (!doc) return false;
@@ -392,7 +392,7 @@ bool RmlInterface::loadDocument(std::string_view const& name, std::string_view c
     return true;
 }
 
-bool RmlInterface::removeDocument(std::size_t const id, std::string_view const& name) {
+bool RmlInterface::removeDocument(std::size_t const id, std::string_view const name) {
     auto const it = std::ranges::find(ownerToDocument[id], name, [](auto const& pair) { return pair.first; });
     if (it == ownerToDocument[id].end()) {
         return false; // No document with this name for this owner

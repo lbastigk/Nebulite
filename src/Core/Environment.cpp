@@ -5,7 +5,9 @@
 #include <cstddef>
 #include <cstdint>
 #include <numeric>
+#include <optional>
 #include <string>
+#include <utility>
 #include <vector>
 
 // Nebulite

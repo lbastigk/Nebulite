@@ -14,7 +14,7 @@
 //------------------------------------------
 namespace Nebulite::Interaction {
 
-std::string ContextDeriver::stripContext(std::string_view const& str){
+std::string ContextDeriver::stripContext(std::string_view const str){
     std::string_view strView = str;
     stripContextFromView(strView);
     return std::string(strView);
@@ -33,11 +33,11 @@ void ContextDeriver::stripContextFromView(std::string_view& str){
     str = str.substr(targetString.size() + 1);
 }
 
-ContextDeriver::TargetType ContextDeriver::getTypeFromString(std::string_view const& str){
+ContextDeriver::TargetType ContextDeriver::getTypeFromString(std::string_view const str){
     return getTypeAndPrefixFromString(str).first;
 }
 
-std::pair<ContextDeriver::TargetType, std::string_view> ContextDeriver::getTypeAndPrefixFromString(std::string_view const& str){
+std::pair<ContextDeriver::TargetType, std::string_view> ContextDeriver::getTypeAndPrefixFromString(std::string_view const str){
     auto const positionPipingOperator = str.find(Data::JSON::SpecialCharacter::transformationPipe);
     auto const positionContextKeySeparator = str.find(contextKeySeparator);
 

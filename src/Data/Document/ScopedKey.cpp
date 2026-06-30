@@ -18,7 +18,7 @@
 namespace Nebulite::Data {
 
 // construct from a view + suffix
-ScopedKey::ScopedKey(ScopedKeyView const& base, std::string_view const& suffix)
+ScopedKey::ScopedKey(ScopedKeyView const& base, std::string_view const suffix)
     : givenScope(base.givenScope), owned(base.key) {
     owned = ScopedKeyView::combineKeys(owned, suffix);
 }
@@ -37,7 +37,7 @@ ScopedKeyView ScopedKey::view() const & noexcept {
     return {givenScope, std::string_view(owned)};
 }
 
-ScopedKey ScopedKey::operator+(std::string_view const& suffix) const {
+ScopedKey ScopedKey::operator+(std::string_view const suffix) const {
     return ScopedKey{givenScope, ScopedKeyView::combineKeys(owned, suffix)};
 }
 
@@ -52,7 +52,7 @@ ScopedKey ScopedKey::addIndex(std::size_t const index) const {
     return this->view().addIndex(index);
 }
 
-ScopedKey ScopedKey::addMember(std::string_view const& member) const {
+ScopedKey ScopedKey::addMember(std::string_view const member) const {
     return this->view().addMember(member);
 }
 
@@ -70,7 +70,7 @@ std::string ScopedKeyView::buildKey() const {
     return std::string(key);
 }
 
-std::string ScopedKeyView::combineKeys(std::string_view const& key1, std::string_view key2) {
+std::string ScopedKeyView::combineKeys(std::string_view const key1, std::string_view key2) {
     std::string fullKey;
     fullKey.reserve(key1.size() + key2.size());
 
@@ -123,7 +123,7 @@ std::string ScopedKeyView::full(JsonScope const& scope) const {
     return combineKeys(allowedScope, key);
 }
 
-ScopedKey ScopedKeyView::operator+(std::string_view const& suffix) const {
+ScopedKey ScopedKeyView::operator+(std::string_view const suffix) const {
     return {*this, suffix};
 }
 
@@ -142,7 +142,7 @@ ScopedKey ScopedKeyView::addIndex(std::size_t const index) const {
     return *this + arrayIndex;
 }
 
-ScopedKey ScopedKeyView::addMember(std::string_view const& member) const {
+ScopedKey ScopedKeyView::addMember(std::string_view const member) const {
     return *this + member;
 }
 

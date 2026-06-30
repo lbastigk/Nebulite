@@ -34,7 +34,7 @@
 
 namespace {
 
-size_t find_pos_or_fallback(std::string_view const& str) {
+size_t find_pos_or_fallback(std::string_view const str) {
     auto const result = std::ranges::find_last_if(str, [](char const& c) {
         return c == Nebulite::Utility::IO::FileManagement::preferredSeparator();
     });
@@ -46,7 +46,7 @@ size_t find_pos_or_fallback(std::string_view const& str) {
     return static_cast<size_t>(std::ranges::distance(str.begin(), result.begin()));
 }
 
-void addRootCompletions(std::string_view const& input, std::vector<std::string>& completions, Nebulite::Interaction::Execution::Domain const& domain) {
+void addRootCompletions(std::string_view const input, std::vector<std::string>& completions, Nebulite::Interaction::Execution::Domain const& domain) {
     auto args = Nebulite::Utility::StringHandler::parseQuotedArguments(input).args;
     if (args.empty() || input.ends_with(' ')) {
         args = {""};
@@ -57,7 +57,7 @@ void addRootCompletions(std::string_view const& input, std::vector<std::string>&
     completions.insert(completions.end(), rootCompletions.begin(), rootCompletions.end());
 }
 
-void addFileCompletions(std::string_view const& input, std::vector<std::string>& completions) {
+void addFileCompletions(std::string_view const input, std::vector<std::string>& completions) {
     auto args = Nebulite::Utility::StringHandler::parseQuotedArguments(input).args;
     if (args.empty()) {
         args.emplace_back(""); // If there are no arguments, we want to complete the first one, which is empty
@@ -83,7 +83,7 @@ void addFileCompletions(std::string_view const& input, std::vector<std::string>&
     std::ranges::move(list, std::back_inserter(completions));
 }
 
-void addJsonCompletions(std::string_view const& input, std::vector<std::string>& completions, Nebulite::Data::JsonScope const& scope) {
+void addJsonCompletions(std::string_view const input, std::vector<std::string>& completions, Nebulite::Data::JsonScope const& scope) {
     auto const split = Nebulite::Utility::StringHandler::split(input, ' ');
     if (split.empty()) return;
     auto const& potentialKey = split.back();
@@ -107,7 +107,7 @@ struct ConsoleState {
     Nebulite::Interaction::ContextScope* ctxScope = nullptr;
 };
 
-bool checkCompletionsForCommonPrefix(std::string_view const& input, std::vector<std::string>& completions) {
+bool checkCompletionsForCommonPrefix(std::string_view const input, std::vector<std::string>& completions) {
     if (completions.empty()) {
         return false;
     }

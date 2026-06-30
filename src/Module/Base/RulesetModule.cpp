@@ -15,7 +15,7 @@
 //------------------------------------------
 namespace Nebulite::Module::Base {
 
-RulesetModule::RulesetModule(std::string_view const& moduleName)
+RulesetModule::RulesetModule(std::string_view const moduleName)
 : id{Data::MappedOrderedCacheList::generateUniqueId(moduleName)}
 {}
 

@@ -6,6 +6,7 @@
 
 // Standard library
 #include <cstdint>
+#include <optional>
 #include <string>
 #include <string_view>
 #include <utility>
@@ -27,7 +28,7 @@ struct SpecialAction {
         std::make_pair("deleteDocument", Type::deleteDocument)
     };
 
-    static std::optional<Type> get(std::string_view const& str){
+    static std::optional<Type> get(std::string_view const str){
         for (auto const& [name, action] : supported) {
             if (str == name) {
                 return action;
@@ -45,7 +46,7 @@ protected:
      * @param cap The capture for logging
      * @param ctxAndScope The context and scope for executing the parsed string
      */
-    static void applyRuleset(std::string_view const& ruleset, Utility::IO::Capture& cap, Graphics::RmlInterface::ContextAndScope& ctxAndScope);
+    static void applyRuleset(std::string_view ruleset, Utility::IO::Capture& cap, Graphics::RmlInterface::ContextAndScope& ctxAndScope);
 
     /**
      * @brief Applies a special action
@@ -53,7 +54,7 @@ protected:
      * @param cap The capture for logging
      * @param ctxAndScope The context and scope for executing the parsed string
      */
-    static void parseString(std::string_view const& stringToParse, Utility::IO::Capture& cap, Graphics::RmlInterface::ContextAndScope& ctxAndScope);
+    static void parseString(std::string_view stringToParse, Utility::IO::Capture& cap, Graphics::RmlInterface::ContextAndScope& ctxAndScope);
 
     /**
      * @brief Applies a special action
@@ -108,7 +109,7 @@ struct FullCommand {
 
 template <Data::OptionalFixedString trigger>
 class AttributeCommand {
-    static consteval FullCommand<trigger> addCommand(std::string_view const& specialization) {
+    static consteval FullCommand<trigger> addCommand(std::string_view specialization) {
         return {specialization};
     }
 public:

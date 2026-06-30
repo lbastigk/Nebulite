@@ -15,7 +15,7 @@ namespace Nebulite::Interaction::Execution {
 //------------------------------------------
 // Bind error messages
 
-void BindErrorMessage::invalidFunctionName(Utility::IO::Capture& c, std::string_view const& name) {
+void BindErrorMessage::invalidFunctionName(Utility::IO::Capture& c, std::string_view const name) {
     c.error.println("---------------------------------------------------------------");
     c.error.println("A Nebulite FuncTree binding failed!");
     c.error.println("Error: Function name '", name, "' is invalid.");
@@ -23,7 +23,7 @@ void BindErrorMessage::invalidFunctionName(Utility::IO::Capture& c, std::string_
     throw std::runtime_error("FuncTree binding failed due to invalid function name.");
 }
 
-void BindErrorMessage::missingCategory(Utility::IO::Capture& c, std::string_view const& tree, std::string_view const& category, std::string_view const& function) {
+void BindErrorMessage::missingCategory(Utility::IO::Capture& c, std::string_view const tree, std::string_view const category, std::string_view const function) {
     c.error.println("---------------------------------------------------------------");
     c.error.println("A Nebulite FuncTree binding failed!");
     c.error.println("Error: Category '", category, "' does not exist when trying to bind function '", function, "'.");
@@ -32,21 +32,21 @@ void BindErrorMessage::missingCategory(Utility::IO::Capture& c, std::string_view
     throw std::runtime_error("FuncTree binding failed due to missing category.");
 }
 
-void BindErrorMessage::functionShadowsCategory(Utility::IO::Capture& c, std::string_view const& function) {
+void BindErrorMessage::functionShadowsCategory(Utility::IO::Capture& c, std::string_view const function) {
     c.error.println("---------------------------------------------------------------");
     c.error.println("A Nebulite FuncTree binding failed!");
     c.error.println("Error: Cannot bind function '", function, "' because a category with the same name already exists.");
     throw std::runtime_error("FuncTree binding failed due to function shadowing category.");
 }
 
-void BindErrorMessage::functionShadowsVariable(Utility::IO::Capture& c, std::string_view const& function) {
+void BindErrorMessage::functionShadowsVariable(Utility::IO::Capture& c, std::string_view const function) {
     c.error.println("---------------------------------------------------------------");
     c.error.println("A Nebulite FuncTree binding failed!");
     c.error.println("Error: Cannot bind function '", function, "' because a variable with the same name already exists.");
     throw std::runtime_error("FuncTree binding failed due to function shadowing variable.");
 }
 
-void BindErrorMessage::functionExistsInInheritedTree(Utility::IO::Capture& c, std::string_view const& tree, std::string_view const& inheritedTree, std::string_view const& function) {
+void BindErrorMessage::functionExistsInInheritedTree(Utility::IO::Capture& c, std::string_view const tree, std::string_view const inheritedTree, std::string_view const function) {
     c.error.println("---------------------------------------------------------------");
     c.error.println("A Nebulite FuncTree binding failed!");
     c.error.println("Error: A bound Function already exists in the inherited FuncTree.");
@@ -58,21 +58,21 @@ void BindErrorMessage::functionExistsInInheritedTree(Utility::IO::Capture& c, st
     throw std::runtime_error("FuncTree binding failed due to function existing in inherited tree.");
 }
 
-void BindErrorMessage::parentCategoryDoesNotExist(Utility::IO::Capture& c, std::string_view const& name, std::string_view const& currentCategoryName) {
+void BindErrorMessage::parentCategoryDoesNotExist(Utility::IO::Capture& c, std::string_view const name, std::string_view const currentCategoryName) {
     c.error.println("---------------------------------------------------------------");
     c.error.println("A Nebulite FuncTree binding failed!");
     c.error.println("Error: Cannot create category '", name, "' because parent category '", currentCategoryName, "' does not exist.");
     throw std::runtime_error("FuncTree binding failed due to missing parent category.");
 }
 
-void BindErrorMessage::categoryExists(Utility::IO::Capture& c, std::string_view const& name) {
+void BindErrorMessage::categoryExists(Utility::IO::Capture& c, std::string_view const name) {
     c.error.println("---------------------------------------------------------------");
     c.error.println("A Nebulite FuncTree binding failed!");
     c.error.println("Error: Cannot create category '", name, "' because it already exists.");
     throw std::runtime_error("FuncTree binding failed due to category already existing.");
 }
 
-void BindErrorMessage::functionExists(Utility::IO::Capture& c, std::string_view const& tree, std::string_view const& function) {
+void BindErrorMessage::functionExists(Utility::IO::Capture& c, std::string_view const tree, std::string_view const function) {
     c.error.println("---------------------------------------------------------------");
     c.error.println("A Nebulite FuncTree binding failed!");
     c.error.println("Error: A bound Function already exists in this tree.");
@@ -83,7 +83,7 @@ void BindErrorMessage::functionExists(Utility::IO::Capture& c, std::string_view 
     throw std::runtime_error("FuncTree binding failed due to function already existing.");
 }
 
-void BindErrorMessage::variableHasWhitespace(Utility::IO::Capture& c, std::string_view const& tree, std::string_view const& variable) {
+void BindErrorMessage::variableHasWhitespace(Utility::IO::Capture& c, std::string_view const tree, std::string_view const variable) {
     c.error.println("---------------------------------------------------------------");
     c.error.println("A Nebulite FuncTree binding failed!");
     c.error.println("Error: Variable name '", variable, "' cannot contain whitespaces.");
@@ -91,7 +91,7 @@ void BindErrorMessage::variableHasWhitespace(Utility::IO::Capture& c, std::strin
     throw std::runtime_error("Failed to bind variable due to invalid name.");
 }
 
-void BindErrorMessage::variableExists(Utility::IO::Capture& c, std::string_view const& tree, std::string_view const& variable) {
+void BindErrorMessage::variableExists(Utility::IO::Capture& c, std::string_view const tree, std::string_view const variable) {
     c.error.println("---------------------------------------------------------------");
     c.error.println("A Nebulite FuncTree binding failed!");
     c.error.println("Error: Variable '", variable, "' is already bound.");
@@ -99,21 +99,21 @@ void BindErrorMessage::variableExists(Utility::IO::Capture& c, std::string_view 
     throw std::runtime_error("Failed to bind variable due to name conflict.");
 }
 
-void BindErrorMessage::commonFunctionHasWhitespace(Utility::IO::Capture& c, std::string_view const& function) {
+void BindErrorMessage::commonFunctionHasWhitespace(Utility::IO::Capture& c, std::string_view const function) {
     c.error.println("---------------------------------------------------------------");
     c.error.println("A Nebulite FuncTree binding failed!");
     c.error.println("Error: Common function name '", function, "' cannot contain whitespaces.");
     throw std::runtime_error("Failed to bind common function due to invalid name.");
 }
 
-void BindErrorMessage::categoryShadowsFunction(Utility::IO::Capture& c, std::string_view const& category) {
+void BindErrorMessage::categoryShadowsFunction(Utility::IO::Capture& c, std::string_view const category) {
     c.error.println("---------------------------------------------------------------");
     c.error.println("A Nebulite FuncTree binding failed!");
     c.error.println("Error: Cannot bind category '", category, "' because a function with the same name already exists.");
     throw std::runtime_error("FuncTree binding failed due to category shadowing function.");
 }
 
-void BindErrorMessage::categoryShadowsVariable(Utility::IO::Capture& c, std::string_view const& category) {
+void BindErrorMessage::categoryShadowsVariable(Utility::IO::Capture& c, std::string_view const category) {
     c.error.println("---------------------------------------------------------------");
     c.error.println("A Nebulite FuncTree binding failed!");
     c.error.println("Error: Cannot bind category '", category, "' because a variable with the same name already exists.");
@@ -123,12 +123,12 @@ void BindErrorMessage::categoryShadowsVariable(Utility::IO::Capture& c, std::str
 //------------------------------------------
 // Execution error messages
 
-void ExecutionErrorMessage::unknownVariable(Utility::IO::Capture& c, std::string_view const& tree, std::string_view const& variable) {
+void ExecutionErrorMessage::unknownVariable(Utility::IO::Capture& c, std::string_view const tree, std::string_view const variable) {
     c.error.println("Unknown variable '", variable, "' in FuncTree '", tree, "'!");
     c.error.println("Make sure the variable is bound to the FuncTree before using it.");
 }
 
-void ExecutionErrorMessage::functionNotFound(Utility::IO::Capture& c, std::string_view const& tree, std::string_view const& function, std::string_view const& arguments) {
+void ExecutionErrorMessage::functionNotFound(Utility::IO::Capture& c, std::string_view const tree, std::string_view const function, std::string_view const arguments) {
     c.error.println("Function '", function, "' not found in FuncTree '", tree, "', its inherited FuncTrees or their categories!");
     c.error.println("Arguments:");
     c.error.println(arguments);

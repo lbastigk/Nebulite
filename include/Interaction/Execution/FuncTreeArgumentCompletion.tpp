@@ -31,12 +31,12 @@
 namespace Nebulite::Interaction::Execution {
 
 template <typename ReturnValue, typename... AdditionalArgs>
-bool FuncTree<ReturnValue, AdditionalArgs...>::hasFunction(std::string_view const& nameOrCommand) {
+bool FuncTree<ReturnValue, AdditionalArgs...>::hasFunction(std::string_view const nameOrCommand) {
     // Make sure only the command name is used
     auto tokens = Utility::StringHandler::split(nameOrCommand, ' ');
 
     // Remove all tokens starting with "--" or empty tokens
-    std::erase_if(tokens, [](std::string_view const& token) {
+    std::erase_if(tokens, [](std::string_view const token) {
         return token.empty() || token.starts_with("--");
     });
 
@@ -81,7 +81,7 @@ ReturnValue FuncTree<ReturnValue, AdditionalArgs...>::help(std::span<std::string
 }
 
 template <typename ReturnValue, typename... AdditionalArgs>
-void FuncTree<ReturnValue, AdditionalArgs...>::specificHelp(std::string_view const& funcName) {
+void FuncTree<ReturnValue, AdditionalArgs...>::specificHelp(std::string_view funcName) {
     if (BindingSearchResult const searchResult = find(funcName); searchResult.has_value()) {
         std::visit([&]<typename T>(T& iterator) {
             using Decayed = std::decay_t<T>;
@@ -114,7 +114,7 @@ void FuncTree<ReturnValue, AdditionalArgs...>::generalHelp() {
     std::uint16_t constexpr namePaddingSize = 25;
 
     // Define a lambda to process each member
-    auto displayMember = [&](std::string_view const& name, std::string_view const& description) -> void {
+    auto displayMember = [&](std::string_view const name, std::string_view description) -> void {
         // Only show the first line of the description
         auto descriptionFirstLine = std::string(description);
         if (std::size_t const newlinePos = description.find('\n'); newlinePos != std::string::npos) {
@@ -161,7 +161,7 @@ void FuncTree<ReturnValue, AdditionalArgs...>::generalHelp() {
 
 template <typename ReturnValue, typename... AdditionalArgs>
 FuncTree<ReturnValue, AdditionalArgs...>::BindingSearchResult
-FuncTree<ReturnValue, AdditionalArgs...>::find(std::string_view const& name) {
+FuncTree<ReturnValue, AdditionalArgs...>::find(std::string_view name) {
     // Helper lambda to search in inherited trees
     auto searchInInherited = [&](auto mapMember, auto& iteratorMember) -> bool {
         for (auto const& inheritedTree : inheritedTrees) {
@@ -264,7 +264,7 @@ ReturnValue FuncTree<ReturnValue, AdditionalArgs...>::complete(std::span<std::st
 }
 
 template <typename ReturnValue, typename ... AdditionalArgs>
-FuncTree<ReturnValue, AdditionalArgs...>* FuncTree<ReturnValue, AdditionalArgs...>::traverseIntoCategory(std::string_view const& categoryName, FuncTree const* ftree) {
+FuncTree<ReturnValue, AdditionalArgs...>* FuncTree<ReturnValue, AdditionalArgs...>::traverseIntoCategory(std::string_view categoryName, FuncTree const* ftree) {
     // Check direct categories first
     if (auto catIt = ftree->bindingContainer.categories.find(categoryName); catIt != ftree->bindingContainer.categories.end()) {
         return catIt->second.tree.get();
@@ -283,7 +283,7 @@ FuncTree<ReturnValue, AdditionalArgs...>* FuncTree<ReturnValue, AdditionalArgs..
 }
 
 template <typename ReturnValue, typename ... AdditionalArgs>
-std::vector<std::string> FuncTree<ReturnValue, AdditionalArgs...>::findCompletionForFullCommand(std::string_view const& patternStr) {
+std::vector<std::string> FuncTree<ReturnValue, AdditionalArgs...>::findCompletionForFullCommand(std::string_view const patternStr) {
     auto [argsVec, _] = Utility::StringHandler::parseQuotedArguments(patternStr);
 
     // Traverse into categories based on args, get pattern to complete
@@ -298,7 +298,7 @@ std::vector<std::string> FuncTree<ReturnValue, AdditionalArgs...>::findCompletio
         args = args.subspan(0, args.size() - 1); // Remove pattern from argsSpan
 
         // Traverse into categories
-        std::ranges::for_each(args, [&](std::string_view const& arg) {
+        std::ranges::for_each(args, [&](std::string_view const arg) {
             if (innerTree) innerTree = traverseIntoCategory(arg, innerTree);
         });
         return {lastArg, innerTree}; // innerTree is potentially nullptr
@@ -338,7 +338,7 @@ std::vector<std::string> FuncTree<ReturnValue, AdditionalArgs...>::findCompletio
 }
 
 template <typename ReturnValue, typename ... AdditionalArgs>
-std::vector<std::string> FuncTree<ReturnValue, AdditionalArgs...>::findCompletions(std::string_view const& pattern) {
+std::vector<std::string> FuncTree<ReturnValue, AdditionalArgs...>::findCompletions(std::string_view pattern) {
     std::vector<std::string> completions;
     auto collect = [&](auto const& map, std::string_view const prefix = "") {
         for (auto const& [name, _] : map) {

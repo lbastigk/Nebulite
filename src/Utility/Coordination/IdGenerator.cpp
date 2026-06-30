@@ -43,14 +43,14 @@ std::function<size_t()> IdGenerator::atomicIncrementIdGenerator() {
     };
 }
 
-std::function<std::size_t(std::string_view const&)> IdGenerator::stringToRollingIdGenerator() {
+std::function<std::size_t(std::string_view)> IdGenerator::stringToRollingIdGenerator() {
     // Each call gets its own shared map and counter
     // Using a shared pointer is required so the lambda is copyable
     auto mutex = std::make_shared<std::mutex>();
     auto idMap = std::make_shared<absl::flat_hash_map<std::string, std::size_t>>();
     auto counter = std::make_shared<std::size_t>(1);
 
-    return [mutex, idMap, counter](std::string_view const& key) {
+    return [mutex, idMap, counter](std::string_view const key) {
         if (*counter > std::numeric_limits<std::size_t>::max() - 1) {
             // Throw an error or handle overflow as needed
             throw std::overflow_error("Nebulite::Utility::Coordination::IdGenerator::stringToRollingIdGenerator has exceeded maximum limit.");

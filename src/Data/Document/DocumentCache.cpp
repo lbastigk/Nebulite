@@ -17,25 +17,25 @@ namespace Nebulite::Data {
 // Basic value retrieval: type,size,serial, etc.
 
 double const* DocumentCache::getStableDoublePointer(std::string const& doc_key) const {
-    return getValueFromCache<double const*>(doc_key, &zero, [](ReadOnlyDoc const* docPtr, std::string_view const& key) {
+    return getValueFromCache<double const*>(doc_key, &zero, [](ReadOnlyDoc const* docPtr, std::string_view const key) {
         return docPtr->document.getStableDoublePointer(key);
     });
 }
 
 KeyType DocumentCache::memberType(std::string const& doc_key) const {
-    return getValueFromCache<KeyType>(doc_key, KeyType::null, [](ReadOnlyDoc const* docPtr, std::string_view const& key) {
+    return getValueFromCache<KeyType>(doc_key, KeyType::null, [](ReadOnlyDoc const* docPtr, std::string_view const key) {
         return docPtr->document.memberType(key);
     });
 }
 
 size_t DocumentCache::memberSize(std::string const& doc_key) const {
-    return getValueFromCache<size_t>(doc_key, 0, [](ReadOnlyDoc const* docPtr, std::string_view const& key) {
+    return getValueFromCache<size_t>(doc_key, 0, [](ReadOnlyDoc const* docPtr, std::string_view const key) {
         return docPtr->document.memberSize(key);
     });
 }
 
 std::string DocumentCache::serialize(std::string const& doc_key) const {
-    return getValueFromCache<std::string>(doc_key, "{}", [](ReadOnlyDoc const* docPtr, std::string_view const& key) {
+    return getValueFromCache<std::string>(doc_key, "{}", [](ReadOnlyDoc const* docPtr, std::string_view const key) {
         if (key.empty()) {
             return docPtr->serial;
         }
@@ -62,7 +62,7 @@ JSON DocumentCache::getSubDoc(std::string const& doc_key) const {
     return data;
 }
 
-std::string DocumentCache::getDocString(std::string_view const& link) const {
+std::string DocumentCache::getDocString(std::string_view const link) const {
     ReadOnlyDoc const* docPtr = readOnlyDocs.getDocument(link);
 
     // Check if the document exists in the cache

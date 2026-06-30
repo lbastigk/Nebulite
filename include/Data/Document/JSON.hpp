@@ -79,7 +79,7 @@ public:
         static auto constexpr linkKeySeparator = ':';
     };
 
-    static std::string_view findParentKey(std::string_view const& key);
+    static std::string_view findParentKey(std::string_view key);
 
 private:
     /**
@@ -170,6 +170,7 @@ private:
     /**
      * @brief The Caching system used for fast access to frequently used values.
      * @details Is mutable, as caching itself is used in get-calls, which are const.
+     * @note Optionals would be better, but this requires a large refactor
      */
     mutable absl::flat_hash_map<std::string, std::unique_ptr<CacheEntry>> cache;
 
@@ -194,7 +195,7 @@ private:
      * @return The converted value of type T, or nullopt if conversion fails or the value is not cacheable.
      */
     template <typename T>
-    std::optional<T> jsonValueToCache(std::string_view const& key, rapidjson::Value const* val) const ;
+    std::optional<T> jsonValueToCache(std::string_view key, rapidjson::Value const* val) const ;
 
     /**
      * @brief Synchronizes all children of a given key.
@@ -203,7 +204,7 @@ private:
      *          as well as "config[0]", "config[1].suboption", etc.
      *          with the rapidjson values.
      */
-    void synchronizeChildren(std::string_view const& parentKey) const ;
+    void synchronizeChildren(std::string_view parentKey) const ;
 
     /**
      * @brief Helper function to convert any type from cache into another type.
@@ -219,7 +220,7 @@ private:
      *          and up-to-date with the cached values.
      * @param key The key to flush. Finds the parent key and flushes all entries beginning with the parent key.
      */
-    void flush(std::string_view const& key) const ;
+    void flush(std::string_view key) const ;
 
     //------------------------------------------
     // Return Value Transformation system
@@ -231,7 +232,7 @@ private:
      * @return The modified value of type T, or none on failure.
      */
     template <typename T>
-    std::expected<T, SimpleValueRetrievalError> getWithTransformations(std::string_view const& key) const ;
+    std::expected<T, SimpleValueRetrievalError> getWithTransformations(std::string_view key) const ;
 
     /**
      * @brief Apply transformations found in the key string and retrieve the modified document.
@@ -240,7 +241,7 @@ private:
      * @return True on success, false on failure.
      * @note We use an external outDoc to avoid copying the entire document on return/on optional::getValue().
      */
-    bool getSubDocWithTransformations(std::string_view const& key, JSON& outDoc) const ;
+    bool getSubDocWithTransformations(std::string_view key, JSON& outDoc) const ;
 
     //------------------------------------------
     // Scope sharing system
@@ -252,7 +253,7 @@ private:
     //------------------------------------------
     // Cache management
 
-    void deleteCacheEntry(std::string_view const& key) const {
+    void deleteCacheEntry(std::string_view const key) const {
         if (auto const it = cache.find(key); it != cache.end()) {
             auto const& entry = it->second;
             deleteCacheEntry(entry);
@@ -311,7 +312,7 @@ public:
      *               If empty, shares the entire document.
      * @return A JsonScope reference representing a part of the JSON document.
      */
-    JsonScope& shareManagedScope(std::string_view const& prefix) ;
+    JsonScope& shareManagedScope(std::string_view prefix) ;
 
     JsonScope& getDummyScope();
 
@@ -332,12 +333,12 @@ public:
      * @param str The string to check.
      * @return true if the string is JSON or JSONC, false otherwise.
      */
-    static bool isJsonOrJsonc(std::string_view const& str);
+    static bool isJsonOrJsonc(std::string_view str);
 
     //------------------------------------------
     // Argument splitting for transformations
 
-    static std::vector<std::string_view> splitKeyWithTransformations(std::string_view const& key);
+    static std::vector<std::string_view> splitKeyWithTransformations(std::string_view key);
 
     //------------------------------------------
     // Set methods
@@ -350,7 +351,7 @@ public:
      * @param key The key of the value to set.
      * @param val The value to set.
      */
-    template <typename T> void set(std::string_view const& key, T const& val) ;
+    template <typename T> void set(std::string_view key, T const& val) ;
 
     /**
      * @brief Sets a variant value of supported simple values in the JSON document.
@@ -358,7 +359,7 @@ public:
      * @param key The key of the value to set.
      * @param val The variant value to set.
      */
-    void setVariant(std::string_view const& key, RjDirectAccess::simpleValue const& val);
+    void setVariant(std::string_view key, RjDirectAccess::simpleValue const& val);
 
     /**
      * @brief Sets a sub-document in the JSON document.
@@ -368,7 +369,7 @@ public:
      * @param child The sub-document to set.
      * @param childKey The key in the child document to set as the root of the sub-document. If empty, the entire child document is used.
      */
-    void setSubDoc(std::string_view const& key, JSON const& child, std::string_view const& childKey = "") ;
+    void setSubDoc(std::string_view key, JSON const& child, std::string_view childKey = "") ;
 
     /**
      * @brief Sets an empty array in the JSON document.
@@ -377,7 +378,7 @@ public:
      *          Note that the document is flushed before setting.
      * @param key The key of the array to set.
      */
-    void setEmptyArray(std::string_view const& key) ;
+    void setEmptyArray(std::string_view key) ;
 
     //------------------------------------------
     // Special sets for threadsafe maths operations
@@ -385,21 +386,21 @@ public:
     /**
      * @brief Performs an addition operation on a numeric value in the JSON document.
      */
-    void set_add(std::string_view const& key, double val);
+    void set_add(std::string_view key, double val);
 
-    void set_add(std::string_view const& key, std::int64_t val);
+    void set_add(std::string_view key, std::int64_t val);
 
     /**
      * @brief Performs a multiplication operation on a numeric value in the JSON document.
      */
-    void set_multiply(std::string_view const& key, double val);
+    void set_multiply(std::string_view key, double val);
 
-    void set_multiply(std::string_view const& key, std::int64_t val);
+    void set_multiply(std::string_view key, std::int64_t val);
 
     /**
      * @brief Performs a concatenation operation on a string value in the JSON document.
      */
-    void set_concat(std::string_view const& key, std::string_view const& valStr);
+    void set_concat(std::string_view key, std::string_view valStr);
 
     //------------------------------------------
     // Get methods
@@ -412,7 +413,7 @@ public:
      * @param key The key of the value to retrieve.
      * @return The value associated with the key, or an error.
      */
-    template <typename T> std::expected<T, SimpleValueRetrievalError> get(std::string_view const& key) const ;
+    template <typename T> std::expected<T, SimpleValueRetrievalError> get(std::string_view key) const ;
 
     /**
      * @brief Gets a variant value from the JSON document.
@@ -421,7 +422,7 @@ public:
      * @param key The key of the value to retrieve.
      * @return The variant value associated with the key, or an error if the retrieval failed.
      */
-    std::expected<RjDirectAccess::simpleValue, SimpleValueRetrievalError> getVariant(std::string_view const& key) const ;
+    std::expected<RjDirectAccess::simpleValue, SimpleValueRetrievalError> getVariant(std::string_view key) const ;
 
     /**
      * @brief Gets a sub-document from the JSON document.
@@ -433,13 +434,13 @@ public:
      * @param key The key of the sub-document to retrieve.
      * @return The sub-document associated with the key, or an empty JSON object if the key does not exist.
      */
-    JSON getSubDoc(std::string_view const& key) const ;
+    JSON getSubDoc(std::string_view key) const ;
 
     /**
      * @brief Gets a pointer to a double value pointer in the JSON document.
      * @return A pointer to the double value associated with the key.
      */
-    double* getStableDoublePointer(std::string_view const& key) const ;
+    double* getStableDoublePointer(std::string_view key) const ;
 
     /**
      * @brief Provides access to the internal mutex for thread-safe operations.
@@ -456,7 +457,7 @@ public:
      * @param key The key to check.
      * @return The type of the key.
      */
-    KeyType memberType(std::string_view const& key) const ;
+    KeyType memberType(std::string_view key) const ;
 
     /**
      * @brief Checks the type of the key in the JSON document and returns it as a string.
@@ -476,7 +477,7 @@ public:
      * @param key The key to check.
      * @return The type of the key as a string.
      */
-    std::string memberTypeString(std::string_view const& key) const ;
+    std::string memberTypeString(std::string_view key) const ;
 
     /**
      * @brief Checks the size of a key in the JSON document.
@@ -485,7 +486,7 @@ public:
      * @param key The key to check.
      * @return The size of the key.
      */
-    std::size_t memberSize(std::string_view const& key) const ;
+    std::size_t memberSize(std::string_view key) const ;
 
     /**
      * @brief Removes a key from the JSON document.
@@ -496,7 +497,7 @@ public:
      *          If you must remove multiple array elements, consider starting at the end of the array and moving backwards to avoid index shifting issues.
      * @param key The key to remove.
      */
-    void removeMember(std::string_view const& key);
+    void removeMember(std::string_view key);
 
     /**
      * @brief Moves a member from one key to another in the JSON document.
@@ -505,14 +506,14 @@ public:
      * @param toKey The key to move the member to.
      * @todo Optimize to a real move if possible.
      */
-    void moveMember(std::string_view const& fromKey, std::string_view const& toKey);
+    void moveMember(std::string_view fromKey, std::string_view toKey);
 
     /**
      * @brief Copies a member from one key to another in the JSON document, without deleting the original.
      * @param fromKey The key of the member to copy.
      * @param toKey The key to copy the member to.
      */
-    void copyMember(std::string_view const& fromKey, std::string_view const& toKey);
+    void copyMember(std::string_view fromKey, std::string_view toKey);
 
 
     /**
@@ -523,7 +524,7 @@ public:
      *         - For arrays, returns indices in bracket notation (e.g., "[0]", "[1]", ...).
      *         - For any other type, returns an empty vector.
      */
-    std::vector<std::string> listAvailableKeys(std::string_view const& key = "") const ;
+    std::vector<std::string> listAvailableKeys(std::string_view key = "") const ;
 
     //------------------------------------------
     // Serialize/Deserialize
@@ -534,7 +535,7 @@ public:
      * @param type Type of serialization. Defaults to pretty printing.
      * @return The serialized JSON string.
      */
-    std::string serialize(std::string_view const& key = "", RjDirectAccess::SerializationType type = RjDirectAccess::SerializationType::pretty) const ;
+    std::string serialize(std::string_view key = "", RjDirectAccess::SerializationType type = RjDirectAccess::SerializationType::pretty) const ;
 
     /**
      * @brief Deserializes a JSON string or loads from a file, with optional modifications.
@@ -546,7 +547,7 @@ public:
      *                     - `file.json|key1.key2[5]=100` - Legacy feature for setting a value
      *                     - `file.json|set-from-json key1.key2[5] otherFile.json:key` - Sets key1.key2[5] from the value of key in otherFile.json
      */
-    void deserialize(std::string_view const& serialOrLink);
+    void deserialize(std::string_view serialOrLink);
 
     //------------------------------------------
     // JSON - Rapidjson
@@ -556,7 +557,7 @@ public:
      * @param key The key of the value to retrieve
      * @return The value, or a SimpleValueRetrievalError if retrieval failed (e.g. key doesn't exist, type not supported, etc.)
      */
-    std::expected<RjDirectAccess::simpleValue, SimpleValueRetrievalError> getSimpleValueFromDocument(std::string_view const& key) const ;
+    std::expected<RjDirectAccess::simpleValue, SimpleValueRetrievalError> getSimpleValueFromDocument(std::string_view key) const ;
 };
 } // namespace Nebulite::Data
 #include "JSON.tpp" // NOLINT

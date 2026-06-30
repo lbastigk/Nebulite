@@ -15,6 +15,7 @@
 #include <cstddef>
 #include <functional>
 #include <limits>
+#include <ranges>
 #include <string>
 #include <string_view>
 
@@ -46,7 +47,7 @@ private:
 
     std::array<Utility::Coordination::SharedMutex, BucketCount> bucketMutex; // Mutexes for each character bucket
 
-    static std::size_t getIndex(std::string_view const& key) {
+    static std::size_t getIndex(std::string_view const key) {
         if (key.empty()) {
             return 0;
         }
@@ -63,7 +64,7 @@ public:
     StringMap(StringMap const&) = delete;
     StringMap& operator=(StringMap const&) = delete;
 
-    auto lock(std::string_view const& key) {
+    auto lock(std::string_view const key) {
         return Utility::Coordination::SharedLock(bucketMutex[getIndex(key)]);
     }
 
@@ -73,7 +74,7 @@ public:
      * @param key The string key to access.
      * @return Reference to the value associated with the key.
      */
-    V& operator[](std::string_view const& key) {
+    V& operator[](std::string_view const key) {
         return map[getIndex(key)][key];
     }
 
@@ -86,13 +87,16 @@ public:
         }
     }
 
+    // TODO: use templates instead: forall(F&& func) and forallValues(F&& func)
+
     void forall(std::function<void(V&)> const& func) {
         for (auto& bucket : map) {
-            for (auto& [_, value] : bucket) {
+            for (auto& value : bucket | std::views::values) {
                 func(value);
             }
         }
     }
+
     void forall(std::function<void(std::string const&, V&)> const& func) {
         for (auto& bucket : map) {
             for (auto& [key, value] : bucket) {

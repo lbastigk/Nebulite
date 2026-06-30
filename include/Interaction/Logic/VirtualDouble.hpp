@@ -55,7 +55,7 @@ public:
      *          It also removes any prefixes from the key to ensure consistent access.
      * @param k The key associated with this VirtualDouble.
      */
-    explicit VirtualDouble(std::string_view const& k);
+    explicit VirtualDouble(std::string_view k);
 
     /**
      * @brief Get the key associated with this VirtualDouble.

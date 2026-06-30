@@ -135,7 +135,7 @@ std::unique_lock<std::recursive_mutex> Domain::lockDocument() const {
     return domainScope.lock();
 }
 
-std::vector<std::string> Domain::stringToDeserializeTokens(std::string_view const& serialOrLinkWithCommands) {
+std::vector<std::string> Domain::stringToDeserializeTokens(std::string_view const serialOrLinkWithCommands) {
     //------------------------------------------
     // Split the input into tokens
     std::vector<std::string> tokens;

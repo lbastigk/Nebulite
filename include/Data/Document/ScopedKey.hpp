@@ -78,13 +78,13 @@ class ScopedKey {
     std::string owned;
 
     // Add operator for appending suffixes
-    [[nodiscard]] ScopedKey operator+(std::string_view const& suffix) const ;
+    [[nodiscard]] ScopedKey operator+(std::string_view suffix) const ;
 
 public:
     ScopedKey() = default;
 
     // construct from a view + suffix
-    ScopedKey(ScopedKeyView const& base, std::string_view const& suffix);
+    ScopedKey(ScopedKeyView const& base, std::string_view suffix);
 
     // direct construction
     explicit ScopedKey(std::optional<std::string_view> const& scope, std::string suffix);
@@ -117,7 +117,7 @@ public:
     /**
      * @brief Adds a specified member to the key
      */
-    [[nodiscard]] ScopedKey addMember(std::string_view const& member) const ;
+    [[nodiscard]] ScopedKey addMember(std::string_view member) const ;
 };
 
 //------------------------------------------
@@ -160,7 +160,7 @@ class ScopedKeyView {
     friend class ScopedKey;
 
     // Adding suffix to produce a new ScopedKeyView
-    [[nodiscard]] ScopedKey operator+(std::string_view const& suffix) const ;
+    [[nodiscard]] ScopedKey operator+(std::string_view suffix) const ;
 
 public:
     /**
@@ -172,10 +172,10 @@ public:
     [[nodiscard]] std::string full(JsonScope const& scope) const;
 
     // Any key shared publicly should be constructed with a required scope to avoid accidental misuse
-    constexpr ScopedKeyView(std::optional<std::string_view> const& requiredScope, std::string_view const& keyInScope) noexcept
+    constexpr ScopedKeyView(std::optional<std::string_view> const& requiredScope, std::string_view const keyInScope) noexcept
         : givenScope(requiredScope), key(keyInScope) {}
 
-    explicit constexpr ScopedKeyView(std::string_view const& keyInScope) : key(keyInScope) {}
+    explicit constexpr ScopedKeyView(std::string_view const keyInScope) : key(keyInScope) {}
 
     /**
      * @brief Create a ScopedKeyView from a compile-time fixed string with an optional scope prefix.
@@ -217,7 +217,7 @@ public:
      * @param key2 The second key to append to the first key
      * @return The combined key string
      */
-    static std::string combineKeys(std::string_view const& key1, std::string_view key2);
+    static std::string combineKeys(std::string_view key1, std::string_view key2);
 
     /**
      * @brief Adds a specified index to the key
@@ -227,7 +227,7 @@ public:
     /**
      * @brief Adds a specified member to the key
      */
-    [[nodiscard]] ScopedKey addMember(std::string_view const& member) const ;
+    [[nodiscard]] ScopedKey addMember(std::string_view member) const ;
 };
 } // namespace Nebulite::Data
 #endif // DATA_DOCUMENT_SCOPEDKEY_HPP

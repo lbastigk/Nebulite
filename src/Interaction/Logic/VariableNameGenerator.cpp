@@ -25,7 +25,7 @@ std::string VariableNameGenerator::numberToString(std::uint16_t number) {
     return result;
 }
 
-std::string VariableNameGenerator::getUniqueName(std::string_view const& baseName) {
+std::string VariableNameGenerator::getUniqueName(std::string_view const baseName) {
     // Check if the base name already exists in the map
     if (variableNameToIdMap.find(baseName) != variableNameToIdMap.end()) {
         return variableNameToIdMap[baseName];

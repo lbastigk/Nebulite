@@ -257,7 +257,7 @@ public:
     [[nodiscard]] std::string serialize(ScopedKeyView const& key) const ;
     [[nodiscard]] std::string serialize(ScopedKey const& key) const {return serialize(key.view());}
 
-    void deserialize(std::string_view const& serialOrLink);
+    void deserialize(std::string_view serialOrLink);
 
     //------------------------------------------
     // Transform

@@ -99,14 +99,14 @@ namespace {
  * @param key The key to check, without context!
  * @return true if the expression can be returned as a double pointer, false otherwise.
  */
-bool isAvailableAsDoublePtr(std::string_view const& key) {
+bool isAvailableAsDoublePtr(std::string_view const key) {
     return !key.contains('{')
         && !key.contains('}')
         && !key.contains('|');
 }
 } // anonymous namespace
 
-double* Expression::VirtualDoubleLists::registerVariable(ContextDeriver::TargetType const contextType, std::string_view const& key){
+double* Expression::VirtualDoubleLists::registerVariable(ContextDeriver::TargetType const contextType, std::string_view const key){
     auto const vd = std::make_shared<VirtualDouble>(key);
     switch (contextType) {
     case ContextDeriver::TargetType::self:
@@ -155,7 +155,7 @@ double* Expression::VirtualDoubleLists::registerVariable(ContextDeriver::TargetT
     return vd->ptr();
 }
 
-void Expression::registerVariable(std::string te_name, std::string_view const& key, ContextDeriver::TargetType const contextType) {
+void Expression::registerVariable(std::string te_name, std::string_view const key, ContextDeriver::TargetType const contextType) {
     // Check if variable exists in variables vector:
     bool const found = std::ranges::any_of(te_variables, [&](auto const& te_var) {
         return te_var.name == te_name;
@@ -181,11 +181,11 @@ void Expression::registerVariable(std::string te_name, std::string_view const& k
 
 namespace {
 
-bool isTypeVariable(std::string_view const& str) {
+bool isTypeVariable(std::string_view const str) {
     return str.starts_with('{') && str != "{object}";
 }
 
-std::vector<std::string> getTokens(std::string_view const& expr) {
+std::vector<std::string> getTokens(std::string_view const expr) {
     // First, we must split the expression into tokens
     // Split, keep delimiter(at start)
     // "abc$def$ghi" -> ["abc", "$def", "$ghi"]
@@ -242,7 +242,7 @@ std::vector<std::string> getTokens(std::string_view const& expr) {
             }
 
             // Add all subtokens to the actual list of tokens
-            std::ranges::for_each(subTokens, [&tokens](std::string_view const& entry) {
+            std::ranges::for_each(subTokens, [&tokens](std::string_view const entry) {
                 tokens.emplace_back(entry);
             });
         } else {
@@ -256,7 +256,7 @@ std::vector<std::string> getTokens(std::string_view const& expr) {
 
 } // namespace
 
-void Expression::parseIntoComponents(std::string_view const& expr) {
+void Expression::parseIntoComponents(std::string_view const expr) {
     for (auto const& token : getTokens(expr)) {
         if (!token.empty()) {
             if (token.starts_with('$')) {
@@ -279,7 +279,7 @@ void Expression::parseIntoComponents(std::string_view const& expr) {
     }
 }
 
-Expression::Formatter Expression::Formatter::readFormatter(std::string_view const& formatter) {
+Expression::Formatter Expression::Formatter::readFormatter(std::string_view const formatter) {
     // Check formatter. Integer cast should not include precision. Is ignored later on in casting but acceptable as input
     // Examples:
     // $i     : leadingZero = false , alignment = -1 , precision = -1
@@ -368,7 +368,7 @@ std::string Expression::Formatter::format(double const value) const {
     return token;
 }
 
-void Expression::parseTokenTypeEval(std::string_view const& token) {
+void Expression::parseTokenTypeEval(std::string_view const token) {
     // $[leading zero][alignment][.][precision]<type:f,i>
     // - bool leading zero   : on/off
     // - int alignment       : <0 means no formatting
@@ -412,7 +412,7 @@ void Expression::parseTokenTypeEval(std::string_view const& token) {
     components.push_back(currentComponent);
 }
 
-void Expression::parseTokenTypeVariable(std::string_view const& token) {
+void Expression::parseTokenTypeVariable(std::string_view const token) {
     auto const currentComponent = std::make_shared<Component>();
 
     // 1.) remove {}
@@ -439,7 +439,7 @@ void Expression::parseTokenTypeVariable(std::string_view const& token) {
     components.push_back(currentComponent);
 }
 
-void Expression::parseTokenTypeText(std::string_view const& token) {
+void Expression::parseTokenTypeText(std::string_view const token) {
     auto const currentComponent = std::make_shared<Component>();
     // Determine context
     currentComponent->type = Component::Type::text;
@@ -484,7 +484,7 @@ void Expression::printCompileError(std::shared_ptr<Component> const& component, 
 //------------------------------------------
 // Public:
 
-Expression::Expression(std::string_view const& expr){
+Expression::Expression(std::string_view const expr){
     evaluationInfo = {
         .returnableAsDouble = false,
         .returnableAsString = false,
@@ -494,7 +494,7 @@ Expression::Expression(std::string_view const& expr){
     parse(expr);
 }
 
-void Expression::parse(std::string_view const& expr) {
+void Expression::parse(std::string_view const expr) {
     reset();
     fullExpression = expr;
     parseIntoComponents(fullExpression);
@@ -513,22 +513,22 @@ void Expression::parse(std::string_view const& expr) {
 //------------------------------------------
 // Static one-time evaluation
 
-std::string Expression::eval(std::string_view const& input, ContextScope const& context) {
+std::string Expression::eval(std::string_view const input, ContextScope const& context) {
     Expression const expr(input);
     return expr.eval(context);
 }
 
-double Expression::evalAsDouble(std::string_view const& input, ContextScope const& context) {
+double Expression::evalAsDouble(std::string_view const input, ContextScope const& context) {
     Expression const expr(input);
     return expr.evalAsDouble(context);
 }
 
-bool Expression::evalAsBool(std::string_view const& input, ContextScope const& context) {
+bool Expression::evalAsBool(std::string_view const input, ContextScope const& context) {
     Expression const expr(input);
     return expr.evalAsBool(context);
 }
 
-Data::JSON Expression::evalAsJson(std::string_view const& input, ContextScope const& context) {
+Data::JSON Expression::evalAsJson(std::string_view const input, ContextScope const& context) {
     Expression const expr(input);
     return expr.evalAsJson(context);
 }

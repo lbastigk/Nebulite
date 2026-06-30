@@ -24,7 +24,7 @@ namespace Nebulite::Interaction {
 
 static_assert(AttributeCommand<"">::specializationCount == 3, "If you added a new Rml attribute command specialization, make sure to add it to the Actions struct as well!");
 
-void ActionsImpl::applyRuleset(std::string_view const& ruleset, Utility::IO::Capture& cap, Graphics::RmlInterface::ContextAndScope& ctxAndScope) {
+void ActionsImpl::applyRuleset(std::string_view const ruleset, Utility::IO::Capture& cap, Graphics::RmlInterface::ContextAndScope& ctxAndScope) {
     auto& [ctx, scope] = ctxAndScope;
     if (auto const rs = Rules::Construction::RulesetCompiler::parseSingle(ruleset, ctx.self); rs) {
         rs.value()->apply(ctx, scope);
@@ -34,7 +34,7 @@ void ActionsImpl::applyRuleset(std::string_view const& ruleset, Utility::IO::Cap
     }
 }
 
-void ActionsImpl::parseString(std::string_view const& stringToParse, Utility::IO::Capture& cap, Graphics::RmlInterface::ContextAndScope& ctxAndScope) {
+void ActionsImpl::parseString(std::string_view const stringToParse, Utility::IO::Capture& cap, Graphics::RmlInterface::ContextAndScope& ctxAndScope) {
     // TODO use a taskqueue instead? Some refactoring of taskQueue for accepting a long string with ';' is required
     auto& [ctx, scope] = ctxAndScope;
     for (auto const& task : Utility::StringHandler::split(stringToParse, ';')) {

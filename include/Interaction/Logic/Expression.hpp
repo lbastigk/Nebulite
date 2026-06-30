@@ -56,7 +56,7 @@ public:
      * @brief Constructs and parses a given expression string with a constant reference to the document cache and the self and global JSON objects.
      * @param expr The expression string to parse.
      */
-    explicit Expression(std::string_view const& expr);
+    explicit Expression(std::string_view expr);
 
     ~Expression();
 
@@ -131,13 +131,13 @@ public:
     //------------------------------------------
     // Static functions for one-time evaluation
 
-    static std::string eval(std::string_view const& input, ContextScope const& context);
+    static std::string eval(std::string_view input, ContextScope const& context);
 
-    static double evalAsDouble(std::string_view const& input, ContextScope const& context);
+    static double evalAsDouble(std::string_view input, ContextScope const& context);
 
-    static bool evalAsBool(std::string_view const& input, ContextScope const& context);
+    static bool evalAsBool(std::string_view input, ContextScope const& context);
 
-    static Data::JSON evalAsJson(std::string_view const& input, ContextScope const& context);
+    static Data::JSON evalAsJson(std::string_view input, ContextScope const& context);
 
     //------------------------------------------
     // Other helpers
@@ -188,7 +188,7 @@ public:
          * @param formatter The formatter string to parse.
          * @return a formatter, or nullopt
          */
-        static Formatter readFormatter(std::string_view const& formatter);
+        static Formatter readFormatter(std::string_view formatter);
 
         [[nodiscard]] std::string format(double value) const ;
     };
@@ -204,7 +204,7 @@ private:
      * @brief Parses a given expression string with a constant reference to the document cache and the self and global JSON objects.
      * @param expr The expression string to parse.
      */
-    void parse(std::string_view const& expr);
+    void parse(std::string_view expr);
 
     /**
      * @brief Stores pointers to the first evaluation context's scopes for optimization.
@@ -373,7 +373,7 @@ private:
          * @param key The key to register
          * @return Pointer to the registered variable
          */
-        double* registerVariable(ContextDeriver::TargetType contextType, std::string_view const& key);
+        double* registerVariable(ContextDeriver::TargetType contextType, std::string_view key);
     } virtualDoubles;
 
     /**
@@ -451,31 +451,31 @@ private:
      * @param key The key in the JSON document that the variable refers to.
      * @param contextType The context from which the variable is being registered.
      */
-    void registerVariable(std::string te_name, std::string_view const& key, ContextDeriver::TargetType contextType);
+    void registerVariable(std::string te_name, std::string_view key, ContextDeriver::TargetType contextType);
 
     /**
      * @brief Parses the given expression into a series of components.
      * @param expr The expression string to parse.
      */
-    void parseIntoComponents(std::string_view const& expr);
+    void parseIntoComponents(std::string_view expr);
 
     /**
      * @brief Used to parse a string token of type "eval" into a component.
      * @param token The token to parse.
      */
-    void parseTokenTypeEval(std::string_view const& token);
+    void parseTokenTypeEval(std::string_view token);
 
     /**
      * @brief Used to parse a string token of type "variable" into a component.
      * @param token The token to parse
      */
-    void parseTokenTypeVariable(std::string_view const& token);
+    void parseTokenTypeVariable(std::string_view token);
 
     /**
      * @brief Used to parse a string token of type "text" into a component.
      * @param token The token to parse.
      */
-    void parseTokenTypeText(std::string_view const& token);
+    void parseTokenTypeText(std::string_view token);
 
     /**
      * @brief Prints a compilation error message to cerr, includes tips for fixing the error.

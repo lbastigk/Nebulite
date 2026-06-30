@@ -43,7 +43,7 @@ public:
     // Command argument span types
     struct CmdArgs {
         using Span = std::span<std::string_view const>;
-        using SpanConstRef = std::span<std::string_view const> const&;
+        using SpanConstRef = std::span<std::string_view const> const&; // TODO: might be unnecessary
     };
 
     // Supported function signatures
@@ -117,7 +117,7 @@ public:
      * @param valFunctionNotFound Value to return if the parsed function was not found
      * @param captureInstance Capture instance for logging
      */
-    FuncTree(std::string_view const& treeName, ReturnValue const& valDefault, ReturnValue const& valFunctionNotFound, Utility::IO::Capture& captureInstance);
+    FuncTree(std::string_view treeName, ReturnValue const& valDefault, ReturnValue const& valFunctionNotFound, Utility::IO::Capture& captureInstance);
 
     /**
      * @brief Inherits functions from another Tree.
@@ -167,27 +167,27 @@ public:
      * @param name Name of the function in the command tree
      * @param helpDescription Help description for the function. First line is shown in the general help, full description in detailed help.
      */
-    void bindFunction(WrappedFunction const& func, std::string_view const& name, std::string_view const& helpDescription);
+    void bindFunction(WrappedFunction const& func, std::string_view name, std::string_view helpDescription);
 
     template <typename R, typename C, typename... Ps>
     void bindFunction(
         R (C::*functionPtr)(Ps...),
-        std::string_view const& name,
-        std::string_view const& helpDescription
+        std::string_view name,
+        std::string_view helpDescription
     );
 
     template <typename R, typename C, typename... Ps>
     void bindFunction(
         R (C::*functionPtr)(Ps...) const,
-        std::string_view const& name,
-        std::string_view const& helpDescription
+        std::string_view name,
+        std::string_view helpDescription
     );
 
     template <typename Func>
     void bindFunction(
         Func functionPtr,
-        std::string_view const& name,
-        std::string_view const& helpDescription
+        std::string_view name,
+        std::string_view helpDescription
     );
 
     /**
@@ -197,7 +197,7 @@ public:
      * @param helpDescription Description of the category, shown in the help command. First line is shown in the general help, full description in detailed help
      * @throws std::runtime_error if the category already exists or if category hierarchy is invalid.
      */
-    void bindCategory(std::string_view const& name, std::string_view const& helpDescription);
+    void bindCategory(std::string_view name, std::string_view helpDescription);
 
     /**
      * @brief Binds a variable to the command tree.
@@ -207,7 +207,7 @@ public:
      * @param name Name of the variable in the command tree
      * @param helpDescription Help description for the variable. First line is shown in the general help, full description in detailed help.
      */
-    void bindVariable(bool* varPtr, std::string_view const& name, std::string_view const& helpDescription);
+    void bindVariable(bool* varPtr, std::string_view name, std::string_view helpDescription);
 
 
     //------------------------------------------
@@ -218,7 +218,7 @@ public:
      * @param nameOrCommand Name of the function or full command string,
      *                      where arg[1] is the command and arg[0] is the caller
      */
-    bool hasFunction(std::string_view const& nameOrCommand);
+    bool hasFunction(std::string_view nameOrCommand);
 
     //------------------------------------------
     // Complete
@@ -228,7 +228,7 @@ public:
      * @param patternStr The pattern to match for completions, full command
      * @return A vector of possible completions
      */
-    std::vector<std::string> findCompletionForFullCommand(std::string_view const& patternStr);
+    std::vector<std::string> findCompletionForFullCommand(std::string_view patternStr);
 
 private:
     // Name of the tree, used for help and output
@@ -300,7 +300,7 @@ private:
      * @param addArgs Additional arguments to pass to the function.
      * @return The return value of the function.
      */
-    ReturnValue executeFunction(std::string_view const& name, std::span<std::string_view const> const& args, AdditionalArgs... addArgs);
+    ReturnValue executeFunction(std::string_view name, std::span<std::string_view const> const& args, AdditionalArgs... addArgs);
 
     /**
      * @brief Displays help information to all bound functions. Automatically bound to any FuncTree on construction.
@@ -335,7 +335,7 @@ private:
     /**
      * @brief Displays detailed help for a specific function, category, or variable.
      */
-    void specificHelp(std::string_view const& funcName);
+    void specificHelp(std::string_view funcName);
 
     using categoryIterator = decltype(bindingContainer.categories)::iterator;
     using functionIterator = decltype(bindingContainer.functions)::iterator;
@@ -359,7 +359,7 @@ private:
      * @param name Name of the function/category/variable to find
      * @return SearchResult struct containing found flags
      */
-    BindingSearchResult find(std::string_view const& name);
+    BindingSearchResult find(std::string_view name);
 
     /**
      * @brief Displays general help for all functions, categories, and variables.
@@ -369,7 +369,7 @@ private:
     //------------------------------------------
     // Argument processing helper
 
-    void processVariable(std::string_view const& varName);
+    void processVariable(std::string_view varName);
 
     /**
      * @brief Processes variable arguments at the start of the argument list.
@@ -382,7 +382,7 @@ private:
      * @param funcName Name of the function to find
      * @return Pointer to the FuncTree where the function was found, or nullptr if not found.
      */
-    std::shared_ptr<FuncTree> findInInheritedTrees(std::string_view const& funcName);
+    std::shared_ptr<FuncTree> findInInheritedTrees(std::string_view funcName);
 
     //------------------------------------------
     // Completion
@@ -400,7 +400,7 @@ private:
      * @param pattern The pattern to match for completions
      * @return A vector of possible completions, sorted
      */
-    std::vector<std::string> findCompletions(std::string_view const& pattern);
+    std::vector<std::string> findCompletions(std::string_view pattern);
 
     /**
      * @brief Traverses into a category based on the provided name.
@@ -408,7 +408,7 @@ private:
      * @param ftree Pointer to the current FuncTree
      * @return Pointer to the FuncTree of the category, or nullptr if not found.
      */
-    FuncTree* traverseIntoCategory(std::string_view const& categoryName, FuncTree const* ftree);
+    FuncTree* traverseIntoCategory(std::string_view categoryName, FuncTree const* ftree);
 };
 } // namespace Nebulite::Interaction::Execution
 

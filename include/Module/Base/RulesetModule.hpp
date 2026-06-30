@@ -23,7 +23,7 @@ class RulesetModule {
 public:
     using RulesetType = Interaction::Rules::StaticRulesetMap::StaticRulesetWithMetadata::Type;
 
-    explicit RulesetModule(std::string_view const& moduleName);
+    explicit RulesetModule(std::string_view moduleName);
 
     /**
      * @brief Registers all static rulesets from this module into the given container
@@ -50,7 +50,7 @@ protected:
      * @param str The string_view to check
      * @return true if str is a valid topic name, false otherwise
      */
-    static consteval bool isValidTopic(std::string_view const& str) {
+    static consteval bool isValidTopic(std::string_view const str) {
         return str.starts_with("::") && !str.contains(' ');
     }
 
@@ -70,7 +70,7 @@ protected:
     void bind(
         RulesetType const& type,
         void (DerivedRulesetModule::*func)(Interaction::Context const&, double**, double**) const,
-        std::string_view const& description,
+        std::string_view description,
         Interaction::Rules::BaseListFunction const& baseListFunc
     ){
         assert(func != nullptr);

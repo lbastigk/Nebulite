@@ -33,7 +33,7 @@ public:
      * @return True if the string starts with the given sequence, false otherwise
      */
     template <typename... Args>
-    static bool startsWithSequence(std::string_view const& str, Args... args) {
+    static bool startsWithSequence(std::string_view str, Args... args) {
         static_assert(sizeof...(Args) > 0, "At least one sequence argument is required for startsWithSequence");
         auto impl = [&]<typename First, typename... Rest>(auto&& self, std::string_view remaining, First first, Rest... rest) -> bool {
             if (!remaining.starts_with(first)) {
@@ -66,7 +66,7 @@ public:
      * @param replacer The replacement substring.
      * @return The modified string with all occurrences replaced.
      */
-    static std::string replaceAll(std::string target, std::string_view const& toReplace, std::string_view const& replacer);
+    static std::string replaceAll(std::string target, std::string_view toReplace, std::string_view replacer);
 
     // [VALIDATE]
 
@@ -76,14 +76,14 @@ public:
      * @param chars The set of characters to look for.
      * @return true if any character from chars is found in str, false otherwise.
      */
-    static bool containsAnyOf(std::string_view const& str, std::string_view const& chars);
+    static bool containsAnyOf(std::string_view str, std::string_view chars);
 
     /**
      * @brief Checks if a string represents a valid number.
      * @param str The input string to check.
      * @return true if the string is a valid number, false otherwise.
      */
-    static bool isNumber(std::string_view const& str);
+    static bool isNumber(std::string_view str);
 
     // [STRIP]
 
@@ -135,7 +135,7 @@ public:
      * @param cmd The command string to parse.
      * @todo Returning a vector of string_views should be possible. Large refactor might be necessary
      */
-    static ParseResult parseQuotedArguments(std::string_view const& cmd);
+    static ParseResult parseQuotedArguments(std::string_view cmd);
 
     /**
      * @brief Recombines a span of string_views into a single string with spaces.
@@ -155,7 +155,7 @@ public:
      * @param keepDelimiter Whether to keep the delimiter in the tokens. (Optional, default: false)
      * @return A vector of tokens extracted from the input string.
      */
-    static std::vector<std::string_view> split(std::string_view const& input, char delimiter, bool keepDelimiter = false);
+    static std::vector<std::string_view> split(std::string_view input, char delimiter, bool keepDelimiter = false);
 
     /**
      * @brief Splits a string at a given delimiter, only if the depth of braces, parentheses and brackets is 0.
@@ -163,7 +163,7 @@ public:
      * @param delimiter The delimiter to split on
      * @return A vector of strings split on the same depth of parentheses.
      */
-    static std::vector<std::string_view> splitOnSameDepth(std::string_view const& input, char delimiter);
+    static std::vector<std::string_view> splitOnSameDepth(std::string_view input, char delimiter);
 
     /**
      * @brief Type of delimiter:
@@ -197,7 +197,7 @@ public:
      * @param delimiter The delimiter to split on
      * @return A vector of strings split on the same depth of the given delimiter
      */
-    static std::vector<std::string_view> splitOnSameDepthOf(std::string_view const& input, Delimiter delimiter);
+    static std::vector<std::string_view> splitOnSameDepthOf(std::string_view input, Delimiter delimiter);
 };
 }   // namespace Nebulite::Utility
 #endif // UTILITY_STRINGHANDLER_HPP

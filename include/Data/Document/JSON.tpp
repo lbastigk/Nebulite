@@ -37,7 +37,7 @@
 namespace Nebulite::Data {
 
 template<typename T>
-void JSON::set(std::string_view const& key, T const& val){
+void JSON::set(std::string_view const key, T const& val){
     // Check if T is an optional/expected type, and if so, throw an assertion error
     static_assert(!Utility::TypeCheck::is_std_optional_v<T>,
         "Setting optional types directly is not allowed. "
@@ -60,7 +60,7 @@ void JSON::set(std::string_view const& key, T const& val){
 }
 
 template<typename T>
-std::expected<T, SimpleValueRetrievalError> JSON::get(std::string_view const& key) const {
+std::expected<T, SimpleValueRetrievalError> JSON::get(std::string_view const key) const {
     std::scoped_lock const lockGuard(mtx);
 
     // Check if a transformation is present
@@ -84,7 +84,7 @@ std::expected<T, SimpleValueRetrievalError> JSON::get(std::string_view const& ke
 }
 
 template<typename T>
-std::expected<T, SimpleValueRetrievalError> JSON::getWithTransformations(std::string_view const& key) const {
+std::expected<T, SimpleValueRetrievalError> JSON::getWithTransformations(std::string_view const key) const {
     auto args = splitKeyWithTransformations(key);
 
     // In order to minimize the re-initialization overhead of an entire JSON document,
@@ -112,7 +112,7 @@ std::expected<T, SimpleValueRetrievalError> JSON::getWithTransformations(std::st
 }
 
 template<typename T>
-std::optional<T> JSON::jsonValueToCache(std::string_view const& key, rapidjson::Value const* val) const {
+std::optional<T> JSON::jsonValueToCache(std::string_view const key, rapidjson::Value const* val) const {
     // Create a new cache entry
     auto new_entry = std::make_unique<CacheEntry>(*cacheLine, cacheline_index);
 

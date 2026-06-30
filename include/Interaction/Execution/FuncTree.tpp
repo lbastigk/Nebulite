@@ -45,7 +45,7 @@ namespace Nebulite::Interaction::Execution {
 // Constructor implementation
 
 template <typename ReturnValue, typename... AdditionalArgs>
-FuncTree<ReturnValue, AdditionalArgs...>::FuncTree(std::string_view const& treeName, ReturnValue const& valDefault, ReturnValue const& valFunctionNotFound, Utility::IO::Capture& captureInstance)
+FuncTree<ReturnValue, AdditionalArgs...>::FuncTree(std::string_view const treeName, ReturnValue const& valDefault, ReturnValue const& valFunctionNotFound, Utility::IO::Capture& captureInstance)
     : TreeName(treeName)
     , capture(captureInstance)
     , standardReturn{valDefault, valFunctionNotFound}
@@ -85,8 +85,8 @@ template <typename ReturnValue, typename... AdditionalArgs>
 template <typename R, typename C, typename... Ps>
 void FuncTree<ReturnValue, AdditionalArgs...>::bindFunction(
     R (C::*functionPtr)(Ps...),
-    std::string_view const& name,
-    std::string_view const& helpDescription
+    std::string_view name,
+    std::string_view helpDescription
 ) {
     auto fp = makeFunctionPtr(functionPtr);
     auto fp_identity = FunctionIdentity(static_cast<const C*>(this), functionPtr);
@@ -98,8 +98,8 @@ template <typename ReturnValue, typename... AdditionalArgs>
 template <typename R, typename C, typename... Ps>
 void FuncTree<ReturnValue, AdditionalArgs...>::bindFunction(
     R (C::*functionPtr)(Ps...) const,
-    std::string_view const& name,
-    std::string_view const& helpDescription
+    std::string_view name,
+    std::string_view helpDescription
 ) {
     auto fp = makeFunctionPtr(functionPtr);
     auto fp_identity = FunctionIdentity(static_cast<const C*>(this), functionPtr);
@@ -111,8 +111,8 @@ template <typename ReturnValue, typename... AdditionalArgs>
 template <typename Func>
 void FuncTree<ReturnValue, AdditionalArgs...>::bindFunction(
     Func functionPtr,
-    std::string_view const& name,
-    std::string_view const& helpDescription
+    std::string_view name,
+    std::string_view helpDescription
 ) {
     auto fp = makeFunctionPtr(functionPtr);
     auto fp_identity = Utility::FunctionIdentity(functionPtr);
@@ -120,7 +120,7 @@ void FuncTree<ReturnValue, AdditionalArgs...>::bindFunction(
 }
 
 template <typename ReturnValue, typename... AdditionalArgs>
-void FuncTree<ReturnValue, AdditionalArgs...>::bindFunction(WrappedFunction const& func, std::string_view const& name, std::string_view const& helpDescription) {
+void FuncTree<ReturnValue, AdditionalArgs...>::bindFunction(WrappedFunction const& func, std::string_view name, std::string_view const helpDescription) {
     // If the name has a whitespace, the function has to be bound to a category hierarchically
     if (name.contains(' ')) {
         auto const pathStructure = Utility::StringHandler::split(name, ' ');
@@ -191,7 +191,7 @@ void FuncTree<ReturnValue, AdditionalArgs...>::bindFunction(WrappedFunction cons
 }
 
 template <typename ReturnValue, typename... AdditionalArgs>
-void FuncTree<ReturnValue, AdditionalArgs...>::bindCategory(std::string_view const& name, std::string_view const& helpDescription) {
+void FuncTree<ReturnValue, AdditionalArgs...>::bindCategory(std::string_view const name, std::string_view const helpDescription) {
     // Check for shadowing issues
     if (BindingSearchResult const searchResult = find(std::string(name)); searchResult.has_value()) {
         std::visit([&]<typename T>(T&&) {
@@ -235,7 +235,7 @@ void FuncTree<ReturnValue, AdditionalArgs...>::bindCategory(std::string_view con
 }
 
 template <typename ReturnValue, typename... AdditionalArgs>
-void FuncTree<ReturnValue, AdditionalArgs...>::bindVariable(bool* varPtr, std::string_view const& name, std::string_view const& helpDescription) {
+void FuncTree<ReturnValue, AdditionalArgs...>::bindVariable(bool* varPtr, std::string_view name, std::string_view const helpDescription) {
     // Make sure there are no whitespaces in the variable name
     if (name.contains(' ')) {
         BindErrorMessage::variableHasWhitespace(capture, TreeName, name);
@@ -528,7 +528,7 @@ ReturnValue FuncTree<ReturnValue, AdditionalArgs...>::parse(std::span<std::strin
 }
 
 template <typename ReturnValue, typename... AdditionalArgs>
-ReturnValue FuncTree<ReturnValue, AdditionalArgs...>::executeFunction(std::string_view const& name, std::span<std::string_view const> const& args, AdditionalArgs... addArgs) {
+ReturnValue FuncTree<ReturnValue, AdditionalArgs...>::executeFunction(std::string_view const name, std::span<std::string_view const> const& args, AdditionalArgs... addArgs) {
     // Call preParse function if set
     if (preParse != nullptr) {
         if (ReturnValue err = preParse(); !Math::isEqual(err, standardReturn.valDefault)) {
@@ -558,7 +558,7 @@ ReturnValue FuncTree<ReturnValue, AdditionalArgs...>::executeFunction(std::strin
                     args.begin(),
                     args.end(),
                     std::back_inserter(argsOwned),
-                    [](std::string_view const& str) { return std::string(str); }
+                    [](std::string_view const str) { return std::string(str); }
                 );
                 std::transform(
                     argsOwned.begin(),
@@ -606,7 +606,7 @@ ReturnValue FuncTree<ReturnValue, AdditionalArgs...>::executeFunction(std::strin
 // Argument processing helper
 
 template <typename ReturnValue, typename... AdditionalArgs>
-void FuncTree<ReturnValue, AdditionalArgs...>::processVariable(std::string_view const& varName) {
+void FuncTree<ReturnValue, AdditionalArgs...>::processVariable(std::string_view varName) {
     bool found = false;
     auto& vars = bindingContainer.variables;
     if (auto const& varIt = vars.find(varName); varIt != vars.end()) {
@@ -646,7 +646,7 @@ void FuncTree<ReturnValue, AdditionalArgs...>::processVariableArguments(std::spa
 }
 
 template <typename ReturnValue, typename... AdditionalArgs>
-std::shared_ptr<FuncTree<ReturnValue, AdditionalArgs...>> FuncTree<ReturnValue, AdditionalArgs...>::findInInheritedTrees(std::string_view const& funcName) {
+std::shared_ptr<FuncTree<ReturnValue, AdditionalArgs...>> FuncTree<ReturnValue, AdditionalArgs...>::findInInheritedTrees(std::string_view funcName) {
     // Prerequisite if an inherited FuncTree is linked
     if (!inheritedTrees.empty() && !hasFunction(funcName)) {
         // Check if the function is in an inherited tree

@@ -27,14 +27,14 @@ void errorPrintln(Args&&... args) {
 //------------------------------------------
 namespace Nebulite::Utility::IO {
 
-std::string FileManagement::CombinePaths(std::string_view const& baseDir, std::string_view const& innerDir) {
+std::string FileManagement::CombinePaths(std::string_view const baseDir, std::string_view const innerDir) {
     std::filesystem::path const basePath(baseDir);
     std::filesystem::path const innerPath(innerDir);
     std::filesystem::path const fullPath = basePath / innerPath;
     return fullPath.string();
 }
 
-std::string FileManagement::LoadFile(std::string_view const& link) {
+std::string FileManagement::LoadFile(std::string_view const link) {
     std::filesystem::path const filepath(link);
 
     if (!exists(filepath)) {
@@ -69,7 +69,7 @@ std::string FileManagement::LoadFile(std::string_view const& link) {
     return content;
 }
 
-bool FileManagement::WriteFile(std::string_view const& filename, std::string_view const& text) {
+bool FileManagement::WriteFile(std::string_view const filename, std::string_view const text) {
     std::filesystem::path const filepath(filename); // Modern: handles encoding and platform separators
     std::ofstream file(filepath, std::ios::out);
     if (!file.is_open()) {
@@ -92,15 +92,15 @@ std::string FileManagement::currentDir() {
     }
 }
 
-bool FileManagement::fileExists(std::string_view const& path) {
+bool FileManagement::fileExists(std::string_view const path) {
     return std::filesystem::exists(path);
 }
 
-bool FileManagement::isDirectory(std::string_view const& path) {
+bool FileManagement::isDirectory(std::string_view const path) {
     return std::filesystem::is_directory(path);
 }
 
-std::vector<std::string> FileManagement::listFilesInDirectory(std::string_view const& dir){
+std::vector<std::string> FileManagement::listFilesInDirectory(std::string_view const dir){
     std::vector<std::string> files;
     try {
         for (const auto& entry : std::filesystem::directory_iterator(dir)) {
@@ -114,7 +114,7 @@ std::vector<std::string> FileManagement::listFilesInDirectory(std::string_view c
     return files;
 }
 
-std::vector<std::string> FileManagement::listContentInDirectory(std::string_view const& dir) {
+std::vector<std::string> FileManagement::listContentInDirectory(std::string_view const dir) {
     std::vector<std::string> entries;
     try {
         for (const auto& entry : std::filesystem::directory_iterator(dir)) {

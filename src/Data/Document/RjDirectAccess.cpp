@@ -90,7 +90,7 @@ rapidjson::Value* traverseIntoArray(std::string_view& keyView, rapidjson::Value*
 
 } // namespace
 
-rapidjson::Value* RjDirectAccess::traversePath(std::string_view const& key, rapidjson::Value& val) {
+rapidjson::Value* RjDirectAccess::traversePath(std::string_view const key, rapidjson::Value& val) {
     rapidjson::Value* current = &val;
     std::string_view keyView(key);
 
@@ -169,7 +169,7 @@ rapidjson::Value* ensurePathIntoArray(std::string_view& keyView, rapidjson::Valu
 
 } // namespace
 
-rapidjson::Value* RjDirectAccess::ensurePath(std::string_view const& key, rapidjson::Value& val, rapidjson::Document::AllocatorType& allocator) {
+rapidjson::Value* RjDirectAccess::ensurePath(std::string_view const key, rapidjson::Value& val, rapidjson::Document::AllocatorType& allocator) {
     rapidjson::Value* current = &val;
     std::string_view keyView(key);
 
@@ -286,7 +286,7 @@ std::string RjDirectAccess::serialize(rapidjson::Value const& val) {
     return buffer.GetString();
 }
 
-void RjDirectAccess::deserialize(rapidjson::Document& doc, std::string_view const& serialOrLink) {
+void RjDirectAccess::deserialize(rapidjson::Document& doc, std::string_view const serialOrLink) {
     std::string jsonString;
 
     // Check if the input is already a serialized JSON string
@@ -369,7 +369,7 @@ bool handleRegularContent(char const c, char const next, ParseState& state, std:
 }
 } // namespace
 
-std::string RjDirectAccess::stripComments(std::string_view const& jsonc) {
+std::string RjDirectAccess::stripComments(std::string_view const jsonc) {
     std::string result;
     result.reserve(jsonc.size());
     ParseState state;
@@ -393,7 +393,7 @@ std::string RjDirectAccess::stripComments(std::string_view const& jsonc) {
     return result;
 }
 
-rapidjson::Value* RjDirectAccess::traverseToParent(std::string_view const& fullKey, rapidjson::Value& root, std::string& finalKey, int& arrayIndex) {
+rapidjson::Value* RjDirectAccess::traverseToParent(std::string_view const fullKey, rapidjson::Value& root, std::string& finalKey, int& arrayIndex) {
     std::string const keyStr(fullKey);
     std::size_t const lastDot = keyStr.find_last_of(SpecialCharacter::dot);
     std::size_t const lastBracket = keyStr.find_last_of(SpecialCharacter::arrayOpen);
@@ -426,7 +426,7 @@ rapidjson::Value* RjDirectAccess::traverseToParent(std::string_view const& fullK
     return parent;
 }
 
-void RjDirectAccess::removeMember(std::string_view const& key, rapidjson::Value& val) {
+void RjDirectAccess::removeMember(std::string_view const key, rapidjson::Value& val) {
     // Edge case: empty key
     if (key.empty()) {
         // Remove entire document content
@@ -470,7 +470,7 @@ void RjDirectAccess::removeMember(std::string_view const& key, rapidjson::Value&
     }
 }
 
-bool RjDirectAccess::isJsonOrJsonc(std::string_view const& str) {
+bool RjDirectAccess::isJsonOrJsonc(std::string_view const str) {
     // Complicated check using RapidJSON parsing
     // Simpler check is just not worth it due to various valid JSON formats
     rapidjson::Document doc;
@@ -478,7 +478,7 @@ bool RjDirectAccess::isJsonOrJsonc(std::string_view const& str) {
     return !doc.Parse(cleanJson.c_str()).HasParseError();
 }
 
-bool RjDirectAccess::isValidKey(std::string_view const& key) {
+bool RjDirectAccess::isValidKey(std::string_view const key) {
     std::string_view keyView(key);
     while (!keyView.empty()) {
         // Extract current key part (object key)

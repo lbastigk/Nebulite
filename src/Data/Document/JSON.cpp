@@ -49,7 +49,7 @@ namespace Nebulite::Data {
 //------------------------------------------
 // Prefix: parent finder
 
-std::string_view JSON::findParentKey(std::string_view const& key) {
+std::string_view JSON::findParentKey(std::string_view const key) {
     if (key.empty()) {
         return key.substr(0, 0); // Return empty string view
     }
@@ -99,7 +99,7 @@ JSON::JSON(JSON&& other) noexcept : cacheLine(std::move(other.cacheLine)), cache
 //------------------------------------------
 // Scope sharing
 
-JsonScope& JSON::shareManagedScope(std::string_view const& prefix) {
+JsonScope& JSON::shareManagedScope(std::string_view const prefix) {
     std::scoped_lock const lockGuard(mtx);
 
     if (auto const it = managedScopes.find(prefix); it != managedScopes.end()) {
@@ -139,21 +139,21 @@ void JSON::copyFrom(JSON const& other) {
  * @param str The string to check.
  * @return true if the string is JSON or JSONC, false otherwise.
  */
-bool JSON::isJsonOrJsonc(std::string_view const& str) {
+bool JSON::isJsonOrJsonc(std::string_view const str) {
     return RjDirectAccess::isJsonOrJsonc(str);
 }
 
 //------------------------------------------
 // Argument splitting for transformations
 
-std::vector<std::string_view> JSON::splitKeyWithTransformations(std::string_view const& key) {
+std::vector<std::string_view> JSON::splitKeyWithTransformations(std::string_view const key) {
     auto result = Utility::StringHandler::splitOnSameDepth(key, SpecialCharacter::transformationPipe);
     for (auto& arg : result) {
         if (arg.starts_with(SpecialCharacter::transformationPipe)) {
             arg = arg.substr(1);
         }
     }
-    std::erase_if(result, [](std::string_view const& arg) { return arg.empty(); });
+    std::erase_if(result, [](std::string_view const arg) { return arg.empty(); });
     if (!key.empty() && key.starts_with(SpecialCharacter::transformationPipe)) {
         // No key provided, assume root and push back an empty string
         result.insert(result.begin(), "");
@@ -172,7 +172,7 @@ JsonScope& JSON::fullScope() {
     return *fullScopeInstance;
 }
 
-void JSON::synchronizeChildren(std::string_view const& parentKey) const {
+void JSON::synchronizeChildren(std::string_view const parentKey) const {
     std::scoped_lock const lockGuard(mtx);
 
     // Find all child keys and invalidate them
@@ -194,7 +194,7 @@ void JSON::synchronizeChildren(std::string_view const& parentKey) const {
     }
 }
 
-void JSON::flush(std::string_view const& key) const {
+void JSON::flush(std::string_view const key) const {
     std::scoped_lock const lockGuard(mtx);
 
     auto const parent = findParentKey(key);
@@ -225,7 +225,7 @@ void JSON::flush(std::string_view const& key) const {
 //------------------------------------------
 // Get methods
 
-std::expected<RjDirectAccess::simpleValue, SimpleValueRetrievalError> JSON::getVariant(std::string_view const& key) const {
+std::expected<RjDirectAccess::simpleValue, SimpleValueRetrievalError> JSON::getVariant(std::string_view const key) const {
     std::scoped_lock const lockGuard(mtx);
 
     // Check for transformations
@@ -273,7 +273,7 @@ std::expected<RjDirectAccess::simpleValue, SimpleValueRetrievalError> JSON::getV
     return getSimpleValueFromDocument(key);
 }
 
-JSON JSON::getSubDoc(std::string_view const& key) const {
+JSON JSON::getSubDoc(std::string_view const key) const {
     std::scoped_lock const lockGuard(mtx);
 
     // Handle integrity via flushing
@@ -298,7 +298,7 @@ JSON JSON::getSubDoc(std::string_view const& key) const {
     return JSON{};
 }
 
-bool JSON::getSubDocWithTransformations(std::string_view const& key, JSON& outDoc) const {
+bool JSON::getSubDocWithTransformations(std::string_view const key, JSON& outDoc) const {
     auto args = splitKeyWithTransformations(key);
     {
         auto const& baseKey = args[0];
@@ -313,7 +313,7 @@ bool JSON::getSubDocWithTransformations(std::string_view const& key, JSON& outDo
     return JsonRvalueTransformer::instance().parse(args, &outDoc);
 }
 
-double* JSON::getStableDoublePointer(std::string_view const& key) const {
+double* JSON::getStableDoublePointer(std::string_view const key) const {
     std::scoped_lock const lockGuard(mtx);
 
     // Check for transformations
@@ -346,7 +346,7 @@ double* JSON::getStableDoublePointer(std::string_view const& key) const {
     *new_entry->stable_double_ptr = standardNumericValue;
     new_entry->last_double_value = standardNumericValue;
     new_entry->state = CacheEntry::EntryState::DERIVED;
-    auto const ptr = new_entry->stable_double_ptr;
+    auto* const ptr = new_entry->stable_double_ptr;
     cache[key] = std::move(new_entry);
     return ptr;
 }
@@ -359,7 +359,7 @@ std::unique_lock<std::recursive_mutex> JSON::lock() const {
 //------------------------------------------
 // Set methods
 
-void JSON::setVariant(std::string_view const& key, RjDirectAccess::simpleValue const& val) {
+void JSON::setVariant(std::string_view const key, RjDirectAccess::simpleValue const& val) {
     std::scoped_lock const lockGuard(mtx);
     helperNonConstVar++; // Signal non-const operation
 
@@ -411,7 +411,7 @@ void JSON::setVariant(std::string_view const& key, RjDirectAccess::simpleValue c
     }
 }
 
-void JSON::setSubDoc(std::string_view const& key, JSON const& child, std::string_view const& childKey) {
+void JSON::setSubDoc(std::string_view const key, JSON const& child, std::string_view const childKey) {
     std::scoped_lock const lockGuard(mtx);
 
     // Delete cache entry
@@ -460,7 +460,7 @@ void JSON::setSubDoc(std::string_view const& key, JSON const& child, std::string
     synchronizeChildren(key);
 }
 
-void JSON::setEmptyArray(std::string_view const& key) {
+void JSON::setEmptyArray(std::string_view const key) {
     std::scoped_lock const lockGuard(mtx);
     helperNonConstVar++; // Signal non-const operation
     flush(key);
@@ -471,7 +471,7 @@ void JSON::setEmptyArray(std::string_view const& key) {
 //------------------------------------------
 // Serialize/Deserialize
 
-std::string JSON::serialize(std::string_view const& key, RjDirectAccess::SerializationType const type) const {
+std::string JSON::serialize(std::string_view const key, RjDirectAccess::SerializationType const type) const {
     std::scoped_lock const lockGuard(mtx);
     flush(key); // Ensure all changes are reflected in the document
     if (key.empty()) {
@@ -482,7 +482,7 @@ std::string JSON::serialize(std::string_view const& key, RjDirectAccess::Seriali
     return sub.serialize();
 }
 
-void JSON::deserialize(std::string_view const& serialOrLink) {
+void JSON::deserialize(std::string_view const serialOrLink) {
     std::scoped_lock const lockGuard(mtx);
     helperNonConstVar++; // Signal non-const operation
 
@@ -505,7 +505,7 @@ void JSON::deserialize(std::string_view const& serialOrLink) {
 //------------------------------------------
 // Key Types, Sizes
 
-KeyType JSON::memberType(std::string_view const& key) const {
+KeyType JSON::memberType(std::string_view const key) const {
     std::scoped_lock const lockGuard(mtx);
 
     // See if transformations are present
@@ -573,7 +573,7 @@ std::array<std::pair<Fn, Formatter>, 6> constexpr generalTypeList = {{
 
 } // namespace
 
-std::string JSON::memberTypeString(std::string_view const& key) const {
+std::string JSON::memberTypeString(std::string_view const key) const {
     std::scoped_lock const lockGuard(mtx);
 
     // See if transformations are present
@@ -601,7 +601,7 @@ std::string JSON::memberTypeString(std::string_view const& key) const {
     std::unreachable(); // If it's any other type, something went wrong...
 }
 
-size_t JSON::memberSize(std::string_view const& key) const {
+size_t JSON::memberSize(std::string_view const key) const {
     std::scoped_lock const lockGuard(mtx);
 
     // See if transformations are present
@@ -626,7 +626,7 @@ size_t JSON::memberSize(std::string_view const& key) const {
     return val->Size();
 }
 
-void JSON::removeMember(std::string_view const& key) {
+void JSON::removeMember(std::string_view const key) {
     std::scoped_lock const lockGuard(mtx);
     helperNonConstVar++; // Signal non-const operation
 
@@ -639,7 +639,7 @@ void JSON::removeMember(std::string_view const& key) {
     synchronizeChildren(key);
 }
 
-void JSON::moveMember(std::string_view const& fromKey, std::string_view const& toKey) {
+void JSON::moveMember(std::string_view const fromKey, std::string_view const toKey) {
     std::scoped_lock const lockGuard(mtx);
     helperNonConstVar++; // Signal non-const operation
 
@@ -678,7 +678,7 @@ void JSON::moveMember(std::string_view const& fromKey, std::string_view const& t
     }
 }
 
-void JSON::copyMember(std::string_view const& fromKey, std::string_view const& toKey) {
+void JSON::copyMember(std::string_view const fromKey, std::string_view const toKey) {
     std::scoped_lock const lockGuard(mtx);
     helperNonConstVar++; // Signal non-const operation
 
@@ -688,7 +688,7 @@ void JSON::copyMember(std::string_view const& fromKey, std::string_view const& t
     setSubDoc(toKey, *this, fromKey);
 }
 
-std::vector<std::string> JSON::listAvailableKeys(std::string_view const& key) const {
+std::vector<std::string> JSON::listAvailableKeys(std::string_view const key) const {
     std::scoped_lock const lockGuard(mtx);
 
     // Flush cache before accessing document
@@ -707,7 +707,7 @@ std::vector<std::string> JSON::listAvailableKeys(std::string_view const& key) co
 // TODO: optimize by avoiding double cache lookups
 // special get-function that returns the cache pointer instead of value
 
-void JSON::set_add(std::string_view const& key, double const val) {
+void JSON::set_add(std::string_view const key, double const val) {
     std::scoped_lock const lockGuard(mtx);
 
     // Get current value
@@ -727,7 +727,7 @@ void JSON::set_add(std::string_view const& key, double const val) {
     }
 }
 
-void JSON::set_add(std::string_view const& key, std::int64_t const val) {
+void JSON::set_add(std::string_view const key, std::int64_t const val) {
     std::scoped_lock const lockGuard(mtx);
     static_assert(Math::isZero(standardNumericValue),
         "This function relies on the standard numeric value being 0 for correct defaulting."
@@ -750,7 +750,7 @@ void JSON::set_add(std::string_view const& key, std::int64_t const val) {
     }, current);
 }
 
-void JSON::set_multiply(std::string_view const& key, double const val) {
+void JSON::set_multiply(std::string_view const key, double const val) {
     std::scoped_lock const lockGuard(mtx);
 
     // Get current value
@@ -770,7 +770,7 @@ void JSON::set_multiply(std::string_view const& key, double const val) {
     }
 }
 
-void JSON::set_multiply(std::string_view const& key, std::int64_t const val) {
+void JSON::set_multiply(std::string_view const key, std::int64_t const val) {
     std::scoped_lock const lockGuard(mtx);
     static_assert(Math::isZero(standardNumericValue),
         "This function relies on the standard numeric value being 0 for correct defaulting."
@@ -793,7 +793,7 @@ void JSON::set_multiply(std::string_view const& key, std::int64_t const val) {
     }, current);
 }
 
-void JSON::set_concat(std::string_view const& key, std::string_view const& valStr) {
+void JSON::set_concat(std::string_view const key, std::string_view const valStr) {
     std::scoped_lock const lockGuard(mtx);
 
     auto const current = get<std::string>(key).value_or(""); // Default to empty string if retrieval fails
@@ -810,7 +810,7 @@ void JSON::set_concat(std::string_view const& key, std::string_view const& valSt
 //------------------------------------------
 // JSON - Rapidjson
 
-std::expected<RjDirectAccess::simpleValue, SimpleValueRetrievalError> JSON::getSimpleValueFromDocument(std::string_view const& key) const {
+std::expected<RjDirectAccess::simpleValue, SimpleValueRetrievalError> JSON::getSimpleValueFromDocument(std::string_view const key) const {
     if (rapidjson::Value const* val = RjDirectAccess::traversePath(key, doc); val != nullptr) {
         auto it = cache.find(key);
         if (it == cache.end() && RjDirectAccess::getSimpleValue(val).has_value()) {

@@ -4,10 +4,12 @@
 // Standard library
 #include <algorithm>
 #include <cstddef>
-#include <memory>
+#include <exception>
 #include <mutex>
+#include <optional>
 #include <ranges>
 #include <stdexcept>
+#include <string>
 #include <vector>
 
 // Nebulite
@@ -16,6 +18,7 @@
 #include "Data/Batch.hpp"
 #include "Data/RenderObjectContainer.hpp"
 #include "Data/RendererProcessor.hpp"
+#include "Nebulite.hpp"
 #include "Utility/Coordination/WorkDispatcher.hpp"
 #include "Utility/Generate.hpp"
 
@@ -74,12 +77,17 @@ RendererProcessor::RendererProcessor()
 }
 
 RendererProcessor::~RendererProcessor() {
-    // 1.) Notify all workers to stop
-    stopFlag = true;
+    try {
+        // 1.) Notify all workers to stop
+        stopFlag = true;
 
-    // 2.) Optionally, start work to wake any waiting threads
-    for (auto& worker : batchWorkerPool | std::views::take(Constants::ThreadSettings::getRendererWorkerCount())) {
-        worker.value().startWork();  // wakes worker so it can check stopFlag
+        // 2.) Optionally, start work to wake any waiting threads
+        for (auto& worker : batchWorkerPool | std::views::take(Constants::ThreadSettings::getRendererWorkerCount())) {
+            worker.value().startWork();  // wakes worker so it can check stopFlag
+        }
+    } catch (std::exception const& e) {
+        // Log the exception if needed
+        Global::capture().error.println("Exception during RendererProcessor destruction: " + std::string(e.what()));
     }
 }
 
@@ -117,7 +125,7 @@ void RendererProcessor::processPool() {
     processPool(Constants::ThreadSettings::getRendererWorkerCount());
 }
 
-void RendererProcessor::processPool(std::size_t count) {
+void RendererProcessor::processPool(std::size_t const count) {
     for (auto& worker : batchWorkerPool | std::views::take(count)) {
         worker.value().startWork();
     }

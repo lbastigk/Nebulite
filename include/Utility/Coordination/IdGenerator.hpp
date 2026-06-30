@@ -7,6 +7,7 @@
 // Standard library
 #include <cstddef>
 #include <functional>
+#include <string_view>
 
 //------------------------------------------
 namespace Nebulite::Utility::Coordination {
@@ -38,7 +39,7 @@ public:
      * @return A lambda function that generates unique IDs for strings.
      * @throw std::overflow_error if the generator exceeds the maximum limit of std::size_t.
      */
-    static std::function<std::size_t(std::string_view const&)> stringToRollingIdGenerator();
+    static std::function<std::size_t(std::string_view)> stringToRollingIdGenerator();
 };
 } // namespace Nebulite::Utility::Coordination
 #endif // UTILITY_COORDINATION_IDGENERATOR_HPP

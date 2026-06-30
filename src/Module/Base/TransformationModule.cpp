@@ -19,7 +19,7 @@ TransformationModule::TransformationModule(std::shared_ptr<Interaction::Executio
 
 TransformationModule::~TransformationModule() = default;
 
-void TransformationModule::bindCategory(std::string_view const& name, std::string_view const& helpDescription) const {
+void TransformationModule::bindCategory(std::string_view const name, std::string_view const helpDescription) const {
     transformationFuncTree->bindCategory(name, helpDescription);
 }
 

@@ -39,7 +39,7 @@ public:
      * @param baseName The base name for which to generate a unique variable name.
      * @return A unique variable name corresponding to the base name.
      */
-    std::string getUniqueName(std::string_view const& baseName);
+    std::string getUniqueName(std::string_view baseName);
 
     /**
      * @brief Clears the variable name mapping, resetting the generator to its initial state.

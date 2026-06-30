@@ -9,8 +9,20 @@
 //------------------------------------------
 // Includes
 
+// Standard library
+#include <memory>
+#include <span>
+
 // Nebulite
+#include "Interaction/Execution/FuncTree.hpp"
 #include "Module/Base/TransformationModule.hpp"
+
+//------------------------------------------
+// Forward declarations
+
+namespace Nebulite::Data {
+class JsonScope;
+} // namespace Nebulite::Data
 
 //------------------------------------------
 namespace Nebulite::Module::Transformation {
@@ -80,7 +92,7 @@ public:
         "Usage: |sqrt -> {number}\n";
 
 private:
-    static bool forall(std::span<std::string_view const> const& args, std::function<bool(std::string_view const&, Data::ScopedKeyView const& key)> const& func);
+    static bool forall(std::span<std::string_view const> const& args, std::function<bool(std::string_view, Data::ScopedKeyView const& key)> const& func);
 };
 } // namespace Nebulite::Module::Transformation
 #endif // MODULE_TRANSFORMATION_ARITHMETIC_HPP

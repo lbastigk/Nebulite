@@ -49,7 +49,7 @@ public:
      * @param identifier The name of the ruleset, or any other string to generate a unique ID from.
      * @return A unique ID corresponding to the given string.
      */
-    static std::size_t generateUniqueId(std::string_view const& identifier) {
+    static std::size_t generateUniqueId(std::string_view const identifier) {
         static auto generator = Utility::Coordination::IdGenerator::stringToRollingIdGenerator();
         return generator(identifier);
     }

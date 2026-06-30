@@ -67,7 +67,7 @@ std::vector<StaticRulesetMap::StaticRulesetMetadata> StaticRulesetMap::getList()
     return list;
 }
 
-StaticRulesetMap::StaticRulesetWithMetadata& StaticRulesetMap::getStaticRulesetByName(std::string_view const& name) {
+StaticRulesetMap::StaticRulesetWithMetadata& StaticRulesetMap::getStaticRulesetByName(std::string_view const name) {
     // NOLINTBEGIN
     if (statusTracker.mapDeleted) {
         // Using a custom static invalid entry, just in case the in-class one becomes invalid!

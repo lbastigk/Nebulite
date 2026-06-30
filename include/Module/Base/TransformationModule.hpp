@@ -47,7 +47,7 @@ public:
      * @param helpDescription The help description of the function
      */
     template <typename Func>
-    void bindTransformation(Func functionPtr, std::string_view const& name, std::string_view const& helpDescription) const {
+    void bindTransformation(Func functionPtr, std::string_view name, std::string_view helpDescription) const {
         DomainModuleBase::bindFunctionStatic(transformationFuncTree.get(), functionPtr, name, helpDescription);
     }
 
@@ -56,7 +56,7 @@ public:
      * @param name The name of the category
      * @param helpDescription The help description of the category
      */
-    void bindCategory(std::string_view const& name, std::string_view const& helpDescription) const ;
+    void bindCategory(std::string_view name, std::string_view helpDescription) const ;
 
     /**
      * @brief Add all functions to bind here

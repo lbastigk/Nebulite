@@ -129,7 +129,7 @@ public:
          *          e.g. for the reflection module to assign a list of owned, pre-allocated, identifiers to newly generated elements
          * @param knownId The id to use
          */
-        explicit RmlElementIdentifier(std::size_t knownId) : id(knownId) {}
+        explicit RmlElementIdentifier(std::size_t const knownId) : id(knownId) {}
 
     public:
         /**
@@ -232,7 +232,7 @@ public:
      * @param ctxScope The scope of the document
      * @return True if the document was loaded successfully, false otherwise
      */
-    bool loadDocument(std::string_view const& name, std::string_view const& path, Interaction::Context const& ctx, Interaction::ContextScope const& ctxScope);
+    bool loadDocument(std::string_view name, std::string_view path, Interaction::Context const& ctx, Interaction::ContextScope const& ctxScope);
 
     /**
      * @brief Removes a document from a given owner id
@@ -240,7 +240,7 @@ public:
      * @param name The name of the document
      * @return True if a document was found and removed, false otherwise
      */
-    bool removeDocument(std::size_t id, std::string_view const& name);
+    bool removeDocument(std::size_t id, std::string_view name);
 
     /**
      * @brief Removes a document from a given document pointer

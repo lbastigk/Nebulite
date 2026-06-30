@@ -13,7 +13,7 @@
 //------------------------------------------
 namespace Nebulite::Interaction::Logic {
 
-VirtualDouble::VirtualDouble(std::string_view const& k) {
+VirtualDouble::VirtualDouble(std::string_view const k) {
     key = ContextDeriver::stripContext(k);
     scopedKey = Data::ScopedKey(key);
 }

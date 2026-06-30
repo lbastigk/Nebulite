@@ -47,7 +47,7 @@ public:
      * @param str The string to strip the context from.
      * @return The string without its context prefix.
      */
-    static std::string stripContext(std::string_view const& str);
+    static std::string stripContext(std::string_view str);
 
     /**
      * @brief used to strip any context prefix from a key
@@ -64,7 +64,7 @@ public:
      * @param str The string to get the context from.
      * @return The string of the key.
      */
-    static TargetType getTypeFromString(std::string_view const& str);
+    static TargetType getTypeFromString(std::string_view str);
 
     /**
      * @brief Gets the context and type from a key before it's stripped
@@ -72,7 +72,7 @@ public:
      * @param str The string to get the context and prefix from
      * @return The Target and string_view as pair.
      */
-    static std::pair<TargetType, std::string_view> getTypeAndPrefixFromString(std::string_view const& str);
+    static std::pair<TargetType, std::string_view> getTypeAndPrefixFromString(std::string_view str);
 
     static std::string typeToString(TargetType type);
 
