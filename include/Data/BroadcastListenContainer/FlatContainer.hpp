@@ -80,7 +80,7 @@ public:
 template <FlatContainerType Type>
 class FlatContainer final : public BaseContainer<FlatContainer<Type>*> {
 public:
-    explicit FlatContainer(std::atomic<bool>& stopFlag, std::size_t const& workerIndex, std::size_t const& workerCount)
+    explicit FlatContainer(std::atomic<bool>& stopFlag, std::size_t workerIndex, std::size_t workerCount)
         : BaseContainer<FlatContainer*>(stopFlag, workerIndex, workerCount, this) {
         FlatContainerBase::Settings settings{};
 

@@ -55,20 +55,20 @@ public:
      * @brief Gets the id of the ruleset.
      * @return The id of the ruleset, as const reference.
      */
-    [[nodiscard]] std::size_t const& getId() const ;
+    [[nodiscard]] std::size_t getId() const ;
 
     /**
     * @brief Gets the hashed id of the ruleset.
     * @details This is useful for distribution of rulesets, as domain ids may not be equally distributed.
     * @return The hashed id of the ruleset, as const reference.
     */
-    [[nodiscard]] std::size_t const& getIdHashed() const ;
+    [[nodiscard]] std::size_t getIdHashed() const ;
 
     /**
      * @brief Gets the index of the ruleset in the owning Domain's list of entries.
      * @return The index of the ruleset, as const reference.
      */
-    [[nodiscard]] std::size_t const& getIndex() const { return index; }
+    [[nodiscard]] std::size_t getIndex() const { return index; }
 
     /**
      * @brief Returns the topic of the ruleset.
@@ -80,7 +80,7 @@ public:
      * @brief Returns the estimated computational cost of the ruleset.
      * @return The estimated computational cost of the ruleset.
      */
-    [[nodiscard]] std::size_t const& getEstimatedCost() const { return estimatedCost; }
+    [[nodiscard]] std::size_t getEstimatedCost() const { return estimatedCost; }
 
     /**
      * @brief Checks whether the ruleset is global.

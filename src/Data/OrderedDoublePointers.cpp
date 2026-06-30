@@ -15,16 +15,16 @@
 //------------------------------------------
 namespace Nebulite::Data {
 
-double** MappedOrderedCacheList::ensureOrderedCacheList(std::size_t const& uniqueId, std::vector<ScopedKeyView> const& keys) {
+double** MappedOrderedCacheList::ensureOrderedCacheList(std::size_t const uniqueId, std::vector<ScopedKeyView> const& keys) {
     Utility::Coordination::WriteLock const lock(mtxMap);
     return fromMap(uniqueId, keys);
 }
 
-double** MappedOrderedCacheList::ensureOrderedCacheListNoLock(std::size_t const& uniqueId, std::vector<ScopedKeyView> const& keys) {
+double** MappedOrderedCacheList::ensureOrderedCacheListNoLock(std::size_t const uniqueId, std::vector<ScopedKeyView> const& keys) {
     return fromMap(uniqueId, keys);
 }
 
-double** MappedOrderedCacheList::fromMap(std::size_t const& uniqueId, std::vector<ScopedKeyView> const& keys){
+double** MappedOrderedCacheList::fromMap(std::size_t const uniqueId, std::vector<ScopedKeyView> const& keys){
     if (auto const it = map.find(uniqueId); it != map.end()) [[likely]] {
         return it->second.data();
     }

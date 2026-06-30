@@ -216,7 +216,7 @@ class Domain : public DocumentAccessor {
 
         void init();
 
-        bool initialized = false;
+        std::once_flag initialized;
 
         // Unique ID for the domain, used for ordered cache lists and other purposes
         std::size_t id = 0;
@@ -229,13 +229,13 @@ class Domain : public DocumentAccessor {
          * @brief Gets the id of this identifier instance, potentially initializing it if it hasn't been initialized yet.
          * @return The id
          */
-        std::size_t const& getId();
+        std::size_t getId();
 
         /**
          * @brief Gets the hashed id of this identifier instance, potentially initializing it if it hasn't been initialized yet.
          * @return The id
          */
-        std::size_t const& getIdHashed();
+        std::size_t getIdHashed();
     } mutable identifier;
 
 
@@ -300,11 +300,11 @@ public:
         }
     }
 
-    [[nodiscard]] std::size_t const& getId() const {
+    [[nodiscard]] std::size_t getId() const {
         return identifier.getId();
     }
 
-    [[nodiscard]] std::size_t const& getIdHashed() const {
+    [[nodiscard]] std::size_t getIdHashed() const {
         return identifier.getIdHashed();
     }
 

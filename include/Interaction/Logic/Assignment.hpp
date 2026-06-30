@@ -4,6 +4,12 @@
 //------------------------------------------
 // Includes
 
+// Standard library
+#include <cstdint>
+#include <memory>
+#include <string>
+#include <string_view>
+
 // Nebulite
 #include "Interaction/Context.hpp"
 #include "Interaction/Logic/Expression.hpp"

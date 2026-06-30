@@ -26,6 +26,7 @@
 namespace Nebulite::Module::Domain::Common {
 
 Constants::Event Ruleset::updateHook() {
+    std::lock_guard lock(initializeMutex);
     if (initialized) {
         // Reload rulesets if needed
         if (reloadRulesets) {
@@ -94,6 +95,7 @@ Constants::Event Ruleset::updateHook() {
 }
 
 void Ruleset::reinit() {
+    std::lock_guard lock(initializeMutex);
     Key const scopedKey(moduleScope);
     reloadRulesets = true;
     initialized = false;

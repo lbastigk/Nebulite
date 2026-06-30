@@ -21,9 +21,9 @@ namespace Nebulite::Interaction::Rules {
 //------------------------------------------
 // Base Class Virtual Methods
 
-size_t const& Ruleset::getId() const { return self.getId(); }
+std::size_t Ruleset::getId() const { return self.getId(); }
 
-size_t const& Ruleset::getIdHashed() const { return self.getIdHashed(); }
+std::size_t Ruleset::getIdHashed() const { return self.getIdHashed(); }
 
 bool Ruleset::evaluateConditionGlobally(Execution::Domain& /*self*/, Execution::Domain& /*global*/) {
     return false;

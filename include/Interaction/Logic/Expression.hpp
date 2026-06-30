@@ -118,7 +118,7 @@ public:
     //------------------------------------------
     // Actual evaluation functions
 
-    std::string eval(ContextScope const& context, std::size_t const& recursionDepth = standardRecursionDepth) const ;
+    std::string eval(ContextScope const& context, std::size_t recursionDepth = standardRecursionDepth) const ;
 
     double evalAsDouble(ContextScope const& context) const ;
 
@@ -126,7 +126,7 @@ public:
 
     bool evalAsBool(ContextScope const& context) const ;
 
-    Data::JSON evalAsJson(ContextScope const& context, std::size_t const& recursionDepth = standardRecursionDepth) const ;
+    Data::JSON evalAsJson(ContextScope const& context, std::size_t recursionDepth = standardRecursionDepth) const ;
 
     //------------------------------------------
     // Static functions for one-time evaluation
@@ -219,6 +219,8 @@ private:
 
     /**
      * @brief Generates short variable names for tinyexpr variables.
+     * @details Short names might improve performance, but the main concern is
+     *          that full variable names could contain characters that tinyexpr does not like
      */
     VariableNameGenerator varNameGen;
 
@@ -300,7 +302,7 @@ private:
          * @param recursionDepth The current recursion depth for nested evaluations.
          * @return True if the evaluation was successful, false otherwise.
          */
-        bool handleComponentTypeVariable(std::string& token, ContextScope const& context, std::size_t const& recursionDepth) const ;
+        bool handleComponentTypeVariable(std::string& token, ContextScope const& context, std::size_t recursionDepth) const ;
 
         /**
          * @brief Handles the evaluation of a variable component as a JSON value.
@@ -310,7 +312,7 @@ private:
          * @param recursionDepth The current recursion depth for nested evaluations.
          * @return True if the evaluation was successful, false otherwise.
          */
-        bool handleComponentTypeVariable(Data::JSON& token, ContextScope const& context, std::size_t const& recursionDepth) const ;
+        bool handleComponentTypeVariable(Data::JSON& token, ContextScope const& context, std::size_t recursionDepth) const ;
 
         /**
          * @brief Handles the evaluation of an eval component.
@@ -332,9 +334,9 @@ private:
          * @param recursionDepth The current recursion depth for nested evaluations.
          * @return The evaluated string if successful, or std::nullopt if evaluation fails.
          */
-        [[nodiscard]] std::expected<std::string, KeyEvaluationInfo> evaluateKey(ContextScope const& context, std::size_t const& recursionDepth) const ;
+        [[nodiscard]] std::expected<std::string, KeyEvaluationInfo> evaluateKey(ContextScope const& context, std::size_t recursionDepth) const ;
 
-        [[nodiscard]] std::optional<std::pair<std::string, ContextDeriver::TargetType>> handleNesting(ContextScope const& context, std::size_t const& recursionDepth) const ;
+        [[nodiscard]] std::optional<std::pair<std::string, ContextDeriver::TargetType>> handleNesting(ContextScope const& context, std::size_t recursionDepth) const ;
     };
 
     /**

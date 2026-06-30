@@ -116,7 +116,7 @@ bool Array::subspan(std::span<std::string_view const> const& args, Data::JsonSco
     std::size_t index = 0;
     std::ranges::for_each(
         std::views::iota(startIndex, std::min(startIndex + length, originalSize)),
-        [&](std::size_t const& i) {
+        [&](std::size_t const i) {
             auto const key = rootKey.addIndex(index++);
             jsonDoc->copyMember(tmpKey.addIndex(i), key);
         }
@@ -202,7 +202,7 @@ bool Array::enumerate(std::span<std::string_view const> const& args, Data::JsonS
     auto const& indexKey = args.at(1);
     std::ranges::for_each(
         std::views::iota(std::size_t{0}, jsonDoc->memberSize(rootKey)),
-        [&](std::size_t const& i) {
+        [&](std::size_t const i) {
             auto const key = rootKey.addIndex(i).addMember(indexKey);
             jsonDoc->set(key, i);
         }

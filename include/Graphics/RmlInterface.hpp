@@ -129,7 +129,7 @@ public:
          *          e.g. for the reflection module to assign a list of owned, pre-allocated, identifiers to newly generated elements
          * @param knownId The id to use
          */
-        explicit RmlElementIdentifier(std::size_t const& knownId) : id(knownId) {}
+        explicit RmlElementIdentifier(std::size_t knownId) : id(knownId) {}
 
     public:
         /**
@@ -240,7 +240,7 @@ public:
      * @param name The name of the document
      * @return True if a document was found and removed, false otherwise
      */
-    bool removeDocument(std::size_t const& id, std::string_view const& name);
+    bool removeDocument(std::size_t id, std::string_view const& name);
 
     /**
      * @brief Removes a document from a given document pointer
@@ -253,7 +253,7 @@ public:
      * @brief Replaces all references to a given owner id, so that no context interaction has access to the associated domain
      * @param domainId The id of the domain
      */
-    void removeReferencesToId(std::size_t const& domainId);
+    void removeReferencesToId(std::size_t domainId);
 
     /**
      * @brief Gets a context and scope from a given RML element id

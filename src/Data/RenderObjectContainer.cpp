@@ -157,7 +157,7 @@ void RenderObjectContainer::update(std::vector<TileCoordinate> const& viewport, 
     reinsertionProcess.queue.clear();
 }
 
-Core::RenderObject* RenderObjectContainer::getObjectFromId(std::size_t const& domainId) {
+Core::RenderObject* RenderObjectContainer::getObjectFromId(std::size_t const domainId) {
     // Go through all batches
     for (auto& tile : std::views::values(ObjectContainer)) {
         for (auto const& objects : tile.getBatchedObjects()) {

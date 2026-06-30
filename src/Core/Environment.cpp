@@ -116,7 +116,7 @@ void Environment::reinsertAllObjects(Data::TilingInformation const& tilingInform
     }
 }
 
-RenderObject* Environment::getObjectFromId(std::size_t const& domainId) {
+RenderObject* Environment::getObjectFromId(std::size_t const domainId) {
     // Go through all layers
     for (unsigned int i = 0; i < allLayers.size(); ++i) {
         if (auto* const obj = roc[i].getObjectFromId(domainId); obj != nullptr) {
@@ -129,14 +129,14 @@ RenderObject* Environment::getObjectFromId(std::size_t const& domainId) {
 //------------------------------------------
 // Get object
 
-std::optional<size_t> Environment::getIdFromIndex(std::size_t const& index) const {
+std::optional<size_t> Environment::getIdFromIndex(std::size_t const index) const {
     if (!indexToIdMap.contains(index)) {
         return std::nullopt; // No object with this index
     }
     return indexToIdMap.at(index);
 }
 
-std::optional<size_t> Environment::getIndexFromId(std::size_t const& domainId) const {
+std::optional<size_t> Environment::getIndexFromId(std::size_t const domainId) const {
     for (const auto& [objIndex, objId] : indexToIdMap) {
         if (objId == domainId) {
             return objIndex; // Return the index associated with the given ID
@@ -145,7 +145,7 @@ std::optional<size_t> Environment::getIndexFromId(std::size_t const& domainId) c
     return std::nullopt; // No index found for the given ID
 }
 
-std::optional<std::pair<RenderObject*, Data::JsonScope*>> Environment::getObjectFromIndex(std::size_t const& searchIndex) {
+std::optional<std::pair<RenderObject*, Data::JsonScope*>> Environment::getObjectFromIndex(std::size_t const searchIndex) {
     if (!indexToIdMap.contains(searchIndex)) {
         return std::nullopt; // No object with this index
     }

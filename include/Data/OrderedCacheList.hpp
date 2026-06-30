@@ -60,7 +60,7 @@ public:
      * @param keys The vector of keys to populate the cache with.
      * @return A pointer to the ordered vector of double pointers for the specified keys.
      */
-    double** ensureOrderedCacheList(std::size_t const& uniqueId, std::vector<ScopedKeyView> const& keys);
+    double** ensureOrderedCacheList(std::size_t uniqueId, std::vector<ScopedKeyView> const& keys);
 
     /**
      * @brief Ensures the existence of an ordered cache list of double pointers for a set of keys. Non-locking version.
@@ -68,7 +68,7 @@ public:
      * @param keys The vector of keys to populate the cache with.
      * @return A pointer to the ordered vector of double pointers for the specified keys.
      */
-    double** ensureOrderedCacheListNoLock(std::size_t const& uniqueId, std::vector<ScopedKeyView> const& keys);
+    double** ensureOrderedCacheListNoLock(std::size_t uniqueId, std::vector<ScopedKeyView> const& keys);
 
 private:
     /**
@@ -93,7 +93,7 @@ private:
      * @param keys The keys to potentially create the entry with
      * @return An ordered vector of double pointers corresponding to the keys, either retrieved from the map or newly created if it did not exist.
      */
-    double** fromMap(std::size_t const& uniqueId, std::vector<ScopedKeyView> const& keys);
+    double** fromMap(std::size_t uniqueId, std::vector<ScopedKeyView> const& keys);
 };
 } // namespace Nebulite::Data
 #endif // DATA_ORDEREDCACHELIST_HPP

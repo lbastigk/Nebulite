@@ -275,20 +275,15 @@ std::size_t Domain::Identifier::splitMix64(std::size_t x) {
 void Domain::Identifier::init() {
     id = idGenerator();
     idHashed = splitMix64(id);
-    initialized = true;
 }
 
-std::size_t const& Domain::Identifier::getId() {
-    if (!initialized) {
-        init();
-    }
+std::size_t Domain::Identifier::getId() {
+    std::call_once(initialized, &Identifier::init, this);
     return id;
 }
 
-std::size_t const& Domain::Identifier::getIdHashed() {
-    if (!initialized) {
-        init();
-    }
+std::size_t Domain::Identifier::getIdHashed() {
+    std::call_once(initialized, &Identifier::init, this);
     return idHashed;
 }
 

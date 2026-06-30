@@ -642,7 +642,7 @@ bool Expression::recalculateIsAlwaysTrue() const {
 //------------------------------------------
 // Actual expression evaluation
 
-std::string Expression::eval(ContextScope const& context, std::size_t const& recursionDepth) const {
+std::string Expression::eval(ContextScope const& context, std::size_t const recursionDepth) const {
     //------------------------------------------
     // Update caches so that tinyexpr has the correct references
     updateCaches(context);
@@ -692,7 +692,7 @@ bool Expression::evalAsBool(ContextScope const& context) const {
     return !Math::isZero(result);
 }
 
-Data::JSON Expression::evalAsJson(ContextScope const& context, std::size_t const& recursionDepth) const {
+Data::JSON Expression::evalAsJson(ContextScope const& context, std::size_t const recursionDepth) const {
     if (components.size() == 1 && components[0]->type != Component::Type::text) {
         if (components[0]->type == Component::Type::eval) {
             Data::JSON jsonResult;

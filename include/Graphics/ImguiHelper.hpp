@@ -91,13 +91,25 @@ public:
 
 private:
     /**
-     * @brief Imgui alignment helper, call before Imgui::Begin()
-     * @param alignment The flags for the window alignment
+     * @brief Imgui alignment helper, call before Imgui::Begin().
+     * @param alignment The flags for the window alignment.
      */
     static void align(DomainRenderingFlags::Alignment const& alignment);
 
+    /**
+     * @brief Renders a JSON tree node in an ImGui window.
+     * @param s The JSON scope to render.
+     * @param root The root key for the JSON node.
+     */
     static void renderJsonTreeNode(Data::JsonScope const& s, Data::ScopedKeyView const& root);
 
+    /**
+     * @brief Renders the domain console + capture viewer in an ImGui window.
+     * @param ctx The context of the caller.
+     * @param ctxScope The scope of the caller.
+     * @param capture The capture to render.
+     * @param name The name of the ImGui window.
+     */
     static void renderDomainConsole(Interaction::Context& ctx, Interaction::ContextScope& ctxScope, Utility::IO::Capture& capture, std::string const& name);
 };
 

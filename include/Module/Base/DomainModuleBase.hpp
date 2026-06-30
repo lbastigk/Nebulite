@@ -4,9 +4,16 @@
 //------------------------------------------
 // Includes
 
+// Standard library
+#include <cstdint>
+#include <memory>
+#include <string_view>
+#include <utility>
+#include <vector>
+
 // Nebulite
+#include "Constants/Event.hpp"
 #include "Interaction/Execution/DomainTree.hpp"
-#include "Interaction/Execution/FuncTree.hpp"
 #include "Utility/Coordination/TimedRoutine.hpp"
 
 //------------------------------------------
@@ -199,5 +206,5 @@ private:
     std::shared_ptr<Interaction::Execution::DomainTree> funcTree;
 };
 } // namespace Nebulite::Module::Base
-#include "DomainModuleBase.tpp"
+#include "DomainModuleBase.tpp" // NOLINT
 #endif // MODULE_BASE_DOMAINMODULEBASE_HPP

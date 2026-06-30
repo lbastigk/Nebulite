@@ -150,14 +150,14 @@ public:
     * @param index The index of the RenderObject in the rendering pipeline.
     * @return An optional containing the ID of the RenderObject if found, or std::nullopt if no object is associated with the given index.
     */
-    std::optional<std::size_t> getIdFromIndex(std::size_t const& index) const ;
+    std::optional<std::size_t> getIdFromIndex(std::size_t index) const ;
 
     /**
      * @brief Gets the RenderObject index in the rendering pipeline from its ID.
      * @param searchId The ID of the RenderObject to search for.
      * @return An optional containing the index of the RenderObject in the rendering pipeline if found, or std::nullopt if no object is associated with the given ID.
      */
-    std::optional<std::size_t> getIndexFromId(std::size_t const& searchId) const ;
+    std::optional<std::size_t> getIndexFromId(std::size_t searchId) const ;
 
     //------------------------------------------
     // DomainModule variables

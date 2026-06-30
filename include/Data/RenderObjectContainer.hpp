@@ -137,7 +137,7 @@ public:
      * @param domainId The unique ID of the RenderObject to retrieve.
      * @return Pointer to the RenderObject if found, nullptr otherwise.
      */
-    Core::RenderObject* getObjectFromId(std::size_t const& domainId);
+    Core::RenderObject* getObjectFromId(std::size_t domainId);
 
     struct ContainerInfo {
         // Container stats

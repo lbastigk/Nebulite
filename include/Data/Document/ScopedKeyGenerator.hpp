@@ -30,7 +30,7 @@ struct OpData {
     explicit constexpr OpData(std::string_view const& name) // NOLINT
         : type(OpType::Member), memberName(name), indexValue(0) {}
 
-    explicit constexpr OpData(std::size_t const& index) // NOLINT
+    explicit constexpr OpData(std::size_t index) // NOLINT
         : type(OpType::Index), indexValue(index) {}
 };
 
@@ -51,7 +51,7 @@ public:
     explicit constexpr ScopedKeyGenerator(std::string_view const& base)
         : base_(base), ops_() {}
 
-    constexpr ScopedKeyGenerator(std::string_view const& base, const std::array<OpData, MaxOps>& ops, std::size_t const& count)
+    constexpr ScopedKeyGenerator(std::string_view const& base, const std::array<OpData, MaxOps>& ops, std::size_t count)
         : base_(base), ops_(ops), count_(count) {}
 
     // Chain operations at compile-time
@@ -67,7 +67,7 @@ public:
         return result;
     }
 
-    constexpr ScopedKeyGenerator addIndex(std::size_t const& index) const {
+    constexpr ScopedKeyGenerator addIndex(std::size_t index) const {
         auto result = *this;
         if (result.count_ < MaxOps) {
             result.ops_[result.count_] = OpData(index);

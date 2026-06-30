@@ -106,6 +106,9 @@ private:
     // Check if the module is initialized and ready to use
     bool initialized = false;
 
+    // Mutex for threadsafe initialization
+    std::mutex initializeMutex;
+
     // Size of subscriptions
     std::size_t subscription_size = 0;
 

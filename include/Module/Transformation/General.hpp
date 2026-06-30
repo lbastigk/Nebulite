@@ -9,8 +9,21 @@
 //------------------------------------------
 // Includes
 
+// Standard library
+#include <memory>
+#include <span>
+#include <string_view>
+
 // Nebulite
+#include "Interaction/Execution/FuncTree.hpp"
 #include "Module/Base/TransformationModule.hpp"
+
+//------------------------------------------
+// Forward declarations
+
+namespace Nebulite::Data {
+class JsonScope;
+} // namespace Nebulite::Data
 
 //------------------------------------------
 namespace Nebulite::Module::Transformation {
@@ -66,7 +79,7 @@ public:
         "The entire context is local, meaning self, other, global are all the same and refer to the current scope.\n";
 
     // TODO: Even though copy/move is implemented in DomainModule:JsonScope:SimpleData, having these as transformations as well could be useful
-    //       instead of writing |parse copy <source> <destination>, we can simply write |copy <source> <destination>
+    //       instead of creating a dummy domain to parse a task, we can simply write |copy <source> <destination>
 };
 } // namespace Nebulite::Module::Transformation
 #endif // MODULE_TRANSFORMATION_GENERAL_HPP

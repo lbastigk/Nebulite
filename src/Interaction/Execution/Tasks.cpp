@@ -28,7 +28,7 @@ bool Tasks::scriptIsWaiting() {
     return tasks[StandardTasks::script]->isWaiting();
 }
 
-void Tasks::incrementScriptWaitCounter(std::size_t const& count) {
+void Tasks::incrementScriptWaitCounter(std::size_t const count) {
     tasks[StandardTasks::script]->incrementWaitCounter(count);
 }
 

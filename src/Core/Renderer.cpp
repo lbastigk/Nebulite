@@ -342,11 +342,11 @@ void Renderer::deserialize(std::string const& serialOrLink) noexcept {
 //------------------------------------------
 // Get objects
 
-std::optional<size_t> Renderer::getIdFromIndex(std::size_t const& index) const {
+std::optional<size_t> Renderer::getIdFromIndex(std::size_t const index) const {
     return env.getIdFromIndex(index);
 }
 
-std::optional<size_t> Renderer::getIndexFromId(std::size_t const& searchId) const {
+std::optional<size_t> Renderer::getIndexFromId(std::size_t const searchId) const {
     return env.getIndexFromId(searchId);
 }
 

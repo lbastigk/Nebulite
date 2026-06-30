@@ -9,6 +9,9 @@
 //------------------------------------------
 // Includes
 
+// Standard library
+#include <cstdint>
+
 // Nebulite
 #include "Utility/Time.hpp"
 

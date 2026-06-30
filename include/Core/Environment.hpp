@@ -171,7 +171,7 @@ public:
      * @param domainId The ID of the RenderObject to retrieve.
      * @return A pointer to the RenderObject if found, nullptr otherwise.
      */
-    RenderObject* getObjectFromId(std::size_t const& domainId);
+    RenderObject* getObjectFromId(std::size_t domainId);
 
     //------------------------------------------
     // Get object
@@ -181,14 +181,14 @@ public:
      * @param index The index of the RenderObject
      * @return An optional containing the ID of the RenderObject if found, or std::nullopt if no object is associated with the given index.
      */
-    [[nodiscard]] std::optional<std::size_t> getIdFromIndex(std::size_t const& index) const ;
+    [[nodiscard]] std::optional<std::size_t> getIdFromIndex(std::size_t index) const ;
 
     /**
      * @brief Gets the RenderObject index from its ID.
      * @param domainId The domain ID of the RenderObject to search for.
      * @return An optional containing the index of the RenderObject if found, or std::nullopt if no object is associated with the given ID.
      */
-    [[nodiscard]] std::optional<std::size_t> getIndexFromId(std::size_t const& domainId) const ;
+    [[nodiscard]] std::optional<std::size_t> getIndexFromId(std::size_t domainId) const ;
 
     /**
      * @brief Gets the RenderObject from its ID.
@@ -196,7 +196,7 @@ public:
      *        Does not change when objects are removed or purged.
      * @return A pointer to the RenderObject, or nullptr if not found.
      */
-    std::optional<std::pair<RenderObject*, Data::JsonScope*>> getObjectFromIndex(std::size_t const& searchIndex) ;
+    std::optional<std::pair<RenderObject*, Data::JsonScope*>> getObjectFromIndex(std::size_t searchIndex) ;
 
     //------------------------------------------
     // Container Management

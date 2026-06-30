@@ -49,7 +49,7 @@ public:
 
     bool scriptIsWaiting();
 
-    void incrementScriptWaitCounter(std::size_t const& count);
+    void incrementScriptWaitCounter(std::size_t count);
 
     /**
      * @brief Gets a specific task queue by name.

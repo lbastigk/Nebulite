@@ -112,7 +112,7 @@ public:
     /**
      * @brief Adds a specified index to the key
      */
-    [[nodiscard]] ScopedKey addIndex(std::size_t const& index) const ;
+    [[nodiscard]] ScopedKey addIndex(std::size_t index) const ;
 
     /**
      * @brief Adds a specified member to the key
@@ -222,7 +222,7 @@ public:
     /**
      * @brief Adds a specified index to the key
      */
-    [[nodiscard]] ScopedKey addIndex(std::size_t const& index) const ;
+    [[nodiscard]] ScopedKey addIndex(std::size_t index) const ;
 
     /**
      * @brief Adds a specified member to the key

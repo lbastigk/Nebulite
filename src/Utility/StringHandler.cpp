@@ -23,7 +23,7 @@ namespace Nebulite::Utility {
 
 // [GENERATE]
 
-std::string StringHandler::createPaddedTable(std::vector<std::string> const& words, std::size_t const& rowSize){
+std::string StringHandler::createPaddedTable(std::vector<std::string> const& words, std::size_t const rowSize){
     // Find largest word
     auto maxSize = std::ranges::max_element(words, [](std::string_view const& a, std::string_view const& b) {
         return a.size() < b.size();

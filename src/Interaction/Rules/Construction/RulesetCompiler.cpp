@@ -63,7 +63,7 @@ void RulesetCompiler::getFunctionCalls(Data::JsonScope const& entryDoc, JsonRule
     }
 }
 
-std::optional<Logic::Assignment> RulesetCompiler::getAssignment(Data::JsonScope const& entry, std::size_t const& index) {
+std::optional<Logic::Assignment> RulesetCompiler::getAssignment(Data::JsonScope const& entry, std::size_t const index) {
     auto const exprKey = Constants::KeyNames::Ruleset::assignments.addIndex(index);
     if (Logic::Assignment assignment; assignment.parse(entry.get<std::string>(exprKey).value_or(""))) {
         return assignment;

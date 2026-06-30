@@ -23,7 +23,7 @@ public:
      * @param distributionSize The size of the distribution.
      * @return A lambda function that generates a uniform distribution of IDs.
      */
-    static std::function<std::size_t()> atomicRollingIdGenerator(std::size_t const& distributionSize);
+    static std::function<std::size_t()> atomicRollingIdGenerator(std::size_t distributionSize);
 
     /*
      * @brief A generator function that returns a lambda which generates a uniform distribution of IDs that do not roll, but increase indefinitely.

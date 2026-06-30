@@ -5,7 +5,9 @@
 // Includes
 
 // Standard library
+#include <cstdint> // NOLINT
 #include <string>
+#include <string_view>
 
 // External
 #include <absl/container/flat_hash_map.h>

@@ -35,7 +35,7 @@ public:
      * @param n The number to check.
      * @return true if the number is a power of two, false otherwise.
      */
-    static bool consteval isPowerOfTwo(std::size_t const& n) {
+    static bool consteval isPowerOfTwo(std::size_t n) {
         return n > 0 && (n & (n - 1)) == 0; // NOLINT
     }
 };

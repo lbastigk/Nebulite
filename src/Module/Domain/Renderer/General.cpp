@@ -251,7 +251,7 @@ auto constexpr base64_chars =
     "abcdefghijklmnopqrstuvwxyz"
     "0123456789+/";
 
-std::string base64_encode(std::uint8_t const* data, std::size_t const& len) {
+std::string base64_encode(std::uint8_t const* data, std::size_t const len) {
     std::string out;
     // NOLINTNEXTLINE
     out.reserve(((len + 2) / 3) * 4);

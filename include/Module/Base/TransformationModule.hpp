@@ -11,6 +11,7 @@
 
 // Standard library
 #include <memory>
+#include <string_view>
 
 // Nebulite
 #include "Data/Document/ScopedKey.hpp"
@@ -22,6 +23,7 @@
 
 namespace Nebulite::Data {
 class JSON;
+class JsonScope;
 } // namespace Nebulite::Data
 
 //------------------------------------------

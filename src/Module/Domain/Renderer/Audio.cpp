@@ -197,18 +197,18 @@ void Audio::initWaveforms() {
     static auto constexpr frequency = static_cast<double>(BasicAudioWaveforms::Settings::frequency);
 
     // NOLINTNEXTLINE
-    auto constexpr time = [](std::size_t const& i) {
+    auto constexpr time = [](std::size_t const i) {
         return static_cast<double>(i) / Settings::sampleRate;
     };
 
-    basicAudioWaveforms.sineBuffer = Utility::Generate::array<SampleType, SampleCount>([time](std::size_t const& i) {
+    basicAudioWaveforms.sineBuffer = Utility::Generate::array<SampleType, SampleCount>([time](std::size_t const i) {
         return static_cast<Settings::SampleType>(amplitudeScale * sin(2.0 * M_PI * frequency * time(i)));
     });
-    basicAudioWaveforms.triangleBuffer = Utility::Generate::array<SampleType, SampleCount>([time](std::size_t const& i) {
+    basicAudioWaveforms.triangleBuffer = Utility::Generate::array<SampleType, SampleCount>([time](std::size_t const i) {
         double const value = 2.0 * (time(i) * frequency - floor(time(i) * frequency + 0.5));
         return static_cast<Settings::SampleType>(amplitudeScale * value);
     });
-    basicAudioWaveforms.squareBuffer = Utility::Generate::array<SampleType, SampleCount>([time](std::size_t const& i) {
+    basicAudioWaveforms.squareBuffer = Utility::Generate::array<SampleType, SampleCount>([time](std::size_t const i) {
         double const value = sin(2.0 * M_PI * frequency * time(i)) >= 0.0 ? 1.0 : -1.0;
         return static_cast<Settings::SampleType>(amplitudeScale * value);
     });

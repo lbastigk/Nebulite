@@ -232,11 +232,11 @@ Data::DocumentCache& GlobalSpace::getDocCache() {
 //------------------------------------------
 // Id-index mapping
 
-std::optional<size_t> GlobalSpace::getIdFromIndex(std::size_t const& index) const {
+std::optional<size_t> GlobalSpace::getIdFromIndex(std::size_t const index) const {
     return renderer.getIdFromIndex(index);
 }
 
-std::optional<size_t> GlobalSpace::getIndexFromId(std::size_t const& searchId) const {
+std::optional<size_t> GlobalSpace::getIndexFromId(std::size_t const searchId) const {
     return renderer.getIndexFromId(searchId);
 }
 

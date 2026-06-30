@@ -28,7 +28,7 @@ namespace Nebulite::Data::BroadcastListenContainer {
 template<typename DerivedContainer>
 class BaseContainer {
 public:
-    explicit BaseContainer(std::atomic<bool>& stopFlag, std::size_t const& workerIndex, std::size_t const& workerCount, DerivedContainer container)
+    explicit BaseContainer(std::atomic<bool>& stopFlag, std::size_t workerIndex, std::size_t workerCount, DerivedContainer container)
         : workerInfo{workerIndex, workerCount}
         , dispatcher(stopFlag, processImpl, initImpl)
     {

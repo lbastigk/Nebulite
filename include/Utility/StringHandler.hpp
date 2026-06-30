@@ -57,7 +57,7 @@ public:
      * @param words The list of words to pad
      * @param rowSize The maximum character size per row. Set to zero for no newlines
      */
-    static std::string createPaddedTable(std::vector<std::string> const& words, std::size_t const& rowSize = 0);
+    static std::string createPaddedTable(std::vector<std::string> const& words, std::size_t rowSize = 0);
 
     /**
      * @brief Replaces all occurrences of a substring within a string.
