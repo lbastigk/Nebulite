@@ -1,8 +1,3 @@
-/**
- * @file Debug.hpp
- * @brief Class for debug transformation functions.
- */
-
 #ifndef MODULE_TRANSFORMATION_DEBUG_HPP
 #define MODULE_TRANSFORMATION_DEBUG_HPP
 
@@ -12,6 +7,7 @@
 // Standard library
 #include <memory>
 #include <span>
+#include <string_view>
 
 // Nebulite
 #include "Interaction/Execution/FuncTree.hpp"

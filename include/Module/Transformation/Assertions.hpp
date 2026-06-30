@@ -1,8 +1,3 @@
-/**
- * @file Assertions.hpp
- * @brief Class for assertion transformation functions.
- */
-
 #ifndef MODULE_TRANSFORMATION_ASSERTIONS_HPP
 #define MODULE_TRANSFORMATION_ASSERTIONS_HPP
 
@@ -12,6 +7,7 @@
 // Standard library
 #include <memory>
 #include <span>
+#include <string_view>
 
 // Nebulite
 #include "Interaction/Execution/FuncTree.hpp"

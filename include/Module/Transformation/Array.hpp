@@ -1,8 +1,3 @@
-/**
- * @file Array.hpp
- * @brief Class for array transformation functions.
- */
-
 #ifndef MODULE_TRANSFORMATION_ARRAY_HPP
 #define MODULE_TRANSFORMATION_ARRAY_HPP
 
@@ -12,6 +7,7 @@
 // Standard library
 #include <memory>
 #include <span>
+#include <string_view>
 
 // Nebulite
 #include "Interaction/Execution/FuncTree.hpp"

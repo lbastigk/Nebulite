@@ -1,8 +1,3 @@
-/**
-* @file Array.hpp
- * @brief Class for sorting transformation functions.
- */
-
 #ifndef MODULE_TRANSFORMATION_SORT_HPP
 #define MODULE_TRANSFORMATION_SORT_HPP
 
@@ -10,8 +5,15 @@
 // Includes
 
 // Standard library
+#include <algorithm>
+#include <cstddef>
+#include <functional>
 #include <memory>
+#include <ranges>
 #include <span>
+#include <string_view>
+#include <utility>
+#include <vector>
 
 // Nebulite
 #include "Interaction/Execution/FuncTree.hpp"

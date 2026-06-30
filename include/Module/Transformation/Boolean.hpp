@@ -1,8 +1,3 @@
-/**
- * @file Boolean.hpp
- * @brief Class for boolean transformation functions.
- */
-
 #ifndef MODULE_TRANSFORMATION_BOOLEAN_HPP
 #define MODULE_TRANSFORMATION_BOOLEAN_HPP
 

@@ -7,6 +7,7 @@
 // Standard library
 #include <memory>
 #include <span>
+#include <string_view>
 
 // Nebulite
 #include "Interaction/Execution/FuncTree.hpp"

@@ -1,8 +1,3 @@
-/**
- * @file Statistics.hpp
- * @brief Class for statistics transformation functions.
- */
-
 #ifndef MODULE_TRANSFORMATION_STATISTICS_HPP
 #define MODULE_TRANSFORMATION_STATISTICS_HPP
 
@@ -10,6 +5,7 @@
 // Includes
 
 // Standard library
+#include <functional>
 #include <memory>
 
 // Nebulite

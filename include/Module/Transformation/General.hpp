@@ -1,8 +1,3 @@
-/**
- * @file General.hpp
- * @brief Class for basic transformation functions.
- */
-
 #ifndef MODULE_TRANSFORMATION_GENERAL_HPP
 #define MODULE_TRANSFORMATION_GENERAL_HPP
 

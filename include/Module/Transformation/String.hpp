@@ -1,8 +1,3 @@
-/**
- * @file String.hpp
- * @brief Class for string transformation functions.
- */
-
 #ifndef MODULE_TRANSFORMATION_STRING_HPP
 #define MODULE_TRANSFORMATION_STRING_HPP
 
@@ -12,6 +7,7 @@
 // Standard library
 #include <memory>
 #include <span>
+#include <string_view>
 
 // Nebulite
 #include "Interaction/Execution/FuncTree.hpp"

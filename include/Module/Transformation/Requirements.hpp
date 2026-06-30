@@ -1,8 +1,3 @@
-/**
- * @file Requirements.hpp
- * @brief Class for requirement transformation functions.
- */
-
 #ifndef MODULE_TRANSFORMATION_REQUIREMENTS_HPP
 #define MODULE_TRANSFORMATION_REQUIREMENTS_HPP
 
@@ -12,6 +7,7 @@
 // Standard library
 #include <memory>
 #include <span>
+#include <string_view>
 
 // Nebulite
 #include "Interaction/Execution/FuncTree.hpp"

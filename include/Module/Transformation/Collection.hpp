@@ -1,8 +1,3 @@
-/**
- * @file Collection.hpp
- * @brief Class for collection transformation functions.
- */
-
 #ifndef MODULE_TRANSFORMATION_COLLECTION_HPP
 #define MODULE_TRANSFORMATION_COLLECTION_HPP
 
@@ -12,6 +7,7 @@
 // Standard library
 #include <memory>
 #include <span>
+#include <string_view>
 
 // Nebulite
 #include "Interaction/Execution/FuncTree.hpp"

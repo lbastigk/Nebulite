@@ -1,8 +1,3 @@
-/**
- * @file Arithmetic.hpp
- * @brief Class for arithmetic transformation functions.
- */
-
 #ifndef MODULE_TRANSFORMATION_ARITHMETIC_HPP
 #define MODULE_TRANSFORMATION_ARITHMETIC_HPP
 
@@ -10,10 +5,13 @@
 // Includes
 
 // Standard library
+#include <functional>
 #include <memory>
 #include <span>
+#include <string_view>
 
 // Nebulite
+#include "Data/Document/ScopedKey.hpp"
 #include "Interaction/Execution/FuncTree.hpp"
 #include "Module/Base/TransformationModule.hpp"
 

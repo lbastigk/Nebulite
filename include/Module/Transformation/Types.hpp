@@ -1,8 +1,3 @@
-/**
- * @file Types.hpp
- * @brief Class for types transformation functions.
- */
-
 #ifndef MODULE_TRANSFORMATION_TYPES_HPP
 #define MODULE_TRANSFORMATION_TYPES_HPP
 
@@ -12,6 +7,7 @@
 // Standard library
 #include <memory>
 #include <span>
+#include <string_view>
 
 // Nebulite
 #include "Interaction/Execution/FuncTree.hpp"

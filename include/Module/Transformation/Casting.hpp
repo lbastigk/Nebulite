@@ -1,8 +1,3 @@
-/**
- * @file Casting.hpp
- * @brief Class for casting transformation functions.
- */
-
 #ifndef MODULE_TRANSFORMATION_CASTING_HPP
 #define MODULE_TRANSFORMATION_CASTING_HPP
 
@@ -12,6 +7,7 @@
 // Standard library
 #include <memory>
 #include <span>
+#include <string_view>
 
 // Nebulite
 #include "Interaction/Execution/FuncTree.hpp"
