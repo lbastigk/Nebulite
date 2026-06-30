@@ -12,6 +12,7 @@
 
 // Nebulite
 #include "Nebulite.hpp"
+#include "Utility/IO/Capture.hpp"
 #include "Utility/IO/FileManagement.hpp"
 
 //------------------------------------------

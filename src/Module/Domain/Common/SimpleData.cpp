@@ -13,9 +13,9 @@
 #include "Constants/StandardCapture.hpp"
 #include "Data/Document/KeyType.hpp"
 #include "Interaction/Context.hpp"
+#include "Interaction/Execution/Domain.hpp"
 #include "Interaction/Logic/Assignment.hpp"
 #include "Module/Domain/Common/SimpleData.hpp"
-#include "Nebulite.hpp"
 #include "Utility/StringHandler.hpp"
 
 //------------------------------------------

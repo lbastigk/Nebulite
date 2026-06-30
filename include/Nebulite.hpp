@@ -4,24 +4,34 @@
 //------------------------------------------
 // Includes
 
+// Standard library
+#include <string>
+
 // Nebulite
-#include "Core/GlobalSpace.hpp"
 #include "ScopeAccessor.hpp"
-#include "Utility/IO/Capture.hpp"
 
 //------------------------------------------
 // Forward declarations
 
+namespace Nebulite::Core {
+class GlobalSpace;
+} // namespace Nebulite::Core
+
 namespace Nebulite::Data {
+class JSON;
 class JsonScope;
 } // namespace Nebulite::Data
+
+namespace Nebulite::Utility::IO {
+class Capture;
+} // namespace Nebulite::Utility::IO
 
 //------------------------------------------
 // Global class for singleton access
 
 namespace Nebulite {
 /**
- * @brief Static class to provide access to the global GlobalSpace singleton and selected global JSON document scopes.
+ * @brief Static class to provide access to the global GlobalSpace singleton, its document and selected global JSON document scopes.
  */
 class Global final {
 public:

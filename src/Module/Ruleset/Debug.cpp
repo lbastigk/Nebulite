@@ -2,8 +2,10 @@
 // Includes
 
 // Nebulite
+#include "Interaction/Execution/Domain.hpp"
 #include "Module/Ruleset/Debug.hpp"
 #include "Nebulite.hpp"
+#include "Utility/IO/Capture.hpp"
 
 //------------------------------------------
 namespace Nebulite::Module::Ruleset {

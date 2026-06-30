@@ -18,6 +18,7 @@
 #include <tinyexpr.h>
 
 // Nebulite
+#include "Core/GlobalSpace.hpp"
 #include "Data/Document/JsonScope.hpp"
 #include "Interaction/Context.hpp"
 #include "Interaction/Logic/Expression.hpp"

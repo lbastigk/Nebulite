@@ -7,9 +7,9 @@
 // Nebulite
 #include "Constants/Event.hpp"
 #include "Constants/StandardCapture.hpp"
+#include "Core/Renderer.hpp"
 #include "Math/FFT.hpp"
 #include "Module/Domain/Renderer/Audio.hpp"
-#include "Nebulite.hpp"
 #include "Utility/Generate.hpp"
 
 //------------------------------------------

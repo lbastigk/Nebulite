@@ -3,6 +3,7 @@
 
 // Nebulite
 #include "Constants/Event.hpp"
+#include "Core/GlobalSpace.hpp"
 #include "Core/Renderer.hpp"
 #include "Graphics/ImguiHelper.hpp"
 #include "Module/Domain/Renderer/Console.hpp"

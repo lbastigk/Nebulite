@@ -8,12 +8,14 @@
 #include <memory>
 #include <mutex>
 #include <numeric>
+#include <optional>
 #include <string>
 #include <string_view>
 #include <vector>
 
 // Nebulite
 #include "Constants/Event.hpp"
+#include "Core/GlobalSpace.hpp"
 #include "Data/Document/JsonScope.hpp"
 #include "Interaction/Context.hpp"
 #include "Interaction/Execution/Domain.hpp"
@@ -32,13 +34,13 @@ ScopeOwnershipManager::~ScopeOwnershipManager() = default;
 
 ScopeOwnershipManager::ScopeOwnershipManager(ScopeOwnership const ownership) {
     if (ownership == ScopeOwnership::Owned) {
-        _domainScopeOwned = std::make_unique<Data::JsonScope>();
+        domainScopeOwned.emplace();
     }
 }
 
 DocumentAccessor::DocumentAccessor(Data::JsonScope& d) : ScopeOwnershipManager(ScopeOwnership::Borrowed), domainScope(d) {}
 
-DocumentAccessor::DocumentAccessor() : ScopeOwnershipManager(ScopeOwnership::Owned), domainScope(*_domainScopeOwned) {
+DocumentAccessor::DocumentAccessor() : ScopeOwnershipManager(ScopeOwnership::Owned), domainScope(domainScopeOwned.value()) {
     // Note: This creates a new JsonScope that is owned by this DocumentAccessor.
     // It will be automatically cleaned up when the DocumentAccessor is destroyed.
 }

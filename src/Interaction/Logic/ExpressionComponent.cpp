@@ -12,6 +12,7 @@
 #include <tinyexpr.h>
 
 // Nebulite
+#include "Core/GlobalSpace.hpp"
 #include "Data/Document/JsonScope.hpp"
 #include "Data/Document/SimpleValueError.hpp"
 #include "Interaction/Context.hpp"

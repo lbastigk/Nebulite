@@ -9,6 +9,7 @@
 #include <string>
 
 // Nebulite
+#include "Core/GlobalSpace.hpp"
 #include "Constants/ThreadSettings.hpp"
 #include "Data/BroadcastListenContainer/FlatContainer.hpp"
 #include "Interaction/Execution/Domain.hpp"

@@ -19,8 +19,10 @@
 #include <rapidjson/writer.h>
 
 // Nebulite
+#include "Core/GlobalSpace.hpp"
 #include "Data/Document/RjDirectAccess.hpp"
 #include "Nebulite.hpp"
+#include "Utility/IO/Capture.hpp"
 #include "Utility/StringHandler.hpp"
 
 //------------------------------------------

@@ -3,6 +3,7 @@
 
 // Nebulite
 #include "Constants/KeyNames.hpp"
+#include "Data/Document/JsonScope.hpp"
 #include "Interaction/Context.hpp"
 #include "Module/Base/RulesetModule.hpp"
 #include "Module/Ruleset/Camera.hpp"

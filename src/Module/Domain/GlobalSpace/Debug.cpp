@@ -17,6 +17,7 @@
 #include "Constants/Event.hpp"
 #include "Constants/StandardCapture.hpp"
 #include "Constants/ThreadSettings.hpp"
+#include "Core/GlobalSpace.hpp"
 #include "Core/RenderObject.hpp"
 #include "Interaction/Context.hpp"
 #include "Math/ExpressionPrimitives.hpp"

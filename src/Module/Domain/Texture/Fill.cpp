@@ -14,6 +14,7 @@
 // Nebulite
 #include "Constants/Event.hpp"
 #include "Constants/StandardCapture.hpp"
+#include "Core/GlobalSpace.hpp"
 #include "Core/Texture.hpp"
 #include "Module/Domain/Texture/Fill.hpp"
 #include "Nebulite.hpp"

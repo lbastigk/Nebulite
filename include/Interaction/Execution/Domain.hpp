@@ -9,6 +9,7 @@
 #include <cstdint> // NOLINT
 #include <memory>
 #include <mutex>
+#include <optional>
 #include <string>
 #include <string_view>
 #include <vector>
@@ -73,8 +74,9 @@ namespace Nebulite::Interaction::Execution {
 // Helps not expose the domainScopeOwned to friend classes of DocumentAccessor
 class ScopeOwnershipManager {
     friend class DocumentAccessor;
+
     // Only used if the DocumentAccessor owns the scope (i.e., when constructed with the default constructor)
-    std::unique_ptr<Data::JsonScope> _domainScopeOwned;
+    std::optional<Data::JsonScope> domainScopeOwned = std::nullopt;
 
 public:
     enum class ScopeOwnership : bool {

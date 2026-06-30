@@ -6,6 +6,7 @@
 #include <cstddef>
 #include <iostream>
 #include <iterator>
+#include <ranges>
 #include <span>
 #include <string>
 #include <string_view>
@@ -14,6 +15,7 @@
 // Nebulite
 #include "Constants/Event.hpp"
 #include "Constants/StandardCapture.hpp"
+#include "Core/GlobalSpace.hpp"
 #include "Graphics/ImguiHelper.hpp"
 #include "Interaction/Logic/Expression.hpp"
 #include "Module/Domain/Common/General.hpp"

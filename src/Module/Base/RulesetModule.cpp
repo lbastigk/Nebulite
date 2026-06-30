@@ -7,6 +7,7 @@
 #include <vector>
 
 // Nebulite
+#include "Core/GlobalSpace.hpp"
 #include "Interaction/Execution/Domain.hpp"
 #include "Interaction/Rules/StaticRulesetMap.hpp"
 #include "Module/Base/RulesetModule.hpp"

@@ -22,17 +22,24 @@
 
 // Nebulite
 #include "Constants/Event.hpp"
+#include "Core/GlobalSpace.hpp"
 #include "Core/Renderer.hpp"
 #include "Data/Document/JsonScope.hpp"
 #include "Data/Document/KeyType.hpp"
 #include "Graphics/Drawcall.hpp"
 #include "Graphics/SdlPrimitive.hpp"
-// NOLINTNEXTLINE
-#include "Interaction/Context.hpp"
 #include "Math/Equality.hpp"
 #include "Nebulite.hpp"
 #include "Utility/Coordination/IdGenerator.hpp"
 #include "Utility/IO/Capture.hpp"
+
+//------------------------------------------
+// Forward declarations
+
+namespace Nebulite::Interaction {
+class Context;
+class ContextScope;
+} // namespace Nebulite::Interaction
 
 //------------------------------------------
 namespace {

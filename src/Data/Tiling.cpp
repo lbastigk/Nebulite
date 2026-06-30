@@ -16,6 +16,7 @@
 
 // Nebulite
 #include "Constants/Event.hpp"
+#include "Core/GlobalSpace.hpp"
 #include "Core/RenderObject.hpp"
 #include "Data/Batch.hpp"
 #include "Data/RenderObjectContainer.hpp"

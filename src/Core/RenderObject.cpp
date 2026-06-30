@@ -13,6 +13,7 @@
 // Nebulite
 #include "Constants/Event.hpp"
 #include "Constants/KeyNames.hpp"
+#include "Core/GlobalSpace.hpp"
 #include "Core/RenderObject.hpp"
 #include "Data/Document/JsonScope.hpp"
 #include "Graphics/Drawcall.hpp"

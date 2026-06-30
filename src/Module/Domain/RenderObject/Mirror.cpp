@@ -6,6 +6,7 @@
 
 // Nebulite
 #include "Constants/Event.hpp"
+#include "Core/GlobalSpace.hpp"
 #include "Core/RenderObject.hpp"
 #include "Data/Document/KeyType.hpp"
 #include "Module/Domain/RenderObject/Mirror.hpp"

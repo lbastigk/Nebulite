@@ -6,6 +6,7 @@
 #include <stdexcept>
 
 // Nebulite
+#include "Core/GlobalSpace.hpp"
 #include "Interaction/Context.hpp"
 #include "Interaction/Rules/StaticRulesetMap.hpp"
 #include "Math/Equality.hpp"

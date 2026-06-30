@@ -1,9 +1,13 @@
 //------------------------------------------
 // Includes
 
+// Standard library
+#include <string>
+
 // Nebulite
 #include "Core/GlobalSpace.hpp"
-#include "Data/Document/JsonScope.hpp" // NOLINT
+#include "Data/Document/JSON.hpp"
+#include "Data/Document/JsonScope.hpp"
 #include "Nebulite.hpp"
 #include "ScopeAccessor.hpp"
 #include "Utility/IO/Capture.hpp"

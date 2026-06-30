@@ -13,6 +13,7 @@
 
 // Nebulite
 #include "Constants/KeyNames.hpp"
+#include "Core/GlobalSpace.hpp"
 #include "Data/Document/JsonScope.hpp"
 #include "Data/Document/KeyType.hpp"
 #include "Interaction/Context.hpp"

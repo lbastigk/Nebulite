@@ -35,6 +35,7 @@
 // Nebulite
 #include "Constants/Event.hpp"
 #include "Constants/KeyNames.hpp"
+#include "Core/GlobalSpace.hpp"
 #include "Core/RenderObject.hpp"
 #include "Core/Renderer.hpp"
 #include "Data/RenderObjectContainer.hpp"
@@ -707,7 +708,7 @@ void Renderer::changeWindowSize(int const w, int const h, std::uint8_t  const sc
     }
 }
 
-void Renderer::setCam(int const X, int const Y, bool isMiddle) const {
+void Renderer::setCam(int const X, int const Y, bool const isMiddle) const {
     int newPosX = X;
     int newPosY = Y;
     if (isMiddle) {

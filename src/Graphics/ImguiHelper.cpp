@@ -18,6 +18,7 @@
 
 // Nebulite
 #include "Constants/Event.hpp"
+#include "Core/GlobalSpace.hpp"
 #include "Data/Document/JsonScope.hpp"
 #include "Data/Document/KeyType.hpp"
 #include "Graphics/ImguiHelper.hpp"
