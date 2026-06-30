@@ -4,11 +4,12 @@
 // Standard library
 #include <cstddef> // NOLINT
 #include <cstdint> // NOLINT
-#include <optional>
+#include <functional>
 #include <ranges>
 #include <regex>
 #include <span>
 #include <string>
+#include <utility>
 #include <vector>
 
 // Nebulite
@@ -72,21 +73,6 @@ bool Filter::filterGlob(std::span<std::string_view const> const& args, Data::Jso
     return true;
 }
 
-namespace {
-std::vector<std::optional<std::string>> listMemberValues(Data::JsonScope const* jsonDoc, Data::ScopedKeyView const& rootKey) {
-    std::vector<std::optional<std::string>> values;
-    for (auto const index : std::views::iota(std::size_t{0}, jsonDoc->memberSize(rootKey))) {
-        auto const key = rootKey.addIndex(index);
-        if (auto const value = jsonDoc->get<std::string>(key); value.has_value()) {
-            values.emplace_back(value.value());
-        } else {
-            values.emplace_back(std::nullopt);
-        }
-    }
-    return values;
-}
-} // namespace
-
 bool Filter::filterRegexValue(std::span<std::string_view const> const& args, Data::JsonScope* jsonDoc){
     if (args.size() != 2) {
         return false;
@@ -105,8 +91,7 @@ bool Filter::filterRegexValue(std::span<std::string_view const> const& args, Dat
 
     // Get values and filter
     auto const values = listMemberValues(jsonDoc, rootKey)
-        | std::views::filter([regexPattern](std::optional<std::string> const& value) { return value.has_value() && std::regex_match(value.value(), regexPattern); })
-        | std::views::transform([](std::optional<std::string> const& value) { return value.value(); })
+        | std::views::filter([regexPattern](std::string const& value) { return std::regex_match(value, regexPattern); })
         | std::ranges::to<std::vector>();
 
     // Set values
@@ -129,8 +114,7 @@ bool Filter::filterGlobValue(std::span<std::string_view const> const& args, Data
 
     // Get values and filter
     auto const values = listMemberValues(jsonDoc, rootKey)
-        | std::views::filter([pattern](std::optional<std::string> const& value) { return value.has_value() && Utility::globMatch(pattern, value.value()); }) // NOLINT
-        | std::views::transform([](std::optional<std::string> const& value) { return value.value(); })
+        | std::views::filter([pattern](std::string const& value) { return Utility::globMatch(pattern, value); }) // NOLINT
         | std::ranges::to<std::vector>();
 
     // Set values
@@ -202,6 +186,39 @@ bool Filter::filterCustom(std::span<std::string_view const> const& args, Data::J
         return expression.evalAsBool(ctxScope);
     });
     return true;
+}
+
+// Private helper
+
+void Filter::arrayFilter(Data::JsonScope* jsonDoc, std::function<bool(Data::JsonScope&)> const& filter) {
+    auto memberCount = jsonDoc->memberSize(rootKey);
+    std::vector<Data::JSON> values;
+    values.reserve(memberCount);
+    for (auto const idx : std::views::iota(std::size_t{0}, memberCount)) {
+        auto const key = rootKey.addIndex(idx);
+        auto doc = jsonDoc->getSubDoc(key);
+        if (auto& scope = doc.shareManagedScope(""); filter(scope)) {
+            values.emplace_back(std::move(doc));
+        }
+    }
+    jsonDoc->removeMember(rootKey);
+    for (auto [idx, value] : values | std::views::enumerate) {
+        auto const key = rootKey.addIndex(static_cast<std::size_t>(idx));
+        jsonDoc->setSubDoc(key, value);
+    }
+}
+
+std::vector<std::string> Filter::listMemberValues(Data::JsonScope const* jsonDoc, Data::ScopedKeyView const& rootKey) {
+    auto maxSize = jsonDoc->memberSize(rootKey);
+    std::vector<std::string> values;
+    values.reserve(maxSize);
+    for (auto const index : std::views::iota(std::size_t{0}, maxSize)) {
+        auto const key = rootKey.addIndex(index);
+        if (auto const value = jsonDoc->get<std::string>(key); value.has_value()) {
+            values.emplace_back(value.value());
+        }
+    }
+    return values;
 }
 
 } // namespace Nebulite::Module::Transformation

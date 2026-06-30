@@ -5,10 +5,15 @@
 // Includes
 
 // Standard library
+#include <functional>
 #include <memory>
 #include <span>
+#include <string>
+#include <string_view>
+#include <vector>
 
 // Nebulite
+#include "Data/Document/ScopedKey.hpp"
 #include "Interaction/Execution/FuncTree.hpp"
 #include "Module/Base/TransformationModule.hpp"
 
@@ -75,21 +80,15 @@ private:
      * @param jsonDoc The scope to sort. Must be an array at scope root!
      * @param filter The filter function to use
      */
-    static void arrayFilter(Data::JsonScope* jsonDoc, std::function<bool(Data::JsonScope&)> const& filter) {
-        std::vector<Data::JSON> values;
-        for (auto const idx : std::views::iota(std::size_t{0}, jsonDoc->memberSize(rootKey))) {
-            auto const key = rootKey.addIndex(idx);
-            auto doc = jsonDoc->getSubDoc(key);
-            if (auto& scope = doc.shareManagedScope(""); filter(scope)) {
-                values.emplace_back(std::move(doc));
-            }
-        }
-        jsonDoc->removeMember(rootKey);
-        for (auto [idx, value] : values | std::views::enumerate) {
-            auto const key = rootKey.addIndex(static_cast<std::size_t>(idx));
-            jsonDoc->setSubDoc(key, value);
-        }
-    }
+    static void arrayFilter(Data::JsonScope* jsonDoc, std::function<bool(Data::JsonScope&)> const& filter);
+
+    /**
+     * @brief List all member values of a JsonScope that are convertible to strings
+     * @param jsonDoc The scope to list values from
+     * @param rootKey The key of the scope to list values from. Must be an array
+     * @return A vector of optional strings, where each element corresponds to a member value.
+     */
+    static std::vector<std::string> listMemberValues(Data::JsonScope const* jsonDoc, Data::ScopedKeyView const& rootKey);
 };
 
 } // namespace Nebulite::Module::Transformation
