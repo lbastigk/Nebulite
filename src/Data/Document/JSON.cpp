@@ -346,8 +346,9 @@ double* JSON::getStableDoublePointer(std::string_view const& key) const {
     *new_entry->stable_double_ptr = standardNumericValue;
     new_entry->last_double_value = standardNumericValue;
     new_entry->state = CacheEntry::EntryState::DERIVED;
+    auto const ptr = new_entry->stable_double_ptr;
     cache[key] = std::move(new_entry);
-    return cache[key]->stable_double_ptr;
+    return ptr;
 }
 
 std::unique_lock<std::recursive_mutex> JSON::lock() const {

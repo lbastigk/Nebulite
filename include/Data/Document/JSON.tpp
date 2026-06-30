@@ -131,10 +131,11 @@ std::optional<T> JSON::jsonValueToCache(std::string_view const& key, rapidjson::
     new_entry->last_double_value = *new_entry->stable_double_ptr;
 
     // Insert into cache
+    auto const value = convertVariant<T>(new_entry->value);
     cache[key] = std::move(new_entry);
 
     // Return converted value
-    return convertVariant<T>(cache[key]->value);
+    return value;
 }
 
 // Using NOLINTNEXTLINE to silence "Arguments passed in possible wrong order" warnings
