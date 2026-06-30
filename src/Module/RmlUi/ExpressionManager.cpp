@@ -20,22 +20,10 @@
 //------------------------------------------
 namespace Nebulite::Module::RmlUi {
 
-ExpressionManager::ExpressionManager(Utility::IO::Capture& c, Graphics::RmlInterface& i) : RmlUiModule(c,i) {
-    evaluationRoutine = std::make_unique<Utility::Coordination::TimedRoutine>(
-        [this] {
-            updateExpressions();
-            expressionsWereEvaluated = true;
-        },
-        // If 1000.0/fps is higher than this value, the ui starts glitching due to the reset rml still being written while rendering.
-        // So we update Expressions instantly with each new render pass.
-        // Getting rid of the TimedRoutine is also an option, but we leave it here atm.
-        0,
-        Utility::Coordination::TimedRoutine::ConstructionMode::START_IMMEDIATELY
-    );
-}
+ExpressionManager::ExpressionManager(Utility::IO::Capture& c, Graphics::RmlInterface& i) : RmlUiModule(c,i) {}
 
 void ExpressionManager::update() {
-    evaluationRoutine->update();
+    evaluationRoutine.update();
 }
 
 void ExpressionManager::postRenderUpdate() {

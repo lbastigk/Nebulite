@@ -28,11 +28,13 @@ template <FlatContainerType Type>
 class FlatContainer;
 
 class FlatContainerBase {
-    // All functions private, only accessible by FlatContainer, which is the only friend class
+    // rendererWorkerCount should be enough, but if we decide that rulesets are able to directly broadcast/listen, we need one slot for each thread!
+    static auto constexpr activeWorkerCount = Constants::ThreadSettings::Maximum::rendererWorkerCount;
 
-    template <FlatContainerType Type>
-    friend class FlatContainer;
+    std::array<StringMap<std::vector<std::shared_ptr<Interaction::Rules::Ruleset>>>, activeWorkerCount> broadcasters = {};
+    std::array<StringMap<std::vector<std::shared_ptr<Interaction::Rules::Listener>>>, activeWorkerCount> listeners = {};
 
+public:
     struct Settings {
         double relativeOffset;
         double listenerOffset;
@@ -42,10 +44,6 @@ class FlatContainerBase {
     };
 
     Settings const& settings;
-
-    static std::unique_ptr<FlatContainerBase> create(Settings const& s) {
-        return std::make_unique<FlatContainerBase>(s);
-    }
 
     void broadcast(std::shared_ptr<Interaction::Rules::Ruleset>&& entry);
     void listen(std::shared_ptr<Interaction::Rules::Listener>&& listener);
@@ -60,13 +58,6 @@ class FlatContainerBase {
      */
     void processWithoutRotation();
 
-    // rendererWorkerCount should be enough, but if we decide that rulesets are able to directly broadcast/listen, we need one slot for each thread!
-    static auto constexpr activeWorkerCount = Constants::ThreadSettings::Maximum::rendererWorkerCount;
-
-    std::array<StringMap<std::vector<std::shared_ptr<Interaction::Rules::Ruleset>>>, activeWorkerCount> broadcasters = {};
-    std::array<StringMap<std::vector<std::shared_ptr<Interaction::Rules::Listener>>>, activeWorkerCount> listeners = {};
-
-public:
     explicit FlatContainerBase(Settings const& s) : settings(s) {}
 };
 
@@ -103,7 +94,7 @@ public:
             std::unreachable();
         }
 
-        base = FlatContainerBase::create(settings);
+        base.emplace(settings);
     }
 
     ~FlatContainer() override = default;
@@ -156,7 +147,8 @@ private:
     /**
      * @brief Non-templated base class of the FlatContainer
      */
-    std::unique_ptr<FlatContainerBase> base;
+    //std::unique_ptr<FlatContainerBase> base;
+    std::optional<FlatContainerBase> base;
 };
 
 } // namespace Nebulite::Data::BroadcastListenContainer

@@ -99,17 +99,17 @@ private:
      * @details Ensuring the draft is only initialized when accessed through lazy-init
      */
     class DraftHolder {
-        std::unique_ptr<Core::RenderObject> ptr;
+        std::optional<Core::RenderObject> obj;
 
     public:
         DraftHolder() = default;
 
-        std::unique_ptr<Core::RenderObject>& get(Utility::IO::Capture& capture) {
-            if (!ptr) {
-                ptr = std::make_unique<Core::RenderObject>(capture);
-                ptr->setName("Draft Object");
+        Core::RenderObject& get(Utility::IO::Capture& capture) {
+            if (!obj) {
+                obj.emplace(capture);
+                obj->setName("Draft Object");
             }
-            return ptr;
+            return *obj;
         }
     };
 

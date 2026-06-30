@@ -101,7 +101,7 @@ void RenderObjectContainer::append(Core::RenderObject* toAppend, TilingInformati
     ObjectContainer[pos].appendBatch(std::move(newBatch));
 }
 
-void RenderObjectContainer::update(std::vector<TileCoordinate> const& viewport, TilingInformation const& tilingInformation, RendererProcessor const& rendererProcessor) {
+void RenderObjectContainer::update(std::vector<TileCoordinate> const& viewport, TilingInformation const& tilingInformation, RendererProcessor& rendererProcessor) {
     //------------------------------------------
     // 2-Step Deletion
 
@@ -132,7 +132,7 @@ void RenderObjectContainer::update(std::vector<TileCoordinate> const& viewport, 
 
         // Create worker threads, one for each visible tile
         // Get current worker, set up workspace and add work to it
-        auto& currentWorker = rendererProcessor.batchWorkerPool[workerIdx]->workspace;
+        auto& currentWorker = rendererProcessor.batchWorkerPool[workerIdx].value().workspace;
         currentWorker.work = &it->second;
         currentWorker.pos = tilePosition;
         currentWorker.tilingInformation = tilingInformation;

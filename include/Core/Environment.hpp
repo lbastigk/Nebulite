@@ -157,7 +157,7 @@ public:
      * @param tilingInformation Width and height of each tile
      * @param rendererProcessor the RendererProcessor instance to use for parallel processing of batches.
      */
-    void updateObjects(std::vector<Data::TileCoordinate> const& tiles, Data::TilingInformation const& tilingInformation, Data::RendererProcessor const& rendererProcessor);
+    void updateObjects(std::vector<Data::TileCoordinate> const& tiles, Data::TilingInformation const& tilingInformation, Data::RendererProcessor& rendererProcessor);
 
     /**
      * @brief Rebuilds the Container structure.

@@ -118,7 +118,7 @@ public:
      * @param tilingInformation Width and height of each tile
      * @param rendererProcessor The RendererProcessor instance to use for parallel processing of batches.
      */
-    void update(std::vector<TileCoordinate> const& viewport, TilingInformation const& tilingInformation, RendererProcessor const& rendererProcessor);
+    void update(std::vector<TileCoordinate> const& viewport, TilingInformation const& tilingInformation, RendererProcessor& rendererProcessor);
 
     /**
      * @brief Gets the vector of batches at the specified tile position.

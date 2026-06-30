@@ -35,7 +35,7 @@ public:
     };
 
 private:
-    bool expressionsWereEvaluated = false;
+    volatile bool expressionsWereEvaluated = false;
 
     // Pre-compiled RML strings to expressions
     absl::flat_hash_map<
@@ -49,11 +49,22 @@ private:
         Rml::String
     > rmlStrings;
 
-    std::unique_ptr<Utility::Coordination::TimedRoutine> evaluationRoutine;
+   // std::unique_ptr<Utility::Coordination::TimedRoutine> evaluationRoutine;
 
     void updateExpressions();
 
     void resetExpressions();
+
+    Utility::Coordination::TimedRoutine evaluationRoutine{[this] {
+            updateExpressions();
+            expressionsWereEvaluated = true;
+        },
+        // If 1000.0/fps is higher than this value, the ui starts glitching due to the reset rml still being written while rendering.
+        // So we update Expressions instantly with each new render pass.
+        // Getting rid of the TimedRoutine is also an option, but we leave it here atm.
+        0,
+        Utility::Coordination::TimedRoutine::ConstructionMode::START_IMMEDIATELY
+    };
 };
 } // namespace Nebulite::Module::RmlUi
 #endif // MODULE_RMLUI_EXPRESSIONMANAGER_HPP

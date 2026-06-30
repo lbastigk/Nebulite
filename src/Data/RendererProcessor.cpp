@@ -17,6 +17,7 @@
 #include "Data/RenderObjectContainer.hpp"
 #include "Data/RendererProcessor.hpp"
 #include "Utility/Coordination/WorkDispatcher.hpp"
+#include "Utility/Generate.hpp"
 
 //------------------------------------------
 namespace Nebulite::Data {
@@ -52,7 +53,13 @@ bool Batch::removeObject(Core::RenderObject* obj) {
     return false;
 }
 
-RendererProcessor::RendererProcessor() {
+RendererProcessor::RendererProcessor()
+    : batchWorkerPool(Utility::Generate::array<
+          std::optional<Utility::Coordination::WorkDispatcher<DispatcherWorkspace>>,
+          Constants::ThreadSettings::Maximum::rendererWorkerCount
+      >([](std::size_t) {
+          return std::nullopt;
+    })){
     // Ensure that this is a singleton class
     static bool instanceExists = false;
     if (instanceExists) {
@@ -62,7 +69,7 @@ RendererProcessor::RendererProcessor() {
 
     // Initialize worker pool
     for (std::size_t i = 0; i < Constants::ThreadSettings::getRendererWorkerCount(); i++) {
-        batchWorkerPool[i] = std::make_unique<Utility::Coordination::WorkDispatcher<DispatcherWorkspace>>(stopFlag, batchWorkerFunc);
+        batchWorkerPool[i].emplace(stopFlag, batchWorkerFunc);
     }
 }
 
@@ -71,15 +78,15 @@ RendererProcessor::~RendererProcessor() {
     stopFlag = true;
 
     // 2.) Optionally, start work to wake any waiting threads
-    for (auto const& worker : batchWorkerPool | std::views::take(Constants::ThreadSettings::getRendererWorkerCount())) {
-        worker->startWork();  // wakes worker so it can check stopFlag
+    for (auto& worker : batchWorkerPool | std::views::take(Constants::ThreadSettings::getRendererWorkerCount())) {
+        worker.value().startWork();  // wakes worker so it can check stopFlag
     }
 }
 
-void RendererProcessor::prepareForNewLayer(RenderObjectContainer* layer) const {
-    for (auto const& worker : batchWorkerPool | std::views::take(Constants::ThreadSettings::getRendererWorkerCount())) {
-        worker->workspace.reinsertionProcess = &layer->reinsertionProcess;
-        worker->workspace.deletionProcess = &layer->deletionProcess;
+void RendererProcessor::prepareForNewLayer(RenderObjectContainer* layer) {
+    for (auto& worker : batchWorkerPool | std::views::take(Constants::ThreadSettings::getRendererWorkerCount())) {
+        worker.value().workspace.reinsertionProcess = &layer->reinsertionProcess;
+        worker.value().workspace.deletionProcess = &layer->deletionProcess;
     }
 }
 
@@ -106,16 +113,16 @@ void RendererProcessor::batchWorkerFunc(DispatcherWorkspace const& workspace){
     }
 }
 
-void RendererProcessor::processPool() const {
+void RendererProcessor::processPool() {
     processPool(Constants::ThreadSettings::getRendererWorkerCount());
 }
 
-void RendererProcessor::processPool(std::size_t count) const {
-    for (auto const& worker : batchWorkerPool | std::views::take(count)) {
-        worker->startWork();
+void RendererProcessor::processPool(std::size_t count) {
+    for (auto& worker : batchWorkerPool | std::views::take(count)) {
+        worker.value().startWork();
     }
-    for (auto const& worker : batchWorkerPool | std::views::take(count)) {
-        worker->waitForWorkFinished();
+    for (auto& worker : batchWorkerPool | std::views::take(count)) {
+        worker.value().waitForWorkFinished();
     }
 }
 

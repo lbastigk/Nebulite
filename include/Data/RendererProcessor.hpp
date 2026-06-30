@@ -90,7 +90,7 @@ public:
      *        by setting all worker threads referencing the new layer.
      * @param layer The RenderObjectContainer representing the new layer to process.
      */
-    void prepareForNewLayer(RenderObjectContainer* layer) const ;
+    void prepareForNewLayer(RenderObjectContainer* layer);
 
     /**
      * @brief Flag to signal threads to stop.
@@ -119,16 +119,16 @@ public:
      * @details Pool of pre-initialized workers for reuse
      */
     std::array<
-        std::unique_ptr<Utility::Coordination::WorkDispatcher<DispatcherWorkspace>>,
+        std::optional<Utility::Coordination::WorkDispatcher<DispatcherWorkspace>>,
         Constants::ThreadSettings::Maximum::rendererWorkerCount
     > batchWorkerPool;
 
     /**
      * @brief Starts all batch worker threads to process the assigned batches in parallel.
      */
-    void processPool() const ;
+    void processPool();
 
-    void processPool(std::size_t count) const ;
+    void processPool(std::size_t count);
 };
 
 } // namespace Nebulite::Data

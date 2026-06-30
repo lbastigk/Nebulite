@@ -102,7 +102,7 @@ void Environment::append(RenderObject* toAppend, Data::TilingInformation const& 
     roc[layer].append(toAppend, tilingInformation);
 }
 
-void Environment::updateObjects(std::vector<Data::TileCoordinate> const& tiles, Data::TilingInformation const& tilingInformation, Data::RendererProcessor const& rendererProcessor) {
+void Environment::updateObjects(std::vector<Data::TileCoordinate> const& tiles, Data::TilingInformation const& tilingInformation, Data::RendererProcessor& rendererProcessor) {
     // Do not update lowest layer (background), as it is only for static tiles that do not need to be updated
     for (unsigned int i = 1; i < allLayers.size(); i++) {
         rendererProcessor.prepareForNewLayer(&roc[i]);
