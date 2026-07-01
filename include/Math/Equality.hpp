@@ -6,6 +6,8 @@
 
 // Standard library
 #include <cmath>
+#include <concepts>
+#include <limits>
 
 // Nebulite
 #include "Utility/CompileTimeEvaluate.hpp"

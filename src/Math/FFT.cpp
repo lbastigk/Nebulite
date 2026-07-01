@@ -6,8 +6,7 @@
 #include <cmath>
 #include <complex>
 #include <cstdlib>
-// NOLINTNEXTLINE
-#include <math.h>
+#include <math.h> // NOLINT
 #include <ranges>
 #include <vector>
 
@@ -148,7 +147,7 @@ std::complex<double> FFT::evalTransfer(double const omega, std::vector<double> c
 
 std::vector<double> FFT::applyTransferFunction(std::vector<double> const& data, std::vector<double> const& num, std::vector<double> const& den) {
     auto X = fft(data);
-    for (auto [k, x] : std::views::zip(std::views::iota(std::size_t{0}), X)) {
+    for (auto [k, x] : std::views::enumerate(X)) {
         double const omega = 2.0 * M_PI * static_cast<double>(k) / static_cast<double>(X.size());
         x *= evalTransfer(omega, num, den);
     }

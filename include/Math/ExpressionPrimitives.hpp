@@ -10,6 +10,7 @@
 // Includes
 
 // Standard library
+#include <algorithm>
 #include <cfloat>
 #include <cmath>
 #include <vector>
