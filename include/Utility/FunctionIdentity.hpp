@@ -20,8 +20,10 @@ namespace Nebulite::Utility {
  * @details Allowing for comparison of function pointers of free and member functions.
  */
 struct FunctionIdentity {
+    static auto constexpr functionPtrSize = sizeof(void*)*2;
+
     void const* object = nullptr; // nullptr for free/static functions
-    std::array<std::byte, sizeof(void*) * 2> function{}; // stores function pointer bits
+    std::array<std::byte, functionPtrSize> function{}; // stores function pointer bits
 
     // Equality
     bool operator==(FunctionIdentity const& other) const {
