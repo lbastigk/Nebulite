@@ -11,9 +11,7 @@
 
 // Standard library
 #include <cstdint>
-
-// Nebulite
-#include "Utility/Time.hpp"
+#include <optional>
 
 //------------------------------------------
 namespace Nebulite::Utility {
@@ -31,40 +29,14 @@ public:
      * @brief Constructs a new TimeKeeper object and initializes the timer.
      * @details The start time is set to construction time. Timer is initialized to not running.
      */
-    TimeKeeper() noexcept : t_start(Time::getTime()) {}
+    TimeKeeper() noexcept ;
 
     /**
      * @brief Updates the timer.
      * @details Calculates the delta time since the last update and updates the timers full runtime.
-     * @param fixed_dt_ms If greater than 0, this value will be used as the delta time instead of the calculated value.
+     * @param fixed_dt_ms If a fixed delta time is provided, it will be used instead of the calculated delta time.
      */
-    void update(std::uint64_t const fixed_dt_ms = 0) noexcept {
-        //------------------------------------------
-        // 1.) Gathering timing information, even if the timer is not running
-        //     The whole timer works on dt integration, so we always need to know the current dt
-        onUpdate.last_t_ms = onUpdate.t_ms;
-        onUpdate.t_ms      = Time::getTime() - t_start;
-
-        //------------------------------------------
-        // 2.) Derive dt from status
-        if(running){
-            // Check if we have a fixed dt
-            if(fixed_dt_ms > 0){
-                dt_ms = fixed_dt_ms;
-            }
-            else{
-                dt_ms = onUpdate.t_ms - onUpdate.last_t_ms;
-            }
-        }
-        else{
-            // Not running, dt is 0
-            dt_ms = 0;
-        }
-
-        //------------------------------------------
-        // 3.) Integrate dt
-        t_ms += dt_ms;
-    }
+    void update(std::optional<std::uint64_t> fixed_dt_ms = std::nullopt) noexcept ;
 
     /**
      * @brief Starts the timer, updating the running state.
@@ -72,9 +44,7 @@ public:
      *          Make sure to call update() before start() to get an accurate dt,
      *          if you don't start the timer immediately after construction.
      */
-    void start() noexcept {
-        running = true;
-    }
+    void start() noexcept ;
 
     /**
      * @brief Stops the timer.
@@ -83,17 +53,13 @@ public:
      *          Note that in stop, `get_dt_ms()` will return the last update's delta time.
      *          Make sure to call `update()` before `stop()` to get an accurate dt.
      */
-    void stop() noexcept {
-        running = false;
-    }
+    void stop() noexcept ;
 
     /**
      * @brief Checks if the timer is currently running.
      * @return True if the timer is running, false otherwise.
      */
-    [[nodiscard]] bool is_running() const noexcept {
-        return running;
-    }
+    [[nodiscard]] bool is_running() const noexcept ;
 
     /**
      * @brief Calculates the projected dt if `update()` were to be called.
@@ -101,15 +67,7 @@ public:
      *          If the timer is not running, the projected delta time will be zero.
      * @return The projected delta time in milliseconds.
      */
-    std::uint64_t projected_dt() noexcept {
-        if(running){
-            onSimulation.last_t_ms = onUpdate.t_ms;
-            onSimulation.t_ms = Time::getTime() - t_start;
-            onSimulation.dt = onSimulation.t_ms - onSimulation.last_t_ms;
-            return onSimulation.dt;
-        }
-        return 0;
-    }
+    std::uint64_t projected_dt() noexcept ;
 
     /**
      * @brief Gets the current time in milliseconds since the timer started.
@@ -118,9 +76,7 @@ public:
      *          as the update function allows for a custom dt.
      * @return The time elapsed since the timer started in milliseconds.
      */
-    [[nodiscard]] std::uint64_t get_t_ms() const noexcept {
-        return t_ms;
-    }
+    [[nodiscard]] std::uint64_t get_t_ms() const noexcept ;
 
     /**
      * @brief Gets the delta time in milliseconds since the last update.
@@ -129,9 +85,7 @@ public:
      *          Note that the returned value is not necessarily equal to system time, as the update function allows for a custom dt.
      * @return The time difference between the last two updates in milliseconds.
      */
-    [[nodiscard]] std::uint64_t get_dt_ms() const noexcept {
-        return dt_ms;
-    }
+    [[nodiscard]] std::uint64_t get_dt_ms() const noexcept ;
 
 private:
     // Basic values for current time
@@ -162,16 +116,11 @@ private:
      * @struct OnUpdate
      * @brief Stores the timing information for the update phase.
      */
-    struct alignas(2 * sizeof(std::uint64_t)) OnUpdate{
+    struct OnUpdate{
         std::uint64_t last_t_ms = 0;
         std::uint64_t t_ms = 0;
         OnUpdate() = default;
     } onUpdate;
-
-    /**
-     * @brief Ensures proper alignment for OnUpdate struct.
-     */
-    static_assert(alignof(OnUpdate) >= 2 * sizeof(std::uint64_t), "OnUpdate alignment");
 
     /**
      * @struct OnSimulation

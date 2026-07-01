@@ -18,7 +18,7 @@ TimedRoutine::TimedRoutine(std::function<void()> const& routine, std::uint64_t c
     }
     if (mode == ConstructionMode::START_IMMEDIATELY_AND_EXECUTE_ONCE) {
         timer.start();
-        foo(); // Execute the routine immediately upon construction
+        foo();
     }
 }
 
@@ -28,12 +28,11 @@ void TimedRoutine::start() {
 
 void TimedRoutine::update() {
     if (timer.projected_dt() >= interval) {
-        timer.update(); // Update timer to reset dt
-        foo(); // Execute the scheduled routine
+        timer.update();
+        foo();
     }
 }
 
-// Force execute the routine without checking the timer or updating the timer
 void TimedRoutine::forceExecute() const {
     foo();
 }
