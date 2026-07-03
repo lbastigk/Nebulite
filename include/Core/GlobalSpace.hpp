@@ -11,7 +11,7 @@
 #include <string>
 
 // External
-#include <SDL3/SDL.h>
+#include <SDL3/SDL_render.h>
 
 // Nebulite
 #include "Core/Renderer.hpp"
