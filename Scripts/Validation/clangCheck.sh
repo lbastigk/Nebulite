@@ -22,6 +22,24 @@ if [ ! -f ".clang-tidy" ]; then
     exit 1
 fi
 
+# Set paths for external libraries
+external_include_list=(
+    "./external/abseil/"
+    "./external/imgui"
+    "./external/imgui/backends"
+    "./external/rapidjson/include"
+    "./external/SDL3/include"
+    "./external/SDL3_Image/include"
+    "./external/SDL3_ttf/include"
+    "./external/stb"
+    "./external/tinyexpr"
+)
+
+external_includes=""
+for include in "${external_include_list[@]}"; do
+    external_includes="$external_includes -I$include"
+done
+
 # Check if --changed-files argument is provided
 if [ "$1" == "--changed-files" ]; then
     # Get the list of changed files from git
@@ -38,8 +56,51 @@ if [ "$1" == "--changed-files" ]; then
     echo "Running clang-tidy on changed files only..."
     echo "Changed files:"
     echo "$changed_files"
-    clang-tidy -config-file=./.clang-tidy $changed_files -- -std=c++26 -I./include
+    clang-tidy -warnings-as-errors='*' -header-filter=*.no-headers -config-file=./.clang-tidy $changed_files -- -std=c++26 -I./include $external_includes #-v
+    status=$?
+    exit "$status"
 else
   echo "Running clang-tidy on all files..."
-  clang-tidy -config-file=./.clang-tidy ./src/* ./include/* -- -std=c++26 -I./include
+
+  PARALLEL=0
+
+  # Check if xargs is installed
+  if [ "$PARALLEL" -eq 1 ] && command -v xargs &> /dev/null; then
+      find ./include ./src \( -name '*.hpp' -o -name '*.cpp' \) -print0 |
+      xargs -0 -P"$(nproc)" -I{} bash -c '
+          clang-tidy "$1" \
+          -warnings-as-errors='*' \
+          -header-filter="^$" \
+          -config-file=./.clang-tidy \
+          -- -std=c++26 -I./include '"$external_includes"' \
+          2>&1
+      ' _ {}
+      status=$?
+      exit "$status"
+  # Check if gnu parallel is installed
+  elif [ "$PARALLEL" -eq 1 ] && command -v parallel &> /dev/null; then
+      find ./include ./src \( -name '*.hpp' -o -name '*.cpp' \) |
+      parallel --jobs "$(nproc)" --line-buffer 'clang-tidy {} -warnings-as-errors="*" -header-filter="^$" -config-file=./.clang-tidy -- -std=c++26 -I./include '"$external_includes"
+      status=$?
+      exit "$status"
+  else
+      headers=$(find ./include -name "*.hpp")
+      sources=$(find ./src -name "*.cpp")
+      all_files="$headers $sources"
+
+      status=0
+
+      while IFS= read -r -d '' file; do
+        if ! clang-tidy "$file" \
+            -warnings-as-errors='*' \
+            -header-filter='^$' \
+            -config-file=./.clang-tidy \
+            -- -std=c++26 -I./include $external_includes
+        then
+          status=1
+        fi
+      done < <(find ./include ./src \( -name '*.hpp' -o -name '*.cpp' \) -print0)
+
+      exit "$status"
+  fi
 fi
