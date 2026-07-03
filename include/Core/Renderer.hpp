@@ -5,17 +5,29 @@
 // Includes
 
 // Standard library
+#include <cstddef>
+#include <cstdint> // NOLINT
+#include <functional>
+#include <optional>
 #include <string>
+#include <utility>
 #include <vector>
 
 // External
+#include <SDL3/SDL_events.h>
+#include <SDL3/SDL_rect.h>
+#include <SDL3/SDL_render.h>
+#include <SDL3/SDL_video.h>
 #include <SDL3_ttf/SDL_ttf.h>
 #include <absl/container/flat_hash_map.h>
 
 // Nebulite
+#include "Constants/Event.hpp"
 #include "Core/Environment.hpp"
 #include "Data/RendererProcessor.hpp"
+#include "Data/Tiling.hpp"
 #include "Interaction/Execution/Domain.hpp"
+#include "Utility/IO/Capture.hpp"
 #include "Utility/TimeKeeper.hpp"
 
 //------------------------------------------
