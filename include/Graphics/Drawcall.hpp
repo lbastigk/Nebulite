@@ -283,13 +283,13 @@ private:
     //------------------------------------------
     // Diff noticers for reinitialization
 
-    bool diffSprite() const ;
+    [[nodiscard]] bool diffSprite() const ;
 
-    bool diffText() const ;
+    [[nodiscard]] bool diffText() const ;
 
-    bool diffCircle() const ;
+    [[nodiscard]] bool diffCircle() const ;
 
-    bool diffPolygon() const ;
+    [[nodiscard]] bool diffPolygon() const ;
 };
 
 } // namespace Nebulite::Graphics
