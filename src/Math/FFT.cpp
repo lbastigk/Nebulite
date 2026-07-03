@@ -3,6 +3,7 @@
 
 // Standard library
 #include <algorithm>
+#include <bit>
 #include <cmath>
 #include <complex>
 #include <cstdlib>
@@ -21,18 +22,11 @@ namespace Nebulite::Math {
 std::vector<std::complex<double>> FFT::fft(std::vector<double> const& data) {
     std::size_t const n = data.size();
     if (n == 0) return {};
+    std::size_t const N = std::bit_ceil(n); // next power of two
 
-    // next power of two
-    std::size_t N = 1;
-    while (N < n) N <<= 1;
-
-    std::vector<std::complex<double>> a(N);
-
-    for (std::size_t i = 0; i < n; ++i)
-        // NOLINTNEXTLINE
-        a[i] = static_cast<double>(data[i]);
-    for (std::size_t i = n; i < N; ++i)
-        a[i] = 0.0;
+    // Initialize the complex array with zero-padding
+    std::vector<std::complex<double>> a(N); // Initialized to 0.0
+    std::copy_n(data.begin(), n, a.begin());
 
     // bit-reversal permutation
     std::size_t b = 0;
@@ -57,8 +51,8 @@ std::vector<std::complex<double>> FFT::fft(std::vector<double> const& data) {
             std::complex w(1.0);
 
             for (std::size_t j = 0; j < len / 2; ++j) {
-                auto u = a[i + j];
-                auto v = a[i + j + len / 2] * w;
+                auto const u = a[i + j];
+                auto const v = a[i + j + len / 2] * w;
 
                 a[i + j] = u + v;
                 a[i + j + len / 2] = u - v;
