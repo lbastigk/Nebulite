@@ -5,10 +5,14 @@
 // Includes
 
 // Standard library
-#include <sstream> // NOLINT
+#include <sstream>
 
 // Nebulite
-#include "Utility/StringHandler.hpp" // NOLINT
+#include "Utility/StringHandler.hpp"
+
+#ifndef DATA_DOCUMENT_RJDIRECTACCESS_HPP
+#include "Data/Document/RjDirectAccess.hpp"
+#endif // DATA_DOCUMENT_RJDIRECTACCESS_HPP
 
 //------------------------------------------
 namespace Nebulite::Data {
