@@ -5,6 +5,7 @@
 // Includes
 
 // Standard library
+#include <cstddef>
 #include <cstdint> // NOLINT
 #include <memory>
 #include <optional>
@@ -14,6 +15,7 @@
 #include <SDL3/SDL_render.h>
 
 // Nebulite
+#include "Constants/Event.hpp"
 #include "Core/Renderer.hpp"
 #include "Data/Document/DocumentCache.hpp"
 #include "Interaction/Execution/Domain.hpp"
