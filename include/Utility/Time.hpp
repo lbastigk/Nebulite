@@ -48,15 +48,6 @@ public:
     };
 
     /**
-     * @struct IsoFmtInfo
-     * @brief Contains information about ISO 8601 format strings.
-     */
-    struct IsoFmtInfo {
-        std::string_view fmt;   // strftime format or a token you use
-        std::size_t maxLen;
-    };
-
-    /**
      * @brief Returns the current time in ISO 8601 format as std::string.
      * @details Using strftime with the format %FT%TZ
      *          Total length is up to 20 Characters: 2021-03-01T10:44:10Z
