@@ -10,6 +10,9 @@
 // Nebulite
 #include "Utility/StringHandler.hpp"
 
+//------------------------------------------
+// Conditional includes
+
 #ifndef DATA_DOCUMENT_RJDIRECTACCESS_HPP
 #include "Data/Document/RjDirectAccess.hpp"
 #endif // DATA_DOCUMENT_RJDIRECTACCESS_HPP
