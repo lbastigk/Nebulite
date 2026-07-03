@@ -2,5 +2,14 @@
 
 ROOT_DIR="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
 
-$ROOT_DIR/Scripts/Validation/runTestsIfFilesChanged.sh
-$ROOT_DIR/Scripts/Validation/clangCheck.sh --changed-files
+if ! $ROOT_DIR/Scripts/Validation/clangCheck.sh --changed-files ; then
+    echo "Error: Clang check failed. Aborting commit."
+    exit 1
+fi
+
+if ! $ROOT_DIR/Scripts/Validation/runTestsIfFilesChanged.sh ; then
+    echo "Error: Tests failed. Aborting commit."
+    exit 1
+fi
+
+
