@@ -35,7 +35,7 @@
 
 namespace {
 
-size_t find_pos_or_fallback(std::string_view const str) {
+size_t findFileSeparatorPositionOrFallback(std::string_view const str) {
     auto const result = std::ranges::find_last_if(str, [](char const& c) {
         return c == Nebulite::Utility::IO::FileManagement::preferredSeparator();
     });
@@ -67,20 +67,23 @@ void addFileCompletions(std::string_view const input, std::vector<std::string>& 
     // Separate inner from outer directory and get the actual input we need to complete
     std::string const& pattern = args.back();  // Get last argument, which is the one we want to complete
     std::size_t const startIndex = pattern.starts_with("./") ? 2 : 0; // If pattern starts with "./", we want to ignore that for file searching
-    std::size_t const endIndex = find_pos_or_fallback(pattern.substr(startIndex)) + startIndex;
+    std::size_t const endIndex = findFileSeparatorPositionOrFallback(pattern.substr(startIndex)) + startIndex;
     auto const inputToComplete = pattern.substr(endIndex != startIndex ? endIndex + 1 : startIndex);
     auto const innerDir = std::string(pattern.substr(startIndex, endIndex - startIndex)) + Nebulite::Utility::IO::FileManagement::preferredSeparator();
     auto const directory = Nebulite::Utility::IO::FileManagement::CombinePaths(".", innerDir == "/" ? "" : innerDir);
 
     // Build list
-    auto const list = Nebulite::Utility::IO::FileManagement::listContentInDirectory(directory) | std::views::filter([&](std::string const& fileOrDirectory) {
-        return fileOrDirectory.starts_with(inputToComplete);
-    }) | std::views::transform([&](std::string const& fileOrDirectory) {
-        if (Nebulite::Utility::IO::FileManagement::isDirectory(directory + fileOrDirectory)) {
-            return fileOrDirectory + Nebulite::Utility::IO::FileManagement::preferredSeparator();
-        }
-        return fileOrDirectory;
-    }) | std::ranges::to<std::vector>();
+    auto const list = Nebulite::Utility::IO::FileManagement::listContentInDirectory(directory)
+        | std::views::filter([&](std::string const& fileOrDirectory) {
+            return fileOrDirectory.starts_with(inputToComplete);
+        })
+        | std::views::transform([&](std::string const& fileOrDirectory) {
+            if (Nebulite::Utility::IO::FileManagement::isDirectory(directory + fileOrDirectory)) {
+                return fileOrDirectory + Nebulite::Utility::IO::FileManagement::preferredSeparator();
+            }
+            return fileOrDirectory;
+        })
+        | std::ranges::to<std::vector>();
     std::ranges::move(list, std::back_inserter(completions));
 }
 
@@ -211,8 +214,8 @@ void completionCallback(ImGuiInputTextCallbackData* data, ConsoleState const* st
         // Insert additional whitespace under certain conditions:
         static auto endCharsToIgnore = {
             Nebulite::Utility::IO::FileManagement::preferredSeparator(), // Directory Path
-            '.', // JSON indexing
-            ']' // JSON array indexing
+            Nebulite::Data::JSON::SpecialCharacter::dot, // JSON indexing
+            Nebulite::Data::JSON::SpecialCharacter::arrayClose // JSON array indexing
         };
         if (!commonPrefixFound && !toInsert.empty() && !std::ranges::any_of(endCharsToIgnore, [&](char const& c) { return toInsert.back() == c; })) {
             data->InsertChars(data->CursorPos, " ");
@@ -380,9 +383,12 @@ void ImguiHelper::renderJsonTreeNode(Data::JsonScope const& s, Data::ScopedKeyVi
                 ImGui::TreePop();
             }
         } else if (type == Data::KeyType::value) {
-            // fetch value every frame and display
-            std::string const valueStr = s.get<std::string>(key).value_or("<unavailable>");
-            ImGui::Text("%s : %s", keyPath.c_str(), valueStr.c_str());
+            if (auto const stringValue = s.get<std::string>(key); stringValue.has_value()) {
+                ImGui::Text("%s : %s", keyPath.c_str(), stringValue.value().c_str());
+            }
+            else {
+                ImGui::TextDisabled("%s : <err: failed to convert value to string>", keyPath.c_str());
+            }
         } else {
             ImGui::TextDisabled("%s : null", keyPath.c_str());
         }
