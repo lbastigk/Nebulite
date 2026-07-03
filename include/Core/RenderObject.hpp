@@ -9,12 +9,14 @@
 #include <memory>
 #include <ranges>
 #include <string>
+#include <string_view>
 #include <vector>
 
 // External
 #include <absl/container/flat_hash_map.h>
 
 // Nebulite
+#include "Constants/Event.hpp"
 #include "Graphics/Drawcall.hpp"
 #include "Interaction/Execution/Domain.hpp"
 #include "Utility/IO/Capture.hpp"
