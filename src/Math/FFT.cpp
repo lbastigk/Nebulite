@@ -17,6 +17,25 @@
 //------------------------------------------
 namespace Nebulite::Math {
 
+namespace {
+std::size_t reverseBits(std::size_t input, std::size_t const N) {
+    std::size_t result = 0;
+    for (std::size_t i = 0; i < N; ++i) {
+        result <<= 1;
+        result |= input & 1;
+        input >>= 1;
+    }
+    return result;
+}
+
+auto constexpr powersOfTwo(std::size_t const inclusiveMax) {
+    return std::views::iota(std::size_t{1})
+         | std::views::transform([](std::size_t const x) { return x << 1; })
+         | std::views::take_while([inclusiveMax](std::size_t const x) { return x <= inclusiveMax; });
+}
+
+} // namespace
+
 // TODO: Large refactor + testing required!
 
 std::vector<std::complex<double>> FFT::fft(std::vector<double> const& data) {
@@ -28,22 +47,15 @@ std::vector<std::complex<double>> FFT::fft(std::vector<double> const& data) {
     std::vector<std::complex<double>> a(N); // Initialized to 0.0
     std::copy_n(data.begin(), n, a.begin());
 
-    // bit-reversal permutation
-    std::size_t b = 0;
-    for (std::size_t i = 1; i < N; ++i) {
-        std::size_t bit = N >> 1;
-        while (static_cast<bool>(b & bit)) {
-            b ^= bit;
-            bit >>= 1;
-        }
-        b |= bit;
-
-        if (i < b)
+    // bit-reversal permutation for proper ordering of input data (required for cooley-turkey)
+    for (auto const i : std::views::iota(std::size_t{0}, N)) {
+        if (auto const b = reverseBits(i, N); i < b) {
             std::swap(a[i], a[b]);
+        }
     }
 
     // FFT stages
-    for (std::size_t len = 2; len <= N; len <<= 1) {
+    for (auto const len : powersOfTwo(N) | std::views::drop(1)) {
         double const ang = -2.0 * M_PI / static_cast<double>(len);
         std::complex const wLen(std::cos(ang), std::sin(ang));
 
