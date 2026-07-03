@@ -11,7 +11,9 @@
 #include <SDL3/SDL_render.h>
 
 // Nebulite
+#include "Constants/Event.hpp"
 #include "Interaction/Execution/Domain.hpp"
+#include "Utility/IO/Capture.hpp"
 
 //------------------------------------------
 namespace Nebulite::Core {
@@ -123,9 +125,9 @@ private:
     bool textureStoredLocally = false;
 
     /**
-     * @brief Makes a copy of the texture currently managed by this class.
+     * @brief Makes a copy of the globally managed texture to a locally managed one.
      */
-    void copyTexture();
+    void generateLocallyManagedTexture();
 };
 } // namespace Nebulite::Core
 #endif // CORE_TEXTURE_HPP

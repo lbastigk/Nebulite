@@ -37,54 +37,62 @@ Constants::Event Texture::update() {
     return Constants::Event::Success;
 }
 
-void Texture::copyTexture() {
-    // If no texture is linked, try to load from the document
-    if (texture == nullptr) {
-        std::string const& imageLink = domainScope.get<std::string>(Graphics::Drawcall::Key::SpriteSpecific::imageLocation).value_or("");
-        texture = Global::instance().getRenderer().getTexture(imageLink);
+namespace {
+SDL_Texture* copySdlTexture(SDL_Texture* source, SDL_Renderer* renderer, Utility::IO::Capture& capture) {
+    auto* const currentTarget = SDL_GetRenderTarget(renderer);
 
-        if (texture == nullptr) {
-            return; // No texture to copy
-        }
-    }
-
-    // SDL3: query size, access and format using the new helpers
+    // Query
     float fw = 0.0f;
     float fh = 0.0f;
-    if (!SDL_GetTextureSize(texture, &fw, &fh)) {
+    if (!SDL_GetTextureSize(source, &fw, &fh)) {
         capture.error.println("Failed to query texture: ", SDL_GetError());
-        return;
+        return nullptr;
     }
     int const w = static_cast<int>(fw);
     int const h = static_cast<int>(fh);
 
-    // Create a new texture
-    SDL_Texture* newTexture = SDL_CreateTexture(Global::instance().getSdlRenderer(), SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_TARGET, w, h);
+    // Copy
+    SDL_Texture* newTexture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_TARGET, w, h);
     if (!newTexture) {
         capture.error.println("Failed to create new texture: ", SDL_GetError());
-        return;
+        return nullptr;
     }
-
-    // Bind the new texture as the render target and copy
-    if (!SDL_SetRenderTarget(Global::instance().getSdlRenderer(), newTexture)) {
+    if (!SDL_SetRenderTarget(renderer, newTexture)) {
         capture.error.println("Failed to set render texture: ", SDL_GetError());
         SDL_DestroyTexture(newTexture);
-        return;
+        return nullptr;
     }
-
-    if (!SDL_RenderTexture(Global::instance().getSdlRenderer(), texture, nullptr, nullptr)) {
+    if (!SDL_RenderTexture(renderer, source, nullptr, nullptr)) {
         capture.error.println("Failed to copy texture: ", SDL_GetError());
-        SDL_SetRenderTarget(Global::instance().getSdlRenderer(), nullptr);
+        SDL_SetRenderTarget(renderer, nullptr);
         SDL_DestroyTexture(newTexture);
-        return;
+        return nullptr;
+    }
+    SDL_SetRenderTarget(renderer, currentTarget);
+    return newTexture;
+}
+} // namespace
+
+void Texture::generateLocallyManagedTexture() {
+    // Release the old texture if it was stored locally
+    if (texture && textureStoredLocally) {
+        SDL_DestroyTexture(texture);
     }
 
-    // Unbind
-    SDL_SetRenderTarget(Global::instance().getSdlRenderer(), nullptr);
+    // Get global texture
+    std::string const& imageLink = domainScope.get<std::string>(Graphics::Drawcall::Key::SpriteSpecific::imageLocation).value_or("");
+    auto* const globalTexture = Global::instance().getRenderer().getTexture(imageLink);
+    if (globalTexture == nullptr) {
+        capture.error.println("Failed to find texture in global renderer for image link: ", imageLink);
+        return; // Could not find the texture in the global renderer, cannot proceed
+    }
 
-    // Replace the old texture with the new one
-    // We do not destroy the old texture, as it might be managed externally
-    texture = newTexture;
+    // Copy
+    texture = copySdlTexture(globalTexture, Global::instance().getSdlRenderer(), capture);
+    if (texture == nullptr) {
+        capture.error.println("Failed to copy texture for local management.");
+        return;
+    }
     textureStoredLocally = true;
 }
 
@@ -104,7 +112,7 @@ void Texture::loadTextureFromFile(std::string const& filePath) {
 
 Constants::Event Texture::preParse() {
     if (!textureStoredLocally) {
-        copyTexture();
+        generateLocallyManagedTexture();
     }
 
     if (!textureStoredLocally) {
