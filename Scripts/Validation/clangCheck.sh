@@ -46,7 +46,7 @@ if [ "$1" == "--changed-files" ]; then
     changed_files=$(git ls-files --modified)
 
     # Filter for C++ source and header files
-    changed_files=$(echo "$changed_files" | grep -E '\.(cpp|hpp|h)$')
+    changed_files=$(echo "$changed_files" | grep -E '\.(cpp|hpp|h|tpp)$')
     # If there are no changed files, exit
     if [ -z "$changed_files" ]; then
         echo "No changed C++ files to lint."
@@ -56,51 +56,69 @@ if [ "$1" == "--changed-files" ]; then
     echo "Running clang-tidy on changed files only..."
     echo "Changed files:"
     echo "$changed_files"
-    clang-tidy -warnings-as-errors='*' -header-filter=*.no-headers -config-file=./.clang-tidy $changed_files -- -std=c++26 -I./include $external_includes #-v
-    status=$?
-    exit "$status"
-else
-  echo "Running clang-tidy on all files..."
 
-  PARALLEL=0
-
-  # Check if xargs is installed
-  if [ "$PARALLEL" -eq 1 ] && command -v xargs &> /dev/null; then
-      find ./include ./src \( -name '*.hpp' -o -name '*.cpp' \) -print0 |
-      xargs -0 -P"$(nproc)" -I{} bash -c '
-          clang-tidy "$1" \
-          -warnings-as-errors='*' \
-          -header-filter="^$" \
-          -config-file=./.clang-tidy \
-          -- -std=c++26 -I./include '"$external_includes"' \
-          2>&1
-      ' _ {}
-      status=$?
-      exit "$status"
-  # Check if gnu parallel is installed
-  elif [ "$PARALLEL" -eq 1 ] && command -v parallel &> /dev/null; then
-      find ./include ./src \( -name '*.hpp' -o -name '*.cpp' \) |
-      parallel --jobs "$(nproc)" --line-buffer 'clang-tidy {} -warnings-as-errors="*" -header-filter="^$" -config-file=./.clang-tidy -- -std=c++26 -I./include '"$external_includes"
-      status=$?
-      exit "$status"
-  else
-      headers=$(find ./include -name "*.hpp")
-      sources=$(find ./src -name "*.cpp")
-      all_files="$headers $sources"
-
-      status=0
-
-      while IFS= read -r -d '' file; do
+    status=0
+    for file in $changed_files; do
         if ! clang-tidy "$file" \
             -warnings-as-errors='*' \
-            -header-filter='^$' \
+            -header-filter='^.*/include/' \
             -config-file=./.clang-tidy \
+            -p ./tmp/build_linux-debug \
             -- -std=c++26 -I./include $external_includes
         then
-          status=1
+            if [[ "$file" == *.tpp ]]; then
+                echo "Warning: clang-tidy failed on $file, but ignoring because it's a .tpp file."
+            else
+                echo "Error: clang-tidy failed on $file"
+                status=1
+            fi
         fi
-      done < <(find ./include ./src \( -name '*.hpp' -o -name '*.cpp' \) -print0)
+    done
+    exit "$status"
+else
+    echo "Running clang-tidy on all files..."
 
-      exit "$status"
-  fi
+    PARALLEL=0 # tpp-files likely need to be fixed for parallel execution
+
+    # Check if xargs is installed
+    if [ "$PARALLEL" -eq 1 ] && command -v xargs &> /dev/null; then
+        find ./include ./src \( -name '*.hpp' -o -name '*.cpp' -o -name '*.tpp' \) -print0 |
+        xargs -0 -P"$(nproc)" -I{} bash -c '
+            clang-tidy "$1" \
+            -warnings-as-errors='*' \
+            -header-filter="^$" \
+            -config-file=./.clang-tidy \
+            -- -std=c++26 -I./include '"$external_includes"' \
+            2>&1
+        ' _ {}
+        status=$?
+        exit "$status"
+    # Check if gnu parallel is installed
+    elif [ "$PARALLEL" -eq 1 ] && command -v parallel &> /dev/null; then
+        find ./include ./src \( -name '*.hpp' -o -name '*.cpp' -o -name '*.tpp' \) |
+        parallel --jobs "$(nproc)" --line-buffer 'clang-tidy {} -warnings-as-errors="*" -header-filter="^$" -config-file=./.clang-tidy -- -std=c++26 -I./include '"$external_includes"
+        status=$?
+        exit "$status"
+    else
+        status=0
+        while IFS= read -r -d '' file; do
+            if ! clang-tidy "$file" \
+                -warnings-as-errors='*' \
+                -header-filter='^.*/include/' \
+                -config-file=./.clang-tidy \
+                -p ./tmp/build_linux-debug \
+                -- -std=c++26 -I./include $external_includes
+            then
+                # If file ends with .tpp, clang-tidy seems to fail ignore for now
+                if [[ "$file" == *.tpp ]]; then
+                    echo "Warning: clang-tidy failed on $file, but ignoring because it's a .tpp file."
+                    continue
+                else
+                    echo "Error: clang-tidy failed on $file"
+                    status=1
+                fi
+            fi
+        done < <(find ./include ./src \( -name '*.hpp' -o -name '*.cpp' -o -name '*.tpp' \) -print0)
+        exit "$status"
+    fi
 fi
