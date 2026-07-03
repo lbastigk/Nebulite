@@ -20,6 +20,7 @@
 #include <absl/container/flat_hash_map.h>
 
 // Nebulite
+#include "Interaction/Execution/CmdArgs.hpp"
 #include "Utility/FunctionIdentity.hpp"
 #include "Utility/IO/Capture.hpp"
 
@@ -40,12 +41,6 @@ public:
     //------------------------------------------
     // Important types
 
-    // Command argument span types
-    struct CmdArgs {
-        using Span = std::span<std::string_view const>;
-        using SpanConstRef = std::span<std::string_view const> const&; // TODO: might be unnecessary
-    };
-
     // Supported function signatures
     struct SupportedFunctions {
         struct Legacy {
@@ -53,10 +48,10 @@ public:
         };
 
         struct Modern {
-            using Full = std::function<ReturnValue(typename CmdArgs::Span, AdditionalArgs...)>;
-            using FullConstRef = std::function<ReturnValue(typename CmdArgs::SpanConstRef, AdditionalArgs...)>;
-            using NoAddArgs = std::function<ReturnValue(typename CmdArgs::Span)>;
-            using NoAddArgsConstRef = std::function<ReturnValue(typename CmdArgs::SpanConstRef)>;
+            using Full = std::function<ReturnValue(CmdArgs::Span, AdditionalArgs...)>;
+            using FullConstRef = std::function<ReturnValue(CmdArgs::SpanConstRef, AdditionalArgs...)>;
+            using NoAddArgs = std::function<ReturnValue(CmdArgs::Span)>;
+            using NoAddArgsConstRef = std::function<ReturnValue(CmdArgs::SpanConstRef)>;
             using NoCmdArgs = std::function<ReturnValue(AdditionalArgs...)>;
             using NoArgs = std::function<ReturnValue()>;
         };

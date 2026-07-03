@@ -10,6 +10,7 @@
 #include <type_traits>
 
 // Nebulite
+#include "Interaction/Execution/CmdArgs.hpp"
 #include "Utility/CompileTimeEvaluate.hpp"
 
 //------------------------------------------
@@ -75,8 +76,8 @@ public:
         using Traits = mfp_traits<M>;
         using C = Traits::class_t;
 
-        using Span = FuncTree<ReturnValue, AdditionalArgs...>::CmdArgs::Span;
-        using SpanConstRef = FuncTree<ReturnValue, AdditionalArgs...>::CmdArgs::SpanConstRef;
+        using Span = CmdArgs::Span;
+        using SpanConstRef = CmdArgs::SpanConstRef;
 
         // We test with both const and non-const object to support both member types
         using Obj = C&;
@@ -121,8 +122,8 @@ public:
     template <typename FunctionPointer, typename ReturnValue, typename... AdditionalArgs>
     static constexpr FunctionShape classifyFreeFunction() {
         using F = std::decay_t<FunctionPointer>;
-        using Span = FuncTree<ReturnValue, AdditionalArgs...>::CmdArgs::Span;
-        using SpanConstRef = FuncTree<ReturnValue, AdditionalArgs...>::CmdArgs::SpanConstRef;
+        using Span = CmdArgs::Span;
+        using SpanConstRef = CmdArgs::SpanConstRef;
 
         if constexpr (std::is_invocable_r_v<ReturnValue, F, int, char**>) {
             return FunctionShape::Free_Legacy_IntChar;
