@@ -2,11 +2,11 @@
 // Includes
 
 // Standard library
-#include <memory>
-#include <cstddef> // NOLINT
 #include <algorithm>
+#include <cstddef> // NOLINT
+#include <memory>
 #include <ranges>
-#include <string>
+#include <string_view>
 #include <vector>
 
 // Nebulite
@@ -37,18 +37,18 @@ void Tasks::incrementScriptWaitCounter(std::size_t const count) {
  * @param name The name of the task queue.
  * @return Pointer to the TaskQueue instance, or nullptr if not found.
  */
-std::shared_ptr<Data::TaskQueue> Tasks::getTaskQueue(std::string const& name) {
+std::shared_ptr<Data::TaskQueue> Tasks::getTaskQueue(std::string_view const name) {
     if (auto const it = tasks.find(name); it != tasks.end()) {
         return it->second;
     }
     return nullptr;
 }
 
-void Tasks::addTask(std::string const& name, std::string const& queueName) {
+void Tasks::addTask(std::string_view const name, std::string_view const queueName) {
     tasks[queueName]->pushBack(name);
 }
 
-void Tasks::addScript(std::string const& filename, Utility::IO::Capture& capture) {
+void Tasks::addScript(std::string_view const filename, Utility::IO::Capture& capture) {
     tasks[StandardTasks::script]->addScript(filename, capture);
 }
 
@@ -58,7 +58,7 @@ void Tasks::clearAllTaskQueues() {
     });
 }
 
-bool Tasks::clearTaskQueue(std::string const& queueName) {
+bool Tasks::clearTaskQueue(std::string_view const queueName) {
     if (auto const it = tasks.find(queueName); it != tasks.end()) {
         it->second->clear();
         return true;
@@ -76,13 +76,13 @@ void Tasks::decrementWaitCounter() {
     }
 }
 
-Constants::Event Tasks::parse(Domain& domain, Data::JsonScope& scope, bool recover) {
+Constants::Event Tasks::parse(Domain& domain, Data::JsonScope& scope, bool const recover) {
     Context ctx{domain, domain, domain};
     ContextScope ctxScope{scope, scope, scope};
     return parse(ctx, ctxScope, recover);
 }
 
-Constants::Event Tasks::parse(Context& ctx, ContextScope& ctxScope, bool recover) {
+Constants::Event Tasks::parse(Context& ctx, ContextScope& ctxScope, bool const recover) {
     queueResult.clear();
     for (auto const& [name, queue] : tasks) {
         queueResult[name] = queue->resolve(ctx, ctxScope, recover);

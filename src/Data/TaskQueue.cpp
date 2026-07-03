@@ -79,7 +79,7 @@ TaskQueue::TaskQueueResult TaskQueue::resolve(Interaction::Context& ctx, Interac
     return fullResult;
 }
 
-void TaskQueue::addScript(std::string const& filename, Utility::IO::Capture& capture){
+void TaskQueue::addScript(std::string_view const filename, Utility::IO::Capture& capture){
     if (filename.length() < 6 || !filename.ends_with(".nebs")) {
         capture.error.println("Warning: unexpected file ending for task file '", filename, "'. Expected '.nebs'. Trying to load anyway.");
     }
@@ -122,14 +122,14 @@ void TaskQueue::addScript(std::string const& filename, Utility::IO::Capture& cap
     }
 }
 
-void TaskQueue::pushBack(std::string const& task) {
+void TaskQueue::pushBack(std::string_view const task) {
     std::scoped_lock const lock(tasks.mutex);
-    tasks.list.push_back(task);
+    tasks.list.emplace_back(task);
 }
 
-void TaskQueue::pushFront(std::string const& task) {
+void TaskQueue::pushFront(std::string_view const task) {
     std::scoped_lock const lock(tasks.mutex);
-    tasks.list.push_front(task);
+    tasks.list.emplace_front(task);
 }
 
 void TaskQueue::wait(std::uint64_t const frames) {

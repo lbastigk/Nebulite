@@ -14,6 +14,7 @@
 #include <deque>
 #include <mutex>
 #include <string>
+#include <string_view>
 #include <vector>
 
 // Nebulite
@@ -71,19 +72,19 @@ public:
      */
     TaskQueueResult resolve(Interaction::Context& ctx, Interaction::ContextScope& ctxScope, bool recover);
 
-    void addScript(std::string const& filename, Utility::IO::Capture& capture);
+    void addScript(std::string_view filename, Utility::IO::Capture& capture);
 
     /**
      * @brief Appends a task to the task queue.
      * @param task The task string to append.
      */
-    void pushBack(std::string const& task);
+    void pushBack(std::string_view task);
 
     /**
      * @brief Pushes a task to the front of the task queue.
      * @param task The task string to push.
      */
-    void pushFront(std::string const& task);
+    void pushFront(std::string_view task);
 
     /**
      * @brief Increases the internal wait counter by the specified number of frames.
