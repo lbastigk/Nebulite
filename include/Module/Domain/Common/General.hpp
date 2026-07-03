@@ -9,7 +9,14 @@
 //------------------------------------------
 // Includes
 
+// Standard library
+#include <span>
+#include <string_view>
+
 // Nebulite
+#include "Constants/Event.hpp"
+#include "Data/Document/JsonScope.hpp"
+#include "Interaction/Context.hpp"
 #include "Module/Base/DomainModule.hpp"
 
 //------------------------------------------
@@ -35,7 +42,8 @@ public:
         "\n"
         "Usage: capture <variable> <command...>\n"
         "\n"
-        "Any output is not printed to the console, but instead stored in the given variable.\n";
+        "Any output is not printed to the console, but instead stored in the given variable.\n"
+        "Note that any warnings or errors will no longer be printed to the console, but instead stored in the variable as well!\n";
 
     [[nodiscard]] static Constants::Event eval(std::span<std::string_view const> const& args, Interaction::Context& ctx, Interaction::ContextScope& ctxScope);
     static auto constexpr eval_name = "eval";
