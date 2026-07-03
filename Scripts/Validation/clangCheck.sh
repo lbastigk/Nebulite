@@ -61,7 +61,7 @@ if [ "$1" == "--changed-files" ]; then
     for file in $changed_files; do
         if ! clang-tidy "$file" \
             -warnings-as-errors='*' \
-            -header-filter='^.*/include/' \
+            -header-filter='$^' \
             -config-file=./.clang-tidy \
             -p ./tmp/build_linux-debug \
             -- -std=c++26 -I./include $external_includes
@@ -86,7 +86,7 @@ else
         xargs -0 -P"$(nproc)" -I{} bash -c '
             clang-tidy "$1" \
             -warnings-as-errors='*' \
-            -header-filter="^$" \
+            -header-filter='$^' \
             -config-file=./.clang-tidy \
             -- -std=c++26 -I./include '"$external_includes"' \
             2>&1
@@ -96,7 +96,7 @@ else
     # Check if gnu parallel is installed
     elif [ "$PARALLEL" -eq 1 ] && command -v parallel &> /dev/null; then
         find ./include ./src \( -name '*.hpp' -o -name '*.cpp' -o -name '*.tpp' \) |
-        parallel --jobs "$(nproc)" --line-buffer 'clang-tidy {} -warnings-as-errors="*" -header-filter="^$" -config-file=./.clang-tidy -- -std=c++26 -I./include '"$external_includes"
+        parallel --jobs "$(nproc)" --line-buffer 'clang-tidy {} -warnings-as-errors="*" -header-filter='$^' -config-file=./.clang-tidy -- -std=c++26 -I./include '"$external_includes"
         status=$?
         exit "$status"
     else
@@ -104,7 +104,7 @@ else
         while IFS= read -r -d '' file; do
             if ! clang-tidy "$file" \
                 -warnings-as-errors='*' \
-                -header-filter='^.*/include/' \
+                -header-filter='$^' \
                 -config-file=./.clang-tidy \
                 -p ./tmp/build_linux-debug \
                 -- -std=c++26 -I./include $external_includes
