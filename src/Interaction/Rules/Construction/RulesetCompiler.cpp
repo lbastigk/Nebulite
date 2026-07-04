@@ -103,7 +103,7 @@ std::string RulesetCompiler::getCondition(Data::JsonScope const& entry) {
         logicalArg = entry.get<std::string>(Constants::KeyNames::Ruleset::condition).value_or("0");
     }
 
-    // Add $()
+    // Ensure logicalArg is encapsulated in an evaluation
     if (!logicalArg.starts_with("$(")) {
         logicalArg = "$(" + logicalArg + ")";
     }
@@ -119,11 +119,9 @@ bool RulesetCompiler::getJsonRuleset(Data::JsonScope const& doc, Data::JsonScope
         // Is perhaps link to document
         auto const potentialLink = doc.get<std::string>(key).value_or("");
         if (potentialLink.starts_with("::")) {
-            // Is a static ruleset, return false
-            return false;
+            return false; // Is a static ruleset
         }
         std::string const file = Global::instance().getDocCache().getDocString(potentialLink);
-
         if (file.empty()) {
             return false;
         }
@@ -211,7 +209,7 @@ RulesetCompiler::AnyRuleset RulesetCompiler::getRuleset(Data::JsonScope const& d
         auto const staticFunctionName = doc.get<std::string>(key).value_or("");
 
         if (
-            auto const staticRulesetEntry = StaticRulesetMap::getInstance().getStaticRulesetByName(staticFunctionName);
+            auto const& staticRulesetEntry = StaticRulesetMap::getInstance().getStaticRulesetByName(staticFunctionName);
             staticRulesetEntry.type != StaticRulesetMap::StaticRulesetWithMetadata::Type::invalid
         ) {
             // Is a valid static ruleset

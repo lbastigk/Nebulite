@@ -1,16 +1,29 @@
-/**
- * @file RulesetCompiler.hpp
- * @brief This file contains the static RulesetCompiler class.
- */
-
 #ifndef INTERACTION_RULES_CONSTRUCTION_RULESETCOMPILER_HPP
 #define INTERACTION_RULES_CONSTRUCTION_RULESETCOMPILER_HPP
 
 //------------------------------------------
 // Includes
 
+// Standard library
+#include <cstddef>
+#include <memory>
+#include <optional>
+#include <string>
+#include <string_view>
+#include <variant>
+#include <vector>
+
 // Nebulite
+#include "Data/Document/ScopedKey.hpp"
+#include "Interaction/Logic/Assignment.hpp"
 #include "Interaction/Rules/Ruleset.hpp"
+
+//------------------------------------------
+// Forward declarations
+
+namespace Nebulite::Data {
+class JsonScope;
+} // namespace Nebulite::Data
 
 //------------------------------------------
 namespace Nebulite::Interaction::Rules::Construction {
