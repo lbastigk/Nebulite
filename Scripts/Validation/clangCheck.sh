@@ -57,11 +57,17 @@ run_clang_tidy_from_stdin() {
     total_treated=0
 
     # Files that cause issues like hangs or crashes that will be skipped during the clang-tidy run
+    # all entries must start with './'
     known_offenders=(
-        "src/Module/Domain/Renderer/Audio.cpp"
+        "./src/Module/Domain/Renderer/Audio.cpp"
     )
 
     while IFS= read -r -d '' file; do
+        # Ensure the file starts with './' to avoid issues with relative paths
+        if [[ "$file" != ./* ]]; then
+            file="./$file"
+        fi
+
         # Check if the file is in the known offenders list
         if [[ " ${known_offenders[*]} " == *" $file "* ]]; then
             echo "Skipping known offender: $file"
@@ -118,7 +124,7 @@ run_clang_tidy_from_stdin() {
 if [ "$1" == "--changed-files" ]; then
     # Get the list of changed files from git
     changed_files=$(git ls-files --modified)
-    #changed_files=$(git diff --cached --name-only) # somehow this won't work with clion
+    #changed_files=$(git diff --cached --name-only) # somehow this won't work with clion, the integrated git gui doesn't stage the files before running checks
 
     # Filter for C++ source and header files
     changed_files=$(echo "$changed_files" | grep -E '\.(cpp|hpp|h|tpp)$')
