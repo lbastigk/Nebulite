@@ -1,8 +1,3 @@
-/**
- * @file SdlPrimitive.hpp
- * @brief This file contains SDL primitive drawing functions.
- */
-
 #ifndef GRAPHICS_SDLPRIMITIVE_HPP
 #define GRAPHICS_SDLPRIMITIVE_HPP
 
@@ -13,6 +8,8 @@
 #include <vector>
 
 // External
+#include <SDL3/SDL_pixels.h>
+#include <SDL3/SDL_rect.h>
 #include <SDL3/SDL_render.h>
 
 //------------------------------------------

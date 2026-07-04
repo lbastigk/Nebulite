@@ -24,7 +24,6 @@
 #include <SDL3/SDL_video.h>
 #include <absl/container/flat_hash_map.h>
 
-
 // Nebulite
 #include "Graphics/RmlSystemInterface.hpp"
 #include "Interaction/Context.hpp"

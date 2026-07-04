@@ -1,8 +1,3 @@
-/**
- * @file ExpressionPrimitives.hpp
- * @brief This file contains a collection of custom functions for TinyExpr used in Nebulite
- */
-
 #ifndef MATH_EXPRESSIONPRIMITIVES_HPP
 #define MATH_EXPRESSIONPRIMITIVES_HPP
 
@@ -13,6 +8,8 @@
 #include <algorithm>
 #include <cfloat>
 #include <cmath>
+#include <span>
+#include <string_view>
 #include <vector>
 
 // External
@@ -23,8 +20,6 @@ namespace Nebulite::Math {
 /**
  * @brief A collection of custom functions for TinyExpr
  *        Make sure to register all functions with TinyExpr in Nebulite::Math::Expression::registerExpressions
- * @note Marking the parameters as `const&` does not work with TinyExpr function pointers,
- *       so they are passed by value instead.
  */
 class ExpressionPrimitives {
 public:
