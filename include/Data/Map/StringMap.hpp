@@ -83,7 +83,6 @@ public:
      */
     template<typename F>
     void forall(F func) {
-        // Check if F is invocable with (std::string const&, V&)
         static_assert(
             std::is_invocable_v<F, std::string const&, V&>,
             "Function must be invocable with (std::string const&, V&)"

@@ -36,10 +36,18 @@ template <typename Storage> using MapType = StringMap<std::vector<std::shared_pt
 template <typename V>
 class ContainerMap : absl::flat_hash_map<std::string, V> {
 public:
+    /**
+     * @brief Access or insert an element by key.
+     * @param key The string key to access.
+     * @return Reference to the value associated with the key.
+     */
     V& operator[](std::string_view const key) {
         return absl::flat_hash_map<std::string, V>::operator[](std::string(key));
     }
 
+    /**
+     * @brief Clear all entries.
+     */
     void clear() {
         return absl::flat_hash_map<std::string, V>::clear();
     }
@@ -51,7 +59,6 @@ public:
      */
     template<typename F>
     void forall(F func) {
-        // Check if F is invocable with (std::string const&, V&)
         static_assert(
             std::is_invocable_v<F, std::string const&, V&>,
             "Function must be invocable with (std::string const&, V&)"
