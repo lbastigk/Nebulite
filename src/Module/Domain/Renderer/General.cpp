@@ -246,6 +246,7 @@ Constants::Event General::snapshot(int const argc, char const** argv) const {
 }
 
 namespace {
+
 auto constexpr base64_chars =
     "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
     "abcdefghijklmnopqrstuvwxyz"
@@ -284,8 +285,7 @@ struct JpegMemory {
 
 // stb callback: append to vector
 
-// NOLINTNEXTLINE
-void write_jpeg_callback(void* context, void* data, int size) {
+void write_jpeg_callback(void* context, void* data, int const size) {
     auto* buf = static_cast<JpegMemory*>(context);
     auto* bytes = static_cast<uint8_t*>(data);
     buf->data.insert(buf->data.end(), bytes, bytes + size);
@@ -294,7 +294,7 @@ void write_jpeg_callback(void* context, void* data, int size) {
 
 // TODO: black bars on the top and right in headless mode!
 Constants::Event General::dumpView() const {
-    std::function<void()> const callback = [&]() -> void {
+    domain.addPostRenderCallback([&]() -> void {
         Data::JSON view;
 
         // Get current window/render target size
@@ -352,8 +352,7 @@ Constants::Event General::dumpView() const {
         // Otherwise, this will clog up the domain viewer and make rendering super slow
         //domain.capture.log.println(view.serialize("", Data::RjDirectAccess::SerializationType::compact));
         std::cout << view.serialize("", Data::RjDirectAccess::SerializationType::compact) << '\n';
-    };
-    domain.addPostRenderCallback(callback);
+    });
     return Constants::Event::Success;
 }
 
