@@ -56,7 +56,19 @@ run_clang_tidy_from_stdin() {
     status=0
     total_treated=0
 
+    # Files that cause issues like hangs or crashes that will be skipped during the clang-tidy run
+    known_offenders=(
+        "src/Module/Domain/Renderer/Audio.cpp"
+    )
+
     while IFS= read -r -d '' file; do
+        # Check if the file is in the known offenders list
+        if [[ " ${known_offenders[*]} " == *" $file "* ]]; then
+            echo "Skipping known offender: $file"
+            echo "If you believe this file should be checked, please remove it from the known offenders list in the script and see if it works."
+            continue
+        fi
+
         echo "Running clang-tidy on $file"
 
         tmpfile=$(mktemp)
