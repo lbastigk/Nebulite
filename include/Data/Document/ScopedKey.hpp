@@ -1,20 +1,3 @@
-/**
- * @file ScopedKey.hpp
- * @brief Defines the ScopedKey and ScopedKeyView classes for managing scoped keys within JSON documents.
- * @details The purpose is to ensure subclasses only access keys within their intended scopes.
- *          Furthermore, it allows for root-scoped keys that are always taken at given scope root.
- *          This allows us to have structured JSON documents representing Multiple Domain Classes:
- *          RenderObject with its subclass Texture, where Texture keys are always under "texture." scope.
- *          We can then, in both classes, use a root-scoped key for "name"
- *          that either refers to "name" at root (RenderObject) or "texture.name" (Texture), depending on the current scope.
- *          We can also have scoped keys that fail if used outside their intended scope, e.g. a key
- *          defined with scope "renderer." cannot be used in a JsonScope with scope "physics.",
- *          as that would be an accidental misuse of the key.
- *          The checks happen at runtime when the key is used to access the JsonScope,
- *          throwing an exception if the scopes do not match.
- *          This allows for greater separation of concerns and reduces accidental key misusage.
- */
-
 #ifndef DATA_DOCUMENT_SCOPEDKEY_HPP
 #define DATA_DOCUMENT_SCOPEDKEY_HPP
 
@@ -95,13 +78,6 @@ public:
     // produce a scopedKey view that points into this owned buffer.
     // caller must keep the ScopedKeyView alive while using the returned view.
     [[nodiscard]] ScopedKeyView view() const & noexcept ;
-
-    /**
-     * @brief A constant representing the absence of a scope.
-     */
-    static auto constexpr noScope = OptionalFixedString();
-
-    static auto constexpr domainRootScope = OptionalFixedString<0, true>();
 
     /**
      * @brief Add another scopedKey to the current Key

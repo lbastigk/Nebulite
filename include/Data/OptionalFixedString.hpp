@@ -5,6 +5,7 @@
 // Includes
 
 // Standard library
+#include <algorithm>
 #include <array>
 #include <cstddef>
 #include <string_view>
@@ -20,9 +21,9 @@ namespace Nebulite::Data {
  */
 template <std::size_t N, bool forceOutsideDefinition = false>
 struct OptionalFixedString {
-    std::array<char, N == 0 ? 1 : N> value{};
+    std::array<char, std::max(std::size_t{1}, N)> value{};
 
-    consteval OptionalFixedString(char const (&str)[N == 0 ? 1 : N]) { // NOLINT
+    consteval OptionalFixedString(char const (&str)[std::max(std::size_t{1}, N)]) { // NOLINT
         static_assert(N > 0, "Use the default constructor for empty strings");
         static_assert(!forceOutsideDefinition, "Cannot initialize string from literal when forceOutsideDefinition is true");
         for (std::size_t i = 0; i < N; ++i) value[i] = str[i];
@@ -36,9 +37,17 @@ struct OptionalFixedString {
         return N-1;
     }
 
+    static constexpr bool hasValue() {
+        return N > 0 && !forceOutsideDefinition;
+    }
+
+    [[nodiscard]] static constexpr bool hasOutsideDefinition() {
+        return forceOutsideDefinition;
+    }
+
     // Returns the last character of the string, or '\0' if the string is empty
     [[nodiscard]] constexpr char back() const requires(N > 0 && !forceOutsideDefinition) {
-        if constexpr (N == 1) { // Empty string, return NULL instead
+        if constexpr (N == 1) { // Empty string, return string terminator
             return '\0';
         } else {
             return value[N - 2];
@@ -48,21 +57,12 @@ struct OptionalFixedString {
     [[nodiscard]] constexpr std::string_view view() const requires(N > 0 && !forceOutsideDefinition) {
         return {value.data(), N - 1};
     }
-
-    static constexpr bool hasValue() {
-        return N > 0 && !forceOutsideDefinition;
-    }
-
-    [[nodiscard]] static constexpr bool hasOutsideDefinition() {
-        return forceOutsideDefinition;
-    }
 };
 
 // CTAD from string_view is difficult ...
 // So we use char here
 template <std::size_t N>
-// NOLINTNEXTLINE
-OptionalFixedString(char const(&)[N]) -> OptionalFixedString<N>;
+OptionalFixedString(char const(&)[N]) -> OptionalFixedString<N>; // NOLINT
 
 template <std::size_t N>
 OptionalFixedString(std::array<char, N>) -> OptionalFixedString<N>;

@@ -1,17 +1,24 @@
-/**
- * @file Ruleset.hpp
- * @brief Contains the declaration of the Ruleset DomainModule for the GlobalSpace domain.
- */
-
 #ifndef MODULE_DOMAIN_COMMON_RULESET_HPP
 #define MODULE_DOMAIN_COMMON_RULESET_HPP
 
 //------------------------------------------
 // Includes
 
+// Standard library
+#include <cstddef>
+#include <memory>
+#include <mutex>
+#include <span>
+#include <string_view>
+#include <vector>
+
 // Nebulite
+#include "Constants/Event.hpp"
+#include "Data/Document/JsonScope.hpp"
 #include "Data/Document/KeyGroup.hpp"
+#include "Data/Document/ScopePattern.hpp"
 #include "Interaction/Rules/Listener.hpp"
+#include "Interaction/Rules/Ruleset.hpp"
 #include "Module/Base/DomainModule.hpp"
 
 //------------------------------------------
@@ -87,7 +94,7 @@ public:
         bindFunction(&Ruleset::reload, reload_name, reload_desc);
     }
 
-    struct Key : Data::KeyGroup<Data::ScopedKey::domainRootScope> {
+    struct Key : Data::KeyGroup<Data::ScopePattern::domainRootScope> {
         explicit Key(Data::JsonScope const& scope) {
             broadcast = scope.getRootScope().addMember("ruleset").addMember("list");
             listen = scope.getRootScope().addMember("ruleset").addMember("listen");

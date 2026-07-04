@@ -6,7 +6,7 @@
 
 // Nebulite
 #include "Data/Document/KeyGroup.hpp"
-#include "Data/Document/ScopedKey.hpp"
+#include "Data/Document/ScopePattern.hpp"
 
 //------------------------------------------
 namespace Nebulite::Constants {
@@ -25,7 +25,7 @@ struct KeyNames {
      * @brief Basic keys related to any domain.
      * @details No scope! As Domains may be inside other Domains, the scope is arbitrary.
      */
-    struct Domain : Data::KeyGroup<Data::ScopedKey::noScope> {
+    struct Domain : Data::KeyGroup<Data::ScopePattern::noScope> {
         //static auto constexpr id = makeScoped("id");
     };
 
@@ -72,7 +72,7 @@ struct KeyNames {
      * @details No scope, as they are extracted from larger JSON objects and have arbitrary scopes depending on where they are defined.
      *          E.g. `ruleset.list[0]` for the first one, `ruleset.list[1]` for the second one, etc.
      */
-    struct Ruleset : Data::KeyGroup<Data::ScopedKey::noScope> {
+    struct Ruleset : Data::KeyGroup<Data::ScopePattern::noScope> {
         static auto constexpr topic = makeScoped("topic");
         static auto constexpr condition = makeScoped("condition");
         static auto constexpr assignments = makeScoped("action.assign");

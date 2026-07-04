@@ -21,8 +21,8 @@ namespace Nebulite::Data {
  *          If the parameter is not provided, the scope is arbitrary and the keys will be non-scoped.
  *          This is useful for organizing keys related to specific domains or modules within the Nebulite framework.
  * @tparam Prefix A string that defines the scope prefix for the keys in this group.
- *                Pass Data::ScopedKey::noScope to indicate that the keys in this group are not scoped and can be used in any scope.
- *                Note that there is a difference between a root scope (Prefix = "") and no scope (Prefix = Data::ScopedKey::noScope):
+ *                Pass Data::ScopePattern::noScope to indicate that the keys in this group are not scoped and can be used in any scope.
+ *                Note that there is a difference between a root scope (Prefix = "") and no scope (Prefix = Data::ScopePattern::noScope):
  *                - a root scope means the jsonScope we access with the key must also be at the root, otherwise access will fail
  *                - no scope means the jsonScope may be at any scope, and the key will be accessed at the root of that scope,
  *                  meaning it can be used in any scope without failing. Of course, if the jsonScope is not at the expected scope, the retrieval may return an error.
