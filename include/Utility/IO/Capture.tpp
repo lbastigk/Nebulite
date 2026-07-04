@@ -25,8 +25,8 @@ void Stream<BaseStream, LineType>::putStr(std::string const& str, bool const pri
         *BaseStream << str;
     }
 
-    std::istringstream iss(str);
-    std::string line;
+    std::basic_istringstream<char> iss(str);
+    std::string line{};
     while (std::getline(iss, line)) {
         capture->appendToHistory(line, LineType);
     }
@@ -35,7 +35,7 @@ void Stream<BaseStream, LineType>::putStr(std::string const& str, bool const pri
 template<std::ostream* BaseStream, HistoryLine::Type LineType>
 template<typename... Args>
 void Stream<BaseStream, LineType>::print(bool const printToConsole, Args&&... args) {
-    std::ostringstream workingBuffer;
+    std::ostringstream workingBuffer{};
     if constexpr (sizeof...(args) != 0) {
         (workingBuffer << ... << logArg(std::forward<Args>(args)));
     }
@@ -45,7 +45,7 @@ void Stream<BaseStream, LineType>::print(bool const printToConsole, Args&&... ar
 template<std::ostream* BaseStream, HistoryLine::Type LineType>
 template<typename... Args>
 void Stream<BaseStream, LineType>::println(bool const printToConsole, Args&&... args) {
-    std::ostringstream workingBuffer;
+    std::ostringstream workingBuffer{};
     if constexpr (sizeof...(args) != 0) {
         (workingBuffer << ... << logArg(std::forward<Args>(args)));
     }
