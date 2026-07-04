@@ -11,8 +11,14 @@
 #include <string_view>
 #include <utility>
 
+// External
+#include <RmlUi/Config/Config.h>
+#include <RmlUi/Core/Element.h>
+
 // Nebulite
 #include "Data/OptionalFixedString.hpp"
+#include "Graphics/RmlInterface.hpp"
+#include "Utility/IO/Capture.hpp"
 
 //------------------------------------------
 namespace Nebulite::Interaction {
