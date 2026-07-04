@@ -30,6 +30,7 @@ external_include_list=(
     "./external/rapidjson/include"
     "./external/RmlUi/Backends"
     "./external/RmlUi/Include"
+    "./external/RmlUi/Source"
     "./external/SDL3/include"
     "./external/SDL3_image/include"
     "./external/SDL3_ttf/include"
