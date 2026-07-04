@@ -13,7 +13,6 @@
 // Standard library
 #include <array>
 #include <cstddef>
-#include <functional>
 #include <limits>
 #include <ranges>
 #include <string>
@@ -21,9 +20,6 @@
 
 // External
 #include <absl/container/flat_hash_map.h>
-
-// Nebulite
-#include "Utility/Coordination/SharedMutex.hpp"
 
 //------------------------------------------
 namespace Nebulite::Data {
@@ -45,8 +41,6 @@ private:
     std::array<MapType, BucketCount> map;
     static_assert(BucketCount == 256, "Expected 256 buckets for StringMap");
 
-    std::array<Utility::Coordination::SharedMutex, BucketCount> bucketMutex; // Mutexes for each character bucket
-
     static std::size_t getIndex(std::string_view const key) {
         if (key.empty()) {
             return 0;
@@ -63,11 +57,6 @@ public:
     StringMap& operator=(StringMap&& other) = delete;
     StringMap(StringMap const&) = delete;
     StringMap& operator=(StringMap const&) = delete;
-
-    auto lock(std::string_view const key) {
-        return Utility::Coordination::SharedLock(bucketMutex[getIndex(key)]);
-    }
-
 
     /**
      * @brief Access or insert an element by key.
@@ -87,20 +76,41 @@ public:
         }
     }
 
-    // TODO: use templates instead: forall(F&& func) and forallValues(F&& func)
+    /**
+     * @brief Applies a function to all values, passing both key and value
+     * @tparam F The function type to apply. First argument is the key, second argument is the value (V&).
+     * @param func The function to apply
+     */
+    template<typename F>
+    void forall(F func) {
+        // Check if F is invocable with (std::string const&, V&)
+        static_assert(
+            std::is_invocable_v<F, std::string const&, V&>,
+            "Function must be invocable with (std::string const&, V&)"
+        );
 
-    void forall(std::function<void(V&)> const& func) {
         for (auto& bucket : map) {
-            for (auto& value : bucket | std::views::values) {
-                func(value);
+            for (auto& [key, value] : bucket) {
+                func(key, value);
             }
         }
     }
 
-    void forall(std::function<void(std::string const&, V&)> const& func) {
+    /**
+     * @brief Applies a function to all values
+     * @tparam F The function type to apply. First argument is the key, second argument is the value (V&).
+     * @param func The function to apply
+     */
+    template<typename F>
+    void forallValues(F func) {
+        static_assert(
+            std::is_invocable_v<F, V&>,
+            "Function must be invocable with (V&)"
+        );
+
         for (auto& bucket : map) {
-            for (auto& [key, value] : bucket) {
-                func(key, value);
+            for (auto& value : bucket | std::views::values) {
+                func(value);
             }
         }
     }

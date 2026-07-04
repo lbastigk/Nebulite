@@ -148,7 +148,7 @@ void FlatContainerBase::processWithOffset() {
 
     // Cleanup: Clear all broadcasters
     for (auto& broadcasterMap : broadcasters) {
-        broadcasterMap.forall([&](auto& bv) {
+        broadcasterMap.forallValues([&](auto& bv) {
             bv.clear();
         });
     }
@@ -177,7 +177,7 @@ void FlatContainerBase::processNoOffset(){
 
     // Cleanup: Clear all broadcasters
     for (auto& broadcasterMap : broadcasters) {
-        broadcasterMap.forall([&](auto& bv) {
+        broadcasterMap.forallValues([&](auto& bv) {
             bv.clear();
         });
     }

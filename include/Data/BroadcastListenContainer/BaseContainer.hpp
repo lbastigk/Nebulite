@@ -26,6 +26,7 @@ struct Listener;
 namespace Nebulite::Data::BroadcastListenContainer {
 /**
  * @brief Interface Class to manage broadcast-listen pairs of rulesets.
+ * @details If a hashmap is used in the implementation, using Data::MapType is recommended.
  * @tparam DerivedContainer The type of the derived container class, required as argument of the WorkDispatcher to use as workspace reference.
  */
 template<typename DerivedContainer>

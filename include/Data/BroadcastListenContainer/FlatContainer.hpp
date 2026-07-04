@@ -12,12 +12,11 @@
 #include <memory>
 #include <optional>
 #include <utility>
-#include <vector>
 
 // Nebulite
 #include "Constants/ThreadSettings.hpp"
 #include "Data/BroadcastListenContainer/BaseContainer.hpp"
-#include "Data/Map/StringMap.hpp"
+#include "Data/BroadcastListenContainer/MapType.hpp"
 
 //------------------------------------------
 // Forward declarations
@@ -42,8 +41,8 @@ class FlatContainerBase {
     // rendererWorkerCount should be enough, but if we decide that rulesets are able to directly broadcast/listen, we need one slot for each thread!
     static auto constexpr activeWorkerCount = Constants::ThreadSettings::Maximum::rendererWorkerCount;
 
-    std::array<StringMap<std::vector<std::shared_ptr<Interaction::Rules::Ruleset>>>, activeWorkerCount> broadcasters = {};
-    std::array<StringMap<std::vector<std::shared_ptr<Interaction::Rules::Listener>>>, activeWorkerCount> listeners = {};
+    std::array<MapType<Interaction::Rules::Ruleset>, activeWorkerCount> broadcasters = {};
+    std::array<MapType<Interaction::Rules::Listener>, activeWorkerCount> listeners = {};
 
 public:
     struct Settings {
