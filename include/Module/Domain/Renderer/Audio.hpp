@@ -6,16 +6,21 @@
 
 // Standard Library
 #include <array>
+#include <cstddef>
 #include <limits>
 #include <optional>
 #include <span>
 #include <string>
+#include <string_view>
+#include <type_traits>
 #include <vector>
 
 // External
-#include <SDL3/SDL.h>
+#include <SDL3/SDL_audio.h>
+#include <absl/container/flat_hash_map.h>
 
 // Nebulite
+#include "Constants/Event.hpp"
 #include "Module/Base/DomainModule.hpp"
 
 //------------------------------------------
@@ -124,7 +129,7 @@ private:
 
     absl::flat_hash_map<std::string, Sound> soundCache;
 
-    std::optional<decltype(soundCache.find(""))> loadSound(std::string const& path);
+    auto loadSound(std::string const& path) -> std::optional<decltype(soundCache.find(""))>; // NOLINT
 
     /**
      * @brief Initializes basic audio waveforms.
@@ -141,7 +146,7 @@ private:
      * @param format The SDL_AudioFormat to convert.
      * @return A string representation of the audio format.
      */
-    static std::string sdlAudioFormatToString(SDL_AudioFormat const& format);
+    static std::string sdlAudioFormatToString(SDL_AudioFormat format);
 };
 } // namespace Nebulite::Module::Domain::Renderer
 #endif // MODULE_DOMAIN_RENDERER_AUDIO_HPP

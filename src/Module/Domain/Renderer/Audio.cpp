@@ -2,7 +2,21 @@
 // Includes
 
 // Standard Library
+#include <array>
 #include <cmath>
+#include <cstddef>
+#include <ranges>
+#include <span>
+#include <string>
+#include <string_view>
+#include <vector>
+
+// External
+#include <SDL3/SDL_audio.h>
+#include <SDL3/SDL_error.h>
+#include <SDL3/SDL_init.h>
+#include <SDL3/SDL_stdinc.h>
+#include <absl/container/flat_hash_map.h>
 
 // Nebulite
 #include "Constants/Event.hpp"
@@ -11,6 +25,8 @@
 #include "Math/FFT.hpp"
 #include "Module/Domain/Renderer/Audio.hpp"
 #include "Utility/Generate.hpp"
+#include "Utility/IO/Capture.hpp"
+#include "Utility/StringHandler.hpp"
 
 //------------------------------------------
 namespace Nebulite::Module::Domain::Renderer {
@@ -201,20 +217,20 @@ void Audio::initWaveforms() {
         return static_cast<double>(i) / Settings::sampleRate;
     };
 
-    basicAudioWaveforms.sineBuffer = Utility::Generate::array<SampleType, SampleCount>([time](std::size_t const i) {
+    basicAudioWaveforms.sineBuffer = Utility::Generate::array<SampleType, SampleCount>([&time](std::size_t const i) {
         return static_cast<Settings::SampleType>(amplitudeScale * sin(2.0 * M_PI * frequency * time(i)));
     });
-    basicAudioWaveforms.triangleBuffer = Utility::Generate::array<SampleType, SampleCount>([time](std::size_t const i) {
+    basicAudioWaveforms.triangleBuffer = Utility::Generate::array<SampleType, SampleCount>([&time](std::size_t const i) {
         double const value = 2.0 * (time(i) * frequency - floor(time(i) * frequency + 0.5));
         return static_cast<Settings::SampleType>(amplitudeScale * value);
     });
-    basicAudioWaveforms.squareBuffer = Utility::Generate::array<SampleType, SampleCount>([time](std::size_t const i) {
+    basicAudioWaveforms.squareBuffer = Utility::Generate::array<SampleType, SampleCount>([&time](std::size_t const i) {
         double const value = sin(2.0 * M_PI * frequency * time(i)) >= 0.0 ? 1.0 : -1.0;
         return static_cast<Settings::SampleType>(amplitudeScale * value);
     });
 }
 
-std::optional<decltype(Audio::soundCache.find(""))> Audio::loadSound(std::string const& path) {
+auto Audio::loadSound(std::string const& path) -> std::optional<decltype(soundCache.find(""))> { // NOLINT
     if (auto const it = soundCache.find(path); it != soundCache.end()) {
         return it;
     }
@@ -295,7 +311,7 @@ std::optional<decltype(Audio::soundCache.find(""))> Audio::loadSound(std::string
     return it;
 }
 
-std::string Audio::sdlAudioFormatToString(SDL_AudioFormat const& format) {
+std::string Audio::sdlAudioFormatToString(SDL_AudioFormat const format) {
     switch (format) {
     case SDL_AUDIO_U8: return "Unsigned 8-bit";
     case SDL_AUDIO_S8: return "Signed 8-bit";
