@@ -9,9 +9,22 @@
 //------------------------------------------
 // Includes
 
+// Standard library
+#include <cstdint>
+#include <string_view>
+#include <vector>
+
 // Nebulite
 #include "Constants/KeyNames.hpp"
+#include "Data/Document/ScopedKey.hpp"
 #include "Module/Base/RulesetModule.hpp"
+
+//------------------------------------------
+// Forward declarations
+
+namespace Nebulite::Interaction {
+class Context;
+} // namespace Nebulite::Interaction
 
 //------------------------------------------
 namespace Nebulite::Module::Ruleset {
@@ -79,7 +92,7 @@ private:
     //------------------------------------------
     // Position
 
-    struct position {
+    struct Position {
         double x = 0.0;
         double y = 0.0;
     };
@@ -95,56 +108,9 @@ private:
     // TODO: Second align parameter for object edge alignment
     //       Each camera align needs to know what part of the object to align to what part of the camera view
     //       e.g.: ::camera::align::right-top would align the camera's right edge to the object's top edge
-    void setCameraPosition(const position& pos, Align const& align) const {
-        switch (align) {
-            case Align::Top:
-                *globalVal.camPosY = pos.y ;
-                break;
-            case Align::Bottom:
-                *globalVal.camPosY = pos.y - *globalVal.dispResY;
-                break;
-            case Align::Left:
-                *globalVal.camPosX = pos.x;
-                break;
-            case Align::Right:
-                *globalVal.camPosX = pos.x - *globalVal.dispResX;
-                break;
-            case Align::Center:
-            default: // Fallback to center
-                *globalVal.camPosX = pos.x - *globalVal.dispResX / 2.0;
-                *globalVal.camPosY = pos.y - *globalVal.dispResY / 2.0;
-                break;
-        }
-    }
+    void setCameraPosition(const Position& pos, Align const& align) const ;
 
-    static position getAdjustedObjectPosition(double** baseValues, Align const& align) {
-        // Adjust based on object size
-        position pos;
-        switch (align) {
-            case Align::Top:
-                pos.x = baseVal(baseValues, Key::posX) + baseVal(baseValues, Key::spriteSizeX) / 2.0;
-                pos.y = baseVal(baseValues, Key::posY) + baseVal(baseValues, Key::spriteSizeY);
-                break;
-            case Align::Bottom:
-                pos.x = baseVal(baseValues, Key::posX) + baseVal(baseValues, Key::spriteSizeX) / 2.0;
-                pos.y = baseVal(baseValues, Key::posY);
-                break;
-            case Align::Left:
-                pos.x = baseVal(baseValues, Key::posX);
-                pos.y = baseVal(baseValues, Key::posY) + baseVal(baseValues, Key::spriteSizeY) / 2.0;
-                break;
-            case Align::Right:
-                pos.x = baseVal(baseValues, Key::posX) + baseVal(baseValues, Key::spriteSizeX);
-                pos.y = baseVal(baseValues, Key::posY) + baseVal(baseValues, Key::spriteSizeY) / 2.0;
-                break;
-            case Align::Center:
-            default: // Fallback to center
-                pos.x = baseVal(baseValues, Key::posX) + baseVal(baseValues, Key::spriteSizeX) / 2.0;
-                pos.y = baseVal(baseValues, Key::posY) + baseVal(baseValues, Key::spriteSizeY) / 2.0;
-                break;
-        }
-        return pos;
-    }
+    static Position getAdjustedObjectPosition(double** baseValues, Align const& align);
 };
 } // namespace Nebulite::Module::Ruleset
 #endif // MODULE_RULESET_CAMERA_HPP

@@ -57,5 +57,58 @@ void Camera::alignRight(Interaction::Context const& context, double** slf, doubl
     setCameraPosition(getAdjustedObjectPosition(slf, Align::Center), Align::Right);
 }
 
+void Camera::setCameraPosition(const Position& pos, Align const& align) const {
+    switch (align) {
+        case Align::Top:
+            *globalVal.camPosY = pos.y ;
+            break;
+        case Align::Bottom:
+            *globalVal.camPosY = pos.y - *globalVal.dispResY;
+            break;
+        case Align::Left:
+            *globalVal.camPosX = pos.x;
+            break;
+        case Align::Right:
+            *globalVal.camPosX = pos.x - *globalVal.dispResX;
+            break;
+        case Align::Center:
+        default: // Fallback to center
+            *globalVal.camPosX = pos.x - *globalVal.dispResX / 2.0;
+            *globalVal.camPosY = pos.y - *globalVal.dispResY / 2.0;
+            break;
+    }
+}
+
+Camera::Position Camera::getAdjustedObjectPosition(double** baseValues, Align const& align) {
+    // Adjust based on object size
+    Position pos;
+    switch (align) {
+        // Not used at the moment:
+        // NOLINTBEGIN
+        case Align::Top:
+            pos.x = baseVal(baseValues, Key::posX) + baseVal(baseValues, Key::spriteSizeX) / 2.0;
+            pos.y = baseVal(baseValues, Key::posY) + baseVal(baseValues, Key::spriteSizeY);
+            break;
+        case Align::Bottom:
+            pos.x = baseVal(baseValues, Key::posX) + baseVal(baseValues, Key::spriteSizeX) / 2.0;
+            pos.y = baseVal(baseValues, Key::posY);
+            break;
+        case Align::Left:
+            pos.x = baseVal(baseValues, Key::posX);
+            pos.y = baseVal(baseValues, Key::posY) + baseVal(baseValues, Key::spriteSizeY) / 2.0;
+            break;
+        case Align::Right:
+            pos.x = baseVal(baseValues, Key::posX) + baseVal(baseValues, Key::spriteSizeX);
+            pos.y = baseVal(baseValues, Key::posY) + baseVal(baseValues, Key::spriteSizeY) / 2.0;
+            break;
+        // NOLINTEND
+        case Align::Center:
+        default: // Fallback to center
+            pos.x = baseVal(baseValues, Key::posX) + baseVal(baseValues, Key::spriteSizeX) / 2.0;
+            pos.y = baseVal(baseValues, Key::posY) + baseVal(baseValues, Key::spriteSizeY) / 2.0;
+            break;
+    }
+    return pos;
+}
 
 } // namespace Nebulite::Module::Ruleset
