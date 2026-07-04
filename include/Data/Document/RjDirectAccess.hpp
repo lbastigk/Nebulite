@@ -43,10 +43,19 @@ public:
      * @return An optional simpleValue containing the value if successful, or std::nullopt if the type is unsupported.
      */
     static std::optional<simpleValue> getSimpleValue(rapidjson::Value const* val);
+
+    /**
+     * @brief Getting a simple value from a rapidjson value, using the right type stored in the document.
+     * @tparam RjValType The type of the rapidjson value, should be a rapidjson::Document to ensure correct key traversal.
+     * @param key The key to traverse in the document to find the value.
+     * @param doc The rapidjson document to search within.
+     * @return An optional simpleValue containing the value if successful, or std::nullopt if the type is unsupported.
+     */
     template<typename RjValType>
     static std::optional<simpleValue> getSimpleValue(std::string_view key, RjValType& doc) {
-        // The given RjValType should be a Document
-        // If we pass a rapidjson value, we risk not starting at the top of the document, where we should apply the key traversal
+        // The given RjValType should be a Document.
+        // If we pass a rapidjson value, we risk not starting at the top of the document, where we should apply the key traversal.
+        // This fixes implicit conversion worries.
         static_assert(
             std::is_same_v<RjValType, rapidjson::Document>,
             "The given Rapidjson Value type should be a document to ensure the key traversal happens at the top! "
@@ -169,7 +178,12 @@ public:
     //------------------------------------------
     // Serialization/Deserialization
 
-    enum class SerializationType : std::uint8_t {
+    /**
+     * @brief Enum representing the type of serialization for JSON output.
+     *        - compact: No extra whitespace or indentation.
+     *        - pretty: Indented and formatted for readability.
+     */
+    enum class SerializationType : bool {
         compact,
         pretty
     };
@@ -182,7 +196,7 @@ public:
      */
     static std::string serialize(rapidjson::Document const& doc, SerializationType type = SerializationType::pretty);
 
-    static std::string serialize(rapidjson::Value const& val);
+    static std::string serialize(rapidjson::Value const& val, SerializationType type = SerializationType::pretty);
 
     /**
      * @brief Deserializes a JSON string into a rapidjson document.
@@ -190,7 +204,6 @@ public:
      * @param serialOrLink The JSON string to deserialize.
      */
     static void deserialize(rapidjson::Document& doc, std::string_view serialOrLink);
-
 
     //------------------------------------------
     // Helper functions
