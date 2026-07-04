@@ -6,6 +6,8 @@
 
 // Standard library
 #include <memory>
+#include <span>
+#include <string_view>
 #include <type_traits>
 #include <vector>
 
@@ -42,6 +44,7 @@ class JsonRvalueTransformer {
      *                   will get the length of the string at MyKey.subKey and add 1 to it.
      *          Takes in a JsonScope pointer as argument to modify.
      *          Returns true on success, false on failure.
+     * @todo Change to JsonScope&
      */
     std::shared_ptr<Interaction::Execution::FuncTree<bool, JsonScope*>> transformationFuncTree;
 
