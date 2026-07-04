@@ -1,9 +1,3 @@
-/**
- * @file StaticRulesetMap.hpp
- * @brief This file contains predefined static rulesets for common interactions in the Nebulite engine.
- *        Compared to json-defined rulesets, static rulesets are hardcoded for performance and reliability.
- */
-
 #ifndef INTERACTION_RULES_STATICRULESETMAP_HPP
 #define INTERACTION_RULES_STATICRULESETMAP_HPP
 
@@ -11,13 +5,16 @@
 // Includes
 
 // Standard library
+#include <cstdint>
 #include <functional>
+#include <string>
+#include <string_view>
+#include <vector>
 
 // External
 #include <absl/container/flat_hash_map.h>
 
 // Nebulite
-
 #include "Interaction/Context.hpp"
 
 //------------------------------------------
@@ -104,7 +101,12 @@ public:
 
 private:
     absl::flat_hash_map<std::string, StaticRulesetWithMetadata> container;
-    StaticRulesetWithMetadata invalidEntry;
+    StaticRulesetWithMetadata invalidEntry{
+        .type=StaticRulesetWithMetadata::Type::invalid,
+        .topic="",
+        .description="",
+        .function=nullptr
+    };
 
     // List available rulesets
     void help(Context const& context, double** slf, double** otr) const ;

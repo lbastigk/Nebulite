@@ -29,13 +29,7 @@ struct StatusTracker {
 //------------------------------------------
 namespace Nebulite::Interaction::Rules {
 
-StaticRulesetMap::StaticRulesetMap() {
-    invalidEntry = StaticRulesetWithMetadata{
-        .type=StaticRulesetWithMetadata::Type::invalid,
-        .topic="",
-        .description="",
-        .function=nullptr
-    };
+StaticRulesetMap::StaticRulesetMap(){
     Construction::rulesetMapInit(this);
     bindStaticRuleset(StaticRulesetWithMetadata{
         .type=StaticRulesetWithMetadata::Type::Local,
