@@ -48,10 +48,65 @@ clang_tidy_define=-DRMLUI_SDL_VERSION_MAJOR=3
 # Set the header filter to include .tpp files. Alternative for none: '^$'
 clang_tidy_header_filter='.*\.tpp$'
 
+run_clang_tidy_from_stdin() {
+    # Read a null-delimited list of files from stdin, run clang-tidy on each,
+    # accumulate 'warnings treated as errors' into the global total_treated,
+    # and preserve existing .tpp special-case handling and status propagation.
+
+    status=0
+    total_treated=0
+
+    while IFS= read -r -d '' file; do
+        echo "Running clang-tidy on $file"
+
+        tmpfile=$(mktemp)
+        clang-tidy "$file" \
+            -warnings-as-errors='*' \
+            -header-filter="$clang_tidy_header_filter" \
+            -config-file=./.clang-tidy \
+            -p ./tmp/build_linux-debug \
+            -- -std=c++26 "$clang_tidy_define" -I./include $external_includes \
+            >"$tmpfile" 2>&1
+        clang_rc=$?
+
+        # print filtered logs for the user
+        grep -Ev '^([0-9]+ warnings generated\.|Suppressed [0-9]+ warnings .*|Use -header-filter=.*)' "$tmpfile" || true
+
+        # extract 'warnings treated as errors' from raw output and accumulate
+        output=$(grep -Eo '[0-9]+ warnings? treated as errors?' "$tmpfile")
+        file_treated=$(echo "$output" | grep -Eo '[0-9]+' | awk '{s+=$1} END{print s+0}')
+
+        # Only add to total_treated if file_treated is greater than 0
+        if [ "$file_treated" -gt 0 ]; then
+            total_treated=$((total_treated + file_treated))
+        fi
+
+        rm -f "$tmpfile"
+
+        if [ "$clang_rc" -ne 0 ]; then
+            # If file ends with .tpp, clang-tidy seems to fail ignore for now
+            if [[ "$file" == *.tpp ]]; then
+                echo "Warning: clang-tidy failed on $file, but ignoring because it's a .tpp file."
+                continue
+            else
+                echo "Error: clang-tidy failed on $file"
+                status=1
+            fi
+        fi
+    done
+
+    echo ""
+    echo "Analysis complete."
+    echo ""
+    echo "Total warnings treated as errors: $total_treated"
+    exit "$status"
+}
+
 # Check if --changed-files argument is provided
 if [ "$1" == "--changed-files" ]; then
     # Get the list of changed files from git
     changed_files=$(git ls-files --modified)
+    #changed_files=$(git diff --cached --name-only) # somehow this won't work with clion
 
     # Filter for C++ source and header files
     changed_files=$(echo "$changed_files" | grep -E '\.(cpp|hpp|h|tpp)$')
@@ -65,68 +120,11 @@ if [ "$1" == "--changed-files" ]; then
     echo "Changed files:"
     echo "$changed_files"
 
-    status=0
-    for file in $changed_files; do
-        if ! clang-tidy "$file" \
-            -warnings-as-errors='*' \
-            -header-filter="$clang_tidy_header_filter" \
-            -config-file=./.clang-tidy \
-            -p ./tmp/build_linux-debug \
-            -- -std=c++26 "$clang_tidy_define" -I./include $external_includes
-        then
-            if [[ "$file" == *.tpp ]]; then
-                echo "Warning: clang-tidy failed on $file, but ignoring because it's a .tpp file."
-            else
-                echo "Error: clang-tidy failed on $file"
-                status=1
-            fi
-        fi
-    done
-    exit "$status"
+    # Convert newline-delimited changed_files into null-delimited entries and run helper
+    while IFS= read -r file; do
+        printf '%s\0' "$file"
+    done <<<"$changed_files" | run_clang_tidy_from_stdin
 else
     echo "Running clang-tidy on all files..."
-
-    PARALLEL=0 # tpp-files likely need to be fixed for parallel execution
-
-    # Check if xargs is installed
-    if [ "$PARALLEL" -eq 1 ] && command -v xargs &> /dev/null; then
-        find ./include ./src \( -name '*.hpp' -o -name '*.cpp' -o -name '*.tpp' \) -print0 |
-        xargs -0 -P"$(nproc)" -I{} bash -c '
-            clang-tidy "$1" \
-            -warnings-as-errors='*' \
-            -header-filter="'"$clang_tidy_header_filter"'" \
-            -config-file=./.clang-tidy \
-            -- -std=c++26 '"$clang_tidy_define"' -I./include '"$external_includes"' \
-            2>&1
-        ' _ {}
-        status=$?
-        exit "$status"
-    # Check if gnu parallel is installed
-    elif [ "$PARALLEL" -eq 1 ] && command -v parallel &> /dev/null; then
-        find ./include ./src \( -name '*.hpp' -o -name '*.cpp' -o -name '*.tpp' \) |
-        parallel --jobs "$(nproc)" --line-buffer 'clang-tidy {} -warnings-as-errors="*" -header-filter="'"$clang_tidy_header_filter"'" -config-file=./.clang-tidy -- -std=c++26 '"$clang_tidy_define"' -I./include '"$external_includes"
-        status=$?
-        exit "$status"
-    else
-        status=0
-        while IFS= read -r -d '' file; do
-            if ! clang-tidy "$file" \
-                -warnings-as-errors='*' \
-                -header-filter="$clang_tidy_header_filter" \
-                -config-file=./.clang-tidy \
-                -p ./tmp/build_linux-debug \
-                -- -std=c++26 "$clang_tidy_define" -I./include $external_includes
-            then
-                # If file ends with .tpp, clang-tidy seems to fail ignore for now
-                if [[ "$file" == *.tpp ]]; then
-                    echo "Warning: clang-tidy failed on $file, but ignoring because it's a .tpp file."
-                    continue
-                else
-                    echo "Error: clang-tidy failed on $file"
-                    status=1
-                fi
-            fi
-        done < <(find ./include ./src \( -name '*.hpp' -o -name '*.cpp' -o -name '*.tpp' \) -print0)
-        exit "$status"
-    fi
+    find ./include ./src \( -name '*.hpp' -o -name '*.cpp' -o -name '*.tpp' \) -print0 | run_clang_tidy_from_stdin
 fi
