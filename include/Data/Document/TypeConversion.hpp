@@ -5,9 +5,12 @@
 // Includes
 
 // Standard library
-#include <cstdint> // NOLINT
+#include <cmath>
+#include <cstdint>
+#include <limits>
 #include <optional>
 #include <string>
+#include <utility>
 
 // Nebulite
 #include "Utility/StringHandler.hpp"
