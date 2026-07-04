@@ -6,17 +6,23 @@
 
 // Standard library
 #include <array>
+#include <cstddef>
+#include <cstdint>
 #include <expected>
 #include <memory>
 #include <mutex>
 #include <optional>
+#include <span>
+#include <stdexcept>
 #include <string>
+#include <vector>
 
 // Nebulite
 #include "Constants/Alignment.hpp"
 #include "Constants/ThreadSettings.hpp"
 #include "Data/Document/KeyType.hpp"
 #include "Data/Document/RjDirectAccess.hpp"
+#include "Data/Document/ScopedKey.hpp"
 #include "Data/Document/SimpleValueError.hpp"
 #include "Data/OrderedCacheList.hpp"
 #include "Utility/Coordination/IdGenerator.hpp"
