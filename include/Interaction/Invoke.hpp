@@ -98,7 +98,7 @@ private:
     //------------------------------------------
     // Threading Containers
 
-    using ContainerType = Data::BroadcastListenContainer::FlatContainer<Data::BroadcastListenContainer::FlatContainerType::WithoutRotation>;
+    using ContainerType = Data::BroadcastListenContainer::FlatContainer<Data::BroadcastListenContainer::FlatContainerType::NoOffset>;
 
     std::array<ContainerType, Constants::ThreadSettings::Maximum::invokeWorkerCount> worker;
 

@@ -4,7 +4,18 @@
 //------------------------------------------
 // Includes
 
+// Standard library
+#include <array>
+#include <atomic>
+#include <cmath>
+#include <cstddef>
+#include <memory>
+#include <optional>
+#include <utility>
+#include <vector>
+
 // Nebulite
+#include "Constants/ThreadSettings.hpp"
 #include "Data/BroadcastListenContainer/BaseContainer.hpp"
 #include "Data/Map/StringMap.hpp"
 
@@ -19,9 +30,9 @@ struct Listener;
 //------------------------------------------
 namespace Nebulite::Data::BroadcastListenContainer {
 
-enum class FlatContainerType : std::uint8_t {
-    WithRotation, // Apply offset based on p = worker index / worker count, parts being p, others p^2
-    WithoutRotation // No offset at all
+enum class FlatContainerType : bool {
+    ApplyOffset, // Apply offset based on p = worker index / worker count, parts being p, others p^2
+    NoOffset // No offset at all
 };
 
 template <FlatContainerType Type>
@@ -51,12 +62,12 @@ public:
     /**
      * @brief Uses the provided offsets to process all broadcasted rulesets.
      */
-    void processWithRotation();
+    void processWithOffset();
 
     /**
      * @brief Ignores settings and processes all broadcasted rulesets without any rotation or offset.
      */
-    void processWithoutRotation();
+    void processNoOffset();
 
     explicit FlatContainerBase(Settings const& s) : settings(s) {}
 };
@@ -75,14 +86,14 @@ public:
         : BaseContainer<FlatContainer*>(stopFlag, workerIndex, workerCount, this) {
         FlatContainerBase::Settings settings{};
 
-        if constexpr (Type == FlatContainerType::WithRotation) { // Set offsets based on worker index
+        if constexpr (Type == FlatContainerType::ApplyOffset) { // Set offsets based on worker index
             settings.relativeOffset = static_cast<double>(workerIndex) / static_cast<double>(workerCount);
             settings.listenerOffset = std::pow(settings.relativeOffset, 1);
             settings.broadcasterOffset = std::pow(settings.relativeOffset, 1);
             settings.lvOffset = std::pow(settings.relativeOffset, 2);
             settings.bvOffset = std::pow(settings.relativeOffset, 2);
         }
-        else if constexpr (Type == FlatContainerType::WithoutRotation) { // No offsets, workers start at the same index for listeners and broadcasters
+        else if constexpr (Type == FlatContainerType::NoOffset) { // No offsets, workers start at the same index for listeners and broadcasters
             settings.relativeOffset = 0;
             settings.listenerOffset = std::pow(settings.relativeOffset, 1);
             settings.broadcasterOffset = std::pow(settings.relativeOffset, 1);
@@ -135,11 +146,11 @@ public:
      *        matching them with listeners and executing the appropriate actions.
      */
     void process() override {
-        if constexpr (Type == FlatContainerType::WithoutRotation) {
-            base->processWithoutRotation();
+        if constexpr (Type == FlatContainerType::NoOffset) {
+            base->processNoOffset();
         }
         else {
-            base->processWithRotation();
+            base->processWithOffset();
         }
     }
 
@@ -147,7 +158,6 @@ private:
     /**
      * @brief Non-templated base class of the FlatContainer
      */
-    //std::unique_ptr<FlatContainerBase> base;
     std::optional<FlatContainerBase> base;
 };
 

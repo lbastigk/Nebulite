@@ -2,30 +2,38 @@
 // Includes
 
 // Standard library
+#include <cassert>
 #include <cmath>
 #include <cstddef>
 #include <memory>
 #include <ranges>
 #include <string>
+#include <utility>
+#include <vector>
 
 // Nebulite
-#include "Core/GlobalSpace.hpp"
 #include "Constants/ThreadSettings.hpp"
+#include "Core/GlobalSpace.hpp"
 #include "Data/BroadcastListenContainer/FlatContainer.hpp"
-#include "Interaction/Execution/Domain.hpp"
 #include "Interaction/Rules/Listener.hpp"
 #include "Interaction/Rules/Ruleset.hpp"
 #include "Nebulite.hpp"
 #include "Utility/Coordination/IdGenerator.hpp"
 
 //------------------------------------------
+// Forward declarations
+
+namespace Nebulite::Interaction::Execution {
+class Domain;
+} // namespace Nebulite::Interaction::Execution
+
+//------------------------------------------
 namespace Nebulite::Data::BroadcastListenContainer {
 
 namespace {
-
 class ThreadIdGenerator {
 
-    // Might be helpful for tracking max thread id set
+    // Might be helpful for tracking max thread id set, as checking proper thread spreading is difficult otherwise.
 #ifdef NDEBUG
     class Maximum {
         std::atomic<size_t> maxThreadIdAtomic{0};
@@ -49,7 +57,7 @@ class ThreadIdGenerator {
 public:
     static std::size_t getThreadId() {
         static auto threadSpreader = Utility::Coordination::IdGenerator::atomicIncrementIdGenerator();
-        thread_local std::size_t threadId = threadSpreader();
+        thread_local std::size_t const threadId = threadSpreader();
 
         // Sanity check: cannot have more threads than workerCount
         assert(threadId < Constants::ThreadSettings::getInvokeWorkerCount());
@@ -63,7 +71,6 @@ public:
         return threadId;
     }
 };
-
 } // namespace
 
 void FlatContainerBase::broadcast(std::shared_ptr<Interaction::Rules::Ruleset>&& entry) {
@@ -113,7 +120,7 @@ auto rotate(R&& r, double percent) {
 }
 } // namespace
 
-void FlatContainerBase::processWithRotation() {
+void FlatContainerBase::processWithOffset() {
     for (auto& listenerMap : rotate(listeners, settings.listenerOffset)) {
         listenerMap.forall([&](std::string const& topic, auto& lv) {
             // Build a flattened view of all rulesets for this topic
@@ -131,7 +138,7 @@ void FlatContainerBase::processWithRotation() {
                 for (auto const& ruleset : rulesets) {
                     if (ruleset->getId() == listener->domain.getId()) continue;
                     if (ruleset->evaluateConditionGlobally(listener->domain, Global::instance())) {
-                        ruleset->apply(listener, Global::instance());
+                        ruleset->applyListener(listener, Global::instance());
                     }
                 }
             }
@@ -147,7 +154,7 @@ void FlatContainerBase::processWithRotation() {
     }
 }
 
-void FlatContainerBase::processWithoutRotation(){
+void FlatContainerBase::processNoOffset(){
     for (auto& listenerMap : listeners) {
         listenerMap.forall([&](std::string const& topic, auto& lv) {
             // Build a flattened view of all rulesets for this topic
@@ -160,7 +167,7 @@ void FlatContainerBase::processWithoutRotation(){
                 for (auto const& ruleset : rulesets) {
                     if (ruleset->getId() == listener->domain.getId()) continue;
                     if (ruleset->evaluateConditionGlobally(listener->domain, Global::instance())) {
-                        ruleset->apply(listener, Global::instance());
+                        ruleset->applyListener(listener, Global::instance());
                     }
                 }
             }
