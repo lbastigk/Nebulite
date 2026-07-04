@@ -4,9 +4,18 @@
 //------------------------------------------
 // Includes
 
+// Standard library
+#include <array>
+#include <cstdint>
+#include <functional>
+
 // External
+#include <RmlUi/Config/Config.h>
+#include <RmlUi/Core/Log.h>
 #include <RmlUi/Core/StringUtilities.h>
 #include <RmlUi_Platform_SDL.h>
+#include <SDL3/SDL_mouse.h>
+#include <SDL3/SDL_video.h>
 
 // Nebulite
 #include "Utility/IO/Capture.hpp"

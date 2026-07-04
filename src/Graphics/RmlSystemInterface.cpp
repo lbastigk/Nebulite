@@ -58,22 +58,22 @@ bool RmlSystemInterface::LogMessage(Rml::Log::Type const type, Rml::String const
 
     // Redirect RmlUi log messages to our capture system
     switch (type) {
-        // Log
+    // Log
     case Rml::Log::LT_ALWAYS:
     case Rml::Log::LT_INFO:
     case Rml::Log::LT_DEBUG:
         capture.log.println(message);
         break;
-        // Warning
+    // Warning
     case Rml::Log::LT_WARNING:
         capture.warning.println(message);
         break;
-        // Error
+    // Error
     case Rml::Log::LT_ERROR:
     case Rml::Log::LT_ASSERT:
         capture.error.println(message);
         break;
-        // else
+    // else
     case Rml::Log::LT_MAX:
     default:
         std::unreachable();
