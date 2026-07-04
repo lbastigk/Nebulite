@@ -2,13 +2,16 @@
 // Includes
 
 // Standard library
+#include <optional>
+#include <ranges>
 #include <string>
-#include <utility>
 
 // External
 #include <Core/ElementStyle.h>
 #include <RmlUi/Config/Config.h>
 #include <RmlUi/Core/Element.h>
+#include <RmlUi/Core/ID.h>
+#include <RmlUi/Core/StyleTypes.h>
 
 // Nebulite
 #include "Graphics/RmlInterface.hpp"
