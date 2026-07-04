@@ -10,10 +10,13 @@
 //------------------------------------------
 // Includes
 
+// Standard library
+#include <memory>
+#include <string>
+
 // Nebulite
-#include "Data/Document/JsonScope.hpp"
 #include "Interaction/Execution/DomainTree.hpp"
-#include "Interaction/Execution/FuncTree.hpp"
+#include "Module/Base/DomainModuleBase.hpp"
 #include "ScopeAccessor.hpp"
 
 //------------------------------------------
@@ -93,5 +96,5 @@ protected:
     }
 };
 } // namespace Nebulite::Module::Base
-#include "DomainModule.tpp"
+#include "DomainModule.tpp" // NOLINT
 #endif // MODULE_BASE_DOMAINMODULE_HPP

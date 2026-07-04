@@ -16,6 +16,7 @@
 
 // Nebulite
 #include "Constants/Event.hpp"
+#include "Data/Document/JsonScope.hpp"
 #include "Data/Document/ScopedKey.hpp"
 #include "Interaction/Execution/DomainTree.hpp"
 #include "Interaction/Execution/Tasks.hpp"

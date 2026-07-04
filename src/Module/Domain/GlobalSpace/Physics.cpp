@@ -3,6 +3,7 @@
 
 // Nebulite
 #include "Constants/Event.hpp"
+#include "Data/Document/JsonScope.hpp"
 #include "Module/Domain/GlobalSpace/Physics.hpp"
 
 //------------------------------------------

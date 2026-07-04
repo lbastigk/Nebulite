@@ -5,7 +5,12 @@
 // Includes
 
 // External
-#include <RmlUi/Core.h>
+#include <RmlUi/Config/Config.h>
+#include <RmlUi/Core/Context.h>
+#include <RmlUi/Core/Element.h>
+#include <RmlUi/Core/ElementDocument.h>
+#include <RmlUi/Core/Plugin.h>
+#include <SDL3/SDL_events.h>
 
 // Nebulite
 #include "Graphics/RmlInterface.hpp"
