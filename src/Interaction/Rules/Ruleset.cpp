@@ -33,15 +33,15 @@ bool Ruleset::evaluateConditionLocally(Execution::Domain& global) {
     return evaluateConditionGlobally(self, global);
 }
 
-void Ruleset::apply(Context& /*context*/, ContextScope& /*contextScope*/){
+void Ruleset::applyContext(Context& /*context*/, ContextScope& /*contextScope*/){
     // default no-op
 }
 
-void Ruleset::apply(std::shared_ptr<Listener> const& /*listener*/, Execution::Domain& /*global*/) {
+void Ruleset::applyListener(std::shared_ptr<Listener> const& /*listener*/, Execution::Domain& /*global*/) {
     // default no-op
 }
 
-void Ruleset::apply(Execution::Domain& /*global*/) {
+void Ruleset::applyDomain(Execution::Domain& /*global*/) {
     // default no-op
 }
 
@@ -56,18 +56,18 @@ bool StaticRuleset::evaluateConditionLocally(Execution::Domain& /*global*/) {
     return true;
 }
 
-void StaticRuleset::apply(Context& context, ContextScope& /*contextScope*/){
+void StaticRuleset::applyContext(Context& context, ContextScope& /*contextScope*/){
     auto* slfFromProvidedContext = baseListFunction(context.self);
     auto* otrFromProvidedContext = baseListFunction(context.other);
     staticFunction(context, slfFromProvidedContext, otrFromProvidedContext);
 }
 
-void StaticRuleset::apply(std::shared_ptr<Listener> const& listener, Execution::Domain& global) {
+void StaticRuleset::applyListener(std::shared_ptr<Listener> const& listener, Execution::Domain& global) {
     Context const context{self, listener->domain, global};
     staticFunction(context, slf, listener->otr);
 }
 
-void StaticRuleset::apply(Execution::Domain& global) {
+void StaticRuleset::applyDomain(Execution::Domain& global) {
     Context const context{self, self, global};
     staticFunction(context, slf, slf);
 }
@@ -100,7 +100,7 @@ bool JsonRuleset::evaluateConditionGlobally(Execution::Domain& other, Execution:
     return std::abs(result) > std::numeric_limits<double>::epsilon();
 }
 
-void JsonRuleset::apply(Context& context, ContextScope& contextScope){
+void JsonRuleset::applyContext(Context& context, ContextScope& contextScope){
     // 1.) Assignments
     for (auto& assignment : assignments) {
         assignment.apply(contextScope);
@@ -118,13 +118,13 @@ void JsonRuleset::apply(Context& context, ContextScope& contextScope){
     }
 }
 
-void JsonRuleset::apply(std::shared_ptr<Listener> const& listener, Execution::Domain& global) {
+void JsonRuleset::applyListener(std::shared_ptr<Listener> const& listener, Execution::Domain& global) {
     Context ctx{self, listener->domain, global};
     ContextScope contextScope{self.domainScope, listener->domain.domainScope, global.domainScope};
-    apply(ctx, contextScope);
+    applyContext(ctx, contextScope);
 }
 
-void JsonRuleset::apply(Execution::Domain& global) {
+void JsonRuleset::applyDomain(Execution::Domain& global) {
     Context const ctx{self, self, global};
     ContextScope const ctxScope{self.domainScope, self.domainScope, global.domainScope};
 

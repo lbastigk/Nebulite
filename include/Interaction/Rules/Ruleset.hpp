@@ -4,6 +4,13 @@
 //------------------------------------------
 // Includes
 
+// Standard library
+#include <algorithm>
+#include <cstddef>
+#include <memory>
+#include <string>
+#include <vector>
+
 // Nebulite
 #include "Interaction/Logic/Assignment.hpp"
 #include "Interaction/Logic/Expression.hpp"
@@ -11,6 +18,11 @@
 
 //------------------------------------------
 // Forward declarations
+
+namespace Nebulite::Interaction {
+class Context;
+class ContextScope;
+} // namespace Nebulite::Interaction
 
 namespace Nebulite::Interaction::Execution {
 class Domain;
@@ -109,20 +121,20 @@ public:
     /**
      * @brief Applies the ruleset with a full context given
      */
-    virtual void apply(Context& context, ContextScope& contextScope);
+    virtual void applyContext(Context& context, ContextScope& contextScope);
 
     /**
      * @brief Applies the ruleset
      * @param listener The listener domain.
      * @param global The global context.
      */
-    virtual void apply(std::shared_ptr<Listener> const& listener, Execution::Domain& global);
+    virtual void applyListener(std::shared_ptr<Listener> const& listener, Execution::Domain& global);
 
     /**
      * @brief Applies the ruleset to its own Domain as context other.
      * @param global The global context.
      */
-    virtual void apply(Execution::Domain& global);
+    virtual void applyDomain(Execution::Domain& global);
 
 protected:
     /**
@@ -219,20 +231,20 @@ public:
     /**
      * @brief Applies the ruleset with a full context given
      */
-    void apply(Context& context, ContextScope& contextScope) override ;
+    void applyContext(Context& context, ContextScope& contextScope) override ;
 
     /**
      * @brief Applies the ruleset
      * @param listener The listener domain.
      * @param global The global context.
      */
-    void apply(std::shared_ptr<Listener> const& listener, Execution::Domain& global) override ;
+    void applyListener(std::shared_ptr<Listener> const& listener, Execution::Domain& global) override ;
 
     /**
      * @brief Applies the ruleset to its own Domain as contextOther.
      * @param global The global context.
      */
-    void apply(Execution::Domain& global) override ;
+    void applyDomain(Execution::Domain& global) override ;
 
 private:
     StaticRulesetFunction staticFunction = nullptr;
@@ -280,20 +292,20 @@ public:
     /**
      * @brief Applies the ruleset with a full context given
      */
-    void apply(Context& context, ContextScope& contextScope) override ;
+    void applyContext(Context& context, ContextScope& contextScope) override ;
 
     /**
      * @brief Applies the ruleset
      * @param listener The listener domain.
      * @param global The global context.
      */
-    void apply(std::shared_ptr<Listener> const& listener, Execution::Domain& global) override;
+    void applyListener(std::shared_ptr<Listener> const& listener, Execution::Domain& global) override;
 
     /**
      * @brief Applies the ruleset to its own Domain as contextOther.
      * @param global The global context.
      */
-    void apply(Execution::Domain& global) override ;
+    void applyDomain(Execution::Domain& global) override ;
 
 private:
     //------------------------------------------

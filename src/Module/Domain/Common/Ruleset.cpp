@@ -5,6 +5,7 @@
 #include <cstddef>
 #include <cstdint>
 #include <memory>
+#include <mutex>
 #include <numeric>
 #include <span>
 #include <string>
@@ -12,7 +13,6 @@
 
 // Nebulite
 #include "Constants/Event.hpp"
-#include "Constants/KeyNames.hpp"
 #include "Constants/StandardCapture.hpp"
 #include "Core/GlobalSpace.hpp"
 #include "Interaction/Rules/Construction/RulesetCompiler.hpp"
@@ -26,7 +26,7 @@
 namespace Nebulite::Module::Domain::Common {
 
 Constants::Event Ruleset::updateHook() {
-    std::lock_guard lock(initializeMutex);
+    std::scoped_lock const lock(initializeMutex);
     if (initialized) {
         // Reload rulesets if needed
         if (reloadRulesets) {
@@ -73,7 +73,7 @@ Constants::Event Ruleset::updateHook() {
         // Directly apply local rulesets
         for (auto const& entry : rulesetsLocal) {
             if (entry->evaluateConditionLocally(Global::instance())) {
-                entry->apply(Global::instance());
+                entry->applyDomain(Global::instance());
             }
         }
 
@@ -95,7 +95,7 @@ Constants::Event Ruleset::updateHook() {
 }
 
 void Ruleset::reinit() {
-    std::lock_guard lock(initializeMutex);
+    std::scoped_lock const lock(initializeMutex);
     Key const scopedKey(moduleScope);
     reloadRulesets = true;
     initialized = false;
@@ -118,7 +118,7 @@ Constants::Event Ruleset::invokeOnce(std::span<std::string_view const> const& ar
                 Global::instance().broadcast(rs.value());
             }
             else {
-                rs.value()->apply(Global::instance());
+                rs.value()->applyDomain(Global::instance());
             }
             return Constants::Event::Success;
         }
