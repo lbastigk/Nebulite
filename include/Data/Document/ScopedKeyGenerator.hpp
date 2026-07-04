@@ -5,6 +5,8 @@
 // Includes
 
 // Standard library
+#include <array>
+#include <cstddef>
 #include <stdexcept>
 #include <string_view>
 
@@ -15,7 +17,7 @@
 namespace Nebulite::Data {
 
 // Operation type discriminator
-enum class OpType { Member, Index };
+enum class OpType : bool { Member, Index };
 
 // Union-like struct to hold either operation
 struct OpData {
@@ -80,7 +82,7 @@ public:
     }
 
     // Evaluate at runtime
-    ScopedKey build() const {
+    [[nodiscard]] ScopedKey build() const {
         ScopedKey result(base_);
         for (std::size_t i = 0; i < count_; ++i) {
             if (const auto& op = ops_[i]; op.type == OpType::Member) {
