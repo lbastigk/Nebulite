@@ -11,6 +11,8 @@
 
 // Standard library
 #include <cstddef> // NOLINT
+#include <cstdint> // NOLINT
+#include <span>
 #include <string>
 #include <string_view>
 #include <vector>

@@ -11,6 +11,8 @@
 
 // Standard library
 #include <string>
+#include <string_view>
+#include <vector>
 
 //------------------------------------------
 namespace Nebulite::Utility::IO {

@@ -10,6 +10,7 @@
 // Includes
 
 // Standard library
+#include <functional>
 #include <string>
 
 //------------------------------------------
