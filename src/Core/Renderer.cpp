@@ -263,7 +263,9 @@ void Renderer::initSDL() {
 
     //------------------------------------------
     // Cursor
-    // TODO: Cursor does not work
+
+    // TODO: Cursor is overwritten by RmlUi, we need to combine the logic and offer cursor overwrites for different scenarios.
+    //       see availableCursors in Graphics::RmlSystemInterface
 
     // Try to load specified cursor, fall back to default
     static auto const cursorPath = Global::settings().get<std::string>(Module::Domain::GlobalSpace::Settings::Key::cursor).value_or("");
