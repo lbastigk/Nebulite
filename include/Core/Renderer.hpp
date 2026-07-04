@@ -24,7 +24,6 @@
 // Nebulite
 #include "Constants/Event.hpp"
 #include "Core/Environment.hpp"
-#include "Data/RendererProcessor.hpp"
 #include "Data/Tiling.hpp"
 #include "Interaction/Execution/Domain.hpp"
 #include "Utility/IO/Capture.hpp"
@@ -450,11 +449,6 @@ private:
      * @brief Called before parsing any commands.
      */
     [[nodiscard]] Constants::Event preParse() override;
-
-    /**
-     * @brief Holds threads for parallel processing of RenderObjects during the update phase.
-     */
-    Data::RendererProcessor rendererProcessor;
 
     //------------------------------------------
     // Boolean Status Variables

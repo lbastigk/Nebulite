@@ -2,20 +2,17 @@
 // Includes
 
 // Standard library
-#include <algorithm>
 #include <cstddef>
 #include <exception>
 #include <mutex>
 #include <optional>
 #include <ranges>
-#include <stdexcept>
 #include <string>
 #include <vector>
 
 // Nebulite
 #include "Constants/ThreadSettings.hpp"
 #include "Core/RenderObject.hpp"
-#include "Data/Batch.hpp"
 #include "Data/RenderObjectContainer.hpp"
 #include "Data/RendererProcessor.hpp"
 #include "Nebulite.hpp"
@@ -25,35 +22,9 @@
 //------------------------------------------
 namespace Nebulite::Data {
 
-void Batch::updateCost(){
-    estimatedCost = 0;
-    for (auto const* obj : objects) {
-        estimatedCost += obj->estimateComputationalCost();
-    }
-}
-
-Core::RenderObject* Batch::pop() {
-    if (objects.empty())
-        return nullptr;
-
-    Core::RenderObject* obj = objects.back(); // Get last element
-    objects.pop_back(); // Remove from vector
-    updateCost();
-    return obj;
-}
-
-void Batch::push(Core::RenderObject* obj) {
-    estimatedCost += obj->estimateComputationalCost();
-    objects.push_back(obj);
-}
-
-bool Batch::removeObject(Core::RenderObject* obj) {
-    if (auto const it = std::ranges::find(objects.begin(), objects.end(), obj); it != objects.end()) {
-        estimatedCost -= obj->estimateComputationalCost();
-        objects.erase(it);
-        return true;
-    }
-    return false;
+RendererProcessor& RendererProcessor::instance() {
+    static RendererProcessor instance;
+    return instance;
 }
 
 RendererProcessor::RendererProcessor()
@@ -63,13 +34,6 @@ RendererProcessor::RendererProcessor()
       >([](std::size_t) {
           return std::nullopt;
     })){
-    // Ensure that this is a singleton class
-    static bool instanceExists = false;
-    if (instanceExists) {
-        throw std::runtime_error("RendererProcessor instance already exists!");
-    }
-    instanceExists = true;
-
     // Initialize worker pool
     for (std::size_t i = 0; i < Constants::ThreadSettings::getRendererWorkerCount(); i++) {
         batchWorkerPool[i].emplace(stopFlag, batchWorkerFunc);
@@ -83,7 +47,12 @@ RendererProcessor::~RendererProcessor() {
 
         // 2.) Optionally, start work to wake any waiting threads
         for (auto& worker : batchWorkerPool | std::views::take(Constants::ThreadSettings::getRendererWorkerCount())) {
-            worker.value().startWork();  // wakes worker so it can check stopFlag
+            if (worker.has_value()) {
+                worker.value().startWork();  // wakes worker so it can check stopFlag
+            }
+            else {
+                throw std::exception();
+            }
         }
     } catch (std::exception const& e) {
         // Log the exception if needed
@@ -93,8 +62,13 @@ RendererProcessor::~RendererProcessor() {
 
 void RendererProcessor::prepareForNewLayer(RenderObjectContainer* layer) {
     for (auto& worker : batchWorkerPool | std::views::take(Constants::ThreadSettings::getRendererWorkerCount())) {
-        worker.value().workspace.reinsertionProcess = &layer->reinsertionProcess;
-        worker.value().workspace.deletionProcess = &layer->deletionProcess;
+        if (worker.has_value()) {
+            worker.value().workspace.reinsertionProcess = &layer->reinsertionProcess;
+            worker.value().workspace.deletionProcess = &layer->deletionProcess;
+        }
+        else {
+            throw std::exception();
+        }
     }
 }
 
@@ -127,10 +101,20 @@ void RendererProcessor::processPool() {
 
 void RendererProcessor::processPool(std::size_t const count) {
     for (auto& worker : batchWorkerPool | std::views::take(count)) {
-        worker.value().startWork();
+        if (worker.has_value()) {
+            worker.value().startWork();
+        }
+        else {
+            throw std::exception();
+        }
     }
     for (auto& worker : batchWorkerPool | std::views::take(count)) {
-        worker.value().waitForWorkFinished();
+        if (worker.has_value()) {
+            worker.value().waitForWorkFinished();
+        }
+        else {
+            throw std::exception();
+        }
     }
 }
 

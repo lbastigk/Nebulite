@@ -8,8 +8,8 @@
 #include <array>
 #include <atomic>
 #include <cstddef> // NOLINT
-#include <memory>
 #include <mutex>
+#include <optional>
 #include <vector>
 
 // Nebulite
@@ -75,7 +75,7 @@ struct DeletionProcess {
  */
 class RendererProcessor {
 public:
-    RendererProcessor();
+    static RendererProcessor& instance();
 
     ~RendererProcessor();
 
@@ -129,6 +129,9 @@ public:
     void processPool();
 
     void processPool(std::size_t count);
+
+private:
+    RendererProcessor();
 };
 
 } // namespace Nebulite::Data

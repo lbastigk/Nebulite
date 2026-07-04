@@ -39,6 +39,7 @@
 #include "Core/RenderObject.hpp"
 #include "Core/Renderer.hpp"
 #include "Data/RenderObjectContainer.hpp"
+#include "Data/RendererProcessor.hpp"
 #include "Data/Tiling.hpp"
 #include "Graphics/RmlInterface.hpp"
 #include "Module/Domain/GlobalSpace/Settings.hpp"
@@ -166,7 +167,7 @@ void Renderer::initImgui() {
     auto constexpr border  = ImVec4(0.18f, 0.20f, 0.22f, 1.00f);
     auto constexpr button  = ImVec4(0.12f, 0.14f, 0.16f, 1.00f);
 
-    auto* colors = style.Colors;
+    auto& colors = style.Colors;
     colors[ImGuiCol_Text]                  = textCol;
     colors[ImGuiCol_WindowBg]              = layer0;
     colors[ImGuiCol_ChildBg]               = layer1;
@@ -396,8 +397,8 @@ std::vector<Data::TileCoordinate> Renderer::visibleTiles() const {
 
 void Renderer::onViewport(Environment::Layer const layer, auto&& function) {
     for (auto const& [tile, coordinate] : env.viewport(visibleTiles(), layer)) {
-        for (auto& [objects, _] : tile->getBatches()) {
-            for (auto& obj : objects) {
+        for (auto const& objects : tile->getBatchedObjects()) {
+            for (auto* obj : objects) {
                 function(obj);
             }
         }
@@ -540,7 +541,7 @@ Constants::Event Renderer::update() {
         env.updateObjects(
             visibleTiles(),
             tilingInformation(),
-            rendererProcessor
+            Data::RendererProcessor::instance()
         );
     }
     if (SDL_GetError()[0] != '\0') {
