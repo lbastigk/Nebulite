@@ -30,7 +30,7 @@ class JsonScope;
 namespace Nebulite::Module::Base {
 class TransformationModule {
 public:
-    explicit TransformationModule(std::shared_ptr<Interaction::Execution::FuncTree<bool, Data::JsonScope*>> funcTree);
+    explicit TransformationModule(std::shared_ptr<Interaction::Execution::FuncTree<bool, Data::JsonScope&>> const& funcTree);
 
     virtual ~TransformationModule();
 
@@ -80,7 +80,7 @@ public:
 private:
     static_assert(rootKeyStr.empty(), "The rootKeyStr must be an empty string for correct operation of the transformation module.");
 
-    std::shared_ptr<Interaction::Execution::FuncTree<bool, Data::JsonScope*>> transformationFuncTree;
+    std::shared_ptr<Interaction::Execution::FuncTree<bool, Data::JsonScope&>> transformationFuncTree;
 };
 } // namespace Nebulite::Module::Base
 #endif // MODULE_BASE_TRANSFORMATIONMODULE_HPP

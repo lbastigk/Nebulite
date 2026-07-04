@@ -44,9 +44,8 @@ class JsonRvalueTransformer {
      *                   will get the length of the string at MyKey.subKey and add 1 to it.
      *          Takes in a JsonScope pointer as argument to modify.
      *          Returns true on success, false on failure.
-     * @todo Change to JsonScope&
      */
-    std::shared_ptr<Interaction::Execution::FuncTree<bool, JsonScope*>> transformationFuncTree;
+    std::shared_ptr<Interaction::Execution::FuncTree<bool, JsonScope&>> transformationFuncTree;
 
     /**
      * @brief List of all initialized transformation modules
@@ -79,8 +78,8 @@ public:
      *                in a specified key. On success, the modified value will be stored back in the same key.
      * @return true if the transformations were successfully applied, false otherwise.
      */
-    bool parse(std::vector<std::string_view> const& transformationList, JsonScope* jsonDoc) const ;
-    bool parse(std::vector<std::string_view> const& transformationList, JSON* jsonDoc) const ;
+    bool parse(std::vector<std::string_view> const& transformationList, JsonScope& jsonDoc) const ;
+    bool parse(std::vector<std::string_view> const& transformationList, JSON& jsonDoc) const ;
 
     /**
      * @brief Parse a single transformation with already separated arguments.
@@ -88,7 +87,7 @@ public:
      * @param jsonDoc The document to manipulate
      * @return true if the transformations were successfully applied, false otherwise.
      */
-    bool parseSingleTransformation(std::span<std::string_view const> const& args, JsonScope* jsonDoc) const ;
+    bool parseSingleTransformation(std::span<std::string_view const> const& args, JsonScope& jsonDoc) const ;
 };
 } // namespace Nebulite::Data
 #endif // DATA_DOCUMENT_JSONRVALUETRANSFORMER_HPP

@@ -27,13 +27,13 @@ void Statistics::bindTransformations() {
     bindTransformation(&stddev, stddevName, stddevDesc);
 }
 
-double Statistics::accumulate(Data::JsonScope const* scope, std::function<double(double, double)> const& func, double const initialValue) {
-    if (scope->memberType(rootKey) != Data::KeyType::array) {
+double Statistics::accumulate(Data::JsonScope const& jsonDoc, std::function<double(double, double)> const& func, double const initialValue) {
+    if (jsonDoc.memberType(rootKey) != Data::KeyType::array) {
         return std::numeric_limits<double>::quiet_NaN();
     }
 
     double result = initialValue;
-    std::size_t const size = scope->memberSize(rootKey);
+    std::size_t const size = jsonDoc.memberSize(rootKey);
 
     if (size == 0) {
         return result;
@@ -41,7 +41,7 @@ double Statistics::accumulate(Data::JsonScope const* scope, std::function<double
 
     for (std::size_t i = 0; i < size; ++i) {
         auto const key = rootKey.addIndex(i);
-        double const value = scope->get<double>(key).value_or(std::numeric_limits<double>::quiet_NaN());
+        double const value = jsonDoc.get<double>(key).value_or(std::numeric_limits<double>::quiet_NaN());
         if (std::isnan(value)) {
             return std::numeric_limits<double>::quiet_NaN();
         }
@@ -51,57 +51,57 @@ double Statistics::accumulate(Data::JsonScope const* scope, std::function<double
 }
 
 
-bool Statistics::sum(Data::JsonScope* scope) {
-    double const result = accumulate(scope, [](double const a, double const b) { return a + b; });
+bool Statistics::sum(Data::JsonScope& jsonDoc) {
+    double const result = accumulate(jsonDoc, [](double const a, double const b) { return a + b; });
     if (std::isnan(result)) {
             return false;
     }
-    scope->set(rootKey, result);
+    jsonDoc.set(rootKey, result);
     return true;
 }
 
-bool Statistics::average(Data::JsonScope* scope){
-    double const result = accumulate(scope, [](double const a, double const b) { return a + b; });
+bool Statistics::average(Data::JsonScope& jsonDoc){
+    double const result = accumulate(jsonDoc, [](double const a, double const b) { return a + b; });
     if (std::isnan(result)) {
             return false;
     }
-    scope->set(rootKey, result / static_cast<double>(scope->memberSize(rootKey)));
+    jsonDoc.set(rootKey, result / static_cast<double>(jsonDoc.memberSize(rootKey)));
     return true;
 }
 
-bool Statistics::product(Data::JsonScope* scope) {
-    double const result = accumulate(scope, [](double const a, double const b) { return a * b; }, 1.0);
+bool Statistics::product(Data::JsonScope& jsonDoc) {
+    double const result = accumulate(jsonDoc, [](double const a, double const b) { return a * b; }, 1.0);
     if (std::isnan(result)) {
         return false;
     }
-    scope->set(rootKey, result);
+    jsonDoc.set(rootKey, result);
     return true;
 }
 
-bool Statistics::min(Data::JsonScope* scope) {
-    double const result = accumulate(scope, [](double const a, double const b) { return std::min(a, b); }, std::numeric_limits<double>::infinity());
+bool Statistics::min(Data::JsonScope& jsonDoc) {
+    double const result = accumulate(jsonDoc, [](double const a, double const b) { return std::min(a, b); }, std::numeric_limits<double>::infinity());
     if (std::isnan(result)) {
         return false;
     }
-    scope->set(rootKey, result);
+    jsonDoc.set(rootKey, result);
     return true;
 }
 
-bool Statistics::max(Data::JsonScope* scope) {
-    double const result = accumulate(scope, [](double const a, double const b) { return std::max(a, b); }, -std::numeric_limits<double>::infinity());
+bool Statistics::max(Data::JsonScope& jsonDoc) {
+    double const result = accumulate(jsonDoc, [](double const a, double const b) { return std::max(a, b); }, -std::numeric_limits<double>::infinity());
     if (std::isnan(result)) {
         return false;
     }
-    scope->set(rootKey, result);
+    jsonDoc.set(rootKey, result);
     return true;
 }
 
-bool Statistics::median(Data::JsonScope* scope) {
-    if (scope->memberType(rootKey) != Data::KeyType::array) {
+bool Statistics::median(Data::JsonScope& jsonDoc) {
+    if (jsonDoc.memberType(rootKey) != Data::KeyType::array) {
         return false;
     }
 
-    std::size_t const size = scope->memberSize(rootKey);
+    std::size_t const size = jsonDoc.memberSize(rootKey);
     if (size == 0) {
         return false;
     }
@@ -109,7 +109,7 @@ bool Statistics::median(Data::JsonScope* scope) {
     std::vector<double> values(size);
     for (std::size_t i = 0; i < size; ++i) {
         auto const key = rootKey.addIndex(i);
-        double const value = scope->get<double>(key).value_or(std::numeric_limits<double>::quiet_NaN());
+        double const value = jsonDoc.get<double>(key).value_or(std::numeric_limits<double>::quiet_NaN());
         if (std::isnan(value)) {
             return false;
         }
@@ -123,16 +123,16 @@ bool Statistics::median(Data::JsonScope* scope) {
     } else {
         medianValue = values[size / 2];
     }
-    scope->set(rootKey, medianValue);
+    jsonDoc.set(rootKey, medianValue);
     return true;
 }
 
-bool Statistics::stddev(Data::JsonScope* scope) {
-    if (scope->memberType(rootKey) != Data::KeyType::array) {
+bool Statistics::stddev(Data::JsonScope& jsonDoc) {
+    if (jsonDoc.memberType(rootKey) != Data::KeyType::array) {
         return false;
     }
 
-    std::size_t const size = scope->memberSize(rootKey);
+    std::size_t const size = jsonDoc.memberSize(rootKey);
     if (size == 0) {
         return false;
     }
@@ -141,7 +141,7 @@ bool Statistics::stddev(Data::JsonScope* scope) {
     double sum = 0.0;
     for (std::size_t i = 0; i < size; ++i) {
         auto const key = rootKey.addIndex(i);
-        double const value = scope->get<double>(key).value_or(std::numeric_limits<double>::quiet_NaN());
+        double const value = jsonDoc.get<double>(key).value_or(std::numeric_limits<double>::quiet_NaN());
         if (std::isnan(value)) {
             return false;
         }
@@ -155,7 +155,7 @@ bool Statistics::stddev(Data::JsonScope* scope) {
         varianceSum += (value - mean) * (value - mean);
     }
     double const stddevValue = std::sqrt(varianceSum / static_cast<double>(size));
-    scope->set(rootKey, stddevValue);
+    jsonDoc.set(rootKey, stddevValue);
     return true;
 }
 

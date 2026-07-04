@@ -28,7 +28,7 @@ namespace Nebulite::Module::Transformation {
  */
 class Types final : public Base::TransformationModule {
 public:
-    explicit Types(std::shared_ptr<Interaction::Execution::FuncTree<bool, Data::JsonScope*>> const& funcTree)
+    explicit Types(std::shared_ptr<Interaction::Execution::FuncTree<bool, Data::JsonScope&>> const& funcTree)
         : TransformationModule(funcTree) {}
 
     void bindTransformations() override;
@@ -36,38 +36,38 @@ public:
     //------------------------------------------
     // Available Transformations
 
-    static bool defaultToString(std::span<std::string_view const> const& args, Data::JsonScope* jsonDoc);
+    static bool defaultToString(std::span<std::string_view const> const& args, Data::JsonScope& jsonDoc);
     static auto constexpr defaultToStringName = "default";
     static auto constexpr defaultToStringDesc = "If the current value is null, default to a given String\n"
         "Usage: |default -> {currentValue/string}\n";
 
-    static bool typeAsNumber(Data::JsonScope* jsonDoc);
+    static bool typeAsNumber(Data::JsonScope& jsonDoc);
     static auto constexpr typeAsNumberName = "typeAsNumber";
     static auto constexpr typeAsNumberDesc = "Converts the current JSON type value to a number.\n"
         "Usage: |typeAsNumber -> {number}"
         "where the number reflects the enum value KeyType.\n";
 
-    static bool typeAsSimpleString(Data::JsonScope* jsonDoc);
+    static bool typeAsSimpleString(Data::JsonScope& jsonDoc);
     static auto constexpr typeAsSimpleStringName = "typeAsSimpleString";
     static auto constexpr typeAsSimpleStringDesc = "Converts the current JSON type value to a string.\n"
         "Usage: |typeAsString -> {value,array,object}\n";
 
-    static bool typeAsString(Data::JsonScope* jsonDoc);
+    static bool typeAsString(Data::JsonScope& jsonDoc);
     static auto constexpr typeAsStringName = "typeAsString";
     static auto constexpr typeAsStringDesc = "Converts the current JSON type value to a string with metadata.\n"
         "Usage: |typeAsString -> {value:metadata,array:metadata,object:metadata}\n";
 
-    static bool serialize(Data::JsonScope* jsonDoc);
+    static bool serialize(Data::JsonScope& jsonDoc);
     static auto constexpr serializeName = "serialize";
     static auto constexpr serializeDesc = "Serializes the current JSON value to a string.\n"
         "Usage: |serialize -> {string}\n";
 
-    static bool deserialize(Data::JsonScope* jsonDoc);
+    static bool deserialize(Data::JsonScope& jsonDoc);
     static auto constexpr deserializeName = "deserialize";
     static auto constexpr deserializeDesc = "Deserializes the current JSON string value stored in root.\n"
         "Usage: |deserialize -> {value}\n";
 
-    static bool exists(std::span<std::string_view const> const& args, Data::JsonScope* jsonDoc);
+    static bool exists(std::span<std::string_view const> const& args, Data::JsonScope& jsonDoc);
     static auto constexpr existsName = "exists";
     static auto constexpr existsDesc = "Checks if a specified key exists in the current JSON object.\n"
         "If no key is provided, checks if the current JSON value is not null.\n"

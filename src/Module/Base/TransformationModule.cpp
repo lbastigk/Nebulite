@@ -4,7 +4,6 @@
 // Standard library
 #include <memory>
 #include <string_view>
-#include <utility>
 
 // Nebulite
 #include "Interaction/Execution/FuncTree.hpp"
@@ -14,8 +13,8 @@
 //------------------------------------------
 namespace Nebulite::Module::Base {
 
-TransformationModule::TransformationModule(std::shared_ptr<Interaction::Execution::FuncTree<bool, Data::JsonScope*>> funcTree)
-    : transformationFuncTree(std::move(funcTree)){}
+TransformationModule::TransformationModule(std::shared_ptr<Interaction::Execution::FuncTree<bool, Data::JsonScope&>> const& funcTree)
+    : transformationFuncTree(funcTree){}
 
 TransformationModule::~TransformationModule() = default;
 

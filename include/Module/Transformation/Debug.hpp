@@ -30,7 +30,7 @@ namespace Nebulite::Module::Transformation {
  */
 class Debug final : public Base::TransformationModule {
 public:
-    explicit Debug(std::shared_ptr<Interaction::Execution::FuncTree<bool, Data::JsonScope*>> const& funcTree)
+    explicit Debug(std::shared_ptr<Interaction::Execution::FuncTree<bool, Data::JsonScope&>> const& funcTree)
         : TransformationModule(funcTree) {}
 
     void bindTransformations() override;
@@ -53,7 +53,7 @@ public:
     static auto constexpr errorDesc = "Echoes the provided arguments to the console as an error message, with newline.\n"
         "Usage: |error <arg1> <arg2> -> {unchanged-json}\n";
 
-    static bool print(std::span<std::string_view const> const& args, Data::JsonScope* jsonDoc);
+    static bool print(std::span<std::string_view const> const& args, Data::JsonScope& jsonDoc);
     static auto constexpr printName = "print";
     static auto constexpr printDesc = "Prints the current JSON value to the console.\n"
         "Usage: |print -> {unchanged-json}\n";
@@ -64,7 +64,7 @@ public:
         "If this transformation is executed, it indicates a bug in the program, and an std::logic_error is thrown.\n"
         "Usage: |unreachable\n";
 
-    static bool store(std::span<std::string_view const> const& args, Data::JsonScope const* jsonDoc);
+    static bool store(std::span<std::string_view const> const& args, Data::JsonScope const& jsonDoc);
     static auto constexpr storeName = "store";
     static auto constexpr storeDesc = "Stores the current JSON value as a file with the given name.\n"
         "Usage: |store <filename> -> {unchanged-json}\n";
