@@ -16,6 +16,7 @@
 #include <vector>
 
 // Nebulite
+#include "Data/Document/JsonScope.hpp"
 #include "Interaction/Execution/FuncTree.hpp"
 #include "Module/Base/TransformationModule.hpp"
 
@@ -34,7 +35,7 @@ namespace Nebulite::Module::Transformation {
  */
 class Sort final : public Base::TransformationModule {
 public:
-    explicit Sort(std::shared_ptr<Interaction::Execution::FuncTree<bool, Data::JsonScope*>> const& funcTree)
+    explicit Sort(std::shared_ptr<Interaction::Execution::FuncTree<bool, Data::JsonScope&>> const& funcTree)
         : TransformationModule(funcTree) {}
 
     void bindTransformations() override;
@@ -48,26 +49,26 @@ public:
     //------------------------------------------
     // Available Transformations
 
-    static bool sortCaseSensitive(Data::JsonScope* jsonDoc);
+    static bool sortCaseSensitive(Data::JsonScope& jsonDoc);
     static auto constexpr sortCaseSensitiveName = "sort case-sensitive";
     static auto constexpr sortCaseSensitiveDesc = "Sorts the array in the current JSON value case-sensitive.\n"
         "Upper case letters first.\n"
         "If the current value is not an array, the transformation fails.\n"
         "Usage: |sort case-sensitive -> {sorted array}\n";
 
-    static bool sortCaseInsensitive(Data::JsonScope* jsonDoc);
+    static bool sortCaseInsensitive(Data::JsonScope& jsonDoc);
     static auto constexpr sortCaseInsensitiveName = "sort case-insensitive";
     static auto constexpr sortCaseInsensitiveDesc = "Sorts the array in the current JSON value case-insensitive.\n"
         "If the current value is not an array, the transformation fails.\n"
         "Usage: |sort alphabetically -> {sorted array}\n";
 
-    static bool sortNumerically(Data::JsonScope* jsonDoc);
+    static bool sortNumerically(Data::JsonScope& jsonDoc);
     static auto constexpr sortNumericallyName = "sort numerically";
     static auto constexpr sortNumericallyDesc = "Sorts the array in the current JSON value numerically.\n"
         "If the current value is not an array, the transformation fails.\n"
         "Usage: |sort numerically -> {sorted array}\n";
 
-    static bool sortCustom(std::span<std::string_view const> const& args, Data::JsonScope* jsonDoc);
+    static bool sortCustom(std::span<std::string_view const> const& args, Data::JsonScope& jsonDoc);
     static auto constexpr sortCustomName = "sort custom";
     static auto constexpr sortCustomDesc = "Sorts the array in the current JSON value using a custom comparator expression.\n"
         "The comparator function uses the context self for the first element and other for the second element.\n"
@@ -84,16 +85,16 @@ private:
      * @param comparator The custom comparator function, taking both T and the JSON as possible value.
      */
     template <typename T>
-    static void arraySort(Data::JsonScope* jsonDoc, T const& fallbackValue, std::function<bool(std::pair<T, Data::JSON>&, std::pair<T, Data::JSON>&)> const& comparator) {
+    static void arraySort(Data::JsonScope& jsonDoc, T const& fallbackValue, std::function<bool(std::pair<T, Data::JSON>&, std::pair<T, Data::JSON>&)> const& comparator) {
         std::vector<std::pair<T, Data::JSON>> values;
-        for (auto const idx : std::views::iota(std::size_t{0}, jsonDoc->memberSize(rootKey))) {
+        for (auto const idx : std::views::iota(std::size_t{0}, jsonDoc.memberSize(rootKey))) {
             auto const key = rootKey.addIndex(idx);
-            values.emplace_back(jsonDoc->get<T>(key).value_or(fallbackValue), jsonDoc->getSubDoc(key));
+            values.emplace_back(jsonDoc.get<T>(key).value_or(fallbackValue), jsonDoc.getSubDoc(key));
         }
         std::ranges::sort(values.begin(), values.end(), comparator);
         for (auto [idx, value] : values | std::views::enumerate) {
             auto const key = rootKey.addIndex(static_cast<std::size_t>(idx));
-            jsonDoc->setSubDoc(key, value.second);
+            jsonDoc.setSubDoc(key, value.second);
         }
     }
 };

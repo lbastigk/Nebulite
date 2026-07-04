@@ -25,32 +25,32 @@ void Sort::bindTransformations(){
     bindTransformation(&Sort::sortCustom, sortCustomName, sortCustomDesc);
 }
 
-bool Sort::sortCaseSensitive(Data::JsonScope* jsonDoc){
-    if (jsonDoc->memberType(rootKey) != Data::KeyType::array) return false; // Not an array, cannot sort
+bool Sort::sortCaseSensitive(Data::JsonScope& jsonDoc){
+    if (jsonDoc.memberType(rootKey) != Data::KeyType::array) return false; // Not an array, cannot sort
     arraySort<std::string>(jsonDoc, "", [](auto const& a, auto const& b) {
         return Utility::Sort::caseSensitiveLess(a.first, b.first);
     });
     return true;
 }
 
-bool Sort::sortCaseInsensitive(Data::JsonScope* jsonDoc){
-    if (jsonDoc->memberType(rootKey) != Data::KeyType::array) return false; // Not an array, cannot sort
+bool Sort::sortCaseInsensitive(Data::JsonScope& jsonDoc){
+    if (jsonDoc.memberType(rootKey) != Data::KeyType::array) return false; // Not an array, cannot sort
     arraySort<std::string>(jsonDoc, "", [](auto const& a, auto const& b) {
         return Utility::Sort::caseInsensitiveLess(a.first, b.first);
     });
     return true;
 }
 
-bool Sort::sortNumerically(Data::JsonScope* jsonDoc){
-    if (jsonDoc->memberType(rootKey) != Data::KeyType::array) return false; // Not an array, cannot sort
+bool Sort::sortNumerically(Data::JsonScope& jsonDoc){
+    if (jsonDoc.memberType(rootKey) != Data::KeyType::array) return false; // Not an array, cannot sort
     arraySort<double>(jsonDoc,0, [](auto const& a, auto const& b) {
         return a.first < b.first;
     });
     return true;
 }
 
-bool Sort::sortCustom(std::span<std::string_view const> const& args, Data::JsonScope* jsonDoc){
-    if (jsonDoc->memberType(rootKey) != Data::KeyType::array) return false; // Not an array, cannot sort
+bool Sort::sortCustom(std::span<std::string_view const> const& args, Data::JsonScope& jsonDoc){
+    if (jsonDoc.memberType(rootKey) != Data::KeyType::array) return false; // Not an array, cannot sort
     if (args.size() < 2) return false;
     Interaction::Logic::Expression const expression('$' + Utility::StringHandler::recombineArgs(args.subspan(1)));
     arraySort<bool>(jsonDoc, false, [&](auto& a, auto& b) {

@@ -27,7 +27,7 @@ namespace Nebulite::Module::Transformation {
  */
 class Boolean final : public Base::TransformationModule {
 public:
-    explicit Boolean(std::shared_ptr<Interaction::Execution::FuncTree<bool, Data::JsonScope*>> const& funcTree)
+    explicit Boolean(std::shared_ptr<Interaction::Execution::FuncTree<bool, Data::JsonScope&>> const& funcTree)
         : TransformationModule(funcTree) {}
 
     void bindTransformations() override;
@@ -35,7 +35,7 @@ public:
     //------------------------------------------
     // Available Transformations
 
-    static bool booleanNot(Data::JsonScope* jsonDoc);
+    static bool booleanNot(Data::JsonScope& jsonDoc);
     static auto constexpr booleanNotName = "not";
     static auto constexpr booleanNotDesc = "Logical NOT operation on the current JSON value.\n"
         "Usage: |not -> {value:bool}\n"

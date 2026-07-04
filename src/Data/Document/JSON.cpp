@@ -310,7 +310,7 @@ bool JSON::getSubDocWithTransformations(std::string_view const key, JSON& outDoc
 
     // Apply each transformation in sequence
     args.erase(args.begin());
-    return JsonRvalueTransformer::instance().parse(args, &outDoc);
+    return JsonRvalueTransformer::instance().parse(args, outDoc);
 }
 
 double* JSON::getStableDoublePointer(std::string_view const key) const {

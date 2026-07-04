@@ -30,7 +30,7 @@ namespace Nebulite::Module::Transformation {
  */
 class Requirements final : public Base::TransformationModule {
 public:
-    explicit Requirements(std::shared_ptr<Interaction::Execution::FuncTree<bool, Data::JsonScope*>> const& funcTree)
+    explicit Requirements(std::shared_ptr<Interaction::Execution::FuncTree<bool, Data::JsonScope&>> const& funcTree)
         : TransformationModule(funcTree) {}
 
     void bindTransformations() override;
@@ -53,14 +53,14 @@ public:
     //------------------------------------------
     // Available Transformations
 
-    static bool requireNonEmpty(std::span<std::string_view const> const& args, Data::JsonScope const* jsonDoc);
+    static bool requireNonEmpty(std::span<std::string_view const> const& args, Data::JsonScope const& jsonDoc);
     static auto constexpr requireNonEmptyName = "require nonEmpty";
     static auto constexpr requireNonEmptyDesc = "Requires that the current JSON value is non-empty.\n"
         "If the value is empty, the transformation fails.\n"
         "Accepts an optional user-defined error message as additional arguments.\n"
         "Usage: |requireNonEmpty -> {value,<Returns false if empty>}\n";
 
-    static bool requireEmpty(std::span<std::string_view const> const& args, Data::JsonScope const* jsonDoc);
+    static bool requireEmpty(std::span<std::string_view const> const& args, Data::JsonScope const& jsonDoc);
     static auto constexpr requireEmptyName = "require empty";
     static auto constexpr requireEmptyDesc = "Requires that the current JSON value is empty.\n"
         "If the value is not empty, the transformation fails.\n"
@@ -69,21 +69,21 @@ public:
 
     // [TYPE]
 
-    static bool requireTypeObject(std::span<std::string_view const> const& args, Data::JsonScope const* jsonDoc);
+    static bool requireTypeObject(std::span<std::string_view const> const& args, Data::JsonScope const& jsonDoc);
     static auto constexpr requireTypeObjectName = "require type object";
     static auto constexpr requireTypeObjectDesc = "Requires that the current JSON value is of type object.\n"
         "If the value is not an object, the transformation fails.\n"
         "Accepts an optional user-defined error message as additional arguments.\n"
         "Usage: |requireTypeObject -> {value,<Returns false if not object>}\n";
 
-    static bool requireTypeArray(std::span<std::string_view const> const& args, Data::JsonScope const* jsonDoc);
+    static bool requireTypeArray(std::span<std::string_view const> const& args, Data::JsonScope const& jsonDoc);
     static auto constexpr requireTypeArrayName = "require type array";
     static auto constexpr requireTypeArrayDesc = "Requires that the current JSON value is of type array.\n"
         "If the value is not an array, the transformation fails.\n"
         "Accepts an optional user-defined error message as additional arguments.\n"
         "Usage: |requireTypeArray -> {value,<Returns false if not array>}\n";
 
-    static bool requireTypeBasicValue(std::span<std::string_view const> const& args, Data::JsonScope const* jsonDoc);
+    static bool requireTypeBasicValue(std::span<std::string_view const> const& args, Data::JsonScope const& jsonDoc);
     static auto constexpr requireTypeBasicValueName = "require type basicValue";
     static auto constexpr requireTypeBasicValueDesc = "Requires that the current JSON value is a basic value (not object or array or null).\n"
         "If the value is not a basic value, the transformation fails.\n"
@@ -92,7 +92,7 @@ public:
 
     // [MATCH]
 
-    static bool requireMatchRegex(std::span<std::string_view const> const& args, Data::JsonScope const* jsonDoc);
+    static bool requireMatchRegex(std::span<std::string_view const> const& args, Data::JsonScope const& jsonDoc);
     static auto constexpr requireMatchRegexName = "require match regex";
     static auto constexpr requireMatchRegexDesc = "Requires that the current JSON string value matches a provided regular expression.\n"
         "If the value does not match the regular expression, the transformation fails.\n"
@@ -100,13 +100,13 @@ public:
 
     // [EQUALS]
 
-    static bool requireEqualsString(std::span<std::string_view const> const& args, Data::JsonScope const* jsonDoc);
+    static bool requireEqualsString(std::span<std::string_view const> const& args, Data::JsonScope const& jsonDoc);
     static auto constexpr requireEqualsStringName = "require equals string";
     static auto constexpr requireEqualsStringDesc = "Requires that the current JSON value is equal to the specified string.\n"
         "If the value is not equal to the specified string, the transformation fails and the program exits.\n"
         "Usage: |require equals string <expected> -> {value,<Returns false if not equal>}\n";
 
-    static bool requireEqualsInt(std::span<std::string_view const> const& args, Data::JsonScope const* jsonDoc);
+    static bool requireEqualsInt(std::span<std::string_view const> const& args, Data::JsonScope const& jsonDoc);
     static auto constexpr requireEqualsIntName = "require equals int";
     static auto constexpr requireEqualsIntDesc = "Requires that the current JSON value is an integer.\n"
         "If the value is not an integer, the transformation fails and the program exits.\n"

@@ -24,61 +24,61 @@ void General::bindTransformations() {
     bindTransformation(&General::assign, assignName, assignDesc);
 }
 
-bool General::setString(std::span<std::string_view const> const& args, Data::JsonScope* jsonDoc) {
+bool General::setString(std::span<std::string_view const> const& args, Data::JsonScope& jsonDoc) {
     if (args.size() != 3) return false;
     auto const key = rootKey.addMember(args[1]);
     auto const value = std::string(args[2]);
-    jsonDoc->set<std::string>(key, value);
+    jsonDoc.set<std::string>(key, value);
     return true;
 }
 
-bool General::setInt(std::span<std::string_view const> const& args, Data::JsonScope* jsonDoc) {
+bool General::setInt(std::span<std::string_view const> const& args, Data::JsonScope& jsonDoc) {
     if (args.size() != 3) return false;
     auto const key = rootKey.addMember(args[1]);
     try {
         int const value = std::stoi(std::string(args[2]));
-        jsonDoc->set<int>(key, value);
+        jsonDoc.set<int>(key, value);
         return true;
     } catch (...) {
         return false;
     }
 }
 
-bool General::setDouble(std::span<std::string_view const> const& args, Data::JsonScope* jsonDoc) {
+bool General::setDouble(std::span<std::string_view const> const& args, Data::JsonScope& jsonDoc) {
     if (args.size() != 3) return false;
     auto const key = rootKey.addMember(args[1]);
     try {
         double const value = std::stod(std::string(args[2]));
-        jsonDoc->set<double>(key, value);
+        jsonDoc.set<double>(key, value);
         return true;
     } catch (...) {
         return false;
     }
 }
 
-bool General::setBool(std::span<std::string_view const> const& args, Data::JsonScope* jsonDoc) {
+bool General::setBool(std::span<std::string_view const> const& args, Data::JsonScope& jsonDoc) {
     if (args.size() != 3) return false;
     auto const key = rootKey.addMember(args[1]);
     auto const& valStr = args[2];
     bool const value = valStr == "true";
-    jsonDoc->set<bool>(key, value);
+    jsonDoc.set<bool>(key, value);
     return true;
 }
 
-bool General::removeMember(std::span<std::string_view const> const& args, Data::JsonScope* jsonDoc) {
+bool General::removeMember(std::span<std::string_view const> const& args, Data::JsonScope& jsonDoc) {
     if (args.size() < 2) return false;
     for (auto const& arg : args.subspan(1)) {
         auto const key = rootKey.addMember(arg);
-        jsonDoc->removeMember(key);
+        jsonDoc.removeMember(key);
     }
     return true;
 }
 
-bool General::assign(std::span<std::string_view const> const& args, Data::JsonScope* jsonDoc) {
+bool General::assign(std::span<std::string_view const> const& args, Data::JsonScope& jsonDoc) {
     if (args.empty()) return false;
     Interaction::Logic::Assignment ass;
     ass.parse(Utility::StringHandler::recombineArgs(args.subspan(1)));
-    Interaction::ContextScope const context{*jsonDoc, *jsonDoc, *jsonDoc};
+    Interaction::ContextScope const context{jsonDoc, jsonDoc, jsonDoc};
     ass.apply(context);
     return true;
 }

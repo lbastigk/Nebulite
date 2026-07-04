@@ -18,12 +18,12 @@ void Domain::bindTransformations(){
     bindTransformation(&Domain::injectScript, injectScriptName, injectScriptDesc);
 }
 
-bool Domain::injectScript(std::span<std::string_view const> const& args, Data::JsonScope* jsonDoc){
+bool Domain::injectScript(std::span<std::string_view const> const& args, Data::JsonScope& jsonDoc){
     if (args.size() < 2) return false;
     auto const link = Utility::StringHandler::recombineArgs(args.subspan(1));
-    Interaction::Execution::Domain tempDomain("injectScriptTempDomain", *jsonDoc, Global::capture());
+    Interaction::Execution::Domain tempDomain("injectScriptTempDomain", jsonDoc, Global::capture());
     auto ctx = Interaction::Context{tempDomain,tempDomain,tempDomain};
-    auto ctxScope = Interaction::ContextScope{*jsonDoc,*jsonDoc,*jsonDoc};
+    auto ctxScope = Interaction::ContextScope{jsonDoc,jsonDoc,jsonDoc};
     Data::TaskQueue taskQueue("injectScript");
     taskQueue.addScript(link, Global::capture());
     do {
