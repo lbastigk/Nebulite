@@ -6,6 +6,9 @@
 
 // Standard library
 #include <atomic>
+#include <cstddef>
+#include <memory>
+#include <stdexcept>
 
 // Nebulite
 #include "Data/Document/JsonScope.hpp"
