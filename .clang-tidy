@@ -25,8 +25,7 @@ Checks:
   - 'performance-*'
   - 'portability-simd-intrinsics'
   - 'readability-*'
-  - '-bugprone-command-processor'
-  - '-bugprone-easily-swappable-parameters'
+  # Disable some checks that are too strict, annoying or irrelevant
   - '-cppcoreguidelines-avoid-const-or-ref-data-members'
   - '-cppcoreguidelines-avoid-do-while'
   - '-cppcoreguidelines-avoid-magic-numbers'
@@ -43,11 +42,13 @@ Checks:
   - '-llvm-prefer-static-over-anonymous-namespace'
   - '-misc-no-recursion'
   - '-misc-non-private-member-variables-in-classes'
-  - '-modernize-use-trailing-return-type'
-  - '-readability-braces-around-statements'
-  - '-readability-identifier-length'
-  - '-readability-implicit-bool-conversion'
-  - '-readability-magic-numbers'
+  - '-modernize-use-trailing-return-type'   # Kind of annoying for simple functions, although useful for complex return types
+  - '-readability-braces-around-statements' # For simple if(x) return; statements, braces are just annoying
+  - '-readability-identifier-length'        # Short names like "idx" are totally fine
+  - '-readability-implicit-bool-conversion' # Checking pointers for null using if(ptr) is perfectly readable and common
+  - '-readability-magic-numbers'            # Triggers for trivial constants way too often
+  # To check:
+  - '-bugprone-easily-swappable-parameters'
   - '-readability-math-missing-parentheses'
   - '-readability-redundant-preprocessor'
   - '-readability-uppercase-literal-suffix'

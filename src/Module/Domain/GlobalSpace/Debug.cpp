@@ -239,7 +239,7 @@ void clear_screen() {
     SetConsoleCursorPosition(hStd, home);
 
 #else
-    std::system("clear");
+    std::system("clear"); // NOLINT(bugprone-command-processor)
 #endif
 }
 } // namespace
