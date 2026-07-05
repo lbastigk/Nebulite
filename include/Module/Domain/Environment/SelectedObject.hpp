@@ -4,7 +4,12 @@
 //------------------------------------------
 // Includes
 
+// Standard library
+#include <span>
+#include <string_view>
+
 // Nebulite
+#include "Constants/Event.hpp"
 #include "Module/Base/DomainModule.hpp"
 
 //------------------------------------------
@@ -14,6 +19,15 @@ namespace Nebulite::Core {
 class Environment;
 class RenderObject;
 } // namespace Nebulite::Core
+
+namespace Nebulite::Data {
+class JsonScope;
+} // namespace Nebulite::Data
+
+namespace Nebulite::Interaction {
+class Context;
+class ContextScope;
+} // namespace Nebulite::Interaction
 
 //------------------------------------------
 namespace Nebulite::Module::Domain::Environment {
