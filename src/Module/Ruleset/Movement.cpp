@@ -3,7 +3,7 @@
 
 // Standard Library
 #include <algorithm>
-#include <cfloat>
+#include <limits>
 #include <utility>
 
 // Nebulite
@@ -27,17 +27,15 @@ Movement::Movement() : RulesetModule(moduleName) {
 
 // NOLINTNEXTLINE
 void Movement::detectClipping(Interaction::Context const& context, double** slf, double** otr) const {
+    // TODO: Add missing clipping detections
     // Assume context part is circle if radius is set (> 0)
     if (auto const& radius = Radius(slf, otr); radius.slf > 0.0 && radius.otr > 0.0) {
-        // TODO
         context.self.capture.error.println("Circle-circle clipping detection not implemented yet");
     }
     else if (radius.slf > 0.0) {
-        // TODO
         context.self.capture.error.println("Circle-rectangle clipping detection not implemented yet");
     }
     else if (radius.otr > 0.0) {
-        // TODO
         context.self.capture.error.println("Rectangle-circle clipping detection not implemented yet");
     }
     else {
@@ -122,10 +120,10 @@ void Movement::processClipping(Interaction::Context const& /*context*/, double**
     }
 
     // Set clip values to max double for next frame's detection
-    N = DBL_MAX;
-    E = DBL_MAX;
-    S = DBL_MAX;
-    W = DBL_MAX;
+    N = std::numeric_limits<double>::max();
+    E = std::numeric_limits<double>::max();
+    S = std::numeric_limits<double>::max();
+    W = std::numeric_limits<double>::max();
 }
 
 } // namespace Nebulite::Module::Ruleset

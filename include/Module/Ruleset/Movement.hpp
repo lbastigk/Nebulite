@@ -9,10 +9,23 @@
 //------------------------------------------
 // Includes
 
+// Standard library
+#include <cstdint>
+#include <string_view>
+#include <vector>
+
 // Nebulite
 #include "Constants/KeyNames.hpp"
+#include "Data/Document/ScopedKey.hpp"
 #include "Module/Base/RulesetModule.hpp"
 #include "Module/Domain/GlobalSpace/Physics.hpp"
+
+//------------------------------------------
+// Forward declarations
+
+namespace Nebulite::Interaction {
+class Context;
+} // namespace Nebulite::Interaction
 
 //------------------------------------------
 namespace Nebulite::Module::Ruleset {
@@ -29,6 +42,8 @@ public:
     void detectClipping(Interaction::Context const& context, double** slf, double** otr) const ;
     static std::string_view constexpr detectClippingName = "::movement::detectClipping";
     static std::string_view constexpr detectClippingDesc = "Global ruleset to detect the closest object in each direction. The listeners distance is set.";
+
+    // Local rulesets
 
     void processClipping(Interaction::Context const& context, double** slf, double** otr) const ;
     static std::string_view constexpr processClippingName = "::movement::processClipping";
