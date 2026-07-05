@@ -7,6 +7,7 @@
 #include <cstdint> // NOLINT
 #include <iterator>
 #include <ranges>
+#include <stdexcept>
 #include <string>
 #include <utility>
 #include <vector>
@@ -132,16 +133,21 @@ void RenderObjectContainer::update(std::vector<TileCoordinate> const& viewport, 
 
         // Create worker threads, one for each visible tile
         // Get current worker, set up workspace and add work to it
-        auto& currentWorker = rendererProcessor.batchWorkerPool[workerIdx].value().workspace;
-        currentWorker.work = &it->second;
-        currentWorker.pos = tilePosition;
-        currentWorker.tilingInformation = tilingInformation;
+        if (auto& thread = rendererProcessor.batchWorkerPool[workerIdx]; thread.has_value()) {
+            auto& workspace = thread.value().workspace;
+            workspace.work = &it->second;
+            workspace.pos = tilePosition;
+            workspace.tilingInformation = tilingInformation;
 
-        // if workerIdx exceeds, process pool
-        workerIdx++;
-        if (workerIdx == Constants::ThreadSettings::getRendererWorkerCount()) {
-            rendererProcessor.processPool();
-            workerIdx = 0;
+            // if workerIdx exceeds, process pool
+            workerIdx++;
+            if (workerIdx == Constants::ThreadSettings::getRendererWorkerCount()) {
+                rendererProcessor.processPool();
+                workerIdx = 0;
+            }
+        }
+        else {
+            throw std::runtime_error("RendererProcessor worker pool not initialized for worker index " + std::to_string(workerIdx));
         }
     }
 
