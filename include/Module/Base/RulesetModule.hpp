@@ -10,12 +10,23 @@
 // Includes
 
 // Standard library
+#include <cassert>
+#include <cstdint>
+#include <string_view>
 #include <type_traits>
 #include <vector>
 
 // Nebulite
+#include "Data/Document/ScopedKey.hpp"
 #include "Interaction/Rules/StaticRulesetMap.hpp"
 #include "ScopeAccessor.hpp"
+
+//------------------------------------------
+// Forward declarations
+
+namespace Nebulite::Interaction {
+class Context;
+} // namespace Nebulite::Interaction
 
 //------------------------------------------
 namespace Nebulite::Module::Base {

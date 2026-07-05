@@ -5,15 +5,17 @@
 // Includes
 
 // Nebulite
+#include "Constants/Event.hpp"
 #include "Interaction/Execution/Domain.hpp"
 #include "Module/Base/DomainModule.hpp"
 
 //------------------------------------------
 // Forward declarations
 
-namespace Nebulite::Interaction::Execution {
-class Domain;
-} // namespace Nebulite::Interaction::Execution
+namespace Nebulite::Interaction {
+class Context;
+class ContextScope;
+} // namespace Nebulite::Interaction
 
 //------------------------------------------
 namespace Nebulite::Module::Domain::Common {

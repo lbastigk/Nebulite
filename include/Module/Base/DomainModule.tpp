@@ -2,6 +2,12 @@
 #define MODULE_BASE_DOMAINMODULE_TPP
 
 //------------------------------------------
+// Includes
+
+// Nebulite
+#include "Module/Base/DomainModuleBase.hpp"
+
+//------------------------------------------
 // Conditional includes
 
 #ifndef MODULE_BASE_DOMAINMODULE_HPP
