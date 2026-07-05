@@ -3,7 +3,7 @@
 
 // Nebulite
 #include "Constants/Event.hpp"
-#include "Core/GlobalSpace.hpp"
+#include "Core/GlobalSpace.hpp" // NOLINT
 #include "Core/Renderer.hpp"
 #include "Graphics/ImguiHelper.hpp"
 #include "Module/Domain/Renderer/Console.hpp"
@@ -21,13 +21,20 @@ Constants::Event Console::updateHook() {
     }
     if (consoleMode) {
         domain.skipUpdateNextFrame();
-        static auto const accessToken = ScopeAccessor::Full();
+
+        // Set console flags
         Graphics::ImguiHelper::DomainRenderingFlags flags;
         flags.showCloseButton = false;
         flags.windowAlignment = Graphics::ImguiHelper::DomainRenderingFlags::Alignment::BOTTOM;
 
-        Interaction::Context ctx = {Global::instance(), Global::instance(), Global::instance()};
-        Interaction::ContextScope ctxScope = {Global::shareScope(accessToken), Global::shareScope(accessToken), Global::shareScope(accessToken)};
+        // Set context/scope
+        Interaction::Execution::Domain& global = Global::instance();
+        static auto const accessToken = ScopeAccessor::Full();
+        auto& globalScope = Global::shareScope(accessToken);
+        Interaction::Context ctx = {global, global, global};
+        Interaction::ContextScope ctxScope = {globalScope, globalScope, globalScope};
+
+        // Render
         Graphics::ImguiHelper::renderDomain(ctx, ctxScope, Global::capture(), "Console", flags);
     }
     return Constants::Event::Success;
