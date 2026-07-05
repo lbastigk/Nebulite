@@ -1,8 +1,3 @@
-/**
- * @file Debug.hpp
- * @brief Contains the declaration of the Debug DomainModule for the GlobalSpace domain.
- */
-
 #ifndef MODULE_DOMAIN_GLOBALSPACE_DEBUG_HPP
 #define MODULE_DOMAIN_GLOBALSPACE_DEBUG_HPP
 
@@ -12,8 +7,12 @@
 // Standard library
 #include <fstream>
 #include <memory>
+#include <span>
+#include <streambuf>
+#include <string_view>
 
 // Nebulite
+#include "Constants/Event.hpp"
 #include "Data/Document/KeyGroup.hpp"
 #include "Module/Base/DomainModule.hpp"
 
@@ -23,6 +22,11 @@
 namespace Nebulite::Core {
 class GlobalSpace;
 } // namespace Nebulite::Core
+
+namespace Nebulite::Interaction {
+class Context;
+class ContextScope;
+} // namespace Nebulite::Interaction
 
 //------------------------------------------
 namespace Nebulite::Module::Domain::GlobalSpace {

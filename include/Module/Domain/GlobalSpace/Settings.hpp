@@ -1,15 +1,16 @@
-/**
- * @file Settings.hpp
- * @brief Contains the declaration of the Settings DomainModule for the GlobalSpace domain.
- */
-
 #ifndef MODULE_DOMAIN_GLOBALSPACE_SETTINGS_HPP
 #define MODULE_DOMAIN_GLOBALSPACE_SETTINGS_HPP
 
 //------------------------------------------
 // Includes
 
+// Standard library
+#include <span>
+#include <string>
+#include <string_view>
+
 // Nebulite
+#include "Constants/Event.hpp"
 #include "Data/Document/KeyGroup.hpp"
 #include "Module/Base/DomainModule.hpp"
 

@@ -1,15 +1,15 @@
-/**
- * @file FeatureTest.hpp
- * @brief Feature testing DomainModule for GlobalSpace.
- */
-
 #ifndef MODULE_DOMAIN_GLOBALSPACE_FEATURETEST_HPP
 #define MODULE_DOMAIN_GLOBALSPACE_FEATURETEST_HPP
 
 //------------------------------------------
 // Includes
 
+// Standard library
+#include <span>
+#include <string_view>
+
 // Nebulite
+#include "Constants/Event.hpp"
 #include "Data/Document/KeyGroup.hpp"
 #include "Module/Base/DomainModule.hpp"
 

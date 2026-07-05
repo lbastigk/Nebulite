@@ -1,8 +1,3 @@
-/**
- * @file General.hpp
- * @brief General-purpose DomainModule for the GlobalSpace.
- */
-
 #ifndef MODULE_DOMAIN_GLOBALSPACE_GENERAL_HPP
 #define MODULE_DOMAIN_GLOBALSPACE_GENERAL_HPP
 
@@ -10,6 +5,7 @@
 // Includes
 
 // Nebulite
+#include "Constants/Event.hpp"
 #include "Module/Base/DomainModule.hpp"
 
 //------------------------------------------

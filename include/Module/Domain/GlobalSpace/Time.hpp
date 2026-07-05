@@ -1,8 +1,3 @@
-/**
- * @file Time.hpp
- * @brief Contains the declaration of the Time DomainModule for the GlobalSpace domain.
- */
-
 #ifndef MODULE_DOMAIN_GLOBALSPACE_TIME_HPP
 #define MODULE_DOMAIN_GLOBALSPACE_TIME_HPP
 
@@ -10,11 +5,13 @@
 // Includes
 
 // Standard library
+#include <cstdint>
+#include <string>
 #include <unordered_set>
 
 // Nebulite
+#include "Constants/Event.hpp"
 #include "Data/Document/KeyGroup.hpp"
-#include "Data/Document/ScopedKey.hpp"
 #include "Module/Base/DomainModule.hpp"
 #include "Utility/TimeKeeper.hpp"
 

@@ -1,8 +1,3 @@
-/**
- * @file RNG.hpp
- * @brief Contains the declaration of the RNG DomainModule for the GlobalSpace domain.
- */
-
 #ifndef MODULE_DOMAIN_GLOBALSPACE_FLOATING_RNG_HPP
 #define MODULE_DOMAIN_GLOBALSPACE_FLOATING_RNG_HPP
 
@@ -13,8 +8,8 @@
 #include <cstdint>
 
 // Nebulite
-#include "Constants/KeyNames.hpp"
-#include "Data/Document/ScopedKey.hpp"
+#include "Constants/Event.hpp"
+#include "Data/Document/KeyGroup.hpp"
 #include "Module/Base/DomainModule.hpp"
 #include "Utility/RNG.hpp"
 

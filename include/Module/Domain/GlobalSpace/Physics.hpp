@@ -1,9 +1,3 @@
-/**
- * @file Physics.hpp
- * @brief This file defines the Physics DomainModule in the GlobalSpace,
- *        containing keys for global physics constants and settings.
- */
-
 #ifndef MODULE_DOMAIN_GLOBALSPACE_PHYSICS_HPP
 #define MODULE_DOMAIN_GLOBALSPACE_PHYSICS_HPP
 
@@ -11,6 +5,7 @@
 // Includes
 
 // Nebulite
+#include "Constants/Event.hpp"
 #include "Data/Document/KeyGroup.hpp"
 #include "Module/Base/DomainModule.hpp"
 

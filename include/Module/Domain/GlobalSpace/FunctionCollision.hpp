@@ -1,16 +1,15 @@
-/**
- * @file FunctionCollision.hpp
- * @brief Contains the Debug Domain Module for testing collision detection functionalities of Domains/DomainModules.
- */
-
 #ifndef MODULE_DOMAIN_GLOBALSPACE_FUNCTIONCOLLISION_HPP
 #define MODULE_DOMAIN_GLOBALSPACE_FUNCTIONCOLLISION_HPP
 
 //------------------------------------------
 // Includes
 
+// Standard library
+#include <span>
+#include <string_view>
+
 // Nebulite
-#include "Data/Document/JSON.hpp"
+#include "Constants/Event.hpp"
 #include "Module/Base/DomainModule.hpp"
 
 //------------------------------------------

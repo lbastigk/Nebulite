@@ -1,8 +1,3 @@
-/**
- * @file Clock.hpp
- * @brief Contains the Clock DomainModule for GlobalSpace.
- */
-
 #ifndef MODULE_DOMAIN_GLOBALSPACE_CLOCK_HPP
 #define MODULE_DOMAIN_GLOBALSPACE_CLOCK_HPP
 
