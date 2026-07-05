@@ -9,8 +9,12 @@
 //------------------------------------------
 // Includes
 
+// Standard library
+#include <string>
+
 // Nebulite
-#include "Constants/KeyNames.hpp"
+#include "Constants/Event.hpp"
+#include "Data/Document/KeyGroup.hpp"
 #include "Module/Base/DomainModule.hpp"
 
 //------------------------------------------
@@ -19,6 +23,11 @@
 namespace Nebulite::Core {
 class RenderObject;
 } // namespace Nebulite::Core
+
+namespace Nebulite::Interaction {
+class Context;
+class ContextScope;
+} // namespace Nebulite::Interaction
 
 //------------------------------------------
 namespace Nebulite::Module::Domain::RenderObject {

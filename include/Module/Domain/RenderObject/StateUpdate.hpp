@@ -10,6 +10,7 @@
 // Includes
 
 // Nebulite
+#include "Constants/Event.hpp"
 #include "Module/Base/DomainModule.hpp"
 
 //------------------------------------------

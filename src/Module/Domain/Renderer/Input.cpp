@@ -16,8 +16,9 @@
 
 // Nebulite
 #include "Constants/Event.hpp"
-#include "Core/GlobalSpace.hpp"
+#include "Core/Renderer.hpp"
 #include "Data/Document/JSON.hpp"
+#include "Data/Document/JsonScope.hpp"
 #include "Module/Domain/Renderer/Input.hpp"
 #include "Utility/Coordination/TimedRoutine.hpp"
 #include "Utility/StringHandler.hpp"

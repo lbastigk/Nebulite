@@ -153,7 +153,7 @@ private:
             }
             else [[likely]] {
                 // Assign stable double pointer from cacheline
-                stable_double_ptr = &cl[index]; // NOLINT
+                stable_double_ptr = &cl[index];
                 index++;
                 *stable_double_ptr = standardNumericValue;
                 managedInternalDouble = false;

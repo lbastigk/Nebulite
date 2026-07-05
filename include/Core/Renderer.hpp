@@ -519,10 +519,13 @@ private:
 
     //------------------------------------------
     // For FPS Count and Control
+
+    static auto constexpr standardFpsTarget = 60;
+
     struct FpsControl {
         Utility::TimeKeeper controlTimer;
         Utility::TimeKeeper renderTimer;
-        std::uint16_t target = 500; // Target framerate (e.g., 60 FPS)
+        std::uint16_t target = standardFpsTarget; // Target framerate
         std::uint16_t realCounter = 0; // Counts fps in a 1-second-interval; reset every second
         std::uint16_t real = 0; // Actual fps this past second. Stores the last value of realCounter every second
     } fps;
