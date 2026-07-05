@@ -2,7 +2,7 @@
 // Includes
 
 // Standard library
-#include <cstddef> // NOLINT
+#include <cstddef>
 #include <expected>
 #include <optional>
 #include <string>

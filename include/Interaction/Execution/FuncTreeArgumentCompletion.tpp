@@ -6,7 +6,7 @@
 
 // Standard library
 #include <algorithm>
-#include <cstddef> // NOLINT
+#include <cstddef>
 #include <cstdint> // NOLINT
 #include <iterator>
 #include <optional>

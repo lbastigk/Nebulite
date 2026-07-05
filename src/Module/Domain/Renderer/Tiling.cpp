@@ -3,7 +3,7 @@
 
 // Standard library
 #include <cstdint> // NOLINT
-#include <cstddef> // NOLINT
+#include <cstddef>
 #include <memory>
 #include <numeric>
 #include <ranges>

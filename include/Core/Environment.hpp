@@ -6,7 +6,7 @@
 
 // Standard library
 #include <array>
-#include <cstddef> // NOLINT
+#include <cstddef>
 #include <cstdint> // NOLINT
 #include <optional>
 #include <ranges>

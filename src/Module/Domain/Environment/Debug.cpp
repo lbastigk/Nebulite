@@ -3,7 +3,7 @@
 
 // Standard library
 #include <array>
-#include <cstddef> // NOLINT
+#include <cstddef>
 #include <numeric>
 #include <ranges>
 #include <string>

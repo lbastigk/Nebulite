@@ -5,7 +5,7 @@
 // Includes
 
 // Standard library
-#include <cstddef> // NOLINT
+#include <cstddef>
 #include <cstdint> // NOLINT
 #include <string>
 #include <string_view>

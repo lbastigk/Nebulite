@@ -5,7 +5,7 @@
 // Includes
 
 // Standard library
-#include <cstddef> // NOLINT
+#include <cstddef>
 #include <functional>
 #include <memory>
 #include <optional>

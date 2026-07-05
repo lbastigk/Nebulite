@@ -10,7 +10,7 @@
 // Includes
 
 // Standard library
-#include <cstddef> // NOLINT
+#include <cstddef>
 #include <string_view>
 #include <vector>
 

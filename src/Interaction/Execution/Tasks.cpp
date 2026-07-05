@@ -3,7 +3,7 @@
 
 // Standard library
 #include <algorithm>
-#include <cstddef> // NOLINT
+#include <cstddef>
 #include <memory>
 #include <ranges>
 #include <string_view>
