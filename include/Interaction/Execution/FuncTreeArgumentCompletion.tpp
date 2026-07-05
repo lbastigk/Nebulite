@@ -131,16 +131,20 @@ void FuncTree<ReturnValue, AdditionalArgs...>::generalHelp() {
 
     // Filter duplicates
     std::ranges::sort(allFunctions, {}, &std::pair<std::string, std::string_view>::first);
-    std::erase_if(allFunctions, [seen = std::string{}](auto const& item) mutable {
-        bool const duplicate = item.first == seen;
-        seen = item.first;
-        return duplicate;
+    std::erase_if(allFunctions, [previous = std::string{}](auto const& item) mutable {
+        if (item.first == previous) {
+            return true;
+        }
+        previous = item.first;
+        return false;
     });
     std::ranges::sort(allVariables, {}, &std::pair<std::string, std::string_view>::first);
-    std::erase_if(allVariables, [seen = std::string{}](auto const& item) mutable {
-        bool const duplicate = item.first == seen;
-        seen = item.first;
-        return duplicate;
+    std::erase_if(allVariables, [previous = std::string{}](auto const& item) mutable {
+        if (item.first == previous) {
+            return true;
+        }
+        previous = item.first;
+        return false;
     });
 
     // Display:
