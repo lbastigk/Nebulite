@@ -14,7 +14,7 @@ namespace Nebulite::Utility {
 
 TimeKeeper::TimeKeeper() noexcept : t_start(Time::getTime()) {}
 
-void TimeKeeper::update(std::optional<std::uint64_t> const fixed_dt_ms) noexcept {
+void TimeKeeper::update(std::optional<std::uint64_t> const fixed_dt_ms) {
     onUpdate.last_t_ms = onUpdate.t_ms;
     onUpdate.t_ms      = Time::getTime() - t_start;
     if(running){

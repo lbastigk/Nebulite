@@ -1,8 +1,3 @@
-/**
- * @file TimeKeeper.hpp
- * @brief Contains the Nebulite::Utility::TimeKeeper class for managing time-related operations.
- */
-
 #ifndef UTILITY_TIMEKEEPER_HPP
 #define UTILITY_TIMEKEEPER_HPP
 
@@ -36,7 +31,7 @@ public:
      * @details Calculates the delta time since the last update and updates the timers full runtime.
      * @param fixed_dt_ms If a fixed delta time is provided, it will be used instead of the calculated delta time.
      */
-    void update(std::optional<std::uint64_t> fixed_dt_ms = std::nullopt) noexcept ;
+    void update(std::optional<std::uint64_t> fixed_dt_ms = std::nullopt);
 
     /**
      * @brief Starts the timer, updating the running state.
