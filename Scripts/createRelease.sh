@@ -5,6 +5,13 @@
 # Creates platform-specific archives for GitHub releases
 ##########################################################################################
 
+# Colors for output
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+BLUE='\033[0;34m'
+NC='\033[0m' # No Color
+
 #############################################
 # Abort on errors
 set -e
@@ -37,7 +44,7 @@ LICENSES=(
 # Check if any are empty
 for lic in "${LICENSES[@]}"; do
     if [ -z "$lic" ]; then
-        echo -e "\033[0;31mError: One or more license files are empty. Please check the LICENSE files in the external libraries.\033[0m"
+        echo -e "${RED}Error: One or more license files are empty. Please check the LICENSE files in the external libraries.${NC}"
         exit 1
     fi
 done
@@ -47,14 +54,14 @@ done
 
 # Check if there are uncommitted changes
 if [ -n "$(git status --porcelain)" ]; then
-    echo -e "\033[0;31mError: You have uncommitted changes. Please commit or stash them before creating a release.\033[0m"
+    echo -e "${RED}Error: You have uncommitted changes. Please commit or stash them before creating a release.${NC}"
     exit 1
 fi
 
 # Check if the branch is main
 CURRENT_BRANCH=$(git rev-parse --abbrev-ref HEAD)
 if [ "$CURRENT_BRANCH" != "main" ]; then
-    echo -e "\033[0;31mError: You must be on the 'main' branch to create a release. Current branch: $CURRENT_BRANCH\033[0m"
+    echo -e "${RED}Error: You must be on the 'main' branch to create a release. Current branch: $CURRENT_BRANCH${NC}"
     exit 1
 fi
 
@@ -77,6 +84,12 @@ if [ "$CONFIRM" != "y" ]; then
     exit 1
 fi
 
+# Check for any code mistakes using clang-tidy
+./Scripts/Validation/clangCheck.sh || {
+    echo -e "${RED}Error: clang-tidy checks failed. Please fix the issues before creating a release.${NC}"
+    exit 1
+}
+
 # Run tests first for now, as the wine tests may fail due to threading issues
 # Only run native tests
 make clean-build-and-test-available
@@ -88,7 +101,7 @@ make windows-release
 
 # Check for unstaged tracked changes before building docs
 git diff --quiet || {
-    echo -e "\033[0;33mWarning: There are unstaged changes after before documentation.\033[0m"
+    echo -e "${YELLOW}Warning: There are unstaged changes after before documentation.${NC}"
     git status
     exit 1
 }
@@ -102,14 +115,14 @@ git add Resources/
 
 # Check for unstaged tracked changes
 git diff --quiet || {
-    echo -e "\033[0;33mWarning: There are unstaged changes after building documentation.\033[0m"
+    echo -e "${YELLOW}Warning: There are unstaged changes after building documentation.${NC}"
     git status
     exit 1
 }
 
 # Check for untracked files
 if [ -n "$(git ls-files --others --exclude-standard)" ]; then
-    echo -e "\033[0;33mWarning: There are untracked files after building documentation.\033[0m"
+    echo -e "${YELLOW}Warning: There are untracked files after building documentation.${NC}"
     git status
     exit 1
 fi
@@ -123,44 +136,13 @@ BUILD_DIR="release_build"
 WINDOWS_ARCHIVE="Nebulite-${VERSION}-windows.zip"
 LINUX_ARCHIVE="Nebulite-${VERSION}-linux.tar.gz"
 
-# Colors for output
-RED='\033[0;31m'
-GREEN='\033[0;32m'
-YELLOW='\033[1;33m'
-BLUE='\033[0;34m'
-NC='\033[0m' # No Color
+
 
 echo -e "${BLUE}Creating Nebulite ${VERSION} release archives...${NC}"
 
 # Function to create LICENSE.txt content
 create_license_txt(){
-    cat << 'EOF'
-The MIT License (MIT)
-=====================
-
-Copyright © 2025 lbastigk
-
-Permission is hereby granted, free of charge, to any person
-obtaining a copy of this software and associated documentation
-files (the "Software"), to deal in the Software without
-restriction, including without limitation the rights to use,
-copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the
-Software is furnished to do so, subject to the following
-conditions:
-
-The above copyright notice and this permission notice shall be
-included in all copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
-OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
-NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
-HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
-WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
-FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
-OTHER DEALINGS IN THE SOFTWARE.
-EOF
+    cat ./LICENSE.md
 }
 
 # Function to create THIRD_PARTY_LICENSES.txt content
@@ -278,7 +260,7 @@ create_windows_archive(){
     cp bin/Nebulite.exe "$win_dir/"
 
     # Create license files
-    create_license_txt > "$win_dir/LICENSE.txt"
+    create_license_txt > "$win_dir/LICENSE.md"
     create_third_party_licenses_txt > "$win_dir/THIRD_PARTY_LICENSES.txt"
     create_readme_txt > "$win_dir/README.txt"
     
@@ -304,7 +286,7 @@ create_linux_archive(){
     chmod +x "$linux_dir/Nebulite"
     
     # Create license files
-    create_license_txt > "$linux_dir/LICENSE.txt"
+    create_license_txt > "$linux_dir/LICENSE.md"
     create_third_party_licenses_txt > "$linux_dir/THIRD_PARTY_LICENSES.txt"
     create_readme_txt > "$linux_dir/README.txt"
     
