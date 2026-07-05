@@ -5,14 +5,35 @@
 // Includes
 
 // Standard library
+#include <memory>
+#include <optional>
+#include <string>
 
 // External
+#include <RmlUi/Config/Config.h>
 #include <absl/container/flat_hash_map.h>
 
 // Nebulite
+#include "Data/Document/ScopedKey.hpp"
+#include "Interaction/Context.hpp"
 #include "Module/Base/RmlUiModule.hpp"
 #include "Utility/Coordination/TimedRoutine.hpp"
 #include "Utility/IO/Capture.hpp"
+
+//------------------------------------------
+// Forward declarations
+
+namespace Rml {
+class Element;
+} // namespace Rml
+
+namespace Nebulite::Graphics {
+class RmlInterface;
+} // namespace Nebulite::Graphics
+
+namespace Nebulite::Utility::IO {
+class Capture;
+} // namespace Nebulite::Utility::IO
 
 //------------------------------------------
 namespace Nebulite::Module::RmlUi {

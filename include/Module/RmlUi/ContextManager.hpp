@@ -9,6 +9,17 @@
 #include "Utility/IO/Capture.hpp"
 
 //------------------------------------------
+// Forward declarations
+
+namespace Nebulite::Graphics {
+class RmlInterface;
+} // namespace Nebulite::Graphics
+
+namespace Nebulite::Utility::IO {
+class Capture;
+} // namespace Nebulite::Utility::IO
+
+//------------------------------------------
 namespace Nebulite::Module::RmlUi {
 
 class ContextManager final : public Base::RmlUiModule {
