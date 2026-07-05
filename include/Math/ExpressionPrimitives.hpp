@@ -6,8 +6,8 @@
 
 // Standard library
 #include <algorithm>
-#include <cfloat>
 #include <cmath>
+#include <limits>
 #include <span>
 #include <string_view>
 #include <vector>
@@ -51,108 +51,108 @@ public:
         "Usage: leq(a, b)";
 
     static double eq(double const a, double const b) {
-        return std::fabs(a - b) < DBL_EPSILON;
+        return std::fabs(a - b) < std::numeric_limits<double>::epsilon();
     }
     static auto constexpr eqName = "eq";
     static auto constexpr eqDesc = "Returns 1 if a is equal to b.\n"
-        "Equality is tested within a small epsilon (DBL_EPSILON) to handle floating point imprecision.\n"
+        "Equality is tested within a small epsilon to handle floating point imprecision.\n"
         "Usage: eq(a, b)";
 
     static double neq(double const a, double const b) {
-        return std::fabs(a - b) > DBL_EPSILON;
+        return std::fabs(a - b) > std::numeric_limits<double>::epsilon();
     }
     static auto constexpr neqName = "neq";
     static auto constexpr neqDesc = "Returns 1 if a is not equal to b.\n"
-        "Inequality is determined beyond a small epsilon (DBL_EPSILON).\n"
+        "Inequality is determined beyond a small epsilon.\n"
         "Usage: neq(a, b)";
 
     //----------------------------------
     // Logical gate functions
 
     static double logical_not(double const a) {
-        return !(std::fabs(a) > DBL_EPSILON);
+        return !(std::fabs(a) > std::numeric_limits<double>::epsilon());
     }
     static auto constexpr logicalNotName = "not";
     static auto constexpr logicalNotDesc = "Returns 1 if a is logically false (close to zero), otherwise returns 0.\n"
-        "Values with absolute value <= DBL_EPSILON are treated as false.\n"
+        "Values with absolute value <= epsilon are treated as false.\n"
         "Usage: not(a)";
 
     static double logical_and(double const a, double const b) {
-        bool const aLogical = std::fabs(a) > DBL_EPSILON;
-        bool const bLogical = std::fabs(b) > DBL_EPSILON;
+        bool const aLogical = std::fabs(a) > std::numeric_limits<double>::epsilon();
+        bool const bLogical = std::fabs(b) > std::numeric_limits<double>::epsilon();
         return aLogical && bLogical;
     }
     static auto constexpr logicalAndName = "and";
     static auto constexpr logicalAndDesc = "Returns 1 if both a and b are logically true, otherwise returns 0.\n"
-        "A value is considered true when its absolute value is greater than DBL_EPSILON.\n"
+        "A value is considered true when its absolute value is greater than epsilon.\n"
         "Usage: and(a, b)";
 
     static double logical_or(double const a, double const b) {
-        bool const aLogical = std::fabs(a) > DBL_EPSILON;
-        bool const bLogical = std::fabs(b) > DBL_EPSILON;
+        bool const aLogical = std::fabs(a) > std::numeric_limits<double>::epsilon();
+        bool const bLogical = std::fabs(b) > std::numeric_limits<double>::epsilon();
         return aLogical || bLogical;
     }
     static auto constexpr logicalOrName = "or";
     static auto constexpr logicalOrDesc = "Returns 1 if either a or b is logically true, otherwise returns 0.\n"
-        "A value is considered true when its absolute value is greater than DBL_EPSILON.\n"
+        "A value is considered true when its absolute value is greater than epsilon.\n"
         "Usage: or(a, b)";
 
     static double logical_xor(double const a, double const b) {
-        bool const aLogical = std::fabs(a) > DBL_EPSILON;
-        bool const bLogical = std::fabs(b) > DBL_EPSILON;
+        bool const aLogical = std::fabs(a) > std::numeric_limits<double>::epsilon();
+        bool const bLogical = std::fabs(b) > std::numeric_limits<double>::epsilon();
         return aLogical != bLogical;
     }
     static auto constexpr logicalXorName = "xor";
     static auto constexpr logicalXorDesc = "Returns 1 if exactly one of a or b is logically true, otherwise returns 0.\n"
-        "Uses DBL_EPSILON threshold to determine logical truthiness.\n"
+        "Uses epsilon threshold to determine logical truthiness.\n"
         "Usage: xor(a, b)";
 
     static double logical_nand(double const a, double const b) {
-        bool const aLogical = std::fabs(a) > DBL_EPSILON;
-        bool const bLogical = std::fabs(b) > DBL_EPSILON;
+        bool const aLogical = std::fabs(a) > std::numeric_limits<double>::epsilon();
+        bool const bLogical = std::fabs(b) > std::numeric_limits<double>::epsilon();
         return !(aLogical && bLogical);
     }
     static auto constexpr logicalNandName = "nand";
     static auto constexpr logicalNandDesc = "Returns 1 if at least one of a or b is logically false (i.e. not both true), otherwise returns 0.\n"
-        "Uses DBL_EPSILON to determine logical truthiness.\n"
+        "Uses epsilon to determine logical truthiness.\n"
         "Usage: nand(a, b)";
 
     static double logical_nor(double const a, double const b) {
-        bool const aLogical = std::fabs(a) > DBL_EPSILON;
-        bool const bLogical = std::fabs(b) > DBL_EPSILON;
+        bool const aLogical = std::fabs(a) > std::numeric_limits<double>::epsilon();
+        bool const bLogical = std::fabs(b) > std::numeric_limits<double>::epsilon();
         return !(aLogical || bLogical);
     }
     static auto constexpr logicalNorName = "nor";
     static auto constexpr logicalNorDesc = "Returns 1 if both a and b are logically false, otherwise returns 0.\n"
-        "Values with absolute value <= DBL_EPSILON are treated as false.\n"
+        "Values with absolute value <= epsilon are treated as false.\n"
         "Usage: nor(a, b)";
 
     static double logical_xnor(double const a, double const b) {
-        bool const aLogical = std::fabs(a) > DBL_EPSILON;
-        bool const bLogical = std::fabs(b) > DBL_EPSILON;
+        bool const aLogical = std::fabs(a) > std::numeric_limits<double>::epsilon();
+        bool const bLogical = std::fabs(b) > std::numeric_limits<double>::epsilon();
         return aLogical == bLogical;
     }
     static auto constexpr logicalXnorName = "xnor";
     static auto constexpr logicalXnorDesc = "Returns 1 if a and b are both logically true or both logically false, otherwise returns 0.\n"
-        "Uses DBL_EPSILON threshold to determine logical equality.\n"
+        "Uses epsilon threshold to determine logical equality.\n"
         "Usage: xnor(a, b)";
 
     // Other logical functions
 
     static double toBipolar(double const a) {
-        return std::fabs(a) > DBL_EPSILON ? 1 : -1;
+        return std::fabs(a) > std::numeric_limits<double>::epsilon() ? 1.0 : -1.0;
     }
     static auto constexpr toBipolarName = "toBipolar";
     static auto constexpr toBipolarDesc = "Converts a numeric value to bipolar form.\n"
         "output is 1 or -1\n"
-        "Returns 1 if a is logically true (absolute value > DBL_EPSILON), otherwise returns -1.\n"
+        "Returns 1 if a is logically true (absolute value > epsilon), otherwise returns -1.\n"
         "Usage: toBipolar(a)";
 
     //----------------------------------
     // Mapping functions
 
     static double map(double const value, double const in_min, double const in_max, double const out_min, double const out_max) {
-        if (std::fabs(in_max - in_min) < DBL_EPSILON) { return out_min; } // Prevent division by zero
+        if (std::fabs(in_max - in_min) < std::numeric_limits<double>::epsilon()) { return out_min; } // Prevent division by zero
         if (value < in_min) { return out_min; }
         if (value > in_max) { return out_max; }
         return (value - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
