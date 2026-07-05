@@ -9,10 +9,17 @@
 //------------------------------------------
 // Includes
 
+// Standard library
+#include <cstdint>
+#include <string>
+
+// External
+#include <absl/container/flat_hash_map.h>
+
 // Nebulite
-#include "Constants/KeyNames.hpp"
+#include "Constants/Event.hpp"
 #include "Data/Document/JSON.hpp"
-#include "Data/Document/JsonScope.hpp"
+#include "Data/Document/KeyGroup.hpp"
 #include "Module/Base/DomainModule.hpp"
 
 //------------------------------------------
@@ -21,6 +28,10 @@
 namespace Nebulite::Core {
 class GlobalSpace;
 } // namespace Nebulite::Core
+
+namespace Nebulite::Data {
+class JsonScope;
+} // namespace Nebulite::Data
 
 //------------------------------------------
 namespace Nebulite::Module::Domain::GlobalSpace {
@@ -128,10 +139,7 @@ private:
      * @param interval_ms The clock interval in milliseconds.
      * @return The key string for the clock entry.
      */
-    static std::string intervalToKey(std::uint64_t const interval_ms) {
-        static std::uint16_t constexpr padding = 6; // Not enough for std::uint64_t max value, but reasonable for practical clock intervals
-        return "ms" + std::to_string(interval_ms).insert(0, padding - std::to_string(interval_ms).length(), '0');
-    }
+    static std::string intervalToKey(std::uint64_t interval_ms);
 };
 } // namespace Nebulite::Module::Domain::GlobalSpace
 #endif // MODULE_DOMAIN_GLOBALSPACE_CLOCK_HPP

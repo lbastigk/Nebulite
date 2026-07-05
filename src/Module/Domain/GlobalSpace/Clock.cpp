@@ -28,36 +28,6 @@ Constants::Event Clock::updateHook() {
     return Constants::Event::Success;
 }
 
-void Clock::readClocksFromDocument() {
-    // Remove all existing entries
-    clockEntries.clear();
-
-    // Read all clocks from the document
-    if (moduleScope.memberType(Key::arr_active_clocks) != Data::KeyType::array) {
-        // No clocks found, nothing to do
-        return;
-    }
-
-    std::uint64_t const size = moduleScope.memberSize(Key::arr_active_clocks);
-
-    for (std::uint64_t i = 0; i < size; i++) {
-        auto key = Key::arr_active_clocks.addIndex(i);
-        if (auto const interval_type = moduleScope.memberType(key); interval_type != Data::KeyType::value) {
-            // Invalid entry, skip
-            continue;
-        }
-
-        auto interval_ms = moduleScope.get<uint64_t>(key).value_or(0);
-        if (interval_ms < 1) {
-            // Invalid interval, skip
-            continue;
-        }
-
-        // Create new ClockEntry
-        clockEntries.emplace(interval_ms, ClockEntry(interval_ms, moduleScope, current_time_ms));
-    }
-}
-
 //------------------------------------------
 // Functions
 
@@ -125,6 +95,44 @@ void Clock::ClockEntry::update(std::uint64_t const current_time) {
         // Projected dt not reached, set back to 0
         *globalReference = 0.0;
     }
+}
+
+//------------------------------------------
+// Private Functions
+
+void Clock::readClocksFromDocument() {
+    // Remove all existing entries
+    clockEntries.clear();
+
+    // Read all clocks from the document
+    if (moduleScope.memberType(Key::arr_active_clocks) != Data::KeyType::array) {
+        // No clocks found, nothing to do
+        return;
+    }
+
+    std::uint64_t const size = moduleScope.memberSize(Key::arr_active_clocks);
+
+    for (std::uint64_t i = 0; i < size; i++) {
+        auto key = Key::arr_active_clocks.addIndex(i);
+        if (auto const interval_type = moduleScope.memberType(key); interval_type != Data::KeyType::value) {
+            // Invalid entry, skip
+            continue;
+        }
+
+        auto interval_ms = moduleScope.get<uint64_t>(key).value_or(0);
+        if (interval_ms < 1) {
+            // Invalid interval, skip
+            continue;
+        }
+
+        // Create new ClockEntry
+        clockEntries.emplace(interval_ms, ClockEntry(interval_ms, moduleScope, current_time_ms));
+    }
+}
+
+std::string Clock::intervalToKey(std::uint64_t const interval_ms) {
+    static std::uint16_t constexpr padding = 6; // Not enough for std::uint64_t max value, but reasonable for practical clock intervals
+    return "ms" + std::to_string(interval_ms).insert(0, padding - std::to_string(interval_ms).length(), '0');
 }
 
 } // namespace Nebulite::Module::Domain::GlobalSpace
