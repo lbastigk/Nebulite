@@ -62,6 +62,14 @@ if [ ! -f ".clang-tidy" ]; then
     exit 1
 fi
 
+# Check clang-tidy file
+echo "Checking clang-tidy configuration..."
+clang-tidy --verify-config -config-file=.clang-tidy
+if [ $? -ne 0 ]; then
+    echo "Error: clang-tidy configuration is invalid. Please check the .clang-tidy file."
+    exit 1
+fi
+
 # Turn list of external includes into a single string for clang-tidy
 external_include_args=()
 for include in "${external_include_list[@]}"; do
