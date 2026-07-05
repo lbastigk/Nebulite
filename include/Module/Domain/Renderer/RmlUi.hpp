@@ -1,15 +1,15 @@
-/**
- * @file RmlUi.hpp
- * @brief This file contains the DomainModule of the Renderer to provide RmlUi management utilities.
- */
-
 #ifndef MODULE_DOMAIN_RENDERER_RMLUI_HPP
 #define MODULE_DOMAIN_RENDERER_RMLUI_HPP
 
 //------------------------------------------
 // Includes
 
+// Standard library
+#include <span>
+#include <string_view>
+
 // Nebulite
+#include "Constants/Event.hpp"
 #include "Data/Document/KeyGroup.hpp"
 #include "Module/Base/DomainModule.hpp"
 
@@ -19,6 +19,11 @@
 namespace Nebulite::Core {
 class Renderer;
 } // namespace Nebulite::Core
+
+namespace Nebulite::Interaction {
+class Context;
+class ContextScope;
+} // namespace Nebulite::Interaction
 
 //------------------------------------------
 namespace Nebulite::Module::Domain::Renderer {

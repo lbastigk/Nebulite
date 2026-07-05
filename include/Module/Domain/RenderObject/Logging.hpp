@@ -1,15 +1,15 @@
-/**
- * @file Logging.hpp
- * @brief Header file for the Logging DomainModule of the RenderObject tree.
- */
-
 #ifndef MODULE_DOMAIN_RENDEROBJECT_LOGGING_HPP
 #define MODULE_DOMAIN_RENDEROBJECT_LOGGING_HPP
 
 //------------------------------------------
 // Includes
 
+// Standard library
+#include <span>
+#include <string_view>
+
 // Nebulite
+#include "Constants/Event.hpp"
 #include "Module/Base/DomainModule.hpp"
 
 //------------------------------------------
@@ -18,6 +18,11 @@
 namespace Nebulite::Core {
 class RenderObject;
 } // namespace Nebulite::Core
+
+namespace Nebulite::Interaction {
+class Context;
+class ContextScope;
+} // namespace Nebulite::Interaction
 
 //------------------------------------------
 namespace Nebulite::Module::Domain::RenderObject {

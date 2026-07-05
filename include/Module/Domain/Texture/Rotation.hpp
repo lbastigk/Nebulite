@@ -1,9 +1,3 @@
-/**
- * @file Rotation.hpp
- * @todo Functionality is not given, errors regarding streaming access / target setting persist.
- *       Prioritize later, once some more important features are overhauled.
- */
-
 #ifndef MODULE_DOMAIN_TEXTURE_ROTATION_HPP
 #define MODULE_DOMAIN_TEXTURE_ROTATION_HPP
 
@@ -11,6 +5,7 @@
 // Includes
 
 // Nebulite
+#include "Constants/Event.hpp"
 #include "Module/Base/DomainModule.hpp"
 
 //------------------------------------------

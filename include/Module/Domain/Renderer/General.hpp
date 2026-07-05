@@ -1,16 +1,15 @@
-/**
- * @file General.hpp
- * @brief Provides rendering utilities for the Nebulite engine.
- *        This file contains a DomainModule for basic rendering-related functioncalls.
- */
-
 #ifndef MODULE_DOMAIN_RENDERER_GENERAL_HPP
 #define MODULE_DOMAIN_RENDERER_GENERAL_HPP
 
 //------------------------------------------
 // Includes
 
+// Standard library
+#include <span>
+#include <string_view>
+
 // Nebulite
+#include "Constants/Event.hpp"
 #include "Module/Base/DomainModule.hpp"
 
 //------------------------------------------

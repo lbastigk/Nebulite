@@ -1,18 +1,19 @@
-/**
- * @file Input.hpp
- * @brief Input handling for the NEBULITE engine.
- */
-
 #ifndef MODULE_DOMAIN_RENDERER_INPUT_HPP
 #define MODULE_DOMAIN_RENDERER_INPUT_HPP
 
 //------------------------------------------
 // Includes
 
+// Standard library
+#include <array>
+#include <cstdint>
+#include <string>
+
 // External
-#include <SDL3/SDL.h>    // Needed to access SDL input events
+#include <SDL3/SDL_scancode.h>
 
 // Nebulite
+#include "Constants/Event.hpp"
 #include "Data/Document/KeyGroup.hpp"
 #include "Module/Base/DomainModule.hpp"
 
