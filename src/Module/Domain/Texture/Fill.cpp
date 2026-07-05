@@ -10,6 +10,7 @@
 #include <SDL3/SDL_rect.h>
 #include <SDL3/SDL_render.h>
 #include <SDL3/SDL_stdinc.h>
+#include <SDL3/SDL_surface.h>
 
 // Nebulite
 #include "Constants/Event.hpp"
@@ -121,7 +122,7 @@ Constants::Event Fill::averageColor() const {
     }
     int const w = static_cast<int>(fw);
     int const h = static_cast<int>(fh);
-    SDL_Rect const rect{0, 0, w, h};
+    SDL_Rect const rect{.x=0, .y=0, .w=w, .h=h};
     auto* const surf = SDL_RenderReadPixels(renderer, &rect);
     if (!surf) {
         return Constants::StandardCapture::Error::Texture::queryFailed(domain.capture);

@@ -11,6 +11,7 @@
 // Includes
 
 // Nebulite
+#include "Constants/Event.hpp"
 #include "Module/Base/DomainModule.hpp"
 
 //------------------------------------------
@@ -19,7 +20,6 @@
 namespace Nebulite::Core {
 class Texture;
 } // namespace Nebulite::Core
-
 
 //------------------------------------------
 namespace Nebulite::Module::Domain::Texture {
@@ -46,7 +46,8 @@ public:
 
     [[nodiscard]] Constants::Event averageColor() const;
     static auto constexpr averageColor_name = "average-color";
-    static auto constexpr averageColor_desc = "Prints the average color of the texture.";
+    static auto constexpr averageColor_desc = "Prints the average color of the texture.\n"
+        "Format: Average color of texture: R=<value> G=<value> B=<value> A=<value>\n";
 
     //------------------------------------------
     // Setup
