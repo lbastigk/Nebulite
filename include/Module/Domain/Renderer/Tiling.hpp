@@ -4,9 +4,16 @@
 //------------------------------------------
 // Includes
 
+// Standard library
+#include <memory>
+#include <span>
+#include <string_view>
+
 // Nebulite
+#include "Constants/Event.hpp"
 #include "Data/Document/KeyGroup.hpp"
 #include "Module/Base/DomainModule.hpp"
+#include "Utility/Coordination/TimedRoutine.hpp"
 
 //------------------------------------------
 // Forward declarations

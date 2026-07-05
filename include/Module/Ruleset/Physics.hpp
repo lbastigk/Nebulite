@@ -1,16 +1,17 @@
-/**
- * @file Physics.hpp
- * @brief This file defines the Physics ruleset module, containing static rulesets related to physics.
- */
-
 #ifndef MODULE_RULESET_PHYSICS_HPP
 #define MODULE_RULESET_PHYSICS_HPP
 
 //------------------------------------------
 // Includes
 
+// Standard library
+#include <cstdint>
+#include <string_view>
+#include <vector>
+
 // Nebulite
 #include "Constants/KeyNames.hpp"
+#include "Data/Document/ScopedKey.hpp"
 #include "Module/Base/RulesetModule.hpp"
 #include "Module/Domain/GlobalSpace/Physics.hpp"
 

@@ -1,15 +1,16 @@
-/**
-*  @file Debug.hpp
- * @brief Debugging ruleset module for Nebulite interaction system.
- */
-
 #ifndef MODULE_RULESET_DEBUG_HPP
 #define MODULE_RULESET_DEBUG_HPP
 
 //------------------------------------------
 // Includes
 
+// Standard library
+#include <cstddef>
+#include <string_view>
+#include <vector>
+
 // Nebulite
+#include "Data/Document/ScopedKey.hpp"
 #include "Module/Base/RulesetModule.hpp"
 
 //------------------------------------------

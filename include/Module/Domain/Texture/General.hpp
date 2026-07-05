@@ -1,8 +1,3 @@
-/**
- * @file General.hpp
- * @brief This file contains the DomainModule of the Texture for general functions.
- */
-
 #ifndef MODULE_DOMAIN_TEXTURE_GENERAL_HPP
 #define MODULE_DOMAIN_TEXTURE_GENERAL_HPP
 
@@ -10,6 +5,7 @@
 // Includes
 
 // Nebulite
+#include "Constants/Event.hpp"
 #include "Module/Base/DomainModule.hpp"
 
 //------------------------------------------

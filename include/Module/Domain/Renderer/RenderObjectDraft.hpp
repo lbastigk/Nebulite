@@ -1,8 +1,3 @@
-/**
- * @file RenderObjectDraft.hpp
- * @brief Provides RenderObject creation utilities
- */
-
 #ifndef MODULE_DOMAIN_RENDERER_RENDEROBJECTDRAFT_HPP
 #define MODULE_DOMAIN_RENDERER_RENDEROBJECTDRAFT_HPP
 
@@ -10,10 +5,13 @@
 // Includes
 
 // Standard library
-#include <memory>
+#include <optional>
+#include <span>
 #include <string>
+#include <string_view>
 
 // Nebulite
+#include "Constants/Event.hpp"
 #include "Core/RenderObject.hpp"
 #include "Data/Document/KeyGroup.hpp"
 #include "Module/Base/DomainModule.hpp"
@@ -24,6 +22,15 @@
 namespace Nebulite::Core {
 class Renderer;
 } // namespace Nebulite::Core
+
+namespace Nebulite::Interaction {
+class Context;
+class ContextScope;
+} // namespace Nebulite::Interaction
+
+namespace Nebulite::Utility::IO {
+class Capture;
+} // namespace Nebulite::Utility::IO
 
 //------------------------------------------
 namespace Nebulite::Module::Domain::Renderer {
