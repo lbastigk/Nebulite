@@ -5,6 +5,7 @@
 #include <algorithm>
 #include <cstddef>
 #include <iterator>
+#include <optional>
 #include <ranges>
 #include <string>
 #include <string_view>
@@ -27,6 +28,7 @@
 #include "Nebulite.hpp"
 #include "Utility/IO/Capture.hpp"
 #include "Utility/IO/FileManagement.hpp"
+#include "Utility/Ranges.hpp"
 #include "Utility/Sort.hpp"
 #include "Utility/StringHandler.hpp"
 
@@ -77,14 +79,22 @@ void addFileCompletions(std::string_view const input, std::vector<std::string>& 
         | std::views::filter([&](std::string const& fileOrDirectory) {
             return fileOrDirectory.starts_with(inputToComplete);
         })
-        | std::views::transform([&](std::string const& fileOrDirectory) {
-            if (Nebulite::Utility::IO::FileManagement::isDirectory(directory + fileOrDirectory)) {
-                return fileOrDirectory + Nebulite::Utility::IO::FileManagement::preferredSeparator();
+        | std::views::transform([&](std::string const& fileOrDirectory) -> std::optional<std::string> {
+            // Make sure to append a separator if it's a directory
+            try {
+                if (Nebulite::Utility::IO::FileManagement::isDirectory(directory + fileOrDirectory)) {
+                    return fileOrDirectory + Nebulite::Utility::IO::FileManagement::preferredSeparator();
+                }
+                return fileOrDirectory;
+            } catch (...) {
+                return std::nullopt; // Something went wrong, skip this entry
             }
-            return fileOrDirectory;
         })
-        | std::ranges::to<std::vector>();
-    std::ranges::move(list, std::back_inserter(completions));
+        | std::views::filter([](std::optional<std::string> const& opt) { return opt.has_value(); })
+        | Nebulite::Utility::Ranges::collectOptional;
+
+    if (!list.has_value()) return; // Something went wrong, skip completions
+    std::ranges::move(list.value(), std::back_inserter(completions));
 }
 
 void addJsonCompletions(std::string_view const input, std::vector<std::string>& completions, Nebulite::Data::JsonScope const& scope) {
@@ -111,22 +121,31 @@ struct ConsoleState {
     Nebulite::Interaction::ContextScope* ctxScope = nullptr;
 };
 
+// If all completions start with the same prefix, the completions vector is modified:
+// input: "ca", completions: ["car-wash", "car-insurance"] -> ["car-"]
 bool checkCompletionsForCommonPrefix(std::string_view const input, std::vector<std::string>& completions) {
     if (completions.empty()) {
         return false;
     }
-    const auto& first = completions.front();
-    auto const mismatch_it = std::ranges::find_if(
-        std::views::iota(std::size_t{0}, first.size()),
-        [&](std::size_t const i) {
-            char const c = first[i];
-            return std::ranges::any_of(completions, [&](const std::string& s) {
-                return i >= s.size() || s[i] != c;
-            });
+    auto const& first = completions.front();
+    auto const matchingLength = [&] {
+        auto enumeratedString = std::views::enumerate(first);
+        auto const matchIterator = std::ranges::find_if(
+            enumeratedString,
+            [&](auto tuple) {
+                auto const [i, c] = tuple;
+                auto const idx = static_cast<std::size_t>(i);
+                return std::ranges::any_of(completions, [&](std::string const& s) {
+                    return idx >= s.size() || s[idx] != c;
+                });
+            }
+        );
+        if (matchIterator == enumeratedString.end()) {
+            return first.size();
         }
-    );
-
-    if (std::string const match = first.substr(0, mismatch_it == std::views::iota(std::size_t{0}, first.size()).end() ? first.size() : *mismatch_it); !match.empty() && !input.ends_with(match)) {
+        return static_cast<std::size_t>(std::get<0>(*matchIterator));
+    }();
+    if (auto const match = first.substr(0, matchingLength); !match.empty() && !input.ends_with(match)) {
         completions.clear();
         completions.push_back(match);
         return true;
