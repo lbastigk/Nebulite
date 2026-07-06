@@ -91,7 +91,14 @@ bool Filter::filterRegexValue(std::span<std::string_view const> const& args, Dat
 
     // Get values and filter
     auto const values = listMemberValues(jsonDoc, rootKey)
-        | std::views::filter([regexPattern](std::string const& value) { return std::regex_match(value, regexPattern); })
+        | std::views::filter(
+            [regexPattern](std::string const& value) {
+                try {
+                    return std::regex_match(value, regexPattern);
+                } catch (const std::regex_error&) {
+                    return false; // Invalid regex pattern
+                }
+            })
         | std::ranges::to<std::vector>();
 
     // Set values
