@@ -343,11 +343,18 @@ std::vector<std::string> FuncTree<ReturnValue, AdditionalArgs...>::findCompletio
 
 template <typename ReturnValue, typename ... AdditionalArgs>
 std::vector<std::string> FuncTree<ReturnValue, AdditionalArgs...>::findCompletions(std::string_view pattern) {
+    Utility::StringHandler::strip(pattern); // Remove leading and trailing whitespace
     std::vector<std::string> completions;
     auto collect = [&](auto const& map, std::string_view const prefix = "") {
-        for (auto const& [name, _] : map) {
-            if (std::string const full = std::string(prefix) + name; full.starts_with(pattern)) {
-                completions.push_back(full);
+        for (auto const& name : map | std::views::keys) {
+            if (prefix.empty()) {
+                if (name.starts_with(pattern)) {
+                    completions.push_back(name);
+                }
+            } else {
+                if (std::string const full = std::string(prefix) + name; full.starts_with(pattern)) {
+                    completions.push_back(full);
+                }
             }
         }
     };
