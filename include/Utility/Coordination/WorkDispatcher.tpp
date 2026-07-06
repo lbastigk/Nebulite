@@ -65,11 +65,11 @@ void WorkDispatcher<Workspace>::startWork() {
 template<typename Workspace>
 void WorkDispatcher<Workspace>::process() {
     while (!threadState.stopFlag.load()) {
+        // Wait for work to be ready or for the stop flag to be set
         std::unique_lock lock(mutex);
         threadState.condition.wait(lock, [this] {
             return threadState.workReady.load() || threadState.stopFlag.load();
         });
-
         if (threadState.stopFlag.load()) break;
 
         // Call the template function
