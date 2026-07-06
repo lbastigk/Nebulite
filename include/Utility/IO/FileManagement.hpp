@@ -53,7 +53,7 @@ public:
      * @brief Returns the preferred directory separator for the platform.
      * @return The preferred directory separator character.
      */
-    static char preferredSeparator();
+    static char preferredSeparator() noexcept ;
 
     /**
      * @brief Returns the current working directory.

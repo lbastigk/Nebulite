@@ -80,7 +80,7 @@ bool FileManagement::WriteFile(std::string_view const filename, std::string_view
     return true;
 }
 
-char FileManagement::preferredSeparator() {
+char FileManagement::preferredSeparator() noexcept {
     return std::filesystem::path::preferred_separator;
 }
 
