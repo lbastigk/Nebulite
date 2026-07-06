@@ -89,11 +89,17 @@ void StringHandler::afterSpecialChar(std::string_view& str, char const& specialC
 
 void StringHandler::lStrip(std::string_view& str, char const& specialChar) {
     std::size_t const start = str.find_first_not_of(specialChar);
+    if (start == std::string::npos && !str.empty() && str.front() == specialChar) {
+        str = str.substr(0,0); // Edge case: all characters are specialChar, set to empty string
+    }
     str.remove_prefix(start == std::string::npos ? 0 : start);
 }
 
 void StringHandler::rStrip(std::string_view& str, char const& specialChar) {
     std::size_t const end = str.find_last_not_of(specialChar);
+    if (end == std::string::npos && !str.empty() && str.back() == specialChar) {
+        str = str.substr(0,0); // Edge case: all characters are specialChar, set to empty string
+    }
     str.remove_suffix(end == std::string::npos ? 0 : str.size() - end - 1);
 }
 
