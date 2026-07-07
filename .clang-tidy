@@ -38,7 +38,7 @@ Checks:
   - '-cppcoreguidelines-pro-type-reinterpret-cast'
   - '-cppcoreguidelines-pro-type-union-access'
   - '-cppcoreguidelines-pro-type-vararg'
-  - '-llvm-header-guard'
+  - '-llvm-header-guard'                    # For some reason, this triggers on header guards that are perfectly fine
   - '-llvm-prefer-static-over-anonymous-namespace'
   - '-misc-no-recursion'
   - '-misc-non-private-member-variables-in-classes'
