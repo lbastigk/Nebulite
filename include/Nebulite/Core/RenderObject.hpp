@@ -19,6 +19,7 @@
 #include "Nebulite/Constants/Event.hpp"
 #include "Nebulite/Graphics/Drawcall.hpp"
 #include "Nebulite/Interaction/Execution/Domain.hpp"
+#include "Nebulite/Math/Vec2.hpp"
 #include "Nebulite/Utility/IO/Capture.hpp"
 
 //------------------------------------------
@@ -101,10 +102,7 @@ public:
     //------------------------------------------
     // Get position/layer
 
-    struct Position {
-        std::int32_t x;
-        std::int32_t y;
-    };
+    using Position = Math::Vec2<std::int32_t>;
 
     /**
      * @brief Gets the position of the RenderObject.

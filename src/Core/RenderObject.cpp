@@ -196,9 +196,9 @@ void RenderObject::deserialize(std::string const& serialOrLink) {
 // Position/Layer
 
 [[nodiscard]] RenderObject::Position RenderObject::getPosition() const {
-    return {
-        .x=static_cast<int32_t>(std::lround(*refs.posX)),
-        .y=static_cast<int32_t>(std::lround(*refs.posY))
+    return Position{
+        static_cast<int32_t>(std::lround(*refs.posX)),
+        static_cast<int32_t>(std::lround(*refs.posY))
     };
 }
 

@@ -18,6 +18,7 @@
 #include <SDL3/SDL_video.h>
 
 // Nebulite
+#include "Nebulite/Math/Vec2.hpp"
 #include "Nebulite/Utility/IO/Capture.hpp"
 #include "Nebulite/Utility/TimeKeeper.hpp"
 
@@ -95,16 +96,10 @@ private:
         Cursor{SDL_SYSTEM_CURSOR_DEFAULT, [](Rml::String const& cursorName){ return cursorName.empty() || cursorName == "arrow"; }}
     };
 
-    struct Position {
-        int x, y;
+    using Position = Math::Vec2<int>;
 
-        bool operator==(Position const& other) const {
-            return x == other.x && y == other.y;
-        }
-    };
-
-    Position lastMousePosition{.x=0,.y=0};
-    Position currentMousePosition{.x=0,.y=0};
+    Position lastMousePosition{0,0};
+    Position currentMousePosition{0,0};
 };
 } // namespace Nebulite::Graphics
 #endif // NEBULITE_GRAPHICS_RMLSYSTEMINTERFACE_HPP

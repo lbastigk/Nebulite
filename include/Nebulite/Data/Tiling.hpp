@@ -7,7 +7,6 @@
 // Standard library
 #include <cstdint> // NOLINT
 #include <ranges>
-#include <utility>
 #include <vector>
 
 // External
@@ -15,6 +14,7 @@
 
 // Nebulite
 #include "Nebulite/Data/Batch.hpp"
+#include "Nebulite/Math/Vec2.hpp"
 #include "Nebulite/Utility/IO/Capture.hpp"
 
 //------------------------------------------
@@ -27,32 +27,8 @@ class Renderer;
 //------------------------------------------
 namespace Nebulite::Data {
 
-struct TilingInformation {
-    std::uint16_t w = 0;
-    std::uint16_t h = 0;
-};
-
-struct TileCoordinate {
-    std::int16_t x;
-    std::int16_t y;
-
-    TileCoordinate() : x(0), y(0) {}
-
-    TileCoordinate(std::int16_t const xVal, std::int16_t const yVal) : x(xVal), y(yVal) {}
-
-    // Add hashing capability
-    bool operator==(const TileCoordinate& other) const {
-        return x == other.x && y == other.y;
-    }
-    bool operator!=(const TileCoordinate& other) const {
-        return x != other.x || y != other.y;
-    }
-
-    template <typename H>
-    friend H AbslHashValue(H h, const TileCoordinate& coord) {
-        return H::combine(std::move(h), coord.x, coord.y);
-    }
-};
+using TilingInformation = Math::Vec2<std::uint16_t, Math::CoordinateType::WH>;
+using TileCoordinate = Math::Vec2<std::int16_t>;
 
 class Tile {
     //------------------------------------------

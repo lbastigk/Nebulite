@@ -12,6 +12,7 @@
 // Nebulite
 #include "Nebulite/Constants/KeyNames.hpp"
 #include "Nebulite/Data/Document/ScopedKey.hpp"
+#include "Nebulite/Math/Vec2.hpp"
 #include "Nebulite/Module/Base/RulesetModule.hpp"
 
 //------------------------------------------
@@ -87,10 +88,7 @@ private:
     //------------------------------------------
     // Position
 
-    struct Position {
-        double x = 0.0;
-        double y = 0.0;
-    };
+    using Position = Math::Vec2<double>;
 
     enum class Align : std::uint8_t {
         Center,

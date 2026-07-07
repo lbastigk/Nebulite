@@ -31,7 +31,7 @@ void RmlSystemInterface::update(int const mousePositionX, int const mousePositio
         }
     }
     // Only reset cursor if mouse has moved
-    currentMousePosition = {.x=mousePositionX, .y=mousePositionY};
+    currentMousePosition = Position{mousePositionX, mousePositionY};
     if (!newCursor && currentMousePosition != lastMousePosition) {
         availableCursors.back().forceUpdate();
     }

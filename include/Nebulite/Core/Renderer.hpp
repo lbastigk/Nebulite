@@ -420,7 +420,14 @@ public:
      * @brief Gets tiling information for the renderer.
      * @return A TilingInformation struct containing the width and height of the tiles used in the renderer.
      */
-    static Data::TilingInformation tilingInformation();
+    static Data::TilingInformation constexpr tilingInformation() {
+        // If we ever decide to make the tile size depend on the resolution,
+        // we must re-activate reinsertion of all objects on resolution change!
+        return Data::TilingInformation(
+            static_cast<std::uint16_t>(128),
+            static_cast<std::uint16_t>(128)
+        );
+    }
 
     /**
      * @brief Executes a function on each RenderObject in the visible tiles of a specific layer.

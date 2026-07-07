@@ -417,12 +417,6 @@ Data::Tile const& Renderer::getTile(Environment::Layer const layer, Data::TileCo
     return env.getContainerAt(pos, layer);
 }
 
-Data::TilingInformation Renderer::tilingInformation() {
-    // If we ever decide to make the tiles depend on the resolution,
-    // we must re-activate reinsertion of all objects on resolution change!
-    return {.w=128, .h=128};
-}
-
 //------------------------------------------
 // Pipeline
 
@@ -764,11 +758,12 @@ void Renderer::renderFrame() {
     }
 
     // Get tile position of camera center
+    auto const cameraPosition = RenderObject::Position{
+        dispPosX + w/2,
+        dispPosY + h/2
+    };
     cameraTilePosition = Data::RenderObjectContainer::getTilePos(
-        {
-            .x=dispPosX + w/2,
-            .y=dispPosY + h/2
-        },
+        cameraPosition,
         tilingInformation()
     );
 
