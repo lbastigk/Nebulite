@@ -10,9 +10,9 @@
 #include <string_view>
 
 // Nebulite
-#include "Data/Document/ReadOnlyDocs.hpp"
-#include "Nebulite.hpp"
-#include "Utility/IO/FileManagement.hpp"
+#include "Nebulite/Data/Document/ReadOnlyDocs.hpp"
+#include "Nebulite/Nebulite.hpp"
+#include "Nebulite/Utility/IO/FileManagement.hpp"
 
 //------------------------------------------
 // Error message

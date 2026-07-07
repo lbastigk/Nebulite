@@ -7,12 +7,12 @@
 #include <string>
 
 // Nebulite
-#include "Constants/Event.hpp"
-#include "Constants/StandardCapture.hpp"
-#include "Core/GlobalSpace.hpp"
-#include "Data/Document/KeyType.hpp"
-#include "Module/Domain/GlobalSpace/Clock.hpp"
-#include "Module/Domain/GlobalSpace/Time.hpp"
+#include "Nebulite/Constants/Event.hpp"
+#include "Nebulite/Constants/StandardCapture.hpp"
+#include "Nebulite/Core/GlobalSpace.hpp"
+#include "Nebulite/Data/Document/KeyType.hpp"
+#include "Nebulite/Module/Domain/GlobalSpace/Clock.hpp"
+#include "Nebulite/Module/Domain/GlobalSpace/Time.hpp"
 
 //------------------------------------------
 namespace Nebulite::Module::Domain::GlobalSpace {

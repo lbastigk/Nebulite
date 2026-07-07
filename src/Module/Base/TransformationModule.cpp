@@ -6,9 +6,9 @@
 #include <string_view>
 
 // Nebulite
-#include "Interaction/Execution/FuncTree.hpp"
-#include "Interaction/Logic/Expression.hpp"
-#include "Module/Base/TransformationModule.hpp"
+#include "Nebulite/Interaction/Execution/FuncTree.hpp"
+#include "Nebulite/Interaction/Logic/Expression.hpp"
+#include "Nebulite/Module/Base/TransformationModule.hpp"
 
 //------------------------------------------
 namespace Nebulite::Module::Base {

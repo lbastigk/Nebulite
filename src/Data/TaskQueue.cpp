@@ -11,13 +11,13 @@
 #include <vector>
 
 // Nebulite
-#include "Constants/Event.hpp"
-#include "Data/TaskQueue.hpp"
-#include "Interaction/Context.hpp"
-#include "Interaction/Execution/Domain.hpp"
-#include "Utility/IO/Capture.hpp"
-#include "Utility/IO/FileManagement.hpp"
-#include "Utility/StringHandler.hpp"
+#include "Nebulite/Constants/Event.hpp"
+#include "Nebulite/Data/TaskQueue.hpp"
+#include "Nebulite/Interaction/Context.hpp"
+#include "Nebulite/Interaction/Execution/Domain.hpp"
+#include "Nebulite/Utility/IO/Capture.hpp"
+#include "Nebulite/Utility/IO/FileManagement.hpp"
+#include "Nebulite/Utility/StringHandler.hpp"
 
 //------------------------------------------
 namespace Nebulite::Data {

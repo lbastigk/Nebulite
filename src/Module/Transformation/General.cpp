@@ -6,11 +6,11 @@
 #include <string>
 
 // Nebulite
-#include "Data/Document/JsonScope.hpp"
-#include "Interaction/Context.hpp"
-#include "Interaction/Logic/Assignment.hpp"
-#include "Module/Transformation/General.hpp"
-#include "Utility/StringHandler.hpp"
+#include "Nebulite/Data/Document/JsonScope.hpp"
+#include "Nebulite/Interaction/Context.hpp"
+#include "Nebulite/Interaction/Logic/Assignment.hpp"
+#include "Nebulite/Module/Transformation/General.hpp"
+#include "Nebulite/Utility/StringHandler.hpp"
 
 //------------------------------------------
 namespace Nebulite::Module::Transformation {

@@ -9,15 +9,15 @@
 #include <utility>
 
 // Nebulite
-#include "Constants/Event.hpp"
-#include "Constants/StandardCapture.hpp"
-#include "Core/GlobalSpace.hpp"
-#include "Math/Equality.hpp"
-#include "Module/Base/DomainModule.hpp"
-#include "Module/Domain/GlobalSpace/InputMapping.hpp"
-#include "Module/Domain/GlobalSpace/Settings.hpp"
-#include "Module/Domain/Renderer/Input.hpp"
-#include "Utility/StringHandler.hpp"
+#include "Nebulite/Constants/Event.hpp"
+#include "Nebulite/Constants/StandardCapture.hpp"
+#include "Nebulite/Core/GlobalSpace.hpp"
+#include "Nebulite/Math/Equality.hpp"
+#include "Nebulite/Module/Base/DomainModule.hpp"
+#include "Nebulite/Module/Domain/GlobalSpace/InputMapping.hpp"
+#include "Nebulite/Module/Domain/GlobalSpace/Settings.hpp"
+#include "Nebulite/Module/Domain/Renderer/Input.hpp"
+#include "Nebulite/Utility/StringHandler.hpp"
 
 //------------------------------------------
 namespace Nebulite::Module::Domain::GlobalSpace {

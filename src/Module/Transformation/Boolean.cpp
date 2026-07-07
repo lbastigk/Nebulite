@@ -2,8 +2,8 @@
 // Includes
 
 // Nebulite
-#include "Data/Document/JsonScope.hpp"
-#include "Module/Transformation/Boolean.hpp"
+#include "Nebulite/Data/Document/JsonScope.hpp"
+#include "Nebulite/Module/Transformation/Boolean.hpp"
 
 //------------------------------------------
 namespace Nebulite::Module::Transformation {

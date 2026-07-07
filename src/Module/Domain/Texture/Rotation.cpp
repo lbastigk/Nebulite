@@ -9,12 +9,12 @@
 #include <string>
 
 // Nebulite
-#include "Constants/Event.hpp"
-#include "Constants/StandardCapture.hpp"
-#include "Core/GlobalSpace.hpp"
-#include "Core/Texture.hpp"
-#include "Module/Domain/Texture/Rotation.hpp"
-#include "Nebulite.hpp"
+#include "Nebulite/Constants/Event.hpp"
+#include "Nebulite/Constants/StandardCapture.hpp"
+#include "Nebulite/Core/GlobalSpace.hpp"
+#include "Nebulite/Core/Texture.hpp"
+#include "Nebulite/Module/Domain/Texture/Rotation.hpp"
+#include "Nebulite/Nebulite.hpp"
 
 //------------------------------------------
 namespace Nebulite::Module::Domain::Texture {

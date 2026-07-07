@@ -10,8 +10,8 @@
 #include <utility>
 
 // Nebulite
-#include "Data/Document/JsonScope.hpp"
-#include "Data/Document/ScopedKey.hpp"
+#include "Nebulite/Data/Document/JsonScope.hpp"
+#include "Nebulite/Data/Document/ScopedKey.hpp"
 
 //------------------------------------------
 // ScopedKey methods

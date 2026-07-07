@@ -14,18 +14,18 @@
 #include <string>
 
 // Nebulite
-#include "Constants/Event.hpp"
-#include "Constants/StandardCapture.hpp"
-#include "Constants/ThreadSettings.hpp"
-#include "Core/GlobalSpace.hpp"
-#include "Core/RenderObject.hpp"
-#include "Interaction/Context.hpp"
-#include "Math/ExpressionPrimitives.hpp"
-#include "Module/Domain/Common/General.hpp"
-#include "Module/Domain/GlobalSpace/Debug.hpp"
-#include "Nebulite.hpp"
-#include "Utility/Coordination/TimedRoutine.hpp"
-#include "Utility/IO/FileManagement.hpp"
+#include "Nebulite/Constants/Event.hpp"
+#include "Nebulite/Constants/StandardCapture.hpp"
+#include "Nebulite/Constants/ThreadSettings.hpp"
+#include "Nebulite/Core/GlobalSpace.hpp"
+#include "Nebulite/Core/RenderObject.hpp"
+#include "Nebulite/Interaction/Context.hpp"
+#include "Nebulite/Math/ExpressionPrimitives.hpp"
+#include "Nebulite/Module/Domain/Common/General.hpp"
+#include "Nebulite/Module/Domain/GlobalSpace/Debug.hpp"
+#include "Nebulite/Nebulite.hpp"
+#include "Nebulite/Utility/Coordination/TimedRoutine.hpp"
+#include "Nebulite/Utility/IO/FileManagement.hpp"
 
 //------------------------------------------
 #ifdef _WIN32

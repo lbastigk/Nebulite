@@ -7,7 +7,7 @@
 #include <string_view>
 
 // Nebulite
-#include "Interaction/Logic/VariableNameGenerator.hpp"
+#include "Nebulite/Interaction/Logic/VariableNameGenerator.hpp"
 
 //------------------------------------------
 namespace Nebulite::Interaction::Logic {

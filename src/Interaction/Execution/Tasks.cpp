@@ -10,10 +10,10 @@
 #include <vector>
 
 // Nebulite
-#include "Constants/Event.hpp"
-#include "Data/TaskQueue.hpp"
-#include "Interaction/Context.hpp"
-#include "Interaction/Execution/Tasks.hpp"
+#include "Nebulite/Constants/Event.hpp"
+#include "Nebulite/Data/TaskQueue.hpp"
+#include "Nebulite/Interaction/Context.hpp"
+#include "Nebulite/Interaction/Execution/Tasks.hpp"
 
 //------------------------------------------
 namespace Nebulite::Interaction::Execution {

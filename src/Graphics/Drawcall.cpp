@@ -21,17 +21,17 @@
 #include <SDL3_ttf/SDL_ttf.h>
 
 // Nebulite
-#include "Constants/Event.hpp"
-#include "Core/GlobalSpace.hpp"
-#include "Core/Renderer.hpp"
-#include "Data/Document/JsonScope.hpp"
-#include "Data/Document/KeyType.hpp"
-#include "Graphics/Drawcall.hpp"
-#include "Graphics/SdlPrimitive.hpp"
-#include "Math/Equality.hpp"
-#include "Nebulite.hpp"
-#include "Utility/Coordination/IdGenerator.hpp"
-#include "Utility/IO/Capture.hpp"
+#include "Nebulite/Constants/Event.hpp"
+#include "Nebulite/Core/GlobalSpace.hpp"
+#include "Nebulite/Core/Renderer.hpp"
+#include "Nebulite/Data/Document/JsonScope.hpp"
+#include "Nebulite/Data/Document/KeyType.hpp"
+#include "Nebulite/Graphics/Drawcall.hpp"
+#include "Nebulite/Graphics/SdlPrimitive.hpp"
+#include "Nebulite/Math/Equality.hpp"
+#include "Nebulite/Nebulite.hpp"
+#include "Nebulite/Utility/Coordination/IdGenerator.hpp"
+#include "Nebulite/Utility/IO/Capture.hpp"
 
 //------------------------------------------
 // Forward declarations

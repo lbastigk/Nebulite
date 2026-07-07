@@ -1,0 +1,39 @@
+#ifndef NEBULITE_MODULE_DOMAIN_COMMON_RMLUI_HPP
+#define NEBULITE_MODULE_DOMAIN_COMMON_RMLUI_HPP
+
+//------------------------------------------
+// Includes
+
+// Nebulite
+#include "Nebulite/Constants/Event.hpp"
+#include "Nebulite/Interaction/Execution/Domain.hpp"
+#include "Nebulite/Module/Base/DomainModule.hpp"
+
+//------------------------------------------
+// Forward declarations
+
+namespace Nebulite::Interaction {
+class Context;
+class ContextScope;
+} // namespace Nebulite::Interaction
+
+//------------------------------------------
+namespace Nebulite::Module::Domain::Common {
+class RmlUi final : public Base::DomainModule<Interaction::Execution::Domain> {
+public:
+    [[nodiscard]] Constants::Event updateHook() override {
+        return Constants::Event::Success;
+    }
+    void reinit() override {}
+
+    explicit RmlUi(ConstructorParams const& params) : DomainModule(params) {}
+
+    ~RmlUi() override ;
+
+    RmlUi(RmlUi const&) = delete;
+    RmlUi& operator=(RmlUi const&) = delete;
+    RmlUi(RmlUi&&) = delete;
+    RmlUi& operator=(RmlUi&&) = delete;
+};
+} // namespace Nebulite::Module::Domain::Common
+#endif // NEBULITE_MODULE_DOMAIN_COMMON_RMLUI_HPP

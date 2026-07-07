@@ -7,10 +7,10 @@
 #include <utility>
 
 // Nebulite
-#include "Interaction/Execution/Domain.hpp"
-#include "Interaction/Rules/StaticRulesetMap.hpp"
-#include "Module/Base/RulesetModule.hpp"
-#include "Module/Ruleset/Movement.hpp"
+#include "Nebulite/Interaction/Execution/Domain.hpp"
+#include "Nebulite/Interaction/Rules/StaticRulesetMap.hpp"
+#include "Nebulite/Module/Base/RulesetModule.hpp"
+#include "Nebulite/Module/Ruleset/Movement.hpp"
 
 //------------------------------------------
 namespace Nebulite::Module::Ruleset {

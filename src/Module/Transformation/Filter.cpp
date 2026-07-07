@@ -13,13 +13,13 @@
 #include <vector>
 
 // Nebulite
-#include "Data/Document/JsonScope.hpp"
-#include "Data/Document/KeyType.hpp"
-#include "Interaction/Context.hpp"
-#include "Interaction/Logic/Expression.hpp"
-#include "Module/Transformation/Filter.hpp"
-#include "Utility/Glob.hpp"
-#include "Utility/StringHandler.hpp"
+#include "Nebulite/Data/Document/JsonScope.hpp"
+#include "Nebulite/Data/Document/KeyType.hpp"
+#include "Nebulite/Interaction/Context.hpp"
+#include "Nebulite/Interaction/Logic/Expression.hpp"
+#include "Nebulite/Module/Transformation/Filter.hpp"
+#include "Nebulite/Utility/Glob.hpp"
+#include "Nebulite/Utility/StringHandler.hpp"
 
 //------------------------------------------
 namespace Nebulite::Module::Transformation {

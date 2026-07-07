@@ -17,7 +17,7 @@
 #include <absl/container/flat_hash_map.h>
 
 // Nebulite
-#include "Utility/Coordination/IdGenerator.hpp"
+#include "Nebulite/Utility/Coordination/IdGenerator.hpp"
 
 //------------------------------------------
 namespace Nebulite::Utility::Coordination {

@@ -2,11 +2,11 @@
 // Includes
 
 // Nebulite
-#include "Interaction/Rules/Construction/Initializer.hpp"
-#include "Module/Ruleset/Camera.hpp"
-#include "Module/Ruleset/Debug.hpp"
-#include "Module/Ruleset/Movement.hpp"
-#include "Module/Ruleset/Physics.hpp"
+#include "Nebulite/Interaction/Rules/Construction/Initializer.hpp"
+#include "Nebulite/Module/Ruleset/Camera.hpp"
+#include "Nebulite/Module/Ruleset/Debug.hpp"
+#include "Nebulite/Module/Ruleset/Movement.hpp"
+#include "Nebulite/Module/Ruleset/Physics.hpp"
 
 //------------------------------------------
 namespace Nebulite::Interaction::Rules::Construction {

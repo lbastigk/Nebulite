@@ -6,8 +6,8 @@
 #include <string_view>
 
 // Nebulite
-#include "Interaction/Rules/Listener.hpp"
-#include "Interaction/Rules/StaticRulesetMap.hpp"
+#include "Nebulite/Interaction/Rules/Listener.hpp"
+#include "Nebulite/Interaction/Rules/StaticRulesetMap.hpp"
 
 //------------------------------------------
 namespace Nebulite::Interaction::Rules {

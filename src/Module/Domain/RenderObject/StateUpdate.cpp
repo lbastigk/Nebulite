@@ -2,9 +2,9 @@
 // Includes
 
 // Nebulite
-#include "Constants/Event.hpp"
-#include "Core/RenderObject.hpp"
-#include "Module/Domain/RenderObject/StateUpdate.hpp"
+#include "Nebulite/Constants/Event.hpp"
+#include "Nebulite/Core/RenderObject.hpp"
+#include "Nebulite/Module/Domain/RenderObject/StateUpdate.hpp"
 
 //------------------------------------------
 namespace Nebulite::Module::Domain::RenderObject {

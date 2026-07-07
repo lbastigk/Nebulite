@@ -12,7 +12,7 @@
 #include <vector>
 
 // Nebulite
-#include "Math/FFT.hpp"
+#include "Nebulite/Math/FFT.hpp"
 
 //------------------------------------------
 namespace Nebulite::Math {

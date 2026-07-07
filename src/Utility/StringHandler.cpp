@@ -16,7 +16,7 @@
 #include <vector>
 
 // Nebulite
-#include "Utility/StringHandler.hpp"
+#include "Nebulite/Utility/StringHandler.hpp"
 
 //------------------------------------------
 namespace Nebulite::Utility {

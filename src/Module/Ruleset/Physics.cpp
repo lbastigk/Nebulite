@@ -6,15 +6,15 @@
 #include <stdexcept>
 
 // Nebulite
-#include "Core/GlobalSpace.hpp"
-#include "Interaction/Context.hpp"
-#include "Interaction/Rules/StaticRulesetMap.hpp"
-#include "Math/Equality.hpp"
-#include "Module/Domain/GlobalSpace/Physics.hpp"
-#include "Module/Domain/GlobalSpace/Time.hpp"
-#include "Module/Ruleset/Physics.hpp"
-#include "Nebulite.hpp"
-#include "ScopeAccessor.hpp"
+#include "Nebulite/Core/GlobalSpace.hpp"
+#include "Nebulite/Interaction/Context.hpp"
+#include "Nebulite/Interaction/Rules/StaticRulesetMap.hpp"
+#include "Nebulite/Math/Equality.hpp"
+#include "Nebulite/Module/Domain/GlobalSpace/Physics.hpp"
+#include "Nebulite/Module/Domain/GlobalSpace/Time.hpp"
+#include "Nebulite/Module/Ruleset/Physics.hpp"
+#include "Nebulite/Nebulite.hpp"
+#include "Nebulite/ScopeAccessor.hpp"
 
 //------------------------------------------
 namespace Nebulite::Module::Ruleset {

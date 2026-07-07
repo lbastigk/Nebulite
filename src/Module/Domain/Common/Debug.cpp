@@ -8,14 +8,14 @@
 #include <string_view>
 
 // Nebulite
-#include "Constants/Event.hpp"
-#include "Constants/StandardCapture.hpp"
-#include "Data/Document/KeyType.hpp"
-#include "Data/Document/ScopedKey.hpp"
-#include "Interaction/Context.hpp"
-#include "Interaction/Execution/Domain.hpp"
-#include "Module/Domain/Common/Debug.hpp"
-#include "Utility/StringHandler.hpp"
+#include "Nebulite/Constants/Event.hpp"
+#include "Nebulite/Constants/StandardCapture.hpp"
+#include "Nebulite/Data/Document/KeyType.hpp"
+#include "Nebulite/Data/Document/ScopedKey.hpp"
+#include "Nebulite/Interaction/Context.hpp"
+#include "Nebulite/Interaction/Execution/Domain.hpp"
+#include "Nebulite/Module/Domain/Common/Debug.hpp"
+#include "Nebulite/Utility/StringHandler.hpp"
 
 //------------------------------------------
 namespace Nebulite::Module::Domain::Common {

@@ -2,12 +2,12 @@
 // Includes
 
 // Nebulite
-#include "Constants/KeyNames.hpp"
-#include "Data/Document/JsonScope.hpp"
-#include "Interaction/Context.hpp"
-#include "Module/Base/RulesetModule.hpp"
-#include "Module/Ruleset/Camera.hpp"
-#include "Nebulite.hpp"
+#include "Nebulite/Constants/KeyNames.hpp"
+#include "Nebulite/Data/Document/JsonScope.hpp"
+#include "Nebulite/Interaction/Context.hpp"
+#include "Nebulite/Module/Base/RulesetModule.hpp"
+#include "Nebulite/Module/Ruleset/Camera.hpp"
+#include "Nebulite/Nebulite.hpp"
 
 //------------------------------------------
 namespace Nebulite::Module::Ruleset {

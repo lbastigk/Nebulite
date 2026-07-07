@@ -10,11 +10,11 @@
 #include <vector>
 
 // Nebulite
-#include "Constants/Event.hpp"
-#include "Core/Environment.hpp"
-#include "Data/Batch.hpp"
-#include "Data/Tiling.hpp"
-#include "Module/Domain/Environment/Debug.hpp"
+#include "Nebulite/Constants/Event.hpp"
+#include "Nebulite/Core/Environment.hpp"
+#include "Nebulite/Data/Batch.hpp"
+#include "Nebulite/Data/Tiling.hpp"
+#include "Nebulite/Module/Domain/Environment/Debug.hpp"
 
 //------------------------------------------
 namespace Nebulite::Module::Domain::Environment {

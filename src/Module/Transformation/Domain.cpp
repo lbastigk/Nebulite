@@ -5,11 +5,11 @@
 #include <span>
 
 // Nebulite
-#include "Data/TaskQueue.hpp"
-#include "Interaction/Execution/Domain.hpp"
-#include "Module/Transformation/Domain.hpp"
-#include "Nebulite.hpp"
-#include "Utility/StringHandler.hpp"
+#include "Nebulite/Data/TaskQueue.hpp"
+#include "Nebulite/Interaction/Execution/Domain.hpp"
+#include "Nebulite/Module/Transformation/Domain.hpp"
+#include "Nebulite/Nebulite.hpp"
+#include "Nebulite/Utility/StringHandler.hpp"
 
 //------------------------------------------
 namespace Nebulite::Module::Transformation {

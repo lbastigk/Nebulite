@@ -6,9 +6,9 @@
 #include <string>
 
 // Nebulite
-#include "Constants/Event.hpp"
-#include "Core/GlobalSpace.hpp"
-#include "Module/Domain/GlobalSpace/Floating/RNG.hpp"
+#include "Nebulite/Constants/Event.hpp"
+#include "Nebulite/Core/GlobalSpace.hpp"
+#include "Nebulite/Module/Domain/GlobalSpace/Floating/RNG.hpp"
 
 //------------------------------------------
 namespace Nebulite::Module::Domain::GlobalSpace {

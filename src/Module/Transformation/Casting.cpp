@@ -12,11 +12,11 @@
 #include <utility>
 
 // Nebulite
-#include "Data/Document/JsonScope.hpp"
-#include "Data/Document/KeyType.hpp"
-#include "Interaction/Logic/Expression.hpp"
-#include "Module/Transformation/Casting.hpp"
-#include "Utility/StringHandler.hpp"
+#include "Nebulite/Data/Document/JsonScope.hpp"
+#include "Nebulite/Data/Document/KeyType.hpp"
+#include "Nebulite/Interaction/Logic/Expression.hpp"
+#include "Nebulite/Module/Transformation/Casting.hpp"
+#include "Nebulite/Utility/StringHandler.hpp"
 
 //------------------------------------------
 namespace Nebulite::Module::Transformation {

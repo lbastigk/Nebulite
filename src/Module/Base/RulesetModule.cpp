@@ -7,11 +7,11 @@
 #include <vector>
 
 // Nebulite
-#include "Core/GlobalSpace.hpp"
-#include "Interaction/Execution/Domain.hpp"
-#include "Interaction/Rules/StaticRulesetMap.hpp"
-#include "Module/Base/RulesetModule.hpp"
-#include "Nebulite.hpp"
+#include "Nebulite/Core/GlobalSpace.hpp"
+#include "Nebulite/Interaction/Execution/Domain.hpp"
+#include "Nebulite/Interaction/Rules/StaticRulesetMap.hpp"
+#include "Nebulite/Module/Base/RulesetModule.hpp"
+#include "Nebulite/Nebulite.hpp"
 
 //------------------------------------------
 namespace Nebulite::Module::Base {

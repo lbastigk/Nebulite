@@ -15,13 +15,13 @@
 #include <SDL3/SDL_scancode.h>
 
 // Nebulite
-#include "Constants/Event.hpp"
-#include "Core/Renderer.hpp"
-#include "Data/Document/JSON.hpp"
-#include "Data/Document/JsonScope.hpp"
-#include "Module/Domain/Renderer/Input.hpp"
-#include "Utility/Coordination/TimedRoutine.hpp"
-#include "Utility/StringHandler.hpp"
+#include "Nebulite/Constants/Event.hpp"
+#include "Nebulite/Core/Renderer.hpp"
+#include "Nebulite/Data/Document/JSON.hpp"
+#include "Nebulite/Data/Document/JsonScope.hpp"
+#include "Nebulite/Module/Domain/Renderer/Input.hpp"
+#include "Nebulite/Utility/Coordination/TimedRoutine.hpp"
+#include "Nebulite/Utility/StringHandler.hpp"
 
 //------------------------------------------
 namespace Nebulite::Module::Domain::Renderer {

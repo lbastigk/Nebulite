@@ -7,7 +7,7 @@
 #include <string>
 
 // Nebulite
-#include "Utility/IO/Capture.hpp"
+#include "Nebulite/Utility/IO/Capture.hpp"
 
 //------------------------------------------
 namespace Nebulite::Utility::IO {

@@ -7,11 +7,11 @@
 #include <string_view>
 
 // Nebulite
-#include "Constants/Event.hpp"
-#include "Constants/StandardCapture.hpp"
-#include "Core/Renderer.hpp"
-#include "Module/Domain/Renderer/RenderObjectDraft.hpp"
-#include "Utility/StringHandler.hpp"
+#include "Nebulite/Constants/Event.hpp"
+#include "Nebulite/Constants/StandardCapture.hpp"
+#include "Nebulite/Core/Renderer.hpp"
+#include "Nebulite/Module/Domain/Renderer/RenderObjectDraft.hpp"
+#include "Nebulite/Utility/StringHandler.hpp"
 
 //------------------------------------------
 namespace Nebulite::Module::Domain::Renderer {

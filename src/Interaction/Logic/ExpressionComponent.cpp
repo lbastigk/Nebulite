@@ -12,12 +12,12 @@
 #include <tinyexpr.h>
 
 // Nebulite
-#include "Core/GlobalSpace.hpp"
-#include "Data/Document/JsonScope.hpp"
-#include "Data/Document/SimpleValueError.hpp"
-#include "Interaction/Context.hpp"
-#include "Interaction/Logic/Expression.hpp"
-#include "Nebulite.hpp"
+#include "Nebulite/Core/GlobalSpace.hpp"
+#include "Nebulite/Data/Document/JsonScope.hpp"
+#include "Nebulite/Data/Document/SimpleValueError.hpp"
+#include "Nebulite/Interaction/Context.hpp"
+#include "Nebulite/Interaction/Logic/Expression.hpp"
+#include "Nebulite/Nebulite.hpp"
 
 //------------------------------------------
 namespace Nebulite::Interaction::Logic {

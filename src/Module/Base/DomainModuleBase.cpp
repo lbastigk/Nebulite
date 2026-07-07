@@ -6,9 +6,9 @@
 #include <utility>
 
 // Nebulite
-#include "Constants/Event.hpp"
-#include "Interaction/Execution/DomainTree.hpp"
-#include "Module/Base/DomainModuleBase.hpp"
+#include "Nebulite/Constants/Event.hpp"
+#include "Nebulite/Interaction/Execution/DomainTree.hpp"
+#include "Nebulite/Module/Base/DomainModuleBase.hpp"
 
 //------------------------------------------
 namespace Nebulite::Module::Base {

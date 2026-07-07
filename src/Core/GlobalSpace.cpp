@@ -16,18 +16,18 @@
 #include <SDL3/SDL_render.h>
 
 // Nebulite
-#include "Constants/Event.hpp"
-#include "Core/GlobalSpace.hpp"
-#include "Core/Renderer.hpp"
-#include "Data/Document/DocumentCache.hpp"
-#include "Data/Document/ScopedKey.hpp"
-#include "Interaction/Rules/Listener.hpp"
-#include "Interaction/Rules/Ruleset.hpp"
-#include "Module/Domain/GlobalSpace/Floating/RNG.hpp"
-#include "Module/Domain/GlobalSpace/Settings.hpp"
-#include "Module/Domain/Initializer.hpp"
-#include "Nebulite.hpp"
-#include "ScopeAccessor.hpp"
+#include "Nebulite/Constants/Event.hpp"
+#include "Nebulite/Core/GlobalSpace.hpp"
+#include "Nebulite/Core/Renderer.hpp"
+#include "Nebulite/Data/Document/DocumentCache.hpp"
+#include "Nebulite/Data/Document/ScopedKey.hpp"
+#include "Nebulite/Interaction/Rules/Listener.hpp"
+#include "Nebulite/Interaction/Rules/Ruleset.hpp"
+#include "Nebulite/Module/Domain/GlobalSpace/Floating/RNG.hpp"
+#include "Nebulite/Module/Domain/GlobalSpace/Settings.hpp"
+#include "Nebulite/Module/Domain/Initializer.hpp"
+#include "Nebulite/Nebulite.hpp"
+#include "Nebulite/ScopeAccessor.hpp"
 
 //------------------------------------------
 namespace Nebulite::Core {

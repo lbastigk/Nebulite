@@ -9,14 +9,14 @@
 #include <vector>
 
 // Nebulite
-#include "Constants/Event.hpp"
-#include "Constants/StandardCapture.hpp"
-#include "Data/Document/KeyType.hpp"
-#include "Interaction/Context.hpp"
-#include "Interaction/Execution/Domain.hpp"
-#include "Interaction/Logic/Assignment.hpp"
-#include "Module/Domain/Common/SimpleData.hpp"
-#include "Utility/StringHandler.hpp"
+#include "Nebulite/Constants/Event.hpp"
+#include "Nebulite/Constants/StandardCapture.hpp"
+#include "Nebulite/Data/Document/KeyType.hpp"
+#include "Nebulite/Interaction/Context.hpp"
+#include "Nebulite/Interaction/Execution/Domain.hpp"
+#include "Nebulite/Interaction/Logic/Assignment.hpp"
+#include "Nebulite/Module/Domain/Common/SimpleData.hpp"
+#include "Nebulite/Utility/StringHandler.hpp"
 
 //------------------------------------------
 namespace Nebulite::Module::Domain::Common {

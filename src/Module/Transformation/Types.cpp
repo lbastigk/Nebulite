@@ -7,10 +7,10 @@
 #include <utility>
 
 // Nebulite
-#include "Data/Document/JsonScope.hpp"
-#include "Data/Document/KeyType.hpp"
-#include "Module/Transformation/Types.hpp"
-#include "Utility/StringHandler.hpp"
+#include "Nebulite/Data/Document/JsonScope.hpp"
+#include "Nebulite/Data/Document/KeyType.hpp"
+#include "Nebulite/Module/Transformation/Types.hpp"
+#include "Nebulite/Utility/StringHandler.hpp"
 
 //------------------------------------------
 namespace Nebulite::Module::Transformation {

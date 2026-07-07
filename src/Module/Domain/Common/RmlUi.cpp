@@ -2,8 +2,8 @@
 // Includes
 
 // Nebulite
-#include "Graphics/RmlInterface.hpp"
-#include "Module/Domain/Common/RmlUi.hpp"
+#include "Nebulite/Graphics/RmlInterface.hpp"
+#include "Nebulite/Module/Domain/Common/RmlUi.hpp"
 
 //------------------------------------------
 namespace Nebulite::Module::Domain::Common {

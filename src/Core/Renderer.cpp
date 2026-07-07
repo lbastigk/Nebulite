@@ -33,20 +33,20 @@
 #include <imgui_impl_sdlrenderer3.h>
 
 // Nebulite
-#include "Constants/Event.hpp"
-#include "Constants/KeyNames.hpp"
-#include "Core/GlobalSpace.hpp"
-#include "Core/RenderObject.hpp"
-#include "Core/Renderer.hpp"
-#include "Data/RenderObjectContainer.hpp"
-#include "Data/RendererProcessor.hpp"
-#include "Data/Tiling.hpp"
-#include "Graphics/RmlInterface.hpp"
-#include "Module/Domain/GlobalSpace/Settings.hpp"
-#include "Module/Domain/Initializer.hpp"
-#include "Nebulite.hpp"
-#include "Utility/IO/Capture.hpp"
-#include "Utility/IO/FileManagement.hpp"
+#include "Nebulite/Constants/Event.hpp"
+#include "Nebulite/Constants/KeyNames.hpp"
+#include "Nebulite/Core/GlobalSpace.hpp"
+#include "Nebulite/Core/RenderObject.hpp"
+#include "Nebulite/Core/Renderer.hpp"
+#include "Nebulite/Data/RenderObjectContainer.hpp"
+#include "Nebulite/Data/RendererProcessor.hpp"
+#include "Nebulite/Data/Tiling.hpp"
+#include "Nebulite/Graphics/RmlInterface.hpp"
+#include "Nebulite/Module/Domain/GlobalSpace/Settings.hpp"
+#include "Nebulite/Module/Domain/Initializer.hpp"
+#include "Nebulite/Nebulite.hpp"
+#include "Nebulite/Utility/IO/Capture.hpp"
+#include "Nebulite/Utility/IO/FileManagement.hpp"
 
 //------------------------------------------
 namespace Nebulite::Core {

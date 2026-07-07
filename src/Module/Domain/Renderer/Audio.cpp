@@ -19,14 +19,14 @@
 #include <absl/container/flat_hash_map.h>
 
 // Nebulite
-#include "Constants/Event.hpp"
-#include "Constants/StandardCapture.hpp"
-#include "Core/Renderer.hpp"
-#include "Math/FFT.hpp"
-#include "Module/Domain/Renderer/Audio.hpp"
-#include "Utility/Generate.hpp"
-#include "Utility/IO/Capture.hpp"
-#include "Utility/StringHandler.hpp"
+#include "Nebulite/Constants/Event.hpp"
+#include "Nebulite/Constants/StandardCapture.hpp"
+#include "Nebulite/Core/Renderer.hpp"
+#include "Nebulite/Math/FFT.hpp"
+#include "Nebulite/Module/Domain/Renderer/Audio.hpp"
+#include "Nebulite/Utility/Generate.hpp"
+#include "Nebulite/Utility/IO/Capture.hpp"
+#include "Nebulite/Utility/StringHandler.hpp"
 
 //------------------------------------------
 namespace Nebulite::Module::Domain::Renderer {

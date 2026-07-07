@@ -8,10 +8,10 @@
 #include <utility>
 
 // Nebulite
-#include "Constants/ThreadSettings.hpp"
-#include "Interaction/Invoke.hpp"
-#include "Interaction/Rules/Ruleset.hpp"
-#include "Utility/Generate.hpp"
+#include "Nebulite/Constants/ThreadSettings.hpp"
+#include "Nebulite/Interaction/Invoke.hpp"
+#include "Nebulite/Interaction/Rules/Ruleset.hpp"
+#include "Nebulite/Utility/Generate.hpp"
 
 //------------------------------------------
 namespace Nebulite::Interaction {

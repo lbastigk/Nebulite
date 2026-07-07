@@ -5,7 +5,7 @@
 #include <string>
 
 // Nebulite
-#include "ScopeAccessor.hpp"
+#include "Nebulite/ScopeAccessor.hpp"
 
 //------------------------------------------
 namespace Nebulite {

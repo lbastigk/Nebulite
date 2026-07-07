@@ -14,10 +14,10 @@
 #include <tinyexpr.h>
 
 // Nebulite
-#include "Interaction/Execution/FuncTree.hpp"
-#include "Math/ExpressionPrimitives.hpp"
-#include "Nebulite.hpp"
-#include "Utility/StringHandler.hpp"
+#include "Nebulite/Interaction/Execution/FuncTree.hpp"
+#include "Nebulite/Math/ExpressionPrimitives.hpp"
+#include "Nebulite/Nebulite.hpp"
+#include "Nebulite/Utility/StringHandler.hpp"
 
 //------------------------------------------
 namespace Nebulite::Math {

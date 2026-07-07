@@ -1,0 +1,51 @@
+#ifndef NEBULITE_MODULE_DOMAIN_RENDEROBJECT_STATEUPDATE_HPP
+#define NEBULITE_MODULE_DOMAIN_RENDEROBJECT_STATEUPDATE_HPP
+
+//------------------------------------------
+// Includes
+
+// Nebulite
+#include "Nebulite/Constants/Event.hpp"
+#include "Nebulite/Module/Base/DomainModule.hpp"
+
+//------------------------------------------
+// Forward declarations
+
+namespace Nebulite::Core {
+class RenderObject;
+} // namespace Nebulite::Core
+
+//------------------------------------------
+namespace Nebulite::Module::Domain::RenderObject {
+/**
+ * @class Nebulite::Module::Domain::RenderObject::StateUpdate
+ * @brief State update DomainModule of the RenderObject tree.
+ */
+class StateUpdate final : public Base::DomainModule<Core::RenderObject> {
+public:
+    [[nodiscard]] Constants::Event updateHook() override;
+    void reinit() override {}
+
+    //------------------------------------------
+    // Available Functions
+
+    [[nodiscard]] Constants::Event deleteObject() const ;
+    static auto constexpr deleteObject_name = "delete";
+    static auto constexpr deleteObject_desc = "Marks object for deletion\n"
+        "\n"
+        "Usage: delete\n"
+        "\n"
+        "Marks the object for deletion on the next update cycle.\n";
+
+    //------------------------------------------
+    // Setup
+
+    /**
+     * @brief Initializes the module, binding functions and variables. 
+     */
+    explicit StateUpdate(ConstructorParams const& params) : DomainModule(params) {
+        bindFunction(&StateUpdate::deleteObject, deleteObject_name, deleteObject_desc);
+    }
+};
+} // namespace Nebulite::Module::Domain::RenderObject
+#endif // NEBULITE_MODULE_DOMAIN_RENDEROBJECT_STATEUPDATE_HPP

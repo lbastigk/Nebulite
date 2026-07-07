@@ -2,9 +2,9 @@
 // Includes
 
 // Nebulite
-#include "Constants/Event.hpp"
-#include "Data/Document/JsonScope.hpp"
-#include "Module/Domain/GlobalSpace/Physics.hpp"
+#include "Nebulite/Constants/Event.hpp"
+#include "Nebulite/Data/Document/JsonScope.hpp"
+#include "Nebulite/Module/Domain/GlobalSpace/Physics.hpp"
 
 //------------------------------------------
 namespace Nebulite::Module::Domain::GlobalSpace {

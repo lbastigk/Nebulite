@@ -31,12 +31,12 @@
 #include <string>
 
 // Nebulite
-#include "Constants/Event.hpp"
-#include "Core/GlobalSpace.hpp"
-#include "Data/Document/JsonScope.hpp"
-#include "Interaction/Context.hpp"
-#include "Module/Domain/GlobalSpace/Debug.hpp"
-#include "Nebulite.hpp"
+#include "Nebulite/Constants/Event.hpp"
+#include "Nebulite/Core/GlobalSpace.hpp"
+#include "Nebulite/Data/Document/JsonScope.hpp"
+#include "Nebulite/Interaction/Context.hpp"
+#include "Nebulite/Module/Domain/GlobalSpace/Debug.hpp"
+#include "Nebulite/Nebulite.hpp"
 
 //------------------------------------------
 // Constants

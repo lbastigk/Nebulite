@@ -10,10 +10,10 @@
 #include <string>
 
 // Nebulite
-#include "Data/Document/JsonScope.hpp"
-#include "Data/Document/KeyType.hpp"
-#include "Module/Transformation/Array.hpp"
-#include "Utility/StringHandler.hpp"
+#include "Nebulite/Data/Document/JsonScope.hpp"
+#include "Nebulite/Data/Document/KeyType.hpp"
+#include "Nebulite/Module/Transformation/Array.hpp"
+#include "Nebulite/Utility/StringHandler.hpp"
 
 //------------------------------------------
 namespace Nebulite::Module::Transformation {

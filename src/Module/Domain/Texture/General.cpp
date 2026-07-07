@@ -5,11 +5,11 @@
 #include <string>
 
 // Nebulite
-#include "Constants/Event.hpp"
-#include "Constants/StandardCapture.hpp"
-#include "Core/Texture.hpp"
-#include "Graphics/Drawcall.hpp"
-#include "Module/Domain/Texture/General.hpp"
+#include "Nebulite/Constants/Event.hpp"
+#include "Nebulite/Constants/StandardCapture.hpp"
+#include "Nebulite/Core/Texture.hpp"
+#include "Nebulite/Graphics/Drawcall.hpp"
+#include "Nebulite/Module/Domain/Texture/General.hpp"
 
 //------------------------------------------
 namespace Nebulite::Module::Domain::Texture {

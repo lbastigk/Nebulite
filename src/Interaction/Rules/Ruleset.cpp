@@ -10,10 +10,10 @@
 #include <string>
 
 // Nebulite
-#include "Interaction/Context.hpp"
-#include "Interaction/Execution/Domain.hpp"
-#include "Interaction/Rules/Listener.hpp"
-#include "Interaction/Rules/Ruleset.hpp"
+#include "Nebulite/Interaction/Context.hpp"
+#include "Nebulite/Interaction/Execution/Domain.hpp"
+#include "Nebulite/Interaction/Rules/Listener.hpp"
+#include "Nebulite/Interaction/Rules/Ruleset.hpp"
 
 //------------------------------------------
 namespace Nebulite::Interaction::Rules {

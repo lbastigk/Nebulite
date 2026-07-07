@@ -7,12 +7,12 @@
 #include <string_view>
 
 // Nebulite
-#include "Constants/Event.hpp"
-#include "Constants/StandardCapture.hpp"
-#include "Core/RenderObject.hpp"
-#include "Interaction/Context.hpp"
-#include "Module/Domain/RenderObject/Drawcall.hpp"
-#include "Utility/StringHandler.hpp"
+#include "Nebulite/Constants/Event.hpp"
+#include "Nebulite/Constants/StandardCapture.hpp"
+#include "Nebulite/Core/RenderObject.hpp"
+#include "Nebulite/Interaction/Context.hpp"
+#include "Nebulite/Module/Domain/RenderObject/Drawcall.hpp"
+#include "Nebulite/Utility/StringHandler.hpp"
 
 //------------------------------------------
 namespace Nebulite::Module::Domain::RenderObject {

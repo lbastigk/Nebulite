@@ -6,10 +6,10 @@
 #include <string>
 
 // Nebulite
-#include "Constants/Event.hpp"
-#include "Constants/StandardCapture.hpp"
-#include "Core/GlobalSpace.hpp"
-#include "Module/Domain/GlobalSpace/General.hpp"
+#include "Nebulite/Constants/Event.hpp"
+#include "Nebulite/Constants/StandardCapture.hpp"
+#include "Nebulite/Core/GlobalSpace.hpp"
+#include "Nebulite/Module/Domain/GlobalSpace/General.hpp"
 
 //------------------------------------------
 namespace Nebulite::Module::Domain::GlobalSpace {

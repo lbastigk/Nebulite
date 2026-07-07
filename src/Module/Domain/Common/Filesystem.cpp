@@ -7,12 +7,12 @@
 #include <string_view>
 
 // Nebulite
-#include "Constants/Event.hpp"
-#include "Constants/StandardCapture.hpp"
-#include "Interaction/Execution/Domain.hpp"
-#include "Module/Domain/Common/Filesystem.hpp"
-#include "Utility/IO/FileManagement.hpp"
-#include "Utility/StringHandler.hpp"
+#include "Nebulite/Constants/Event.hpp"
+#include "Nebulite/Constants/StandardCapture.hpp"
+#include "Nebulite/Interaction/Execution/Domain.hpp"
+#include "Nebulite/Module/Domain/Common/Filesystem.hpp"
+#include "Nebulite/Utility/IO/FileManagement.hpp"
+#include "Nebulite/Utility/StringHandler.hpp"
 
 //------------------------------------------
 namespace Nebulite::Module::Domain::Common {

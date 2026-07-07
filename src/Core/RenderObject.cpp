@@ -11,16 +11,16 @@
 #include <vector>
 
 // Nebulite
-#include "Constants/Event.hpp"
-#include "Constants/KeyNames.hpp"
-#include "Core/GlobalSpace.hpp"
-#include "Core/RenderObject.hpp"
-#include "Data/Document/JsonScope.hpp"
-#include "Graphics/Drawcall.hpp"
-#include "Interaction/Rules/Ruleset.hpp"
-#include "Module/Domain/Initializer.hpp"
-#include "Nebulite.hpp"
-#include "Utility/IO/Capture.hpp"
+#include "Nebulite/Constants/Event.hpp"
+#include "Nebulite/Constants/KeyNames.hpp"
+#include "Nebulite/Core/GlobalSpace.hpp"
+#include "Nebulite/Core/RenderObject.hpp"
+#include "Nebulite/Data/Document/JsonScope.hpp"
+#include "Nebulite/Graphics/Drawcall.hpp"
+#include "Nebulite/Interaction/Rules/Ruleset.hpp"
+#include "Nebulite/Module/Domain/Initializer.hpp"
+#include "Nebulite/Nebulite.hpp"
+#include "Nebulite/Utility/IO/Capture.hpp"
 
 //------------------------------------------
 // Forward declarations

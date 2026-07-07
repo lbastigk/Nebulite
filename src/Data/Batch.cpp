@@ -6,9 +6,9 @@
 #include <vector>
 
 // Nebulite
-#include "Core/RenderObject.hpp"
-#include "Data/Batch.hpp"
-#include "Data/RenderObjectContainer.hpp"
+#include "Nebulite/Core/RenderObject.hpp"
+#include "Nebulite/Data/Batch.hpp"
+#include "Nebulite/Data/RenderObjectContainer.hpp"
 
 //------------------------------------------
 namespace Nebulite::Data {

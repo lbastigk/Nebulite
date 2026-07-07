@@ -2,9 +2,9 @@
 // Includes
 
 // Nebulite
-#include "Constants/Event.hpp"
-#include "Constants/StandardCapture.hpp"
-#include "Utility/IO/Capture.hpp"
+#include "Nebulite/Constants/Event.hpp"
+#include "Nebulite/Constants/StandardCapture.hpp"
+#include "Nebulite/Utility/IO/Capture.hpp"
 
 //------------------------------------------
 namespace Nebulite::Constants {

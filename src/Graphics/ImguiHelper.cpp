@@ -18,19 +18,19 @@
 #include <misc/cpp/imgui_stdlib.h>
 
 // Nebulite
-#include "Constants/Event.hpp"
-#include "Core/GlobalSpace.hpp"
-#include "Data/Document/JsonScope.hpp"
-#include "Data/Document/KeyType.hpp"
-#include "Graphics/ImguiHelper.hpp"
-#include "Interaction/Execution/Domain.hpp"
-#include "Module/Domain/Common/General.hpp"
-#include "Nebulite.hpp"
-#include "Utility/IO/Capture.hpp"
-#include "Utility/IO/FileManagement.hpp"
-#include "Utility/Ranges.hpp"
-#include "Utility/Sort.hpp"
-#include "Utility/StringHandler.hpp"
+#include "Nebulite/Constants/Event.hpp"
+#include "Nebulite/Core/GlobalSpace.hpp"
+#include "Nebulite/Data/Document/JsonScope.hpp"
+#include "Nebulite/Data/Document/KeyType.hpp"
+#include "Nebulite/Graphics/ImguiHelper.hpp"
+#include "Nebulite/Interaction/Execution/Domain.hpp"
+#include "Nebulite/Module/Domain/Common/General.hpp"
+#include "Nebulite/Nebulite.hpp"
+#include "Nebulite/Utility/IO/Capture.hpp"
+#include "Nebulite/Utility/IO/FileManagement.hpp"
+#include "Nebulite/Utility/Ranges.hpp"
+#include "Nebulite/Utility/Sort.hpp"
+#include "Nebulite/Utility/StringHandler.hpp"
 
 //------------------------------------------
 // Helper functions

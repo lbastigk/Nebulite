@@ -14,7 +14,7 @@
 #include <SDL3/SDL_render.h>
 
 // Nebulite
-#include "Graphics/SdlPrimitive.hpp"
+#include "Nebulite/Graphics/SdlPrimitive.hpp"
 
 //------------------------------------------
 namespace Nebulite::Graphics {

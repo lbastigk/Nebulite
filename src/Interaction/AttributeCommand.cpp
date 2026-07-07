@@ -10,13 +10,13 @@
 #include <RmlUi/Core/Element.h>
 
 // Nebulite
-#include "Constants/Event.hpp"
-#include "Graphics/RmlInterface.hpp"
-#include "Interaction/AttributeCommand.hpp"
-#include "Interaction/Execution/Domain.hpp"
-#include "Interaction/Rules/Construction/RulesetCompiler.hpp"
-#include "Utility/IO/Capture.hpp"
-#include "Utility/StringHandler.hpp"
+#include "Nebulite/Constants/Event.hpp"
+#include "Nebulite/Graphics/RmlInterface.hpp"
+#include "Nebulite/Interaction/AttributeCommand.hpp"
+#include "Nebulite/Interaction/Execution/Domain.hpp"
+#include "Nebulite/Interaction/Rules/Construction/RulesetCompiler.hpp"
+#include "Nebulite/Utility/IO/Capture.hpp"
+#include "Nebulite/Utility/StringHandler.hpp"
 
 //------------------------------------------
 namespace Nebulite::Interaction {

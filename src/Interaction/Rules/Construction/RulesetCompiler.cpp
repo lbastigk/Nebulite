@@ -12,17 +12,17 @@
 #include <variant>
 
 // Nebulite
-#include "Constants/KeyNames.hpp"
-#include "Core/GlobalSpace.hpp"
-#include "Data/Document/JsonScope.hpp"
-#include "Data/Document/KeyType.hpp"
-#include "Interaction/Context.hpp"
-#include "Interaction/Logic/Assignment.hpp"
-#include "Interaction/Logic/Expression.hpp"
-#include "Interaction/Rules/Construction/RulesetCompiler.hpp"
-#include "Interaction/Rules/Ruleset.hpp"
-#include "Nebulite.hpp"
-#include "Utility/StringHandler.hpp"
+#include "Nebulite/Constants/KeyNames.hpp"
+#include "Nebulite/Core/GlobalSpace.hpp"
+#include "Nebulite/Data/Document/JsonScope.hpp"
+#include "Nebulite/Data/Document/KeyType.hpp"
+#include "Nebulite/Interaction/Context.hpp"
+#include "Nebulite/Interaction/Logic/Assignment.hpp"
+#include "Nebulite/Interaction/Logic/Expression.hpp"
+#include "Nebulite/Interaction/Rules/Construction/RulesetCompiler.hpp"
+#include "Nebulite/Interaction/Rules/Ruleset.hpp"
+#include "Nebulite/Nebulite.hpp"
+#include "Nebulite/Utility/StringHandler.hpp"
 
 //------------------------------------------
 namespace Nebulite::Interaction::Rules::Construction {

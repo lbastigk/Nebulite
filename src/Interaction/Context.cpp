@@ -8,8 +8,8 @@
 #include <utility>
 
 // Nebulite
-#include "Data/Document/JsonScope.hpp"
-#include "Interaction/Context.hpp"
+#include "Nebulite/Data/Document/JsonScope.hpp"
+#include "Nebulite/Interaction/Context.hpp"
 
 //------------------------------------------
 namespace Nebulite::Interaction {

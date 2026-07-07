@@ -6,9 +6,9 @@
 #include <string_view>
 
 // Nebulite
-#include "Data/Document/JsonScope.hpp"
-#include "Interaction/Context.hpp"
-#include "Interaction/Logic/VirtualDouble.hpp"
+#include "Nebulite/Data/Document/JsonScope.hpp"
+#include "Nebulite/Interaction/Context.hpp"
+#include "Nebulite/Interaction/Logic/VirtualDouble.hpp"
 
 //------------------------------------------
 namespace Nebulite::Interaction::Logic {

@@ -16,13 +16,13 @@
 #include <imgui.h>
 
 // Nebulite
-#include "Constants/Event.hpp"
-#include "Constants/KeyNames.hpp"
-#include "Constants/StandardCapture.hpp"
-#include "Core/Environment.hpp"
-#include "Core/Renderer.hpp"
-#include "Module/Domain/Renderer/Tiling.hpp"
-#include "Utility/Coordination/TimedRoutine.hpp"
+#include "Nebulite/Constants/Event.hpp"
+#include "Nebulite/Constants/KeyNames.hpp"
+#include "Nebulite/Constants/StandardCapture.hpp"
+#include "Nebulite/Core/Environment.hpp"
+#include "Nebulite/Core/Renderer.hpp"
+#include "Nebulite/Module/Domain/Renderer/Tiling.hpp"
+#include "Nebulite/Utility/Coordination/TimedRoutine.hpp"
 
 //------------------------------------------
 namespace Nebulite::Module::Domain::Renderer {

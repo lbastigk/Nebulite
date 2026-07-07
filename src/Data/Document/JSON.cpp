@@ -22,16 +22,16 @@
 #include <rapidjson/document.h>
 
 // Nebulite
-#include "Data/Document/JSON.hpp"
-#include "Data/Document/JsonRvalueTransformer.hpp"
-#include "Data/Document/JsonScope.hpp"
-#include "Data/Document/KeyType.hpp"
-#include "Data/Document/RjDirectAccess.hpp"
-#include "Data/Document/SimpleValueError.hpp"
-#include "Math/Equality.hpp"
-#include "Module/Base/TransformationModule.hpp"
-#include "Nebulite.hpp"
-#include "Utility/StringHandler.hpp"
+#include "Nebulite/Data/Document/JSON.hpp"
+#include "Nebulite/Data/Document/JsonRvalueTransformer.hpp"
+#include "Nebulite/Data/Document/JsonScope.hpp"
+#include "Nebulite/Data/Document/KeyType.hpp"
+#include "Nebulite/Data/Document/RjDirectAccess.hpp"
+#include "Nebulite/Data/Document/SimpleValueError.hpp"
+#include "Nebulite/Math/Equality.hpp"
+#include "Nebulite/Module/Base/TransformationModule.hpp"
+#include "Nebulite/Nebulite.hpp"
+#include "Nebulite/Utility/StringHandler.hpp"
 
 //------------------------------------------
 // Try to catch potential caching issues early

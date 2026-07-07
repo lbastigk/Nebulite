@@ -11,9 +11,9 @@
 #include <string>
 
 // Nebulite
-#include "Data/Document/JsonScope.hpp"
-#include "Module/Transformation/String.hpp"
-#include "Utility/StringHandler.hpp"
+#include "Nebulite/Data/Document/JsonScope.hpp"
+#include "Nebulite/Module/Transformation/String.hpp"
+#include "Nebulite/Utility/StringHandler.hpp"
 
 //------------------------------------------
 namespace Nebulite::Module::Transformation {

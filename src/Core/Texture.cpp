@@ -10,15 +10,15 @@
 #include <SDL3/SDL_render.h>
 
 // Nebulite
-#include "Constants/Event.hpp"
-#include "Constants/StandardCapture.hpp"
-#include "Core/GlobalSpace.hpp"
-#include "Core/Texture.hpp"
-#include "Graphics/Drawcall.hpp"
-#include "Interaction/Execution/Domain.hpp"
-#include "Module/Domain/Initializer.hpp"
-#include "Nebulite.hpp"
-#include "Utility/IO/Capture.hpp"
+#include "Nebulite/Constants/Event.hpp"
+#include "Nebulite/Constants/StandardCapture.hpp"
+#include "Nebulite/Core/GlobalSpace.hpp"
+#include "Nebulite/Core/Texture.hpp"
+#include "Nebulite/Graphics/Drawcall.hpp"
+#include "Nebulite/Interaction/Execution/Domain.hpp"
+#include "Nebulite/Module/Domain/Initializer.hpp"
+#include "Nebulite/Nebulite.hpp"
+#include "Nebulite/Utility/IO/Capture.hpp"
 
 //------------------------------------------
 namespace Nebulite::Core {

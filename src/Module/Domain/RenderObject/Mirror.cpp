@@ -5,12 +5,12 @@
 #include <string>
 
 // Nebulite
-#include "Constants/Event.hpp"
-#include "Core/GlobalSpace.hpp"
-#include "Core/RenderObject.hpp"
-#include "Data/Document/KeyType.hpp"
-#include "Module/Domain/RenderObject/Mirror.hpp"
-#include "Nebulite.hpp"
+#include "Nebulite/Constants/Event.hpp"
+#include "Nebulite/Core/GlobalSpace.hpp"
+#include "Nebulite/Core/RenderObject.hpp"
+#include "Nebulite/Data/Document/KeyType.hpp"
+#include "Nebulite/Module/Domain/RenderObject/Mirror.hpp"
+#include "Nebulite/Nebulite.hpp"
 
 //------------------------------------------
 namespace Nebulite::Module::Domain::RenderObject {

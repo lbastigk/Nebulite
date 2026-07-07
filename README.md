@@ -203,8 +203,8 @@ This allows key sharing inbetween classes and throw exceptions if access is atte
 
 Example for restricted key access:
 ```cpp
-#include "Nebulite.hpp"
-#include "Data/Document/JsonScope.hpp"
+#include "Nebulite/Nebulite.hpp"
+#include "Nebulite/Data/Document/JsonScope.hpp"
 
 inline void exampleUsage() {
     // Our Data document

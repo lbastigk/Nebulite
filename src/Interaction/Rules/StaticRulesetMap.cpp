@@ -10,11 +10,11 @@
 #include <vector>
 
 // Nebulite
-#include "Interaction/Context.hpp"
-#include "Interaction/Execution/Domain.hpp"
-#include "Interaction/Rules/Construction/Initializer.hpp"
-#include "Interaction/Rules/StaticRulesetMap.hpp"
-#include "Nebulite.hpp"
+#include "Nebulite/Interaction/Context.hpp"
+#include "Nebulite/Interaction/Execution/Domain.hpp"
+#include "Nebulite/Interaction/Rules/Construction/Initializer.hpp"
+#include "Nebulite/Interaction/Rules/StaticRulesetMap.hpp"
+#include "Nebulite/Nebulite.hpp"
 
 //------------------------------------------
 // Due to lifetime issues, we need to keep track of the singleton

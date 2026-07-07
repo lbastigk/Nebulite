@@ -14,12 +14,12 @@
 #include <RmlUi/Core/StyleTypes.h>
 
 // Nebulite
-#include "Graphics/RmlInterface.hpp"
-#include "Interaction/Logic/Expression.hpp"
-#include "Math/Equality.hpp"
-#include "Module/Base/RmlUiModule.hpp"
-#include "Module/RmlUi/Conditional.hpp"
-#include "Utility/IO/Capture.hpp"
+#include "Nebulite/Graphics/RmlInterface.hpp"
+#include "Nebulite/Interaction/Logic/Expression.hpp"
+#include "Nebulite/Math/Equality.hpp"
+#include "Nebulite/Module/Base/RmlUiModule.hpp"
+#include "Nebulite/Module/RmlUi/Conditional.hpp"
+#include "Nebulite/Utility/IO/Capture.hpp"
 
 //------------------------------------------
 namespace Nebulite::Module::RmlUi {

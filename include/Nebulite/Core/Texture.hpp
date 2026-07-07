@@ -1,0 +1,133 @@
+#ifndef NEBULITE_CORE_TEXTURE_HPP
+#define NEBULITE_CORE_TEXTURE_HPP
+
+//------------------------------------------
+// Includes
+
+// Standard library
+#include <string>
+
+// External
+#include <SDL3/SDL_render.h>
+
+// Nebulite
+#include "Nebulite/Constants/Event.hpp"
+#include "Nebulite/Interaction/Execution/Domain.hpp"
+#include "Nebulite/Utility/IO/Capture.hpp"
+
+//------------------------------------------
+namespace Nebulite::Core {
+/**
+ * @class Nebulite::Core::Texture
+ * @brief Manages an SDL_Texture for rendering in the Nebulite engine.
+ *        This domain is responsible for handling texture loading, updating, and lifecycle management.
+ *        It can either reference an external texture (e.g., from the renderer) or manage its own internal texture.
+ *        If the texture is modified, it creates a local copy to avoid affecting the original texture used by the renderer.
+ */
+class Texture final : public Interaction::Execution::Domain {
+public:
+    /**
+     * @brief Constructs a new Texture domain.
+     * @param documentReference Reference to the JSON document for this domain.
+     * @param parentCapture Reference to the parent capture for logging and error handling.
+     *                      Either from the Domain that owns this one or from the global capture if this is a top-level domain.
+     */
+    explicit Texture(Data::JsonScope& documentReference, Utility::IO::Capture& parentCapture);
+
+    /**
+     * @brief Destroys the Texture and frees resources.
+     */
+    ~Texture() override {
+        // Only destroy the texture if it was modified
+        // And thus a local copy exists
+        if (texture != nullptr && textureStoredLocally) {
+            SDL_DestroyTexture(texture);
+        }
+    }
+
+    Texture(Texture const&) = delete;
+    Texture& operator=(Texture const&) = delete;
+    Texture(Texture&&) = delete;
+    Texture& operator=(Texture&&) = delete;
+
+    /**
+     * @brief Updates the texture.
+     */
+    [[nodiscard]] Constants::Event update() override;
+
+    //------------------------------------------
+    // SDL_Texture related
+
+    /**
+     * @brief Links an external SDL_Texture to this domain.
+     * @param externalTexture Pointer to the external SDL_Texture.
+     */
+    void linkExternalTexture(SDL_Texture* externalTexture) {
+        texture = externalTexture;
+        textureStoredLocally = false; // Reset modification flag
+    }
+
+    /**
+     * @brief Sets a new internal SDL_Texture, marking it as modified.
+     * @param newTexture Pointer to the new SDL_Texture.
+     */
+    void setInternalTexture(SDL_Texture* newTexture) {
+        // Destroy any old internal texture if it was modified
+        if (texture != nullptr && textureStoredLocally && texture != newTexture) {
+            SDL_DestroyTexture(texture);
+        }
+        texture = newTexture;
+        textureStoredLocally = true; // Mark as modified since it's a new internal texture
+    }
+
+    /**
+     * @brief Checks if the texture has been modified.
+     * @return true if the texture has been modified, false otherwise.
+     */
+    [[nodiscard]] bool isTextureStoredLocally() const noexcept {
+        return textureStoredLocally;
+    }
+
+    /**
+     * @brief Checks if the texture is valid (not null).
+     * @return true if the texture is valid, false otherwise.
+     */
+    [[nodiscard]] bool isTextureValid() const noexcept {
+        return texture != nullptr;
+    }
+
+    /**
+     * @brief Gets the current SDL_Texture.
+     * @return Pointer to the current SDL_Texture.
+     */
+    [[nodiscard]] SDL_Texture* getSDLTexture() const noexcept {
+        return texture;
+    }
+
+    void loadTextureFromFile(std::string const& filePath);
+
+private:
+    /**
+     * @brief Necessary operations before parsing commands.
+     */
+    [[nodiscard]] Constants::Event preParse() override;
+
+    /**
+     * @brief The SDL texture managed by this class.
+     *        If the texture is unmodified, this will reference the renderer's texture.
+     *        If modified, it will be a separate texture.
+     */
+    SDL_Texture* texture{nullptr};
+
+    /**
+     * @brief Flag indicating if the texture is stored locally (modified).
+     */
+    bool textureStoredLocally = false;
+
+    /**
+     * @brief Makes a copy of the globally managed texture to a locally managed one.
+     */
+    void generateLocallyManagedTexture();
+};
+} // namespace Nebulite::Core
+#endif // NEBULITE_CORE_TEXTURE_HPP

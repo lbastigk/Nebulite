@@ -10,28 +10,28 @@
 #include <vector>
 
 // Nebulite
-#include "Data/Document/JSON.hpp"
-#include "Data/Document/JsonRvalueTransformer.hpp"
-#include "Data/Document/JsonScope.hpp"
-#include "Interaction/Execution/FuncTree.hpp"
-#include "Nebulite.hpp"
+#include "Nebulite/Data/Document/JSON.hpp"
+#include "Nebulite/Data/Document/JsonRvalueTransformer.hpp"
+#include "Nebulite/Data/Document/JsonScope.hpp"
+#include "Nebulite/Interaction/Execution/FuncTree.hpp"
+#include "Nebulite/Nebulite.hpp"
 
 // Nebulite: Transformation modules
-#include "Module/Transformation/Arithmetic.hpp"
-#include "Module/Transformation/Array.hpp"
-#include "Module/Transformation/Assertions.hpp"
-#include "Module/Transformation/Boolean.hpp"
-#include "Module/Transformation/Casting.hpp"
-#include "Module/Transformation/Collection.hpp"
-#include "Module/Transformation/Debug.hpp"
-#include "Module/Transformation/Domain.hpp"
-#include "Module/Transformation/Filter.hpp"
-#include "Module/Transformation/General.hpp"
-#include "Module/Transformation/Requirements.hpp"
-#include "Module/Transformation/Sort.hpp"
-#include "Module/Transformation/Statistics.hpp"
-#include "Module/Transformation/String.hpp"
-#include "Module/Transformation/Types.hpp"
+#include "Nebulite/Module/Transformation/Arithmetic.hpp"
+#include "Nebulite/Module/Transformation/Array.hpp"
+#include "Nebulite/Module/Transformation/Assertions.hpp"
+#include "Nebulite/Module/Transformation/Boolean.hpp"
+#include "Nebulite/Module/Transformation/Casting.hpp"
+#include "Nebulite/Module/Transformation/Collection.hpp"
+#include "Nebulite/Module/Transformation/Debug.hpp"
+#include "Nebulite/Module/Transformation/Domain.hpp"
+#include "Nebulite/Module/Transformation/Filter.hpp"
+#include "Nebulite/Module/Transformation/General.hpp"
+#include "Nebulite/Module/Transformation/Requirements.hpp"
+#include "Nebulite/Module/Transformation/Sort.hpp"
+#include "Nebulite/Module/Transformation/Statistics.hpp"
+#include "Nebulite/Module/Transformation/String.hpp"
+#include "Nebulite/Module/Transformation/Types.hpp"
 
 //------------------------------------------
 namespace Nebulite::Data {

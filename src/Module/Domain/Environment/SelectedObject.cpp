@@ -8,13 +8,13 @@
 #include <string_view>
 
 // Nebulite
-#include "Constants/Event.hpp"
-#include "Constants/StandardCapture.hpp"
-#include "Core/RenderObject.hpp"
-#include "Core/Renderer.hpp"
-#include "Interaction/Context.hpp"
-#include "Module/Domain/Environment/SelectedObject.hpp"
-#include "Utility/StringHandler.hpp"
+#include "Nebulite/Constants/Event.hpp"
+#include "Nebulite/Constants/StandardCapture.hpp"
+#include "Nebulite/Core/RenderObject.hpp"
+#include "Nebulite/Core/Renderer.hpp"
+#include "Nebulite/Interaction/Context.hpp"
+#include "Nebulite/Module/Domain/Environment/SelectedObject.hpp"
+#include "Nebulite/Utility/StringHandler.hpp"
 
 namespace Nebulite::Module::Domain::Environment {
 

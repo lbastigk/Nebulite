@@ -14,18 +14,18 @@
 #include <vector>
 
 // Nebulite
-#include "Constants/Event.hpp"
-#include "Core/GlobalSpace.hpp"
-#include "Data/Document/JsonScope.hpp"
-#include "Interaction/Context.hpp"
-#include "Interaction/Execution/Domain.hpp"
-#include "Interaction/Execution/DomainTree.hpp"
-#include "Interaction/Logic/Expression.hpp"
-#include "Module/Domain/Common/Ruleset.hpp"
-#include "Module/Domain/Initializer.hpp"
-#include "Nebulite.hpp"
-#include "Utility/IO/Capture.hpp"
-#include "Utility/StringHandler.hpp"
+#include "Nebulite/Constants/Event.hpp"
+#include "Nebulite/Core/GlobalSpace.hpp"
+#include "Nebulite/Data/Document/JsonScope.hpp"
+#include "Nebulite/Interaction/Context.hpp"
+#include "Nebulite/Interaction/Execution/Domain.hpp"
+#include "Nebulite/Interaction/Execution/DomainTree.hpp"
+#include "Nebulite/Interaction/Logic/Expression.hpp"
+#include "Nebulite/Module/Domain/Common/Ruleset.hpp"
+#include "Nebulite/Module/Domain/Initializer.hpp"
+#include "Nebulite/Nebulite.hpp"
+#include "Nebulite/Utility/IO/Capture.hpp"
+#include "Nebulite/Utility/StringHandler.hpp"
 
 //------------------------------------------
 namespace Nebulite::Interaction::Execution {

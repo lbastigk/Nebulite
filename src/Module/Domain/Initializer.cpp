@@ -2,59 +2,59 @@
 // Base includes
 
 // Nebulite
-#include "Core/GlobalSpace.hpp"
-#include "Core/RenderObject.hpp"
-#include "Core/Renderer.hpp"
-#include "Core/Texture.hpp"
-#include "Module/Domain/Initializer.hpp"
-#include "Nebulite.hpp"
+#include "Nebulite/Core/GlobalSpace.hpp"
+#include "Nebulite/Core/RenderObject.hpp"
+#include "Nebulite/Core/Renderer.hpp"
+#include "Nebulite/Core/Texture.hpp"
+#include "Nebulite/Module/Domain/Initializer.hpp"
+#include "Nebulite/Nebulite.hpp"
 
 //------------------------------------------
 // DomainModule includes
 
 // Common
-#include "Module/Domain/Common/ComplexData.hpp"
-#include "Module/Domain/Common/Debug.hpp"
-#include "Module/Domain/Common/Filesystem.hpp"
-#include "Module/Domain/Common/General.hpp"
-#include "Module/Domain/Common/RmlUi.hpp"
-#include "Module/Domain/Common/Ruleset.hpp"
-#include "Module/Domain/Common/SimpleData.hpp"
+#include "Nebulite/Module/Domain/Common/ComplexData.hpp"
+#include "Nebulite/Module/Domain/Common/Debug.hpp"
+#include "Nebulite/Module/Domain/Common/Filesystem.hpp"
+#include "Nebulite/Module/Domain/Common/General.hpp"
+#include "Nebulite/Module/Domain/Common/RmlUi.hpp"
+#include "Nebulite/Module/Domain/Common/Ruleset.hpp"
+#include "Nebulite/Module/Domain/Common/SimpleData.hpp"
 
 // Environment
-#include "Module/Domain/Environment/Debug.hpp"
-#include "Module/Domain/Environment/SelectedObject.hpp"
+#include "Nebulite/Module/Domain/Environment/Debug.hpp"
+#include "Nebulite/Module/Domain/Environment/SelectedObject.hpp"
 
 // GlobalSpace
-#include "Module/Domain/GlobalSpace/Clock.hpp"
-#include "Module/Domain/GlobalSpace/Debug.hpp"
-#include "Module/Domain/GlobalSpace/FeatureTest.hpp"         // Feature testing module
-#include "Module/Domain/GlobalSpace/FunctionCollision.hpp"   // Special debugging utilities for domain collision detection
-#include "Module/Domain/GlobalSpace/General.hpp"
-#include "Module/Domain/GlobalSpace/InputMapping.hpp"
-#include "Module/Domain/GlobalSpace/Physics.hpp"
-#include "Module/Domain/GlobalSpace/Settings.hpp"
-#include "Module/Domain/GlobalSpace/Time.hpp"
+#include "Nebulite/Module/Domain/GlobalSpace/Clock.hpp"
+#include "Nebulite/Module/Domain/GlobalSpace/Debug.hpp"
+#include "Nebulite/Module/Domain/GlobalSpace/FeatureTest.hpp"         // Feature testing module
+#include "Nebulite/Module/Domain/GlobalSpace/FunctionCollision.hpp"   // Special debugging utilities for domain collision detection
+#include "Nebulite/Module/Domain/GlobalSpace/General.hpp"
+#include "Nebulite/Module/Domain/GlobalSpace/InputMapping.hpp"
+#include "Nebulite/Module/Domain/GlobalSpace/Physics.hpp"
+#include "Nebulite/Module/Domain/GlobalSpace/Settings.hpp"
+#include "Nebulite/Module/Domain/GlobalSpace/Time.hpp"
 
 // RenderObject
-#include "Module/Domain/RenderObject/Drawcall.hpp"
-#include "Module/Domain/RenderObject/Logging.hpp"
-#include "Module/Domain/RenderObject/Mirror.hpp"
-#include "Module/Domain/RenderObject/StateUpdate.hpp"
+#include "Nebulite/Module/Domain/RenderObject/Drawcall.hpp"
+#include "Nebulite/Module/Domain/RenderObject/Logging.hpp"
+#include "Nebulite/Module/Domain/RenderObject/Mirror.hpp"
+#include "Nebulite/Module/Domain/RenderObject/StateUpdate.hpp"
 
 // Renderer
-#include "Module/Domain/Renderer/Audio.hpp"
-#include "Module/Domain/Renderer/Console.hpp"
-#include "Module/Domain/Renderer/General.hpp"
-#include "Module/Domain/Renderer/Input.hpp"
-#include "Module/Domain/Renderer/RenderObjectDraft.hpp"
-#include "Module/Domain/Renderer/RmlUi.hpp"
-#include "Module/Domain/Renderer/Tiling.hpp"
+#include "Nebulite/Module/Domain/Renderer/Audio.hpp"
+#include "Nebulite/Module/Domain/Renderer/Console.hpp"
+#include "Nebulite/Module/Domain/Renderer/General.hpp"
+#include "Nebulite/Module/Domain/Renderer/Input.hpp"
+#include "Nebulite/Module/Domain/Renderer/RenderObjectDraft.hpp"
+#include "Nebulite/Module/Domain/Renderer/RmlUi.hpp"
+#include "Nebulite/Module/Domain/Renderer/Tiling.hpp"
 
 // Texture
-#include "Module/Domain/Texture/Fill.hpp"
-#include "Module/Domain/Texture/General.hpp"
-#include "Module/Domain/Texture/Rotation.hpp"
+#include "Nebulite/Module/Domain/Texture/Fill.hpp"
+#include "Nebulite/Module/Domain/Texture/General.hpp"
+#include "Nebulite/Module/Domain/Texture/Rotation.hpp"
 
 //------------------------------------------
 namespace Nebulite::Module::Domain {

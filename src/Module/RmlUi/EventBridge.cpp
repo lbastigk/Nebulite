@@ -6,10 +6,10 @@
 #include <SDL3/SDL_events.h>
 
 // Nebulite
-#include "Graphics/RmlInterface.hpp"
-#include "Module/Base/RmlUiModule.hpp"
-#include "Module/RmlUi/EventBridge.hpp"
-#include "Utility/IO/Capture.hpp"
+#include "Nebulite/Graphics/RmlInterface.hpp"
+#include "Nebulite/Module/Base/RmlUiModule.hpp"
+#include "Nebulite/Module/RmlUi/EventBridge.hpp"
+#include "Nebulite/Utility/IO/Capture.hpp"
 
 //------------------------------------------
 namespace Nebulite::Module::RmlUi {

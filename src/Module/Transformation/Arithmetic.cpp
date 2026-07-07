@@ -12,9 +12,9 @@
 #include <string>
 
 // Nebulite
-#include "Data/Document/JsonScope.hpp"
-#include "Data/Document/ScopedKey.hpp"
-#include "Module/Transformation/Arithmetic.hpp"
+#include "Nebulite/Data/Document/JsonScope.hpp"
+#include "Nebulite/Data/Document/ScopedKey.hpp"
+#include "Nebulite/Module/Transformation/Arithmetic.hpp"
 
 //------------------------------------------
 namespace Nebulite::Module::Transformation {

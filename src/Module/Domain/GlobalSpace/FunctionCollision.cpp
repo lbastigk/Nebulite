@@ -6,12 +6,12 @@
 #include <string_view>
 
 // Nebulite
-#include "Constants/Event.hpp"
-#include "Constants/StandardCapture.hpp"
-#include "Core/GlobalSpace.hpp"
-#include "Interaction/Execution/Domain.hpp"
-#include "Interaction/Execution/FuncTree.hpp"
-#include "Module/Domain/GlobalSpace/FunctionCollision.hpp"
+#include "Nebulite/Constants/Event.hpp"
+#include "Nebulite/Constants/StandardCapture.hpp"
+#include "Nebulite/Core/GlobalSpace.hpp"
+#include "Nebulite/Interaction/Execution/Domain.hpp"
+#include "Nebulite/Interaction/Execution/FuncTree.hpp"
+#include "Nebulite/Module/Domain/GlobalSpace/FunctionCollision.hpp"
 
 //------------------------------------------
 namespace Nebulite::Module::Domain::GlobalSpace {

@@ -11,13 +11,13 @@
 #include <vector>
 
 // Nebulite
-#include "Constants/ThreadSettings.hpp"
-#include "Core/RenderObject.hpp"
-#include "Data/RenderObjectContainer.hpp"
-#include "Data/RendererProcessor.hpp"
-#include "Nebulite.hpp"
-#include "Utility/Coordination/WorkDispatcher.hpp"
-#include "Utility/Generate.hpp"
+#include "Nebulite/Constants/ThreadSettings.hpp"
+#include "Nebulite/Core/RenderObject.hpp"
+#include "Nebulite/Data/RenderObjectContainer.hpp"
+#include "Nebulite/Data/RendererProcessor.hpp"
+#include "Nebulite/Nebulite.hpp"
+#include "Nebulite/Utility/Coordination/WorkDispatcher.hpp"
+#include "Nebulite/Utility/Generate.hpp"
 
 //------------------------------------------
 namespace Nebulite::Data {

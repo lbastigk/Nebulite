@@ -18,16 +18,16 @@
 #include <tinyexpr.h>
 
 // Nebulite
-#include "Core/GlobalSpace.hpp"
-#include "Data/Document/JsonScope.hpp"
-#include "Interaction/Context.hpp"
-#include "Interaction/Logic/Expression.hpp"
-#include "Interaction/Logic/VirtualDouble.hpp"
-#include "Math/Equality.hpp"
-#include "Math/ExpressionPrimitives.hpp"
-#include "Nebulite.hpp"
-#include "Utility/CompileTimeEvaluate.hpp"
-#include "Utility/StringHandler.hpp"
+#include "Nebulite/Core/GlobalSpace.hpp"
+#include "Nebulite/Data/Document/JsonScope.hpp"
+#include "Nebulite/Interaction/Context.hpp"
+#include "Nebulite/Interaction/Logic/Expression.hpp"
+#include "Nebulite/Interaction/Logic/VirtualDouble.hpp"
+#include "Nebulite/Math/Equality.hpp"
+#include "Nebulite/Math/ExpressionPrimitives.hpp"
+#include "Nebulite/Nebulite.hpp"
+#include "Nebulite/Utility/CompileTimeEvaluate.hpp"
+#include "Nebulite/Utility/StringHandler.hpp"
 
 //------------------------------------------
 namespace Nebulite::Interaction::Logic {

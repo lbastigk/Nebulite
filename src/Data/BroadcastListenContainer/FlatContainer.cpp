@@ -12,13 +12,13 @@
 #include <vector>
 
 // Nebulite
-#include "Constants/ThreadSettings.hpp"
-#include "Core/GlobalSpace.hpp"
-#include "Data/BroadcastListenContainer/FlatContainer.hpp"
-#include "Interaction/Rules/Listener.hpp"
-#include "Interaction/Rules/Ruleset.hpp"
-#include "Nebulite.hpp"
-#include "Utility/Coordination/IdGenerator.hpp"
+#include "Nebulite/Constants/ThreadSettings.hpp"
+#include "Nebulite/Core/GlobalSpace.hpp"
+#include "Nebulite/Data/BroadcastListenContainer/FlatContainer.hpp"
+#include "Nebulite/Interaction/Rules/Listener.hpp"
+#include "Nebulite/Interaction/Rules/Ruleset.hpp"
+#include "Nebulite/Nebulite.hpp"
+#include "Nebulite/Utility/Coordination/IdGenerator.hpp"
 
 //------------------------------------------
 // Forward declarations

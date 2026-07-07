@@ -6,13 +6,13 @@
 #include <string>
 
 // Nebulite
-#include "Data/Document/JsonScope.hpp"
-#include "Data/Document/KeyType.hpp"
-#include "Interaction/Context.hpp"
-#include "Interaction/Logic/Expression.hpp"
-#include "Module/Transformation/Sort.hpp"
-#include "Utility/Sort.hpp"
-#include "Utility/StringHandler.hpp"
+#include "Nebulite/Data/Document/JsonScope.hpp"
+#include "Nebulite/Data/Document/KeyType.hpp"
+#include "Nebulite/Interaction/Context.hpp"
+#include "Nebulite/Interaction/Logic/Expression.hpp"
+#include "Nebulite/Module/Transformation/Sort.hpp"
+#include "Nebulite/Utility/Sort.hpp"
+#include "Nebulite/Utility/StringHandler.hpp"
 
 //------------------------------------------
 namespace Nebulite::Module::Transformation {

@@ -8,11 +8,11 @@
 #include <string>
 
 // Nebulite
-#include "Data/Document/JsonScope.hpp"
-#include "Module/Transformation/Debug.hpp"
-#include "Nebulite.hpp"
-#include "Utility/IO/FileManagement.hpp"
-#include "Utility/StringHandler.hpp"
+#include "Nebulite/Data/Document/JsonScope.hpp"
+#include "Nebulite/Module/Transformation/Debug.hpp"
+#include "Nebulite/Nebulite.hpp"
+#include "Nebulite/Utility/IO/FileManagement.hpp"
+#include "Nebulite/Utility/StringHandler.hpp"
 
 //------------------------------------------
 namespace Nebulite::Module::Transformation {

@@ -11,9 +11,9 @@
 #include <vector>
 
 // Nebulite
-#include "Nebulite.hpp"
-#include "Utility/IO/Capture.hpp"
-#include "Utility/IO/FileManagement.hpp"
+#include "Nebulite/Nebulite.hpp"
+#include "Nebulite/Utility/IO/Capture.hpp"
+#include "Nebulite/Utility/IO/FileManagement.hpp"
 
 //------------------------------------------
 // Set error printing function

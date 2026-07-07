@@ -10,9 +10,9 @@
 #include <vector>
 
 // Nebulite
-#include "Data/Document/JsonScope.hpp"
-#include "Data/Document/KeyType.hpp"
-#include "Module/Transformation/Statistics.hpp"
+#include "Nebulite/Data/Document/JsonScope.hpp"
+#include "Nebulite/Data/Document/KeyType.hpp"
+#include "Nebulite/Module/Transformation/Statistics.hpp"
 
 //------------------------------------------
 namespace Nebulite::Module::Transformation {

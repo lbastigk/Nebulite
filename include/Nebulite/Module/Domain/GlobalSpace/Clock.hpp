@@ -1,0 +1,140 @@
+#ifndef NEBULITE_MODULE_DOMAIN_GLOBALSPACE_CLOCK_HPP
+#define NEBULITE_MODULE_DOMAIN_GLOBALSPACE_CLOCK_HPP
+
+//------------------------------------------
+// Includes
+
+// Standard library
+#include <cstdint>
+#include <string>
+
+// External
+#include <absl/container/flat_hash_map.h>
+
+// Nebulite
+#include "Nebulite/Constants/Event.hpp"
+#include "Nebulite/Data/Document/JSON.hpp"
+#include "Nebulite/Data/Document/KeyGroup.hpp"
+#include "Nebulite/Module/Base/DomainModule.hpp"
+
+//------------------------------------------
+// Forward declarations
+
+namespace Nebulite::Core {
+class GlobalSpace;
+} // namespace Nebulite::Core
+
+namespace Nebulite::Data {
+class JsonScope;
+} // namespace Nebulite::Data
+
+//------------------------------------------
+namespace Nebulite::Module::Domain::GlobalSpace {
+/**
+ * @class Nebulite::Module::Domain::GlobalSpace::Clock
+ * @brief DomainModule for clock management capabilities within the GlobalSpace.
+ */
+class Clock final : public Base::DomainModule<Core::GlobalSpace> {
+public:
+    [[nodiscard]] Constants::Event updateHook() override;
+    void reinit() override {}
+
+    //------------------------------------------
+    // Available Functions
+
+    [[nodiscard]] Constants::Event addClock(int argc, char const** argv);
+    static auto constexpr addClock_name = "add-clock";
+    static auto constexpr addClock_desc = "Adds a clock with specified interval (ms) to the global clock system\n"
+        "\n"
+        "Usage: add-clock <interval_ms>\n"
+        "\n"
+        "Example:\n"
+        "add-clock 100\n";
+
+    //------------------------------------------
+    // Keys in the global document
+
+    struct Key : Data::KeyGroup<"time."> {
+        /**
+         * @brief Key for accessing the list of active clocks.
+         * @details access with `"<key_arr_active_clocks>.ms<interval_padded>"`
+         */
+        static auto constexpr arr_active_clocks = makeScoped("clocks.active");
+
+        /**
+         * @brief Key for accessing the status of each clock.
+         * @details Current status of each clock (0 or 1), access with `"<key_doc_status_clocks>.ms<interval_padded>"`
+         *          Example: ".ms000100" for the clock with 100ms interval
+         */
+        static auto constexpr doc_status_clocks = makeScoped("clocks.status");
+    };
+
+
+    //------------------------------------------
+    // Setup
+
+    /**
+     * @brief Initializes the module, binding functions and variables. 
+     */
+    explicit Clock(ConstructorParams const& params) : DomainModule(params) {
+        //------------------------------------------
+        // Binding functions to the FuncTree
+        bindFunction(&Clock::addClock, addClock_name, addClock_desc);
+
+        // Read clock list from document
+        readClocksFromDocument();
+    }
+
+private:
+    /**
+     * @brief Current time in milliseconds since the program started.
+     * @details Extracted from the global document, calculated via Time DomainModule.
+     */
+    std::uint64_t current_time_ms = 0;
+
+    /**
+     * @struct ClockEntry
+     * @brief Structure representing a clock entry in the global clock list.
+     */
+    struct ClockEntry {
+        std::uint64_t last_trigger_ms; // Last time the clock was triggered
+        std::uint64_t interval_ms; // Trigger interval in milliseconds
+        double* globalReference; // Pointer to the global document entry
+
+        ClockEntry(std::uint64_t interval, Data::JsonScope& doc, std::uint64_t current_time);
+
+        /**
+         * @brief Updates the clock entry, setting the global reference based on the timer.
+         * @details If dt is greater than or equal to the interval, sets the global reference to 1.0.
+         *          Otherwise, sets it to 0.0.
+         */
+        void update(std::uint64_t current_time);
+    };
+
+    /**
+     * @brief Map of clock interval to ClockEntry.
+     * @details We use a hashmap so we can easily create new entries and check existing ones.
+     */
+    absl::flat_hash_map<std::uint64_t, ClockEntry> clockEntries;
+
+    /**
+     * @brief Reads the clock list from the global document.
+     * @details This function initializes the clocks hashmap based on available entries in the global document.
+     *          This ensures that any pre-configured clocks are loaded and ready for use.
+     */
+    void readClocksFromDocument();
+
+    /**
+     * @brief Converts a clock interval in milliseconds to a key string.
+     * @details Takes a clock interval in milliseconds and converts it into a key string with zero-padding
+     *          that can be used to access the corresponding clock entry in the global document.
+     *          While up to std::uint64_t is supported, practical clock intervals should be much lower, so we don't pad for the full length.
+     *          This makes the keys more manageable while still being properly sorted for typical use cases.
+     *          Example: An interval of 100ms becomes "ms000100".
+     * @param interval_ms The clock interval in milliseconds.
+     * @return The key string for the clock entry.
+     */
+    static std::string intervalToKey(std::uint64_t interval_ms);
+};
+} // namespace Nebulite::Module::Domain::GlobalSpace
+#endif // NEBULITE_MODULE_DOMAIN_GLOBALSPACE_CLOCK_HPP

@@ -6,8 +6,8 @@
 #include <string_view>
 
 // Nebulite
-#include "Interaction/Execution/FuncTreeErrorMessages.hpp"
-#include "Utility/IO/Capture.hpp"
+#include "Nebulite/Interaction/Execution/FuncTreeErrorMessages.hpp"
+#include "Nebulite/Utility/IO/Capture.hpp"
 
 //------------------------------------------
 namespace Nebulite::Interaction::Execution {

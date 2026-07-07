@@ -1,0 +1,238 @@
+#ifndef NEBULITE_CORE_RENDEROBJECT_HPP
+#define NEBULITE_CORE_RENDEROBJECT_HPP
+
+//------------------------------------------
+// Includes
+
+// Standard library
+#include <cstdint> // NOLINT
+#include <memory>
+#include <ranges>
+#include <string>
+#include <string_view>
+#include <vector>
+
+// External
+#include <absl/container/flat_hash_map.h>
+
+// Nebulite
+#include "Nebulite/Constants/Event.hpp"
+#include "Nebulite/Graphics/Drawcall.hpp"
+#include "Nebulite/Interaction/Execution/Domain.hpp"
+#include "Nebulite/Utility/IO/Capture.hpp"
+
+//------------------------------------------
+// Forward declarations
+
+namespace Nebulite::Interaction::Rules {
+class Ruleset;
+} // namespace Nebulite::Interaction::Rules
+
+//------------------------------------------
+namespace Nebulite::Core {
+
+//------------------------------------------
+// Allow renderer to access document
+
+// An explicit token that only Environment can instantiate
+class EnvironmentToken {
+    friend class Environment;
+    EnvironmentToken() = default; // Private constructor
+};
+
+/**
+ * @class Nebulite::Core::RenderObject
+ * @brief Represents a renderable object in the Nebulite engine.
+ *        This class encapsulates all data and logic needed to
+ *        display, update, and interact with a single object on the screen.
+ */
+class RenderObject final : public Interaction::Execution::Domain {
+public:
+    //------------------------------------------
+    // Special member Functions
+
+    /**
+     * @brief Constructs a new RenderObject.
+     */
+    explicit RenderObject(Utility::IO::Capture& parentCapture);
+
+    /**
+     * @brief Destroys the RenderObject.
+     *        Cleans up any resources used by the RenderObject, including
+     *        textures and surfaces.
+     */
+    ~RenderObject() override;
+
+    //------------------------------------------
+    // Disable Copying and Moving
+
+    RenderObject(RenderObject const&) = delete;
+    RenderObject& operator=(RenderObject const&) = delete;
+    RenderObject(RenderObject&&) = delete;
+    RenderObject& operator=(RenderObject&&) = delete;
+
+    //------------------------------------------
+    // Serializing/Deserializing
+
+    /**
+     * @brief Serializes the RenderObject to a JSON string.
+     * @return A string representation of the RenderObject's JSON document.
+     */
+    [[nodiscard]] std::string serialize() const ;
+
+    /**
+     * @brief Deserializes the RenderObject from a JSON string.
+     * @param serialOrLink The JSON string to deserialize.
+     */
+    void deserialize(std::string const& serialOrLink);
+
+    //------------------------------------------
+    // Document accessors
+
+    /**
+     * @brief Gets the JSON document associated with the RenderObject.
+     * @details Only usable by Core::Environment
+     * @return A reference to the JSON document of the RenderObject.
+     */
+    Data::JsonScope& getDocument(EnvironmentToken const& /*token*/) const {
+        return domainScope;
+    }
+
+    //------------------------------------------
+    // Get position/layer
+
+    struct Position {
+        std::int32_t x;
+        std::int32_t y;
+    };
+
+    /**
+     * @brief Gets the position of the RenderObject.
+     * @return The position of the RenderObject as a Position struct.
+     */
+    [[nodiscard]] Position getPosition() const ;
+
+    /**
+     * @brief Gets the layer of the RenderObject.
+     * @return The layer of the RenderObject, or 0 if not set.
+     */
+    [[nodiscard]] std::uint8_t getLayer() const ;
+
+    //------------------------------------------
+    // Update-Oriented functions
+
+    /**
+     * @brief Updates the RenderObject.
+     *        - updates the domain
+     *        - reloads rulesets if needed
+     *        - updates local rulesets
+     *        - listens to global rulesets
+     *        - broadcasts its own global rulesets
+     *        - calculates source and destination rects
+     * @return Constants::Event indicating success or failure.
+     */
+    [[nodiscard]] Constants::Event update() override;
+
+    //------------------------------------------
+    // Management Flags for Renderer-Interaction
+
+    /**
+     * @struct flag
+     * @brief Flags for managing RenderObject behavior
+     */
+    struct flag {
+        bool deleteFromScene = false; // If true, delete this object from scene on next update
+    } flag;
+
+    //------------------------------------------
+    // Drawcalls
+
+    /**
+     * @brief Draws the RenderObject at the specified offset.
+     * @param renderer The renderer to use
+     * @param offsetX The camera offset in the X direction.
+     * @param offsetY The camera offset in the Y direction.
+     */
+    void draw(Renderer const& renderer, float const& offsetX, float const& offsetY);
+
+    /**
+     * @brief Re-initialize all drawcalls from document
+     */
+    void reinitDrawcalls();
+
+    /**
+     * @brief Initialize only unknown drawcalls from document
+     */
+    void initDrawcalls();
+
+    /**
+     * @brief Reinitialize a specific drawcall from document
+     */
+    void reInitDrawcall(std::string const& drawcallName);
+
+    /**
+     * @brief Lists all active drawcalls in the RenderObject
+     * @return A vector of strings containing the names of all active drawcalls
+     */
+    auto listDrawcalls() {
+        return drawcalls | std::views::keys;
+    }
+
+    /**
+     * @brief Parses a command onto a drawcall
+     * @param drawCallName The name of the drawcall to parse the command onto
+     * @param args The arguments to parse
+     * @param ctx The context of the interaction
+     * @param ctxScope The context scope of the interaction
+     * @return Constants::Event indicating success or failure
+     */
+    Constants::Event parseDrawcallCommand(std::string_view drawCallName, std::string_view args, Interaction::Context& ctx, Interaction::ContextScope& ctxScope);
+
+private:
+    //------------------------------------------
+    // Initialization
+
+    /**
+     * @brief Helper function to avoid calls to virtual functions in constructor.
+     *        In order for this one to make more sense, it initializes the inherited domains and DomainModules as well.
+     */
+    void init();
+
+    //------------------------------------------
+    // Private draw call management
+
+    absl::flat_hash_map<std::string, std::shared_ptr<Graphics::Drawcall>> drawcalls;
+
+    // Reference to members in hashmap sorted by their draw order
+    std::vector<std::string> drawcallOrder;
+
+    /**
+     * @brief Sorts all drawcalls alphabetically
+     */
+    void sortDrawcalls();
+
+    /**
+     * @brief Updates all drawcalls and their associated texture
+     */
+    void updateDrawcalls();
+
+    //------------------------------------------
+    // References to JSON
+
+    /**
+     * @struct FrequentRefs
+     * @brief Holds frequently used references for quick access.
+     */
+    struct FrequentRefs {
+        // Position
+        double* posX = nullptr;
+        double* posY = nullptr;
+    } refs{};
+
+    /**
+     * @brief Links frequently used references from the JSON document for quick access.
+     */
+    void linkFrequentRefs();
+};
+} // namespace Nebulite::Core
+#endif // NEBULITE_CORE_RENDEROBJECT_HPP

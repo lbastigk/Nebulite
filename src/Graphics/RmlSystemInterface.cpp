@@ -12,8 +12,8 @@
 #include <SDL3/SDL_video.h>
 
 // Nebulite
-#include "Graphics/RmlSystemInterface.hpp"
-#include "Utility/IO/Capture.hpp"
+#include "Nebulite/Graphics/RmlSystemInterface.hpp"
+#include "Nebulite/Utility/IO/Capture.hpp"
 
 //------------------------------------------
 namespace Nebulite::Graphics {

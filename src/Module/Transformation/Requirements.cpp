@@ -5,11 +5,11 @@
 #include <span>
 
 // Nebulite
-#include "Data/Document/JsonScope.hpp"
-#include "Module/Transformation/Assertions.hpp"
-#include "Module/Transformation/Requirements.hpp"
-#include "Nebulite.hpp"
-#include "Utility/StringHandler.hpp"
+#include "Nebulite/Data/Document/JsonScope.hpp"
+#include "Nebulite/Module/Transformation/Assertions.hpp"
+#include "Nebulite/Module/Transformation/Requirements.hpp"
+#include "Nebulite/Nebulite.hpp"
+#include "Nebulite/Utility/StringHandler.hpp"
 
 //------------------------------------------
 namespace Nebulite::Module::Transformation {

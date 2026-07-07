@@ -19,11 +19,11 @@
 #include <rapidjson/writer.h>
 
 // Nebulite
-#include "Core/GlobalSpace.hpp"
-#include "Data/Document/RjDirectAccess.hpp"
-#include "Nebulite.hpp"
-#include "Utility/IO/Capture.hpp"
-#include "Utility/StringHandler.hpp"
+#include "Nebulite/Core/GlobalSpace.hpp"
+#include "Nebulite/Data/Document/RjDirectAccess.hpp"
+#include "Nebulite/Nebulite.hpp"
+#include "Nebulite/Utility/IO/Capture.hpp"
+#include "Nebulite/Utility/StringHandler.hpp"
 
 //------------------------------------------
 namespace Nebulite::Data {

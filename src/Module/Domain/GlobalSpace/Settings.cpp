@@ -7,15 +7,15 @@
 #include <string>
 
 // Nebulite
-#include "Constants/Event.hpp"
-#include "Constants/StandardCapture.hpp"
-#include "Core/GlobalSpace.hpp"
-#include "Data/Document/JSON.hpp"
-#include "Data/Document/KeyType.hpp"
-#include "Module/Domain/GlobalSpace/InputMapping.hpp"
-#include "Module/Domain/GlobalSpace/Settings.hpp"
-#include "Nebulite.hpp"
-#include "Utility/IO/FileManagement.hpp"
+#include "Nebulite/Constants/Event.hpp"
+#include "Nebulite/Constants/StandardCapture.hpp"
+#include "Nebulite/Core/GlobalSpace.hpp"
+#include "Nebulite/Data/Document/JSON.hpp"
+#include "Nebulite/Data/Document/KeyType.hpp"
+#include "Nebulite/Module/Domain/GlobalSpace/InputMapping.hpp"
+#include "Nebulite/Module/Domain/GlobalSpace/Settings.hpp"
+#include "Nebulite/Nebulite.hpp"
+#include "Nebulite/Utility/IO/FileManagement.hpp"
 
 //------------------------------------------
 namespace Nebulite::Module::Domain::GlobalSpace {

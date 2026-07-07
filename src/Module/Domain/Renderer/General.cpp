@@ -24,15 +24,15 @@
 #include <stb_image_write.h>
 
 // Nebulite
-#include "Constants/Event.hpp"
-#include "Constants/StandardCapture.hpp"
-#include "Core/RenderObject.hpp"
-#include "Core/Renderer.hpp"
-#include "Data/Document/JSON.hpp"
-#include "Data/Document/RjDirectAccess.hpp"
-#include "Module/Domain/Renderer/General.hpp"
-#include "Utility/IO/FileManagement.hpp"
-#include "Utility/StringHandler.hpp"
+#include "Nebulite/Constants/Event.hpp"
+#include "Nebulite/Constants/StandardCapture.hpp"
+#include "Nebulite/Core/RenderObject.hpp"
+#include "Nebulite/Core/Renderer.hpp"
+#include "Nebulite/Data/Document/JSON.hpp"
+#include "Nebulite/Data/Document/RjDirectAccess.hpp"
+#include "Nebulite/Module/Domain/Renderer/General.hpp"
+#include "Nebulite/Utility/IO/FileManagement.hpp"
+#include "Nebulite/Utility/StringHandler.hpp"
 
 //------------------------------------------
 namespace Nebulite::Module::Domain::Renderer {

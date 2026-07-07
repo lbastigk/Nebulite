@@ -16,8 +16,10 @@
 #include <vector>
 
 // External
+#include <RmlUi/Core/Context.h>
 #include <RmlUi/Core/Core.h>
 #include <RmlUi/Core/Element.h>
+#include <RmlUi/Core/ElementDocument.h>
 #include <RmlUi/Core/Input.h>
 #include <RmlUi_Platform_SDL.h>
 #include <RmlUi_Renderer_SDL.h>
@@ -27,19 +29,19 @@
 #include <SDL3/SDL_scancode.h>
 
 // Nebulite
-#include "Core/Renderer.hpp"
-#include "Graphics/RmlInterface.hpp"
-#include "Graphics/RmlSystemInterface.hpp"
-#include "Interaction/Context.hpp"
-#include "Utility/IO/FileManagement.hpp"
+#include "Nebulite/Core/Renderer.hpp"
+#include "Nebulite/Graphics/RmlInterface.hpp"
+#include "Nebulite/Graphics/RmlSystemInterface.hpp"
+#include "Nebulite/Interaction/Context.hpp"
+#include "Nebulite/Utility/IO/FileManagement.hpp"
 
 // Nebulite: RmlUi-Modules
-#include "Module/RmlUi/Conditional.hpp"
-#include "Module/RmlUi/ContextManager.hpp"
-#include "Module/RmlUi/DataReference.hpp"
-#include "Module/RmlUi/EventBridge.hpp"
-#include "Module/RmlUi/ExpressionManager.hpp"
-#include "Module/RmlUi/Reflection.hpp"
+#include "Nebulite/Module/RmlUi/Conditional.hpp"
+#include "Nebulite/Module/RmlUi/ContextManager.hpp"
+#include "Nebulite/Module/RmlUi/DataReference.hpp"
+#include "Nebulite/Module/RmlUi/EventBridge.hpp"
+#include "Nebulite/Module/RmlUi/ExpressionManager.hpp"
+#include "Nebulite/Module/RmlUi/Reflection.hpp"
 
 //------------------------------------------
 // Due to lifetime issues, we need to keep track of the interface
@@ -353,6 +355,10 @@ void RmlInterface::updateElement(Rml::Element* element, std::function<void(Rml::
             updateElement(child, updateFunc);
         }
     }
+}
+
+void RmlInterface::updateElement(Rml::ElementDocument* element, std::function<void(Rml::Element*, Rml::Element*)> const& updateFunc){
+    updateElement(static_cast<Rml::Element*>(element), updateFunc);
 }
 
 std::unordered_set<Rml::ElementDocument*> const& RmlInterface::getOpenedDocuments() const{

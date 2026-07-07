@@ -12,15 +12,15 @@
 #include <string_view>
 
 // Nebulite
-#include "Constants/Event.hpp"
-#include "Constants/StandardCapture.hpp"
-#include "Core/GlobalSpace.hpp"
-#include "Interaction/Rules/Construction/RulesetCompiler.hpp"
-#include "Interaction/Rules/Listener.hpp"
-#include "Interaction/Rules/Ruleset.hpp"
-#include "Module/Domain/Common/Ruleset.hpp"
-#include "Nebulite.hpp"
-#include "Utility/StringHandler.hpp"
+#include "Nebulite/Constants/Event.hpp"
+#include "Nebulite/Constants/StandardCapture.hpp"
+#include "Nebulite/Core/GlobalSpace.hpp"
+#include "Nebulite/Interaction/Rules/Construction/RulesetCompiler.hpp"
+#include "Nebulite/Interaction/Rules/Listener.hpp"
+#include "Nebulite/Interaction/Rules/Ruleset.hpp"
+#include "Nebulite/Module/Domain/Common/Ruleset.hpp"
+#include "Nebulite/Nebulite.hpp"
+#include "Nebulite/Utility/StringHandler.hpp"
 
 //------------------------------------------
 namespace Nebulite::Module::Domain::Common {
