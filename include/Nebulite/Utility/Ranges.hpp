@@ -6,6 +6,7 @@
 
 // Standard library
 #include <concepts>
+#include <cstddef>
 #include <optional>
 #include <ranges>
 #include <type_traits>
@@ -56,6 +57,28 @@ public:
     };
 
     static collect_optional_fn constexpr collectOptional{};
+
+    /**
+     * @brief Generates a range of powers of two up to a specified maximum value.
+     * @param inclusiveMax The inclusive maximum value for the range of powers of two.
+     * @return A view of the powers of two: [2, 4, 8, ..., inclusiveMax]
+     */
+    static auto constexpr powersOfTwo(std::size_t const inclusiveMax) {
+        return std::views::iota(1)
+             | std::views::transform([](std::size_t const x) { return x << 1; })
+             | std::views::take_while([inclusiveMax](std::size_t const x) { return x <= inclusiveMax; });
+    }
+
+    /**
+     * @brief The stdlib iota has issues with static analyzers, even though it works fine. This is a workaround
+     * @param exclusiveMax The exclusive maximum value for the range
+     * @return A view of the iota range: [0, exclusiveMax)
+     */
+    static auto constexpr iota(std::size_t const exclusiveMax) {
+        return std::views::iota(0)
+            | std::views::take_while([exclusiveMax](std::size_t const x) { return x < exclusiveMax; })
+            | std::views::transform([](auto const idx) { return static_cast<std::size_t>(idx); });
+    }
 
 };
 
