@@ -19,6 +19,7 @@ template <typename T>
 concept OptionalLike = requires(T x) {
     typename std::remove_cvref_t<T>::value_type;
     { x.has_value() } -> std::convertible_to<bool>;
+    x.value();
     *x;
 };
 
@@ -63,7 +64,7 @@ public:
      */
     static auto constexpr powersOfTwo(std::size_t const inclusiveMax) {
         return std::views::iota(0)
-            | std::views::transform([](std::size_t const x) { return 2 << x; })
+            | std::views::transform([](std::size_t const x) { return std::size_t{2} << x; })
             | std::views::take_while([inclusiveMax](std::size_t const x) { return x <= inclusiveMax; });
     }
 
