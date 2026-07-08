@@ -6,18 +6,20 @@
 #include <bit>
 #include <cmath>
 #include <complex>
-#include <cstdlib>
-#include <math.h> // NOLINT
+#include <cstddef>
+#include <numbers>
 #include <ranges>
 #include <vector>
 
 // Nebulite
 #include "Nebulite/Math/FFT.hpp"
+#include "Nebulite/Utility/Ranges.hpp"
 
 //------------------------------------------
 namespace Nebulite::Math {
 
 namespace {
+
 std::size_t reverseBits(std::size_t input, std::size_t const N) {
     std::size_t result = 0;
     for (std::size_t i = 0; i < N; ++i) {
@@ -28,15 +30,25 @@ std::size_t reverseBits(std::size_t input, std::size_t const N) {
     return result;
 }
 
-auto constexpr powersOfTwo(std::size_t const inclusiveMax) {
-    return std::views::iota(std::size_t{1})
-         | std::views::transform([](std::size_t const x) { return x << 1; })
-         | std::views::take_while([inclusiveMax](std::size_t const x) { return x <= inclusiveMax; });
+void applyStage(auto& a, std::complex<double> const stageTwiddle, std::size_t const stageSize, std::size_t const N) {
+    auto const halfStageSize = stageSize / 2;
+
+    for (auto const i : Utility::Ranges::iota(N) | std::views::stride(stageSize)) {
+        std::complex w(1.0);
+
+        for (auto const j : Utility::Ranges::iota(halfStageSize)) {
+            auto const u = a[i + j];
+            auto const v = a[i + j + halfStageSize] * w;
+
+            a[i + j] = u + v;
+            a[i + j + halfStageSize] = u - v;
+
+            w *= stageTwiddle;
+        }
+    }
 }
 
 } // namespace
-
-// TODO: Large refactor + testing required!
 
 std::vector<std::complex<double>> FFT::fft(std::vector<double> const& data) {
     std::size_t const n = data.size();
@@ -55,23 +67,10 @@ std::vector<std::complex<double>> FFT::fft(std::vector<double> const& data) {
     }
 
     // FFT stages
-    for (auto const len : powersOfTwo(N) | std::views::drop(1)) {
-        double const ang = -2.0 * M_PI / static_cast<double>(len);
-        std::complex const wLen(std::cos(ang), std::sin(ang));
-
-        for (std::size_t i = 0; i < N; i += len) {
-            std::complex w(1.0);
-
-            for (std::size_t j = 0; j < len / 2; ++j) {
-                auto const u = a[i + j];
-                auto const v = a[i + j + len / 2] * w;
-
-                a[i + j] = u + v;
-                a[i + j + len / 2] = u - v;
-
-                w *= wLen;
-            }
-        }
+    for (auto const stageSize : Utility::Ranges::powersOfTwo(N)) {
+        double const ang = -2.0 * std::numbers::pi / static_cast<double>(stageSize);
+        std::complex const stageTwiddle(std::cos(ang), std::sin(ang));
+        applyStage(a, stageTwiddle, stageSize, N);
     }
 
     return a;
@@ -83,78 +82,52 @@ std::vector<std::complex<double>> FFT::fftInverse(std::vector<std::complex<doubl
 
     std::vector<std::complex<double>> a = X;
 
-    // bit-reversal permutation
-    std::size_t b = 0;
-    for (std::size_t i = 1; i < N; ++i) {
-        std::size_t bit = N >> 1;
-        while (static_cast<bool>(b & bit)) {
-            b ^= bit;
-            bit >>= 1;
-        }
-        b |= bit;
-
-        if (i < b)
+    // bit-reversal permutation for proper ordering of input data (required for cooley-turkey)
+    for (auto const i : std::views::iota(std::size_t{0}, N)) {
+        if (auto const b = reverseBits(i, N); i < b) {
             std::swap(a[i], a[b]);
+        }
     }
 
     // IFFT stages (note sign flip)
-    for (std::size_t len = 2; len <= N; len <<= 1) {
-        double const ang = 2.0 * M_PI / static_cast<double>(len);
-        std::complex const wLen(std::cos(ang), std::sin(ang));
-
-        for (std::size_t i = 0; i < N; i += len) {
-            std::complex w(1.0);
-
-            for (std::size_t j = 0; j < len / 2; ++j) {
-                auto u = a[i + j];
-                auto v = a[i + j + len / 2] * w;
-
-                a[i + j] = u + v;
-                a[i + j + len / 2] = u - v;
-
-                w *= wLen;
-            }
-        }
+    for (auto const stageSize : Utility::Ranges::powersOfTwo(N)) {
+        double const ang = 2.0 * std::numbers::pi / static_cast<double>(stageSize);
+        std::complex const stageTwiddle(std::cos(ang), std::sin(ang));
+        applyStage(a, stageTwiddle, stageSize, N);
     }
 
     // normalize
+    auto const dN = static_cast<double>(N);
     for (auto& v : a)
-        v /= static_cast<double>(N);
+        v /= dN;
 
     return a;
 }
 
+namespace {
+std::complex<double> evaluatePolynomial(const std::vector<double>& coefficients, std::complex<double> const z) {
+    std::complex zPow(1.0);
+    std::complex result(0.0);
+    for (double const c : coefficients) {
+        result += c * zPow;
+        zPow *= z;
+    }
+    return result;
+}
+} // namespace
+
 std::complex<double> FFT::evalTransfer(double const omega, std::vector<double> const& num, std::vector<double> const& den) {
     std::complex<double> const z = std::exp(std::complex(0.0, -omega));
-    std::complex numSum(0.0);
-    std::complex denSum(0.0);
-    std::complex zPow(1.0);
-
-    // numerator
-    for (double const b : num) {
-        numSum += b * zPow;
-        zPow *= z;
-    }
-
-    zPow = 1.0;
-
-    // denominator
-    for (double const a : den) {
-        denSum += a * zPow;
-        zPow *= z;
-    }
-
-    static auto constexpr eps = 1e-12;
-    if (std::abs(denSum) < eps)
-        return 0.0;
-
+    std::complex const numSum = evaluatePolynomial(num, z);
+    std::complex const denSum = evaluatePolynomial(den, z);
     return numSum / denSum;
 }
 
 std::vector<double> FFT::applyTransferFunction(std::vector<double> const& data, std::vector<double> const& num, std::vector<double> const& den) {
     auto X = fft(data);
+    auto const xSize = static_cast<double>(X.size());
     for (auto [k, x] : std::views::enumerate(X)) {
-        double const omega = 2.0 * M_PI * static_cast<double>(k) / static_cast<double>(X.size());
+        double const omega = 2.0 * std::numbers::pi * static_cast<double>(k) / xSize;
         x *= evalTransfer(omega, num, den);
     }
     auto const y = fftInverse(X);
