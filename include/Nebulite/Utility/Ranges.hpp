@@ -30,7 +30,7 @@ public:
     /**
      * @brief Collects a range of optional values into an optional vector. If any value in the range is empty, the result will be an empty optional.
      */
-    struct collect_optional_fn : std::ranges::range_adaptor_closure<collect_optional_fn> {
+    static struct collect_optional_fn : std::ranges::range_adaptor_closure<collect_optional_fn> {
         /**
          * @brief Collects a range of optional values into an optional vector. If any value in the range is empty, the result will be an empty optional.
          * @tparam R The type of the input range.
@@ -54,9 +54,7 @@ public:
             }
             return std::optional<std::vector<T>>{std::move(result)};
         }
-    };
-
-    static collect_optional_fn constexpr collectOptional{};
+    } constexpr collectOptional{};
 
     /**
      * @brief Generates a range of powers of two up to a specified maximum value.
@@ -65,8 +63,8 @@ public:
      */
     static auto constexpr powersOfTwo(std::size_t const inclusiveMax) {
         return std::views::iota(1)
-             | std::views::transform([](std::size_t const x) { return x << 1; })
-             | std::views::take_while([inclusiveMax](std::size_t const x) { return x <= inclusiveMax; });
+            | std::views::transform([](std::size_t const x) { return x << 1; })
+            | std::views::take_while([inclusiveMax](std::size_t const x) { return x <= inclusiveMax; });
     }
 
     /**
