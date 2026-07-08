@@ -62,8 +62,8 @@ public:
      * @return A view of the powers of two: [2, 4, 8, ..., inclusiveMax]
      */
     static auto constexpr powersOfTwo(std::size_t const inclusiveMax) {
-        return std::views::iota(1)
-            | std::views::transform([](std::size_t const x) { return x << 1; })
+        return std::views::iota(0)
+            | std::views::transform([](std::size_t const x) { return 2 << x; })
             | std::views::take_while([inclusiveMax](std::size_t const x) { return x <= inclusiveMax; });
     }
 
