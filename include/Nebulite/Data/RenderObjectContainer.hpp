@@ -25,13 +25,6 @@
 #include "Nebulite/Utility/IO/Capture.hpp"
 
 //------------------------------------------
-// Forward declarations
-
-namespace Nebulite::Core {
-class RenderObject;
-} // namespace Nebulite::Core
-
-//------------------------------------------
 namespace Nebulite::Data {
 /**
  * @class Nebulite::Data::RenderObjectContainer

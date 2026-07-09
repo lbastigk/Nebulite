@@ -24,8 +24,7 @@
 #include "Nebulite/Data/Document/RjDirectAccess.hpp"
 #include "Nebulite/Data/Document/ScopedKey.hpp"
 #include "Nebulite/Data/Document/SimpleValueError.hpp"
-#include "Nebulite/Data/OrderedCacheList.hpp"
-#include "Nebulite/Utility/Coordination/IdGenerator.hpp"
+#include "Nebulite/Data/MappedOrderedCacheList.hpp"
 
 //------------------------------------------
 // Forward declarations
@@ -47,8 +46,7 @@ namespace Nebulite::Data {
  */
 class JsonScope final {
 public:
-    // Thread runners are unique, no locking needed
-    static auto constexpr noLockArraySize = Constants::ThreadSettings::Maximum::totalThreadCount + 4; // A bit extra, just in case
+    static auto constexpr cacheLookupThreadCount = Constants::ThreadSettings::Maximum::totalThreadCount + 4; // A bit extra, just in case
 
 private:
     std::shared_ptr<JSON> baseDocument;
@@ -71,7 +69,7 @@ private:
     /**
      * @brief Mapped ordered double pointers intended for non-locking access
      */
-    alignas(Constants::Alignment::SIMD_ALIGN) std::array<MappedOrderedCacheList, noLockArraySize> odpCache;
+    alignas(Constants::Alignment::SIMD_ALIGN) std::array<MappedOrderedCacheList, cacheLookupThreadCount> odpCache;
 
     //------------------------------------------
     // Valid prefix check and generation
@@ -205,19 +203,15 @@ public:
     //------------------------------------------
     // Extra fast ordered cache list retrieval with minimal locking
 
-    static std::size_t assignThreadIndex() {
-        static auto indexCounter = Utility::Coordination::IdGenerator::atomicIncrementIdGenerator();
-        thread_local std::size_t const threadIndex = indexCounter();
-        return threadIndex;
-    }
+    /**
+     * @brief Used internally to assign a thread-local index for cache lookup.
+     * @details Use externally if you need to assign an index for any thread and ensure that it is within the bounds of the non-locking array size.
+     * @return A unique index for the current thread, suitable for accessing the non-locking array of ordered cache lists.
+     *         Not guaranteed to stay within the bounds!
+     */
+    static std::size_t assignCacheLookupIndex();
 
-    double** ensureOrderedCacheList(std::uint64_t const uniqueId, std::vector<ScopedKeyView> const& keys) {
-        thread_local std::size_t const threadIndex = assignThreadIndex();
-        if (threadIndex >= noLockArraySize) {
-            throw std::runtime_error("Thread index exceeds non-locking array size! Too many threads accessing ordered cache lists, increase noLockArraySize or reduce thread count.");
-        }
-        return odpCache[threadIndex].ensureOrderedCacheListNoLock(uniqueId, keys);
-    }
+    double** ensureOrderedCacheList(std::uint64_t uniqueId, std::vector<ScopedKeyView> const& keys);
 
     //------------------------------------------
     // Key Types, Sizes

@@ -61,7 +61,6 @@ struct ReinsertionProcess {
  *        Or new mechanisms that require a 2-step deletion.
  */
 struct DeletionProcess {
-    //std::vector<Nebulite::Core::RenderObject*> to_delete;
     std::vector<Core::RenderObject*> trash; // Moving objects, marking for deletion
     std::vector<Core::RenderObject*> purgatory; // Deleted each frame
     std::mutex deleteMutex; // Threadsafe insertion into trash

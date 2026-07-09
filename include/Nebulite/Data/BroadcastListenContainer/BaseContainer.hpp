@@ -37,7 +37,7 @@ public:
         , dispatcher(stopFlag, processImpl, initImpl)
     {
         dispatcher.workspace = container;
-        ensureEarlyThreadId();
+        verifyCacheLookupIndex();
     }
 
     virtual ~BaseContainer() = default;
@@ -99,10 +99,10 @@ private:
     static void initImpl(DerivedContainer container) { container->init(); }
     static void processImpl(DerivedContainer container) { container->process(); }
 
-    static void ensureEarlyThreadId() {
+    static void verifyCacheLookupIndex() {
         thread_local bool threadIdAssigned = false;
         if (threadIdAssigned) return;
-        if (std::size_t const id = JsonScope::assignThreadIndex(); id >= JsonScope::noLockArraySize) {
+        if (std::size_t const id = JsonScope::assignCacheLookupIndex(); id >= JsonScope::cacheLookupThreadCount) {
             throw std::runtime_error("Thread ID exceeds non-locking array size!");
         }
         threadIdAssigned = true;

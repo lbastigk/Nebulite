@@ -9,6 +9,7 @@
 #include <mutex>
 #include <optional>
 #include <span>
+#include <stdexcept>
 #include <string>
 #include <vector>
 
@@ -19,7 +20,8 @@
 #include "Nebulite/Data/Document/RjDirectAccess.hpp"
 #include "Nebulite/Data/Document/ScopedKey.hpp"
 #include "Nebulite/Data/Document/SimpleValueError.hpp"
-#include "Nebulite/Data/OrderedCacheList.hpp"
+#include "Nebulite/Data/MappedOrderedCacheList.hpp"
+#include "Nebulite/Utility/Coordination/IdGenerator.hpp"
 #include "Nebulite/Utility/Generate.hpp"
 
 //------------------------------------------
@@ -30,21 +32,21 @@ JsonScope::JsonScope(JSON& doc, std::optional<std::string> const& prefix)
     // create a non-owning shared_ptr to the provided JSON (no delete on destruction)
     : baseDocument(std::shared_ptr<JSON>(&doc, [](JSON*){}))
     , scopePrefix(prefix.has_value() ? std::optional(generatePrefix(prefix.value())) : std::nullopt)
-    , odpCache(Utility::Generate::array<MappedOrderedCacheList, noLockArraySize>([this](std::size_t) {return MappedOrderedCacheList(*this);}))
+    , odpCache(Utility::Generate::array<MappedOrderedCacheList, cacheLookupThreadCount>([this](std::size_t) {return MappedOrderedCacheList(*this);}))
 {}
 
 // Constructing a JsonScope from another JsonScope and a sub-prefix
 JsonScope::JsonScope(JsonScope const& other, std::optional<std::string> const& prefix)
     : baseDocument(other.baseDocument)
     , scopePrefix(prefix.has_value() ? std::optional(ScopedKeyView(generatePrefix(prefix.value())).full(other)) : std::nullopt) // Generate full scoped prefix based on the other JsonScope and the new prefix
-    , odpCache(Utility::Generate::array<MappedOrderedCacheList, noLockArraySize>([this](std::size_t){return MappedOrderedCacheList(*this);}))
+    , odpCache(Utility::Generate::array<MappedOrderedCacheList, cacheLookupThreadCount>([this](std::size_t){return MappedOrderedCacheList(*this);}))
 {}
 
 // Default constructor, we create a self-owned empty JSON document
 JsonScope::JsonScope()
     : baseDocument(std::make_shared<JSON>())
     , scopePrefix("")
-    , odpCache(Utility::Generate::array<MappedOrderedCacheList, noLockArraySize>([this](std::size_t) {return MappedOrderedCacheList(*this);}))
+    , odpCache(Utility::Generate::array<MappedOrderedCacheList, cacheLookupThreadCount>([this](std::size_t) {return MappedOrderedCacheList(*this);}))
 {}
 
 JsonScope::~JsonScope() = default;
@@ -143,6 +145,23 @@ void JsonScope::set_concat(ScopedKeyView const& key, std::string const& valStr){
 
 [[nodiscard]] std::unique_lock<std::recursive_mutex> JsonScope::lock() const {
     return baseDocument->lock();
+}
+
+//------------------------------------------
+// Ordered cache list related
+
+std::size_t JsonScope::assignCacheLookupIndex() {
+    static auto indexCounter = Utility::Coordination::IdGenerator::atomicIncrementIdGenerator();
+    thread_local std::size_t const threadIndex = indexCounter();
+    return threadIndex;
+}
+
+double** JsonScope::ensureOrderedCacheList(std::uint64_t const uniqueId, std::vector<ScopedKeyView> const& keys) {
+    thread_local std::size_t const threadIndex = assignCacheLookupIndex();
+    if (threadIndex >= cacheLookupThreadCount) {
+        throw std::runtime_error("Thread index exceeds non-locking array size! Too many threads accessing ordered cache lists, increase cacheLookupThreadCount or reduce thread count.");
+    }
+    return odpCache[threadIndex].ensureOrderedCacheListNoLock(uniqueId, keys);
 }
 
 //------------------------------------------
