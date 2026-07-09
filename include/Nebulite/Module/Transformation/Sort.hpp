@@ -19,6 +19,7 @@
 #include "Nebulite/Data/Document/JsonScope.hpp"
 #include "Nebulite/Interaction/Execution/FuncTree.hpp"
 #include "Nebulite/Module/Base/TransformationModule.hpp"
+#include "Nebulite/Utility/Ranges.hpp"
 
 //------------------------------------------
 // Forward declarations
@@ -92,8 +93,8 @@ private:
             values.emplace_back(jsonDoc.get<T>(key).value_or(fallbackValue), jsonDoc.getSubDoc(key));
         }
         std::ranges::sort(values.begin(), values.end(), comparator);
-        for (auto [idx, value] : values | std::views::enumerate) {
-            auto const key = rootKey.addIndex(static_cast<std::size_t>(idx));
+        for (auto [idx, value] : values | Utility::Ranges::enumerate) {
+            auto const key = rootKey.addIndex(idx);
             jsonDoc.setSubDoc(key, value.second);
         }
     }

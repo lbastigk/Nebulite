@@ -4,7 +4,6 @@
 // Standard library
 #include <algorithm>
 #include <cmath>
-#include <cstddef>
 #include <functional>
 #include <limits>
 #include <ranges>
@@ -15,6 +14,7 @@
 #include "Nebulite/Data/Document/JsonScope.hpp"
 #include "Nebulite/Data/Document/ScopedKey.hpp"
 #include "Nebulite/Module/Transformation/Arithmetic.hpp"
+#include "Nebulite/Utility/Ranges.hpp"
 
 //------------------------------------------
 namespace Nebulite::Module::Transformation {
@@ -38,10 +38,10 @@ bool Arithmetic::forall(std::span<std::string_view const> const& args, std::func
         if (args.size() == 2) {
             return func(args[1], rootKey);
         }
-        return std::ranges::all_of(args | std::views::drop(1) | std::views::enumerate,
+        return std::ranges::all_of(args | std::views::drop(1) | Utility::Ranges::enumerate,
             [&](auto const& item) {
                 auto const& [index, arg] = item;
-                auto const key = rootKey.addIndex(static_cast<size_t>(index));
+                auto const key = rootKey.addIndex(index);
                 return func(arg, key.view());
             }
         );

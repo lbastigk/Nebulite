@@ -22,6 +22,7 @@
 #include "Nebulite/Interaction/Rules/Construction/RulesetCompiler.hpp"
 #include "Nebulite/Interaction/Rules/Ruleset.hpp"
 #include "Nebulite/Nebulite.hpp"
+#include "Nebulite/Utility/Ranges.hpp"
 #include "Nebulite/Utility/StringHandler.hpp"
 
 //------------------------------------------
@@ -131,8 +132,8 @@ bool RulesetCompiler::getJsonRuleset(Data::JsonScope const& doc, Data::JsonScope
 }
 
 void RulesetCompiler::setMetaData(RulesetVector const& rulesets) {
-    for (auto [i, ruleset] : rulesets | std::views::enumerate) {
-        ruleset->index = static_cast<size_t>(i);
+    for (auto [i, ruleset] : rulesets | Utility::Ranges::enumerate) {
+        ruleset->index = i;
     }
 }
 

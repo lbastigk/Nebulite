@@ -13,6 +13,7 @@
 // Nebulite
 #include "Nebulite/Data/Document/JsonScope.hpp"
 #include "Nebulite/Module/Transformation/String.hpp"
+#include "Nebulite/Utility/Ranges.hpp"
 #include "Nebulite/Utility/StringHandler.hpp"
 
 //------------------------------------------
@@ -247,7 +248,7 @@ bool String::split(std::span<std::string_view const> const& args, Data::JsonScop
     auto const delimiter = args.size() == 2 ? args[1].front() : ' ';
     auto const str = jsonDoc.get<std::string>(rootKey).value_or("");
     jsonDoc.setEmptyArray(rootKey);
-    for (auto [index, word] : Utility::StringHandler::split(str, delimiter) | std::views::enumerate) {
+    for (auto [index, word] : Utility::StringHandler::split(str, delimiter) | Utility::Ranges::enumerate) {
         auto const indexedKey = rootKey.addIndex(static_cast<size_t>(index));
         jsonDoc.set(indexedKey, word);
     }

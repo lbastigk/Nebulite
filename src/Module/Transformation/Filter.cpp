@@ -19,6 +19,7 @@
 #include "Nebulite/Interaction/Logic/Expression.hpp"
 #include "Nebulite/Module/Transformation/Filter.hpp"
 #include "Nebulite/Utility/Glob.hpp"
+#include "Nebulite/Utility/Ranges.hpp"
 #include "Nebulite/Utility/StringHandler.hpp"
 
 //------------------------------------------
@@ -103,8 +104,8 @@ bool Filter::filterRegexValue(std::span<std::string_view const> const& args, Dat
 
     // Set values
     jsonDoc.setEmptyArray(rootKey);
-    for (auto [index, value] : values | std::views::enumerate) {
-        auto const key = rootKey.addIndex(static_cast<size_t>(index));
+    for (auto [index, value] : values | Utility::Ranges::enumerate) {
+        auto const key = rootKey.addIndex(index);
         jsonDoc.set(key, value);
     }
     return true;
@@ -126,8 +127,8 @@ bool Filter::filterGlobValue(std::span<std::string_view const> const& args, Data
 
     // Set values
     jsonDoc.setEmptyArray(rootKey);
-    for (auto [index, value] : values | std::views::enumerate) {
-        auto const key = rootKey.addIndex(static_cast<size_t>(index));
+    for (auto [index, value] : values | Utility::Ranges::enumerate) {
+        auto const key = rootKey.addIndex(index);
         jsonDoc.set(key, value);
     }
     return true;
@@ -201,16 +202,16 @@ void Filter::arrayFilter(Data::JsonScope& jsonDoc, std::function<bool(Data::Json
     auto memberCount = jsonDoc.memberSize(rootKey);
     std::vector<Data::JSON> values;
     values.reserve(memberCount);
-    for (auto const idx : std::views::iota(std::size_t{0}, memberCount)) {
-        auto const key = rootKey.addIndex(idx);
+    for (auto const index : std::views::iota(std::size_t{0}, memberCount)) {
+        auto const key = rootKey.addIndex(index);
         auto doc = jsonDoc.getSubDoc(key);
         if (auto& scope = doc.shareManagedScope(""); filter(scope)) {
             values.emplace_back(std::move(doc));
         }
     }
     jsonDoc.removeMember(rootKey);
-    for (auto [idx, value] : values | std::views::enumerate) {
-        auto const key = rootKey.addIndex(static_cast<std::size_t>(idx));
+    for (auto [index, value] : values | Utility::Ranges::enumerate) {
+        auto const key = rootKey.addIndex(index);
         jsonDoc.setSubDoc(key, value);
     }
 }

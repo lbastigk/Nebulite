@@ -23,6 +23,7 @@
 #include "Nebulite/Core/Renderer.hpp"
 #include "Nebulite/Module/Domain/Renderer/Tiling.hpp"
 #include "Nebulite/Utility/Coordination/TimedRoutine.hpp"
+#include "Nebulite/Utility/Ranges.hpp"
 
 //------------------------------------------
 namespace Nebulite::Module::Domain::Renderer {
@@ -40,8 +41,8 @@ namespace Nebulite::Module::Domain::Renderer {
                     // Not all entries will be overwritten, remove entire array
                     moduleScope.removeMember(Key::visibleTiles);
                 }
-                for (auto [idx, tile] : visibleTiles | std::views::enumerate) {
-                    auto key = Key::visibleTiles.addIndex(static_cast<size_t>(idx));
+                for (auto [idx, tile] : visibleTiles | Utility::Ranges::enumerate) {
+                    auto key = Key::visibleTiles.addIndex(idx);
                     auto keyX = key.addMember("x");
                     auto keyY = key.addMember("y");
                     moduleScope.set<int>(keyX, tile.x);

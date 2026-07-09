@@ -15,6 +15,7 @@
 #include "Nebulite/Data/Batch.hpp"
 #include "Nebulite/Data/Tiling.hpp"
 #include "Nebulite/Module/Domain/Environment/Debug.hpp"
+#include "Nebulite/Utility/Ranges.hpp"
 
 //------------------------------------------
 namespace Nebulite::Module::Domain::Environment {
@@ -53,8 +54,8 @@ Constants::Event Debug::fetchContainer() const {
 
     // Set total count per layer and accumulate
     std::size_t objectCount = 0;
-    for (auto const [layer, count] : countPerLayer | std::views::enumerate) {
-        auto const layerKey = Key::containerObjectCount.addMember("layer").addIndex(static_cast<size_t>(layer));
+    for (auto const [layerIndex, count] : countPerLayer | Utility::Ranges::enumerate) {
+        auto const layerKey = Key::containerObjectCount.addMember("layer").addIndex(layerIndex);
         moduleScope.set<size_t>(layerKey.addMember("total"), count);
         objectCount += count;
     }

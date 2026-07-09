@@ -80,16 +80,16 @@ Constants::Event General::capture(std::span<std::string_view const> const& args,
     // Case 2: new lines
     if (historySizeAfterParsing > historySizeBeforeParsing) {
         // Output only new lines
-        for (auto const [i, index] : Utility::Ranges::iota(historySizeBeforeParsing, historySizeAfterParsing) | std::views::enumerate) {
-            auto indexedKey = key.addIndex(static_cast<size_t>(i));
+        for (auto const [i, index] : Utility::Ranges::iota(historySizeBeforeParsing, historySizeAfterParsing) | Utility::Ranges::enumerate) {
+            auto indexedKey = key.addIndex(i);
             ctxScope.self.set<std::string>(indexedKey, ctx.self.capture.getHistory()[index].content);
         }
     }
     // Case 3: fewer lines, meaning a clear occurred
     else {
         // Output everything
-        for (auto const [i, index] : Utility::Ranges::indices(historySizeAfterParsing) | std::views::enumerate) {
-            auto indexedKey = key.addIndex(static_cast<size_t>(i));
+        for (auto const [i, index] : Utility::Ranges::indices(historySizeAfterParsing) | Utility::Ranges::enumerate) {
+            auto indexedKey = key.addIndex(i);
             ctxScope.self.set<std::string>(indexedKey, ctx.self.capture.getHistory()[index].content);
         }
     }

@@ -15,6 +15,7 @@
 #include "Nebulite/Data/Document/JsonScope.hpp"
 #include "Nebulite/Data/Document/KeyType.hpp"
 #include "Nebulite/Module/Transformation/Collection.hpp"
+#include "Nebulite/Utility/Ranges.hpp"
 
 //------------------------------------------
 namespace Nebulite::Module::Transformation {
@@ -67,10 +68,9 @@ bool Collection::listMembers(Data::JsonScope& jsonDoc){
     jsonDoc.removeMember(rootKey);
     jsonDoc.setEmptyArray(rootKey);
     std::ranges::for_each(
-        membersAndKeys | std::views::enumerate,
+        membersAndKeys | Utility::Ranges::enumerate,
         [&](auto const& enumeratedMemberAndKey) {
-            auto const& [i, memberAndKey] = enumeratedMemberAndKey;
-            auto const index = static_cast<size_t>(i);
+            auto const& [index, memberAndKey] = enumeratedMemberAndKey;
             auto const& [member, _] = memberAndKey;
             auto key = Data::ScopedKey(rootKey.addIndex(index));
             jsonDoc.set<std::string>(key,member);
@@ -97,10 +97,9 @@ bool Collection::listMembersAndValues(Data::JsonScope& jsonDoc){
     jsonDoc.removeMember(rootKey);
     jsonDoc.setEmptyArray(rootKey);
     std::ranges::for_each(
-        membersAndKeys | std::views::enumerate,
+        membersAndKeys | Utility::Ranges::enumerate,
         [&](auto const& enumeratedMemberAndKey) {
-            auto const& [i, memberAndKey] = enumeratedMemberAndKey;
-            auto const index = static_cast<size_t>(i);
+            auto const& [index, memberAndKey] = enumeratedMemberAndKey;
             auto const& [member, key] = memberAndKey;
             auto const key1 = rootKey.addIndex(index).addMember("key");
             auto const key2 = rootKey.addIndex(index).addMember("value");
