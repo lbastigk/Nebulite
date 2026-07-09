@@ -3,6 +3,146 @@
         "__example__": "This is an example custom setting. You can add any settings you want under the 'custom' key in the settings file, and they will always be loaded into the globalspace."
     },
     "inputMapping": {
+        "actionWindow::slot::01": {
+            "slotA": {
+                "action": "onPress",
+                "association": "1"
+            },
+            "slotB": {
+                "action": "empty",
+                "association": ""
+            },
+            "slotC": {
+                "action": "empty",
+                "association": ""
+            }
+        },
+        "actionWindow::slot::02": {
+            "slotA": {
+                "action": "onPress",
+                "association": "2"
+            },
+            "slotB": {
+                "action": "empty",
+                "association": ""
+            },
+            "slotC": {
+                "action": "empty",
+                "association": ""
+            }
+        },
+        "actionWindow::slot::03": {
+            "slotA": {
+                "action": "onPress",
+                "association": "3"
+            },
+            "slotB": {
+                "action": "empty",
+                "association": ""
+            },
+            "slotC": {
+                "action": "empty",
+                "association": ""
+            }
+        },
+        "actionWindow::slot::04": {
+            "slotA": {
+                "action": "onPress",
+                "association": "4"
+            },
+            "slotB": {
+                "action": "empty",
+                "association": ""
+            },
+            "slotC": {
+                "action": "empty",
+                "association": ""
+            }
+        },
+        "actionWindow::slot::05": {
+            "slotA": {
+                "action": "onPress",
+                "association": "5"
+            },
+            "slotB": {
+                "action": "empty",
+                "association": ""
+            },
+            "slotC": {
+                "action": "empty",
+                "association": ""
+            }
+        },
+        "actionWindow::slot::06": {
+            "slotA": {
+                "action": "onPress",
+                "association": "6"
+            },
+            "slotB": {
+                "action": "empty",
+                "association": ""
+            },
+            "slotC": {
+                "action": "empty",
+                "association": ""
+            }
+        },
+        "actionWindow::slot::07": {
+            "slotA": {
+                "action": "onPress",
+                "association": "7"
+            },
+            "slotB": {
+                "action": "empty",
+                "association": ""
+            },
+            "slotC": {
+                "action": "empty",
+                "association": ""
+            }
+        },
+        "actionWindow::slot::08": {
+            "slotA": {
+                "action": "onPress",
+                "association": "8"
+            },
+            "slotB": {
+                "action": "empty",
+                "association": ""
+            },
+            "slotC": {
+                "action": "empty",
+                "association": ""
+            }
+        },
+        "actionWindow::slot::09": {
+            "slotA": {
+                "action": "onPress",
+                "association": "9"
+            },
+            "slotB": {
+                "action": "empty",
+                "association": ""
+            },
+            "slotC": {
+                "action": "empty",
+                "association": ""
+            }
+        },
+        "actionWindow::slot::10": {
+            "slotA": {
+                "action": "onPress",
+                "association": "0"
+            },
+            "slotB": {
+                "action": "empty",
+                "association": ""
+            },
+            "slotC": {
+                "action": "empty",
+                "association": ""
+            }
+        },
         "combat::attack": {
             "slotA": {
                 "action": "current",

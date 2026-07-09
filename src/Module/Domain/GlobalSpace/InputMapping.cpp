@@ -187,6 +187,18 @@ void InputMapping::loadDefaultMappings(Data::JsonScope& scope) {
     addMappingToScope(scope, "movement::down", {{{"s", "current"}, {"down", "current"}, {"", "empty"}}});
     addMappingToScope(scope, "movement::left", {{{"a", "current"}, {"left", "current"}, {"", "empty"}}});
     addMappingToScope(scope, "movement::right", {{{"d", "current"}, {"right", "current"}, {"", "empty"}}});
+
+    // ActionWindow
+    addMappingToScope(scope, "actionWindow::slot::01", {{{"1", "onPress"}, {"", "empty"}, {"", "empty"}}});
+    addMappingToScope(scope, "actionWindow::slot::02", {{{"2", "onPress"}, {"", "empty"}, {"", "empty"}}});
+    addMappingToScope(scope, "actionWindow::slot::03", {{{"3", "onPress"}, {"", "empty"}, {"", "empty"}}});
+    addMappingToScope(scope, "actionWindow::slot::04", {{{"4", "onPress"}, {"", "empty"}, {"", "empty"}}});
+    addMappingToScope(scope, "actionWindow::slot::05", {{{"5", "onPress"}, {"", "empty"}, {"", "empty"}}});
+    addMappingToScope(scope, "actionWindow::slot::06", {{{"6", "onPress"}, {"", "empty"}, {"", "empty"}}});
+    addMappingToScope(scope, "actionWindow::slot::07", {{{"7", "onPress"}, {"", "empty"}, {"", "empty"}}});
+    addMappingToScope(scope, "actionWindow::slot::08", {{{"8", "onPress"}, {"", "empty"}, {"", "empty"}}});
+    addMappingToScope(scope, "actionWindow::slot::09", {{{"9", "onPress"}, {"", "empty"}, {"", "empty"}}});
+    addMappingToScope(scope, "actionWindow::slot::10", {{{"0", "onPress"}, {"", "empty"}, {"", "empty"}}});
 }
 
 } // namespace Nebulite::Module::Domain::GlobalSpace
