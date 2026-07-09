@@ -1,5 +1,5 @@
-#ifndef NEBULITE_DATA_DOCUMENT_TYPECONVERSION_HPP
-#define NEBULITE_DATA_DOCUMENT_TYPECONVERSION_HPP
+#ifndef NEBULITE_UTILITY_TYPECONVERSION_HPP
+#define NEBULITE_UTILITY_TYPECONVERSION_HPP
 
 //------------------------------------------
 // Includes
@@ -16,59 +16,16 @@
 #include "Nebulite/Utility/StringHandler.hpp"
 
 //------------------------------------------
-namespace Nebulite::Data {
+namespace Nebulite::Utility {
 // Converter helper functions for convertVariant
 class TypeConversion {
 public:
     class String {
     public:
-        template<typename newType>
-        static constexpr std::optional<newType> toAny(std::string const& value) {
-            if constexpr (std::is_same_v<newType, bool>){
-                return toBool(value);
-            }
-            else if constexpr (std::is_same_v<newType, int>){
-                return toInt(value);
-            }
-            else if constexpr (std::is_same_v<newType, std::uint8_t>){
-                return toUInt8(value);
-            }
-            else if constexpr (std::is_same_v<newType, std::int8_t>){
-                return toInt8(value);
-            }
-            else if constexpr (std::is_same_v<newType, std::uint16_t>){
-                return toUInt16(value);
-            }
-            else if constexpr (std::is_same_v<newType, std::int16_t>){
-                return toInt16(value);
-            }
-            else if constexpr (std::is_same_v<newType, std::uint32_t>){
-                return toUInt32(value);
-            }
-            else if constexpr (std::is_same_v<newType, std::int32_t>){
-                return toInt32(value);
-            }
-            else if constexpr (std::is_same_v<newType, std::uint64_t>){
-                return toUInt64(value);
-            }
-            else if constexpr (std::is_same_v<newType, std::int64_t>){
-                return toInt64(value);
-            }
-            else if constexpr (std::is_same_v<newType, double>){
-                return toDouble(value);
-            }
-            else if constexpr (std::is_same_v<newType, std::string>) {
-                return value;
-            }
-            else {
-                std::unreachable();
-            }
-        }
-
         static std::optional<bool> toBool(std::string const& stored){
             if (stored == "true") return true;
             if (stored == "false") return false;
-            if(Utility::StringHandler::isNumber(stored)){
+            if(StringHandler::isNumber(stored)){
                 try {
                     return std::stoi(stored) != 0;
                 } catch (...){
@@ -177,12 +134,65 @@ public:
                 return std::nullopt;
             }
         }
+
+        template<typename newType>
+        static constexpr std::optional<newType> to(std::string const& value) {
+            if constexpr (std::is_same_v<newType, bool>){
+                return toBool(value);
+            }
+            else if constexpr (std::is_same_v<newType, int>){
+                return toInt(value);
+            }
+            else if constexpr (std::is_same_v<newType, std::uint8_t>){
+                return toUInt8(value);
+            }
+            else if constexpr (std::is_same_v<newType, std::int8_t>){
+                return toInt8(value);
+            }
+            else if constexpr (std::is_same_v<newType, std::uint16_t>){
+                return toUInt16(value);
+            }
+            else if constexpr (std::is_same_v<newType, std::int16_t>){
+                return toInt16(value);
+            }
+            else if constexpr (std::is_same_v<newType, std::uint32_t>){
+                return toUInt32(value);
+            }
+            else if constexpr (std::is_same_v<newType, std::int32_t>){
+                return toInt32(value);
+            }
+            else if constexpr (std::is_same_v<newType, std::uint64_t>){
+                return toUInt64(value);
+            }
+            else if constexpr (std::is_same_v<newType, std::int64_t>){
+                return toInt64(value);
+            }
+            else if constexpr (std::is_same_v<newType, double>){
+                return toDouble(value);
+            }
+            else if constexpr (std::is_same_v<newType, std::string>) {
+                return value;
+            }
+            else {
+                std::unreachable();
+            }
+        }
     };
 
     class Bool {
     public:
         static std::optional<std::string> toString(bool const value){
             return value ? std::optional<std::string>{"true"} : std::optional<std::string>{"false"};
+        }
+
+        template<typename newType>
+        static std::optional<newType> to(bool const value) {
+            if constexpr (std::is_same_v<newType, std::string>) {
+                return toString(value);
+            }
+            else {
+                std::unreachable();
+            }
         }
     };
 
@@ -191,7 +201,17 @@ public:
         static std::optional<bool> toBool(double const value) {
             return std::optional{std::fabs(value) > std::numeric_limits<double>::epsilon()};
         }
+
+        template<typename newType>
+        static std::optional<newType> to(double const value) {
+            if constexpr (std::is_same_v<newType, bool>) {
+                return toBool(value);
+            }
+            else {
+                std::unreachable();
+            }
+        }
     };
 };
-} // namespace Nebulite::Data
-#endif // NEBULITE_DATA_DOCUMENT_TYPECONVERSION_HPP
+} // namespace Nebulite::Utility
+#endif // NEBULITE_UTILITY_TYPECONVERSION_HPP
