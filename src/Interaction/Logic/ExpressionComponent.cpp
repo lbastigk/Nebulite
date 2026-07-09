@@ -17,19 +17,20 @@
 #include "Nebulite/Data/Document/SimpleValueError.hpp"
 #include "Nebulite/Interaction/Context.hpp"
 #include "Nebulite/Interaction/Logic/Expression.hpp"
+#include "Nebulite/Interaction/Logic/ExpressionComponent.hpp"
 #include "Nebulite/Nebulite.hpp"
 
 //------------------------------------------
 namespace Nebulite::Interaction::Logic {
 
-Expression::Component::Component(Component&& other) noexcept :
+ExpressionComponent::ExpressionComponent(ExpressionComponent&& other) noexcept :
     type(other.type), contextType(other.contextType),
     formatter(other.formatter), stringRepresentation(std::move(other.stringRepresentation)), key(std::move(other.key)),
     expression(other.expression) {
     other.expression = nullptr;
 }
 
-Expression::Component& Expression::Component::operator=(Component&& other) noexcept {
+ExpressionComponent& ExpressionComponent::operator=(ExpressionComponent&& other) noexcept {
     if (this != &other) {
         te_free(expression);
         type = other.type;
@@ -157,7 +158,7 @@ void setToken(Data::JSON& token, std::string const& evaluatedKey, ContextScope c
 
 } // namespace
 
-bool Expression::Component::handleComponentTypeVariable(std::string& token, ContextScope const& context, std::size_t const recursionDepth) const {
+bool ExpressionComponent::handleComponentTypeVariable(std::string& token, ContextScope const& context, std::size_t const recursionDepth) const {
     // Do not evaluate if wait is active
     if (evaluationWait > 1) {
         token = "{" + std::to_string(evaluationWait - 1) + "!" + stringRepresentation + "}";
@@ -180,7 +181,7 @@ bool Expression::Component::handleComponentTypeVariable(std::string& token, Cont
     return true;
 }
 
-bool Expression::Component::handleComponentTypeVariable(Data::JSON& token, ContextScope const& context, std::size_t const recursionDepth) const {
+bool ExpressionComponent::handleComponentTypeVariable(Data::JSON& token, ContextScope const& context, std::size_t const recursionDepth) const {
     // Do not evaluate if wait is active
     if (evaluationWait > 1) {
         token.set<std::string>("", "{" + std::to_string(evaluationWait - 1) + "!" + stringRepresentation + "}");
@@ -203,13 +204,13 @@ bool Expression::Component::handleComponentTypeVariable(Data::JSON& token, Conte
     return true;
 }
 
-void Expression::Component::handleComponentTypeEval(std::string& token) const {
+void ExpressionComponent::handleComponentTypeEval(std::string& token) const {
     //------------------------------------------
     // Handle casting and precision together
     token = formatter.format(te_eval(expression));
 }
 
-std::expected<std::string, Expression::Component::KeyEvaluationInfo> Expression::Component::evaluateKey(ContextScope const& context, std::size_t const recursionDepth) const {
+std::expected<std::string, ExpressionComponent::KeyEvaluationInfo> ExpressionComponent::evaluateKey(ContextScope const& context, std::size_t const recursionDepth) const {
     // See if the variable contains an inner expression
     if (stringRepresentation.contains('$') || stringRepresentation.contains('{')) {
         if (recursionDepth == 0) {
@@ -223,7 +224,7 @@ std::expected<std::string, Expression::Component::KeyEvaluationInfo> Expression:
     return std::unexpected(KeyEvaluationInfo::noNesting);
 }
 
-std::optional<std::pair<std::string, ContextDeriver::TargetType>> Expression::Component::handleNesting(ContextScope const& context, std::size_t const recursionDepth) const {
+std::optional<std::pair<std::string, ContextDeriver::TargetType>> ExpressionComponent::handleNesting(ContextScope const& context, std::size_t const recursionDepth) const {
     auto s = evaluateKey(context, recursionDepth);
 
     // If max depth was reached, return false

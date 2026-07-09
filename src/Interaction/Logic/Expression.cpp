@@ -4,7 +4,6 @@
 // Standard library
 #include <algorithm>
 #include <cassert>
-#include <cmath>
 #include <cstddef>
 #include <cstdint> // NOLINT
 #include <memory>
@@ -22,6 +21,7 @@
 #include "Nebulite/Data/Document/JsonScope.hpp"
 #include "Nebulite/Interaction/Context.hpp"
 #include "Nebulite/Interaction/Logic/Expression.hpp"
+#include "Nebulite/Interaction/Logic/ExpressionComponent.hpp"
 #include "Nebulite/Interaction/Logic/VirtualDouble.hpp"
 #include "Nebulite/Math/Equality.hpp"
 #include "Nebulite/Math/ExpressionPrimitives.hpp"
@@ -76,8 +76,8 @@ void Expression::reset() {
     Math::ExpressionPrimitives::registerExpressions(te_variables);
 }
 
-void Expression::compileIfExpression(std::shared_ptr<Component> const& component) const {
-    if (component->type == Component::Type::eval) {
+void Expression::compileIfExpression(std::shared_ptr<ExpressionComponent> const& component) const {
+    if (component->type == ExpressionComponent::Type::eval) {
         // Compile the expression using TinyExpr
         int error{};
         component->expression = te_compile(component->stringRepresentation.c_str(), te_variables.data(), static_cast<int>(te_variables.size()), &error);
@@ -280,94 +280,6 @@ void Expression::parseIntoComponents(std::string_view const expr) {
     }
 }
 
-Expression::Formatter Expression::Formatter::readFormatter(std::string_view const formatter) {
-    // Check formatter. Integer cast should not include precision. Is ignored later on in casting but acceptable as input
-    // Examples:
-    // $i     : leadingZero = false , alignment = -1 , precision = -1
-    // $04i   : leadingZero = true  , alignment =  4 , precision = -1
-    // $03.5i : leadingZero = true  , alignment =  3 , precision =  5
-
-    Formatter fmt;
-
-    if (formatter.empty()) {
-        return fmt;
-    }
-
-    // Format cast
-    if (formatter.ends_with("i")) {
-        fmt.cast = CastType::to_int;
-    }
-    else if (formatter.ends_with("f")) {
-        fmt.cast = CastType::to_double;
-    }
-
-    // Read leading zero
-    if (formatter.starts_with("0")) {
-        fmt.leadingZero = true;
-    }
-    if (formatter.size() > 1) {
-        std::size_t const dotPos = formatter.find('.');
-        // Read alignment
-        if (dotPos != 0) {
-            fmt.alignment = std::stoi(std::string(formatter.substr(0, dotPos)));
-        }
-        // Read precision
-        if (dotPos != std::string::npos) {
-            fmt.precision = std::stoi(std::string(formatter.substr(dotPos + 1)));
-        }
-    }
-    return fmt;
-}
-
-std::string Expression::Formatter::format(double const value) const {
-    std::string token;
-    if (cast == CastType::to_int) {
-        token = std::to_string(static_cast<int>(value));
-    } else {
-        // to_double or none, both use double directly
-        double newValue = value;
-
-        // Apply rounding if precision is specified
-        if (precision.has_value()) {
-            double const multiplier = std::pow(10.0, precision.value());
-            newValue = std::round(value * multiplier) / multiplier;
-        }
-
-        token = std::to_string(newValue);
-    }
-
-    // Precision formatting (after rounding)
-    if (precision.has_value()) {
-        if (std::size_t const dotPos = token.find('.'); dotPos != std::string::npos) {
-            assert(dotPos > 0);
-            if (std::size_t const currentPrecision = token.size() - dotPos - 1; currentPrecision < precision.value()) {
-                // Add zeros to match the required precision
-                token.append(precision.value() - currentPrecision, '0');
-            } else if (currentPrecision > precision.value()) {
-                // Truncate to the required precision (should be minimal after rounding)
-                token.resize(dotPos + precision.value() + 1);
-            }
-        } else {
-            // No decimal point, add one and pad with zeros
-            token += '.';
-            token.append(precision.value(), '0');
-        }
-    }
-
-    // Adding padding
-    if (alignment.has_value() && token.size() < alignment.value()) {
-        std::string padding;
-        for (std::size_t i = 0; i < alignment.value() - token.size(); i++) {
-            if (leadingZero) {
-                padding += "0";
-            } else {
-                padding += " ";
-            }
-        }
-        token.insert(0, padding);
-    }
-    return token;
-}
 
 void Expression::parseTokenTypeEval(std::string_view const token) {
     // $[leading zero][alignment][.][precision]<type:f,i>
@@ -383,7 +295,7 @@ void Expression::parseTokenTypeEval(std::string_view const token) {
     // $f(1.23)     "f"             "(1.23)"
     // $i(42)       "i"             "(42)"
     // $4.2f(2/3)   "4.2f"          "(2/3)"
-    auto const currentComponent = std::make_shared<Component>();
+    auto const currentComponent = std::make_shared<ExpressionComponent>();
 
     std::size_t const pos = token.find('(');
     auto const formatter = token.substr(1, pos - 1); // Remove leading $
@@ -405,7 +317,7 @@ void Expression::parseTokenTypeEval(std::string_view const token) {
     }
 
     // Write component data
-    currentComponent->type = Component::Type::eval;
+    currentComponent->type = ExpressionComponent::Type::eval;
     currentComponent->contextType = ContextDeriver::TargetType::none; // None, since this is an eval expression
     currentComponent->key = ""; // No key for eval expressions
 
@@ -414,7 +326,7 @@ void Expression::parseTokenTypeEval(std::string_view const token) {
 }
 
 void Expression::parseTokenTypeVariable(std::string_view const token) {
-    auto const currentComponent = std::make_shared<Component>();
+    auto const currentComponent = std::make_shared<ExpressionComponent>();
 
     // 1.) remove {}
     // We keep all other potential {} inside the variable name for later MultiResolve
@@ -432,7 +344,7 @@ void Expression::parseTokenTypeVariable(std::string_view const token) {
     }
 
     // 3.) determine context
-    currentComponent->type = Component::Type::variable;
+    currentComponent->type = ExpressionComponent::Type::variable;
     currentComponent->stringRepresentation = inner;
     currentComponent->contextType = ContextDeriver::getTypeFromString(inner);
     currentComponent->key = ContextDeriver::stripContext(inner);
@@ -441,16 +353,16 @@ void Expression::parseTokenTypeVariable(std::string_view const token) {
 }
 
 void Expression::parseTokenTypeText(std::string_view const token) {
-    auto const currentComponent = std::make_shared<Component>();
+    auto const currentComponent = std::make_shared<ExpressionComponent>();
     // Determine context
-    currentComponent->type = Component::Type::text;
+    currentComponent->type = ExpressionComponent::Type::text;
     currentComponent->stringRepresentation = token;
     currentComponent->contextType = ContextDeriver::TargetType::none;
     currentComponent->key = ""; // No key for text expressions
     components.push_back(currentComponent);
 }
 
-void Expression::printCompileError(std::shared_ptr<Component> const& component, int const error) const {
+void Expression::printCompileError(std::shared_ptr<ExpressionComponent> const& component, int const error) const {
     std::string offendingChar;
     if (error <= 0 || static_cast<size_t>(error) > component->stringRepresentation.size()) {
         offendingChar = "N/A (error position out of bounds)";
@@ -538,46 +450,19 @@ Data::JSON Expression::evalAsJson(std::string_view const input, ContextScope con
 // Private helper functions
 
 void Expression::updateCaches(ContextScope const& context) const {
-    //setupFirstContext(context); // TODO causes issues in some cases, e.g.: TaskFiles/Tests/JSON/Transformations/Filter/custom.nebs
     updateStableValues(context);
     updateUnstableValues(context);
 }
 
-void Expression::setupFirstContext(ContextScope const& context) const {
-    if (!firstEvaluationContext.self) {
-        firstEvaluationContext.self = &context.self;
-        for (auto const& vde : virtualDoubles.stable.self) {
-            vde->linkExternalCache(context.self);
-        }
-
-        firstEvaluationContext.other = &context.other;
-        for (auto const& vde : virtualDoubles.stable.other) {
-            vde->linkExternalCache(context.other);
-        }
-
-        firstEvaluationContext.global = &context.global;
-        for (auto const& vde : virtualDoubles.stable.global) {
-            vde->linkExternalCache(context.global);
-        }
-    }
-}
-
 void Expression::updateStableValues(ContextScope const& context) const {
-    auto updateContext = [&](auto const& currentContext, auto const& firstContext, auto const& vdList) {
-        if (&currentContext == firstContext) {
-            for (auto const& vde : vdList) {
-                vde->copyExternalCache();
-            }
-        }
-        else {
-            for (auto const& vde : vdList) {
-                vde->copyFromJson(currentContext);
-            }
+    auto updateContext = [&](auto const& currentContext, auto const& vdList) {
+        for (auto const& vde : vdList) {
+            vde->copyFromJson(currentContext);
         }
     };
-    updateContext(context.self, firstEvaluationContext.self, virtualDoubles.stable.self);
-    updateContext(context.other, firstEvaluationContext.other, virtualDoubles.stable.other);
-    updateContext(context.global, firstEvaluationContext.global, virtualDoubles.stable.global);
+    updateContext(context.self, virtualDoubles.stable.self);
+    updateContext(context.other, virtualDoubles.stable.other);
+    updateContext(context.global, virtualDoubles.stable.global);
 }
 
 void Expression::updateUnstableValues(ContextScope const& context) const {
@@ -615,13 +500,13 @@ void Expression::updateUnstableValues(ContextScope const& context) const {
 
 bool Expression::recalculateIsReturnableAsDouble() const {
     return components.size() == 1
-           && components[0]->type == Component::Type::eval
+           && components[0]->type == ExpressionComponent::Type::eval
            && components[0]->formatter.cast == Formatter::CastType::none; // no formatter allowed!
 }
 
 bool Expression::recalculateIsReturnableAsInt() const {
     return components.size() == 1
-        && components[0]->type == Component::Type::eval
+        && components[0]->type == ExpressionComponent::Type::eval
         && !components[0]->formatter.alignment
         && !components[0]->formatter.leadingZero
         && !components[0]->formatter.precision
@@ -629,7 +514,7 @@ bool Expression::recalculateIsReturnableAsInt() const {
 }
 
 bool Expression::recalculateIsReturnableAsString() const {
-    return components.size() != 1 || components[0]->type != Component::Type::variable;
+    return components.size() != 1 || components[0]->type != ExpressionComponent::Type::variable;
 }
 
 bool Expression::recalculateIsAlwaysTrue() const {
@@ -656,17 +541,17 @@ std::string Expression::eval(ContextScope const& context, std::size_t const recu
         std::string token;
         switch (component->type) {
             //------------------------------------------
-        case Component::Type::variable:
+        case ExpressionComponent::Type::variable:
             if (!component->handleComponentTypeVariable(token, context, recursionDepth)) {
                 token = "null";
             }
             break;
             //------------------------------------------
-        case Component::Type::eval:
+        case ExpressionComponent::Type::eval:
             component->handleComponentTypeEval(token);
             break;
             //------------------------------------------
-        case Component::Type::text:
+        case ExpressionComponent::Type::text:
             token = component->stringRepresentation;
             break;
             //------------------------------------------
@@ -694,13 +579,13 @@ bool Expression::evalAsBool(ContextScope const& context) const {
 }
 
 Data::JSON Expression::evalAsJson(ContextScope const& context, std::size_t const recursionDepth) const {
-    if (components.size() == 1 && components[0]->type != Component::Type::text) {
-        if (components[0]->type == Component::Type::eval) {
+    if (components.size() == 1 && components[0]->type != ExpressionComponent::Type::text) {
+        if (components[0]->type == ExpressionComponent::Type::eval) {
             Data::JSON jsonResult;
             jsonResult.set<double>("", evalAsDouble(context));
             return jsonResult;
         }
-        if (components[0]->type == Component::Type::variable) {
+        if (components[0]->type == ExpressionComponent::Type::variable) {
             Data::JSON jsonResult;
             components[0]->handleComponentTypeVariable(jsonResult, context, recursionDepth);
             return jsonResult;

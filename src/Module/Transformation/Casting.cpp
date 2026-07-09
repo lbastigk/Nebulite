@@ -15,6 +15,7 @@
 #include "Nebulite/Data/Document/JsonScope.hpp"
 #include "Nebulite/Data/Document/KeyType.hpp"
 #include "Nebulite/Interaction/Logic/Expression.hpp"
+#include "Nebulite/Interaction/Logic/Formatter.hpp"
 #include "Nebulite/Module/Transformation/Casting.hpp"
 #include "Nebulite/Utility/StringHandler.hpp"
 
@@ -133,7 +134,7 @@ bool Casting::formatNumber(std::span<std::string_view const> const& args, Data::
     if (!value.has_value()) return false;
 
     if (Utility::StringHandler::isNumber(value.value())) {
-        auto const fmt = Interaction::Logic::Expression::Formatter::readFormatter(args[1]);
+        auto const fmt = Interaction::Logic::Formatter::readFormatter(args[1]);
         jsonDoc.set(rootKey, fmt.format(std::stod(value.value())));
     }
     return true;

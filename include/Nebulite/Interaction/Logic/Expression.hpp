@@ -6,13 +6,10 @@
 
 // Standard library
 #include <cstddef>
-#include <cstdint>
-#include <expected>
+#include <cstdint> // NOLINT
 #include <memory>
-#include <optional>
 #include <string>
 #include <string_view>
-#include <utility>
 #include <vector>
 
 // External
@@ -33,6 +30,7 @@ class ScopedKeyView;
 } // namespace Nebulite::Data
 
 namespace Nebulite::Interaction::Logic {
+class ExpressionComponent;
 class VirtualDouble;
 } // namespace Nebulite::Interaction::Logic
 
@@ -118,15 +116,15 @@ public:
     //------------------------------------------
     // Actual evaluation functions
 
-    std::string eval(ContextScope const& context, std::size_t recursionDepth = standardRecursionDepth) const ;
+    [[nodiscard]] std::string eval(ContextScope const& context, std::size_t recursionDepth = standardRecursionDepth) const ;
 
-    double evalAsDouble(ContextScope const& context) const ;
+    [[nodiscard]] double evalAsDouble(ContextScope const& context) const ;
 
-    std::int64_t evalAsInt(ContextScope const& context) const ;
+    [[nodiscard]] std::int64_t evalAsInt(ContextScope const& context) const ;
 
-    bool evalAsBool(ContextScope const& context) const ;
+    [[nodiscard]] bool evalAsBool(ContextScope const& context) const ;
 
-    Data::JSON evalAsJson(ContextScope const& context, std::size_t recursionDepth = standardRecursionDepth) const ;
+    [[nodiscard]] Data::JSON evalAsJson(ContextScope const& context, std::size_t recursionDepth = standardRecursionDepth) const ;
 
     //------------------------------------------
     // Static functions for one-time evaluation
@@ -164,181 +162,7 @@ public:
      */
     [[nodiscard]] bool recalculateIsAlwaysTrue() const;
 
-    /**
-     * @struct Nebulite::Interaction::Logic::Expression::Formatter
-     * @brief Represents formatting options for the component.
-     */
-    struct Formatter {
-        bool leadingZero = false; // If true, pad with leading zeros
-        std::optional<std::size_t> alignment = std::nullopt;
-        std::optional<std::size_t> precision = std::nullopt;
-
-        /**
-         * @enum Nebulite::Interaction::Logic::Expression::Formatter::CastType
-         * @brief Represents the type of cast to apply to an expression component.
-         */
-        enum class CastType : std::uint8_t {
-            none, // No cast -> using pure string
-            to_int, // Cast to integer
-            to_double // Cast to double
-        } cast = CastType::none; // Default to none
-
-        /**
-         * @brief Parses the formatter string
-         * @param formatter The formatter string to parse.
-         * @return a formatter, or nullopt
-         */
-        static Formatter readFormatter(std::string_view formatter);
-
-        [[nodiscard]] std::string format(double value) const ;
-    };
-
 private:
-    /**
-     * @brief Provides an empty JSON document that can be used as a context placeholder
-     * @return The empty JSON document reference
-     */
-    static Data::JsonScope const& emptyDoc();
-
-    /**
-     * @brief Parses a given expression string with a constant reference to the document cache and the self and global JSON objects.
-     * @param expr The expression string to parse.
-     */
-    void parse(std::string_view expr);
-
-    /**
-     * @brief Stores pointers to the first evaluation context's scopes for optimization.
-     *        Cached to optimize for repeated evaluations with the same partial context.
-     */
-    struct CachedContext {
-        Data::JsonScope* self = nullptr;
-        Data::JsonScope* other = nullptr;
-        Data::JsonScope* global = nullptr;
-    };
-    mutable CachedContext firstEvaluationContext;
-
-    /**
-     * @brief Generates short variable names for tinyexpr variables.
-     * @details Short names might improve performance, but the main concern is
-     *          that full variable names could contain characters that tinyexpr does not like
-     */
-    VariableNameGenerator varNameGen;
-
-    /**
-     * @struct Nebulite::Interaction::Logic::Expression::Component
-     * @brief Represents a single component in an expression, such as a variable, evaluation, or text.
-     * @details Holds information about a specific part of the expression,
-     *          including its type, source, and any associated metadata.
-     */
-    class Component {
-    public:
-        /**
-         * @enum Nebulite::Interaction::Logic::Expression::Component::Type
-         * @brief Each component can be of type variable, eval or text that differ in how they are evaluated.
-         */
-        enum class Type : std::uint8_t {
-            variable, // outside $<cast>(...), Starts with self, other, global or a dot for link, represents a variable reference, outside an evaluatable context
-            eval, // inside a $<cast>(...), represents an evaluatable expression
-            text // outside a $<cast>(...), not a variable reference, Represents a plain text string
-        } type = Type::text;
-
-        ContextDeriver::TargetType contextType = ContextDeriver::TargetType::none; // Default to none
-
-        Formatter formatter; // Formatting options for this component, if applicable
-
-        /**
-         * @brief Holds the string representation of the component.
-         *        Depending on context Either:
-         *        - The Expression to evaluate, with formatting specifiers removed
-         *        - The pure text
-         *        - The variable key, with no context stripped
-         */
-        std::string stringRepresentation;
-
-        /**
-         * @brief Holds the context-stripped key of the component, if it's of type variable.
-         */
-        std::string key;
-
-        /**
-         * @brief The evaluation wait count. Used to delay the evaluation of a component.
-         * @details For each evaluation, the count is reduced by 1. Only for component type Variable!
-         */
-        std::size_t evaluationWait = 0;
-
-        /**
-         * @brief Pointer to the tinyexpr representation of the expression.
-         */
-        te_expr* expression = nullptr;
-
-        /**
-         * @brief Default constructor for Component.
-         */
-        Component() = default;
-
-        /**
-         * @brief Destructor to clean up allocated resources.
-         */
-        ~Component() {
-            te_free(expression);
-        }
-
-        // disable copying
-        Component(Component const&) = delete;
-        Component& operator=(Component const&) = delete;
-
-        // enable moving
-        Component(Component&& other) noexcept ;
-        Component& operator=(Component&& other) noexcept ;
-
-        //------------------------------------------
-        // Component handling methods
-
-        /**
-         * @brief Handles the evaluation of a variable component as a string.
-         * @details Takes care of proper conversion to string, with abbreviated representations for non-value types (arrays, objects and null).
-         * @param token The string to populate with the evaluated value.
-         * @param context The context to evaluate against.
-         * @param recursionDepth The current recursion depth for nested evaluations.
-         * @return True if the evaluation was successful, false otherwise.
-         */
-        bool handleComponentTypeVariable(std::string& token, ContextScope const& context, std::size_t recursionDepth) const ;
-
-        /**
-         * @brief Handles the evaluation of a variable component as a JSON value.
-         * @details Populates the provided JSON object with the evaluated value, preserving its type.
-         * @param token The JSON object to populate with the evaluated value.
-         * @param context The context to evaluate against.
-         * @param recursionDepth The current recursion depth for nested evaluations.
-         * @return True if the evaluation was successful, false otherwise.
-         */
-        bool handleComponentTypeVariable(Data::JSON& token, ContextScope const& context, std::size_t recursionDepth) const ;
-
-        /**
-         * @brief Handles the evaluation of an eval component.
-         * @param token The string to populate with the evaluated value.
-         */
-        void handleComponentTypeEval(std::string& token) const ;
-
-    private:
-        enum class KeyEvaluationInfo : std::uint8_t {
-            maximumDepthReached, // Could not resolve due to maximum depth reached
-            noNesting // No nested variables found
-        };
-
-        /**
-         * @brief For variable component handling. Evaluates any inner expressions/variables within the component's key and returns the resulting key.
-         * @details If the key, for example is nested: {global:{self:info.requiredKey}}, it turns into {global:evaluatedValueOfRequiredKey}
-         *          and fetches that value from the global document.
-         * @param context The context to evaluate against.
-         * @param recursionDepth The current recursion depth for nested evaluations.
-         * @return The evaluated string if successful, or std::nullopt if evaluation fails.
-         */
-        [[nodiscard]] std::expected<std::string, KeyEvaluationInfo> evaluateKey(ContextScope const& context, std::size_t recursionDepth) const ;
-
-        [[nodiscard]] std::optional<std::pair<std::string, ContextDeriver::TargetType>> handleNesting(ContextScope const& context, std::size_t recursionDepth) const ;
-    };
-
     /**
      * @struct Nebulite::Interaction::Logic::Expression::VirtualDoubleLists
      * @brief Holds lists of VirtualDouble entries for different contexts.
@@ -377,6 +201,13 @@ private:
     } virtualDoubles;
 
     /**
+     * @brief Generates short variable names for tinyexpr variables.
+     * @details Short names might improve performance, but the main concern is
+     *          that full variable names could contain characters that tinyexpr does not like
+     */
+    VariableNameGenerator varNameGen;
+
+    /**
      * @brief Info about the expressions evaluation-ability
      * @details Some expressions are not always castable to types like numeric values or strings
      *          without the loss of information
@@ -407,18 +238,9 @@ private:
     } evaluationInfo;
 
     /**
-     * @brief Resets the expression to its initial state.
-     * @details This function:
-     *          - Clears all components
-     *          - Clears all variables and re-registers standard functions
-     *          - Clears all virtual double entries
-     */
-    void reset();
-
-    /**
      * @brief Holds all parsed components from the expression.
      */
-    std::vector<std::shared_ptr<Component>> components;
+    std::vector<std::shared_ptr<ExpressionComponent>> components;
 
     /**
      * @brief Holds the full expression as a string.
@@ -439,10 +261,31 @@ private:
     // Core Helper functions
 
     /**
+     * @brief Provides an empty JSON document that can be used as a context placeholder
+     * @return The empty JSON document reference
+     */
+    static Data::JsonScope const& emptyDoc();
+
+    /**
+     * @brief Parses a given expression string with a constant reference to the document cache and the self and global JSON objects.
+     * @param expr The expression string to parse.
+     */
+    void parse(std::string_view expr);
+
+    /**
+     * @brief Resets the expression to its initial state.
+     * @details This function:
+     *          - Clears all components
+     *          - Clears all variables and re-registers standard functions
+     *          - Clears all virtual double entries
+     */
+    void reset();
+
+    /**
      * @brief Compiles a component, if its of type Expression
      * @param component The component to potentially compile
      */
-    void compileIfExpression(std::shared_ptr<Component> const& component) const;
+    void compileIfExpression(std::shared_ptr<ExpressionComponent> const& component) const;
 
     /**
      * @brief Registers a variable with the given name and key in the context of the component.
@@ -480,7 +323,7 @@ private:
     /**
      * @brief Prints a compilation error message to cerr, includes tips for fixing the error.
      */
-    void printCompileError(std::shared_ptr<Component> const& component, int error) const;
+    void printCompileError(std::shared_ptr<ExpressionComponent> const& component, int error) const;
 
     //------------------------------------------
     // Cache helper functions
@@ -490,12 +333,6 @@ private:
      * @param context The context to update caches for
      */
     void updateCaches(ContextScope const& context) const ;
-
-    /**
-     * @brief Sets up the first evaluation context cache if it hasn't been set up yet
-     * @param context The current context to potentially set up as the first evaluation context
-     */
-    void setupFirstContext(ContextScope const& context) const ;
 
     /**
      * @brief Updates the stable value caches based on the current context.
