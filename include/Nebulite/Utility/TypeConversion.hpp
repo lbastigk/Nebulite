@@ -5,15 +5,10 @@
 // Includes
 
 // Standard library
-#include <cmath>
 #include <cstdint>
-#include <limits>
 #include <optional>
 #include <string>
 #include <utility>
-
-// Nebulite
-#include "Nebulite/Utility/StringHandler.hpp"
 
 //------------------------------------------
 namespace Nebulite::Utility {
@@ -22,118 +17,27 @@ class TypeConversion {
 public:
     class String {
     public:
-        static std::optional<bool> toBool(std::string const& stored){
-            if (stored == "true") return true;
-            if (stored == "false") return false;
-            if(StringHandler::isNumber(stored)){
-                try {
-                    return std::stoi(stored) != 0;
-                } catch (...){
-                    return std::nullopt;
-                }
-            }
-            return stored == "true";
-        }
+        static std::optional<bool> toBool(std::string const& stored);
 
-        static std::optional<int> toInt(std::string const& stored){
-            if (stored == "true") return 1;
-            if (stored == "false") return 0;
-            try {
-                return std::stoi(stored);
-            } catch (...){
-                return std::nullopt;
-            }
-        }
+        static std::optional<int> toInt(std::string const& stored);
 
-        static std::optional<std::uint8_t> toUInt8(std::string const& stored){
-            if (stored == "true") return 1;
-            if (stored == "false") return 0;
-            try {
-                return static_cast<std::uint8_t>(std::stoul(stored));
-            } catch (...){
-                return std::nullopt;
-            }
-        }
+        static std::optional<std::uint8_t> toUInt8(std::string const& stored);
 
-        static std::optional<std::int8_t> toInt8(std::string const& stored){
-            if (stored == "true") return 1;
-            if (stored == "false") return 0;
-            try {
-                return static_cast<std::int8_t>(std::stol(stored));
-            } catch (...){
-                return std::nullopt;
-            }
-        }
+        static std::optional<std::int8_t> toInt8(std::string const& stored);
 
-        static std::optional<std::uint16_t> toUInt16(std::string const& stored){
-            if (stored == "true") return 1;
-            if (stored == "false") return 0;
-            try {
-                return static_cast<std::uint16_t>(std::stoul(stored));
-            } catch (...){
-                return std::nullopt;
-            }
-        }
+        static std::optional<std::uint16_t> toUInt16(std::string const& stored);
 
-        static std::optional<std::int16_t> toInt16(std::string const& stored){
-            if (stored == "true") return 1;
-            if (stored == "false") return 0;
-            try {
-                return static_cast<std::int16_t>(std::stol(stored));
-            } catch (...){
-                return std::nullopt;
-            }
-        }
+        static std::optional<std::int16_t> toInt16(std::string const& stored);
 
-        static std::optional<std::uint32_t> toUInt32(std::string const& stored){
-            if (stored == "true") return 1;
-            if (stored == "false") return 0;
-            try {
-                return static_cast<std::uint32_t>(std::stoul(stored));
-            } catch (...){
-                return std::nullopt;
-            }
-        }
+        static std::optional<std::uint32_t> toUInt32(std::string const& stored);
 
-        static std::optional<std::int32_t> toInt32(std::string const& stored){
-            if (stored == "true") return 1;
-            if (stored == "false") return 0;
-            try {
-                return static_cast<std::int32_t>(std::stol(stored));
-            } catch (...){
-                return std::nullopt;
-            }
-        }
+        static std::optional<std::int32_t> toInt32(std::string const& stored);
 
-        static std::optional<std::uint64_t> toUInt64(std::string const& stored){
-            if (stored == "true") return 1;
-            if (stored == "false") return 0;
-            try {
-                return std::stoull(stored);
-            } catch (...){
-                return std::nullopt;
-            }
-        }
+        static std::optional<std::uint64_t> toUInt64(std::string const& stored);
 
-        static std::optional<std::int64_t> toInt64(std::string const& stored){
-            if (stored == "true") return 1;
-            if (stored == "false") return 0;
-            try {
-                return std::stoll(stored);
-            } catch (...){
-                return std::nullopt;
-            }
-        }
+        static std::optional<std::int64_t> toInt64(std::string const& stored);
 
-        static std::optional<double> toDouble(std::string const& stored){
-            if (stored == "true") return 1.0;
-            if (stored == "false") return 0.0;
-            try {
-                return std::stod(stored);
-            } catch (...){
-                return std::nullopt;
-            }
-        }
+        static std::optional<double> toDouble(std::string const& stored);
 
         template<typename newType>
         static constexpr std::optional<newType> to(std::string const& value) {
@@ -181,9 +85,7 @@ public:
 
     class Bool {
     public:
-        static std::optional<std::string> toString(bool const value){
-            return value ? std::optional<std::string>{"true"} : std::optional<std::string>{"false"};
-        }
+        static std::optional<std::string> toString(bool value);
 
         template<typename newType>
         static std::optional<newType> to(bool const value) {
@@ -198,9 +100,7 @@ public:
 
     class Double {
     public:
-        static std::optional<bool> toBool(double const value) {
-            return std::optional{std::fabs(value) > std::numeric_limits<double>::epsilon()};
-        }
+        static std::optional<bool> toBool(double value);
 
         template<typename newType>
         static std::optional<newType> to(double const value) {
