@@ -7,45 +7,47 @@
 # Base CMake Presets Build Targets
 ############################################
 
+# TODO: using nproc used to cause issues on low memory systems, add a guard for that
+
 linux-release:
 	@echo "Building preset: $@"
 	@cmake --preset $@
-	@cmake --build --preset $@ -j4
+	@cmake --build --preset $@ -j$(nproc)
 
 linux-debug:
 	@echo "Building preset: $@"
 	@cmake --preset $@
-	@cmake --build --preset $@ -j4
+	@cmake --build --preset $@ -j$(nproc)
 
 linux-coverage:
 	@echo "Building preset: $@"
 	@cmake --preset $@
-	@cmake --build --preset $@ -j4
+	@cmake --build --preset $@ -j$(nproc)
 
 linux-profiling:
 	@echo "Building preset: $@"
 	@cmake --preset $@
-	@cmake --build --preset $@ -j4
+	@cmake --build --preset $@ -j$(nproc)
 
 windows-release:
 	@echo "Building preset: $@"
 	@cmake --preset $@
-	@cmake --build --preset $@ -j4
+	@cmake --build --preset $@ -j$(nproc)
 
 windows-debug:
 	@echo "Building preset: $@"
 	@cmake --preset $@
-	@cmake --build --preset $@ -j4
+	@cmake --build --preset $@ -j$(nproc)
 
 macos-release:
 	@echo "Building preset: $@"
 	@cmake --preset $@
-	@cmake --build --preset $@ -j4
+	@cmake --build --preset $@ -j$(nproc)
 
 macos-debug:
 	@echo "Building preset: $@"
 	@cmake --preset $@
-	@cmake --build --preset $@ -j4
+	@cmake --build --preset $@ -j$(nproc)
 
 
 ############################################
