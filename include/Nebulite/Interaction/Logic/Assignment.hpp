@@ -12,7 +12,6 @@
 
 // Nebulite
 #include "Nebulite/Interaction/Context.hpp"
-#include "Nebulite/Interaction/Logic/Expression.hpp"
 
 //------------------------------------------
 // Forward declarations
@@ -20,6 +19,14 @@
 namespace Nebulite::Core {
 class RenderObject;
 } // namespace Nebulite::Core
+
+namespace Nebulite::Data {
+class ScopedKeyView;
+} // namespace Nebulite::Data
+
+namespace Nebulite::Interaction::Logic {
+class Expression;
+} // namespace Nebulite::Interaction::Logic
 
 namespace Nebulite::Interaction::Rules::Construction {
 class RulesetCompiler;
@@ -41,8 +48,8 @@ public:
     //------------------------------------------
     // Standard constructor/destructor
 
-    Assignment() = default;
-    ~Assignment() = default;
+    Assignment();
+    ~Assignment();
 
     //------------------------------------------
     // Parsing

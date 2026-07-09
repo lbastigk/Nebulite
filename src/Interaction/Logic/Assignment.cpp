@@ -42,6 +42,10 @@ std::array constexpr supportedOperations = {
 
 } // namespace
 
+Assignment::Assignment() = default;
+
+Assignment::~Assignment() = default;
+
 bool Assignment::parse(std::string_view const str) {
     // 1.) Derive context
     onType = ContextDeriver::getTypeFromString(str);
