@@ -37,12 +37,6 @@
     "layer": 1,
     "posX": 0,
     "posY": 0,
-    "ruleset": {
-        "list": [],
-        "listen": [
-            "all"
-        ]
-    },
     "size": {
         "x": 32,
         "y": 32

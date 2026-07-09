@@ -18,6 +18,7 @@ broadcast
 bundleToArray
 cam
 capitalize
+capture
 case-insensitive
 case-sensitive
 cat
@@ -43,6 +44,7 @@ deserialize
 div
 document
 draft
+drawcall
 dump-view
 echo
 empty
@@ -67,8 +69,10 @@ fetch-id
 fetch-name
 filterCustom
 filterGlob
+filterGlobValue
 filterNulls
 filterRegex
+filterRegexValue
 find-parent-key
 first
 floor
@@ -197,6 +201,7 @@ show-fps
 snapshot
 sort
 spawn
+split
 sqrt
 standard-file
 startsWith

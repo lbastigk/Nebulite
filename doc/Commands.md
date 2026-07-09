@@ -2,7 +2,7 @@
 
 This documentation is automatically generated.
 
-Generated on: Fri Jun 12 11:53:41 CEST 2026
+Generated on: Thu Jul  9 20:48:18 CEST 2026
 
 ## Table of Contents
 
@@ -29,6 +29,7 @@ Available Functions
 | `audio-debug` | Audio debugging functions. |
 | `beep` | Make a beep noise. |
 | `cam` | Renderer Camera Functions |
+| `capture` | Stores all capture output from a command into a given variable |
 | `cat` | Opens a provided file and prints its content to the console. |
 | `clear` | Clears the console screen. |
 | `console` | Console commands and settings. |
@@ -222,6 +223,16 @@ Usage: cam set <x> <y> [c]
 <x> : X position to set camera to
 <y> : Y position to set camera to
 [c] : Optional. If provided, sets the camera's center to the given position.
+```
+
+#### `capture`
+
+```
+Stores all capture output from a command into a given variable
+Usage: capture <variable> <command...>
+
+Any output is not printed to the console, but instead stored in the given variable.
+Note that any warnings or errors will no longer be printed to the console, but instead stored in the variable as well!
 ```
 
 #### `cat`
@@ -1335,9 +1346,11 @@ Available Functions
 |----------|-------------|
 | `assert` | Asserts a condition and throws a custom error if false. |
 | `assign` | Assign a key to a value in the JSON document (self) or the global context (global) |
+| `capture` | Stores all capture output from a command into a given variable |
 | `cat` | Opens a provided file and prints its content to the console. |
 | `copy` | Copy data from one key to another. |
 | `delete` | Marks object for deletion |
+| `drawcall` | Drawcall utilities |
 | `echo` | Echoes all arguments as string to the standard output. |
 | `ensure-array` | Ensure that a key is an array, converting a value to an array if necessary. |
 | `error` | Echoes all arguments as string to the standard error. |
@@ -1398,6 +1411,16 @@ The assignment has full access to the entire global scope here, so be cautious w
 Use json set instead, if you only wish to modify values in the context self with no special operators.
 ```
 
+#### `capture`
+
+```
+Stores all capture output from a command into a given variable
+Usage: capture <variable> <command...>
+
+Any output is not printed to the console, but instead stored in the given variable.
+Note that any warnings or errors will no longer be printed to the console, but instead stored in the variable as well!
+```
+
 #### `cat`
 
 ```
@@ -1423,6 +1446,30 @@ Marks object for deletion
 Usage: delete
 
 Marks the object for deletion on the next update cycle.
+```
+
+#### `drawcall`
+
+Available Functions
+
+| Function | Description |
+|----------|-------------|
+| `help` | Show available commands and their descriptions |
+| `list` | Lists all drawcall objects |
+| `parse` | Parses a string command into a given drawcall name |
+
+##### `drawcall list`
+
+```
+Lists all drawcall objects
+```
+
+##### `drawcall parse`
+
+```
+Parses a string command into a given drawcall name
+
+Usage: drawcall parse <name> <args...>
 ```
 
 #### `echo`
@@ -1977,8 +2024,10 @@ Available Functions
 | `exists` | Checks if a specified key exists in the current JSON object. |
 | `filterCustom` | Filters values in the current JSON array based on a custom filter expression |
 | `filterGlob` | Filters members in the current JSON array/object based on a glob pattern. |
+| `filterGlobValue` | Filters values in the current JSON array based on a glob pattern. |
 | `filterNulls` | Filters out null values, empty objects, and empty arrays from the current JSON |
 | `filterRegex` | Filters members in the current JSON array/object based on a regular expression pattern. |
+| `filterRegexValue` | Filters values in the current JSON array based on a regular expression pattern. |
 | `first` | Gets the first element of the array in the current JSON value. |
 | `floor` | Rounds the current JSON numeric value down to the nearest integer. |
 | `formatNumber` | If the stored value is a number, it is formatted with a given format specifier |
@@ -2024,6 +2073,7 @@ Available Functions
 | `setInt` | Sets an integer value at the specified key in the JSON document. |
 | `setString` | Sets a string value at the specified key in the JSON document. |
 | `sort` | Sorting transformation functions |
+| `split` | Splits the current JSON string value into an array of substrings based on a specified character delimiter. |
 | `sqrt` | Calculates the square root of the current JSON value. |
 | `stddev` | Calculates the standard deviation of the elements of the array in the current JSON value. |
 | `store` | Stores the current JSON value as a file with the given name. |
@@ -2293,6 +2343,13 @@ For arrays, the member names are the indices as strings: [0], [1], [2], ...
 Usage: |filterGlob <pattern> -> {filtered array}
 ```
 
+#### `filterGlobValue`
+
+```
+Filters values in the current JSON array based on a glob pattern.
+Usage: |filterGlobValue <pattern> -> {filtered array}
+```
+
 #### `filterNulls`
 
 ```
@@ -2307,6 +2364,14 @@ Filters members in the current JSON array/object based on a regular expression p
 For arrays, the member names are the indices as strings: [0], [1], [2], ...
 Wrap the pattern inside {!...} to avoid conflicts with piping characterUsage: |filterRegex {!<pattern>} -> {filtered array}
        |filterRegex <pattern>    -> {filtered array}
+```
+
+#### `filterRegexValue`
+
+```
+Filters values in the current JSON array based on a regular expression pattern.
+Usage: |filterRegexValue {!<pattern>} -> {filtered array}
+       |filterRegexValue <pattern>    -> {filtered array}
 ```
 
 #### `first`
@@ -2569,6 +2634,8 @@ Replaces all occurrences of a target substring with a replacement substring in t
 Usage: |replace {target} {replacement} -> {string}
 {target}: Substring to be replaced
 {replacement}: Substring to replace with
+If only {target} is provided, it will be replaced with an empty string.
+If the target or replacement strings contain spaces, use an arrow '->' to separate them:|replace {target} -> {replacement}
 ```
 
 #### `require`
@@ -2809,6 +2876,14 @@ If the current value is not an array, the transformation fails.
 Usage: |sort numerically -> {sorted array}
 ```
 
+#### `split`
+
+```
+Splits the current JSON string value into an array of substrings based on a specified character delimiter.
+Usage: |split {delimiter} -> {array}
+{delimiter}: Delimiter to split the string by. If left empty, it splits by whitespace.
+```
+
 #### `sqrt`
 
 ```
@@ -2920,9 +2995,9 @@ Usage: |subspan <start> [<length>] -> {array}
 
 ```
 Extracts a substring from the current JSON string value.
-Usage: |substring {start} {length} -> {string}
+Usage: |substring {start} [length] -> {string}
 {start}: Starting index (0-based)
-{length}: Length of the substring
+[length]: Length of the substring. Optional
 ```
 
 #### `sum`
@@ -3067,7 +3142,7 @@ Available Functions
 
 ```
 Returns 1 if both a and b are logically true, otherwise returns 0.
-A value is considered true when its absolute value is greater than DBL_EPSILON.
+A value is considered true when its absolute value is greater than epsilon.
 Usage: and(a, b)
 ```
 
@@ -3082,7 +3157,7 @@ Usage: constrain(value, min, max)
 
 ```
 Returns 1 if a is equal to b.
-Equality is tested within a small epsilon (DBL_EPSILON) to handle floating point imprecision.
+Equality is tested within a small epsilon to handle floating point imprecision.
 Usage: eq(a, b)
 ```
 
@@ -3143,7 +3218,7 @@ Usage: min(a, b)
 
 ```
 Returns 1 if at least one of a or b is logically false (i.e. not both true), otherwise returns 0.
-Uses DBL_EPSILON to determine logical truthiness.
+Uses epsilon to determine logical truthiness.
 Usage: nand(a, b)
 ```
 
@@ -3151,7 +3226,7 @@ Usage: nand(a, b)
 
 ```
 Returns 1 if a is not equal to b.
-Inequality is determined beyond a small epsilon (DBL_EPSILON).
+Inequality is determined beyond a small epsilon.
 Usage: neq(a, b)
 ```
 
@@ -3159,7 +3234,7 @@ Usage: neq(a, b)
 
 ```
 Returns 1 if both a and b are logically false, otherwise returns 0.
-Values with absolute value <= DBL_EPSILON are treated as false.
+Values with absolute value <= epsilon are treated as false.
 Usage: nor(a, b)
 ```
 
@@ -3167,7 +3242,7 @@ Usage: nor(a, b)
 
 ```
 Returns 1 if a is logically false (close to zero), otherwise returns 0.
-Values with absolute value <= DBL_EPSILON are treated as false.
+Values with absolute value <= epsilon are treated as false.
 Usage: not(a)
 ```
 
@@ -3175,7 +3250,7 @@ Usage: not(a)
 
 ```
 Returns 1 if either a or b is logically true, otherwise returns 0.
-A value is considered true when its absolute value is greater than DBL_EPSILON.
+A value is considered true when its absolute value is greater than epsilon.
 Usage: or(a, b)
 ```
 
@@ -3245,7 +3320,7 @@ Usage: sgn(a)
 ```
 Converts a numeric value to bipolar form.
 output is 1 or -1
-Returns 1 if a is logically true (absolute value > DBL_EPSILON), otherwise returns -1.
+Returns 1 if a is logically true (absolute value > epsilon), otherwise returns -1.
 Usage: toBipolar(a)
 ```
 
@@ -3253,7 +3328,7 @@ Usage: toBipolar(a)
 
 ```
 Returns 1 if a and b are both logically true or both logically false, otherwise returns 0.
-Uses DBL_EPSILON threshold to determine logical equality.
+Uses epsilon threshold to determine logical equality.
 Usage: xnor(a, b)
 ```
 
@@ -3261,7 +3336,7 @@ Usage: xnor(a, b)
 
 ```
 Returns 1 if exactly one of a or b is logically true, otherwise returns 0.
-Uses DBL_EPSILON threshold to determine logical truthiness.
+Uses epsilon threshold to determine logical truthiness.
 Usage: xor(a, b)
 ```
 
