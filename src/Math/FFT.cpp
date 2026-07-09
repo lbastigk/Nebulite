@@ -33,10 +33,10 @@ std::size_t reverseBits(std::size_t input, std::size_t const N) {
 void applyStage(auto& a, std::complex<double> const stageTwiddle, std::size_t const stageSize, std::size_t const N) {
     auto const halfStageSize = stageSize / 2;
 
-    for (auto const i : Utility::Ranges::iota(N) | std::views::stride(stageSize)) {
+    for (auto const i : Utility::Ranges::indices(N) | std::views::stride(stageSize)) {
         std::complex w(1.0);
 
-        for (auto const j : Utility::Ranges::iota(halfStageSize)) {
+        for (auto const j : Utility::Ranges::indices(halfStageSize)) {
             auto const u = a[i + j];
             auto const v = a[i + j + halfStageSize] * w;
 
@@ -60,7 +60,7 @@ std::vector<std::complex<double>> FFT::fft(std::vector<double> const& data) {
     std::copy_n(data.begin(), n, a.begin());
 
     // bit-reversal permutation for proper ordering of input data (required for cooley-turkey)
-    for (auto const i : std::views::iota(std::size_t{0}, N)) {
+    for (auto const i : Utility::Ranges::indices(N)) {
         if (auto const b = reverseBits(i, N); i < b) {
             std::swap(a[i], a[b]);
         }
@@ -83,7 +83,7 @@ std::vector<std::complex<double>> FFT::fftInverse(std::vector<std::complex<doubl
     std::vector<std::complex<double>> a = X;
 
     // bit-reversal permutation for proper ordering of input data (required for cooley-turkey)
-    for (auto const i : std::views::iota(std::size_t{0}, N)) {
+    for (auto const i : Utility::Ranges::indices(N)) {
         if (auto const b = reverseBits(i, N); i < b) {
             std::swap(a[i], a[b]);
         }
