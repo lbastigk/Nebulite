@@ -72,7 +72,6 @@ void RendererProcessor::prepareForNewLayer(RenderObjectContainer* layer) {
     }
 }
 
-
 void RendererProcessor::batchWorkerFunc(DispatcherWorkspace const& workspace){
     // Process
     // We update each object and check if it needs to be moved or deleted

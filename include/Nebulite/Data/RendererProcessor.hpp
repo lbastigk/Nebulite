@@ -14,7 +14,6 @@
 
 // Nebulite
 #include "Nebulite/Constants/ThreadSettings.hpp"
-#include "Nebulite/Data/Batch.hpp"
 #include "Nebulite/Data/Tiling.hpp"
 #include "Nebulite/Utility/Coordination/WorkDispatcher.hpp"
 
