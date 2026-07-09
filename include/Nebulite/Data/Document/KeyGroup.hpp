@@ -8,7 +8,7 @@
 #include <optional>
 
 // Nebulite
-#include "Nebulite/Data/Document/ScopedKey.hpp"
+#include "Nebulite/Data/Document/ScopedKeyView.hpp"
 #include "Nebulite/Data/OptionalFixedString.hpp"
 
 //------------------------------------------

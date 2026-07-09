@@ -14,7 +14,7 @@
 #include <string_view>
 
 // Nebulite
-#include "Nebulite/Data/Document/ScopedKey.hpp"
+#include "Nebulite/Data/Document/ScopedKeyView.hpp"
 #include "Nebulite/Interaction/Execution/FuncTree.hpp"
 #include "Nebulite/Module/Base/DomainModuleBase.hpp"
 

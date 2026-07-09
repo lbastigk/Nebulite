@@ -9,7 +9,7 @@
 #include <string_view>
 
 // Nebulite
-#include "Nebulite/Data/Document/ScopedKey.hpp"
+#include "Nebulite/Data/Document/ScopedKeyView.hpp"
 
 //------------------------------------------
 // Forward declarations

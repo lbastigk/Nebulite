@@ -22,7 +22,7 @@
 #include "Nebulite/Constants/ThreadSettings.hpp"
 #include "Nebulite/Data/Document/KeyType.hpp"
 #include "Nebulite/Data/Document/RjDirectAccess.hpp"
-#include "Nebulite/Data/Document/ScopedKey.hpp"
+#include "Nebulite/Data/Document/ScopedKeyView.hpp"
 #include "Nebulite/Data/Document/SimpleValueError.hpp"
 #include "Nebulite/Data/MappedOrderedCacheList.hpp"
 

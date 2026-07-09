@@ -6,6 +6,7 @@
 
 // Nebulite
 #include "Nebulite/Data/Document/ScopedKey.hpp"
+#include "Nebulite/Data/Document/ScopedKeyView.hpp"
 #include "Nebulite/Utility/CompileTimeEvaluate.hpp"
 
 //------------------------------------------
