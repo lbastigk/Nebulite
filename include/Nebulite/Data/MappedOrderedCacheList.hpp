@@ -14,7 +14,6 @@
 
 // Nebulite
 #include "Nebulite/Data/Document/ScopedKey.hpp"
-#include "Nebulite/Utility/Coordination/IdGenerator.hpp"
 #include "Nebulite/Utility/Coordination/SharedMutex.hpp"
 
 //------------------------------------------
@@ -44,10 +43,7 @@ public:
      * @param identifier The name of the ruleset, or any other string to generate a unique ID from.
      * @return A unique ID corresponding to the given string.
      */
-    static std::size_t generateUniqueId(std::string_view const identifier) {
-        static auto generator = Utility::Coordination::IdGenerator::stringToRollingIdGenerator();
-        return generator(identifier);
-    }
+    static std::size_t generateUniqueId(std::string_view identifier);
 
     /**
      * @brief Ensures the existence of an ordered cache list of double pointers for a set of keys.
