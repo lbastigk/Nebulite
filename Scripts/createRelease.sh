@@ -312,7 +312,7 @@ show_info(){
     fi
     
     echo -e "\n${BLUE}Upload these archives to your GitHub release page.${NC}"
-    echo -e "${BLUE}Release URL: https://github.com/lbastigk/Nebulite/releases/new?tag=${VERSION}${NC}"
+    echo -e "${BLUE}Release URL: https://github.com/lbastigk/Nebulite/releases/new?tag=v${VERSION}${NC}"
 }
 
 # Main execution
