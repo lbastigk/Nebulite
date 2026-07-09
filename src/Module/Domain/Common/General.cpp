@@ -20,6 +20,7 @@
 #include "Nebulite/Interaction/Logic/Expression.hpp"
 #include "Nebulite/Module/Domain/Common/General.hpp"
 #include "Nebulite/Nebulite.hpp"
+#include "Nebulite/Utility/Ranges.hpp"
 #include "Nebulite/Utility/StringHandler.hpp"
 
 //------------------------------------------
@@ -79,7 +80,7 @@ Constants::Event General::capture(std::span<std::string_view const> const& args,
     // Case 2: new lines
     if (historySizeAfterParsing > historySizeBeforeParsing) {
         // Output only new lines
-        for (auto const [i, index] : std::views::iota(historySizeBeforeParsing, historySizeAfterParsing) | std::views::enumerate) {
+        for (auto const [i, index] : Utility::Ranges::iota(historySizeBeforeParsing, historySizeAfterParsing) | std::views::enumerate) {
             auto indexedKey = key.addIndex(static_cast<size_t>(i));
             ctxScope.self.set<std::string>(indexedKey, ctx.self.capture.getHistory()[index].content);
         }
@@ -87,7 +88,7 @@ Constants::Event General::capture(std::span<std::string_view const> const& args,
     // Case 3: fewer lines, meaning a clear occurred
     else {
         // Output everything
-        for (auto const [i, index] : std::views::iota(0ul, historySizeAfterParsing) | std::views::enumerate) {
+        for (auto const [i, index] : Utility::Ranges::indices(historySizeAfterParsing) | std::views::enumerate) {
             auto indexedKey = key.addIndex(static_cast<size_t>(i));
             ctxScope.self.set<std::string>(indexedKey, ctx.self.capture.getHistory()[index].content);
         }
