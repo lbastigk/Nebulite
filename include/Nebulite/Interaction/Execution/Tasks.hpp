@@ -16,6 +16,7 @@
 // Nebulite
 #include "Nebulite/Constants/Event.hpp"
 #include "Nebulite/Data/TaskQueue.hpp"
+#include "Nebulite/Data/TaskQueueResult.hpp"
 #include "Nebulite/Interaction/Context.hpp"
 
 //------------------------------------------
@@ -131,7 +132,7 @@ private:
     /**
      * @brief Contains results of the last task queue resolutions.
      */
-    absl::flat_hash_map<std::string, Data::TaskQueue::TaskQueueResult> queueResult;
+    absl::flat_hash_map<std::string, Data::TaskQueueResult> queueResult;
 };
 
 } // namespace Nebulite::Interaction::Execution

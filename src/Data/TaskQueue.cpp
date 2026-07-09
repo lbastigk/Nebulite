@@ -13,6 +13,7 @@
 // Nebulite
 #include "Nebulite/Constants/Event.hpp"
 #include "Nebulite/Data/TaskQueue.hpp"
+#include "Nebulite/Data/TaskQueueResult.hpp"
 #include "Nebulite/Interaction/Context.hpp"
 #include "Nebulite/Interaction/Execution/Domain.hpp"
 #include "Nebulite/Utility/IO/Capture.hpp"
@@ -23,7 +24,7 @@
 namespace Nebulite::Data {
 
 namespace {
-void resolveArgument(std::string& argStr, TaskQueue::TaskQueueResult& fullResult, std::string_view const callbackName, Interaction::Context& ctx, Interaction::ContextScope& ctxScope) {
+void resolveArgument(std::string& argStr, TaskQueueResult& fullResult, std::string_view const callbackName, Interaction::Context& ctx, Interaction::ContextScope& ctxScope) {
     // Add binary name if missing
     if (argStr.size() < callbackName.size() + 1 || !argStr.starts_with(callbackName) || argStr[callbackName.size()] != ' ') {
         argStr.insert(0, " ");
@@ -43,7 +44,7 @@ void resolveArgument(std::string& argStr, TaskQueue::TaskQueueResult& fullResult
 }
 } // namespace
 
-TaskQueue::TaskQueueResult TaskQueue::resolve(Interaction::Context& ctx, Interaction::ContextScope& ctxScope, bool const recover) {
+TaskQueueResult TaskQueue::resolve(Interaction::Context& ctx, Interaction::ContextScope& ctxScope, bool const recover) {
     TaskQueueResult fullResult;
 
     // 1.) Process and pop tasks

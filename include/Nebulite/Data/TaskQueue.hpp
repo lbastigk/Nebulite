@@ -10,10 +10,9 @@
 #include <mutex>
 #include <string>
 #include <string_view>
-#include <vector>
 
 // Nebulite
-#include "Nebulite/Constants/Event.hpp"
+#include "Nebulite/Data/TaskQueueResult.hpp"
 
 //------------------------------------------
 // Forward declarations
@@ -44,20 +43,6 @@ public:
         : settings{.callbackName=callbackName, .clearAfterResolving=clearAfterResolving} {}
 
     /**
-     * @brief Represents the result of resolving a task queue.
-     *        This structure holds the outcome of processing a task queue, including any errors
-     *        encountered during resolution and whether the process was halted due to a critical error.
-     *        Does not include successful results
-     * @note Since Events just hold the type (Warning, Error), returning a vector of results might be unnecessary.
-     *       Although it's sort of useful, as we can count the amount of events and inform: "Task encountered X warnings and Y errors"
-     *       Later on we might change that to 2 std::size_t that count the amount of warnings and errors, instead of returning a vector of events.
-     */
-    struct TaskQueueResult {
-        bool encounteredCriticalResult = false; // Indicates if a critical error was encountered during task resolution
-        std::vector<Constants::Event> events;   // List of events encountered during task resolution
-    };
-
-    /**
      * @brief Resolves the task queue by parsing and executing each task in the context of the provided domain.
      * @details skips tasks if the internal wait counter is greater than zero.
      * @param ctx The context of the interaction. Commands are parsed into 'self'
@@ -67,6 +52,11 @@ public:
      */
     TaskQueueResult resolve(Interaction::Context& ctx, Interaction::ContextScope& ctxScope, bool recover);
 
+    /**
+     * @brief Adds a script to the front of the TaskQueue
+     * @param filename The name of the script file to add. Expected to have a ".nebs" extension.
+     * @param capture The capture instance for printing warnings and errors during script loading.
+     */
     void addScript(std::string_view filename, Utility::IO::Capture& capture);
 
     /**
