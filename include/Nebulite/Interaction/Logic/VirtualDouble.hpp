@@ -6,6 +6,7 @@
 
 // Standard library
 #include <string>
+#include <string_view>
 
 // Nebulite
 #include "Nebulite/Data/Document/ScopedKey.hpp"
@@ -31,11 +32,14 @@ namespace Nebulite::Interaction::Logic {
  * @todo Perhaps a better name would be LinkedDouble or LinkedNumericValue
  */
 class VirtualDouble {
+    // We must store both the key and the scopedkey. Using a string + ScopedKeyView is more memory efficient.
+    // Using just ScopedKey is brittle, as returning a string const& of the inner key isn't possible there.
+
     // Key associated with this VirtualDouble
-    std::string key;
+    std::string const key;
 
     // Key as ScopedKey with no prefix
-    Data::ScopedKey scopedKey = Data::ScopedKey("");
+    Data::ScopedKeyView const scopedKey;
 
     /**
      * @brief Internal cache for non-remanent documents.
@@ -65,7 +69,7 @@ public:
         return key;
     }
 
-    [[nodiscard]] Data::ScopedKey const& getScopedKey() const noexcept {
+    [[nodiscard]] Data::ScopedKeyView const& getScopedKey() const noexcept {
         return scopedKey;
     }
 

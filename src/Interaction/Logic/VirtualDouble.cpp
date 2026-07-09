@@ -2,8 +2,10 @@
 // Includes
 
 // Standard library
+#include <cstddef>
 #include <stdexcept>
 #include <string_view>
+#include <type_traits>
 
 // Nebulite
 #include "Nebulite/Data/Document/JsonScope.hpp"
@@ -13,9 +15,9 @@
 //------------------------------------------
 namespace Nebulite::Interaction::Logic {
 
-VirtualDouble::VirtualDouble(std::string_view const k) {
-    key = ContextDeriver::stripContext(k);
-    scopedKey = Data::ScopedKey(key);
+VirtualDouble::VirtualDouble(std::string_view const k) : key(ContextDeriver::stripContext(k)), scopedKey(key) {
+    static_assert(std::is_standard_layout_v<VirtualDouble>, "VirtualDouble must remain standard-layout because member order is checked with offsetof");
+    static_assert(offsetof(VirtualDouble, key) < offsetof(VirtualDouble, scopedKey), "key must precede scopedKey");
 }
 
 void VirtualDouble::linkExternalCache(Data::JsonScope const& json) {
