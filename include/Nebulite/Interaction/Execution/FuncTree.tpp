@@ -493,13 +493,6 @@ ReturnValue FuncTree<ReturnValue, AdditionalArgs...>::parseStr(std::string_view 
 }
 
 template <typename ReturnValue, typename... AdditionalArgs>
-ReturnValue FuncTree<ReturnValue, AdditionalArgs...>::parse(std::vector<std::string_view> const& args, AdditionalArgs... addArgs) {
-    // Turn into span
-    std::span const argsSpan(args.data(), args.size());
-    return parse(argsSpan, addArgs...);
-}
-
-template <typename ReturnValue, typename... AdditionalArgs>
 ReturnValue FuncTree<ReturnValue, AdditionalArgs...>::parse(std::span<std::string_view const> const& args, AdditionalArgs... addArgs) {
     auto actualArgs = args.subspan(1); // First arg is caller, remove
     processVariableArguments(actualArgs);
@@ -516,6 +509,28 @@ ReturnValue FuncTree<ReturnValue, AdditionalArgs...>::parse(std::span<std::strin
 
     // Not found in inherited trees, execute the function in main tree
     return executeFunction(funcName, actualArgs, addArgs...);
+}
+
+template <typename ReturnValue, typename... AdditionalArgs>
+ReturnValue FuncTree<ReturnValue, AdditionalArgs...>::parse(std::vector<std::string_view> const& args, AdditionalArgs... addArgs) {
+    // Turn into span
+    std::span const argsSpan(args.data(), args.size());
+    return parse(argsSpan, addArgs...);
+}
+
+template <typename ReturnValue, typename... AdditionalArgs>
+ReturnValue FuncTree<ReturnValue, AdditionalArgs...>::parse(std::vector<std::string> const& args, AdditionalArgs... addArgs) {
+    std::vector<std::string_view> vecView;
+    vecView.reserve(args.size());
+    std::ranges::transform(
+        args,
+        std::back_inserter(vecView),
+        [](std::string const& str) {
+            return std::string_view(str);
+        }
+    );
+    std::span const argsView(vecView);
+    return parse(argsView, addArgs...);
 }
 
 template <typename ReturnValue, typename ... AdditionalArgs>

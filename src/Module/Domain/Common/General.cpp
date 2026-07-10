@@ -11,6 +11,7 @@
 #include <string>
 #include <string_view>
 #include <utility>
+#include <vector>
 
 // Nebulite
 #include "Nebulite/Constants/Event.hpp"
@@ -25,6 +26,8 @@
 
 //------------------------------------------
 namespace Nebulite::Module::Domain::Common {
+
+// [BASICS]
 
 Constants::Event General::updateHook() {
     if (imguiViewEnabled && Graphics::ImguiHelper::checkImguiReadyForRendering()) {
@@ -186,11 +189,13 @@ Constants::Event General::func_for(std::span<std::string_view const> const& args
         int const iStart = std::stoi(Interaction::Logic::Expression::eval(args[2], ctxScope));
         int const iEnd = std::stoi(Interaction::Logic::Expression::eval(args[3], ctxScope));
 
-        std::string const argStr = Utility::StringHandler::recombineArgs(args.subspan(4));
+        std::vector argsVec = {std::string(args[0])};
         for (int i = iStart; i <= iEnd; i++) {
-            // for + args
-            std::string const args_replaced = std::string(args[0]) + " " + Utility::StringHandler::replaceAll(argStr, '{' + varName + '}', std::to_string(i));
-            if (auto const event = ctx.self.parseStr(args_replaced, ctx, ctxScope); event != Constants::Event::Success) {
+            argsVec.resize(1);
+            for (auto const& arg : args.subspan(4)) {
+                argsVec.push_back(Utility::StringHandler::replaceAll(std::string(arg), '{' + varName + '}', std::to_string(i)));
+            }
+            if (auto const event = ctx.self.parse(argsVec, ctx, ctxScope); event != Constants::Event::Success) {
                 return event;
             }
         }
@@ -201,18 +206,17 @@ Constants::Event General::func_for(std::span<std::string_view const> const& args
 
 Constants::Event General::func_forProgress(std::span<std::string_view const> const& args, Interaction::Context& ctx, Interaction::ContextScope& ctxScope) {
     if (args.size() > 4) {
+        std::size_t constexpr barWidth = 50;
+
         auto const& varName = std::string(args[1]);
 
         int const iStart = std::stoi(Interaction::Logic::Expression::eval(args[2], ctxScope));
         int const iEnd = std::stoi(Interaction::Logic::Expression::eval(args[3], ctxScope));
 
-        std::string const argStr = Utility::StringHandler::recombineArgs(args.subspan(4));
-
-        std::size_t constexpr barWidth = 50;
+        std::vector argsVec = {std::string(args[0])};
         for (int i = iStart; i <= iEnd; i++) {
             // Provide progress bar only to cout for now
             double const progress = static_cast<double>(i - iStart) / static_cast<double>(iEnd - iStart + 1);
-
             std::cout << "[";
             auto const pos = static_cast<size_t>(barWidth * progress);
             for (std::size_t barIdx = 0; barIdx < barWidth; ++barIdx) {
@@ -223,12 +227,16 @@ Constants::Event General::func_forProgress(std::span<std::string_view const> con
             std::cout << "] " << static_cast<int>(progress * 100.0) << " %\r";
             std::cout.flush();
 
-            // for + args
-            std::string const args_replaced = std::string(args[0]) + " " + Utility::StringHandler::replaceAll(argStr, '{' + varName + '}', std::to_string(i));
-            if (auto const event = ctx.self.parseStr(args_replaced, ctx, ctxScope); event != Constants::Event::Success) {
+            // Parse
+            argsVec.resize(1);
+            for (auto const& arg : args.subspan(4)) {
+                argsVec.push_back(Utility::StringHandler::replaceAll(std::string(arg), '{' + varName + '}', std::to_string(i)));
+            }
+            if (auto const event = ctx.self.parse(argsVec, ctx, ctxScope); event != Constants::Event::Success) {
                 return event;
             }
         }
+        // Final progress bar
         std::cout << "[";
         for (std::size_t barIdx = 0; barIdx < barWidth; ++barIdx) {
             std::cout << "=";
@@ -236,10 +244,10 @@ Constants::Event General::func_forProgress(std::span<std::string_view const> con
         std::cout << "] " << 100 << " %\r";
         std::cout.flush();
         std::cout << "\n";
+
         return Constants::Event::Success;
     }
     return Constants::StandardCapture::Warning::Functional::tooFewArgs(ctx.self.capture);
-
 }
 
 Constants::Event General::nop(std::span<std::string_view const> const& /*args*/) {
@@ -247,7 +255,7 @@ Constants::Event General::nop(std::span<std::string_view const> const& /*args*/)
     return Constants::Event::Success;
 }
 
-// [FORWARD/REPARSE[]
+// [FORWARD/REPARSE]
 
 Constants::Event General::forwardToOther(std::span<std::string_view const> const& args, Interaction::Context& ctx, Interaction::ContextScope& ctxScope) {
     if (args.size() < 2) {

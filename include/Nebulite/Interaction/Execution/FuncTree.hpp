@@ -148,8 +148,10 @@ public:
      * @return The return value of the executed function, or the standard/error value.
      */
     ReturnValue parseStr(std::string_view cmd, AdditionalArgs... addArgs);
-    ReturnValue parse(std::vector<std::string_view> const& args, AdditionalArgs... addArgs);
     ReturnValue parse(std::span<std::string_view const> const& args, AdditionalArgs... addArgs);
+    ReturnValue parse(std::vector<std::string_view> const& args, AdditionalArgs... addArgs);
+    ReturnValue parse(std::vector<std::string> const& args, AdditionalArgs... addArgs);
+
 
     /**
      * @brief Parses the command line arguments and executes the corresponding function.

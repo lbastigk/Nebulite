@@ -10,6 +10,7 @@
 #include <memory>
 #include <mutex>
 #include <optional>
+#include <span>
 #include <string>
 #include <string_view>
 #include <vector>
@@ -426,25 +427,29 @@ public:
     // Command parsing
 
     /**
-     * @brief Parses a string into a Nebulite command and prints potential errors to stderr.
+     * @brief Parses a command string and executes the corresponding function.
      * @details Make sure the first arg is a name and not the function itself!
-     *          - `parseStr("set text Hello World")` -> does not work!
-     *          - `parseStr("<someName> set text Hello World")` -> works
-     *          The first argument is reserved for debugging and should be used as a way to tell the parser from where it was called:
-     *          ```cpp
-     *          void myFunction(){
-     *              parseStr("myFunction set text Hello World");
-     *          }
-     *          ```
-     *          If set fails, we can use the first argument `argv[0]` to identify the source of the command.
-     *          The function is marked as `[[nodiscard]]` to ensure that the caller handles potential errors.
-     *          The errors are not printed to stderr by default to allow the caller to handle them as needed.
-     * @param str The string to parse.
+     * @param cmd Command string to parse.
      * @param ctx The context of the caller
      * @param ctxScope The context scope of the caller
      * @return Potential errors that occurred on command execution
      */
-    [[nodiscard]] Constants::Event parseStr(std::string_view str, Context& ctx, ContextScope& ctxScope) const ;
+    [[nodiscard]] Constants::Event parseStr(std::string_view cmd, Context& ctx, ContextScope& ctxScope) const ;
+
+    /**
+     * @brief Parses the command line arguments and executes the corresponding function.
+     * @details Like parseStr, but with a provided set of existing args
+     * @param existingArgs Existing arguments to use as the base for parsing. Will be modified to include the parsed arguments from cmd.
+     * @param cmd Command string to parse
+     * @param ctx The context of the caller
+     * @param ctxScope The context scope of the caller
+     * @return Potential errors that occurred on command execution.
+     */
+    [[nodiscard]] Constants::Event parseWithPrefix(std::vector<std::string_view>& existingArgs, std::string_view cmd, Context& ctx, ContextScope& ctxScope) const ;
+
+    [[nodiscard]] Constants::Event parse(std::span<std::string_view> args, Context& ctx, ContextScope& ctxScope) const ;
+    [[nodiscard]] Constants::Event parse(std::vector<std::string_view> const& args, Context& ctx, ContextScope& ctxScope) const ;
+    [[nodiscard]] Constants::Event parse(std::vector<std::string> const& args, Context& ctx, ContextScope& ctxScope) const ;
 
     /**
      * @brief Finds possible completions of registered functions, categories and variables for a given pattern

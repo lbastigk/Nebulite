@@ -9,6 +9,7 @@
 #include <mutex>
 #include <numeric>
 #include <optional>
+#include <span>
 #include <string>
 #include <string_view>
 #include <vector>
@@ -125,8 +126,24 @@ std::string const& Domain::scopePrefix() const {
     return domainScope.getScopePrefix();
 }
 
-Constants::Event Domain::parseStr(std::string_view const str, Context& ctx, ContextScope& ctxScope) const {
-    return funcTree->parseStr(str, ctx, ctxScope);
+Constants::Event Domain::parseStr(std::string_view const cmd, Context& ctx, ContextScope& ctxScope) const {
+    return funcTree->parseStr(cmd, ctx, ctxScope);
+}
+
+Constants::Event Domain::parseWithPrefix(std::vector<std::string_view>& existingArgs, std::string_view const cmd, Context& ctx, ContextScope& ctxScope) const {
+    return funcTree->parseWithPrefix(existingArgs, cmd, ctx, ctxScope);
+}
+
+Constants::Event Domain::parse(std::span<std::string_view> const args, Context& ctx, ContextScope& ctxScope) const {
+    return funcTree->parse(args, ctx, ctxScope);
+}
+
+Constants::Event Domain::parse(std::vector<std::string_view> const& args, Context& ctx, ContextScope& ctxScope) const {
+    return funcTree->parse(args, ctx, ctxScope);
+}
+
+Constants::Event Domain::parse(std::vector<std::string> const& args, Context& ctx, ContextScope& ctxScope) const {
+    return funcTree->parse(args, ctx, ctxScope);
 }
 
 double** Domain::ensureOrderedCacheList(std::uint64_t const uniqueId, std::vector<Data::ScopedKeyView> const& keys) const {
