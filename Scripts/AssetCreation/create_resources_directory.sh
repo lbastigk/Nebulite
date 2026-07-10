@@ -41,7 +41,7 @@ fi
 cd $ResourcesDir/Audio/
 if [ ! -f "TEST_AUDIO.wav" ]
 then
-  .venv/bin/python $ResourcesDir/../Scripts/AssetCreation/TestAudio.py
+  python $ResourcesDir/../Scripts/AssetCreation/TestAudio.py
 else
   echo "Skipping TEST_AUDIO.wav (already exists)"
 fi
@@ -79,19 +79,19 @@ fi
 # Test001P
 echo "Creating noisy images for TEST001P"
 cd $ResourcesDir/Sprites/TEST001P
-.venv/bin/python $ResourcesDir/../Scripts/AssetCreation/NoisyColouredImages.py -n 128 -s 1 1
+python $ResourcesDir/../Scripts/AssetCreation/NoisyColouredImages.py -n 128 -s 1 1
 
 # Test100P
 echo "Creating noisy images for TEST100P"
 cd $ResourcesDir/Sprites/TEST100P
-.venv/bin/python $ResourcesDir/../Scripts/AssetCreation/NoisyColouredImages.py -n 128 -s 100 100
+python $ResourcesDir/../Scripts/AssetCreation/NoisyColouredImages.py -n 128 -s 100 100
 echo "Resources directory creation done"
 
 # Cursor, inspired by drakensang
 cd $ResourcesDir/Cursor/
 if [ ! -f "Drakensang.png" ]
 then
-  .venv/bin/python $ResourcesDir/../Scripts/AssetCreation/Cursor.py
+  python $ResourcesDir/../Scripts/AssetCreation/Cursor.py
 else
   echo "Skipping Cursor Drakensang.png (already exists)"
 fi
@@ -100,7 +100,7 @@ fi
 cd $ResourcesDir/Editor/
 if [ ! -f "Selection.png" ]
 then
-  .venv/bin/python $ResourcesDir/../Scripts/AssetCreation/Selection.py
+  python $ResourcesDir/../Scripts/AssetCreation/Selection.py
 else
   echo "Skipping Editor Selection.png (already exists)"
 fi
