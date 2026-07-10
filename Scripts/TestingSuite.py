@@ -436,41 +436,47 @@ def process_binaries(binaries, tests: List[Dict[str, Any]], timeout: int, ignore
     failed_tests = 0
     results = []
     for binary in binaries:
-            print(f"\n==============================")
-            print(f"Testing binary: {binary}")
-            print(f"==============================\n")
+        print(f"\n==============================")
+        print(f"Testing binary: {binary}")
+        print(f"==============================\n")
 
-            # See if binary exists, if not, skip tests
-            exe_path = find_executable_in_command(binary)
-            if not exe_path:
-                print(f"Error: Binary `{binary}` not found. Skipping tests for this binary.")
-                continue
+        # See if binary exists, if not, skip tests
+        exe_path = find_executable_in_command(binary)
+        if not exe_path:
+            print(f"Error: Binary `{binary}` not found. Skipping tests for this binary.")
+            continue
 
-            # Check if binary runs at all by running help command
-            help_check = run_command(f"{binary} help", timeout)
-            if help_check['exit_code'] != 0:
-                print(f"Error: Binary '{exe_path}' failed to run!")
-                print(f"Full command: {binary} help")
-                sys.exit(1)
+        # Add wine in front of binary if it is a Windows executable and this os is Linux
+        if sys.platform.startswith('linux') and any(part.lower().endswith(".exe") for part in binary.split()):
+            print(f"Detected Windows executable on Linux. Running with Wine + suppressed debug output.")
+            print("")
+            binary = f"DXVK_LOG_LEVEL=none WINEDEBUG=-all wine {binary}"
 
-            # Run each test
-            for test in tests:
-                total_tests += 1
-                test_result = run_single_test(binary, test, timeout, ignore_lines, verbose)
-                
-                if test_result['passed']:
-                    passed_tests += 1
-                else:
-                    failed_tests += 1
-                    if stop_on_fail:
-                        print("Stopping on first failure as requested.")
-                        results.append(test_result)
-                        break
-                
-                results.append(test_result)
-            
-            if stop_on_fail and failed_tests > 0:
-                break
+        # Check if binary runs at all by running help command
+        help_check = run_command(f"{binary} help", timeout)
+        if help_check['exit_code'] != 0:
+            print(f"Error: Binary '{exe_path}' failed to run!")
+            print(f"Full command: {binary} help")
+            sys.exit(1)
+
+        # Run each test
+        for test in tests:
+            total_tests += 1
+            test_result = run_single_test(binary, test, timeout, ignore_lines, verbose)
+
+            if test_result['passed']:
+                passed_tests += 1
+            else:
+                failed_tests += 1
+                if stop_on_fail:
+                    print("Stopping on first failure as requested.")
+                    results.append(test_result)
+                    break
+
+            results.append(test_result)
+
+        if stop_on_fail and failed_tests > 0:
+            break
     process_information = {
         'passed_tests': passed_tests,
         'failed_tests': failed_tests,

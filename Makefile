@@ -9,27 +9,27 @@
 
 linux-release:
 	@echo "Building preset: $@"
-	@python ./Container/build.py $@
+	@.venv/bin/python ./Container/build.py $@
 
 linux-debug:
 	@echo "Building preset: $@"
-	@python ./Container/build.py $@
+	@.venv/bin/python ./Container/build.py $@
 
 linux-coverage:
 	@echo "Building preset: $@"
-	@python ./Container/build.py $@
+	@.venv/bin/python ./Container/build.py $@
 
 linux-profiling:
 	@echo "Building preset: $@"
-	@python ./Container/build.py $@
+	@.venv/bin/python ./Container/build.py $@
 
 windows-release:
 	@echo "Building preset: $@"
-	@python ./Container/build.py $@
+	@.venv/bin/python ./Container/build.py $@
 
 windows-debug:
 	@echo "Building preset: $@"
-	@python ./Container/build.py $@
+	@.venv/bin/python ./Container/build.py $@
 
 # TODO: build containers for macOS presets, or use native build on macOS
 
@@ -94,7 +94,7 @@ resources:
 	@./Scripts/AssetCreation/create_resources_directory.sh
 
 test:
-	@python3 Scripts/TestingSuite.py --stop --verbose
+	@.venv/bin/python Scripts/TestingSuite.py --stop --verbose
 
 clean:
 	@rm -rf tmp/ bin/ || true
@@ -104,7 +104,7 @@ message-available-presets:
 
 coverage-report:
 	@echo "Generating coverage report..."
-	@python Scripts/TestingSuite.py --coverage --verbose
+	@.venv/bin/python Scripts/TestingSuite.py --coverage --verbose
 
 delete-binaries:
 	@rm -rf bin/* || true
@@ -135,8 +135,8 @@ clean-build-available: clean build-available
 
 docs:
 	@echo "Generating documentation for keywords..."
-	@python Scripts/MakeCommandDocumentation.py
-	@python Languages/nebs/nebulite-script-vscode/scripts/extract_keywords.py
+	@.venv/bin/python Scripts/MakeCommandDocumentation.py
+	@.venv/bin/python Languages/nebs/nebulite-script-vscode/scripts/extract_keywords.py
 
 standards:
 	@echo "Generating standard files..."
