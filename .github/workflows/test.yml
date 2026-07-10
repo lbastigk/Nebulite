@@ -43,6 +43,7 @@ jobs:
             exit 1
           fi
           python Container/build.py linux-release --test
+          make delete-binaries
           
 
       - name: Test Debug binary
@@ -55,3 +56,4 @@ jobs:
             exit 1
           fi
           python Container/build.py linux-debug --test
+          make delete-binaries
