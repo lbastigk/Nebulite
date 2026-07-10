@@ -1,7 +1,7 @@
 <component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="Nebulite" type="CMakeRunConfiguration" factoryName="Application" PROGRAM_PARAMS="task TaskFiles/Debugging/debug.nebs" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" WORKING_DIR="file://$ContentRoot$" PASS_PARENT_ENVS_2="true" PROJECT_NAME="Nebulite" TARGET_NAME="Nebulite" CONFIG_NAME="linux-debug" RUN_TARGET_PROJECT_NAME="Nebulite" RUN_TARGET_NAME="Nebulite">
+  <configuration default="false" name="Nebulite" type="CMakeRunConfiguration" factoryName="Application" PROGRAM_PARAMS="task TaskFiles/Debugging/debug.nebs" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="true" WORKING_DIR="file://$ProjectFileDir$" PASS_PARENT_ENVS_2="true" PROJECT_NAME="Nebulite" TARGET_NAME="Nebulite" CONFIG_NAME="linux-debug" RUN_TARGET_PROJECT_NAME="Nebulite" RUN_TARGET_NAME="Nebulite">
     <method v="2">
-      <option name="ToolBeforeRunTask" enabled="true" actionId="Tool_External Tools_Build debug (linux)" />
+      <option name="RunConfigurationTask" enabled="false" run_configuration_name="Build Linux debug containerized" run_configuration_type="PythonConfigurationType" />
     </method>
   </configuration>
 </component>

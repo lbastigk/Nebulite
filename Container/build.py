@@ -11,7 +11,9 @@ import subprocess
 import sys
 
 
-ROOT = pathlib.Path(__file__).parent.parent
+ROOT = pathlib.Path(__file__).resolve().parent.parent
+
+
 CONTAINER_DIR = ROOT / "Container"
 PRESETS = ROOT / "CMakePresets.json"
 
@@ -98,9 +100,8 @@ def run_container(container, preset, rebuild=False):
 
     # TODO: using nproc used to cause issues on low memory systems, add a guard for that
 
-    # TODO: set proper paths, but this causes issues with the external directory atm
-    #       perhaps we need a variable like CMAKE_EXTERNAL_PREFIX so that we set the actual prefix?
-    #       Either full path for or just ./
+    # TODO: running this script in a clion terminal with the procided task shows escape sequences instead of coloring
+
     run(
         [
             "podman",
