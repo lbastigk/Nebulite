@@ -5,12 +5,7 @@ on:
 
 jobs:
   test:
-    # TODO: get rid of the container-in-container setup by later on running the tests in a podman container instead of the host
-
     runs-on: ubuntu-latest
-    container:                # The workaround...
-      image: fedora:latest
-      options: --privileged
 
     steps:
       - name: Checkout repository
@@ -37,29 +32,25 @@ jobs:
         run: |
           make resources
 
-      - name: Run build environment
+      - name: Test Release binary
         run: |
-          make linux-release
-          make linux-debug
-
-      - name: Check if files exist
-        run: |
+          python Container/build.py linux-release
           if [ ! -f "./bin/Nebulite" ]; then
             echo "Release binary not found!"
+            echo "Current directory structure:"
             tree .
             exit 1
           fi
+          python Container/build.py linux-release --test
+          
+
+      - name: Test Debug binary
+        run: |
+          python Container/build.py linux-debug
           if [ ! -f "./bin/Nebulite_Debug" ]; then
             echo "Debug binary not found!"
+            echo "Current directory structure:"
             tree .
             exit 1
           fi
-
-      - name: Run Help command
-        run: |
-          ./bin/Nebulite help
-          ./bin/Nebulite_Debug help
-
-      - name: Run tests
-        run: |
-          make test
+          python Container/build.py linux-debug --test
