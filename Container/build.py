@@ -103,7 +103,6 @@ def ensure_image(container, rebuild=False):
 def run_container(container, preset, rebuild=False):
     image = ensure_image(container, rebuild=rebuild)
 
-    # TODO: using nproc used to cause issues on low memory systems, add a guard for that
     process_count = determine_process_count()
     print(f"Running build with {process_count} processes")
 
