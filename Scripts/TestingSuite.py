@@ -10,7 +10,7 @@ import fnmatch
 import shlex
 import glob
 import shutil
-from typing import List, Dict, Any, Union
+from typing import List, Dict, Any, Union, Optional
 
 #==============================================================================
 # Utility Functions
