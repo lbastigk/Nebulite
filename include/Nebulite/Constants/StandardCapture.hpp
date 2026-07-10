@@ -6,7 +6,13 @@
 
 // Standard Library
 #include "Nebulite/Constants/Event.hpp"
-#include "Nebulite/Utility/IO/Capture.hpp"
+
+//------------------------------------------
+// Forward declarations
+
+namespace Nebulite::Utility::IO {
+class Capture;
+} // namespace Nebulite::Utility::IO
 
 //------------------------------------------
 namespace Nebulite::Constants {
