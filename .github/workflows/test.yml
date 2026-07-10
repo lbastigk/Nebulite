@@ -17,7 +17,8 @@ jobs:
 
       - name: Install Dependencies
         run: |
-          dnf install -y podman python3 python3-devel make ImageMagick espeak-ng
+          sudo apt-get update
+          sudo apt-get install -y podman python3-venv make imagemagick espeak-ng
 
       - name: Set up Python environment
         run: |
