@@ -22,20 +22,19 @@ class JsonScope;
 namespace Nebulite::Interaction::Logic {
 /**
  * @brief A wrapper class for accessing and modifying double values in JSON documents.
- * @details The `VirtualDouble` class provides a consistent interface for linking variables to
+ * @details The `LinkedNumericValue` class provides a consistent interface for linking variables to
  *          physical double addresses, ensuring compatibility with `tinyexpr`. It supports:
  *          - Remanent contexts: For `self`, `global`, where the context remains constant.
  *          - Non-remanent contexts: For `other` and `documentCache`,
  *          where the context changes dynamically during evaluations
  *          or the lifetime is limited.
  *          This distinction is crucial for efficient and accurate expression evaluations.
- * @todo Perhaps a better name would be LinkedDouble or LinkedNumericValue
  */
-class VirtualDouble {
+class LinkedNumericValue {
     // We must store both the key and the scopedkey. Using a string + ScopedKeyView is more memory efficient.
     // Using just ScopedKey is brittle, as returning a string const& of the inner key isn't possible there.
 
-    // Key associated with this VirtualDouble
+    // Key associated with this LinkedNumericValue
     std::string const key;
 
     // Key as ScopedKey with no prefix
@@ -54,15 +53,15 @@ class VirtualDouble {
 
 public:
     /**
-     * @brief Construct a new VirtualDouble object.
-     * @details This constructor initializes the VirtualDouble with a key and a DocumentCache.
+     * @brief Construct a new LinkedNumericValue object.
+     * @details This constructor initializes the LinkedNumericValue with a key and a DocumentCache.
      *          It also removes any prefixes from the key to ensure consistent access.
-     * @param k The key associated with this VirtualDouble.
+     * @param k The key associated with this LinkedNumericValue.
      */
-    explicit VirtualDouble(std::string_view k);
+    explicit LinkedNumericValue(std::string_view k);
 
     /**
-     * @brief Get the key associated with this VirtualDouble.
+     * @brief Get the key associated with this LinkedNumericValue.
      * @return The key as a string.
      */
     [[nodiscard]] std::string const& getKey() const noexcept {
@@ -74,7 +73,7 @@ public:
     }
 
     /**
-     * @brief Links the VirtualDouble to an external cache in a JSON document.
+     * @brief Links the LinkedNumericValue to an external cache in a JSON document.
      * @details Can only be called once
      * @param json The JSON document to link to.
      */
@@ -92,7 +91,7 @@ public:
     void copyFromJson(Data::JsonScope const& json);
 
     /**
-     * @brief Set the value of the VirtualDouble directly.
+     * @brief Set the value of the LinkedNumericValue directly.
      * @param val The new double value to set.
      */
     void setDirect(double val) noexcept ;
