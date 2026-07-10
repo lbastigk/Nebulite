@@ -6,6 +6,8 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
+    container:
+      image: fedora:latest
 
     steps:
       - name: Checkout repository
@@ -17,8 +19,8 @@ jobs:
 
       - name: Install Dependencies
         run: |
-          sudo apt-get update
-          sudo apt-get install -y podman python3-venv make imagemagick espeak-ng
+          sudo dnf update
+          sudo dnf install -y podman python3-venv make imagemagick espeak-ng
 
       - name: Set up Python environment
         run: |
