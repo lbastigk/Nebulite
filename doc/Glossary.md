@@ -95,6 +95,7 @@ All domains support string parsing through `parseStr` from other domains and sup
 
 See also: [DomainModule](#domainmodule), [FuncTree](#functree), [GlobalSpace](#globalspace), [JsonScope](#jsonscope)
 
+-----------------
 ### Domain-Inheritance
 
 Domains may inherit functions from each other, allowing for shared data, functionality and properties.
@@ -158,7 +159,7 @@ Examples:
 - `My name is {self:name}` would evaluate to `My name is John` if `{self:name}` = `John`
 - `I have {self:inventory|length} items` would evaluate to `I have 5 items` if `{self:inventory}` is an array of length 5.
 
-See also: [Context](#context), [VirtualDouble](#virtualdouble), [Multiresolve](#multiresolve)
+See also: [Context](#context), [LinkedNumericValue](#linkednumericvalue), [Multiresolve](#multiresolve)
 
 -----------------
 ## F
@@ -237,6 +238,14 @@ See also: [DomainModule](#domainmodule) [JSON](#json), [ScopedKey](#scopedkey)
 ## L
 
 -----------------
+### LinkedNumericValue
+Wrapper class providing consistent access to double values from arbitrary JSON documents.
+The value is copied and stored internally, allowing for a stable pointer access even if the JSON document changes.
+This is used in the Expression system to register variables for tinyexpr.
+
+See also: [Expression](#expression), [JSON](#json)
+
+-----------------
 ## M
 
 -----------------
@@ -293,6 +302,7 @@ See also: [Context](#context), [Invoke](#invoke), [RenderObject](#renderobject)
 -----------------
 ## S
 
+-----------------
 ### ScopedKey
 A key with an attached scope. If any `JsonScope` attempts to access a variable with a ScopedKey,
 it is first checked whether the scope matches the required scope. If not, the access fails and the program exits.
@@ -321,14 +331,6 @@ See also: [Evaluation-delay](#evaluation-delay) [JSON](#json), [Multiresolve](#m
 
 -----------------
 ## V
-
------------------
-### VirtualDouble
-Wrapper class providing consistent access to double values from arbitrary JSON documents.
-The value is copied and stored internally, allowing for a stable pointer access even if the JSON document changes.
-This is used in the Expression system to register variables for tinyexpr.
-
-See also: [Expression](#expression), [JSON](#json)
 
 -----------------
 ## W
