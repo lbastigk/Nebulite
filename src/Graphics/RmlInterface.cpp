@@ -111,7 +111,6 @@ RmlInterface::RmlInterface() = default;
 RmlInterface::~RmlInterface() {
     // NOLINTBEGIN
     if (statusTracker.rmlInterfaceInitialized) {
-        Rml::Shutdown();
         statusTracker.rmlInterfaceInitialized = false;
     }
     // NOLINTEND
@@ -166,6 +165,11 @@ void RmlInterface::init(Core::Renderer& renderer, int const width, int const hei
     // Data Model used for data-value sync
     dataModelConstructor = context->CreateDataModel(dataModelName);
     update(0,0);
+}
+
+void RmlInterface::close() const {
+    context->Update();
+    Rml::Shutdown();
 }
 
 namespace {
@@ -520,6 +524,17 @@ void RmlInterface::setRmlDocumentContextAndScope(Rml::ElementDocument* document,
 // Plugin for document tracking
 
 RmlInterface::DocumentManager::DocumentManager() = default;
+
+RmlInterface::DocumentManager::~DocumentManager() {
+    clearDocuments();
+}
+
+void RmlInterface::DocumentManager::clearDocuments(){
+    for (auto const& doc : openedDocuments) {
+        doc->Close();
+    }
+    openedDocuments.clear();
+}
 
 void RmlInterface::DocumentManager::OnDocumentLoad(Rml::ElementDocument* document){
     openedDocuments.insert(document);

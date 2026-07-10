@@ -74,6 +74,12 @@ public:
     void init(Core::Renderer& renderer, int width, int height);
 
     /**
+     * @brief Close the RmlInterface, cleaning up all resources and shutting down RmlUi.
+     * @details This should be called before the application exits to ensure proper cleanup.
+     */
+    void close() const ;
+
+    /**
      * @brief Translates and processes an SDL_Event
      * @param event The event to process
      */
@@ -317,6 +323,15 @@ private:
     class DocumentManager final : public Rml::Plugin {
     public:
         explicit DocumentManager();
+
+        ~DocumentManager() override;
+
+        void clearDocuments();
+
+        DocumentManager(DocumentManager const&) = delete;
+        DocumentManager& operator=(DocumentManager const&) = delete;
+        DocumentManager(DocumentManager&&) = delete;
+        DocumentManager& operator=(DocumentManager&&) = delete;
 
         void OnDocumentLoad(Rml::ElementDocument* document) override ;
 

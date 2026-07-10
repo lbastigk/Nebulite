@@ -260,6 +260,7 @@ void Renderer::initSDL() {
     // UI
     initImgui();
     Graphics::RmlInterface::instance().init(*this,w,h);
+    status.rmlInterfaceInitialized = true;
 
     //------------------------------------------
     // Cursor
@@ -620,19 +621,26 @@ void Renderer::purgeTextures() {
 }
 
 void Renderer::destroy() {
-    if (!status.sdlInitialized)
-        return;
-    if (window) {
-        SDL_DestroyWindow(window);
-        window = nullptr;
+    // RmlInterface cleanup
+    if (status.rmlInterfaceInitialized) {
+        Graphics::RmlInterface::instance().close();
+        status.rmlInterfaceInitialized = false;
     }
-    if (renderer) {
-        SDL_DestroyRenderer(renderer);
-        renderer = nullptr;
-    }
-    if (font) {
-        TTF_CloseFont(font);
-        font = nullptr;
+
+    // SDL cleanup
+    if (status.sdlInitialized) {
+        if (window) {
+            SDL_DestroyWindow(window);
+            window = nullptr;
+        }
+        if (renderer) {
+            SDL_DestroyRenderer(renderer);
+            renderer = nullptr;
+        }
+        if (font) {
+            TTF_CloseFont(font);
+            font = nullptr;
+        }
     }
 }
 
