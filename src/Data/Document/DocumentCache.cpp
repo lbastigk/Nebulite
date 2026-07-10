@@ -2,14 +2,18 @@
 // Includes
 
 // Standard library
+#include <algorithm>
 #include <cstddef>
 #include <string>
 #include <string_view>
+#include <utility>
 
 // Nebulite
 #include "Nebulite/Data/Document/DocumentCache.hpp"
 #include "Nebulite/Data/Document/KeyType.hpp"
 #include "Nebulite/Data/Document/ReadOnlyDocs.hpp"
+#include "Nebulite/Interaction/Context.hpp"
+#include "Nebulite/Utility/StringHandler.hpp"
 
 //------------------------------------------
 namespace Nebulite::Data {
@@ -77,6 +81,30 @@ std::string DocumentCache::getDocString(std::string_view const link) const {
     readOnlyDocs.update();
 
     return serial;
+}
+
+std::pair<std::string, std::string> DocumentCache::splitDocKey(std::string const& doc_key) {
+    std::string_view doc_key_view(doc_key);
+    Utility::StringHandler::strip(doc_key_view, ' '); // Remove whitespace for more forgiving input handling
+
+    auto const barPos = doc_key_view.find(JSON::SpecialCharacter::transformationPipe);
+    auto const colonPos = doc_key_view.find(Interaction::ContextDeriver::contextKeySeparator);
+
+    // Choose the first occurring separator
+    auto const pos = std::min(colonPos, barPos);
+
+    if (pos == std::string::npos) {
+        // No colon found, meaning the entire string is document name/link
+        return {std::string(doc_key_view), ""};
+    }
+    auto const doc = doc_key_view.substr(0, pos);
+    auto const key = doc_key_view.substr(pos + 1);
+
+    // Add back the transform part if needed
+    if (pos == barPos) {
+        return {std::string(doc), JSON::SpecialCharacter::transformationPipe + std::string(key)};
+    }
+    return {std::string(doc), std::string(key)};
 }
 
 } // namespace Nebulite::Data

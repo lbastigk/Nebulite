@@ -5,7 +5,6 @@
 // Includes
 
 // Standard library
-#include <algorithm>
 #include <cstddef>
 #include <expected>
 #include <functional>
@@ -18,8 +17,6 @@
 #include "Nebulite/Data/Document/KeyType.hpp"
 #include "Nebulite/Data/Document/ReadOnlyDocs.hpp"
 #include "Nebulite/Data/Document/SimpleValueError.hpp"
-#include "Nebulite/Interaction/Context.hpp"
-#include "Nebulite/Utility/StringHandler.hpp"
 
 //------------------------------------------
 namespace Nebulite::Data {
@@ -115,79 +112,14 @@ private:
      * @brief Splits a doc:key string into its components, also works for doc|transform or doc:key|transform
      * @todo Returning a pair of string_views should be possible?
      */
-    static std::pair<std::string, std::string> splitDocKey(std::string const& doc_key) {
-        std::string_view doc_key_view(doc_key);
-        Utility::StringHandler::strip(doc_key_view, ' '); // Remove whitespace for more forgiving input handling
-
-        auto const barPos = doc_key_view.find(JSON::SpecialCharacter::transformationPipe);
-        auto const colonPos = doc_key_view.find(Interaction::ContextDeriver::contextKeySeparator);
-
-        // Choose the first occurring separator
-        auto const pos = std::min(colonPos, barPos);
-
-        if (pos == std::string::npos) {
-            // No colon found, meaning the entire string is document name/link
-            return {std::string(doc_key_view), ""};
-        }
-        auto const doc = doc_key_view.substr(0, pos);
-        auto const key = doc_key_view.substr(pos + 1);
-
-        // Add back the transform part if needed
-        if (pos == barPos) {
-            return {std::string(doc), JSON::SpecialCharacter::transformationPipe + std::string(key)};
-        }
-        return {std::string(doc), std::string(key)};
-    }
+    static std::pair<std::string, std::string> splitDocKey(std::string const& doc_key);
 
     /**
      * @brief Templated helper function to retrieve a value from the read only cache
      */
     template <typename ValueType>
-    ValueType getValueFromCache(std::string const& doc_key, ValueType const& defaultValue, std::function<ValueType(ReadOnlyDoc const* doc, std::string_view key)> const& retrievalFunction) const {
-        static_assert(!std::is_same_v<ValueType, JSON>, "JSON values cannot be used here. Please re-implement the retrieval logic in a custom way instead of using this helper function.");
-
-        auto [doc, key] = splitDocKey(doc_key);
-
-        ReadOnlyDoc const* docPtr = readOnlyDocs.getDocument(doc);
-        if (!docPtr) {
-            return defaultValue;
-        }
-
-        // Check if the document exists in the cache
-        ValueType const data = retrievalFunction(docPtr, key);
-
-        // Update the cache (unload old documents) and return the size
-        readOnlyDocs.update();
-        return data;
-    }
+    ValueType getValueFromCache(std::string const& doc_key, ValueType const& defaultValue, std::function<ValueType(ReadOnlyDoc const* doc, std::string_view key)> const& retrievalFunction) const ;
 };
-
-//------------------------------------------
-// Definitions of template functions
-
-template <typename T>
-std::expected<T, SimpleValueRetrievalError> DocumentCache::get(std::string const& doc_key) const {
-    auto [doc, key] = splitDocKey(doc_key);
-
-    ReadOnlyDoc const* docPtr = readOnlyDocs.getDocument(doc);
-
-    // Check if the document exists in the cache
-    if (docPtr == nullptr) {
-        // Use get on an empty JSON so we can still apply transformations
-        // This way, important transformation commands like assert aren't overlooked just because the document is missing, which would make debugging very difficult
-        thread_local JSON const emptyJson;
-        return emptyJson.get<T>(key);
-    }
-
-    // Retrieve the value from the document
-    auto data = docPtr->document.get<T>(key);
-
-    // Update the cache (unload old documents)
-    readOnlyDocs.update();
-
-    // Return key:
-    return data; // Use the JSON get method to retrieve the value
-}
-
 } // namespace Nebulite::Data
+#include "Nebulite/Data/Document/DocumentCache.tpp" // NOLINT
 #endif // NEBULITE_DATA_DOCUMENT_DOCUMENTCACHE_HPP
