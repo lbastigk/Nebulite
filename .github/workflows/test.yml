@@ -18,7 +18,7 @@ jobs:
       - name: Install Dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y podman python3-venv make convert espeak-ng
+          sudo apt-get install -y podman python3-venv make imagemagick espeak-ng
 
       - name: Set up Python environment
         run: |
