@@ -8,10 +8,8 @@
 #include <atomic>
 #include <cstddef>
 #include <memory>
-#include <stdexcept>
 
 // Nebulite
-#include "Nebulite/Data/Document/JsonScope.hpp"
 #include "Nebulite/Utility/Coordination/WorkDispatcher.hpp"
 
 //------------------------------------------
@@ -32,31 +30,21 @@ namespace Nebulite::Data::BroadcastListenContainer {
 template<typename DerivedContainer>
 class BaseContainer {
 public:
-    explicit BaseContainer(std::atomic<bool>& stopFlag, std::size_t const workerIndex, std::size_t const workerCount, DerivedContainer container)
-        : workerInfo{workerIndex, workerCount}
-        , dispatcher(stopFlag, processImpl, initImpl)
-    {
-        dispatcher.workspace = container;
-        verifyCacheLookupIndex();
-    }
+    explicit BaseContainer(std::atomic<bool>& stopFlag, std::size_t workerIndex, std::size_t workerCount, DerivedContainer container);
 
-    virtual ~BaseContainer() = default;
+    virtual ~BaseContainer();
 
-    BaseContainer(const BaseContainer&) = delete;
-    BaseContainer& operator=(const BaseContainer&) = delete;
+    BaseContainer(BaseContainer const&) = delete;
+    BaseContainer& operator=(BaseContainer const&) = delete;
     BaseContainer(BaseContainer&&) = delete;
     BaseContainer& operator=(BaseContainer&&) = delete;
 
     //------------------------------------------
     // Worker thread access
 
-    void startWork() {
-        dispatcher.startWork();
-    }
+    void startWork();
 
-    void waitForWorkFinished() {
-        dispatcher.waitForWorkFinished();
-    }
+    void waitForWorkFinished();
 
     //------------------------------------------
     // Container Methods to be implemented by derived classes
@@ -65,28 +53,22 @@ public:
      * @brief Broadcasts a ruleset to all listeners on its topic.
      * @param entry The ruleset to broadcast. Make sure the topic is not empty, as this implies a local-only entry!
      */
-    virtual void broadcast(std::shared_ptr<Interaction::Rules::Ruleset>&& entry) {
-        // explicit consumption
-        auto local = std::move(entry); // NOLINT
-    }
+    virtual void broadcast(std::shared_ptr<Interaction::Rules::Ruleset>&& entry);
 
     /**
      * @brief Listens for rulesets on a specific topic.
      * @param listener The listener to add.
      */
-    virtual void listen(std::shared_ptr<Interaction::Rules::Listener>&& listener) {
-        // explicit consumption
-        auto local = std::move(listener); // NOLINT
-    }
+    virtual void listen(std::shared_ptr<Interaction::Rules::Listener>&& listener);
 
     /**
      * @brief Prepare container for next processing round.
      */
-    virtual void prepare() {}
+    virtual void prepare();
 
     // non-static hooks for derived classes to implement
-    virtual void init() {}
-    virtual void process() {}
+    virtual void init();
+    virtual void process();
 
 protected:
     struct WorkerInfo {
@@ -96,20 +78,14 @@ protected:
 
 private:
     // static wrappers for WorkDispatcher
-    static void initImpl(DerivedContainer container) { container->init(); }
-    static void processImpl(DerivedContainer container) { container->process(); }
+    static void initImpl(DerivedContainer container);
+    static void processImpl(DerivedContainer container);
 
-    static void verifyCacheLookupIndex() {
-        thread_local bool threadIdAssigned = false;
-        if (threadIdAssigned) return;
-        if (std::size_t const id = JsonScope::assignCacheLookupIndex(); id >= JsonScope::cacheLookupThreadCount) {
-            throw std::runtime_error("Thread ID exceeds non-locking array size!");
-        }
-        threadIdAssigned = true;
-    }
+    static void verifyCacheLookupIndex();
 
     // store WorkDispatcher with container reference
     Utility::Coordination::WorkDispatcher<DerivedContainer> dispatcher;
 };
 } // namespace Nebulite::Data::BroadcastListenContainer
+#include "Nebulite/Data/BroadcastListenContainer/BaseContainer.tpp" // NOLINT
 #endif // NEBULITE_DATA_BROADCASTLISTENCONTAINER_BASECONTAINER_HPP
