@@ -23,7 +23,7 @@ function(configure_warnings target_name)
 
     # Collect external include directories and prepare -isystem flags so headers under external are treated as system headers.
     file(GLOB _external_include_dirs CONFIGURE_DEPENDS
-        ${CMAKE_SOURCE_DIR}/external/*/include
+        ${FETCHCONTENT_BASE_DIR}/*/include
     )
     set(_external_include_flags "")
     if(_external_include_dirs)

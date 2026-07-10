@@ -7,37 +7,29 @@
 # Base CMake Presets Build Targets
 ############################################
 
-# TODO: using nproc used to cause issues on low memory systems, add a guard for that
-
 linux-release:
 	@echo "Building preset: $@"
-	@cmake --preset $@
-	@cmake --build --preset $@ -j$(nproc)
+	@python ./Container/build.py $@
 
 linux-debug:
 	@echo "Building preset: $@"
-	@cmake --preset $@
-	@cmake --build --preset $@ -j$(nproc)
+	@python ./Container/build.py $@
 
 linux-coverage:
 	@echo "Building preset: $@"
-	@cmake --preset $@
-	@cmake --build --preset $@ -j$(nproc)
+	@python ./Container/build.py $@
 
 linux-profiling:
 	@echo "Building preset: $@"
-	@cmake --preset $@
-	@cmake --build --preset $@ -j$(nproc)
+	@python ./Container/build.py $@
 
 windows-release:
 	@echo "Building preset: $@"
-	@cmake --preset $@
-	@cmake --build --preset $@ -j$(nproc)
+	@python ./Container/build.py $@
 
 windows-debug:
 	@echo "Building preset: $@"
-	@cmake --preset $@
-	@cmake --build --preset $@ -j$(nproc)
+	@python ./Container/build.py $@
 
 macos-release:
 	@echo "Building preset: $@"

@@ -19,14 +19,14 @@ function(fetchContent)
     if(NOT rapidjson_POPULATED)
         FetchContent_Populate(rapidjson)
     endif()
-    set(rapidjson_SOURCE_DIR ${CMAKE_SOURCE_DIR}/external/rapidjson-src PARENT_SCOPE)
+    set(rapidjson_SOURCE_DIR ${FETCHCONTENT_BASE_DIR}/rapidjson-src PARENT_SCOPE)
 
     FetchContent_Declare(
             tinyexpr
             GIT_REPOSITORY https://github.com/codeplea/tinyexpr.git
             GIT_TAG master    # Replace with pinned commit SHA
     )
-    set(tinyexpr_SOURCE_DIR ${CMAKE_SOURCE_DIR}/external/tinyexpr-src PARENT_SCOPE)
+    set(tinyexpr_SOURCE_DIR ${FETCHCONTENT_BASE_DIR}/tinyexpr-src PARENT_SCOPE)
 
     FetchContent_Declare(
             absl
@@ -61,14 +61,14 @@ function(fetchContent)
             GIT_REPOSITORY https://github.com/ocornut/imgui.git
             GIT_TAG master    # Replace with pinned commit SHA
     )
-    set(imgui_SOURCE_DIR ${CMAKE_SOURCE_DIR}/external/imgui-src PARENT_SCOPE)
+    set(imgui_SOURCE_DIR ${FETCHCONTENT_BASE_DIR}/imgui-src PARENT_SCOPE)
 
     FetchContent_Declare(
             stb
             GIT_REPOSITORY https://github.com/nothings/stb.git
             GIT_TAG master    # Replace with pinned commit SHA
     )
-    set(stb_SOURCE_DIR ${CMAKE_SOURCE_DIR}/external/stb-src PARENT_SCOPE)
+    set(stb_SOURCE_DIR ${FETCHCONTENT_BASE_DIR}/stb-src PARENT_SCOPE)
 
     FetchContent_Declare(
             rmlui
