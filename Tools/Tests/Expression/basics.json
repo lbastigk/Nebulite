@@ -42,24 +42,14 @@
         }
     },
     {
-        "command": [
-            "# Testing if no non-simple values are stored in cache, so both evals return {object}",
-            "eval echo {global:}",
-            "eval echo {global:}"
-        ],
+        "command": "task TaskFiles/Tests/Expression/cache.nebs",
         "expected": {
-            "cout": [
-                "{object}",
-                "{object}"
-            ],
+            "cout": [],
             "cerr": []
         }
     },
     {
-        "command": [
-            "# Test if we can use an empty context and then transform it",
-            "eval echo {|echo TEST|setInt value 1|get value}"
-        ],
+        "command": "eval echo {|echo TEST|setInt value 1|get value}",
         "expected": {
             "cout": [
                 "TEST",

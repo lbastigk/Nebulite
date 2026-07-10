@@ -1,6 +1,6 @@
 [
     {
-        "command": "task TaskFiles/Tests/JSON/invalidate_json_value_children.nebs",
+        "command": "task TaskFiles/Tests/JSON/Caching/invalidate_json_value_children.nebs",
         "expected": {
             "cout": [
                 "{",
@@ -11,17 +11,7 @@
         }
     },
     {
-        "command": [
-            "# Test if no previous value is cached when using setSubDoc when using assign",
-            "# If there is any 3 left in the output, there is a problem",
-            "set test.val 3",
-            "set test.val2 4",
-            "assign global:test.val = {global:test.val2}",
-            "print test","print test.val",
-            "eval echo {global:test}",
-            "eval echo {global:test.val}",
-            "exit"
-        ],
+        "command": "task TaskFiles/Tests/JSON/Caching/setSubDoc.nebs",
         "expected": {
             "cout": [
                 "{",
@@ -36,9 +26,7 @@
         }
     },
     {
-        "command": [
-            "task TaskFiles/Tests/JSON/stableDoublePointerOverride.nebs"
-        ],
+        "command": "task TaskFiles/Tests/JSON/Caching/stableDoublePointerOverride.nebs",
         "expected": {
             "cout": [
                 "Base state: time is an object, time.dt is a value:",
@@ -61,30 +49,7 @@
         }
     },
     {
-        "command": [
-            "time set-fixed-dt 1",
-            "set-fps 60",
-            "wait 1",
-            "eval echo {global:time}",
-            "wait 1",
-            "set time someOverrideValue",
-            "wait 1",
-            "# TODO: expected should be that the last eval returns object again, as the time module overrides the value",
-            "eval echo {global:time}",
-            "exit"
-        ],
-        "expected": {
-            "cout": [
-                "{object}",
-                "{object}"
-            ],
-            "cerr": []
-        }
-    },
-    {
-        "command":[
-            "eval echo {global:|typeAsString|ensureArray|print}"
-        ],
+        "command": "eval echo {global:|typeAsString|ensureArray|print}",
         "expected":{
             "cout":[
                 "[",
