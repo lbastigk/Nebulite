@@ -31,6 +31,8 @@ windows-debug:
 	@echo "Building preset: $@"
 	@python ./Container/build.py $@
 
+# TODO: build containers for macOS presets, or use native build on macOS
+
 macos-release:
 	@echo "Building preset: $@"
 	@cmake --preset $@
@@ -41,6 +43,8 @@ macos-debug:
 	@cmake --preset $@
 	@cmake --build --preset $@ -j$(nproc)
 
+############################################
+# TODO: move available/native/all to python script
 
 ############################################
 # Gather native and available Presets
@@ -77,7 +81,6 @@ endif
 # Define target "all" as building all available presets
 all: $(AVAILABLE_PRESETS)
 
-
 ############################################
 # Basic useful targets
 ############################################
@@ -85,7 +88,6 @@ all: $(AVAILABLE_PRESETS)
 .PHONY: all install-deps resources test run clean $(NATIVE_PRESET)
 
 install-deps:
-	@sudo -S ./Scripts/Installation/systemPackages.sh
 	@./Scripts/Installation/pythonPackages.sh
 
 resources:
