@@ -38,6 +38,19 @@ jobs:
           make linux-release
           make linux-debug
 
+      - name: Check if files exist
+        run: |
+          if [ ! -f "./bin/Nebulite" ]; then
+            echo "Release binary not found!"
+            tree .
+            exit 1
+          fi
+          if [ ! -f "./bin/Nebulite_Debug" ]; then
+            echo "Debug binary not found!"
+            tree .
+            exit 1
+          fi
+
       - name: Run tests
         run: |
           make test
