@@ -1,23 +1,33 @@
-# Build script for Nebulite
-#
-# Call from content root directory with:
-#  python ./Container/build.py <cmake-preset>
-
-# Take name of the preset, parse CMakePresets.json, extract the compiler to use and launch the correct podman container
-
 import json
+import os
 import pathlib
+import psutil
 import subprocess
 import sys
 
-
 ROOT = pathlib.Path(__file__).resolve().parent.parent
-
-
 CONTAINER_DIR = ROOT / "Container"
 PRESETS = ROOT / "CMakePresets.json"
 
-def load_preset(name):
+
+def determine_process_count() -> int:
+    # Reservere a set amount of RAM per process to avoid running out of memory
+    ram_per_process = 4 # GiB
+
+    # Get the total amount of RAM and the number of CPU threads available on the system
+    total_ram = psutil.virtual_memory().total / (1024 ** 3) # GiB
+    total_threads = os.cpu_count()
+
+    # Determine process count
+    max_processes = min(int(total_ram / ram_per_process), total_threads)
+    if not isinstance(max_processes, int):
+        error_msg = f"Expected max_processes to be an integer, but got {type(max_processes).__name__} instead."
+        raise RuntimeError(error_msg)
+    if max_processes < 1:
+        return 1
+    return max_processes
+
+def load_preset(name: str):
     with PRESETS.open() as f:
         data = json.load(f)
 
@@ -26,7 +36,6 @@ def load_preset(name):
             return preset
 
     raise RuntimeError(f"Unknown preset: {name}")
-
 
 def get_container(preset):
     try:
@@ -37,20 +46,17 @@ def get_container(preset):
         )
 
 
-def get_container_preset_name(preset_name):
+def get_container_preset_name(preset_name: str):
     return f"container-{preset_name}"
 
-
-def run(cmd):
+def run(cmd: str):
     print("+", " ".join(cmd))
     subprocess.run(cmd, check=True)
 
-
-def image_name(container):
+def image_name(container: str) -> str:
     return f"localhost/nebulite-build-{container}:latest"
 
-
-def rebuild_image(image):
+def rebuild_image(image: str):
     run(["podman", "rmi", "-f", image])
 
 
@@ -94,13 +100,12 @@ def ensure_image(container, rebuild=False):
 
     return image
 
-
 def run_container(container, preset, rebuild=False):
     image = ensure_image(container, rebuild=rebuild)
 
     # TODO: using nproc used to cause issues on low memory systems, add a guard for that
-
-    # TODO: running this script in a clion terminal with the procided task shows escape sequences instead of coloring
+    process_count = determine_process_count()
+    print(f"Running build with {process_count} processes")
 
     run(
         [
@@ -115,10 +120,9 @@ def run_container(container, preset, rebuild=False):
             image,
             "bash",
             "-c",
-            f"cmake --preset {preset} && cmake --build --preset {preset} -j$(nproc)",
+            f"cmake --preset {preset} && cmake --build --preset {preset} -j{process_count}",
         ]
     )
-
 
 def main():
     rebuild = False
@@ -136,7 +140,6 @@ def main():
     container_preset = load_preset(get_container_preset_name(preset_name))
     container = get_container(container_preset)
     run_container(container, get_container_preset_name(preset_name), rebuild=rebuild)
-
 
 if __name__ == "__main__":
     main()
