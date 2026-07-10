@@ -37,11 +37,9 @@
 // Try to catch potential caching issues early
 
 static_assert(
-    sizeof(Nebulite::Data::JSON) - sizeof(std::recursive_mutex) == 200,
+    sizeof(Nebulite::Data::JSON) - sizeof(std::recursive_mutex) == 168,
     "JSON size has changed, please review the move assignment operator for potential cache invalidation issues."
 );
-
-
 
 //------------------------------------------
 namespace Nebulite::Data {

@@ -4,8 +4,8 @@ project(Nebulite LANGUAGES C CXX ASM_NASM)
 ############################################################
 ## Include CMake files
 include(${CMAKE_SOURCE_DIR}/Tools/CMake/optimizations.cmake)
+include(${CMAKE_SOURCE_DIR}/Tools/CMake/External/fetchContent.cmake)
 include(${CMAKE_SOURCE_DIR}/Tools/CMake/External/dependencies.cmake)
-include(${CMAKE_SOURCE_DIR}/Tools/CMake/External/initmodules.cmake)
 include(${CMAKE_SOURCE_DIR}/Tools/CMake/External/sdlsettings.cmake)
 include(${CMAKE_SOURCE_DIR}/Tools/CMake/warnings.cmake)
 include(${CMAKE_SOURCE_DIR}/Tools/CMake/binarysettings.cmake)
@@ -43,8 +43,7 @@ sdl_setup()
 
 ############################################################
 ## Setup Project
-initialize_git_submodules()
-setup_external_subdirectories()
+fetchContent()
 setup_binary_settings()
 setup_common_sources(Nebulite)
 configure_common_dependencies(Nebulite)
@@ -54,6 +53,19 @@ target_include_directories(Nebulite PUBLIC ${CMAKE_SOURCE_DIR}/include)
 ############################################################
 # optimize
 optimize_rapidjson(Nebulite)
+
+############################################################
+# DEBUG
+
+# Check source dir variables
+get_cmake_property(_variableNames VARIABLES)
+list(SORT _variableNames)
+
+foreach(_variableName ${_variableNames})
+    if(_variableName MATCHES "SOURCE_DIR$")
+        message(STATUS "VARIABLE: ${_variableName}=${${_variableName}}")
+    endif()
+endforeach()
 
 ############################################################
 ## Platform-Specific

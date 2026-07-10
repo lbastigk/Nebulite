@@ -1,54 +1,4 @@
 ############################################################
-# Shortcut paths to external dependencies
-
-# SDL3 official repositories
-set(SDL3_PATH           "${PROJECT_SOURCE_DIR}/external/SDL3")
-set(SDL3_TTF_PATH       "${PROJECT_SOURCE_DIR}/external/SDL3_ttf")
-set(SDL3_IMAGE_PATH     "${PROJECT_SOURCE_DIR}/external/SDL3_image")
-
-# GUI libraries
-set(IMGUI_PATH          "${PROJECT_SOURCE_DIR}/external/imgui")
-set(RMLUI_PATH          "${PROJECT_SOURCE_DIR}/external/RmlUi")
-
-# Other external libraries
-set(RAPIDJSON_PATH      "${PROJECT_SOURCE_DIR}/external/rapidjson")
-set(TINYEXPR_PATH       "${PROJECT_SOURCE_DIR}/external/tinyexpr")
-set(ABSEIL_PATH         "${PROJECT_SOURCE_DIR}/external/abseil")
-set(STB_PATH            "${PROJECT_SOURCE_DIR}/external/stb")
-
-############################################################
-# Function to setup external subdirectories
-function(setup_external_subdirectories)
-    message(STATUS "Setting up external subdirectories...")
-
-    # Add flags before adding subdirectories
-    set(ABSL_PROPAGATE_CXX_STD ON CACHE BOOL "" FORCE)
-    set(ABSL_USE_SYSTEM_INCLUDES ON CACHE BOOL "" FORCE)
-    set(ABSL_BUILD_TESTING OFF CACHE BOOL "" FORCE)
-    set(BUILD_TESTING OFF CACHE BOOL "" FORCE)
-
-    # Add subdirectories for external dependencies
-    add_subdirectory(${ABSEIL_PATH})
-    add_subdirectory(${SDL3_PATH})
-    add_subdirectory(${SDL3_TTF_PATH})
-    add_subdirectory(${SDL3_IMAGE_PATH})
-
-    # RmlUi defaults to the freetype font engine and errors out if freetype isn't available.
-    # Fall back to 'none' so configure can continue on toolchains without a freetype package.
-    if(NOT TARGET Freetype::Freetype)
-        find_package(Freetype QUIET)
-    endif()
-
-    if(NOT TARGET Freetype::Freetype)
-        set(RMLUI_FONT_ENGINE "none" CACHE STRING "RmlUi font engine" FORCE)
-        message(WARNING "Freetype not found. Setting RMLUI_FONT_ENGINE=none for this build. Install freetype or set Freetype_ROOT to enable RmlUi text rendering.")
-    endif()
-
-    add_subdirectory(${RMLUI_PATH})
-    message(STATUS "External subdirectories setup complete")
-endfunction()
-
-############################################################
 # Function to configure common dependencies for a target
 function(configure_common_dependencies target_name)
     message(STATUS "Configuring common dependencies for target: ${target_name}")
@@ -69,45 +19,42 @@ function(configure_common_dependencies target_name)
     # system includes (suppress warnings)
     target_include_directories(${target_name}
             SYSTEM PRIVATE
-            ${RAPIDJSON_PATH}/include
-            ${TINYEXPR_PATH}
-            #${ABSEIL_PATH}
-            ${SDL3_PATH}/include/
-            ${SDL3_TTF_PATH}/include
-            ${SDL3_IMAGE_PATH}/include
-            ${IMGUI_PATH}
-            ${IMGUI_PATH}/backends
-            ${RMLUI_PATH}/Backends
-            ${RMLUI_PATH}/Include
-            ${RMLUI_PATH}/Source # Required for some definitions, such as ElementStyle
-            ${STB_PATH}
+            ${rapidjson_SOURCE_DIR}/include
+            ${tinyexpr_SOURCE_DIR}
+            ${SDL3_SOURCE_DIR}/include
+            ${SDL3_TTF_SOURCE_DIR}/include
+            ${SDL3_IMAGE_SOURCE_DIR}/include
+            ${imgui_SOURCE_DIR}
+            ${imgui_SOURCE_DIR}/backends
+            ${RmlUi_SOURCE_DIR}/Backends
+            ${RmlUi_SOURCE_DIR}/Include
+            ${RmlUi_SOURCE_DIR}/Source
+            ${stb_SOURCE_DIR}
     )
 
     # Setup imgui library
     if(NOT TARGET imgui)
         add_library(imgui STATIC
-                ${IMGUI_PATH}/imgui.cpp
-                ${IMGUI_PATH}/imgui_draw.cpp
-                ${IMGUI_PATH}/imgui_tables.cpp
-                ${IMGUI_PATH}/imgui_widgets.cpp
-                ${IMGUI_PATH}/imgui_demo.cpp     # optional
-                ${IMGUI_PATH}/backends/imgui_impl_sdl3.cpp
-                ${IMGUI_PATH}/backends/imgui_impl_sdlrenderer3.cpp
-                ${IMGUI_PATH}/misc/cpp/imgui_stdlib.cpp
+                ${imgui_SOURCE_DIR}/imgui.cpp
+                ${imgui_SOURCE_DIR}/imgui_draw.cpp
+                ${imgui_SOURCE_DIR}/imgui_tables.cpp
+                ${imgui_SOURCE_DIR}/imgui_widgets.cpp
+                ${imgui_SOURCE_DIR}/imgui_demo.cpp     # optional
+                ${imgui_SOURCE_DIR}/backends/imgui_impl_sdl3.cpp
+                ${imgui_SOURCE_DIR}/backends/imgui_impl_sdlrenderer3.cpp
+                ${imgui_SOURCE_DIR}/misc/cpp/imgui_stdlib.cpp
         )
     endif()
 
+    # Add include directories for imgui
     target_include_directories(imgui PUBLIC
-            ${IMGUI_PATH}
-            ${IMGUI_PATH}/backends
-            ${SDL3_PATH}/include/
+            ${imgui_SOURCE_DIR}
+            ${imgui_SOURCE_DIR}/backends
+            ${SDL3_SOURCE_DIR}/include
     )
 
     # Link libraries
     target_link_libraries(${target_name} PRIVATE
-            #absl::base
-            #absl::synchronization
-            #absl::strings
             absl::hash
             absl::flat_hash_map
             imgui

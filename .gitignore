@@ -1,4 +1,8 @@
 ############################################
+# external libraries
+external/
+
+############################################
 # Resources
 
 # Ignore game resources and error logs

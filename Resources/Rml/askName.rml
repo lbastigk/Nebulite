@@ -1,7 +1,7 @@
 <rml>
     <head>
         <title>User input example: ask for name</title>
-        <link type="text/rcss" href="./external/RmlUi/Samples/assets/rml.rcss"/>
+        <link type="text/rcss" href="./external/rmlui-src/Samples/assets/rml.rcss"/>
         <link type="text/rcss" href="./Resources/Rcss/window.rcss"/>
         <link type="text/rcss" href="./Resources/Rcss/text.rcss"/>
     </head>

@@ -5,18 +5,18 @@
 
 # Set paths for external libraries
 external_include_list=(
-    "./external/abseil/"
-    "./external/imgui"
-    "./external/imgui/backends"
-    "./external/rapidjson/include"
-    "./external/RmlUi/Backends"
-    "./external/RmlUi/Include"
-    "./external/RmlUi/Source"
-    "./external/SDL3/include"
-    "./external/SDL3_image/include"
-    "./external/SDL3_ttf/include"
-    "./external/stb"
-    "./external/tinyexpr"
+    "./external/absl-src/"
+    "./external/imgui-src/"
+    "./external/imgui-src/backends"
+    "./external/rapidjson-src/include"
+    "./external/rmlui-src/Backends"
+    "./external/rmlui-src/Include"
+    "./external/rmlui-src/Source"
+    "./external/sdl3-src/include"
+    "./external/sdl3_image-src/include"
+    "./external/sdl3_ttf-src/include"
+    "./external/stb-src"
+    "./external/tinyexpr-src"
 )
 
 # Files that cause issues like hangs or crashes that will be skipped during the clang-tidy run
@@ -71,6 +71,11 @@ fi
 # Turn list of external includes into a single string for clang-tidy
 external_include_args=()
 for include in "${external_include_list[@]}"; do
+    # Check if the include directory exists
+    if [ ! -d "$include" ]; then
+        >&2 echo "Error: External include directory does not exist: $include"
+        exit 1
+    fi
     external_include_args+=(-isystem "$include")
 done
 

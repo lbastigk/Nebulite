@@ -52,7 +52,7 @@ Supported special commands are:
 <rml>
     <head>
         <title>Rml attribute commands example</title>
-        <link type="text/rcss" href="./external/RmlUi/Samples/assets/rml.rcss"/>
+        <link type="text/rcss" href="./external/rmlui-src/Samples/assets/rml.rcss"/>
         <link type="text/rcss" href="./Resources/Rcss/window.rcss"/>
         <link type="text/rcss" href="./Resources/Rcss/text.rcss"/>
     </head>
