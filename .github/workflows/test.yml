@@ -11,6 +11,10 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      - name: Echo latest commit message
+        run: | 
+          echo "Latest commit message: $(git log -1 --pretty=%B)"
+
       - name: Install Dependencies
         run: |
           sudo apt-get update
