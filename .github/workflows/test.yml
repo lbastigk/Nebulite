@@ -1,0 +1,34 @@
+name: Pull Request Tests
+
+on:
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install Dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y podman python3-venv make
+
+      - name: Set up Python environment
+        run: |
+          make install-deps
+
+      - name: Install Resources
+        run: |
+          make resources
+
+      - name: Run build environment
+        run: |
+          make linux-release
+          make linux-debug
+
+      - name: Run tests
+        run: |
+          make test
