@@ -10,8 +10,8 @@
 
 // Nebulite
 #include "Nebulite/Data/Document/JSON.hpp"
-#include "Nebulite/Data/Document/JsonRvalueTransformer.hpp"
 #include "Nebulite/Data/Document/JsonScope.hpp"
+#include "Nebulite/Data/Document/JsonTransformer.hpp"
 #include "Nebulite/Interaction/Execution/FuncTree.hpp"
 #include "Nebulite/Nebulite.hpp"
 
@@ -35,7 +35,7 @@
 //------------------------------------------
 namespace Nebulite::Data {
 
-JsonRvalueTransformer::JsonRvalueTransformer() {
+JsonTransformer::JsonTransformer() {
     transformationFuncTree = std::make_shared<Interaction::Execution::FuncTree<bool, JsonScope&>>(
         "JSON rvalue transformation FuncTree",
         true,
@@ -68,12 +68,12 @@ JsonRvalueTransformer::JsonRvalueTransformer() {
     }
 }
 
-JsonRvalueTransformer& JsonRvalueTransformer::instance() {
-    static JsonRvalueTransformer instance;
+JsonTransformer& JsonTransformer::instance() {
+    static JsonTransformer instance;
     return instance;
 }
 
-bool JsonRvalueTransformer::parse(std::vector<std::string_view> const& transformationList, JsonScope& jsonDoc) const {
+bool JsonTransformer::parse(std::vector<std::string_view> const& transformationList, JsonScope& jsonDoc) const {
     if (transformationList.empty()) [[unlikely]] {
         return false;
     }
@@ -85,12 +85,12 @@ bool JsonRvalueTransformer::parse(std::vector<std::string_view> const& transform
     });
 }
 
-bool JsonRvalueTransformer::parse(std::vector<std::string_view> const& transformationList, JSON& jsonDoc) const {
+bool JsonTransformer::parse(std::vector<std::string_view> const& transformationList, JSON& jsonDoc) const {
     auto& scope = jsonDoc.fullScope();
     return parse(transformationList, scope);
 }
 
-bool JsonRvalueTransformer::parseSingleTransformation(std::span<std::string_view const> const& args, JsonScope& jsonDoc) const {
+bool JsonTransformer::parseSingleTransformation(std::span<std::string_view const> const& args, JsonScope& jsonDoc) const {
     return transformationFuncTree->parse(args, jsonDoc);
 }
 

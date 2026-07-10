@@ -1,5 +1,5 @@
-#ifndef NEBULITE_DATA_DOCUMENT_JSONRVALUETRANSFORMER_HPP
-#define NEBULITE_DATA_DOCUMENT_JSONRVALUETRANSFORMER_HPP
+#ifndef NEBULITE_DATA_DOCUMENT_JSONTRANSFORMER_HPP
+#define NEBULITE_DATA_DOCUMENT_JSONTRANSFORMER_HPP
 
 //------------------------------------------
 // Includes
@@ -8,7 +8,6 @@
 #include <memory>
 #include <span>
 #include <string_view>
-#include <type_traits>
 #include <vector>
 
 // Nebulite
@@ -29,14 +28,14 @@ class TransformationModule;
 //------------------------------------------
 namespace Nebulite::Data {
 /**
- * @brief The JsonRvalueTransformer class is responsible for applying transformations to JSON values during retrieval.
+ * @brief The JsonTransformer class is responsible for applying transformations to JSON values during retrieval.
  * @details It uses a transformation function tree to apply modifications in sequence based on the provided arguments.
  *          Why is this not part of the JsonScope class as DomainModule? Because JSON-Transformations, for the most part, are very destructive as they modify the value of the key in-place.
  *          This is not ideal for a DomainModule, as these destructive transformations are then part of every Domain that inherits from the JSON domain.
  *          We do not want to allow destructive commands such as "length" to be directly available, otherwise users may accidentally overwrite all data from RenderObjects, Textures etc.
  *          Instead, JsonScope DomainModules focus on simple set/move/copy operations, debug utilities and interfaces to better encapsulate destructive actions such as JSON transformations.
  */
-class JsonRvalueTransformer {
+class JsonTransformer {
     /**
      * @brief The transformation tree is used to apply modifications to JSON values during getting
      * @details if the key includes the pipe '|' character, we apply the transformations in sequence.
@@ -56,16 +55,14 @@ class JsonRvalueTransformer {
      * @brief Initializes a transformation module and adds it to the list of modules.
      * @tparam ModuleType The type of the transformation module to initialize. Must be a subclass of TransformationModule.
      */
-    template<typename ModuleType> void initModule() {
-        static_assert(std::is_base_of_v<Module::Base::TransformationModule, ModuleType>, "ModuleType must be a subclass of TransformationModule");
-        modules.emplace_back(std::make_unique<ModuleType>(transformationFuncTree));
-    }
+    template<typename ModuleType>
+    void initModule();
 
-    JsonRvalueTransformer();
+    JsonTransformer();
 
 public:
     // Singleton-Instance
-    static JsonRvalueTransformer& instance();
+    static JsonTransformer& instance();
 
     /**
      * @brief Parses and applies JSON transformations from the given arguments.
@@ -90,4 +87,5 @@ public:
     bool parseSingleTransformation(std::span<std::string_view const> const& args, JsonScope& jsonDoc) const ;
 };
 } // namespace Nebulite::Data
-#endif // NEBULITE_DATA_DOCUMENT_JSONRVALUETRANSFORMER_HPP
+#include "Nebulite/Data/Document/JsonTransformer.tpp" // NOLINT
+#endif // NEBULITE_DATA_DOCUMENT_JSONTRANSFORMER_HPP

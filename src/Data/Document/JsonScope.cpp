@@ -240,7 +240,7 @@ void JsonScope::deserialize(std::string_view const serialOrLink) {
 // Transform
 
 bool JsonScope::transform(std::span<std::string_view const> const& args){
-    return JsonRvalueTransformer::instance().parseSingleTransformation(args, *this);
+    return JsonTransformer::instance().parseSingleTransformation(args, *this);
 }
 
 //------------------------------------------

@@ -187,7 +187,7 @@ TransformationModules allow you to implement custom data transformations such as
 
 and more. Just like with DomainModules, implement a function and its name + description, and bind it.
 Then, initialize the module in the Transformation Initializer class, and the function will be available for on value transformation.
-Just add your custom module to the initializer class `include/Data/Document/JsonRvalueTransformer.hpp`.
+Just add your custom module to the initializer class `include/Data/Document/JsonTransformer.hpp`.
 
 <!-- TOC --><a name="function-collision-prevention"></a>
 ## Function Collision Prevention
