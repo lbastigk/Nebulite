@@ -192,8 +192,9 @@ Constants::Event General::func_for(std::span<std::string_view const> const& args
         std::vector argsVec = {std::string(args[0])};
         for (int i = iStart; i <= iEnd; i++) {
             argsVec.resize(1);
+            auto const replacer = std::to_string(i);
             for (auto const& arg : args.subspan(4)) {
-                argsVec.push_back(Utility::StringHandler::replaceAll(std::string(arg), '{' + varName + '}', std::to_string(i)));
+                argsVec.push_back(Utility::StringHandler::replaceAll(arg, '{' + varName + '}', replacer));
             }
             if (auto const event = ctx.self.parse(argsVec, ctx, ctxScope); event != Constants::Event::Success) {
                 return event;
@@ -229,8 +230,9 @@ Constants::Event General::func_forProgress(std::span<std::string_view const> con
 
             // Parse
             argsVec.resize(1);
+            auto const replacer = std::to_string(i);
             for (auto const& arg : args.subspan(4)) {
-                argsVec.push_back(Utility::StringHandler::replaceAll(std::string(arg), '{' + varName + '}', std::to_string(i)));
+                argsVec.push_back(Utility::StringHandler::replaceAll(arg, '{' + varName + '}', replacer));
             }
             if (auto const event = ctx.self.parse(argsVec, ctx, ctxScope); event != Constants::Event::Success) {
                 return event;
