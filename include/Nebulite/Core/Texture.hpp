@@ -13,7 +13,13 @@
 // Nebulite
 #include "Nebulite/Constants/Event.hpp"
 #include "Nebulite/Interaction/Execution/Domain.hpp"
-#include "Nebulite/Utility/IO/Capture.hpp"
+
+//------------------------------------------
+// Forward declarations
+
+namespace Nebulite::Utility::IO {
+class Capture;
+} // namespace Nebulite::Utility::IO
 
 //------------------------------------------
 namespace Nebulite::Core {

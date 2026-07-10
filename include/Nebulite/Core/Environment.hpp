@@ -22,7 +22,6 @@
 #include "Nebulite/Data/RenderObjectContainer.hpp"
 #include "Nebulite/Data/Tiling.hpp"
 #include "Nebulite/Interaction/Execution/Domain.hpp"
-#include "Nebulite/Utility/IO/Capture.hpp"
 
 //------------------------------------------
 // Forward declarations
@@ -30,6 +29,10 @@
 namespace Nebulite::Data {
 class RendererProcessor;
 } // namespace Nebulite::Data
+
+namespace Nebulite::Utility::IO {
+class Capture;
+} // namespace Nebulite::Utility::IO
 
 //------------------------------------------
 namespace Nebulite::Core {

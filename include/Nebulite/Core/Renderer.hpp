@@ -26,7 +26,6 @@
 #include "Nebulite/Core/Environment.hpp"
 #include "Nebulite/Data/Tiling.hpp"
 #include "Nebulite/Interaction/Execution/Domain.hpp"
-#include "Nebulite/Utility/IO/Capture.hpp"
 #include "Nebulite/Utility/TimeKeeper.hpp"
 
 //------------------------------------------
@@ -35,6 +34,10 @@
 namespace Nebulite::Interaction {
 class ContextScope;
 } // namespace Nebulite::Interaction
+
+namespace Nebulite::Utility::IO {
+class Capture;
+} // namespace Nebulite::Utility::IO
 
 //------------------------------------------
 namespace Nebulite::Core {

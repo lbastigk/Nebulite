@@ -20,7 +20,6 @@
 #include "Nebulite/Graphics/Drawcall.hpp"
 #include "Nebulite/Interaction/Execution/Domain.hpp"
 #include "Nebulite/Math/Vec2.hpp"
-#include "Nebulite/Utility/IO/Capture.hpp"
 
 //------------------------------------------
 // Forward declarations
@@ -28,6 +27,10 @@
 namespace Nebulite::Interaction::Rules {
 class Ruleset;
 } // namespace Nebulite::Interaction::Rules
+
+namespace Nebulite::Utility::IO {
+class Capture;
+} // namespace Nebulite::Utility::IO
 
 //------------------------------------------
 namespace Nebulite::Core {
