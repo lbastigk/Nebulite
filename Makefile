@@ -94,7 +94,6 @@ all: $(AVAILABLE_PRESETS)
 
 install-deps:
 	@sudo -S ./Scripts/Installation/systemPackages.sh
-	@./Scripts/Installation/externals.sh
 	@./Scripts/Installation/pythonPackages.sh
 
 resources:

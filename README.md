@@ -87,12 +87,12 @@ allowing you to freely mix data-defined and hardcoded behavior within the same p
 ```
 Then, run the following commands from the repo root:
 
-2. Install dependencies, if necessary
+2. Install dependencies
 ```bash
   make install-deps
 ```
 
-This will install all necessary dependencies for Linux via the package manager and git submodules,
+This will install all necessary dependencies for Linux via the package manager,
 as well as a python environment for testing and mock asset creation.
 apt, dnf, yum and brew are supported.
 
@@ -119,6 +119,10 @@ Any help is appreciated!
 ```bash
   # Windows
   make windows-debug windows-release
+```
+Or simply:
+```bash
+  make all
 ```
 4. Download and generate Resources
 ```bash
