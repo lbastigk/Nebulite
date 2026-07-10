@@ -51,6 +51,11 @@ jobs:
             exit 1
           fi
 
+      - name: Run Help command
+        run: |
+          ./bin/Nebulite --help
+          ./bin/Nebulite_Debug --help
+
       - name: Run tests
         run: |
           make test
