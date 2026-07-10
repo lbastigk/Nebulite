@@ -1,0 +1,53 @@
+FROM fedora:44
+
+RUN dnf -y update && \
+    dnf -y install \
+        gcc \
+        gcc-c++ \
+        git-core \
+        make \
+        cmake \
+        ninja-build \
+        python3 \
+        python3-pip \
+        gdb \
+        ccache \
+        \
+        alsa-lib-devel \
+        fribidi-devel \
+        pulseaudio-libs-devel \
+        pipewire-devel \
+        libX11-devel \
+        libXext-devel \
+        libXrandr-devel \
+        libXcursor-devel \
+        libXfixes-devel \
+        libXi-devel \
+        libXScrnSaver-devel \
+        libXtst-devel \
+        dbus-devel \
+        ibus-devel \
+        systemd-devel \
+        mesa-libGL-devel \
+        libxkbcommon-devel \
+        mesa-libGLES-devel \
+        mesa-libEGL-devel \
+        vulkan-devel \
+        wayland-devel \
+        wayland-protocols-devel \
+        libdrm-devel \
+        mesa-libgbm-devel \
+        libusb1-devel \
+        libdecor-devel \
+        pipewire-jack-audio-connection-kit-devel \
+        libthai-devel \
+        zlib-ng-compat-static \
+        yasm \
+        nasm \
+        libpng-static \
+        && \
+    dnf clean all
+
+WORKDIR /src
+
+CMD ["bash"]

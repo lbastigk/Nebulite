@@ -31,6 +31,15 @@
             }
         },
         {
+            "name": "container-linux-debug",
+            "inherits": "linux-debug",
+            "vendor": {
+                "nebulite": {
+                    "container": "clang"
+                }
+            }
+        },
+        {
             "name": "linux-release",
             "inherits": "base",
             "displayName": "Linux Release",
@@ -41,6 +50,15 @@
                 "CMAKE_INTERPROCEDURAL_OPTIMIZATION": "ON",
                 "CMAKE_C_COMPILER": "/usr/bin/gcc",
                 "CMAKE_CXX_COMPILER": "/usr/bin/g++"
+            }
+        },
+        {
+            "name": "container-linux-release",
+            "inherits": "linux-release",
+            "vendor": {
+                "nebulite": {
+                    "container": "gcc"
+                }
             }
         },
         {
@@ -57,6 +75,15 @@
             }
         },
         {
+            "name": "container-linux-profiling",
+            "inherits": "linux-profiling",
+            "vendor": {
+                "nebulite": {
+                    "container": "gcc"
+                }
+            }
+        },
+        {
             "name": "linux-coverage",
             "inherits": "base",
             "displayName": "Linux Coverage",
@@ -65,6 +92,15 @@
                 "CMAKE_C_COMPILER": "/usr/bin/gcc",
                 "CMAKE_CXX_COMPILER": "/usr/bin/g++",
                 "CMAKE_BUILD_TYPE": "Coverage"
+            }
+        },
+        {
+            "name": "container-linux-coverage",
+            "inherits": "linux-coverage",
+            "vendor": {
+                "nebulite": {
+                    "container": "gcc"
+                }
             }
         },
         {
@@ -81,6 +117,15 @@
             }
         },
         {
+            "name": "container-windows-debug",
+            "inherits": "windows-debug",
+            "vendor": {
+                "nebulite": {
+                    "container": "mingw"
+                }
+            }
+        },
+        {
             "name": "windows-release",
             "inherits": "base",
             "displayName": "Windows Release",
@@ -90,6 +135,15 @@
                 "CMAKE_BUILD_TYPE": "Release",
                 "CMAKE_CXX_FLAGS_RELEASE": "-O3 -DNDEBUG",
                 "CMAKE_INTERPROCEDURAL_OPTIMIZATION": "ON"
+            }
+        },
+        {
+            "name": "container-windows-release",
+            "inherits": "windows-release",
+            "vendor": {
+                "nebulite": {
+                    "container": "mingw"
+                }
             }
         },
         {
@@ -116,6 +170,48 @@
         }
     ],
     "buildPresets": [
+        {
+            "name": "container-linux-release",
+            "configurePreset": "container-linux-release",
+            "displayName": "Build Linux Container Release",
+            "description": "Build Linux release binary in container",
+            "jobs": 0
+        },
+        {
+            "name": "container-linux-debug",
+            "configurePreset": "container-linux-debug",
+            "displayName": "Build Linux Container Debug",
+            "description": "Build Linux debug binary in container",
+            "jobs": 0
+        },
+        {
+            "name": "container-linux-coverage",
+            "configurePreset": "container-linux-coverage",
+            "displayName": "Build Linux Container Coverage",
+            "description": "Build Linux coverage binary in container",
+            "jobs": 0
+        },
+        {
+            "name": "container-linux-profiling",
+            "configurePreset": "container-linux-profiling",
+            "displayName": "Build Linux Container Profiling",
+            "description": "Build Linux profiling binary in container",
+            "jobs": 0
+        },
+        {
+            "name": "container-windows-release",
+            "configurePreset": "container-windows-release",
+            "displayName": "Build Windows Container Release",
+            "description": "Build Windows release binary in container",
+            "jobs": 0
+        },
+        {
+            "name": "container-windows-debug",
+            "configurePreset": "container-windows-debug",
+            "displayName": "Build Windows Container Debug",
+            "description": "Build Windows debug binary in container",
+            "jobs": 0
+        },
         {
             "name": "linux-debug",
             "configurePreset": "linux-debug",

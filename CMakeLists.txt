@@ -14,6 +14,9 @@ include(${CMAKE_SOURCE_DIR}/Tools/CMake/commonsources.cmake)
 ############################################################
 # Info messages
 
+# TODO: Proper cmake targets that build containerized, so that IDEs like Clion can launch the project builds in a containerized environment.
+#       Instead of the python script running cmake, let cmake run the python script, which passes the args to its internal gcc/clang/mingw
+
 # Echo the start of the configuration
 message(STATUS "Starting configuration for project Nebulite")
 message(STATUS "System: ${CMAKE_SYSTEM_NAME}")
