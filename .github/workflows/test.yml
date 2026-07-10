@@ -5,9 +5,12 @@ on:
 
 jobs:
   test:
+    # TODO: get rid of the container-in-container setup by later on running the tests in a podman container instead of the host
+
     runs-on: ubuntu-latest
-    container:
+    container:                # The workaround...
       image: fedora:latest
+      options: --privileged
 
     steps:
       - name: Checkout repository
