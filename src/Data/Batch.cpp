@@ -8,7 +8,6 @@
 // Nebulite
 #include "Nebulite/Core/RenderObject.hpp"
 #include "Nebulite/Data/Batch.hpp"
-#include "Nebulite/Data/RenderObjectContainer.hpp"
 
 //------------------------------------------
 namespace Nebulite::Data {
