@@ -20,6 +20,11 @@ jobs:
         run: |
           make install-deps
 
+      - name: Activate virtualenv
+        run: |
+          . .venv/bin/activate
+          echo PATH=$PATH >> $GITHUB_ENV
+
       - name: Install Resources
         run: |
           make resources
