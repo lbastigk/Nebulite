@@ -63,7 +63,7 @@ public:
      * @param replacer The replacement substring.
      * @return The modified string with all occurrences replaced.
      */
-    static std::string replaceAll(std::string target, std::string_view toReplace, std::string_view replacer);
+    static std::string replaceAll(std::string_view target, std::string_view toReplace, std::string_view replacer);
 
     // [VALIDATE]
 

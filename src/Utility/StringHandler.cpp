@@ -41,9 +41,9 @@ std::string StringHandler::createPaddedTable(std::vector<std::string> const& wor
     });
 }
 
-std::string StringHandler::replaceAll(std::string target, std::string_view const toReplace, std::string_view const replacer) {
+std::string StringHandler::replaceAll(std::string_view const target, std::string_view const toReplace, std::string_view const replacer) {
     if (toReplace.empty())
-        return target;
+        return std::string(target);
     return target
         | std::views::split(toReplace)
         | std::views::join_with(replacer)
