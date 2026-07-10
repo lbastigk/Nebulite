@@ -151,6 +151,16 @@ public:
     ReturnValue parse(std::vector<std::string_view> const& args, AdditionalArgs... addArgs);
     ReturnValue parse(std::span<std::string_view const> const& args, AdditionalArgs... addArgs);
 
+    /**
+     * @brief Parses the command line arguments and executes the corresponding function.
+     * @details Like parseStr, but with a provided set of existing args
+     * @param existingArgs Existing arguments to use as the base for parsing. Will be modified to include the parsed arguments from cmd.
+     * @param cmd Command string to parse
+     * @param addArgs Additional arguments to pass to the executed function
+     * @return The return value of the executed function, or the standard/error value.
+     */
+    ReturnValue parseWithPrefix(std::vector<std::string_view>& existingArgs, std::string_view cmd, AdditionalArgs... addArgs);
+
     //------------------------------------------
     // Binding (Functions, Categories, Variables)
 

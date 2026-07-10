@@ -485,20 +485,11 @@ std::vector<std::pair<std::string, std::string_view>> FuncTree<ReturnValue, Addi
 template <typename ReturnValue, typename... AdditionalArgs>
 ReturnValue FuncTree<ReturnValue, AdditionalArgs...>::parseStr(std::string_view cmd, AdditionalArgs... addArgs) {
     Utility::StringHandler::rStrip(cmd);
-
-    // Early exit on empty command
     if (cmd.empty()) {
         return standardReturn.valDefault;
     }
-
-    // Quote-aware tokenization
-    auto const [args, unclosedQuote] = Utility::StringHandler::parseQuotedArguments(cmd);
     std::vector<std::string_view> argsView;
-    std::ranges::transform(args, std::back_inserter(argsView), [](const std::string& str) { return std::string_view(str); });
-    if (unclosedQuote) {
-        capture.error.println("Warning: Unclosed quote in command: ", cmd);
-    }
-    return parse(argsView, addArgs...);
+    return parseWithPrefix(argsView, cmd, addArgs...);
 }
 
 template <typename ReturnValue, typename... AdditionalArgs>
@@ -525,6 +516,17 @@ ReturnValue FuncTree<ReturnValue, AdditionalArgs...>::parse(std::span<std::strin
 
     // Not found in inherited trees, execute the function in main tree
     return executeFunction(funcName, actualArgs, addArgs...);
+}
+
+template <typename ReturnValue, typename ... AdditionalArgs>
+ReturnValue FuncTree<ReturnValue, AdditionalArgs...>::parseWithPrefix(std::vector<std::string_view>& existingArgs, std::string_view cmd, AdditionalArgs... addArgs){
+    // Quote-aware tokenization
+    auto const [args, unclosedQuote] = Utility::StringHandler::parseQuotedArguments(cmd);
+    std::ranges::transform(args, std::back_inserter(existingArgs), [](const std::string& str) { return std::string_view(str); });
+    if (unclosedQuote) {
+        capture.error.println("Warning: Unclosed quote in command: ", cmd);
+    }
+    return parse(existingArgs, addArgs...);
 }
 
 template <typename ReturnValue, typename... AdditionalArgs>

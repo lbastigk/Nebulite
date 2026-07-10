@@ -5,7 +5,6 @@
 #include <algorithm>
 #include <memory>
 #include <span>
-#include <string>
 #include <string_view>
 #include <vector>
 
@@ -75,21 +74,15 @@ JsonRvalueTransformer& JsonRvalueTransformer::instance() {
 }
 
 bool JsonRvalueTransformer::parse(std::vector<std::string_view> const& transformationList, JsonScope& jsonDoc) const {
-    static std::string constexpr funcName = __FUNCTION__;
     if (transformationList.empty()) [[unlikely]] {
         return false;
     }
-
-    // Pre-allocate string to avoid reallocations in the loop
-    std::string call;
-    call.reserve(funcName.size() + 1 + 128); // funcName + space + typical transformation size
-
+    std::vector<std::string_view> argsView;
+    argsView.reserve(4);
+    argsView.emplace_back(__FUNCTION__);
     return std::ranges::all_of(transformationList, [&](std::string_view const transformation) {
-        call.clear();
-        call.append(funcName);
-        call.push_back(' ');
-        call.append(transformation);
-        return transformationFuncTree->parseStr(call, jsonDoc);
+        argsView.resize(1); // Remove any existing args from last parse loop
+        return transformationFuncTree->parseWithPrefix(argsView, transformation, jsonDoc);
     });
 }
 
