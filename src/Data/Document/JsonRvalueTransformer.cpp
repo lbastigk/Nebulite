@@ -77,9 +77,8 @@ bool JsonRvalueTransformer::parse(std::vector<std::string_view> const& transform
     if (transformationList.empty()) [[unlikely]] {
         return false;
     }
-    std::vector<std::string_view> argsView;
+    std::vector<std::string_view> argsView = {__FUNCTION__};
     argsView.reserve(4);
-    argsView.emplace_back(__FUNCTION__);
     return std::ranges::all_of(transformationList, [&](std::string_view const transformation) {
         argsView.resize(1); // Remove any existing args from last parse loop
         return transformationFuncTree->parseWithPrefix(argsView, transformation, jsonDoc);
