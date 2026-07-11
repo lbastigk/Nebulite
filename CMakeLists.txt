@@ -38,7 +38,7 @@ enable_language(ASM)
 set(BUILD_SHARED_LIBS OFF CACHE BOOL "Build static libraries for external deps" FORCE)
 lto_fix()
 
-# Prepare SDL settings5a
+# Prepare SDL settings
 sdl_setup()
 
 ############################################################
