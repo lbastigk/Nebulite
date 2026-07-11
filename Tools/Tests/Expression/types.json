@@ -1,8 +1,6 @@
 [
     {
-        "command": [
-            "task TaskFiles/Tests/Expression/types.nebs"
-        ],
+        "command": "task TaskFiles/Tests/Expression/types.nebs",
         "expected": {
             "cout": [
                 "null",

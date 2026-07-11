@@ -22,7 +22,7 @@
 #include "Nebulite/Interaction/Context.hpp"
 #include "Nebulite/Interaction/Logic/Expression.hpp"
 #include "Nebulite/Interaction/Logic/ExpressionComponent.hpp"
-#include "Nebulite/Interaction/Logic/VirtualDouble.hpp"
+#include "Nebulite/Interaction/Logic/LinkedNumericValue.hpp"
 #include "Nebulite/Math/Equality.hpp"
 #include "Nebulite/Math/ExpressionPrimitives.hpp"
 #include "Nebulite/Nebulite.hpp"
@@ -62,14 +62,14 @@ void Expression::reset() {
     te_names.clear();
 
     // Clear all vds
-    virtualDoubles.stable.self.clear();
-    virtualDoubles.stable.other.clear();
-    virtualDoubles.stable.global.clear();
+    linkedNumericValues.stable.self.clear();
+    linkedNumericValues.stable.other.clear();
+    linkedNumericValues.stable.global.clear();
 
-    virtualDoubles.unstable.self.clear();
-    virtualDoubles.unstable.other.clear();
-    virtualDoubles.unstable.global.clear();
-    virtualDoubles.unstable.resource.clear();
+    linkedNumericValues.unstable.self.clear();
+    linkedNumericValues.unstable.other.clear();
+    linkedNumericValues.unstable.global.clear();
+    linkedNumericValues.unstable.resource.clear();
 
     //------------------------------------------
     // Register built-in functions
@@ -107,8 +107,8 @@ bool isAvailableAsDoublePtr(std::string_view const key) {
 }
 } // anonymous namespace
 
-double* Expression::VirtualDoubleLists::registerVariable(ContextDeriver::TargetType const contextType, std::string_view const key){
-    auto const vd = std::make_shared<VirtualDouble>(key);
+double* Expression::LinkedNumericValueLists::registerVariable(ContextDeriver::TargetType const contextType, std::string_view const key){
+    auto const vd = std::make_shared<LinkedNumericValue>(key);
     switch (contextType) {
     case ContextDeriver::TargetType::self:
         if (isAvailableAsDoublePtr(key)) {
@@ -164,7 +164,7 @@ void Expression::registerVariable(std::string te_name, std::string_view const ke
 
     if (!found) {
         // Register cache based on context
-        auto* const ptr = virtualDoubles.registerVariable(contextType, key);
+        auto* const ptr = linkedNumericValues.registerVariable(contextType, key);
 
         // Store variable name for tinyexpr
         auto const te_name_ptr = std::make_shared<std::string>(te_name);
@@ -460,9 +460,9 @@ void Expression::updateStableValues(ContextScope const& context) const {
             vde->copyFromJson(currentContext);
         }
     };
-    updateContext(context.self, virtualDoubles.stable.self);
-    updateContext(context.other, virtualDoubles.stable.other);
-    updateContext(context.global, virtualDoubles.stable.global);
+    updateContext(context.self, linkedNumericValues.stable.self);
+    updateContext(context.other, linkedNumericValues.stable.other);
+    updateContext(context.global, linkedNumericValues.stable.global);
 }
 
 void Expression::updateUnstableValues(ContextScope const& context) const {
@@ -478,20 +478,20 @@ void Expression::updateUnstableValues(ContextScope const& context) const {
             }
         }
     };
-    updateContext(context.self, virtualDoubles.unstable.self);
-    updateContext(context.other, virtualDoubles.unstable.other);
-    updateContext(context.global, virtualDoubles.unstable.global);
-    updateContext(Global::instance().getDocCache(), virtualDoubles.unstable.resource);
-    updateContext(emptyDoc(), virtualDoubles.unstable.none);
-    if (!virtualDoubles.unstable.local.empty()) {
+    updateContext(context.self, linkedNumericValues.unstable.self);
+    updateContext(context.other, linkedNumericValues.unstable.other);
+    updateContext(context.global, linkedNumericValues.unstable.global);
+    updateContext(Global::instance().getDocCache(), linkedNumericValues.unstable.resource);
+    updateContext(emptyDoc(), linkedNumericValues.unstable.none);
+    if (!linkedNumericValues.unstable.local.empty()) {
         Data::JsonScope merged;
         context.combineLocal(merged);
-        updateContext(merged, virtualDoubles.unstable.local);
+        updateContext(merged, linkedNumericValues.unstable.local);
     }
-    if (!virtualDoubles.unstable.full.empty()) {
+    if (!linkedNumericValues.unstable.full.empty()) {
         Data::JsonScope merged;
         context.combineAll(merged);
-        updateContext(merged, virtualDoubles.unstable.full);
+        updateContext(merged, linkedNumericValues.unstable.full);
     }
 }
 

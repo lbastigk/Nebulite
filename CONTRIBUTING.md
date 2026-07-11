@@ -43,16 +43,11 @@ with references to your own test files in `Tools/Tests/.../*.json`.
     "Tools/Tests/MyNewTestFile.json"
 ]
 ```
-Each test file should contain an array of test cases, where each test case includes a list of commands to execute 
-and the expected output.
+Each test file should contain an array of test cases, where each test case specifies a taskfile to run and the expected output. For example:
 ```json
 [
     {
-      "command": [
-        "set-fps 60",
-        "echo 1234",
-        "exit"
-      ],
+      "command": "task path/to/myTestFile.nebs",
       "expected": { "cout": ["1234"], "cerr": [] }
     }
 ]
