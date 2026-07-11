@@ -31,7 +31,7 @@ class ScopedKeyView;
 
 namespace Nebulite::Interaction::Logic {
 class ExpressionComponent;
-class VirtualDouble;
+class LinkedNumericValue;
 } // namespace Nebulite::Interaction::Logic
 
 //------------------------------------------
@@ -164,31 +164,31 @@ public:
 
 private:
     /**
-     * @struct Nebulite::Interaction::Logic::Expression::VirtualDoubleLists
-     * @brief Holds lists of VirtualDouble entries for different contexts.
+     * @struct Nebulite::Interaction::Logic::Expression::LinkedNumericValueLists
+     * @brief Holds lists of LinkedNumericValue entries for different contexts.
      */
-    struct VirtualDoubleLists {
-        using vd_list = std::vector<std::shared_ptr<VirtualDouble>>;
+    struct LinkedNumericValueLists {
+        using lnvList = std::vector<std::shared_ptr<LinkedNumericValue>>;
 
         // Linkable as external cache, no multi-resolve or transformations
         // This works by Caching the first context used. If the new context address matches the first,
         // we can use the stable vd_list and simply copy double values.
         // Otherwise, we need to retrieve them from a document first, which is expensive
         struct Stable {
-            vd_list self; // Variables from context self
-            vd_list other; // Variables from context other
-            vd_list global; // Variables from context global
+            lnvList self; // Variables from context self
+            lnvList other; // Variables from context other
+            lnvList global; // Variables from context global
         } stable;
 
         // With multi-resolve or transformations, key needs to be resolved each time
         struct Unstable {
-            vd_list self; // Variables from context self with transformations or multi-resolve
-            vd_list other; // Variables from context other with transformations or multi-resolve
-            vd_list local; // Variables from context marrying: self and other
-            vd_list global; // Variables from context global with transformations or multi-resolve
-            vd_list full; // Variables from context marrying: self, other and global
-            vd_list resource; // Variables from context resource with transformations or multi-resolve
-            vd_list none; // Variables with no context with transformations or multi-resolve
+            lnvList self; // Variables from context self with transformations or multi-resolve
+            lnvList other; // Variables from context other with transformations or multi-resolve
+            lnvList local; // Variables from context marrying: self and other
+            lnvList global; // Variables from context global with transformations or multi-resolve
+            lnvList full; // Variables from context marrying: self, other and global
+            lnvList resource; // Variables from context resource with transformations or multi-resolve
+            lnvList none; // Variables with no context with transformations or multi-resolve
         } unstable;
 
         /**
@@ -198,7 +198,7 @@ private:
          * @return Pointer to the registered variable
          */
         double* registerVariable(ContextDeriver::TargetType contextType, std::string_view key);
-    } virtualDoubles;
+    } linkedNumericValues;
 
     /**
      * @brief Generates short variable names for tinyexpr variables.

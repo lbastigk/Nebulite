@@ -100,30 +100,85 @@ def ensure_image(container, rebuild=False):
 
     return image
 
-def run_container(container, preset, rebuild=False):
+def run_container(container, preset, rebuild=False, test=False):
     image = ensure_image(container, rebuild=rebuild)
 
-    process_count = determine_process_count()
-    print(f"Running build with {process_count} processes")
+    if test:
+        # Find the singular binary in ./bin/
+        if not (ROOT / "bin").exists():
+            raise RuntimeError(
+                f"Cannot test container {image} because the ./bin/ directory does not exist. Please build the project first."
+            )
+        binaries = list((ROOT / "bin").glob("*"))
+        if len(binaries) != 1:
+            raise RuntimeError(
+                f"Cannot test container {image} because there is not exactly one binary in ./bin/. Found: {binaries}"
+            )
+        binary = binaries[0]
 
-    run(
-        [
-            "podman",
-            "run",
-            "--rm",
-            "-it",
-            "-v",
-            f"{ROOT}:{ROOT}:Z",
-            "-w",
-            f"{ROOT}",
-            image,
-            "bash",
-            "-c",
-            f"cmake --preset {preset} && cmake --build --preset {preset} -j{process_count}",
-        ]
-    )
+        print(f"Testing container {image}...")
+        run(
+            [
+                "podman",
+                "run",
+                "--rm",
+                "-it",
+                "-e",
+                "SDL_AUDIODRIVER=dummy",
+                "-e",
+                "SDL_VIDEODRIVER=dummy",
+                "-v",
+                f"{ROOT}:{ROOT}:Z",
+                "-w",
+                f"{ROOT}",
+                image,
+                "bash",
+                "-c",
+                f"{binary} help"
+            ]
+        )
+        run(
+            [
+                "podman",
+                "run",
+                "--rm",
+                "-it",
+                "-e",
+                "SDL_AUDIODRIVER=dummy",
+                "-e",
+                "SDL_VIDEODRIVER=dummy",
+                "-v",
+                f"{ROOT}:{ROOT}:Z",
+                "-w",
+                f"{ROOT}",
+                image,
+                "bash",
+                "-c",
+                "make test"
+            ]
+        )
+    else:
+        process_count = determine_process_count()
+        print(f"Running build with {process_count} processes")
+        run(
+            [
+                "podman",
+                "run",
+                "--rm",
+                "-it",
+                "-v",
+                f"{ROOT}:{ROOT}:Z",
+                "-w",
+                f"{ROOT}",
+                image,
+                "bash",
+                "-c",
+                f"cmake --preset {preset} && cmake --build --preset {preset} -j{process_count}",
+            ]
+        )
 
 def main():
+    test = False
     rebuild = False
     args = sys.argv[1:]
 
@@ -131,14 +186,19 @@ def main():
         rebuild = True
         args = [arg for arg in args if arg != "--rebuild"]
 
+    if "--test" in args:
+        test = True
+        args = [arg for arg in args if arg != "--test"]
+
     if len(args) != 1:
-        print("Usage: build.py [--rebuild] <cmake-preset>")
+        print("Usage: build.py [--rebuild] [--test] <cmake-preset>")
+        print("Using test will not build the container but just test it.")
         sys.exit(1)
 
     preset_name = args[0]
     container_preset = load_preset(get_container_preset_name(preset_name))
     container = get_container(container_preset)
-    run_container(container, get_container_preset_name(preset_name), rebuild=rebuild)
+    run_container(container, get_container_preset_name(preset_name), rebuild=rebuild, test=test)
 
 if __name__ == "__main__":
     main()

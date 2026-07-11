@@ -11,10 +11,14 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      - name: Echo latest commit message
+        run: | 
+          echo "Latest commit message: $(git log -1 --pretty=%B)"
+
       - name: Install Dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y podman python3-venv make
+          sudo apt-get install -y podman python3-venv make imagemagick espeak-ng
 
       - name: Set up Python environment
         run: |
@@ -29,11 +33,27 @@ jobs:
         run: |
           make resources
 
-      - name: Run build environment
+      - name: Test Release binary
         run: |
-          make linux-release
-          make linux-debug
+          python Container/build.py linux-release
+          if [ ! -f "./bin/Nebulite" ]; then
+            echo "Release binary not found!"
+            echo "Current directory structure:"
+            tree .
+            exit 1
+          fi
+          python Container/build.py linux-release --test
+          make delete-binaries
+          
 
-      - name: Run tests
+      - name: Test Debug binary
         run: |
-          make test
+          python Container/build.py linux-debug
+          if [ ! -f "./bin/Nebulite_Debug" ]; then
+            echo "Debug binary not found!"
+            echo "Current directory structure:"
+            tree .
+            exit 1
+          fi
+          python Container/build.py linux-debug --test
+          make delete-binaries

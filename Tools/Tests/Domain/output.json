@@ -27,10 +27,7 @@
         }
     },
     {
-        "command": [
-            "# Test completion",
-            "__complete__ feature-"
-        ],
+        "command": "__complete__ feature-",
         "expected": { "cout": ["feature-test"], "cerr": [] }
     },
     {

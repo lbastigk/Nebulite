@@ -1,0 +1,8 @@
+# Testing if no non-simple values are stored in cache, so both evals return {object}
+assign global:result.A = Result is: {global:}
+assign global:result.B = Result is: {global:}
+
+eval nop {global:result.A|assert equals string Result is: {object}}
+eval nop {global:result.B|assert equals string Result is: {object}}
+
+exit

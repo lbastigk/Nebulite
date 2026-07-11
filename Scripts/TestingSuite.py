@@ -10,7 +10,7 @@ import fnmatch
 import shlex
 import glob
 import shutil
-from typing import List, Dict, Any, Union
+from typing import List, Dict, Any, Union, Optional
 
 #==============================================================================
 # Utility Functions
@@ -344,6 +344,9 @@ def run_single_test(binary: str, test: Dict[str, Any], timeout: int, ignore_line
 
     # If command is type Array, join with ';' inbetween
     if isinstance(test['command'], list):
+        # Due to issues with some shells, we no longer suport multi-command tests.
+        raise ValueError(f"Cannot run:\n {test['command']}\n Multi-command tests are no longer supported.")
+
         # Strip everything after a '#' in each command part (comments)
         cmd = "; ".join(part.split('#')[0] for part in test['command'])
         # remove "; " from front
