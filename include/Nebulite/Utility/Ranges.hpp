@@ -7,6 +7,7 @@
 // Standard library
 #include <concepts>
 #include <cstddef>
+#include <functional>
 #include <iterator>
 #include <optional>
 #include <ranges>
@@ -168,6 +169,74 @@ public:
         }
         return iota<ReturnType>(0, exclusiveMax);
     }
+
+    template<class Pred>
+    struct all_equal_and_closure : std::ranges::range_adaptor_closure<all_equal_and_closure<Pred>>{
+        Pred pred;
+
+        explicit all_equal_and_closure(Pred p) : pred(std::move(p)){}
+
+        template<std::ranges::input_range R>
+        bool operator()(R&& r) const {
+            auto it = std::ranges::begin(r);
+            auto end = std::ranges::end(r);
+            (void)std::forward<R>(r);
+
+            if (it == end)
+                return true;
+
+            auto const& first = *it;
+
+            if (!std::invoke(pred, first))
+                return false;
+
+            for (++it; it != end; ++it) {
+                if (!std::invoke(pred, *it))
+                    return false;
+
+                if (*it != first)
+                    return false;
+            }
+
+            return true;
+        }
+    };
+
+    /**
+     * @brief Checks if all elements in a range are equal and satisfy a given predicate.
+     */
+    static struct all_equal_and_fn : std::ranges::range_adaptor_closure<all_equal_and_fn>{
+        template<class Pred>
+        auto operator()(Pred pred) const {
+            return all_equal_and_closure<std::decay_t<Pred>>{
+                std::move(pred)
+            };
+        }
+    } constexpr all_equal_and{};
+
+    /**
+     * @brief Checks if all elements in a range are equal
+     */
+    static struct all_equal_fn : std::ranges::range_adaptor_closure<all_equal_fn>{
+        template<std::ranges::input_range R>
+        bool operator()(R&& r) const {
+            auto it = std::ranges::begin(r);
+            auto end = std::ranges::end(r);
+            (void)std::forward<R>(r);
+
+            if (it == end)
+                return true;
+
+            auto const& first = *it;
+
+            for (++it; it != end; ++it) {
+                if (*it != first)
+                    return false;
+            }
+
+            return true;
+        }
+    } constexpr all_equal{};
 };
 
 } // namespace Nebulite::Utility
