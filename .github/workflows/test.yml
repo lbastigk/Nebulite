@@ -11,10 +11,6 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Echo latest commit message
-        run: | 
-          echo "Latest commit message: $(git log -1 --pretty=%B)"
-
       - name: Install Dependencies
         run: |
           sudo apt-get update
@@ -33,7 +29,7 @@ jobs:
         run: |
           make resources
 
-      - name: Test Release binary
+      - name: Build and test release binary
         run: |
           python Container/build.py linux-release
           if [ ! -f "./bin/Nebulite" ]; then
@@ -44,9 +40,8 @@ jobs:
           fi
           python Container/build.py linux-release --test
           make delete-binaries
-          
 
-      - name: Test Debug binary
+      - name: Build and test Debug binary
         run: |
           python Container/build.py linux-debug
           if [ ! -f "./bin/Nebulite_Debug" ]; then
