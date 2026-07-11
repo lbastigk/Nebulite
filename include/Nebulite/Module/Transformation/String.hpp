@@ -157,6 +157,12 @@ public:
         "{comparisonType}: Type of comparison\n"
         "{string}: String to compare with\n";
 
+    static bool strcompareMembers(std::span<std::string_view const> const& args, Data::JsonScope& jsonDoc);
+    static auto constexpr strcompareMembersName = "strCompare members";
+    static auto constexpr strcompareMembersDesc = "Compare multiple member string values.\n"
+        "Usage: |strCompareMembers {key1} {key2} ... {keyN} -> {bool}\n"
+        "Checks if all specified member keys have the same string value.\n";
+
     static bool strcompareEquals(std::span<std::string_view const> const& args, Data::JsonScope& jsonDoc);
     static auto constexpr strcompareEqualsName = "strCompare equals";
     static auto constexpr strcompareEqualsDesc = "Compares the current JSON string value with a specified string for equality.\n"
