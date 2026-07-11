@@ -5,9 +5,13 @@
 // Includes
 
 // Standard library
-#include <cstdint>
+#include <charconv>
+#include <cmath>
+#include <limits>
 #include <optional>
 #include <string>
+#include <string_view>
+#include <system_error>
 #include <utility>
 
 //------------------------------------------
@@ -17,65 +21,28 @@ class TypeConversion {
 public:
     class String {
     public:
-        static std::optional<bool> toBool(std::string const& stored);
-
-        static std::optional<int> toInt(std::string const& stored);
-
-        static std::optional<std::uint8_t> toUInt8(std::string const& stored);
-
-        static std::optional<std::int8_t> toInt8(std::string const& stored);
-
-        static std::optional<std::uint16_t> toUInt16(std::string const& stored);
-
-        static std::optional<std::int16_t> toInt16(std::string const& stored);
-
-        static std::optional<std::uint32_t> toUInt32(std::string const& stored);
-
-        static std::optional<std::int32_t> toInt32(std::string const& stored);
-
-        static std::optional<std::uint64_t> toUInt64(std::string const& stored);
-
-        static std::optional<std::int64_t> toInt64(std::string const& stored);
-
-        static std::optional<double> toDouble(std::string const& stored);
-
-        template<typename newType>
-        static constexpr std::optional<newType> to(std::string const& value) {
-            if constexpr (std::is_same_v<newType, bool>){
-                return toBool(value);
+        template<typename NewType>
+        static constexpr std::optional<NewType> to(std::string_view const value) {
+            if constexpr (std::is_same_v<NewType, bool>){
+                if (value == "true") return true;
+                if (value == "false") return false;
+                float result{};
+                if (auto const [ptr, ec] = std::from_chars(value.data(), value.data() + value.size(), result); ec == std::errc{}) {
+                    return std::fabs(result) > std::numeric_limits<float>::epsilon();
+                }
+                return std::nullopt;
             }
-            else if constexpr (std::is_same_v<newType, int>){
-                return toInt(value);
+            else if constexpr (std::is_same_v<NewType, std::string>) {
+                return std::string(value);
             }
-            else if constexpr (std::is_same_v<newType, std::uint8_t>){
-                return toUInt8(value);
-            }
-            else if constexpr (std::is_same_v<newType, std::int8_t>){
-                return toInt8(value);
-            }
-            else if constexpr (std::is_same_v<newType, std::uint16_t>){
-                return toUInt16(value);
-            }
-            else if constexpr (std::is_same_v<newType, std::int16_t>){
-                return toInt16(value);
-            }
-            else if constexpr (std::is_same_v<newType, std::uint32_t>){
-                return toUInt32(value);
-            }
-            else if constexpr (std::is_same_v<newType, std::int32_t>){
-                return toInt32(value);
-            }
-            else if constexpr (std::is_same_v<newType, std::uint64_t>){
-                return toUInt64(value);
-            }
-            else if constexpr (std::is_same_v<newType, std::int64_t>){
-                return toInt64(value);
-            }
-            else if constexpr (std::is_same_v<newType, double>){
-                return toDouble(value);
-            }
-            else if constexpr (std::is_same_v<newType, std::string>) {
-                return value;
+            else if constexpr (std::is_arithmetic_v<NewType>) {
+                if (value == "true") return static_cast<NewType>(1);
+                if (value == "false") return static_cast<NewType>(0);
+                NewType result{};
+                if (auto const [ptr, ec] = std::from_chars(value.data(), value.data() + value.size(), result); ec == std::errc{}) {
+                    return result;
+                }
+                return std::nullopt;
             }
             else {
                 std::unreachable();
@@ -87,9 +54,9 @@ public:
     public:
         static std::optional<std::string> toString(bool value);
 
-        template<typename newType>
-        static std::optional<newType> to(bool const value) {
-            if constexpr (std::is_same_v<newType, std::string>) {
+        template<typename NewType>
+        static std::optional<NewType> to(bool const value) {
+            if constexpr (std::is_same_v<NewType, std::string>) {
                 return toString(value);
             }
             else {
@@ -102,9 +69,9 @@ public:
     public:
         static std::optional<bool> toBool(double value);
 
-        template<typename newType>
-        static std::optional<newType> to(double const value) {
-            if constexpr (std::is_same_v<newType, bool>) {
+        template<typename NewType>
+        static std::optional<NewType> to(double const value) {
+            if constexpr (std::is_same_v<NewType, bool>) {
                 return toBool(value);
             }
             else {
