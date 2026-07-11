@@ -6,6 +6,11 @@
 
 // Standard library
 #include <cstdint>
+#include <ranges>
+#include <string>
+
+// External
+#include <absl/container/flat_hash_map.h>
 
 // Nebulite
 #include "Nebulite/Constants/Event.hpp"
@@ -47,10 +52,9 @@ public:
      *                 always load scripts for TAS without RNG state changes.
      */
     void rngRollback() {
-        rng.A.rollback();
-        rng.B.rollback();
-        rng.C.rollback();
-        rng.D.rollback();
+        for (auto& rng : rngMap | std::views::values) {
+            rng.rollback();
+        }
     }
 
     //------------------------------------------
@@ -60,6 +64,7 @@ public:
      * @brief Initializes the module, binding functions and variables.
      */
     explicit RNG(ConstructorParams const& params) : DomainModule(params) {
+        initRNGs();
         updateRNGs();
     }
 
@@ -67,29 +72,19 @@ public:
     // Scoped Keys
 
     struct Key : Data::KeyGroup<"random."> {
-        static auto constexpr A = makeScoped("A");
-        static auto constexpr B = makeScoped("B");
-        static auto constexpr C = makeScoped("C");
-        static auto constexpr D = makeScoped("D");
         static auto constexpr min = makeScoped("min");
         static auto constexpr max = makeScoped("max");
     };
 
 private:
+    using rngSize_t = std::uint16_t; // Modify this to change the size of the RNGs
+
+    absl::flat_hash_map<std::string, Utility::RNG<rngSize_t>> rngMap; // Future-proofing for more RNGs
+
     /**
-     * @struct RngVars
-     * @brief Contains RNG instances used in the global space.
-     * @todo Consider a hashmap of RNGs for more versatility in the future.
-     *       std::string -> Utility::RNG<rngSize_t>
-     *       Simplifies the rng rollback and update functions as well.
+     * @brief Initializes standard RNGs
      */
-    struct RngVars {
-        using rngSize_t = std::uint16_t; // Modify this to change the size of the RNGs
-        Utility::RNG<rngSize_t> A; // RNG with key random.A
-        Utility::RNG<rngSize_t> B; // RNG with key random.B
-        Utility::RNG<rngSize_t> C; // RNG with key random.C
-        Utility::RNG<rngSize_t> D; // RNG with key random.D
-    } rng;
+    void initRNGs();
 
     /**
      * @brief Updates all RNGs
