@@ -122,12 +122,6 @@ build-available: $(AVAILABLE_PRESETS) message-available-presets
 
 build-coverage: linux-coverage coverage-report
 
-# Clean build targets for native and available presets
-
-clean-build-native: clean build-native
-
-clean-build-available: clean build-available
-
 
 ############################################
 # Documentation
@@ -150,17 +144,9 @@ standards:
 
 build-and-coverage-report: build-coverage coverage-report
 
-# Non-clean build + test
-
 build-and-test-native: delete-binaries build-native test
 
 build-and-test-available: delete-binaries build-available test
-
-# Clean build + test
-
-clean-build-and-test-native: clean-build-native test
-
-clean-build-and-test-available: clean-build-available test
 
 
 ############################################
@@ -170,14 +156,6 @@ clean-build-and-test-available: clean-build-available test
 profiling: linux-profiling
 	@echo "Running profiling.nebs"
 	@sudo -S sysctl -w kernel.perf_event_paranoid=-1 ; sudo sysctl -w kernel.kptr_restrict=0 && perf record -F 99 -g -- ./bin/Nebulite_Profiling task TaskFiles/Debugging/profiling.nebs ; hotspot perf.data
-
-profiling-small: linux-profiling
-	@echo "Running small profiling benchmark: spawn_constantly.nebs"
-	@sudo -S sysctl -w kernel.perf_event_paranoid=-1 ; sudo sysctl -w kernel.kptr_restrict=0 && perf record -F 99 -g -- ./bin/Nebulite_Profiling task TaskFiles/Benchmarks/spawn_constantly.nebs ; hotspot perf.data
-
-profiling-large: linux-profiling
-	@echo "Running large profiling benchmark: gravity_XL.nebs"
-	@sudo -S sysctl -w kernel.perf_event_paranoid=-1 ; sudo sysctl -w kernel.kptr_restrict=0 && perf record -F 99 -g -- ./bin/Nebulite_Profiling task TaskFiles/Benchmarks/gravity_XL.nebs ; hotspot perf.data
 
 ############################################
 # Memory Checking
@@ -194,21 +172,11 @@ memory-check-cli:
 	@echo "Memory check completed. See valgrind_output.txt for details."
 
 ############################################
-# Linting
-############################################
-
-cli-lint:
-	@echo "Running CLI linter..."
-	@./Scripts/Validation/runClangTidy.sh
-	@echo "CLI linting completed."
-
-############################################
 # Release Packaging
 ############################################
 
 release:
 	@Scripts/createRelease.sh
-
 
 ############################################
 # Commit testing pipelines
