@@ -60,24 +60,6 @@ public:
         "Usage: feature-test find-parent-key <key>\n"
         "Using no argument will treated as an empty key.\n";
 
-    // FFT
-
-    [[nodiscard]] Constants::Event fft(std::span<std::string_view const> const& args) const ;
-    static auto constexpr fft_name = "feature-test fft";
-    static auto constexpr fft_desc = "Tests the FFT and IFFT methods.\n"
-        "Usage: feature-test fft <sample1> <sample2> ... <sampleN>\n";
-
-    [[nodiscard]] Constants::Event ifft(std::span<std::string_view const> const& args) const ;
-    static auto constexpr ifft_name = "feature-test ifft";
-    static auto constexpr ifft_desc = "Tests the IFFT methods.\n"
-        "Usage: feature-test ifft <real1> <imag1> <real2> <imag2> ... <realN> <imagN>\n";
-
-    [[nodiscard]] Constants::Event applyTransferFunction(std::span<std::string_view const> const& args) const ;
-    static auto constexpr applyTransferFunction_name = "feature-test apply-transfer-function";
-    static auto constexpr applyTransferFunction_desc = "Tests the applyTransferFunction method.\n"
-        "Usage: feature-test apply-transfer-function <sample1> <sample2> ... <sampleN> --num <num1> <num2> ... <numN> --den <den1> <den2> ... <denM>\n";
-
-
     //------------------------------------------
     // Categories
 
@@ -103,11 +85,6 @@ public:
         // Keys
         bindFunction(&FeatureTest::keyCombination, keyCombination_name, keyCombination_desc);
         bindFunction(&FeatureTest::findParentKey, findParentKeyName, findParentKeyDesc);
-
-        // FFT
-        bindFunction(&FeatureTest::fft, fft_name, fft_desc);
-        bindFunction(&FeatureTest::ifft, ifft_name, ifft_desc);
-        bindFunction(&FeatureTest::applyTransferFunction, applyTransferFunction_name, applyTransferFunction_desc);
     }
 
     struct Key : Data::KeyGroup<""> {

@@ -1,0 +1,62 @@
+#ifndef NEBULITE_MODULE_DOMAIN_COMMON_FFT_HPP
+#define NEBULITE_MODULE_DOMAIN_COMMON_FFT_HPP
+
+//------------------------------------------
+// Includes
+
+// Standard library
+#include <span>
+#include <string_view>
+
+// Nebulite
+#include "Nebulite/Constants/Event.hpp"
+#include "Nebulite/Interaction/Execution/Domain.hpp"
+#include "Nebulite/Module/Base/DomainModule.hpp"
+
+//------------------------------------------
+// Forward declarations
+
+namespace Nebulite::Interaction {
+class Context;
+class ContextScope;
+} // namespace Nebulite::Interaction
+
+//------------------------------------------
+namespace Nebulite::Module::Domain::Common {
+class FFT final : public Base::DomainModule<Interaction::Execution::Domain> {
+public:
+    [[nodiscard]] Constants::Event updateHook() override ;
+    void reinit() override {}
+
+    //------------------------------------------
+    // Available Functions
+
+    [[nodiscard]] Constants::Event fft(std::span<std::string_view const> const& args) const ;
+    static auto constexpr fft_name = "fft";
+    static auto constexpr fft_desc = "Print the fft of a given real-number series\n"
+        "Usage: fft <sample1> <sample2> ... <sampleN>\n";
+
+    [[nodiscard]] Constants::Event ifft(std::span<std::string_view const> const& args) const ;
+    static auto constexpr ifft_name = "ifft";
+    static auto constexpr ifft_desc = "Print the inverse fft of a given complex-number series\n"
+        "Usage: ifft <real1> <imag1> <real2> <imag2> ... <realN> <imagN>\n";
+
+    [[nodiscard]] Constants::Event applyTransferFunction(std::span<std::string_view const> const& args) const ;
+    static auto constexpr applyTransferFunction_name = "apply-transfer-function";
+    static auto constexpr applyTransferFunction_desc = "Print the result of applying a transfer function to a given real-number series\n"
+        "Usage: apply-transfer-function <sample1> <sample2> ... <sampleN> --num <num1> <num2> ... <numN> --den <den1> <den2> ... <denM>\n";
+
+    //------------------------------------------
+    // Setup
+
+    /**
+     * @brief Initializes the module, binding functions and variables.
+     */
+    explicit FFT(ConstructorParams const& params) : DomainModule(params) {
+        bindFunction(&FFT::fft, fft_name, fft_desc);
+        bindFunction(&FFT::ifft, ifft_name, ifft_desc);
+        bindFunction(&FFT::applyTransferFunction, applyTransferFunction_name, applyTransferFunction_desc);
+    }
+};
+} // namespace Nebulite::Module::Domain::Common
+#endif // NEBULITE_MODULE_DOMAIN_COMMON_FFT_HPP

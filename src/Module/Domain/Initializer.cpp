@@ -15,6 +15,7 @@
 // Common
 #include "Nebulite/Module/Domain/Common/ComplexData.hpp"
 #include "Nebulite/Module/Domain/Common/Debug.hpp"
+#include "Nebulite/Module/Domain/Common/FFT.hpp"
 #include "Nebulite/Module/Domain/Common/Filesystem.hpp"
 #include "Nebulite/Module/Domain/Common/General.hpp"
 #include "Nebulite/Module/Domain/Common/RmlUi.hpp"
@@ -67,6 +68,11 @@ void Initializer::initCommon(Interaction::Execution::Domain* target) {
     );
     target->initModule<Interaction::Execution::Domain, Common::Debug>(
         "Common Debug Functions",
+        Global::settings(),
+        *target
+    );
+    target->initModule<Interaction::Execution::Domain, Common::FFT>(
+        "Common FFT Functions",
         Global::settings(),
         *target
     );
