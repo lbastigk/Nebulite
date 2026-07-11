@@ -20,9 +20,9 @@ namespace Nebulite::Math {
 
 namespace {
 
-std::size_t reverseBits(std::size_t input, std::size_t const N) {
+std::size_t reverseBits(std::size_t input, std::size_t const bitCount) {
     std::size_t result = 0;
-    for (std::size_t i = 0; i < N; ++i) {
+    for (std::size_t i = 0; i < bitCount; ++i) {
         result <<= 1;
         result |= input & 1;
         input >>= 1;
@@ -53,7 +53,8 @@ void applyStage(auto& a, std::complex<double> const stageTwiddle, std::size_t co
 std::vector<std::complex<double>> FFT::fft(std::vector<double> const& data) {
     std::size_t const n = data.size();
     if (n == 0) return {};
-    std::size_t const N = std::bit_ceil(n); // next power of two
+    auto const N = std::bit_ceil(n); // next power of two
+    auto const bitCount = static_cast<std::size_t>(std::bit_width(N - 1));
 
     // Initialize the complex array with zero-padding
     std::vector<std::complex<double>> a(N); // Initialized to 0.0
@@ -61,7 +62,7 @@ std::vector<std::complex<double>> FFT::fft(std::vector<double> const& data) {
 
     // bit-reversal permutation for proper ordering of input data (required for cooley-turkey)
     for (auto const i : Utility::Ranges::indices(N)) {
-        if (auto const b = reverseBits(i, N); i < b) {
+        if (auto const b = reverseBits(i, bitCount); i < b) {
             std::swap(a[i], a[b]);
         }
     }
@@ -77,14 +78,16 @@ std::vector<std::complex<double>> FFT::fft(std::vector<double> const& data) {
 }
 
 std::vector<std::complex<double>> FFT::fftInverse(std::vector<std::complex<double>> const& X) {
-    std::size_t const N = X.size();
+    auto const N = std::bit_ceil(X.size()); // next power of two
+    auto const bitCount = static_cast<std::size_t>(std::bit_width(N - 1));
     if (N == 0) return {};
 
     std::vector<std::complex<double>> a = X;
+    a.resize(N);
 
     // bit-reversal permutation for proper ordering of input data (required for cooley-turkey)
     for (auto const i : Utility::Ranges::indices(N)) {
-        if (auto const b = reverseBits(i, N); i < b) {
+        if (auto const b = reverseBits(i, bitCount); i < b) {
             std::swap(a[i], a[b]);
         }
     }
