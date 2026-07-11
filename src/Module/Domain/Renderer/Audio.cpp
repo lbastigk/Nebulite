@@ -3,8 +3,8 @@
 
 // Standard Library
 #include <array>
-#include <cmath>
 #include <cstddef>
+#include <numbers>
 #include <ranges>
 #include <span>
 #include <string>
@@ -90,8 +90,8 @@ Constants::Event Audio::playSound(std::span<std::string_view const> const& args)
     SDL_ClearAudioStream(stream);
     SDL_PutAudioStreamData(
         stream,
-        sound.value()->second.audioData.data(),
-        static_cast<int>(sound.value()->second.audioData.size() * sizeof(Settings::SampleType))
+        sound.value()->audioData.data(),
+        static_cast<int>(sound.value()->audioData.size() * sizeof(Settings::SampleType))
     );
 
     return Constants::Event::Success;
@@ -118,7 +118,6 @@ Constants::Event Audio::playSoundWithFilter(std::span<std::string_view const> co
                     })
                     | std::ranges::to<std::vector<double>>();
             };
-
             return { parse(args[2]), parse(args[3]) };
         }
         catch (std::exception const& e) {
@@ -131,21 +130,20 @@ Constants::Event Audio::playSoundWithFilter(std::span<std::string_view const> co
         return Constants::Event::Warning;
     }
 
-    auto const data = Math::FFT::applyTransferFunction(
-        sound.value()->second.audioData | std::views::transform([](Settings::SampleType const& sample) {
+    auto const rawData = sound.value()->audioData
+        | std::views::transform([](Settings::SampleType const& sample) {
             return static_cast<double>(sample);
-        }) | std::ranges::to<std::vector>(),
-        num,
-        den
-    ) | std::views::transform([](double const& sample) {
-        return static_cast<float>(sample);
-    }) | std::ranges::to<std::vector>();
+        })
+        | std::ranges::to<std::vector>();
 
-    SDL_PutAudioStreamData(
-        stream,
-        data.data(),
-        static_cast<int>(data.size() * sizeof(Settings::SampleType))
-    );
+    auto const data = Math::FFT::applyTransferFunction(rawData, num, den)
+        | std::views::transform([](double const& sample) {
+            return static_cast<float>(sample);
+        })
+        | std::ranges::to<std::vector>();
+
+    auto const byteCount = static_cast<int>(data.size() * sizeof(Settings::SampleType));
+    SDL_PutAudioStreamData(stream, data.data(), byteCount);
 
     return Constants::Event::Success;
 }
@@ -218,21 +216,21 @@ void Audio::initWaveforms() {
     };
 
     basicAudioWaveforms.sineBuffer = Utility::Generate::array<SampleType, SampleCount>([&time](std::size_t const i) {
-        return static_cast<Settings::SampleType>(amplitudeScale * sin(2.0 * M_PI * frequency * time(i)));
+        return static_cast<Settings::SampleType>(amplitudeScale * sin(2.0 * std::numbers::pi * frequency * time(i)));
     });
     basicAudioWaveforms.triangleBuffer = Utility::Generate::array<SampleType, SampleCount>([&time](std::size_t const i) {
         double const value = 2.0 * (time(i) * frequency - floor(time(i) * frequency + 0.5));
         return static_cast<Settings::SampleType>(amplitudeScale * value);
     });
     basicAudioWaveforms.squareBuffer = Utility::Generate::array<SampleType, SampleCount>([&time](std::size_t const i) {
-        double const value = sin(2.0 * M_PI * frequency * time(i)) >= 0.0 ? 1.0 : -1.0;
+        double const value = sin(2.0 * std::numbers::pi * frequency * time(i)) >= 0.0 ? 1.0 : -1.0;
         return static_cast<Settings::SampleType>(amplitudeScale * value);
     });
 }
 
-auto Audio::loadSound(std::string const& path) -> std::optional<decltype(soundCache.find(""))> { // NOLINT
+std::optional<std::shared_ptr<Audio::Sound>> Audio::loadSound(std::string const& path){
     if (auto const it = soundCache.find(path); it != soundCache.end()) {
-        return it;
+        return it->second;
     }
 
     Uint8* data = nullptr;
@@ -301,14 +299,15 @@ auto Audio::loadSound(std::string const& path) -> std::optional<decltype(soundCa
         sound.audioData.push_back(convertFunc(data + i * lengthPerSample));
     }
 
-    soundCache.emplace(path, sound);
+    auto const soundPtr = std::make_shared<Sound>(sound);
+    soundCache.emplace(path, soundPtr);
     SDL_free(data);
     auto const it = soundCache.find(path);
     if (it == soundCache.end()) {
         domain.capture.error.println("Failed to cache sound after loading: ", path);
         return std::nullopt;
     }
-    return it;
+    return it->second;
 }
 
 std::string Audio::sdlAudioFormatToString(SDL_AudioFormat const format) {

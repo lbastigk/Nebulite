@@ -8,6 +8,7 @@
 #include <array>
 #include <cstddef>
 #include <limits>
+#include <memory>
 #include <optional>
 #include <span>
 #include <string>
@@ -127,9 +128,9 @@ private:
         std::vector<Settings::SampleType> audioData;
     };
 
-    absl::flat_hash_map<std::string, Sound> soundCache;
+    absl::flat_hash_map<std::string, std::shared_ptr<Sound>> soundCache;
 
-    auto loadSound(std::string const& path) -> std::optional<decltype(soundCache.find(""))>; // NOLINT
+    std::optional<std::shared_ptr<Sound>> loadSound(std::string const& path); // NOLINT
 
     /**
      * @brief Initializes basic audio waveforms.
