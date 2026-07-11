@@ -5,7 +5,9 @@ import psutil
 import subprocess
 import sys
 
-ROOT = pathlib.Path(__file__).resolve().parent.parent
+ROOT_RESOLVED = pathlib.Path(__file__).resolve().parent.parent
+ROOT = pathlib.Path(__file__).parent.parent
+
 CONTAINER_DIR = ROOT / "Container"
 PRESETS = ROOT / "CMakePresets.json"
 
@@ -160,22 +162,29 @@ def run_container(container, preset, rebuild=False, test=False):
     else:
         process_count = determine_process_count()
         print(f"Running build with {process_count} processes")
-        run(
-            [
-                "podman",
-                "run",
-                "--rm",
-                "-it",
+        cmd = [
+            "podman",
+            "run",
+            "--rm",
+            "-it",
+            "-v",
+            f"{ROOT}:{ROOT}:Z",
+        ]
+        # If ROOT is a symlink, also mount the resolved path.
+        if ROOT != ROOT_RESOLVED:
+            cmd.extend([
                 "-v",
-                f"{ROOT}:{ROOT}:Z",
-                "-w",
-                f"{ROOT}",
-                image,
-                "bash",
-                "-c",
-                f"cmake --preset {preset} && cmake --build --preset {preset} -j{process_count}",
-            ]
-        )
+                f"{ROOT_RESOLVED}:{ROOT_RESOLVED}:Z",
+            ])
+        cmd.extend([
+            "-w",
+            f"{ROOT}",
+            image,
+            "bash",
+            "-c",
+            f"cmake --preset {preset} && cmake --build --preset {preset} -j{process_count}"
+        ])
+        run(cmd)
 
 def main():
     test = False
@@ -201,4 +210,5 @@ def main():
     run_container(container, get_container_preset_name(preset_name), rebuild=rebuild, test=test)
 
 if __name__ == "__main__":
+    print(f"Root is {ROOT}")
     main()
