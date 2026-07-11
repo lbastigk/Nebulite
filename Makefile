@@ -9,29 +9,33 @@
 
 linux-release:
 	@echo "Building preset: $@"
-	@python ./Container/build.py $@
+	@cmake --preset $@
+	@cmake --build --preset $@ -j$(nproc)
 
 linux-debug:
 	@echo "Building preset: $@"
-	@python ./Container/build.py $@
+	@cmake --preset $@
+	@cmake --build --preset $@ -j$(nproc)
 
 linux-coverage:
 	@echo "Building preset: $@"
-	@python ./Container/build.py $@
+	@cmake --preset $@
+	@cmake --build --preset $@ -j$(nproc)
 
 linux-profiling:
 	@echo "Building preset: $@"
-	@python ./Container/build.py $@
+	@cmake --preset $@
+	@cmake --build --preset $@ -j$(nproc)
 
 windows-release:
 	@echo "Building preset: $@"
-	@python ./Container/build.py $@
+	@cmake --preset $@
+	@cmake --build --preset $@ -j$(nproc)
 
 windows-debug:
 	@echo "Building preset: $@"
-	@python ./Container/build.py $@
-
-# TODO: build containers for macOS presets, or use native build on macOS
+	@cmake --preset $@
+	@cmake --build --preset $@ -j$(nproc)
 
 macos-release:
 	@echo "Building preset: $@"

@@ -103,16 +103,6 @@ The installation process, especially for package managers other than dnf, is not
 
 3. Build binaries
 
-Nebulite uses a containerized build system using podman.
-One container for each compiler is provided (gcc, clang, mingw).
-If you launch the build process via IDEs such as CLion, ensure that the build process 
-is configured to use the containerized build system.
-
-Windows and MacOs support is currently in early stages.
-We're actively looking for contributors to help with testing
-and improving the build process on these platforms.
-Any help is appreciated!
-
 ```bash
   # Linux
   make linux-debug linux-release linux-coverage
@@ -129,6 +119,14 @@ Or simply:
 ```bash
   make all
 ```
+Nebulite also offers a containerized build system using podman.
+One container for each compiler is provided (gcc, clang, mingw).
+
+Windows and MacOs support is currently in early stages.
+We're actively looking for contributors to help with testing
+and improving the build process on these platforms.
+Any help is appreciated!
+
 4. Download and generate Resources
 ```bash
   make resources
