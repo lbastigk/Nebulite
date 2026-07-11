@@ -9,6 +9,7 @@
 #include "Nebulite/Constants/Event.hpp"
 #include "Nebulite/Core/GlobalSpace.hpp"
 #include "Nebulite/Module/Domain/GlobalSpace/Floating/RNG.hpp"
+#include "Nebulite/Utility/RNG.hpp"
 
 //------------------------------------------
 namespace Nebulite::Module::Domain::GlobalSpace {
@@ -23,30 +24,25 @@ Constants::Event RNG::updateHook() {
     return Constants::Event::Success;
 }
 
+void RNG::initRNGs(){
+    rngMap.emplace("A", Utility::RNG<rngSize_t>());
+    rngMap.emplace("B", Utility::RNG<rngSize_t>());
+    rngMap.emplace("C", Utility::RNG<rngSize_t>());
+    rngMap.emplace("D", Utility::RNG<rngSize_t>());
+}
+
 void RNG::updateRNGs() {
     // Set Min and Max values for RNGs in document
     // Always set, so overwrites don't stick around
-    moduleScope.set<RngVars::rngSize_t>(Key::min, std::numeric_limits<RngVars::rngSize_t>::min());
-    moduleScope.set<RngVars::rngSize_t>(Key::max, std::numeric_limits<RngVars::rngSize_t>::max());
+    moduleScope.set<rngSize_t>(Key::min, std::numeric_limits<rngSize_t>::min());
+    moduleScope.set<rngSize_t>(Key::max, std::numeric_limits<rngSize_t>::max());
 
-    // Generate seeds in a predictable manner
-    // Since updateRNG is called at specific times only, we can simply increment RNG with a new seed
-    std::string const seedA = "A" + std::to_string(rng.A.get());
-    std::string const seedB = "B" + std::to_string(rng.B.get());
-    std::string const seedC = "C" + std::to_string(rng.C.get());
-    std::string const seedD = "D" + std::to_string(rng.D.get());
-
-    // Hash seeds
-    rng.A.update(seedA);
-    rng.B.update(seedB);
-    rng.C.update(seedC);
-    rng.D.update(seedD);
-
-    // Set RNG values in global document
-    moduleScope.set<RngVars::rngSize_t>(Key::A, rng.A.get());
-    moduleScope.set<RngVars::rngSize_t>(Key::B, rng.B.get());
-    moduleScope.set<RngVars::rngSize_t>(Key::C, rng.C.get());
-    moduleScope.set<RngVars::rngSize_t>(Key::D, rng.D.get());
+    for (auto& [key, rng] : rngMap) {
+        auto const seed = key + std::to_string(rng.get());
+        rng.update(seed);
+        auto scopedKey = Key::root().addMember(key);
+        moduleScope.set<rngSize_t>(scopedKey, rng.get());
+    }
 }
 
 } // namespace Nebulite::Module::Domain::GlobalSpace
