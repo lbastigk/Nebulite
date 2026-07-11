@@ -76,6 +76,15 @@ public:
         "If the stored value is not a simple value, the transformation fails.\n"
         "Example formatters: 04.2f, 5i, 06i\n";
 
+    static bool formatComplexNumber(std::span<std::string_view const> const& args, Data::JsonScope& jsonDoc);
+    static auto constexpr formatComplexNumberName = "formatComplexNumber";
+    static auto constexpr formatComplexNumberDesc = "If the stored value is a complex number, it is formatted with a given format specifier\n"
+        "Usage: |formatComplexNumber <format> -> {string}"
+        "If the stored value is a non-numeric string, the value is not modified.\n"
+        "Valid numbers: 1+1i, 1e-20-500i, etc.\n"
+        "If the stored value is not a simple value, the transformation fails.\n"
+        "Example formatters: 04.2f, 5i, 06i\n";
+
     static bool roundUp(Data::JsonScope& jsonDoc);
     static auto constexpr roundUpName = "roundUp";
     static auto constexpr roundUpName2 = "ceiling";
