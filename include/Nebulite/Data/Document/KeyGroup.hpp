@@ -38,6 +38,10 @@ public:
         return ScopedKeyView::createFromOptionalFixedString<Prefix>(keyStr);
     }
 
+    static constexpr auto root() requires (!Prefix.hasOutsideDefinition()) {
+        return ScopedKeyView::createFromOptionalFixedString<Prefix>("");
+    }
+
     static constexpr auto getPrefix() {
         return prefix;
     }
