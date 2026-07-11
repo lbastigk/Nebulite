@@ -1,0 +1,6 @@
+[
+    {
+        "command": "task TaskFiles/Tests/Math/fft.nebs",
+        "expected": { "cout": [], "cerr": [] }
+    }
+]

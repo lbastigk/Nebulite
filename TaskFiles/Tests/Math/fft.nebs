@@ -1,0 +1,61 @@
+######################################################
+# Set expected results, determined via https://scistatcalc.blogspot.com/2013/12/fft-calculator.html
+# Test series (real part only): 1 0 2 2 0 -1 0 0 -1 0 2 2 0 1
+
+# fft
+set settings.series.fft 1 0 2 2 0 -1 0 0 -1 0 2 2 0 1
+set compare.fft[00] 8.000000+0.000000i
+set compare.fft[01] 2.765367+1.847759i
+set compare.fft[02] -2.828427-6.828427i
+set compare.fft[03] 0.152241-0.765367i
+set compare.fft[04] -4.000000+4.000000i
+set compare.fft[05] 3.847759-0.765367i
+set compare.fft[06] 2.828427+1.171573i
+set compare.fft[07] 1.234633+1.847759i
+set compare.fft[08] 0.000000+0.000000i
+set compare.fft[09] 1.234633-1.847759i
+set compare.fft[10] 2.828427-1.171573i
+set compare.fft[11] 3.847759+0.765367i
+set compare.fft[12] -4.000000-4.000000i
+set compare.fft[13] 0.152241+0.765367i
+set compare.fft[14] -2.828427+6.828427i
+set compare.fft[15] 2.765367-1.847759i
+
+# ifft
+set settings.series.ifft 1 0 0 0 2 0 2 0 0 0 -1 0 0 0 0 0 -1 0 0 0 2 0 2 0 0 0 1 0 # the ifft expects real-imag pairs
+set compare.ifft[00] 0.500000+0.000000i
+set compare.ifft[01] 0.172835-0.115485i
+set compare.ifft[02] -0.176777+0.426777i
+set compare.ifft[03] 0.009515+0.047835i
+set compare.ifft[04] -0.250000-0.250000i
+set compare.ifft[05] 0.240485+0.047835i
+set compare.ifft[06] 0.176777-0.073223i
+set compare.ifft[07] 0.077165-0.115485i
+set compare.ifft[08] 0.000000+0.000000i
+set compare.ifft[09] 0.077165+0.115485i
+set compare.ifft[10] 0.176777+0.073223i
+set compare.ifft[11] 0.240485-0.047835i
+set compare.ifft[12] -0.250000+0.250000i
+set compare.ifft[13] 0.009515-0.047835i
+set compare.ifft[14] -0.176777-0.426777i
+set compare.ifft[15] 0.172835+0.115485i
+
+# Capture results from fft and ifft
+eval capture result.fft fft {global:settings.series.fft}
+eval capture result.ifft ifft {global:settings.series.ifft}
+
+# Ensure its an array of size 1
+eval nop {global:result.fft|length|assert equals int 1}
+eval nop {global:result.ifft|length|assert equals int 1}
+
+# Refine results
+assign global:result.refined.fft = {global:result.fft|at 0|split|map formatComplexNumber .6f}
+assign global:result.refined.ifft = {global:result.ifft|at 0|split|map formatComplexNumber .6f}
+
+# Check results
+eval nop {global:result.refined.fft|length|assert equals int 16}
+eval nop {global:result.refined.ifft|length|assert equals int 16}
+for i 0 15 if $(not({global:|strCompare members compare.fft[{i}] result.refined.fft[{i}]})) then throw "FFT mismatch at index {i}"
+for i 0 15 if $(not({global:|strCompare members compare.ifft[{i}] result.refined.ifft[{i}]})) then throw "IFFT mismatch at index {i}"
+
+exit

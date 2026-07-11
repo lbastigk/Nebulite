@@ -28,6 +28,9 @@
         "Tools/Tests/Integrated/findParentKey.json",    // Finding the parent of a given key is important for cache invalidation
         "Tools/Tests/Integrated/context.json",          // Tests access to self/other/global context-model
         //---------------------------------------
+        // Math tests (exposed through Common DomainModules, etc.)
+        "Tools/Tests/Math/FFT.json",
+        //---------------------------------------
         // Expression tests
         "Tools/Tests/Expression/basics.json",
         "Tools/Tests/Expression/math.json",
