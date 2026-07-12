@@ -31,6 +31,15 @@ public:
     //------------------------------------------
     // Available Functions
 
+    // TODO: Should be a transformation instead of a domainmodule
+
+    // Ideas:
+    // array<number>|fft -> array<object:{real: number, imag: number}> (also allow for complex input)
+    // array<object:{real: number, imag: number}>|ifft -> array<object:{real: number, imag: number}>
+
+    // Also add transformation module for complex numbers
+    // Maybe a helper class to represent a jsonscope/key as complex number is helpful
+
     [[nodiscard]] Constants::Event fft(std::span<std::string_view const> const& args) const ;
     static auto constexpr fft_name = "fft";
     static auto constexpr fft_desc = "Print the fft of a given real-number series\n"
