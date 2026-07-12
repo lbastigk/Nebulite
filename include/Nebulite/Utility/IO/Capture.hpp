@@ -9,14 +9,19 @@
 //------------------------------------------
 // Includes
 
+// External
+#include "absl/container/flat_hash_map.h"
+
 // Standard library
-#include <cstdint>
+#include <cstdint> // NOLINT
 #include <deque>
 #include <iostream>
 #include <mutex>
 #include <string>
 #include <string_view>
+#include <thread>
 #include <type_traits>
+#include <vector>
 
 //------------------------------------------
 // Forward declarations
@@ -162,6 +167,18 @@ public:
     // map[threadid]->vector<redirects>
     // Could get complicated ...
 
+    template<typename F>
+    std::string redirect(F f) {
+        // TODO: implement redirection through map
+        std::invoke(f);
+    }
+
+    template<typename F>
+    std::vector<HistoryLine> redirectHistory(F f) {
+        // TODO: implement redirection through map
+        std::invoke(f);
+    }
+
     /**
      * @brief Disables the output temporarily, preventing any further output from being printed to the console.
      * @details Output is still captured by the log!
@@ -196,6 +213,21 @@ private:
     std::deque<HistoryLine> history; // List of captured output lines
     std::mutex historyMutex;  // Mutex for thread-safe access to outputList
     bool outputEnabled = true;
+
+    class Redirector {
+    public:
+        explicit Redirector() = default;
+        virtual ~Redirector() = default;
+
+        Redirector(Redirector const&) = default;
+        Redirector& operator=(Redirector const&) = default;
+        Redirector(Redirector&&) = default;
+        Redirector& operator=(Redirector&&) = default;
+
+        virtual void addHistoryLine(std::string const& str, HistoryLine::Type lineType);
+    };
+
+    absl::flat_hash_map<std::thread::id, Redirector> redirectors;
 };
 
 } // namespace Nebulite::Utility::IO
