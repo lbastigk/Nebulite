@@ -4,7 +4,7 @@
 // Standard library
 #include <algorithm>
 #include <array>
-#include <cctype>
+#include <charconv>
 #include <cstddef>
 #include <cstdint> // NOLINT
 #include <numeric>
@@ -12,6 +12,7 @@
 #include <span>
 #include <string>
 #include <string_view>
+#include <system_error>
 #include <utility>
 #include <vector>
 
@@ -58,19 +59,18 @@ bool StringHandler::containsAnyOf(std::string_view const str, std::string_view c
     });
 }
 
-bool StringHandler::isNumber(std::string_view const str) {
-    // Check if all characters are digits, +, -, or .
-    // Then check if count of . is at most 1
-    // Then check if + or - is only at the start
-    return !str.empty()
-        && std::ranges::all_of(str | std::views::enumerate, [](auto const& indexedChar) {
-            auto const& [index, c] = indexedChar;
-            if (index == 0 && (c == '+' || c == '-')){
-                return true; // Allow + or - at the start))
-            }
-            return std::isdigit(c) || c == '.';
-        })
-        && std::ranges::count(str, '.') <= 1;
+bool StringHandler::isNumber(std::string_view str) {
+    if (str.empty())
+        return false;
+
+    double value{};
+    auto [ptr, ec] = std::from_chars(
+        str.data(),
+        str.data() + str.size(),
+        value
+    );
+
+    return ec == std::errc() && ptr == str.data() + str.size();
 }
 
 // [STRIP]
