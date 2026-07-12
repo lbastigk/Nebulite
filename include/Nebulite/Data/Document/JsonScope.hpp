@@ -166,8 +166,9 @@ public:
     [[nodiscard]] double* getStableDoublePointer(ScopedKeyView const& key) const ;
     [[nodiscard]] double* getStableDoublePointer(ScopedKey const& key) const {return getStableDoublePointer(key.view());}
 
-    [[nodiscard]] std::complex<double> getComplex(ScopedKeyView const& key) const ;
-    [[nodiscard]] std::complex<double> getComplex(ScopedKey const& key) const {return getComplex(key.view());}
+    // Requires both real and imaginary parts to be present, otherwise returns nullopt
+    [[nodiscard]] std::optional<std::complex<double>> getComplex(ScopedKeyView const& key) const ;
+    [[nodiscard]] std::optional<std::complex<double>> getComplex(ScopedKey const& key) const {return getComplex(key.view());}
 
     //------------------------------------------
     // Setter

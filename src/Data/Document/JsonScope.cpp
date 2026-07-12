@@ -96,11 +96,15 @@ double* JsonScope::getStableDoublePointer(ScopedKeyView const& key) const {
     return baseDocument->getStableDoublePointer(key.full(*this));
 }
 
-std::complex<double> JsonScope::getComplex(ScopedKeyView const& key) const {
-    return {
-        baseDocument->get<double>(key.addMember(complexRe).view().full(*this)).value_or(0.0),
-        baseDocument->get<double>(key.addMember(complexIm).view().full(*this)).value_or(0.0)
-    };
+std::optional<std::complex<double>> JsonScope::getComplex(ScopedKeyView const& key) const {
+    auto realPart = baseDocument->get<double>(key.addMember(complexRe).view().full(*this));
+    auto imagPart = baseDocument->get<double>(key.addMember(complexIm).view().full(*this));
+
+    if (realPart.has_value() && imagPart.has_value()) {
+        return {std::complex(realPart.value(), imagPart.value())};
+    }
+
+    return std::nullopt;
 }
 
 //------------------------------------------
