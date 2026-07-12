@@ -108,10 +108,10 @@ std::vector<std::complex<double>> FFT::fftInverse(std::vector<std::complex<doubl
 }
 
 namespace {
-std::complex<double> evaluatePolynomial(const std::vector<double>& coefficients, std::complex<double> const z) {
+std::complex<double> evaluatePolynomial(std::vector<double> const& coefficients, std::complex<double> const z) {
     std::complex zPow(1.0);
     std::complex result(0.0);
-    for (double const c : coefficients) {
+    for (double const c : coefficients | std::views::reverse) { // coefficients hold highest order first
         result += c * zPow;
         zPow *= z;
     }
