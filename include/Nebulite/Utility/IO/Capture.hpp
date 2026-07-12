@@ -153,6 +153,15 @@ public:
      */
     void appendToHistory(std::string const& str, HistoryLine::Type lineType);
 
+    // TODO: instead of enable/disable output, we should redirect:
+    // auto str = capture.redirect(lambda) // string
+    // auto history = capture.redirectHistory(lambda) // Vector of historylines
+    // This would automatically enable/disable output, and send to the proper stream
+    // We can add a vector of redirectors, and push/pop new redirectors
+    // + threadsafety by only adding if thread matches?
+    // map[threadid]->vector<redirects>
+    // Could get complicated ...
+
     /**
      * @brief Disables the output temporarily, preventing any further output from being printed to the console.
      * @details Output is still captured by the log!
