@@ -31,6 +31,17 @@ public:
     static std::vector<std::complex<double>> fftInverse(std::vector<std::complex<double>> const& X);
 
     /**
+     * @brief Applies a transfer function defined by the given numerator and denominator coefficients to the input sound data in the frequency domain.
+     * @param data The input sound data to which the transfer function will be applied.
+     * @param num The coefficients of the numerator of the transfer function, starting with the highest order.
+     * @param den The coefficients of the denominator of the transfer function, starting with the highest order.
+     * @return A vector of doubles representing the sound data after applying the transfer function in the frequency domain.
+     * @throws std::domain_error if the leading coefficient of the denominator is zero, which is not supported.
+     */
+    static std::vector<double> applyTransferFunctionFrequencyDomain(std::vector<double> const& data, std::vector<double> const& num, std::vector<double> const& den);
+
+private:
+    /**
      * @brief Evaluates the transfer function defined by the given numerator and denominator coefficients at a specific angular frequency omega.
      * @param omega The angular frequency (in radians per second) at which to evaluate the transfer function.
      * @param num The coefficients of the numerator of the transfer function, starting with the highest order.
@@ -38,15 +49,6 @@ public:
      * @return A complex number representing the value of the transfer function at the specified frequency.
      */
     static std::complex<double> evalTransfer(double omega,std::vector<double> const& num,std::vector<double> const& den);
-
-    /**
-     * @brief Applies a transfer function defined by the given numerator and denominator coefficients to the input sound data.
-     * @param data The input sound data to which the transfer function will be applied.
-     * @param num The coefficients of the numerator of the transfer function, starting with the highest order.
-     * @param den The coefficients of the denominator of the transfer function, starting with the highest order.
-     * @return A new Sound object containing the audio data after applying the transfer function.
-     */
-    static std::vector<double> applyTransferFunction(std::vector<double> const& data, std::vector<double> const& num, std::vector<double> const& den);
 };
 } // namespace Nebulite::Math
 #endif // NEBULITE_MATH_FFT_HPP

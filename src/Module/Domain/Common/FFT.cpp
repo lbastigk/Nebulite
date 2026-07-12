@@ -114,16 +114,16 @@ Constants::Event FFT::ifft(std::span<std::string_view const> const& args) const 
     return Constants::Event::Success;
 }
 
-Constants::Event FFT::applyTransferFunction(std::span<std::string_view const> const& args) const {
+Constants::Event FFT::applyTransferFunctionFrequencyDomain(std::span<std::string_view const> const& args) const {
     auto const numPos = std::ranges::find(args, std::string_view{"--num"});
     auto const denPos = std::ranges::find(args, std::string_view{"--den"});
 
     if (numPos == args.end() || denPos == args.end()) {
-        domain.capture.log.println("Invalid argument format for apply-transfer-function.");
+        domain.capture.log.println("Invalid argument format for apply-transfer-function-frequency-domain.");
         return Constants::Event::Error;
     }
     if (numPos > denPos) {
-        domain.capture.log.println("Invalid argument order for apply-transfer-function. '--num' should come before '--den'.");
+        domain.capture.log.println("Invalid argument order for apply-transfer-function-frequency-domain. '--num' should come before '--den'.");
         return Constants::Event::Error;
     }
 
@@ -142,11 +142,11 @@ Constants::Event FFT::applyTransferFunction(std::span<std::string_view const> co
         | Utility::Ranges::tryTransform(tryDoubleConvert);
 
     if (!sampleArgs || !numArgs || !denArgs) {
-        domain.capture.log.println("Invalid argument format for apply-transfer-function. All arguments must be valid numbers.");
+        domain.capture.log.println("Invalid argument format for apply-transfer-function-frequency-domain. All arguments must be valid numbers.");
         return Constants::Event::Error;
     }
 
-    auto const result = Math::FFT::applyTransferFunction(sampleArgs.value(), numArgs.value(), denArgs.value());
+    auto const result = Math::FFT::applyTransferFunctionFrequencyDomain(sampleArgs.value(), numArgs.value(), denArgs.value());
     printResult(result, domain.capture);
     return Constants::Event::Success;
 }

@@ -128,7 +128,7 @@ std::complex<double> FFT::evalTransfer(double const omega, std::vector<double> c
     return numSum / denSum;
 }
 
-std::vector<double> FFT::applyTransferFunction(std::vector<double> const& data, std::vector<double> const& num, std::vector<double> const& den) {
+std::vector<double> FFT::applyTransferFunctionFrequencyDomain(std::vector<double> const& data, std::vector<double> const& num, std::vector<double> const& den) {
     if (isZero(den.back())) {
         throw std::domain_error("Denominator has a zero leading coefficient, which is not yet supported.");
     }
