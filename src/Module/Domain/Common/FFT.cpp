@@ -130,15 +130,16 @@ Constants::Event FFT::applyTransferFunction(std::span<std::string_view const> co
     auto const numIndex = static_cast<std::size_t>(std::distance(args.begin(), numPos));
     auto const denIndex = static_cast<std::size_t>(std::distance(args.begin(), denPos));
 
+    auto tryDoubleConvert = [](std::string_view const arg) -> std::optional<double> {
+        return Utility::TypeConversion::String::to<double>(arg);
+    };
+
     auto const sampleArgs = args.subspan(1, numIndex-1)
-        | std::views::transform([](std::string_view const arg) {return Utility::TypeConversion::String::to<double>(arg);})
-        | Utility::Ranges::collectOptional;
+        | Utility::Ranges::tryTransform(tryDoubleConvert);
     auto const numArgs = args.subspan(numIndex + 1, denIndex - numIndex - 1)
-        | std::views::transform([](std::string_view const arg) {return Utility::TypeConversion::String::to<double>(arg);})
-        | Utility::Ranges::collectOptional;
+        | Utility::Ranges::tryTransform(tryDoubleConvert);
     auto const denArgs = args.subspan(denIndex + 1)
-        | std::views::transform([](std::string_view const arg) {return Utility::TypeConversion::String::to<double>(arg);})
-        | Utility::Ranges::collectOptional;
+        | Utility::Ranges::tryTransform(tryDoubleConvert);
 
     if (!sampleArgs || !numArgs || !denArgs) {
         domain.capture.log.println("Invalid argument format for apply-transfer-function. All arguments must be valid numbers.");
