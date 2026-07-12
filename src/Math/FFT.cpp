@@ -9,9 +9,11 @@
 #include <cstddef>
 #include <numbers>
 #include <ranges>
+#include <stdexcept>
 #include <vector>
 
 // Nebulite
+#include "Nebulite/Math/Equality.hpp"
 #include "Nebulite/Math/FFT.hpp"
 #include "Nebulite/Utility/Ranges.hpp"
 
@@ -127,6 +129,9 @@ std::complex<double> FFT::evalTransfer(double const omega, std::vector<double> c
 }
 
 std::vector<double> FFT::applyTransferFunction(std::vector<double> const& data, std::vector<double> const& num, std::vector<double> const& den) {
+    if (isZero(den.back())) {
+        throw std::domain_error("Denominator has a zero leading coefficient, which is not yet supported.");
+    }
     auto X = fft(data);
     auto const xSize = static_cast<double>(X.size());
     for (auto [k, x] : std::views::enumerate(X)) {
