@@ -22,8 +22,6 @@
 echo "Starting debug.nebs"
 # -----------------------------------------------------------------------------
 
-task TaskFiles/Tests/Math/fftTransferFunction.nebs
-
 task TaskFiles/VerticalSlice/levelDescription.nebs
 
 #grid on

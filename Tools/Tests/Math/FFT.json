@@ -2,5 +2,9 @@
     {
         "command": "task TaskFiles/Tests/Math/fft.nebs",
         "expected": { "cout": [], "cerr": [] }
+    },
+    {
+        "command": "task TaskFiles/Tests/Math/fftTransferFunction.nebs",
+        "expected": { "cout": [], "cerr": [] }
     }
 ]
