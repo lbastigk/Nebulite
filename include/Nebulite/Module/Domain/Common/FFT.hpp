@@ -44,7 +44,9 @@ public:
     [[nodiscard]] Constants::Event applyTransferFunction(std::span<std::string_view const> const& args) const ;
     static auto constexpr applyTransferFunction_name = "apply-transfer-function";
     static auto constexpr applyTransferFunction_desc = "Print the result of applying a transfer function to a given real-number series\n"
-        "Usage: apply-transfer-function <sample1> <sample2> ... <sampleN> --num <num1> <num2> ... <numN> --den <den1> <den2> ... <denM>\n";
+        "Usage: apply-transfer-function <sample1> <sample2> ... <sampleN> --num <num-series> --den <den-series>\n"
+        "Where the num-series and den-series start withe the highest order coefficient and end with the lowest order coefficient.\n"
+        "Example: 4 -1 0 1 -> 4z^-3 - z^-2 + 1\n";
 
     //------------------------------------------
     // Setup

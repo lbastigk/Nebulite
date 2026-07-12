@@ -12,6 +12,8 @@
 #include <span>
 #include <string>
 #include <string_view>
+#include <type_traits>
+#include <utility>
 
 // Nebulite
 #include "Nebulite/Constants/Event.hpp"
@@ -50,7 +52,14 @@ template <typename ResultRange>
 void printResult(ResultRange const& result, Utility::IO::Capture& capture) {
     std::string str{};
     for (auto& c : result) {
-        str += formatComplex(c);
+        if constexpr(std::is_same_v<std::decay_t<decltype(c)>, double>) {
+            str += std::to_string(c);
+        } else if (std::is_same_v<std::decay_t<decltype(c)>, std::complex<double>>) {
+            str += formatComplex(c);
+        }
+        else {
+            std::unreachable();
+        }
         str += " ";
     }
     if (!str.empty()) {
@@ -121,10 +130,10 @@ Constants::Event FFT::applyTransferFunction(std::span<std::string_view const> co
     auto const numIndex = static_cast<std::size_t>(std::distance(args.begin(), numPos));
     auto const denIndex = static_cast<std::size_t>(std::distance(args.begin(), denPos));
 
-    auto const sampleArgs = args.subspan(1, numIndex)
+    auto const sampleArgs = args.subspan(1, numIndex-1)
         | std::views::transform([](std::string_view const arg) {return Utility::TypeConversion::String::to<double>(arg);})
         | Utility::Ranges::collectOptional;
-    auto const numArgs = args.subspan(numIndex + 1, denIndex)
+    auto const numArgs = args.subspan(numIndex + 1, denIndex - numIndex - 1)
         | std::views::transform([](std::string_view const arg) {return Utility::TypeConversion::String::to<double>(arg);})
         | Utility::Ranges::collectOptional;
     auto const denArgs = args.subspan(denIndex + 1)
