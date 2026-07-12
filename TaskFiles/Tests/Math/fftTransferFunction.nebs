@@ -1,0 +1,33 @@
+# Set results, calculated with scipy.signal.lfilter
+#import numpy as np
+#from scipy import signal
+#num = [1, 0, 1]
+#den = [1, 0, 0, 1]
+#x = np.zeros(8)
+#x[0] = 1
+#h = signal.lfilter(num[::-1],den[::-1],x)
+#for data in h:
+#    print(f"{data:.2f}")
+
+set compare[0] = 1.00
+set compare[1] = 0.00
+set compare[2] = 1.00
+set compare[3] = -1.00
+set compare[4] = 0.00
+set compare[5] = -1.00
+set compare[6] = 1.00
+set compare[7] = 0.00
+
+# TODO: Does not work ...
+#       Check version with palyndrome num and den first, so we know its not an ordering issue
+#       Then, we check with a non-palindrome num and den
+capture result.raw apply-transfer-function 1 0 0 0 0 0 0 0 --num 1 0 1 --den 1 0 0 1
+
+assign global:result.formatted = {global:result.raw|at 0|split|map formatNumber .2f}
+
+print result.formatted
+
+eval nop {global:result.formatted|length|assert equals int 8}
+for i 0 7 if $(not({global:|strCompare members compare[{i}] result.formatted[{i}]})) then throw "FFT mismatch at index {i}"
+
+exit
