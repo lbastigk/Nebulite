@@ -6,6 +6,7 @@
 
 // Standard library
 #include <array>
+#include <complex>
 #include <cstddef>
 #include <cstdint>
 #include <expected>
@@ -70,6 +71,12 @@ private:
      * @brief Mapped ordered double pointers intended for non-locking access
      */
     alignas(Constants::Alignment::SIMD_ALIGN) std::array<MappedOrderedCacheList, cacheLookupThreadCount> odpCache;
+
+    //------------------------------------------
+    // Complex number prefixes
+
+    static auto constexpr complexRe = "re";
+    static auto constexpr complexIm = "im";
 
     //------------------------------------------
     // Valid prefix check and generation
@@ -159,6 +166,9 @@ public:
     [[nodiscard]] double* getStableDoublePointer(ScopedKeyView const& key) const ;
     [[nodiscard]] double* getStableDoublePointer(ScopedKey const& key) const {return getStableDoublePointer(key.view());}
 
+    [[nodiscard]] std::complex<double> getComplex(ScopedKeyView const& key) const ;
+    [[nodiscard]] std::complex<double> getComplex(ScopedKey const& key) const {return getComplex(key.view());}
+
     //------------------------------------------
     // Setter
 
@@ -176,6 +186,9 @@ public:
 
     void setEmptyArray(ScopedKeyView const& key);
     void setEmptyArray(ScopedKey const& key){setEmptyArray(key.view());}
+
+    void setComplex(ScopedKeyView const& key, std::complex<double> const& value);
+    void setComplex(ScopedKey const& key, std::complex<double> const& value){setComplex(key.view(), value);}
 
     //------------------------------------------
     // Special sets for threadsafe maths operations
