@@ -6,14 +6,15 @@
 
 // Standard library
 #include <charconv>
-#include <cmath>
-#include <limits>
 #include <optional>
 #include <string>
 #include <string_view>
 #include <system_error>
 #include <type_traits>
 #include <utility>
+
+// Nebulite
+#include "Nebulite/Math/Equality.hpp"
 
 //------------------------------------------
 namespace Nebulite::Utility {
@@ -27,9 +28,10 @@ public:
             if constexpr (std::is_same_v<NewType, bool>){
                 if (value == "true") return true;
                 if (value == "false") return false;
-                float result{};
-                if (auto const [ptr, ec] = std::from_chars(value.data(), value.data() + value.size(), result); ec == std::errc{}) {
-                    return std::fabs(result) > std::numeric_limits<float>::epsilon();
+                auto numeric = to<float>(value);
+                if (numeric.has_value()) {
+                    // Any numeric non-zero value is true
+                    return !Math::isZero(numeric.value());
                 }
                 return std::nullopt;
             }
@@ -37,12 +39,22 @@ public:
                 return std::string(value);
             }
             else if constexpr (std::is_arithmetic_v<NewType>) {
+                if (value.empty()) {
+                    return std::nullopt;
+                }
                 if (value == "true") return static_cast<NewType>(1);
                 if (value == "false") return static_cast<NewType>(0);
                 NewType result{};
-                if (auto const [ptr, ec] = std::from_chars(value.data(), value.data() + value.size(), result); ec == std::errc{}) {
+                auto const [ptr, ec] = std::from_chars(
+                    value.data(),
+                    value.data() + value.size(),
+                    result
+                );
+
+                if (ec == std::errc{} && ptr == value.data() + value.size()) {
                     return result;
                 }
+
                 return std::nullopt;
             }
             else {

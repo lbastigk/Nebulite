@@ -4,7 +4,6 @@
 // Standard library
 #include <algorithm>
 #include <array>
-#include <charconv>
 #include <cstddef>
 #include <cstdint> // NOLINT
 #include <numeric>
@@ -12,12 +11,12 @@
 #include <span>
 #include <string>
 #include <string_view>
-#include <system_error>
 #include <utility>
 #include <vector>
 
 // Nebulite
 #include "Nebulite/Utility/StringHandler.hpp"
+#include "Nebulite/Utility/TypeConversion.hpp"
 
 //------------------------------------------
 namespace Nebulite::Utility {
@@ -60,17 +59,7 @@ bool StringHandler::containsAnyOf(std::string_view const str, std::string_view c
 }
 
 bool StringHandler::isNumber(std::string_view str) {
-    if (str.empty())
-        return false;
-
-    double value{};
-    auto [ptr, ec] = std::from_chars(
-        str.data(),
-        str.data() + str.size(),
-        value
-    );
-
-    return ec == std::errc() && ptr == str.data() + str.size();
+    return TypeConversion::String::to<double>(str).has_value();
 }
 
 // [STRIP]
