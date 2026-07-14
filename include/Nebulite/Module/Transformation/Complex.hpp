@@ -76,7 +76,6 @@ public:
         "A formatter must be provided.\n"
         "Example formatters: 04.2f, 5i, 06i\n"
         "Usage: |formatComplexNumberString <formatter> -> {string}";
-
 };
 } // namespace Nebulite::Module::Transformation
 #endif // NEBULITE_MODULE_TRANSFORMATION_COMPLEX_HPP
