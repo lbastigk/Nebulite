@@ -5,7 +5,6 @@
 #include <algorithm>
 #include <cctype>
 #include <cmath>
-#include <cstddef>
 #include <iterator>
 #include <set>
 #include <span>
@@ -30,7 +29,6 @@ void Casting::bindTransformations() {
     bindTransformation(&Casting::toDouble, toDoubleName, toDoubleDesc);
     bindTransformation(&Casting::toBoolString, toBoolStringName, toBoolStringDesc);
     bindTransformation(&Casting::formatNumber, formatNumberName, formatNumberDesc);
-    bindTransformation(&Casting::formatComplexNumber, formatComplexNumberName, formatComplexNumberDesc);
 
     // Two names for roundUp/roundDown
     bindTransformation(&Casting::roundUp, roundUpName, roundUpDesc); // roundUp
@@ -139,42 +137,6 @@ bool Casting::formatNumber(std::span<std::string_view const> const& args, Data::
         auto const fmt = Interaction::Logic::Formatter::readFormatter(args[1]);
         jsonDoc.set(rootKey, fmt.format(std::stod(value.value())));
     }
-    return true;
-}
-
-bool Casting::formatComplexNumber(std::span<std::string_view const> const& args, Data::JsonScope& jsonDoc){
-    if (jsonDoc.memberType(rootKey) != Data::KeyType::value) return false;
-    if (args.size() != 2) return false;
-    auto const value = jsonDoc.get<std::string>(rootKey);
-    if (!value.has_value()) return false;
-
-    if (!value.value().ends_with("i")) return true; // Not a complex number
-
-    // There should be only one + or - in the string not after an 'e'
-    std::string_view s = value.value();
-    s.remove_suffix(1); // remove trailing 'i'
-    std::size_t split = std::string_view::npos;
-    for (std::size_t i = 1; i < s.size(); ++i) {
-        if ((s[i] == '+' || s[i] == '-') && s[i - 1] != 'e' && s[i - 1] != 'E') {
-            if (split != std::string_view::npos) {
-                // More than one top-level +/- separator.
-                return true; // Not a complex number.
-            }
-            split = i;
-        }
-    }
-    std::string_view imag = s;
-    std::string_view real;
-
-    if (split != std::string_view::npos) {
-        real = s.substr(0, split);
-        imag = s.substr(split);
-    }
-
-    auto const fmt = Interaction::Logic::Formatter::readFormatter(args[1]);
-    std::string const fmtReal = fmt.format(std::stod(std::string(real)));
-    std::string const fmtImag = fmt.format(std::stod(std::string(imag)));
-    jsonDoc.set(rootKey, fmtReal + (fmtImag[0] == '-' ? "" : "+") + fmtImag + "i");
     return true;
 }
 
