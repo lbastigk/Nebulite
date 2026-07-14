@@ -5,12 +5,14 @@
 #include <cassert>
 #include <cmath>
 #include <cstddef>
+#include <cstdint>
 #include <optional>
 #include <string>
 #include <string_view>
 
 // Nebulite
 #include "Nebulite/Interaction/Logic/Formatter.hpp"
+#include "Nebulite/Utility/TypeConversion.hpp"
 
 //------------------------------------------
 namespace Nebulite::Interaction::Logic {
@@ -20,7 +22,7 @@ Formatter Formatter::readFormatter(std::string_view const formatter) {
     // Examples:
     // $i     : leadingZero = false , alignment = -1 , precision = -1
     // $04i   : leadingZero = true  , alignment =  4 , precision = -1
-    // $03.5i : leadingZero = true  , alignment =  3 , precision =  5
+    // $03.5f : leadingZero = true  , alignment =  3 , precision =  5
 
     Formatter fmt;
 
@@ -44,11 +46,15 @@ Formatter Formatter::readFormatter(std::string_view const formatter) {
         auto const dotPos = formatter.find('.');
         // Read alignment
         if (dotPos != 0) {
-            fmt.alignment = std::stoi(std::string(formatter.substr(0, dotPos)));
+            auto end = formatter.substr(0, dotPos).find_last_of("0123456789");
+            auto alignmentStr = formatter.substr(0, end + 1);
+            fmt.alignment = Utility::TypeConversion::String::to<uint8_t>(alignmentStr);
         }
         // Read precision
         if (dotPos != std::string::npos) {
-            fmt.precision = std::stoi(std::string(formatter.substr(dotPos + 1)));
+            auto end = formatter.substr(dotPos + 1).find_last_of("0123456789");
+            auto precisionStr = formatter.substr(dotPos + 1, end + 1);
+            fmt.precision = Utility::TypeConversion::String::to<uint8_t>(precisionStr);
         }
     }
     return fmt;
