@@ -17,7 +17,7 @@
 //------------------------------------------
 namespace Nebulite::Interaction::Logic {
 
-Formatter Formatter::readFormatter(std::string_view const formatter) {
+Formatter Formatter::readFormatter(std::string_view formatter) {
     // Check formatter. Integer cast should not include precision. Is ignored later on in casting but acceptable as input
     // Examples:
     // $i     : leadingZero = false , alignment = -1 , precision = -1
@@ -33,27 +33,27 @@ Formatter Formatter::readFormatter(std::string_view const formatter) {
     // Format cast
     if (formatter.ends_with("i")) {
         fmt.cast = CastType::to_int;
+        formatter.remove_suffix(1);
     }
     else if (formatter.ends_with("f")) {
         fmt.cast = CastType::to_double;
+        formatter.remove_suffix(1);
     }
 
     // Read leading zero
     if (formatter.starts_with("0")) {
         fmt.leadingZero = true;
     }
-    if (formatter.size() > 1) {
+    if (!formatter.empty()) {
         auto const dotPos = formatter.find('.');
         // Read alignment
         if (dotPos != 0) {
-            auto end = formatter.substr(0, dotPos).find_last_of("0123456789");
-            auto alignmentStr = formatter.substr(0, end + 1);
+            auto alignmentStr = formatter.substr(0, dotPos);
             fmt.alignment = Utility::TypeConversion::String::to<uint8_t>(alignmentStr);
         }
         // Read precision
         if (dotPos != std::string::npos) {
-            auto end = formatter.substr(dotPos + 1).find_last_of("0123456789");
-            auto precisionStr = formatter.substr(dotPos + 1, end + 1);
+            auto precisionStr = formatter.substr(dotPos + 1);
             fmt.precision = Utility::TypeConversion::String::to<uint8_t>(precisionStr);
         }
     }
