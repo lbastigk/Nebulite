@@ -154,6 +154,12 @@ run_clang_tidy_from_stdin() {
 
     # Process each file from the null-delimited input
     while IFS= read -r -d '' file; do
+        # If file does not exist, it was likely deleted or moved, skip it
+        if [ ! -f "$file" ]; then
+            >&2 echo "Skipping non-existent file: $file. Was deleted/moved since the last git diff?"
+            continue
+        fi
+
         # Run test
         echo "Running clang-tidy on $file"
         tmpfile=$(mktemp)
