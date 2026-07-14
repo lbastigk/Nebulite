@@ -13,6 +13,7 @@
 #include <memory>
 #include <mutex>
 #include <optional>
+#include <ranges>
 #include <span>
 #include <stdexcept>
 #include <string>
@@ -26,6 +27,7 @@
 #include "Nebulite/Data/Document/ScopedKeyView.hpp"
 #include "Nebulite/Data/Document/SimpleValueError.hpp"
 #include "Nebulite/Data/MappedOrderedCacheList.hpp"
+#include "Nebulite/Utility/Ranges.hpp"
 
 //------------------------------------------
 // Forward declarations
@@ -91,6 +93,18 @@ private:
         std::string fullPrefix = givenPrefix;
         if (!fullPrefix.empty() && !fullPrefix.ends_with(".")) fullPrefix += ".";
         return fullPrefix;
+    }
+
+    static auto getArrayKeys(ScopedKey const& key, std::size_t exclusiveMax) {
+        return std::views::iota(0)
+            | std::views::take_while([exclusiveMax](std::size_t const i) { return i < exclusiveMax; })
+            | std::views::transform([&key](std::size_t const i) { return key.addIndex(i); });
+    }
+
+    static auto getArrayKeys(ScopedKeyView const& key, std::size_t exclusiveMax) {
+        return std::views::iota(0)
+            | std::views::take_while([exclusiveMax](std::size_t const i) { return i < exclusiveMax; })
+            | std::views::transform([&key](std::size_t const i) { return key.addIndex(i); });
     }
 
 public:
@@ -185,6 +199,22 @@ public:
     void setSubDoc(ScopedKeyView const& key, JsonScope const& subDoc);
     void setSubDoc(ScopedKey const& key, JsonScope const& subDoc){setSubDoc(key.view(), subDoc);}
 
+    template<typename T>
+    void setArray(ScopedKeyView const& key, std::vector<T> const& array) { // Later on, we should use C++26 reflection once widely available, see branch feature/jsonscope/reflection
+        setEmptyArray(key);
+        for (auto const [index, indexKey] : getArrayKeys(key, array.size()) | Utility::Ranges::enumerate) {
+            if constexpr (std::is_same_v<T, std::complex<double>>) {
+                setComplex(indexKey, array[index]);
+            }
+            else if constexpr (std::is_same_v<T, JSON> || std::is_same_v<T, JsonScope>) {
+                setSubDoc(indexKey, array[index]);
+            }
+            else {
+                set<T>(indexKey, array[index]);
+            }
+        }
+    }
+
     void setEmptyArray(ScopedKeyView const& key);
     void setEmptyArray(ScopedKey const& key){setEmptyArray(key.view());}
 
@@ -208,6 +238,12 @@ public:
 
     void set_concat(ScopedKeyView const& key, std::string const& valStr);
     void set_concat(ScopedKey const& key, std::string const& valStr) {set_concat(key.view(), valStr);}
+
+    //------------------------------------------
+    // Range of members
+
+    [[nodiscard]] auto arrayKeys(ScopedKeyView const& key) const { return getArrayKeys(key, memberSize(key)); }
+    [[nodiscard]] auto arrayKeys(ScopedKey const& key) const  { return getArrayKeys(key, memberSize(key)); }
 
     //------------------------------------------
     // Locking
