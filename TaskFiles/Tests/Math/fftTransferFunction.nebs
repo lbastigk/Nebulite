@@ -8,12 +8,15 @@ set compare[5] 0.00
 set compare[6] 0.33
 set compare[7] 0.00
 
+# Input
+set input 1 0 0 0 0 0 0 0
+
 # Calculate
-capture result.raw apply-transfer-function-frequency-domain 1 0 0 0 0 0 0 0 --num 1 0 1 --den 1 1 0 1
-assign global:result.formatted = {global:result.raw|at 0|split|map formatNumber .2f}
+assign global:result.domainF = {global:input|split|applyTfDomainF --num 1 0 1 --den 1 1 0 1|map formatNumber .2f}
+# TODO: result.domainT
 
 # Validate
-eval nop {global:result.formatted|length|assert equals int 8}
-for i 0 7 if $(not({global:|strCompare members compare[{i}] result.formatted[{i}]})) then throw "TF output mismatch at index {i}"
+eval nop {global:result.domainF|length|assert equals int 8}
+for i 0 7 if $(not({global:|strCompare members compare[{i}] result.domainF[{i}]})) then throw "TF output mismatch at index {i}"
 
 exit

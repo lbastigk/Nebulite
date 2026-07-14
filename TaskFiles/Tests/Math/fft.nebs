@@ -1,9 +1,10 @@
 ######################################################
 # Set expected results, determined via https://scistatcalc.blogspot.com/2013/12/fft-calculator.html
-# Test series (real part only): 1 0 2 2 0 -1 0 0 -1 0 2 2 0 1
+
+# Series to test
+set settings.series 1 0 2 2 0 -1 0 0 -1 0 2 2 0 1
 
 # fft
-set settings.series.fft 1 0 2 2 0 -1 0 0 -1 0 2 2 0 1
 set compare.fft[00] 8.000000+0.000000i
 set compare.fft[01] 2.765367+1.847759i
 set compare.fft[02] -2.828427-6.828427i
@@ -22,7 +23,6 @@ set compare.fft[14] -2.828427+6.828427i
 set compare.fft[15] 2.765367-1.847759i
 
 # ifft
-set settings.series.ifft 1 0 0 0 2 0 2 0 0 0 -1 0 0 0 0 0 -1 0 0 0 2 0 2 0 0 0 1 0 # the ifft expects real-imag pairs
 set compare.ifft[00] 0.500000+0.000000i
 set compare.ifft[01] 0.172835-0.115485i
 set compare.ifft[02] -0.176777+0.426777i
@@ -40,22 +40,17 @@ set compare.ifft[13] 0.009515-0.047835i
 set compare.ifft[14] -0.176777-0.426777i
 set compare.ifft[15] 0.172835+0.115485i
 
-# Capture results from fft and ifft
-eval capture result.fft fft {global:settings.series.fft}
-eval capture result.ifft ifft {global:settings.series.ifft}
-
-# Ensure its an array of size 1
-eval nop {global:result.fft|length|assert equals int 1}
-eval nop {global:result.ifft|length|assert equals int 1}
-
-# Refine results
-assign global:result.refined.fft = {global:result.fft|at 0|split|map formatComplexNumber .6f}
-assign global:result.refined.ifft = {global:result.ifft|at 0|split|map formatComplexNumber .6f}
+# Calculate
+assign global:result.fft = {global:settings.series|split|fft|map complexToString .6f}
+assign global:result.ifft = {global:settings.series|split|ifft|map complexToString .6f}
+assign global:result.ifftComplexInput = {global:settings.series|split|map numberToComplex|ifft|map complexToString .6f} # im part is 0, but we want to test that the ifft function can handle complex input
 
 # Check results
-eval nop {global:result.refined.fft|length|assert equals int 16}
-eval nop {global:result.refined.ifft|length|assert equals int 16}
-for i 0 15 if $(not({global:|strCompare members compare.fft[{i}] result.refined.fft[{i}]})) then throw "FFT mismatch at index {i}"
-for i 0 15 if $(not({global:|strCompare members compare.ifft[{i}] result.refined.ifft[{i}]})) then throw "IFFT mismatch at index {i}"
+eval nop {global:result.fft|length|assert equals int 16}
+eval nop {global:result.ifft|length|assert equals int 16}
+eval nop {global:result.ifftComplexInput|length|assert equals int 16}
+for i 0 15 if $(not({global:|strCompare members compare.fft[{i}] result.fft[{i}]})) then throw "FFT mismatch at index {i}"
+for i 0 15 if $(not({global:|strCompare members compare.ifft[{i}] result.ifft[{i}]})) then throw "IFFT mismatch at index {i}"
+for i 0 15 if $(not({global:|strCompare members compare.ifft[{i}] result.ifftComplexInput[{i}]})) then throw "IFFT Complex Input mismatch at index {i}"
 
 exit
