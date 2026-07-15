@@ -8,17 +8,23 @@
 #include <cassert>
 #include <concepts>
 #include <cstddef>
+#include <exception>
 #include <functional>
+#include <stdexcept>
 #include <thread>
 #include <vector>
 
 //------------------------------------------
 // Concepts
 
-template<typename T, typename F>
-concept VoidFunctionOfT =
-    requires(F f, T& t) {
+template<typename F, typename T>
+concept VoidFunctionOfT = requires(F f, T& t) {
     { f(t) } noexcept -> std::same_as<void>;
+};
+
+template<typename F, typename T, typename R>
+concept FunctionOfTWithReturn = requires(F f, T& t) {
+    { f(t) } -> std::same_as<R>;
 };
 
 //------------------------------------------
@@ -28,35 +34,16 @@ namespace Nebulite::Utility::Coordination {
  * @brief Intended to be used as a thread_local variable to allow recursion-safe access to a resource.
  * @details Solves the constant resource allocation issue.
  * @tparam T The type of the resource to use
- * @tparam CleanupF The type of the cleanup function. Function signature: void(T&)
+ * @tparam UsageReturn The return type of the usage function.
  */
-template <typename T, VoidFunctionOfT<T> CleanupF>
+template <typename T, typename UsageReturn>
 class RecursionSecure {
     std::vector<T> resourceStack{};
     std::size_t recursionDepth = 0;
     std::thread::id const constructionThreadId = std::this_thread::get_id();
-    CleanupF cleanup;
-
-    /**
-     * @brief Guard class to ensure cleanup is called when the resource is no longer needed.
-     */
-    struct CleanupGuard {
-        RecursionSecure& self;
-        T& resource;
-        ~CleanupGuard() noexcept {
-            std::invoke(self.cleanup, resource);
-            --self.recursionDepth;
-        }
-
-        CleanupGuard(RecursionSecure& self, T& resource) : self(self), resource(resource) {}
-        CleanupGuard(const CleanupGuard&) = delete;
-        CleanupGuard& operator=(const CleanupGuard&) = delete;
-        CleanupGuard(CleanupGuard&&) = delete;
-        CleanupGuard& operator=(CleanupGuard&&) = delete;
-    };
 
 public:
-    RecursionSecure(CleanupF cleanupFunction) : cleanup(cleanupFunction) {}
+    RecursionSecure() = default;
     ~RecursionSecure() = default;
 
     RecursionSecure(const RecursionSecure&) = delete;
@@ -66,21 +53,37 @@ public:
 
     /**
      * @brief Use the resource in a recursion-safe manner.
-     * @brief The resource will be cleaned up using the provided cleanup function after the function f is invoked.
-     * @tparam F The type of the function to use the resource. Function signature: void(T&)
+     * @details The resource will be cleaned up using the provided cleanup function after the function f is invoked.
+     * @tparam PrepareF The type of the function to prepare the resource. Function signature: void(T&)
+     * @tparam F The type of the function to use the resource. Function signature: UsageReturn(T&)
+     * @param prepare The function to prepare the resource before use.
      * @param f The function to use the resource
+     * @return The return value of the function f.
      */
-    template<VoidFunctionOfT<T> F>
-    void use(F&& f) {
-        assert(std::this_thread::get_id() == constructionThreadId && "RecursionSecure must be used in the same thread it was constructed in! Make sure it's a thread_local variable.");
+    template<VoidFunctionOfT<T> PrepareF, FunctionOfTWithReturn<T, UsageReturn> F>
+    UsageReturn use(PrepareF&& prepare, F&& f) {
+        assert(std::this_thread::get_id() == constructionThreadId &&
+               "RecursionSecure must be used in the same thread it was constructed in!");
+
         recursionDepth++;
+
         if (resourceStack.size() <= recursionDepth - 1) {
             resourceStack.emplace_back();
         }
-        assert(resourceStack.size() >= recursionDepth && "Resource stack size should be at least the recursion depth.");
+
+        assert(resourceStack.size() >= recursionDepth &&
+               "Resource stack size should be at least the recursion depth.");
+
         auto& resource = resourceStack[recursionDepth - 1];
-        CleanupGuard guard{*this, resource};
-        std::invoke(std::forward<F>(f), resource);
+        std::invoke(std::forward<PrepareF>(prepare), resource);
+        try {
+            auto r = std::invoke(std::forward<F>(f), resource);
+            recursionDepth--;
+            return r;
+        } catch (std::exception& e) {
+            recursionDepth--;
+            throw std::logic_error(e.what());
+        }
     }
 };
 } // namespace Nebulite::Utility::Coordination
