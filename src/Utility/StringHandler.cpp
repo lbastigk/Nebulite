@@ -186,6 +186,12 @@ void handleQuotedToken(std::string_view const token, QuoteParseState& state, std
 StringHandler::ParseResult StringHandler::parseQuotedArguments(std::string_view const cmd) {
     std::vector<std::string_view> const tokens = split(cmd, ' ');
     std::vector<std::string> result;
+    bool const quoteState = parseQuotedArguments(result, cmd);
+    return {.args = std::move(result), .unclosedQuote = quoteState};
+}
+
+bool StringHandler::parseQuotedArguments(std::vector<std::string>& existingArgs, std::string_view cmd) {
+    std::vector<std::string_view> const tokens = split(cmd, ' ');
     QuoteParseState state;
 
     for (auto const& token : tokens) {
@@ -194,18 +200,18 @@ StringHandler::ParseResult StringHandler::parseQuotedArguments(std::string_view 
         // Without this, the double spaces around | would be lost, which can be important for readability of the command
         // or simply to preserve the user's intended formatting.
         if (token.empty()) {
-            handleEmptyToken(state, result);
+            handleEmptyToken(state, existingArgs);
             continue;
         }
 
         if (!state.inAnyQuote()) {
-            handleQuoteStart(token, state, result);
+            handleQuoteStart(token, state, existingArgs);
         } else {
-            handleQuotedToken(token, state, result);
+            handleQuotedToken(token, state, existingArgs);
         }
     }
 
-    return {.args = std::move(result), .unclosedQuote = state.inAnyQuote()};
+    return state.inAnyQuote();
 }
 
 std::string StringHandler::recombineArgs(std::span<std::string_view const> const& args) {
