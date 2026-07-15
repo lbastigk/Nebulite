@@ -38,7 +38,8 @@ for i 0 50 eval spawn ./Resources/Renderobjects/Plants/Trees/pinetree.jsonc|posX
 for i 0 50 eval spawn ./Resources/Renderobjects/Plants/Trees/pinetree.jsonc|posX=$(-({global:random.A} % 39)*16+16)|posY=$(-({global:random.B} % 39)*16+16)
 
 ###########################
-# Player stack info
+# Player stack info: Pseudo-Player data for testing UI
+# Later on we should use a DomainModule that keeps track of active players and their stats
 
 set players[0].name "Orgun the brave"
 set players[0].hp.current 100
@@ -79,32 +80,12 @@ always selected-object parse assign global:players[0].posY = {self:posY}
 # Hotkeys
 
 # Setup hotkey list
-set hotkey[0].image ./Resources/Sprites/TEST100P/001.bmp
-set hotkey[1].image ./Resources/Sprites/TEST100P/001.bmp
-set hotkey[2].image ./Resources/Sprites/TEST100P/001.bmp
-set hotkey[3].image ./Resources/Sprites/TEST100P/001.bmp
-set hotkey[4].image ./Resources/Sprites/TEST100P/001.bmp
-set hotkey[5].image ./Resources/Sprites/TEST100P/001.bmp
-set hotkey[6].image ./Resources/Sprites/TEST100P/001.bmp
-set hotkey[7].image ./Resources/Sprites/TEST100P/001.bmp
-set hotkey[8].image ./Resources/Sprites/TEST100P/001.bmp
-set hotkey[9].image ./Resources/Sprites/TEST100P/001.bmp
-
-# Start index
-set rml.settings.actionWindow.entrySelected 1
+for i 0 9 set hotkey[{i}].image ./Resources/Sprites/TEST100P/001.bmp
 
 # Map player input to hotkey selection
 # Use 1-9 for hotkey selection, + 0 for 10
-always if $({global:input.actionWindow::slot::01}) then assign global:rml.settings.actionWindow.entrySelected = 1
-always if $({global:input.actionWindow::slot::02}) then assign global:rml.settings.actionWindow.entrySelected = 2
-always if $({global:input.actionWindow::slot::03}) then assign global:rml.settings.actionWindow.entrySelected = 3
-always if $({global:input.actionWindow::slot::04}) then assign global:rml.settings.actionWindow.entrySelected = 4
-always if $({global:input.actionWindow::slot::05}) then assign global:rml.settings.actionWindow.entrySelected = 5
-always if $({global:input.actionWindow::slot::06}) then assign global:rml.settings.actionWindow.entrySelected = 6
-always if $({global:input.actionWindow::slot::07}) then assign global:rml.settings.actionWindow.entrySelected = 7
-always if $({global:input.actionWindow::slot::08}) then assign global:rml.settings.actionWindow.entrySelected = 8
-always if $({global:input.actionWindow::slot::09}) then assign global:rml.settings.actionWindow.entrySelected = 9
-always if $({global:input.actionWindow::slot::10}) then assign global:rml.settings.actionWindow.entrySelected = 10
+set rml.settings.actionWindow.entrySelected 1 # Start index
+for i 1 10 always if $({global:input.actionWindow::slot::{|setInt . {i}|formatNumber 02i}}) then assign global:rml.settings.actionWindow.entrySelected = {i}
 
 ###########################
 # Show imgui-view of player for debugging
