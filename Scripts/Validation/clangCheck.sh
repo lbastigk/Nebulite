@@ -29,7 +29,7 @@ known_offenders=(
 # Keys must be the .tpp path (starting with './'), values the .hpp path to use instead.
 # Add entries when a .tpp's corresponding .hpp is located elsewhere or has a different name.
 declare -A tpp_overrides=(
-    ["./include/Nebulite/Interaction/Execution/FuncTreeArgumentCompletion.tpp"]="./include/Nebulite/Interaction/Execution/FuncTree.hpp"
+    ["./include/Nebulite/Utility/Args/FuncTreeArgumentCompletion.tpp"]="./include/Nebulite/Utility/Args/FuncTree.hpp"
 )
 
 # Required defines

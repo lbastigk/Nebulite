@@ -14,8 +14,8 @@
 
 // Nebulite
 #include "Nebulite/Data/Document/ScopedKey.hpp"
-#include "Nebulite/Interaction/Execution/FuncTree.hpp"
 #include "Nebulite/Module/Base/TransformationModule.hpp"
+#include "Nebulite/Utility/Args/FuncTree.hpp"
 
 //------------------------------------------
 // Forward declarations
@@ -29,7 +29,7 @@ namespace Nebulite::Module::Transformation {
 
 class Filter final : public Base::TransformationModule {
 public:
-    explicit Filter(std::shared_ptr<Interaction::Execution::FuncTree<bool, Data::JsonScope&>> const& funcTree)
+    explicit Filter(std::shared_ptr<Utility::Args::FuncTree<bool, Data::JsonScope&>> const& funcTree)
         : TransformationModule(funcTree) {}
 
     void bindTransformations() override ;

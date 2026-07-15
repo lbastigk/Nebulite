@@ -14,9 +14,9 @@
 #include "Nebulite/Core/GlobalSpace.hpp"
 #include "Nebulite/Data/Document/JSON.hpp"
 #include "Nebulite/Data/Document/ScopedKey.hpp"
-#include "Nebulite/Interaction/Execution/FuncTree.hpp"
 #include "Nebulite/Interaction/Logic/Expression.hpp"
 #include "Nebulite/Module/Domain/GlobalSpace/FeatureTest.hpp"
+#include "Nebulite/Utility/Args/FuncTree.hpp"
 #include "Nebulite/Utility/StringHandler.hpp"
 
 //------------------------------------------
@@ -49,7 +49,7 @@ public:
 
 Constants::Event FeatureTest::testFuncTree() const {
     // Build a FuncTree with extra argument JSON&
-    Interaction::Execution::FuncTree<double, double> testTree("TestFuncTree", 0.0, std::numeric_limits<double>::quiet_NaN(), domain.capture);
+    Utility::Args::FuncTree<double, double> testTree("TestFuncTree", 0.0, std::numeric_limits<double>::quiet_NaN(), domain.capture);
 
     std::string_view constexpr addName = "add";
     std::string_view constexpr addDesc = "Adds all provided numbers to the input number.\nUsage: <name> add num1 num2 ... numN";

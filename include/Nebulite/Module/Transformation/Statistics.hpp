@@ -9,8 +9,8 @@
 #include <memory>
 
 // Nebulite
-#include "Nebulite/Interaction/Execution/FuncTree.hpp"
 #include "Nebulite/Module/Base/TransformationModule.hpp"
+#include "Nebulite/Utility/Args/FuncTree.hpp"
 
 //------------------------------------------
 // Forward declarations
@@ -27,7 +27,7 @@ namespace Nebulite::Module::Transformation {
  */
 class Statistics final : public Base::TransformationModule {
 public:
-    explicit Statistics(std::shared_ptr<Interaction::Execution::FuncTree<bool, Data::JsonScope&>> const& funcTree)
+    explicit Statistics(std::shared_ptr<Utility::Args::FuncTree<bool, Data::JsonScope&>> const& funcTree)
         : TransformationModule(funcTree) {}
 
     void bindTransformations() override ;
