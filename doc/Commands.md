@@ -2,7 +2,7 @@
 
 This documentation is automatically generated.
 
-Generated on: Wed Jul 15 13:55:42 CEST 2026
+Generated on: Thu Jul 16 00:06:08 CEST 2026
 
 ## Table of Contents
 
@@ -2002,6 +2002,7 @@ Available Functions
 | `echo` | Echoes the provided arguments to the console, with newline. |
 | `ensureArray` | Ensures the current JSON value is an array. |
 | `enumerate` | Enumerates the array in the current JSON value. |
+| `eq` | Checks if the current JSON value is equal to the specified value. |
 | `error` | Echoes the provided arguments to the console as an error message, with newline. |
 | `exists` | Checks if a specified key exists in the current JSON object. |
 | `fft` | Stores the fft of a given real-number series as complex numbers |
@@ -2015,7 +2016,9 @@ Available Functions
 | `floor` | Rounds the current JSON numeric value down to the nearest integer. |
 | `formatComplexNumberString` | Formats the contained complex number string to another string |
 | `formatNumber` | If the stored value is a number, it is formatted with a given format specifier |
+| `geq` | Checks if the current JSON value is greater than or equal to the specified value. |
 | `get` | Gets the value at the specified key from the current JSON object. |
+| `gt` | Checks if the current JSON value is greater than the specified value. |
 | `help` | Show available commands and their descriptions |
 | `ifft` | Stores the inverse fft of a given complex-number or real-number series (mixable) |
 | `injectScript` | Injects a nebulite script to modify the json doc. |
@@ -2026,14 +2029,17 @@ Available Functions
 | `lStrip` | Strips whitespace from the left end of the current JSON string value. |
 | `last` | Gets the last element of the array in the current JSON value. |
 | `length` | Gets the length of the array in the current JSON value. |
+| `leq` | Checks if the current JSON value is less than or equal to the specified value. |
 | `listMembers` | Lists all members of the current JSON object as an array. |
 | `listMembersAndValues` | Lists all members of the current JSON object as an array of {key, value} objects. |
+| `lt` | Checks if the current JSON value is less than the specified value. |
 | `map` | Applies a mapping function to each element in the array of the current JSON value. |
 | `max` | Finds the maximum value among the elements of the array in the current JSON value. |
 | `median` | Calculates the median of the elements of the array in the current JSON value. |
 | `min` | Finds the minimum value among the elements of the array in the current JSON value. |
 | `mod` | Calculates the modulo of the current JSON value by a numeric value. |
 | `mul` | Multiplies the current JSON value by a numeric value. |
+| `neq` | Checks if the current JSON value is not equal to the specified value. |
 | `not` | Logical NOT operation on the current JSON value. |
 | `numberToComplex` | Converts a given number to a complex number. |
 | `pow` | Raises the current JSON value to the power of a numeric value. |
@@ -2332,6 +2338,13 @@ Usage: |enumerate <indexKey> -> {array}
 Where indexKey is the key of each array element to populate with the index of the element in the array.
 ```
 
+#### `eq`
+
+```
+Checks if the current JSON value is equal to the specified value.
+Usage: |eq <value> -> {bool}
+```
+
 #### `error`
 
 ```
@@ -2439,11 +2452,25 @@ If the stored value is not a simple value, the transformation fails.
 Example formatters: 04.2f, 5i, 06i
 ```
 
+#### `geq`
+
+```
+Checks if the current JSON value is greater than or equal to the specified value.
+Usage: |geq <value> -> {bool}
+```
+
 #### `get`
 
 ```
 Gets the value at the specified key from the current JSON object.
 Usage: |get <key> -> {value}
+```
+
+#### `gt`
+
+```
+Checks if the current JSON value is greater than the specified value.
+Usage: |gt <value> -> {bool}
 ```
 
 #### `ifft`
@@ -2520,6 +2547,13 @@ Gets the length of the array in the current JSON value.
 Usage: |length -> {number}
 ```
 
+#### `leq`
+
+```
+Checks if the current JSON value is less than or equal to the specified value.
+Usage: |leq <value> -> {bool}
+```
+
 #### `listMembers`
 
 ```
@@ -2534,6 +2568,13 @@ Usage: |listKeys -> {array of keys}
 Lists all members of the current JSON object as an array of {key, value} objects.
 If the current value is an array, it lists the indices as strings.
 Usage: |listMembersAndValues -> {array of {key, value} objects}
+```
+
+#### `lt`
+
+```
+Checks if the current JSON value is less than the specified value.
+Usage: |lt <value> -> {bool}
 ```
 
 #### `map`
@@ -2582,6 +2623,13 @@ Usage: |mod <number1> <number2> ... -> {number/array}
 Multiplies the current JSON value by a numeric value.
 If multiple numbers are provided, the result is an array, one element for each provided argument.
 Usage: |multiply <number1> <number2> ... -> {number/array}
+```
+
+#### `neq`
+
+```
+Checks if the current JSON value is not equal to the specified value.
+Usage: |neq <value> -> {bool}
 ```
 
 #### `not`
