@@ -225,6 +225,7 @@ private:
     bool outputEnabled = true;
 
     class History {
+        bool startNewLine = false;
         std::deque<HistoryLine> lines;
 
         bool appendableToLastLine(HistoryLine::Type lineType);
