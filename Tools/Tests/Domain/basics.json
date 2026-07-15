@@ -24,6 +24,10 @@
         "expected": { "cout": [], "cerr": [] }
     },
     {
+        "command": "task TaskFiles/Tests/Domain/General/capture.nebs",
+        "expected": { "cout": [], "cerr": [] }
+    },
+    {
         "command": "assert $(eq(2+2,4))",
         "expected": { "cout": [], "cerr": [] }
     },
