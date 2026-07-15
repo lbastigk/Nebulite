@@ -5,20 +5,26 @@ set test.string1 HelloWorldHello
 set test.string2 Hello World, Hello Nebulite!
 set test.string3
 
-# count appearance and verify
+set test.memberCompare.a HelloWorldHello
+set test.memberCompare.b HelloWorldHello
+set test.memberCompare.c HelloWorldHi
+
+# Verify strCompare methods
 
 # must be true
 assign global:result.mustBeTrue[0] = {global:test.string1|strCompare equals HelloWorldHello}
 assign global:result.mustBeTrue[1] = {global:test.string2|strCompare equals Hello World, Hello Nebulite!}
 assign global:result.mustBeTrue[2] = {global:test.string3|strCompare equals}
+assign global:result.mustBeTrue[3] = {global:test.memberCompare|strCompare members a b}
 must-throw eval nop {global:result.mustBeTrue|map assert equals int 0}
 eval nop {global:result.mustBeTrue|map assert equals int 1}
 
 # must be false
-assign global:result.mustBeTrue[0] = {global:test.string1|strCompare equals HelloWorld}
-assign global:result.mustBeTrue[1] = {global:test.string2|strCompare equals HelloWorld, Hello Nebulite!}
-assign global:result.mustBeTrue[2] = {global:test.string3|strCompare equals HelloWorld}
-eval nop {global:result.mustBeTrue|map assert equals int 0}
-must-throw eval nop {global:result.mustBeTrue|map assert equals int 1}
+assign global:result.mustBeFalse[0] = {global:test.string1|strCompare equals HelloWorld}
+assign global:result.mustBeFalse[1] = {global:test.string2|strCompare equals HelloWorld, Hello Nebulite!}
+assign global:result.mustBeFalse[2] = {global:test.string3|strCompare equals HelloWorld}
+assign global:result.mustBeFalse[3] = {global:test.memberCompare|strCompare members a c}
+eval nop {global:result.mustBeFalse|map assert equals int 0}
+must-throw eval nop {global:result.mustBeFalse|map assert equals int 1}
 
 exit

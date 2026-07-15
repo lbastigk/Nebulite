@@ -6,6 +6,7 @@
 #include <cctype>
 #include <cstddef>
 #include <iterator>
+#include <optional>
 #include <ranges>
 #include <span>
 #include <string>
@@ -39,6 +40,7 @@ void String::bindTransformations() {
     bindTransformation(&split, splitName, splitDesc);
 
     bindCategory(strcompareName, strcompareDesc);
+    bindTransformation(&strcompareMembers, strcompareMembersName, strcompareMembersDesc);
     bindTransformation(&strcompareEquals, strcompareEqualsName, strcompareEqualsDesc);
     bindTransformation(&strcompareContains, strcompareContainsName, strcompareContainsDesc);
     bindTransformation(&strcompareStartsWith, strcompareStartsWithName, strcompareStartsWithDesc);
@@ -249,7 +251,7 @@ bool String::split(std::span<std::string_view const> const& args, Data::JsonScop
     auto const str = jsonDoc.get<std::string>(rootKey).value_or("");
     jsonDoc.setEmptyArray(rootKey);
     for (auto [index, word] : Utility::StringHandler::split(str, delimiter) | Utility::Ranges::enumerate) {
-        auto const indexedKey = rootKey.addIndex(static_cast<size_t>(index));
+        auto const indexedKey = rootKey.addIndex(index);
         jsonDoc.set(indexedKey, word);
     }
     return true;
@@ -257,6 +259,20 @@ bool String::split(std::span<std::string_view const> const& args, Data::JsonScop
 
 //------------------------------------------
 // strcompare
+
+bool String::strcompareMembers(std::span<std::string_view const> const& args, Data::JsonScope& jsonDoc){
+    if (args.size() < 2) return false; // Trivial case: no keys provided
+    bool const equal = args.subspan(1)
+        | std::views::transform([&jsonDoc](std::string_view const key) -> std::optional<std::string> {
+            if (auto expectedStr = jsonDoc.get<std::string>(rootKey.addMember(key)); expectedStr.has_value()) {
+                return std::optional{expectedStr.value()};
+            }
+            return std::nullopt;
+        })
+        | Utility::Ranges::all_equal_and([](auto const& opt) { return opt.has_value(); });
+    jsonDoc.set(rootKey, equal);
+    return true;
+}
 
 bool String::strcompareEquals(std::span<std::string_view const> const& args, Data::JsonScope& jsonDoc) {
     auto const compareStr = args.size() > 1 ? Utility::StringHandler::recombineArgs(args.subspan(1)) : "";

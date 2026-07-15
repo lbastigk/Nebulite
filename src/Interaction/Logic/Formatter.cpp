@@ -5,22 +5,24 @@
 #include <cassert>
 #include <cmath>
 #include <cstddef>
+#include <cstdint>
 #include <optional>
 #include <string>
 #include <string_view>
 
 // Nebulite
 #include "Nebulite/Interaction/Logic/Formatter.hpp"
+#include "Nebulite/Utility/TypeConversion.hpp"
 
 //------------------------------------------
 namespace Nebulite::Interaction::Logic {
 
-Formatter Formatter::readFormatter(std::string_view const formatter) {
+Formatter Formatter::readFormatter(std::string_view formatter) {
     // Check formatter. Integer cast should not include precision. Is ignored later on in casting but acceptable as input
     // Examples:
     // $i     : leadingZero = false , alignment = -1 , precision = -1
     // $04i   : leadingZero = true  , alignment =  4 , precision = -1
-    // $03.5i : leadingZero = true  , alignment =  3 , precision =  5
+    // $03.5f : leadingZero = true  , alignment =  3 , precision =  5
 
     Formatter fmt;
 
@@ -31,24 +33,28 @@ Formatter Formatter::readFormatter(std::string_view const formatter) {
     // Format cast
     if (formatter.ends_with("i")) {
         fmt.cast = CastType::to_int;
+        formatter.remove_suffix(1);
     }
     else if (formatter.ends_with("f")) {
         fmt.cast = CastType::to_double;
+        formatter.remove_suffix(1);
     }
 
     // Read leading zero
     if (formatter.starts_with("0")) {
         fmt.leadingZero = true;
     }
-    if (formatter.size() > 1) {
+    if (!formatter.empty()) {
         auto const dotPos = formatter.find('.');
         // Read alignment
         if (dotPos != 0) {
-            fmt.alignment = std::stoi(std::string(formatter.substr(0, dotPos)));
+            auto alignmentStr = formatter.substr(0, dotPos);
+            fmt.alignment = Utility::TypeConversion::String::to<uint8_t>(alignmentStr);
         }
         // Read precision
         if (dotPos != std::string::npos) {
-            fmt.precision = std::stoi(std::string(formatter.substr(dotPos + 1)));
+            auto precisionStr = formatter.substr(dotPos + 1);
+            fmt.precision = Utility::TypeConversion::String::to<uint8_t>(precisionStr);
         }
     }
     return fmt;

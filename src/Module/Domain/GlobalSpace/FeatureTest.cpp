@@ -9,9 +9,9 @@
 #include <string_view>
 
 // Nebulite
-#include "Nebulite/Core/GlobalSpace.hpp"
 #include "Nebulite/Constants/Event.hpp"
 #include "Nebulite/Constants/StandardCapture.hpp"
+#include "Nebulite/Core/GlobalSpace.hpp"
 #include "Nebulite/Data/Document/JSON.hpp"
 #include "Nebulite/Data/Document/ScopedKey.hpp"
 #include "Nebulite/Interaction/Execution/FuncTree.hpp"
@@ -25,6 +25,8 @@ namespace Nebulite::Module::Domain::GlobalSpace {
 Constants::Event FeatureTest::updateHook() {
     return Constants::Event::Success;
 }
+
+// General
 
 namespace {
 class MathModifier {
@@ -89,6 +91,8 @@ Constants::Event FeatureTest::selfOtherGlobalEvaluation() const {
     }
     return Constants::Event::Success;
 }
+
+// Keys
 
 Constants::Event FeatureTest::keyCombination(std::span<std::string_view const> const& args) const {
     if (args.size() < 3) {
