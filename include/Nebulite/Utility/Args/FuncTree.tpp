@@ -490,7 +490,7 @@ ReturnValue FuncTree<ReturnValue, AdditionalArgs...>::parseStr(std::string_view 
     if (cmd.empty()) {
         return standardReturn.valDefault;
     }
-    thread_local Coordination::RecursionSecure<std::vector<std::string_view>, ReturnValue> argsV;
+    thread_local Coordination::RecursionSecure<std::vector<std::string_view>, ReturnValue> argsV; // Pre-allocated recursion-safe storage for parsed arguments
     return argsV.use(
         [](std::vector<std::string_view>& args) noexcept {
             args.clear();
