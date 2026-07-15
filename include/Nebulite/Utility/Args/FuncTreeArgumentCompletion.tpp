@@ -371,9 +371,9 @@ std::vector<std::string> FuncTree<ReturnValue, AdditionalArgs...>::findCompletio
     });
 
     std::ranges::sort(completions);
-    std::erase_if(completions, [seen = std::string{}](auto const& item) mutable {
-        bool const duplicate = item == seen;
-        seen = item;
+    std::erase_if(completions, [lastItem = std::string{}](auto const& currentItem) mutable {
+        bool const duplicate = currentItem == lastItem;
+        lastItem = currentItem;
         return duplicate;
     });
 
