@@ -9,7 +9,7 @@
 
 // Nebulite
 #include "Nebulite/Data/Document/JsonScope.hpp"
-#include "Nebulite/Data/Document/ScopedKey.hpp"
+#include "Nebulite/Data/Document/ScopedKeyView.hpp"
 #include "Nebulite/Data/MappedOrderedCacheList.hpp"
 #include "Nebulite/Utility/Coordination/IdGenerator.hpp"
 #include "Nebulite/Utility/Coordination/SharedMutex.hpp"
