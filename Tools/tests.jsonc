@@ -67,8 +67,8 @@
         "Tools/Tests/JSON/Transformations/Types.json",
         //---------------------------------------
         // Ruleset tests
-        "Tools/Tests/Rulesets/DebugUtils.json",
-        "Tools/Tests/Rulesets/selfOtherGlobalInteraction.json",
+        "Tools/Tests/Ruleset/DebugUtils.json",
+        "Tools/Tests/Ruleset/selfOtherGlobalInteraction.json",
         //---------------------------------------
         // GlobalSpace tests
         "Tools/Tests/GlobalSpace/time.json",
