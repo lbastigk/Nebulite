@@ -29,6 +29,7 @@ namespace Nebulite::Interaction::Logic {
  *          where the context changes dynamically during evaluations
  *          or the lifetime is limited.
  *          This distinction is crucial for efficient and accurate expression evaluations.
+ * @todo Obsolete, use structure of arrays for key,scopedKey and value in Expression class instead. Easier to manage and more efficient.
  */
 class LinkedNumericValue {
     // We must store both the key and the scopedkey. Using a string + ScopedKeyView is more memory efficient.
@@ -44,12 +45,6 @@ class LinkedNumericValue {
      * @brief Internal cache for non-remanent documents.
      */
     double copiedValue = 0.0;
-
-    /**
-     * @brief Reference to a value outside
-     * @details Represents the first context that was provided
-     */
-    double* externalReference = nullptr;
 
 public:
     /**
@@ -71,18 +66,6 @@ public:
     [[nodiscard]] Data::ScopedKeyView const& getScopedKey() const noexcept {
         return scopedKey;
     }
-
-    /**
-     * @brief Links the LinkedNumericValue to an external cache in a JSON document.
-     * @details Can only be called once
-     * @param json The JSON document to link to.
-     */
-    void linkExternalCache(Data::JsonScope const& json);
-
-    /**
-     * @brief Copies the value from the linked external cache.
-     */
-    void copyExternalCache();
 
     /**
      * @brief Copies the value from another JSON document.
