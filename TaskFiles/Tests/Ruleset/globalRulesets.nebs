@@ -8,31 +8,42 @@
 # 4.) objA/B:physics-set
 # 5.) probe values
 # 6.) Assert non-empty
+# 7.) Assert equal magnitude, opposite direction
 
 ##########################################################################
 # Preparation
 
-set physics.G 10
+set-res 500 500
+cam set 375 375 c
 set-fps 100
+
+set physics.G 10
 time set-fixed-dt 1
 
 ##########################################################################
 # Test with static ruleset
 
-eval spawn ./Resources/Renderobjects/Planets/obj1.jsonc|set posX 250|set posY 500|set physics.vX 0|set physics.vY 0
-eval spawn ./Resources/Renderobjects/Planets/obj2.jsonc|set posX 250|set posY 250|set physics.vX 0|set physics.vY 0
+eval spawn ./Resources/Renderobjects/Planets/obj1.jsonc|set posX 375|set posY 250|set physics.vX 0|set physics.vY 0
+eval spawn ./Resources/Renderobjects/Planets/obj2.jsonc|set posX 375|set posY 500|set physics.vX 0|set physics.vY 0
 
+# Select the objects and mirror values to globalspace
 wait 1
 selected-object get 1
 selected-object parse mirror on
 selected-object get 2
 selected-object parse mirror on
-
 wait 100
+
+# Verify: value existence
 eval nop {global:providedScope.module.domain.renderObject.mirror.renderObject.idx1|assert nonEmpty obj1.jsonc mirror could not be found}
 eval nop {global:providedScope.module.domain.renderObject.mirror.renderObject.idx2|assert nonEmpty obj2.jsonc mirror could not be found}
 eval nop {global:providedScope.module.domain.renderObject.mirror.renderObject.idx1.physics.aY|assert nonEmpty Acceleration should not be empty}
 eval nop {global:providedScope.module.domain.renderObject.mirror.renderObject.idx2.physics.aY|assert nonEmpty Acceleration should not be empty}
+
+# Verify: equal magnitude, opposite direction
+assert $(eq({global:providedScope.module.domain.renderObject.mirror.renderObject.idx3.physics.aY},-{global:providedScope.module.domain.renderObject.mirror.renderObject.idx4.physics.aY}))
+eval nop {global:providedScope.module.domain.renderObject.mirror.renderObject.idx3.physics.aY|gt 0|assert true}
+eval nop {global:providedScope.module.domain.renderObject.mirror.renderObject.idx4.physics.aY|lt 0|assert true}
 
 ##########################################################################
 # Reset the scene by deleting the objects
@@ -46,20 +57,27 @@ wait 10
 ##########################################################################
 # Test with json ruleset
 
-eval spawn ./Resources/Renderobjects/Planets/obj1_classic.jsonc|set posX 250|set posY 500|set physics.vX 0|set physics.vY 0
-eval spawn ./Resources/Renderobjects/Planets/obj2_classic.jsonc|set posX 250|set posY 250|set physics.vX 0|set physics.vY 0
+eval spawn ./Resources/Renderobjects/Planets/obj1_classic.jsonc|set posX 375|set posY 250|set physics.vX 0|set physics.vY 0
+eval spawn ./Resources/Renderobjects/Planets/obj2_classic.jsonc|set posX 375|set posY 500|set physics.vX 0|set physics.vY 0
 
+# Select the objects and mirror values to globalspace
 wait 1
 selected-object get 3
 selected-object parse mirror on
 selected-object get 4
 selected-object parse mirror on
-
 wait 100
+
+# Verify: value existence
 eval nop {global:providedScope.module.domain.renderObject.mirror.renderObject.idx3|assert nonEmpty obj1_classic.jsonc mirror could not be found}
 eval nop {global:providedScope.module.domain.renderObject.mirror.renderObject.idx4|assert nonEmpty obj2_classic.jsonc mirror could not be found}
 eval nop {global:providedScope.module.domain.renderObject.mirror.renderObject.idx3.physics.aY|assert nonEmpty Acceleration should not be empty}
 eval nop {global:providedScope.module.domain.renderObject.mirror.renderObject.idx4.physics.aY|assert nonEmpty Acceleration should not be empty}
+
+# Verify: equal magnitude, opposite direction
+assert $(eq({global:providedScope.module.domain.renderObject.mirror.renderObject.idx3.physics.aY},-{global:providedScope.module.domain.renderObject.mirror.renderObject.idx4.physics.aY}))
+eval nop {global:providedScope.module.domain.renderObject.mirror.renderObject.idx3.physics.aY|gt 0|assert true}
+eval nop {global:providedScope.module.domain.renderObject.mirror.renderObject.idx4.physics.aY|lt 0|assert true}
 
 ##########################################################################
 # All done
