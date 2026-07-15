@@ -16,6 +16,8 @@ namespace Nebulite::Module::Transformation {
 
 void Requirements::bindTransformations() {
     bindCategory(requireName, requireDesc);
+    bindTransformation(&Requirements::requireTrue, requireTrueName, requireTrueDesc);
+    bindTransformation(&Requirements::requireFalse, requireFalseName, requireFalseDesc);
     bindTransformation(&Requirements::requireEmpty, requireEmptyName, requireEmptyDesc);
     bindTransformation(&Requirements::requireNonEmpty, requireNonEmptyName, requireNonEmptyDesc);
 
@@ -37,6 +39,26 @@ void Requirements::printUserDefinedMessage(std::span<std::string_view const> con
         return; // No message provided
     }
     Global::capture().error.println(Utility::StringHandler::recombineArgs(args.subspan(1)));
+}
+
+bool Requirements::requireTrue(std::span<std::string_view const> const& args, Data::JsonScope const& jsonDoc){
+    try {
+        Assertions::assertTrue(args, jsonDoc);
+    }
+    catch (...) {
+        return false;
+    }
+    return true;
+}
+
+bool Requirements::requireFalse(std::span<std::string_view const> const& args, Data::JsonScope const& jsonDoc){
+    try {
+        Assertions::assertFalse(args, jsonDoc);
+    }
+    catch (...) {
+        return false;
+    }
+    return true;
 }
 
 bool Requirements::requireNonEmpty(std::span<std::string_view const> const& args, Data::JsonScope const& jsonDoc) {
