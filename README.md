@@ -34,10 +34,8 @@
 <!-- TOC --><a name="overview"></a>
 ## Overview
 
-**Nebulite** is a modern C++26 2D game engine with flexible data-driven logic and a powerful expression and ruleset system.
-
-Gameplay logic can be defined in two complementary ways:
-
+**Nebulite** is a modern C++26 2D game engine built around editable behavior.
+Define entities, interactions, and rules as data, then swap between experimentation and native code when needed:
 - **JSON rulesets** — declarative, data-driven, and ideal for experimentation
 - **Native C++ rulesets** — hardcoded for maximum performance and full control
 
@@ -56,18 +54,20 @@ allowing you to freely mix data-defined and hardcoded behavior within the same p
     - Domains encapsulate engine subsystems (rendering, global state, entities, etc.)
     - DomainModules provide reusable, isolated functionality (time, console, ruleset management, etc.)
     - Hierarchical domain composition with shared capabilities (Comparable to C++ class inheritance)
+    - Per-domain logging capture with redirectable output streams and passing to parent domains
 
 - **Scripting & Automation**
     - `.nebs` task files for scripted execution
     - Interactive runtime console
     - Headless mode for testing and automation
     - Chainable CLI command execution
-    - easily extendable python testing suite
+    - easily extendable python testing suite with json-based test definitions
 
 - **Scoped Data & Access Control**
     - JSON-backed data model
     - No hardcoded variables, you may define your own keys and data structure as you see fit
     - Custom key scopes for controlled data access for encapsulated logic and modularity
+    - Support for numeric pointers for fast access without JSON key lookups
 
 - **Context-Driven Interaction**
     - **self** / **other** / **global** context model, with flexible combinations (**all** and **local**)
@@ -77,6 +77,7 @@ allowing you to freely mix data-defined and hardcoded behavior within the same p
     - ImGui for hardcoded interfaces and tools
     - RmlUI for complex, styled interfaces (menus, HUDs, etc.)
     - Custom RmlUI plugins for direct integration with Nebulite's data model and expression system
+    - Automatic context and scope handling for RmlUI documents, with cleanup on Domain destruction
 
 <!-- TOC --><a name="quick-start"></a>
 ### Quick Start
