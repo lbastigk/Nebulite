@@ -38,6 +38,14 @@ void Compare::bindTransformations(){
     bindTransformation(&Compare::neq, neqName, neqDesc);
 }
 
+bool Compare::eq(std::span<std::string_view const> const& args, Data::JsonScope& jsonDoc){
+    return compare(rootKey, args, jsonDoc, std::equal_to());
+}
+
+bool Compare::neq(std::span<std::string_view const> const& args, Data::JsonScope& jsonDoc){
+    return compare(rootKey, args, jsonDoc, std::not_equal_to());
+}
+
 bool Compare::gt(std::span<std::string_view const> const& args, Data::JsonScope& jsonDoc) {
     return compare(rootKey, args, jsonDoc, std::greater());
 }
@@ -52,14 +60,6 @@ bool Compare::lt(std::span<std::string_view const> const& args, Data::JsonScope&
 
 bool Compare::leq(std::span<std::string_view const> const& args, Data::JsonScope& jsonDoc){
     return compare(rootKey, args, jsonDoc, std::less_equal());
-}
-
-bool Compare::eq(std::span<std::string_view const> const& args, Data::JsonScope& jsonDoc){
-    return compare(rootKey, args, jsonDoc, std::equal_to());
-}
-
-bool Compare::neq(std::span<std::string_view const> const& args, Data::JsonScope& jsonDoc){
-    return compare(rootKey, args, jsonDoc, std::not_equal_to());
 }
 
 } // namespace Nebulite::Module::Transformation
