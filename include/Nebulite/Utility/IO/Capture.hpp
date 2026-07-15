@@ -9,17 +9,14 @@
 //------------------------------------------
 // Includes
 
-// External
-#include "absl/container/flat_hash_map.h"
-
 // Standard library
 #include <cstdint> // NOLINT
 #include <deque>
+#include <functional>
 #include <iostream>
 #include <mutex>
 #include <string>
 #include <string_view>
-#include <thread>
 #include <type_traits>
 #include <vector>
 
@@ -45,7 +42,6 @@ struct HistoryLine{
         Warning,
         Error
     } type;
-    bool silent;
 };
 
 /**
@@ -169,16 +165,33 @@ public:
 
     template<typename F>
     std::string redirect(F f) {
-        // TODO: implement redirection through map
+        std::scoped_lock const lock(historyMutex);
+        redirectorStack.emplace_back();
+        disableOutput();
         std::invoke(f);
+        auto const history = redirectorStack.back().toString();
+        redirectorStack.pop_back();
+        if (redirectorStack.empty()) {
+            enableOutput();
+        }
+        return history;
     }
 
     template<typename F>
-    std::vector<HistoryLine> redirectHistory(F f) {
-        // TODO: implement redirection through map
+    std::deque<HistoryLine> redirectHistory(F f) {
+        std::scoped_lock const lock(historyMutex);
+        redirectorStack.emplace_back();
+        disableOutput();
         std::invoke(f);
+        auto const history = redirectorStack.back().getLines();
+        redirectorStack.pop_back();
+        if (redirectorStack.empty()) {
+            enableOutput();
+        }
+        return history;
     }
 
+private:
     /**
      * @brief Disables the output temporarily, preventing any further output from being printed to the console.
      * @details Output is still captured by the log!
@@ -209,25 +222,34 @@ public:
         error.outputEnabled = true;
     }
 
-private:
-    std::deque<HistoryLine> history; // List of captured output lines
-    std::mutex historyMutex;  // Mutex for thread-safe access to outputList
     bool outputEnabled = true;
 
-    class Redirector {
+    class History {
+        std::deque<HistoryLine> lines;
+
+        bool appendableToLastLine(HistoryLine::Type lineType);
     public:
-        explicit Redirector() = default;
-        virtual ~Redirector() = default;
+        History() = default;
+        ~History() = default;
 
-        Redirector(Redirector const&) = default;
-        Redirector& operator=(Redirector const&) = default;
-        Redirector(Redirector&&) = default;
-        Redirector& operator=(Redirector&&) = default;
+        History(History const&) = default;
+        History& operator=(History const&) = default;
+        History(History&&) = default;
+        History& operator=(History&&) = default;
 
-        virtual void addHistoryLine(std::string const& str, HistoryLine::Type lineType);
+        [[nodiscard]] std::deque<HistoryLine> const& getLines() const ;
+
+        void clear();
+
+        std::string toString();
+
+        void addHistoryLine(std::string const& str, HistoryLine::Type lineType);
     };
 
-    absl::flat_hash_map<std::thread::id, Redirector> redirectors;
+    History localHistory;
+    std::recursive_mutex historyMutex;  // Mutex for thread-safe access to outputList
+
+    std::vector<History> redirectorStack;
 };
 
 } // namespace Nebulite::Utility::IO
