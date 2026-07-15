@@ -8,9 +8,6 @@
 #include <cassert>
 #include <concepts>
 #include <cstddef>
-#include <exception>
-#include <functional>
-#include <stdexcept>
 #include <thread>
 #include <vector>
 
@@ -61,31 +58,19 @@ public:
      * @return The return value of the function f.
      */
     template<VoidFunctionOfT<T> PrepareF, FunctionOfTWithReturn<T, UsageReturn> F>
-    UsageReturn use(PrepareF&& prepare, F&& f) {
-        assert(
-            std::this_thread::get_id() == constructionThreadId &&
-            "RecursionSecure must be used in the same thread it was constructed in! "
-            "Did you forget to make the variable thread_local?"
-        );
-        recursionDepth++;
-        if (resourceStack.size() <= recursionDepth - 1) {
-            resourceStack.emplace_back();
-        }
-        assert(
-            resourceStack.size() >= recursionDepth &&
-            "Resource stack size should be at least the recursion depth."
-        );
-        auto& resource = resourceStack[recursionDepth - 1];
-        std::invoke(std::forward<PrepareF>(prepare), resource);
-        try {
-            auto r = std::invoke(std::forward<F>(f), resource);
-            recursionDepth--;
-            return r;
-        } catch (std::exception& e) {
-            recursionDepth--;
-            throw std::logic_error(e.what());
-        }
-    }
+    UsageReturn use(PrepareF&& prepare, F&& f) requires (!std::is_void_v<UsageReturn>);
+
+    /**
+     * @brief Use the resource in a recursion-safe manner.
+     * @details The resource will be cleaned up using the provided cleanup function after the function f is invoked.
+     * @tparam PrepareF The type of the function to prepare the resource. Function signature: void(T&)
+     * @tparam F The type of the function to use the resource. Function signature: UsageReturn(T&)
+     * @param prepare The function to prepare the resource before use.
+     * @param f The function to use the resource
+     */
+    template<VoidFunctionOfT<T> PrepareF, FunctionOfTWithReturn<T, UsageReturn> F>
+    void use(PrepareF&& prepare, F&& f) requires (std::is_void_v<UsageReturn>);
 };
 } // namespace Nebulite::Utility::Coordination
+#include "Nebulite/Utility/Coordination/RecursionSecure.tpp" // NOLINT
 #endif // NEBULITE_UTILITY_COORDINATION_RECURSIONSECURE_HPP
