@@ -27,6 +27,7 @@
 #include "Nebulite/Utility/Args/FuncTreeErrorMessages.hpp"
 #include "Nebulite/Utility/Args/ShapeClassifier.hpp"
 #include "Nebulite/Utility/CompileTimeEvaluate.hpp"
+#include "Nebulite/Utility/Coordination/RecursionSecure.hpp"
 #include "Nebulite/Utility/FunctionIdentity.hpp"
 #include "Nebulite/Utility/IO/Capture.hpp"
 #include "Nebulite/Utility/Sort.hpp"
@@ -489,8 +490,15 @@ ReturnValue FuncTree<ReturnValue, AdditionalArgs...>::parseStr(std::string_view 
     if (cmd.empty()) {
         return standardReturn.valDefault;
     }
-    std::vector<std::string_view> argsView;
-    return parseWithPrefix(argsView, cmd, addArgs...);
+    thread_local Coordination::RecursionSecure<std::vector<std::string_view>, ReturnValue> argsV;
+    return argsV.use(
+        [](std::vector<std::string_view>& args) noexcept {
+            args.clear();
+        },
+        [&](auto& argsView) -> ReturnValue {
+            return parseWithPrefix(argsView, cmd, addArgs...);
+        }
+    );
 }
 
 template <typename ReturnValue, typename... AdditionalArgs>
@@ -536,6 +544,7 @@ ReturnValue FuncTree<ReturnValue, AdditionalArgs...>::parse(std::vector<std::str
 
 template <typename ReturnValue, typename ... AdditionalArgs>
 ReturnValue FuncTree<ReturnValue, AdditionalArgs...>::parseWithPrefix(std::vector<std::string_view>& existingArgs, std::string_view cmd, AdditionalArgs... addArgs){
+    // Optimize to use parseQuotedArguments(existingArgs,cmd) once it supports vec string_view as output!
     // Quote-aware tokenization
     auto const [args, unclosedQuote] = StringHandler::parseQuotedArguments(cmd);
     std::ranges::transform(args, std::back_inserter(existingArgs), [](const std::string& str) { return std::string_view(str); });
