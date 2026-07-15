@@ -154,6 +154,12 @@ run_clang_tidy_from_stdin() {
 
     # Process each file from the null-delimited input
     while IFS= read -r -d '' file; do
+        # If file does not exist, it was likely deleted or moved, skip it
+        if [ ! -f "$file" ]; then
+            >&2 echo "Skipping non-existent file: $file. Was deleted/moved since the last git diff?"
+            continue
+        fi
+
         # Run test
         echo "Running clang-tidy on $file"
         tmpfile=$(mktemp)
@@ -205,10 +211,18 @@ run_clang_tidy_from_stdin() {
 ###################################################################
 # Main script logic
 
-# Check if --changed-files argument is provided
+echo "Running clang-tidy version $(clang-tidy --version | grep -oE '[0-9]+(\.[0-9]+)+')"
+
+# Check if an argument is provided
 tmpfile=$(mktemp)
 if [ "$1" == "--changed-files" ]; then
     {
+        git diff --name-only
+        git diff --cached --name-only
+    } | sort -u | grep -E '\.(cpp|hpp|h|tpp)$' | tr '\n' '\0' | organize_files >"$tmpfile"
+elif [ "$1" == "--main-diff" ]; then
+    {
+        git diff main...HEAD --name-only
         git diff --name-only
         git diff --cached --name-only
     } | sort -u | grep -E '\.(cpp|hpp|h|tpp)$' | tr '\n' '\0' | organize_files >"$tmpfile"

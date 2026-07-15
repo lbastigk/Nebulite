@@ -4,7 +4,6 @@
 // Standard library
 #include <algorithm>
 #include <array>
-#include <cctype>
 #include <cstddef>
 #include <cstdint> // NOLINT
 #include <numeric>
@@ -17,6 +16,7 @@
 
 // Nebulite
 #include "Nebulite/Utility/StringHandler.hpp"
+#include "Nebulite/Utility/TypeConversion.hpp"
 
 //------------------------------------------
 namespace Nebulite::Utility {
@@ -58,19 +58,8 @@ bool StringHandler::containsAnyOf(std::string_view const str, std::string_view c
     });
 }
 
-bool StringHandler::isNumber(std::string_view const str) {
-    // Check if all characters are digits, +, -, or .
-    // Then check if count of . is at most 1
-    // Then check if + or - is only at the start
-    return !str.empty()
-        && std::ranges::all_of(str | std::views::enumerate, [](auto const& indexedChar) {
-            auto const& [index, c] = indexedChar;
-            if (index == 0 && (c == '+' || c == '-')){
-                return true; // Allow + or - at the start))
-            }
-            return std::isdigit(c) || c == '.';
-        })
-        && std::ranges::count(str, '.') <= 1;
+bool StringHandler::isNumber(std::string_view str) {
+    return TypeConversion::String::to<double>(str).has_value();
 }
 
 // [STRIP]

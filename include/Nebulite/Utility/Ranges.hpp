@@ -7,6 +7,7 @@
 // Standard library
 #include <concepts>
 #include <cstddef>
+#include <functional>
 #include <iterator>
 #include <optional>
 #include <ranges>
@@ -58,6 +59,51 @@ public:
             return std::optional<std::vector<T>>{std::move(result)};
         }
     } constexpr collectOptional{};
+
+    /**
+     * @brief Collects a range of values into a vector with a transformation function.
+     *        If the transformation function returns an empty optional for any value, the result will be an empty optional.
+     */
+    static struct try_transform_fn {
+        /**
+         * @brief Collects a range of values into a vector with a transformation function.
+         *        If the transformation function returns an empty optional for any value, the result will be an empty optional.
+         * @tparam F The type of the transformation function.
+         */
+        template <typename F>
+        struct closure : std::ranges::range_adaptor_closure<closure<F>> {
+            F f;
+
+            explicit constexpr closure(F func) : f(std::move(func)){}
+
+            template <std::ranges::input_range R>
+            auto operator()(R&& r) const {
+                using Optional = std::remove_cvref_t<std::invoke_result_t<F&, std::ranges::range_reference_t<R>>>;
+                using T = Optional::value_type;
+
+                std::vector<T> result;
+                if constexpr (std::ranges::sized_range<R>)
+                    result.reserve(std::ranges::size(r));
+
+                for (auto&& elem : std::forward<R>(r)) {
+                    auto value = std::invoke(f, elem);
+                    if (!value)
+                        return std::optional<std::vector<T>>{std::nullopt};
+
+                    result.push_back(std::move(*value));
+                }
+
+                return std::optional<std::vector<T>>{std::move(result)};
+            }
+        };
+
+        template <typename F>
+        auto operator()(F f) const {
+            return closure<std::decay_t<F>>{
+                std::move(f)
+            };
+        }
+    } constexpr tryTransform{};
 
     /**
      * @brief An alternative implementation of std::views::enumerate, where the enumeration index is of type std::size_t
@@ -168,6 +214,76 @@ public:
         }
         return iota<ReturnType>(0, exclusiveMax);
     }
+
+
+
+    /**
+     * @brief Checks if all elements in a range are equal and satisfy a given predicate.
+     */
+    static struct all_equal_and_fn : std::ranges::range_adaptor_closure<all_equal_and_fn>{
+        template<class Pred>
+        struct all_equal_and_closure : range_adaptor_closure<all_equal_and_closure<Pred>>{
+            Pred pred;
+
+            explicit all_equal_and_closure(Pred p) : pred(std::move(p)){}
+
+            template<std::ranges::input_range R>
+            bool operator()(R&& r) const {
+                auto it = std::ranges::begin(r);
+                auto end = std::ranges::end(r);
+                (void)std::forward<R>(r);
+
+                if (it == end)
+                    return true;
+
+                auto const& first = *it;
+
+                if (!std::invoke(pred, first))
+                    return false;
+
+                for (++it; it != end; ++it) {
+                    if (!std::invoke(pred, *it))
+                        return false;
+
+                    if (*it != first)
+                        return false;
+                }
+
+                return true;
+            }
+        };
+
+        template<class Pred>
+        auto operator()(Pred pred) const {
+            return all_equal_and_closure<std::decay_t<Pred>>{
+                std::move(pred)
+            };
+        }
+    } constexpr all_equal_and{};
+
+    /**
+     * @brief Checks if all elements in a range are equal
+     */
+    static struct all_equal_fn : std::ranges::range_adaptor_closure<all_equal_fn>{
+        template<std::ranges::input_range R>
+        bool operator()(R&& r) const {
+            auto it = std::ranges::begin(r);
+            auto end = std::ranges::end(r);
+            (void)std::forward<R>(r);
+
+            if (it == end)
+                return true;
+
+            auto const& first = *it;
+
+            for (++it; it != end; ++it) {
+                if (*it != first)
+                    return false;
+            }
+
+            return true;
+        }
+    } constexpr all_equal{};
 };
 
 } // namespace Nebulite::Utility

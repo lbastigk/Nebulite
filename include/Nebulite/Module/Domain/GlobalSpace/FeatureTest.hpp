@@ -34,6 +34,8 @@ public:
     //------------------------------------------
     // Available Functions
 
+    // General
+
     [[nodiscard]] Constants::Event testFuncTree() const ;
     static auto constexpr testFuncTree_name = "feature-test functree";
     static auto constexpr testFuncTree_desc = "Builds a funcTree with extra arguments and tests it\n"
@@ -43,6 +45,8 @@ public:
     static auto constexpr selfOtherGlobalEvaluation_name = "feature-test context-evaluation";
     static auto constexpr selfOtherGlobalEvaluation_desc = "Tests evaluation of self and other global variable access in one expression\n"
         "Usage: feature-test context-evaluation\n";
+
+    // Keys
 
     [[nodiscard]] Constants::Event keyCombination(std::span<std::string_view const> const& args) const ;
     static auto constexpr keyCombination_name = "feature-test key-combination";
@@ -73,8 +77,12 @@ public:
         //------------------------------------------
         // Binding functions to the FuncTree
         bindCategory(category_feature_test_name, category_feature_test_desc);
+
+        // General
         bindFunction(&FeatureTest::testFuncTree, testFuncTree_name, testFuncTree_desc);
         bindFunction(&FeatureTest::selfOtherGlobalEvaluation, selfOtherGlobalEvaluation_name, selfOtherGlobalEvaluation_desc);
+
+        // Keys
         bindFunction(&FeatureTest::keyCombination, keyCombination_name, keyCombination_desc);
         bindFunction(&FeatureTest::findParentKey, findParentKeyName, findParentKeyDesc);
     }
