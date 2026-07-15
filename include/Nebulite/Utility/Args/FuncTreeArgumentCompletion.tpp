@@ -1,5 +1,5 @@
-#ifndef NEBULITE_INTERACTION_EXECUTION_FUNCTREEARGUMENTCOMPLETION_TPP
-#define NEBULITE_INTERACTION_EXECUTION_FUNCTREEARGUMENTCOMPLETION_TPP
+#ifndef NEBULITE_UTILITY_ARGS_FUNCTREEARGUMENTCOMPLETION_TPP
+#define NEBULITE_UTILITY_ARGS_FUNCTREEARGUMENTCOMPLETION_TPP
 
 //------------------------------------------
 // Includes
@@ -10,6 +10,7 @@
 #include <cstdint> // NOLINT
 #include <iterator>
 #include <optional>
+#include <ranges>
 #include <span>
 #include <string>
 #include <string_view>
@@ -23,17 +24,17 @@
 //------------------------------------------
 // Conditional includes
 
-#ifndef NEBULITE_INTERACTION_EXECUTION_FUNCTREE_HPP
-#include "Nebulite/Interaction/Execution/FuncTree.hpp"
-#endif // NEBULITE_INTERACTION_EXECUTION_FUNCTREE_HPP
+#ifndef NEBULITE_UTILITY_ARGS_FUNCTREE_HPP
+#include "Nebulite/Utility/Args/FuncTree.hpp"
+#endif // NEBULITE_UTILITY_ARGS_FUNCTREE_HPP
 
 //------------------------------------------
-namespace Nebulite::Interaction::Execution {
+namespace Nebulite::Utility::Args {
 
 template <typename ReturnValue, typename... AdditionalArgs>
 bool FuncTree<ReturnValue, AdditionalArgs...>::hasFunction(std::string_view const nameOrCommand) {
     // Make sure only the command name is used
-    auto tokens = Utility::StringHandler::split(nameOrCommand, ' ');
+    auto tokens = StringHandler::split(nameOrCommand, ' ');
 
     // Remove all tokens starting with "--" or empty tokens
     std::erase_if(tokens, [](std::string_view const token) {
@@ -288,7 +289,7 @@ FuncTree<ReturnValue, AdditionalArgs...>* FuncTree<ReturnValue, AdditionalArgs..
 
 template <typename ReturnValue, typename ... AdditionalArgs>
 std::vector<std::string> FuncTree<ReturnValue, AdditionalArgs...>::findCompletionForFullCommand(std::string_view const patternStr) {
-    auto [argsVec, _] = Utility::StringHandler::parseQuotedArguments(patternStr);
+    auto [argsVec, _] = StringHandler::parseQuotedArguments(patternStr);
 
     // Traverse into categories based on args, get pattern to complete
     auto const [pattern, ftree] = [&]() -> std::pair<std::string, FuncTree*> {
@@ -343,7 +344,7 @@ std::vector<std::string> FuncTree<ReturnValue, AdditionalArgs...>::findCompletio
 
 template <typename ReturnValue, typename ... AdditionalArgs>
 std::vector<std::string> FuncTree<ReturnValue, AdditionalArgs...>::findCompletions(std::string_view pattern) {
-    Utility::StringHandler::strip(pattern); // Remove leading and trailing whitespace
+    StringHandler::strip(pattern); // Remove leading and trailing whitespace
     std::vector<std::string> completions;
     auto collect = [&](auto const& map, std::string_view const prefix = "") {
         for (auto const& name : map | std::views::keys) {
@@ -370,14 +371,14 @@ std::vector<std::string> FuncTree<ReturnValue, AdditionalArgs...>::findCompletio
     });
 
     std::ranges::sort(completions);
-    std::erase_if(completions, [seen = std::string{}](auto const& item) mutable {
-        bool const duplicate = item == seen;
-        seen = item;
+    std::erase_if(completions, [lastItem = std::string{}](auto const& currentItem) mutable {
+        bool const duplicate = currentItem == lastItem;
+        lastItem = currentItem;
         return duplicate;
     });
 
     return completions;
 }
 
-} // namespace Nebulite::Interaction::Execution
-#endif // NEBULITE_INTERACTION_EXECUTION_FUNCTREEARGUMENTCOMPLETION_TPP
+} // namespace Nebulite::Utility::Args
+#endif // NEBULITE_UTILITY_ARGS_FUNCTREEARGUMENTCOMPLETION_TPP

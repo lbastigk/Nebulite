@@ -6,14 +6,14 @@
 #include <string_view>
 
 // Nebulite
-#include "Nebulite/Interaction/Execution/FuncTree.hpp"
 #include "Nebulite/Interaction/Logic/Expression.hpp"
 #include "Nebulite/Module/Base/TransformationModule.hpp"
+#include "Nebulite/Utility/Args/FuncTree.hpp"
 
 //------------------------------------------
 namespace Nebulite::Module::Base {
 
-TransformationModule::TransformationModule(std::shared_ptr<Interaction::Execution::FuncTree<bool, Data::JsonScope&>> const& funcTree)
+TransformationModule::TransformationModule(std::shared_ptr<Utility::Args::FuncTree<bool, Data::JsonScope&>> const& funcTree)
     : transformationFuncTree(funcTree){}
 
 TransformationModule::~TransformationModule() = default;

@@ -10,8 +10,8 @@
 #include "Nebulite/Constants/StandardCapture.hpp"
 #include "Nebulite/Core/GlobalSpace.hpp"
 #include "Nebulite/Interaction/Execution/Domain.hpp"
-#include "Nebulite/Interaction/Execution/FuncTree.hpp"
 #include "Nebulite/Module/Domain/GlobalSpace/FunctionCollision.hpp"
+#include "Nebulite/Utility/Args/FuncTree.hpp"
 
 //------------------------------------------
 namespace Nebulite::Module::Domain::GlobalSpace {
@@ -48,7 +48,7 @@ Constants::Event FunctionCollision::debug_collisionDetect_function(std::span<std
         }
     }
 
-    Interaction::Execution::FuncTree<bool,bool> testTree("Test",true,true, domain.capture);
+    Utility::Args::FuncTree<bool,bool> testTree("Test",true,true, domain.capture);
 
     if (fail) {
         // This will fail, as the function name is already registered
@@ -84,7 +84,7 @@ Constants::Event FunctionCollision::debug_collisionDetect_category(std::span<std
         }
     }
 
-    Interaction::Execution::FuncTree<bool,bool> testTree("Test",true,true, domain.capture);
+    Utility::Args::FuncTree<bool,bool> testTree("Test",true,true, domain.capture);
 
     if (fail) {
         // This will fail, as the category name is already registered
@@ -127,7 +127,7 @@ Constants::Event FunctionCollision::debug_collisionDetect_variable(std::span<std
         }
     }
 
-    Interaction::Execution::FuncTree<bool,bool> testTree("Test",true,true, domain.capture);
+    Utility::Args::FuncTree<bool,bool> testTree("Test",true,true, domain.capture);
     static bool headless = false;
     static auto constexpr headless_var_desc = "Indicates whether the application is running in headless mode (without GUI).";
 

@@ -1,5 +1,5 @@
-#ifndef NEBULITE_INTERACTION_EXECUTION_FUNCTREE_TPP
-#define NEBULITE_INTERACTION_EXECUTION_FUNCTREE_TPP
+#ifndef NEBULITE_UTILITY_ARGS_FUNCTREE_TPP
+#define NEBULITE_UTILITY_ARGS_FUNCTREE_TPP
 
 //------------------------------------------
 // Includes
@@ -22,9 +22,10 @@
 #include <absl/container/flat_hash_map.h>
 
 // Nebulite
-#include "Nebulite/Interaction/Execution/FuncTreeErrorMessages.hpp"
-#include "Nebulite/Interaction/Execution/ShapeClassifier.hpp"
 #include "Nebulite/Math/Equality.hpp"
+#include "Nebulite/Utility/Args/CmdArgs.hpp"
+#include "Nebulite/Utility/Args/FuncTreeErrorMessages.hpp"
+#include "Nebulite/Utility/Args/ShapeClassifier.hpp"
 #include "Nebulite/Utility/CompileTimeEvaluate.hpp"
 #include "Nebulite/Utility/FunctionIdentity.hpp"
 #include "Nebulite/Utility/IO/Capture.hpp"
@@ -34,18 +35,18 @@
 //------------------------------------------
 // Conditional includes
 
-#ifndef NEBULITE_INTERACTION_EXECUTION_FUNCTREE_HPP
-#include "Nebulite/Interaction/Execution/FuncTree.hpp"
-#endif // NEBULITE_INTERACTION_EXECUTION_FUNCTREE_HPP
+#ifndef NEBULITE_UTILITY_ARGS_FUNCTREE_HPP
+#include "Nebulite/Utility/Args/FuncTree.hpp"
+#endif // NEBULITE_UTILITY_ARGS_FUNCTREE_HPP
 
 //------------------------------------------
-namespace Nebulite::Interaction::Execution {
+namespace Nebulite::Utility::Args {
 
 //------------------------------------------
 // Constructor implementation
 
 template <typename ReturnValue, typename... AdditionalArgs>
-FuncTree<ReturnValue, AdditionalArgs...>::FuncTree(std::string_view const treeName, ReturnValue const& valDefault, ReturnValue const& valFunctionNotFound, Utility::IO::Capture& captureInstance)
+FuncTree<ReturnValue, AdditionalArgs...>::FuncTree(std::string_view const treeName, ReturnValue const& valDefault, ReturnValue const& valFunctionNotFound, IO::Capture& captureInstance)
     : TreeName(treeName)
     , capture(captureInstance)
     , standardReturn{valDefault, valFunctionNotFound}
@@ -56,7 +57,7 @@ FuncTree<ReturnValue, AdditionalArgs...>::FuncTree(std::string_view const treeNa
         FunctionInfo{
             {
                 makeFunctionPtr(this, &FuncTree::help),
-                Utility::FunctionIdentity{this, &FuncTree::help}
+                FunctionIdentity{this, &FuncTree::help}
             },
         helpDesc
         }
@@ -68,7 +69,7 @@ FuncTree<ReturnValue, AdditionalArgs...>::FuncTree(std::string_view const treeNa
         FunctionInfo{
             {
                 makeFunctionPtr(this, &FuncTree::complete),
-                Utility::FunctionIdentity{this, &FuncTree::complete}
+                FunctionIdentity{this, &FuncTree::complete}
             },
         completeDesc
         }
@@ -115,7 +116,7 @@ void FuncTree<ReturnValue, AdditionalArgs...>::bindFunction(
     std::string_view helpDescription
 ) {
     auto fp = makeFunctionPtr(functionPtr);
-    auto fp_identity = Utility::FunctionIdentity(functionPtr);
+    auto fp_identity = FunctionIdentity(functionPtr);
     bindFunction({fp, fp_identity}, name, helpDescription);
 }
 
@@ -123,7 +124,7 @@ template <typename ReturnValue, typename... AdditionalArgs>
 void FuncTree<ReturnValue, AdditionalArgs...>::bindFunction(WrappedFunction const& func, std::string_view name, std::string_view const helpDescription) {
     // If the name has a whitespace, the function has to be bound to a category hierarchically
     if (name.contains(' ')) {
-        auto const pathStructure = Utility::StringHandler::split(name, ' ');
+        auto const pathStructure = StringHandler::split(name, ' ');
         if (pathStructure.size() < 2) {
             BindErrorMessage::invalidFunctionName(capture, name);
         }
@@ -205,7 +206,7 @@ void FuncTree<ReturnValue, AdditionalArgs...>::bindCategory(std::string_view con
     }
 
     // Category traversal
-    auto const categoryStructure = Utility::StringHandler::split(name, ' ');
+    auto const categoryStructure = StringHandler::split(name, ' ');
     absl::flat_hash_map<std::string, CategoryInfo>* currentCategoryMap = &bindingContainer.categories;
     for (auto const& currentCategoryName : categoryStructure | std::views::take(categoryStructure.size() - 1)) {
         if (currentCategoryMap->find(currentCategoryName) != currentCategoryMap->end()) {
@@ -267,7 +268,7 @@ FuncTree<ReturnValue, AdditionalArgs...>::makeFunctionPtr(Func functionPtr) {
 
     // Helpful compile-time error for pointer-to-member functions passed without an object
     if constexpr (std::is_member_function_pointer_v<DecayF>) {
-        static_assert(Utility::CompileTimeEvaluate::always_false(),
+        static_assert(CompileTimeEvaluate::always_false(),
                       "makeFunctionPtr(func) received a pointer-to-member-function. "
                       "Pass an object + member pointer using makeFunctionPtr(objPtr, &Class::mem) "
                       "or provide a free/static function or callable (lambda/std::function).");
@@ -313,7 +314,7 @@ FuncTree<ReturnValue, AdditionalArgs...>::makeFunctionPtr(Func functionPtr) {
                                 std::function<ReturnValue(AdditionalArgs...)>(functionPtr));
         }
         else {
-            static_assert(Utility::CompileTimeEvaluate::always_false(), "makeFunctionPtr(func) received an unknown free/static function pointer type");
+            static_assert(CompileTimeEvaluate::always_false(), "makeFunctionPtr(func) received an unknown free/static function pointer type");
         }
     }
 
@@ -343,7 +344,7 @@ FuncTree<ReturnValue, AdditionalArgs...>::makeFunctionPtr(Func functionPtr) {
                             std::function<ReturnValue(AdditionalArgs...)>(functionPtr));
     }
     else {
-        static_assert(Utility::CompileTimeEvaluate::always_false(), "makeFunctionPtr(func) could not deduce a supported function shape");
+        static_assert(CompileTimeEvaluate::always_false(), "makeFunctionPtr(func) could not deduce a supported function shape");
         std::unreachable();
     }
 }
@@ -424,7 +425,7 @@ FuncTree<ReturnValue, AdditionalArgs...>::makeFunctionPtr(Obj* objectPtr, MemFun
         }
     }
     else {
-        static_assert(Utility::CompileTimeEvaluate::always_false(), "makeFunctionPtr(Obj, MemFunc) received an unsupported member function pointer type");
+        static_assert(CompileTimeEvaluate::always_false(), "makeFunctionPtr(Obj, MemFunc) received an unsupported member function pointer type");
         std::unreachable();
     }
 }
@@ -454,7 +455,7 @@ std::vector<std::pair<std::string, std::string_view>> FuncTree<ReturnValue, Addi
         allFunctions.emplace_back(categoryName, cat.description);
     }
 
-    std::ranges::sort(allFunctions, Utility::Sort::caseInsensitiveLess, &Pair::first);
+    std::ranges::sort(allFunctions, Sort::caseInsensitiveLess, &Pair::first);
     return allFunctions;
 }
 
@@ -475,7 +476,7 @@ std::vector<std::pair<std::string, std::string_view>> FuncTree<ReturnValue, Addi
             }
         }
     }
-    std::ranges::sort(allVariables, Utility::Sort::caseInsensitiveLess, &Pair::first);
+    std::ranges::sort(allVariables, Sort::caseInsensitiveLess, &Pair::first);
     return allVariables;
 }
 
@@ -484,7 +485,7 @@ std::vector<std::pair<std::string, std::string_view>> FuncTree<ReturnValue, Addi
 
 template <typename ReturnValue, typename... AdditionalArgs>
 ReturnValue FuncTree<ReturnValue, AdditionalArgs...>::parseStr(std::string_view cmd, AdditionalArgs... addArgs) {
-    Utility::StringHandler::rStrip(cmd);
+    StringHandler::rStrip(cmd);
     if (cmd.empty()) {
         return standardReturn.valDefault;
     }
@@ -536,7 +537,7 @@ ReturnValue FuncTree<ReturnValue, AdditionalArgs...>::parse(std::vector<std::str
 template <typename ReturnValue, typename ... AdditionalArgs>
 ReturnValue FuncTree<ReturnValue, AdditionalArgs...>::parseWithPrefix(std::vector<std::string_view>& existingArgs, std::string_view cmd, AdditionalArgs... addArgs){
     // Quote-aware tokenization
-    auto const [args, unclosedQuote] = Utility::StringHandler::parseQuotedArguments(cmd);
+    auto const [args, unclosedQuote] = StringHandler::parseQuotedArguments(cmd);
     std::ranges::transform(args, std::back_inserter(existingArgs), [](const std::string& str) { return std::string_view(str); });
     if (unclosedQuote) {
         capture.error.println("Warning: Unclosed quote in command: ", cmd);
@@ -555,7 +556,7 @@ ReturnValue FuncTree<ReturnValue, AdditionalArgs...>::executeFunction(std::strin
 
     // Strip whitespaces of name
     std::string_view function = name;
-    Utility::StringHandler::strip(function);
+    StringHandler::strip(function);
 
     // Find and execute the function
     auto functionPosition = bindingContainer.functions.find(function);
@@ -601,13 +602,13 @@ ReturnValue FuncTree<ReturnValue, AdditionalArgs...>::executeFunction(std::strin
             }
             // Unsupported function type
             else {
-                static_assert(Utility::CompileTimeEvaluate::always_false(), "Unsupported function signature in FuncTree::executeFunction. Check if you just need to remove some const/ref qualifiers.");
+                static_assert(CompileTimeEvaluate::always_false(), "Unsupported function signature in FuncTree::executeFunction. Check if you just need to remove some const/ref qualifiers.");
             }
         }, functionPtr);
     }
     // Find function name in bindingContainer.categories
     if (bindingContainer.categories.find(function) != bindingContainer.categories.end()) {
-        return bindingContainer.categories[function].tree->parseStr(Utility::StringHandler::recombineArgs(args), addArgs...);
+        return bindingContainer.categories[function].tree->parseStr(StringHandler::recombineArgs(args), addArgs...);
     }
 
     // Return error if function not found
@@ -677,6 +678,6 @@ std::shared_ptr<FuncTree<ReturnValue, AdditionalArgs...>> FuncTree<ReturnValue, 
     return nullptr;
 }
 
-} // namespace Nebulite::Interaction::Execution
-#include "Nebulite/Interaction/Execution/FuncTreeArgumentCompletion.tpp" // NOLINT
-#endif // NEBULITE_INTERACTION_EXECUTION_FUNCTREE_TPP
+} // namespace Nebulite::Utility::Args
+#include "Nebulite/Utility/Args/FuncTreeArgumentCompletion.tpp" // NOLINT
+#endif // NEBULITE_UTILITY_ARGS_FUNCTREE_TPP

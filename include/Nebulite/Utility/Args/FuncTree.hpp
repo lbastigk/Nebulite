@@ -1,5 +1,5 @@
-#ifndef NEBULITE_INTERACTION_EXECUTION_FUNCTREE_HPP
-#define NEBULITE_INTERACTION_EXECUTION_FUNCTREE_HPP
+#ifndef NEBULITE_UTILITY_ARGS_FUNCTREE_HPP
+#define NEBULITE_UTILITY_ARGS_FUNCTREE_HPP
 
 //------------------------------------------
 // Includes
@@ -20,14 +20,14 @@
 #include <absl/container/flat_hash_map.h>
 
 // Nebulite
-#include "Nebulite/Interaction/Execution/CmdArgs.hpp"
+#include "Nebulite/Utility/Args/CmdArgs.hpp"
 #include "Nebulite/Utility/FunctionIdentity.hpp"
 #include "Nebulite/Utility/IO/Capture.hpp"
 
 //------------------------------------------
-namespace Nebulite::Interaction::Execution {
+namespace Nebulite::Utility::Args {
 /**
- * @class Nebulite::Interaction::Execution::FuncTree
+ * @class Nebulite::Utility::Args::FuncTree
  * @brief Function tree class for managing and executing functions through linguistic commands.
  * @details The FuncTree class allows for the binding of functions and variables to a command tree structure,
  *          enabling modular and flexible execution of commands based on user input.
@@ -83,7 +83,7 @@ public:
      */
     struct WrappedFunction {
         FunctionPtr function;
-        Utility::FunctionIdentity identity;
+        FunctionIdentity identity;
     };
 
     //------------------------------------------
@@ -112,7 +112,7 @@ public:
      * @param valFunctionNotFound Value to return if the parsed function was not found
      * @param captureInstance Capture instance for logging
      */
-    FuncTree(std::string_view treeName, ReturnValue const& valDefault, ReturnValue const& valFunctionNotFound, Utility::IO::Capture& captureInstance);
+    FuncTree(std::string_view treeName, ReturnValue const& valDefault, ReturnValue const& valFunctionNotFound, IO::Capture& captureInstance);
 
     /**
      * @brief Inherits functions from another Tree.
@@ -245,7 +245,7 @@ private:
     std::function<ReturnValue()> preParse = nullptr;
 
     // Capture instance for logging
-    Utility::IO::Capture& capture;
+    IO::Capture& capture;
 
     struct StandardReturnValues {
         ReturnValue valDefault;
@@ -417,8 +417,8 @@ private:
      */
     FuncTree* traverseIntoCategory(std::string_view categoryName, FuncTree const* ftree);
 };
-} // namespace Nebulite::Interaction::Execution
+} // namespace Nebulite::Utility::Args
 
 // Template implementations
-#include "Nebulite/Interaction/Execution/FuncTree.tpp" // NOLINT
-#endif // NEBULITE_INTERACTION_EXECUTION_FUNCTREE_HPP
+#include "Nebulite/Utility/Args/FuncTree.tpp" // NOLINT
+#endif // NEBULITE_UTILITY_ARGS_FUNCTREE_HPP

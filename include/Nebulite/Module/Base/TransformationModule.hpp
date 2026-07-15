@@ -15,8 +15,8 @@
 
 // Nebulite
 #include "Nebulite/Data/Document/ScopedKeyView.hpp"
-#include "Nebulite/Interaction/Execution/FuncTree.hpp"
 #include "Nebulite/Module/Base/DomainModuleBase.hpp"
+#include "Nebulite/Utility/Args/FuncTree.hpp"
 
 //------------------------------------------
 // Forward declarations
@@ -30,7 +30,7 @@ class JsonScope;
 namespace Nebulite::Module::Base {
 class TransformationModule {
 public:
-    explicit TransformationModule(std::shared_ptr<Interaction::Execution::FuncTree<bool, Data::JsonScope&>> const& funcTree);
+    explicit TransformationModule(std::shared_ptr<Utility::Args::FuncTree<bool, Data::JsonScope&>> const& funcTree);
 
     virtual ~TransformationModule();
 
@@ -80,7 +80,7 @@ public:
 private:
     static_assert(rootKeyStr.empty(), "The rootKeyStr must be an empty string for correct operation of the transformation module.");
 
-    std::shared_ptr<Interaction::Execution::FuncTree<bool, Data::JsonScope&>> transformationFuncTree;
+    std::shared_ptr<Utility::Args::FuncTree<bool, Data::JsonScope&>> transformationFuncTree;
 };
 } // namespace Nebulite::Module::Base
 #endif // NEBULITE_MODULE_BASE_TRANSFORMATIONMODULE_HPP
