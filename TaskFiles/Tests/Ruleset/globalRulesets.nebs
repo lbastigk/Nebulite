@@ -18,7 +18,7 @@ cam set 375 375 c
 set-fps 100
 
 set physics.G 10
-time set-fixed-dt 1
+time set-fixed-dt 1000
 
 ##########################################################################
 # Test with static ruleset
@@ -41,9 +41,9 @@ eval nop {global:providedScope.module.domain.renderObject.mirror.renderObject.id
 eval nop {global:providedScope.module.domain.renderObject.mirror.renderObject.idx2.physics.aY|assert nonEmpty Acceleration should not be empty}
 
 # Verify: equal magnitude, opposite direction
-assert $(eq({global:providedScope.module.domain.renderObject.mirror.renderObject.idx3.physics.aY},-{global:providedScope.module.domain.renderObject.mirror.renderObject.idx4.physics.aY}))
-eval nop {global:providedScope.module.domain.renderObject.mirror.renderObject.idx3.physics.aY|gt 0|assert true}
-eval nop {global:providedScope.module.domain.renderObject.mirror.renderObject.idx4.physics.aY|lt 0|assert true}
+assert $(eq({global:providedScope.module.domain.renderObject.mirror.renderObject.idx1.physics.aY},-{global:providedScope.module.domain.renderObject.mirror.renderObject.idx2.physics.aY}))
+eval nop {global:providedScope.module.domain.renderObject.mirror.renderObject.idx1.physics.aY|gt 0|assert true}
+eval nop {global:providedScope.module.domain.renderObject.mirror.renderObject.idx2.physics.aY|lt 0|assert true}
 
 ##########################################################################
 # Reset the scene by deleting the objects
@@ -57,8 +57,8 @@ wait 10
 ##########################################################################
 # Test with json ruleset
 
-eval spawn ./Resources/Renderobjects/Planets/obj1_classic.jsonc|set posX 375|set posY 250|set physics.vX 0|set physics.vY 0
-eval spawn ./Resources/Renderobjects/Planets/obj2_classic.jsonc|set posX 375|set posY 500|set physics.vX 0|set physics.vY 0
+eval spawn ./Resources/Renderobjects/Planets/obj2_classic.jsonc|set posX 375|set posY 250|set physics.vX 0|set physics.vY 0
+eval spawn ./Resources/Renderobjects/Planets/obj1_classic.jsonc|set posX 375|set posY 500|set physics.vX 0|set physics.vY 0
 
 # Select the objects and mirror values to globalspace
 wait 1
