@@ -4,8 +4,13 @@
 //------------------------------------------
 // Includes
 
+// Standard library
+#include <span>
+#include <string_view>
+
 // Nebulite
 #include "Nebulite/Constants/Event.hpp"
+#include "Nebulite/Interaction/Context.hpp"
 #include "Nebulite/Module/Base/DomainModule.hpp"
 
 //------------------------------------------
@@ -54,7 +59,7 @@ public:
 
     [[nodiscard]] Constants::Event task(int argc, char const** argv) const ;
     static auto constexpr task_name = "task";
-    static auto constexpr task_desc = "Loads tasks from a file into the taskQueue.\n"
+    static auto constexpr task_desc = "Loads tasks from a file into the taskQueue, but does not execute them immediately.\n"
         "\n"
         "Usage: task <filename>\n"
         "\n"
@@ -73,6 +78,10 @@ public:
         "        subCommand1\n"
         "        subCommand2\n"
         "    mainCommand4\n";
+
+    [[nodiscard]] Constants::Event taskExec(std::span<std::string_view const> args, Interaction::Context ctx, Interaction::ContextScope ctxScope) const ;
+    static auto constexpr taskExecName = "task-exec";
+    static auto constexpr taskExecDesc = "Same as 'task', but with instant execution.";
 
     [[nodiscard]] Constants::Event always(int argc, char const** argv) const ;
     static auto constexpr always_name = "always";
@@ -110,6 +119,7 @@ public:
         bindFunction(&General::exit, exit_name, exit_desc);
         bindFunction(&General::wait, wait_name, wait_desc);
         bindFunction(&General::task, task_name, task_desc);
+        bindFunction(&General::taskExec, taskExecName, taskExecDesc);
         bindFunction(&General::always, always_name, always_desc);
         bindFunction(&General::alwaysClear, alwaysClear_name, alwaysClear_desc);
     }

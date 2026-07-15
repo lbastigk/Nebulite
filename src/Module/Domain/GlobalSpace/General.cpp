@@ -2,14 +2,19 @@
 // Includes
 
 // Standard library
+#include <span>
 #include <sstream>
 #include <string>
+#include <string_view>
 
 // Nebulite
 #include "Nebulite/Constants/Event.hpp"
 #include "Nebulite/Constants/StandardCapture.hpp"
 #include "Nebulite/Core/GlobalSpace.hpp"
+#include "Nebulite/Data/TaskQueue.hpp"
+#include "Nebulite/Interaction/Context.hpp"
 #include "Nebulite/Module/Domain/GlobalSpace/General.hpp"
+#include "Nebulite/Utility/StringHandler.hpp"
 
 //------------------------------------------
 namespace Nebulite::Module::Domain::GlobalSpace {
@@ -63,6 +68,20 @@ Constants::Event General::task(int const argc, char const** argv) const {
     std::string const& filename = argv[1];
     domain.tasks.addScript(filename, domain.capture);
     return Constants::Event::Success;
+}
+
+Constants::Event General::taskExec(std::span<std::string_view const> args, Interaction::Context ctx, Interaction::ContextScope ctxScope) const {
+    auto const fileName = Utility::StringHandler::recombineArgs(args.subspan(1));
+    domain.capture.log.println("Loading task list from file and executing immediately: ", fileName);
+
+    // Rollback RNG, loading a task file should not change the RNG state
+    domain.rngRollback();
+
+    // Warn if file ending is not .nebs
+    Data::TaskQueue tq("LocalTaskQueue", false);
+    tq.addScript(fileName, domain.capture);
+    auto result = tq.resolve(ctx, ctxScope, true);
+    return result.worstEvent();
 }
 
 Constants::Event General::always(int argc, char const** argv) const {
