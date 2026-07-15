@@ -164,6 +164,15 @@ public:
 
 private:
     /**
+     * @brief Unique ids for cache lookup
+     */
+    struct CacheId {
+        uint64_t self = 0;
+        uint64_t other = 0;
+        uint64_t global = 0;
+    } cacheId;
+
+    /**
      * @struct Nebulite::Interaction::Logic::Expression::LinkedNumericValueLists
      * @brief Holds lists of LinkedNumericValue entries for different contexts.
      */

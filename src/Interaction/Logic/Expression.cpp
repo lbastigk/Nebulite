@@ -7,6 +7,7 @@
 #include <cstddef>
 #include <cstdint> // NOLINT
 #include <memory>
+#include <ranges>
 #include <sstream>
 #include <string>
 #include <string_view>
@@ -19,6 +20,7 @@
 // Nebulite
 #include "Nebulite/Core/GlobalSpace.hpp"
 #include "Nebulite/Data/Document/JsonScope.hpp"
+#include "Nebulite/Data/MappedOrderedCacheList.hpp"
 #include "Nebulite/Interaction/Context.hpp"
 #include "Nebulite/Interaction/Logic/Expression.hpp"
 #include "Nebulite/Interaction/Logic/ExpressionComponent.hpp"
@@ -27,6 +29,7 @@
 #include "Nebulite/Math/ExpressionPrimitives.hpp"
 #include "Nebulite/Nebulite.hpp"
 #include "Nebulite/Utility/CompileTimeEvaluate.hpp"
+#include "Nebulite/Utility/Ranges.hpp"
 #include "Nebulite/Utility/StringHandler.hpp"
 
 //------------------------------------------
@@ -280,7 +283,6 @@ void Expression::parseIntoComponents(std::string_view const expr) {
     }
 }
 
-
 void Expression::parseTokenTypeEval(std::string_view const token) {
     // $[leading zero][alignment][.][precision]<type:f,i>
     // - bool leading zero   : on/off
@@ -405,6 +407,11 @@ Expression::Expression(std::string_view const expr){
     };
     reset();
     parse(expr);
+
+
+    cacheId.self = Data::MappedOrderedCacheList::generateUniqueId(std::string("self:") + std::string(expr));
+    cacheId.other = Data::MappedOrderedCacheList::generateUniqueId(std::string("other:") + std::string(expr));
+    cacheId.global = Data::MappedOrderedCacheList::generateUniqueId(std::string("global:") + std::string(expr));
 }
 
 void Expression::parse(std::string_view const expr) {
@@ -455,14 +462,22 @@ void Expression::updateCaches(ContextScope const& context) const {
 }
 
 void Expression::updateStableValues(ContextScope const& context) const {
-    auto updateContext = [&](auto const& currentContext, auto const& vdList) {
-        for (auto const& vde : vdList) {
-            vde->copyFromJson(currentContext);
+    auto updateFromCacheList = [](auto& jsonScope, auto const& vdList, uint64_t id) {
+        if (vdList.empty()) {
+            return;
+        }
+        std::vector<Data::ScopedKeyView> const keys = vdList
+            | std::views::transform([](auto const& vde) { return vde->getScopedKey(); })
+            | std::ranges::to<std::vector<Data::ScopedKeyView>>();
+
+        auto* v = jsonScope.ensureOrderedCacheList(id, keys);
+        for (auto [i, vde] : vdList | Utility::Ranges::enumerate) {
+            vde->setDirect(*v[i]);
         }
     };
-    updateContext(context.self, linkedNumericValues.stable.self);
-    updateContext(context.other, linkedNumericValues.stable.other);
-    updateContext(context.global, linkedNumericValues.stable.global);
+    updateFromCacheList(context.self, linkedNumericValues.stable.self, cacheId.self);
+    updateFromCacheList(context.other, linkedNumericValues.stable.other, cacheId.other);
+    updateFromCacheList(context.global, linkedNumericValues.stable.global, cacheId.global);
 }
 
 void Expression::updateUnstableValues(ContextScope const& context) const {
@@ -507,10 +522,10 @@ bool Expression::recalculateIsReturnableAsDouble() const {
 bool Expression::recalculateIsReturnableAsInt() const {
     return components.size() == 1
         && components[0]->type == ExpressionComponent::Type::eval
+        && components[0]->formatter.cast == Formatter::CastType::to_int
         && !components[0]->formatter.alignment
         && !components[0]->formatter.leadingZero
-        && !components[0]->formatter.precision
-        && components[0]->formatter.cast == Formatter::CastType::to_int;
+        && !components[0]->formatter.precision;
 }
 
 bool Expression::recalculateIsReturnableAsString() const {
@@ -562,6 +577,61 @@ std::string Expression::eval(ContextScope const& context, std::size_t const recu
     }
     return result;
 }
+
+// Doesn't work ... why? The following test fails: task TaskFiles/Tests/Expression/cache.nebs
+/*
+std::string Expression::eval(ContextScope const& context, std::size_t const recursionDepth) const {
+    //------------------------------------------
+    // Update caches so that tinyexpr has the correct references
+    updateCaches(context);
+
+    //------------------------------------------
+    // Resource allocators
+
+    // Avoid reallocation of string for each component, as this is a hot path
+    thread_local Utility::Coordination::RecursionSecure<std::string, void> tokenWrapper;
+    thread_local Utility::Coordination::RecursionSecure<std::string, std::string> resultWrapper;
+
+    //------------------------------------------
+    // Evaluate expression
+    // Concatenate results of each component
+    return resultWrapper.use(
+        [](auto& result) noexcept {
+            result.resize(0);
+        },
+        [&](auto& result) {
+            for (auto const& component : components) {
+                tokenWrapper.use(
+                    [](auto& token) noexcept {
+                        token.resize(0);
+                    },
+                    [&](auto& token) {
+                        switch (component->type) {
+                        //------------------------------------------
+                        case ExpressionComponent::Type::variable:
+                            if (!component->handleComponentTypeVariable(token, context, recursionDepth)) {
+                                token = "null";
+                            }
+                            break;
+                        //------------------------------------------
+                        case ExpressionComponent::Type::eval:
+                            component->handleComponentTypeEval(token);
+                            break;
+                        case ExpressionComponent::Type::text:
+                            token = component->stringRepresentation;
+                            break;
+                        default:
+                            break;
+                        }
+                        result += token;
+                    }
+                );
+            }
+            return result;
+        }
+    );
+}
+*/
 
 double Expression::evalAsDouble(ContextScope const& context) const {
     updateCaches(context);
