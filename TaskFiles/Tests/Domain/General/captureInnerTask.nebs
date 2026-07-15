@@ -1,0 +1,7 @@
+# Inner task that is executed by the outer capture
+
+# Forwarded to outer task:
+for i 1 10 echo {i}
+
+# Not forwarded, as we capture it:
+capture output.inner.taskExec echo "This will only be stored in output.inner.taskExec"

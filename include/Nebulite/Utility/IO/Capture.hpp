@@ -10,13 +10,15 @@
 // Includes
 
 // Standard library
-#include <cstdint>
+#include <cstdint> // NOLINT
 #include <deque>
+#include <functional>
 #include <iostream>
 #include <mutex>
 #include <string>
 #include <string_view>
 #include <type_traits>
+#include <vector>
 
 //------------------------------------------
 // Forward declarations
@@ -40,7 +42,6 @@ struct HistoryLine{
         Warning,
         Error
     } type;
-    bool silent;
 };
 
 /**
@@ -162,6 +163,35 @@ public:
     // map[threadid]->vector<redirects>
     // Could get complicated ...
 
+    template<typename F>
+    std::string redirect(F f) {
+        std::scoped_lock const lock(historyMutex);
+        redirectorStack.emplace_back();
+        disableOutput();
+        std::invoke(f);
+        auto const history = redirectorStack.back().toString();
+        redirectorStack.pop_back();
+        if (redirectorStack.empty()) {
+            enableOutput();
+        }
+        return history;
+    }
+
+    template<typename F>
+    std::deque<HistoryLine> redirectHistory(F f) {
+        std::scoped_lock const lock(historyMutex);
+        redirectorStack.emplace_back();
+        disableOutput();
+        std::invoke(f);
+        auto const history = redirectorStack.back().getLines();
+        redirectorStack.pop_back();
+        if (redirectorStack.empty()) {
+            enableOutput();
+        }
+        return history;
+    }
+
+private:
     /**
      * @brief Disables the output temporarily, preventing any further output from being printed to the console.
      * @details Output is still captured by the log!
@@ -192,10 +222,35 @@ public:
         error.outputEnabled = true;
     }
 
-private:
-    std::deque<HistoryLine> history; // List of captured output lines
-    std::mutex historyMutex;  // Mutex for thread-safe access to outputList
     bool outputEnabled = true;
+
+    class History {
+        bool startNewLine = false;
+        std::deque<HistoryLine> lines;
+
+        bool appendableToLastLine(HistoryLine::Type lineType);
+    public:
+        History() = default;
+        ~History() = default;
+
+        History(History const&) = default;
+        History& operator=(History const&) = default;
+        History(History&&) = default;
+        History& operator=(History&&) = default;
+
+        [[nodiscard]] std::deque<HistoryLine> const& getLines() const ;
+
+        void clear();
+
+        std::string toString();
+
+        void addHistoryLine(std::string const& str, HistoryLine::Type lineType);
+    };
+
+    History localHistory;
+    std::recursive_mutex historyMutex;  // Mutex for thread-safe access to outputList
+
+    std::vector<History> redirectorStack;
 };
 
 } // namespace Nebulite::Utility::IO
