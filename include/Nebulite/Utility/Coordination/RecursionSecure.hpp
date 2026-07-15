@@ -62,18 +62,19 @@ public:
      */
     template<VoidFunctionOfT<T> PrepareF, FunctionOfTWithReturn<T, UsageReturn> F>
     UsageReturn use(PrepareF&& prepare, F&& f) {
-        assert(std::this_thread::get_id() == constructionThreadId &&
-               "RecursionSecure must be used in the same thread it was constructed in!");
-
+        assert(
+            std::this_thread::get_id() == constructionThreadId &&
+            "RecursionSecure must be used in the same thread it was constructed in! "
+            "Did you forget to make the variable thread_local?"
+        );
         recursionDepth++;
-
         if (resourceStack.size() <= recursionDepth - 1) {
             resourceStack.emplace_back();
         }
-
-        assert(resourceStack.size() >= recursionDepth &&
-               "Resource stack size should be at least the recursion depth.");
-
+        assert(
+            resourceStack.size() >= recursionDepth &&
+            "Resource stack size should be at least the recursion depth."
+        );
         auto& resource = resourceStack[recursionDepth - 1];
         std::invoke(std::forward<PrepareF>(prepare), resource);
         try {
