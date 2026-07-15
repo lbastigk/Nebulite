@@ -22,6 +22,7 @@
 #include "Nebulite/Module/Transformation/Boolean.hpp"
 #include "Nebulite/Module/Transformation/Casting.hpp"
 #include "Nebulite/Module/Transformation/Collection.hpp"
+#include "Nebulite/Module/Transformation/Compare.hpp"
 #include "Nebulite/Module/Transformation/Complex.hpp"
 #include "Nebulite/Module/Transformation/Debug.hpp"
 #include "Nebulite/Module/Transformation/Domain.hpp"
@@ -53,6 +54,7 @@ JsonTransformer::JsonTransformer() {
     initModule<Module::Transformation::Boolean>();
     initModule<Module::Transformation::Casting>();
     initModule<Module::Transformation::Collection>();
+    initModule<Module::Transformation::Compare>();
     initModule<Module::Transformation::Complex>();
     initModule<Module::Transformation::Debug>();
     initModule<Module::Transformation::Domain>();
