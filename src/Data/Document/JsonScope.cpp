@@ -2,6 +2,7 @@
 // Includes
 
 // Standard library
+#include <complex>
 #include <cstddef>
 #include <cstdint> // NOLINT
 #include <expected>
@@ -80,19 +81,30 @@ JsonScope& JsonScope::shareDummyScope() {
 //------------------------------------------
 // Getter
 
-[[nodiscard]] std::expected<RjDirectAccess::simpleValue, SimpleValueRetrievalError> JsonScope::getVariant(ScopedKeyView const& key) const {
+std::expected<RjDirectAccess::simpleValue, SimpleValueRetrievalError> JsonScope::getVariant(ScopedKeyView const& key) const {
     return baseDocument->getVariant(key.full(*this));
 }
 
-[[nodiscard]] JSON JsonScope::getSubDoc(ScopedKeyView const& key) const {
+JSON JsonScope::getSubDoc(ScopedKeyView const& key) const {
     return baseDocument->getSubDoc(key.full(*this));
 }
-[[nodiscard]] JSON JsonScope::getSubDoc(ScopedKey const& key) const {
+JSON JsonScope::getSubDoc(ScopedKey const& key) const {
     return getSubDoc(key.view());
 }
 
-[[nodiscard]] double* JsonScope::getStableDoublePointer(ScopedKeyView const& key) const {
+double* JsonScope::getStableDoublePointer(ScopedKeyView const& key) const {
     return baseDocument->getStableDoublePointer(key.full(*this));
+}
+
+std::optional<std::complex<double>> JsonScope::getComplex(ScopedKeyView const& key) const {
+    auto realPart = baseDocument->get<double>(key.addMember(complexRe).view().full(*this));
+    auto imagPart = baseDocument->get<double>(key.addMember(complexIm).view().full(*this));
+
+    if (realPart.has_value() && imagPart.has_value()) {
+        return {std::complex(realPart.value(), imagPart.value())};
+    }
+
+    return std::nullopt;
 }
 
 //------------------------------------------
@@ -115,6 +127,12 @@ void JsonScope::setSubDoc(ScopedKeyView const& key, JsonScope const& subDoc){
 
 void JsonScope::setEmptyArray(ScopedKeyView const& key){
     doc().setEmptyArray(key.full(*this));
+}
+
+void JsonScope::setComplex(ScopedKeyView const& key, std::complex<double> const& value){
+    baseDocument->removeMember(key.full(*this)); // Remove any existing member to avoid type conflicts
+    baseDocument->set<double>(key.addMember(complexRe).view().full(*this), value.real());
+    baseDocument->set<double>(key.addMember(complexIm).view().full(*this), value.imag());
 }
 
 //------------------------------------------
@@ -143,7 +161,7 @@ void JsonScope::set_concat(ScopedKeyView const& key, std::string const& valStr){
 //------------------------------------------
 // Locking
 
-[[nodiscard]] std::unique_lock<std::recursive_mutex> JsonScope::lock() const {
+std::unique_lock<std::recursive_mutex> JsonScope::lock() const {
     return baseDocument->lock();
 }
 
@@ -167,15 +185,15 @@ double** JsonScope::ensureOrderedCacheList(std::uint64_t const uniqueId, std::ve
 //------------------------------------------
 // Key Types, Sizes
 
-[[nodiscard]] KeyType JsonScope::memberType(ScopedKeyView const& key) const {
+KeyType JsonScope::memberType(ScopedKeyView const& key) const {
     return baseDocument->memberType(key.full(*this));
 }
 
-[[nodiscard]] std::string JsonScope::memberTypeString(ScopedKeyView const& key) const {
+std::string JsonScope::memberTypeString(ScopedKeyView const& key) const {
     return baseDocument->memberTypeString(key.full(*this));
 }
 
-[[nodiscard]] std::size_t JsonScope::memberSize(ScopedKeyView const& key) const {
+std::size_t JsonScope::memberSize(ScopedKeyView const& key) const {
     return baseDocument->memberSize(key.full(*this));
 }
 

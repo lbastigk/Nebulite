@@ -60,26 +60,6 @@ public:
     static auto constexpr playSound_desc = "Play a sound from a file.\n"
         "Usage: play-sound <file-path>\n";
 
-    [[nodiscard]] Constants::Event playSoundWithFilter(std::span<std::string_view const> const& args);
-    static auto constexpr playSoundWithFilter_name = "play-sound-filtered";
-    static auto constexpr playSoundWithFilter_desc = "Play a sound from a file with a filter applied to it.\n"
-        "Usage: play-sound-filtered <file-path> <num-coefficients> <den-coefficients>\n"
-        "The coefficients should be specified as comma-separated values, with no spaces. For example:\n"
-        "play-sound-filter my_sound.wav 0.1,0.1 1.0,-0.9\n";
-
-    [[nodiscard]] Constants::Event testFilter(std::span<std::string_view const> const& args) const ;
-    static auto constexpr testFilter_name = "audio-debug test-filter";
-    static auto constexpr testFilter_desc = "Test a filter by applying it to sample values and printing the results.\n"
-        "Usage: test-filter <sample> <num-coefficients> <den-coefficients>\n"
-        "The coefficients should be specified as comma-separated values, with no spaces. For example:\n"
-        "test-filter -0.5,0,0.5,1,0.5,0,-0.5,-1 1 0.5,0.5\n";
-
-    //------------------------------------------
-    // Categories
-
-    static auto constexpr audioDebug_name = "audio-debug";
-    static auto constexpr audioDebug_desc = "Audio debugging functions.";
-
     //------------------------------------------
     // Setup
 
@@ -89,10 +69,6 @@ public:
     explicit Audio(ConstructorParams const& params) : DomainModule(params) {
         bindFunction(&Audio::beep, beep_name, beep_desc);
         bindFunction(&Audio::playSound, playSound_name, playSound_desc);
-        bindFunction(&Audio::playSoundWithFilter, playSoundWithFilter_name, playSoundWithFilter_desc);
-
-        bindCategory(audioDebug_name, audioDebug_desc);
-        bindFunction(&Audio::testFilter, testFilter_name, testFilter_desc);
 
         initAudio();
         initWaveforms();

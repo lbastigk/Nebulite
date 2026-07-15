@@ -1,0 +1,56 @@
+######################################################
+# Set expected results, determined via https://scistatcalc.blogspot.com/2013/12/fft-calculator.html
+
+# Series to test
+set settings.series 1 0 2 2 0 -1 0 0 -1 0 2 2 0 1
+
+# fft
+set compare.fft[00] 8.000000+0.000000i
+set compare.fft[01] 2.765367+1.847759i
+set compare.fft[02] -2.828427-6.828427i
+set compare.fft[03] 0.152241-0.765367i
+set compare.fft[04] -4.000000+4.000000i
+set compare.fft[05] 3.847759-0.765367i
+set compare.fft[06] 2.828427+1.171573i
+set compare.fft[07] 1.234633+1.847759i
+set compare.fft[08] 0.000000+0.000000i
+set compare.fft[09] 1.234633-1.847759i
+set compare.fft[10] 2.828427-1.171573i
+set compare.fft[11] 3.847759+0.765367i
+set compare.fft[12] -4.000000-4.000000i
+set compare.fft[13] 0.152241+0.765367i
+set compare.fft[14] -2.828427+6.828427i
+set compare.fft[15] 2.765367-1.847759i
+
+# ifft
+set compare.ifft[00] 0.500000+0.000000i
+set compare.ifft[01] 0.172835-0.115485i
+set compare.ifft[02] -0.176777+0.426777i
+set compare.ifft[03] 0.009515+0.047835i
+set compare.ifft[04] -0.250000-0.250000i
+set compare.ifft[05] 0.240485+0.047835i
+set compare.ifft[06] 0.176777-0.073223i
+set compare.ifft[07] 0.077165-0.115485i
+set compare.ifft[08] 0.000000+0.000000i
+set compare.ifft[09] 0.077165+0.115485i
+set compare.ifft[10] 0.176777+0.073223i
+set compare.ifft[11] 0.240485-0.047835i
+set compare.ifft[12] -0.250000+0.250000i
+set compare.ifft[13] 0.009515-0.047835i
+set compare.ifft[14] -0.176777-0.426777i
+set compare.ifft[15] 0.172835+0.115485i
+
+# Calculate
+assign global:result.fft = {global:settings.series|split|fft|map complexToString .6f}
+assign global:result.ifft = {global:settings.series|split|ifft|map complexToString .6f}
+assign global:result.ifftComplexInput = {global:settings.series|split|map numberToComplex|ifft|map complexToString .6f} # im part is 0, but we want to test that the ifft function can handle complex input
+
+# Check results
+eval nop {global:result.fft|length|assert equals int 16}
+eval nop {global:result.ifft|length|assert equals int 16}
+eval nop {global:result.ifftComplexInput|length|assert equals int 16}
+for i 0 15 if $(not({global:|strCompare members compare.fft[{i}] result.fft[{i}]})) then throw "FFT mismatch at index {i}"
+for i 0 15 if $(not({global:|strCompare members compare.ifft[{i}] result.ifft[{i}]})) then throw "IFFT mismatch at index {i}"
+for i 0 15 if $(not({global:|strCompare members compare.ifft[{i}] result.ifftComplexInput[{i}]})) then throw "IFFT Complex Input mismatch at index {i}"
+
+exit

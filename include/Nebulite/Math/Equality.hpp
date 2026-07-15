@@ -66,7 +66,7 @@ bool constexpr isEqualAllowNan(T const& a, T const& b) {
  */
 template <typename T>
 bool constexpr isZero(T const& value) {
-    return std::abs(value) <= std::numeric_limits<double>::epsilon();
+    return std::abs(value) <= std::numeric_limits<T>::epsilon();
 }
 
 } // namespace Nebulite::Math

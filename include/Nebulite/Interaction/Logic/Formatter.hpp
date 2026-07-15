@@ -35,7 +35,7 @@ struct Formatter {
     /**
      * @brief Parses the formatter string
      * @param formatter The formatter string to parse.
-     * @return a formatter, or nullopt
+     * @return a formatter
      */
     static Formatter readFormatter(std::string_view formatter);
 
