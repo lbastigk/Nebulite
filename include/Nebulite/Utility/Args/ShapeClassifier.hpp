@@ -1,5 +1,5 @@
-#ifndef NEBULITE_INTERACTION_EXECUTION_SHAPECLASSIFIER_HPP
-#define NEBULITE_INTERACTION_EXECUTION_SHAPECLASSIFIER_HPP
+#ifndef NEBULITE_UTILITY_ARGS_SHAPECLASSIFIER_HPP
+#define NEBULITE_UTILITY_ARGS_SHAPECLASSIFIER_HPP
 
 //------------------------------------------
 // Includes
@@ -10,11 +10,11 @@
 #include <type_traits>
 
 // Nebulite
-#include "Nebulite/Interaction/Execution/CmdArgs.hpp"
+#include "Nebulite/Utility/Args/CmdArgs.hpp"
 #include "Nebulite/Utility/CompileTimeEvaluate.hpp"
 
 //------------------------------------------
-namespace Nebulite::Interaction::Execution {
+namespace Nebulite::Utility::Args {
 /**
  * @class ShapeClassifier
  * @brief Helper class for FuncTree to classify function pointer shapes at compile time.
@@ -163,10 +163,10 @@ public:
                              std::is_function_v<std::remove_pointer_t<FunctionPointer>>) {
             return classifyFreeFunction<FunctionPointer, ReturnValue, AdditionalArgs...>();
         } else {
-            static_assert(Utility::CompileTimeEvaluate::always_false(), "classifyFunction received an unsupported function pointer type.");
+            static_assert(CompileTimeEvaluate::always_false(), "classifyFunction received an unsupported function pointer type.");
             return FunctionShape::Unknown;
         }
     }
 };
-} // namespace Nebulite::Interaction::Execution
-#endif // NEBULITE_INTERACTION_EXECUTION_SHAPECLASSIFIER_HPP
+} // namespace Nebulite::Utility::Args
+#endif // NEBULITE_UTILITY_ARGS_SHAPECLASSIFIER_HPP

@@ -12,8 +12,8 @@
 #include "Nebulite/Data/Document/JSON.hpp"
 #include "Nebulite/Data/Document/JsonScope.hpp"
 #include "Nebulite/Data/Document/JsonTransformer.hpp"
-#include "Nebulite/Interaction/Execution/FuncTree.hpp"
 #include "Nebulite/Nebulite.hpp"
+#include "Nebulite/Utility/Args/FuncTree.hpp"
 
 // Nebulite: Transformation modules
 #include "Nebulite/Module/Transformation/Arithmetic.hpp"
@@ -38,7 +38,7 @@
 namespace Nebulite::Data {
 
 JsonTransformer::JsonTransformer() {
-    transformationFuncTree = std::make_shared<Interaction::Execution::FuncTree<bool, JsonScope&>>(
+    transformationFuncTree = std::make_shared<Utility::Args::FuncTree<bool, JsonScope&>>(
         "JSON rvalue transformation FuncTree",
         true,
         false,

@@ -11,7 +11,7 @@
 #include <vector>
 
 // Nebulite
-#include "Nebulite/Interaction/Execution/FuncTree.hpp"
+#include "Nebulite/Utility/Args/FuncTree.hpp"
 
 //------------------------------------------
 // Forward declarations
@@ -44,7 +44,7 @@ class JsonTransformer {
      *          Takes in a JsonScope pointer as argument to modify.
      *          Returns true on success, false on failure.
      */
-    std::shared_ptr<Interaction::Execution::FuncTree<bool, JsonScope&>> transformationFuncTree;
+    std::shared_ptr<Utility::Args::FuncTree<bool, JsonScope&>> transformationFuncTree;
 
     /**
      * @brief List of all initialized transformation modules

@@ -14,7 +14,7 @@
 #include <tinyexpr.h>
 
 // Nebulite
-#include "Nebulite/Interaction/Execution/FuncTree.hpp"
+#include "Nebulite/Utility/Args/FuncTree.hpp"
 #include "Nebulite/Math/ExpressionPrimitives.hpp"
 #include "Nebulite/Nebulite.hpp"
 #include "Nebulite/Utility/StringHandler.hpp"
@@ -81,7 +81,7 @@ bool pseudoBind() {
 void ExpressionPrimitives::help(std::span<std::string_view const> const& args) {
     // Create a temporary funcTree to utilize its printFunctionList method for formatted output
 
-    Interaction::Execution::FuncTree tempFuncTree("Nebulite Expressions", true, true, Global::capture()); // Pass to main capture
+    Utility::Args::FuncTree tempFuncTree("Nebulite Expressions", true, true, Global::capture()); // Pass to main capture
 
     // Use a void lambda as binding function
     for (const auto& funcInfo : availableFunctions()) {

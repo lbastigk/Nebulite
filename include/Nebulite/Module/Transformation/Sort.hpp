@@ -17,8 +17,8 @@
 
 // Nebulite
 #include "Nebulite/Data/Document/JsonScope.hpp"
-#include "Nebulite/Interaction/Execution/FuncTree.hpp"
 #include "Nebulite/Module/Base/TransformationModule.hpp"
+#include "Nebulite/Utility/Args/FuncTree.hpp"
 #include "Nebulite/Utility/Ranges.hpp"
 
 //------------------------------------------
@@ -36,7 +36,7 @@ namespace Nebulite::Module::Transformation {
  */
 class Sort final : public Base::TransformationModule {
 public:
-    explicit Sort(std::shared_ptr<Interaction::Execution::FuncTree<bool, Data::JsonScope&>> const& funcTree)
+    explicit Sort(std::shared_ptr<Utility::Args::FuncTree<bool, Data::JsonScope&>> const& funcTree)
         : TransformationModule(funcTree) {}
 
     void bindTransformations() override;
