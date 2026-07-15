@@ -24,12 +24,7 @@ void Stream<BaseStream, LineType>::putStr(std::string const& str, bool const pri
     if (printToConsole) {
         *BaseStream << str;
     }
-
-    std::basic_istringstream<char> iss(str);
-    std::string line{};
-    while (std::getline(iss, line)) {
-        capture->appendToHistory(line, LineType);
-    }
+    capture->appendToHistory(str, LineType);
 }
 
 template<std::ostream* BaseStream, HistoryLine::Type LineType>

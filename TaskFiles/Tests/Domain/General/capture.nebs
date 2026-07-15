@@ -1,0 +1,28 @@
+# Checking if capture redirection is working properly
+
+#############################################
+# Compute
+capture output.basic echo "BasicCapturedOutput"
+capture output.recursion capture output.inner.recursion echo "RecursionCapturedOutput"
+capture output.taskExec task-exec TaskFiles/Tests/Domain/General/captureInnerTask.nebs
+
+#############################################
+# Verify
+
+# Basic
+eval nop {self:output.basic|length|assert equals int 1}
+eval nop {self:output.basic|at 0|assert equals string BasicCapturedOutput}
+
+# Recursion + inner
+eval nop {self:output.recursion|length|assert equals int 0}
+eval nop {self:output.inner.recursion|length|assert equals int 1}
+eval nop {self:output.inner.recursion|at 0|assert equals string RecursionCapturedOutput}
+
+# TaskExec + inner
+eval nop {self:output.taskExec|length|assert equals int 11}
+eval nop {self:output.taskExec|at 1|assert equals int 1}
+eval nop {self:output.taskExec|at 10|assert equals int 10}
+eval nop {self:output.inner.taskExec|length|assert equals int 1}
+eval nop {self:output.inner.taskExec|at 0|assert equals string This will only be stored in output.inner.taskExec}
+
+exit
