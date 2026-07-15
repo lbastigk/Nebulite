@@ -2,7 +2,7 @@
 
 This documentation is automatically generated.
 
-Generated on: Thu Jul  9 20:48:18 CEST 2026
+Generated on: Wed Jul 15 13:55:42 CEST 2026
 
 ## Table of Contents
 
@@ -26,7 +26,6 @@ Available Functions
 | `always-clear` | Clears the entire always-taskqueue. |
 | `assert` | Asserts a condition and throws a custom error if false. |
 | `assign` | Assign a key to a value in the JSON document (self) or the global context (global) |
-| `audio-debug` | Audio debugging functions. |
 | `beep` | Make a beep noise. |
 | `cam` | Renderer Camera Functions |
 | `capture` | Stores all capture output from a command into a given variable |
@@ -67,7 +66,6 @@ Available Functions
 | `must-throw` | Throws a runtime error with the provided message. |
 | `nop` | No operation. Does nothing. |
 | `play-sound` | Play a sound from a file. |
-| `play-sound-filtered` | Play a sound from a file with a filter applied to it. |
 | `pop-back` | Pop a value from the back of an array. |
 | `pop-front` | Pop a value from the front of an array. |
 | `print` | Prints the JSON document to the console for debugging purposes. |
@@ -87,7 +85,8 @@ Available Functions
 | `snapshot` | Create a snapshot of the current renderer state. |
 | `spawn` | Spawn a RenderObject from a json/jsonc file. |
 | `standard-file` | Functions for generating standard files for common resources. |
-| `task` | Loads tasks from a file into the taskQueue. |
+| `task` | Loads tasks from a file into the taskQueue, but does not execute them immediately. |
+| `task-exec` | Same as 'task', but with instant execution. |
 | `throw` | Throws a runtime error with the provided message. |
 | `time` | Commands for time management |
 | `view` | Toggle view setting to full, low or lowest |
@@ -161,24 +160,6 @@ Usage: assign <context>.<key> <assignment-operator> <expression>
 Example: 'assign global:rngCurrentValuesCopy = {global:random}Supports complex types like arrays or objects.
 The assignment has full access to the entire global scope here, so be cautious when using this function to overwrite global values.
 Use json set instead, if you only wish to modify values in the context self with no special operators.
-```
-
-#### `audio-debug`
-
-Available Functions
-
-| Function | Description |
-|----------|-------------|
-| `help` | Show available commands and their descriptions |
-| `test-filter` | Test a filter by applying it to sample values and printing the results. |
-
-##### `audio-debug test-filter`
-
-```
-Test a filter by applying it to sample values and printing the results.
-Usage: test-filter <sample> <num-coefficients> <den-coefficients>
-The coefficients should be specified as comma-separated values, with no spaces. For example:
-test-filter -0.5,0,0.5,1,0.5,0,-0.5,-1 1 0.5,0.5
 ```
 
 #### `beep`
@@ -843,15 +824,6 @@ Play a sound from a file.
 Usage: play-sound <file-path>
 ```
 
-#### `play-sound-filtered`
-
-```
-Play a sound from a file with a filter applied to it.
-Usage: play-sound-filtered <file-path> <num-coefficients> <den-coefficients>
-The coefficients should be specified as comma-separated values, with no spaces. For example:
-play-sound-filter my_sound.wav 0.1,0.1 1.0,-0.9
-```
-
 #### `pop-back`
 
 ```
@@ -1210,7 +1182,7 @@ Note: This function creates or overwrites the file 'standard.jsonc' in the './Re
 #### `task`
 
 ```
-Loads tasks from a file into the taskQueue.
+Loads tasks from a file into the taskQueue, but does not execute them immediately.
 
 Usage: task <filename>
 
@@ -1229,6 +1201,12 @@ Main task:
         subCommand1
         subCommand2
     mainCommand4
+```
+
+#### `task-exec`
+
+```
+Same as 'task', but with instant execution.
 ```
 
 #### `throw`
@@ -2007,6 +1985,7 @@ Available Functions
 | Function | Description |
 |----------|-------------|
 | `add` | Adds a numeric value to the current JSON value. |
+| `applyTfDomainF` | Stores the result of applying a transfer function on the frequency domain to a given real-number series |
 | `assert` | Assertion transformations that validate JSON values and throw exceptions on failure. |
 | `assign` | Assigns a value based on the result of an expression. |
 | `at` | Gets the element at the specified index from the array in the current JSON value. |
@@ -2014,6 +1993,9 @@ Available Functions
 | `bundleToArray` | Gathers all members from the provided keys into an array. |
 | `capitalize` | Capitalizes the current JSON string. |
 | `ceiling` | Rounds the current JSON numeric value down to the nearest integer. |
+| `complexAbs` | Calculates the absolute value (magnitude) of a complex number. |
+| `complexArg` | Calculates the argument (phase angle) of a complex number in radians. |
+| `complexToString` | Formats the contained complex number object to a string. |
 | `default` | If the current value is null, default to a given String |
 | `deserialize` | Deserializes the current JSON string value stored in root. |
 | `div` | Divides the current JSON value by a numeric value. |
@@ -2022,6 +2004,7 @@ Available Functions
 | `enumerate` | Enumerates the array in the current JSON value. |
 | `error` | Echoes the provided arguments to the console as an error message, with newline. |
 | `exists` | Checks if a specified key exists in the current JSON object. |
+| `fft` | Stores the fft of a given real-number series as complex numbers |
 | `filterCustom` | Filters values in the current JSON array based on a custom filter expression |
 | `filterGlob` | Filters members in the current JSON array/object based on a glob pattern. |
 | `filterGlobValue` | Filters values in the current JSON array based on a glob pattern. |
@@ -2030,9 +2013,11 @@ Available Functions
 | `filterRegexValue` | Filters values in the current JSON array based on a regular expression pattern. |
 | `first` | Gets the first element of the array in the current JSON value. |
 | `floor` | Rounds the current JSON numeric value down to the nearest integer. |
+| `formatComplexNumberString` | Formats the contained complex number string to another string |
 | `formatNumber` | If the stored value is a number, it is formatted with a given format specifier |
 | `get` | Gets the value at the specified key from the current JSON object. |
 | `help` | Show available commands and their descriptions |
+| `ifft` | Stores the inverse fft of a given complex-number or real-number series (mixable) |
 | `injectScript` | Injects a nebulite script to modify the json doc. |
 | `iota` | Generates an array of values. |
 | `lPad` | Pads the current JSON string value on the left with a specified character until it reaches a specified total length. |
@@ -2050,6 +2035,7 @@ Available Functions
 | `mod` | Calculates the modulo of the current JSON value by a numeric value. |
 | `mul` | Multiplies the current JSON value by a numeric value. |
 | `not` | Logical NOT operation on the current JSON value. |
+| `numberToComplex` | Converts a given number to a complex number. |
 | `pow` | Raises the current JSON value to the power of a numeric value. |
 | `print` | Prints the current JSON value to the console. |
 | `product` | Multiplies the elements of the array in the current JSON value. |
@@ -2104,6 +2090,15 @@ Available Functions
 Adds a numeric value to the current JSON value.
 If multiple numbers are provided, the result is an array, one element for each provided argument.
 Usage: |add <number1> <number2> ... -> {number/array}
+```
+
+#### `applyTfDomainF`
+
+```
+Stores the result of applying a transfer function on the frequency domain to a given real-number series
+Usage: applyTfFDomain --num <num-series> --den <den-series>
+Where the num-series and den-series start withe the highest order coefficient and end with the lowest order coefficient.
+Example: 4 -1 0 1 -> 4z^-3 - z^-2 + 1
 ```
 
 #### `assert`
@@ -2266,6 +2261,32 @@ Usage: |roundDown/floor -> {value:int}
 Non-numeric values default to 0. Fails if the value is null.
 ```
 
+#### `complexAbs`
+
+```
+Calculates the absolute value (magnitude) of a complex number.
+Usage: |complexAbs -> {absolute-value}
+The transformation fails if the current JSON value is not a complex number.
+```
+
+#### `complexArg`
+
+```
+Calculates the argument (phase angle) of a complex number in radians.
+Usage: |complexArg -> {argument}
+The transformation fails if the current JSON value is not a complex number.
+```
+
+#### `complexToString`
+
+```
+Formats the contained complex number object to a string.
+If the stored value is not a complex number, the value is not modified.
+An optional format specifier can be provided to control the formatting of the real and imaginary parts.
+Example formatters: 04.2f, 5i, 06i
+Usage: |complexToString [formatter] -> {string}
+```
+
 #### `default`
 
 ```
@@ -2324,6 +2345,13 @@ Usage: |error <arg1> <arg2> -> {unchanged-json}
 Checks if a specified key exists in the current JSON object.
 If no key is provided, checks if the current JSON value is not null.
 Usage: |exists  [key] -> {bool}
+```
+
+#### `fft`
+
+```
+Stores the fft of a given real-number series as complex numbers
+Usage: fft <sample1> <sample2> ... <sampleN>
 ```
 
 #### `filterCustom`
@@ -2390,6 +2418,18 @@ Usage: |roundDown/floor -> {value:int}
 Non-numeric values default to 0. Fails if the value is null.
 ```
 
+#### `formatComplexNumberString`
+
+```
+Formats the contained complex number string to another string
+If the stored value is not a simple value, the transformation fails.
+If the stored value is a non-numeric string, the value is not modified.
+Valid numbers: 1+1i, 1e-20-500i, etc.
+A formatter must be provided.
+Example formatters: 04.2f, 5i, 06i
+Usage: |formatComplexNumberString <formatter> -> {string}
+```
+
 #### `formatNumber`
 
 ```
@@ -2404,6 +2444,13 @@ Example formatters: 04.2f, 5i, 06i
 ```
 Gets the value at the specified key from the current JSON object.
 Usage: |get <key> -> {value}
+```
+
+#### `ifft`
+
+```
+Stores the inverse fft of a given complex-number or real-number series (mixable)
+Usage: ifft
 ```
 
 #### `injectScript`
@@ -2543,6 +2590,18 @@ Usage: |multiply <number1> <number2> ... -> {number/array}
 Logical NOT operation on the current JSON value.
 Usage: |not -> {value:bool}
 If the given value is not convertible to bool, the value is assumed to be false and is set to true
+```
+
+#### `numberToComplex`
+
+```
+Converts a given number to a complex number.
+Usage: |numberToComplex -> {complex-number}
+Allowed values are:
+  - Integers  - Real numbers (e.g., 3.14, -2.5)
+  - Scientific notation (e.g., 1e-3, -2.5e+4)
+  - Complex numbers in the form a+bi (e.g., 1+2i, -3-4i)
+The transformation fails if the current JSON value is not convertible to a complex number.
 ```
 
 #### `pow`
@@ -2917,6 +2976,7 @@ Available Functions
 | `endsWith` | Checks if the current JSON string value ends with a specified substring. |
 | `equals` | Compares the current JSON string value with a specified string for equality. |
 | `help` | Show available commands and their descriptions |
+| `members` | Compare multiple member string values. |
 | `startsWith` | Checks if the current JSON string value starts with a specified substring. |
 
 ##### `strCompare contains`
@@ -2943,6 +3003,14 @@ Compares the current JSON string value with a specified string for equality.
 Usage: |strCompare equals {string} -> {bool}
 Checks if the string is empty if no argument is given
 {string}: String to compare with
+```
+
+##### `strCompare members`
+
+```
+Compare multiple member string values.
+Usage: |strCompareMembers {key1} {key2} ... {keyN} -> {bool}
+Checks if all specified member keys have the same string value.
 ```
 
 ##### `strCompare startsWith`

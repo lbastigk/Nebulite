@@ -6,11 +6,11 @@ all
 always
 always-clear
 and
+applyTfDomainF
 array
 assert
 assign
 at
-audio-debug
 average
 basicValue
 beep
@@ -29,6 +29,9 @@ ceiling
 clear
 close
 collision-detect
+complexAbs
+complexArg
+complexToString
 console
 constrain
 contains
@@ -67,6 +70,7 @@ fetch
 fetch-container
 fetch-id
 fetch-name
+fft
 filterCustom
 filterGlob
 filterGlobValue
@@ -78,6 +82,7 @@ first
 floor
 for
 for-progress
+formatComplexNumberString
 formatNumber
 forward
 function
@@ -90,6 +95,7 @@ gt
 halt-once
 help
 if
+ifft
 imgui-view
 injectScript
 input-mapping
@@ -123,6 +129,7 @@ match
 max
 median
 member
+members
 min
 mirror
 mod
@@ -135,6 +142,7 @@ nonEmpty
 nop
 nor
 not
+numberToComplex
 numerically
 object
 off
@@ -145,7 +153,6 @@ or
 other
 parse
 play-sound
-play-sound-filtered
 pop-back
 pop-front
 pow
@@ -218,7 +225,7 @@ subspan
 substring
 sum
 task
-test-filter
+task-exec
 throw
 time
 toBipolar
