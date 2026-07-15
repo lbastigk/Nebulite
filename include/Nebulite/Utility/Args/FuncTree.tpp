@@ -23,6 +23,7 @@
 
 // Nebulite
 #include "Nebulite/Math/Equality.hpp"
+#include "Nebulite/Utility/Args/CmdArgs.hpp"
 #include "Nebulite/Utility/Args/FuncTreeErrorMessages.hpp"
 #include "Nebulite/Utility/Args/ShapeClassifier.hpp"
 #include "Nebulite/Utility/CompileTimeEvaluate.hpp"
