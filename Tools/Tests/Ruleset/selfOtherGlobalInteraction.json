@@ -6,5 +6,9 @@
     {
         "command": "task TaskFiles/Tests/Ruleset/parseOnContext.nebs",
         "expected": { "cout": [], "cerr": [] }
+    },
+    {
+        "command": "task TaskFiles/Tests/Ruleset/globalJsonRuleset.nebs",
+        "expected": { "cout": [], "cerr": [] }
     }
 ]

@@ -72,6 +72,7 @@ std::string getStringValue(DocumentType const& doc, KeyType const& k) {
 
 void setToken(std::string& token, std::string const& evaluatedKey, ContextScope const& context, ContextDeriver::TargetType const source) {
     auto const scopedKey = Data::ScopedKey(evaluatedKey);
+    auto keyView = scopedKey.view();
     switch (source) {
     case ContextDeriver::TargetType::self: // {self:<key><transformations>}
         token = getStringValue(context.self, scopedKey.view());
@@ -89,7 +90,7 @@ void setToken(std::string& token, std::string const& evaluatedKey, ContextScope 
         break;
     }
     case ContextDeriver::TargetType::global: // {global:<key><transformations>}
-        token = getStringValue(context.global, scopedKey.view());
+        token = getStringValue(context.global, keyView);
         break;
     case ContextDeriver::TargetType::full: {
         Data::JsonScope merged;
@@ -205,8 +206,6 @@ bool ExpressionComponent::handleComponentTypeVariable(Data::JSON& token, Context
 }
 
 void ExpressionComponent::handleComponentTypeEval(std::string& token) const {
-    //------------------------------------------
-    // Handle casting and precision together
     token = formatter.format(te_eval(expression));
 }
 

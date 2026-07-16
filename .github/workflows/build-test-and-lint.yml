@@ -1,4 +1,4 @@
-name: Pull Request Tests
+name: Pull request binary tests + linting
 
 on:
   pull_request:
@@ -10,6 +10,13 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: List changes
+        run: |
+          echo "Changed files:"
+          ./Scripts/Validation/clangCheck.sh --main-diff --list-only
 
       - name: Install Dependencies
         run: |
@@ -52,3 +59,7 @@ jobs:
           fi
           python Container/build.py linux-debug --test
           make delete-binaries
+
+      - name: Lint with clang-tidy
+        run: |
+          python Container/build.py linux-debug --lint

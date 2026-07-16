@@ -22,7 +22,8 @@ echo "Starting profiling.nebs"
 # - physics
 # - gameScene
 # - loading
-set settings.profilingTask physics
+# - jsonRuleset
+set settings.profilingTask transformations
 ####################################################
 
 ###################
@@ -40,3 +41,7 @@ if $({global:settings.profilingTask|strCompare equals gameScene}) then task Task
 ###################
 # 4.) Loading times
 if $({global:settings.profilingTask|strCompare equals loading}) then task TaskFiles/Benchmarks/loading.nebs
+
+###################
+# 5.) JSON ruleset performance
+if $({global:settings.profilingTask|strCompare equals jsonRuleset}) then task TaskFiles/Benchmarks/gravity_XL_classic.nebs

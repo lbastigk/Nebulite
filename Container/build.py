@@ -102,10 +102,10 @@ def ensure_image(container, rebuild=False):
 
     return image
 
-def run_container(container, preset, rebuild=False, test=False):
+def run_container(container, preset, rebuild=False, type="build"):
     image = ensure_image(container, rebuild=rebuild)
 
-    if test:
+    if type == "test":
         # Find the singular binary in ./bin/
         if not (ROOT / "bin").exists():
             raise RuntimeError(
@@ -159,7 +159,7 @@ def run_container(container, preset, rebuild=False, test=False):
                 "make test"
             ]
         )
-    else:
+    elif type == "build":
         process_count = determine_process_count()
         print(f"Running build with {process_count} processes")
         cmd = [
@@ -185,29 +185,61 @@ def run_container(container, preset, rebuild=False, test=False):
             f"cmake --preset {preset} && cmake --build --preset {preset} -j{process_count}"
         ])
         run(cmd)
+    elif type == "lint":
+        cmd = [
+            "podman",
+            "run",
+            "--rm",
+            "-it",
+            "-v",
+            f"{ROOT}:{ROOT}:Z",
+        ]
+        # If ROOT is a symlink, also mount the resolved path.
+        if ROOT != ROOT_RESOLVED:
+            cmd.extend([
+                "-v",
+                f"{ROOT_RESOLVED}:{ROOT_RESOLVED}:Z",
+            ])
+        cmd.extend([
+            "-w",
+            f"{ROOT}",
+            image,
+            "bash",
+            "-c",
+            "./Scripts/Validation/clangCheck.sh --main-diff"
+        ])
+        run(cmd)
 
 def main():
     test = False
     rebuild = False
     args = sys.argv[1:]
 
+    # Rebuild container
     if "--rebuild" in args:
         rebuild = True
         args = [arg for arg in args if arg != "--rebuild"]
 
+    # Determine type
     if "--test" in args:
-        test = True
+        type = "test"
         args = [arg for arg in args if arg != "--test"]
+    elif "--lint" in args:
+        type = "lint"
+        args = [arg for arg in args if arg != "--lint"]
+    else:
+        type = "build"
+
 
     if len(args) != 1:
-        print("Usage: build.py [--rebuild] [--test] <cmake-preset>")
+        print("Usage: build.py [--rebuild] [--test] [--lint] <cmake-preset>")
         print("Using test will not build the container but just test it.")
         sys.exit(1)
 
     preset_name = args[0]
     container_preset = load_preset(get_container_preset_name(preset_name))
     container = get_container(container_preset)
-    run_container(container, get_container_preset_name(preset_name), rebuild=rebuild, test=test)
+    run_container(container, get_container_preset_name(preset_name), rebuild=rebuild, type=type)
 
 if __name__ == "__main__":
     print(f"Root is {ROOT}")

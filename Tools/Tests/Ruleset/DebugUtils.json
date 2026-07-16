@@ -1,6 +1,6 @@
 [
     {
-        "command": "task TaskFiles/Tests/Rulesets/debugMessage.nebs",
+        "command": "task TaskFiles/Tests/Ruleset/debugMessage.nebs",
         "expected": { "cout": ["[DEBUG] Static ruleset '::message' invoked! Domain ID: 3"], "cerr": [] }
     }
 ]

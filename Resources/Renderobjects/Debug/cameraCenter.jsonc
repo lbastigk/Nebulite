@@ -1,0 +1,56 @@
+{
+    "animation": {
+        "xRolling": {
+            "mod": 80
+        },
+        "attack": 0,
+        "Direction": 0
+    },
+    "draw": {
+        "core": {
+            "drawType": "sprite",
+            "rect": {
+                "src": {
+                    "h": 16.0,
+                    "w": 16.0,
+                    "x": 0.0,
+                    "y": 0.0
+                },
+                "dst": {
+                    "h": 16.0,
+                    "w": 16.0,
+                    "x": 0.0,
+                    "y": 0.0
+                }
+            },
+            "textureData": {
+                "link": "./Resources/Sprites/MiniWorldSprites/Characters/Soldiers/Melee/SwordsmanTemplate.png"
+            }
+        }
+    },
+    "id": 0,
+    "layer": 1,
+    "physics": {
+        "mass": 75.0,
+        "aX": 0.0,
+        "aY": 0.0,
+        "vX": 0.0,
+        "vY": 0.0,
+        "vNorm": 50
+    },
+    "posX": 100,
+    "posY": 100,
+    "ruleset": {
+        "list": [
+            "./Resources/Rulesets/General/set_render_position_center.jsonc"
+        ],
+        "listen": [
+            "all",
+            "::movement::detectClipping"
+        ]
+    },
+    "size": {
+        "x": 16,
+        "y": 16
+    }
+}

@@ -133,6 +133,7 @@ public:
      * @todo Returning a vector of string_views should be possible. Large refactor might be necessary
      */
     static ParseResult parseQuotedArguments(std::string_view cmd);
+    static bool parseQuotedArguments(std::vector<std::string>& existingArgs, std::string_view cmd);
 
     /**
      * @brief Recombines a span of string_views into a single string with spaces.

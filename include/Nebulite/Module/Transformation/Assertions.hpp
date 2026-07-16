@@ -51,6 +51,24 @@ public:
     //------------------------------------------
     // Available Transformations
 
+    // [True/False]
+
+    static bool assertTrue(std::span<std::string_view const> const& args, Data::JsonScope const& jsonDoc);
+    static auto constexpr assertTrueName = "assert true";
+    static auto constexpr assertTrueDesc = "Asserts that the current JSON value is true.\n"
+        "If the value is not true, the transformation fails and the program exits.\n"
+        "Accepts an optional user-defined error message as additional arguments.\n"
+        "Usage: |assert true -> {value,<Exception thrown if not true>}\n";
+
+    static bool assertFalse(std::span<std::string_view const> const& args, Data::JsonScope const& jsonDoc);
+    static auto constexpr assertFalseName = "assert false";
+    static auto constexpr assertFalseDesc = "Asserts that the current JSON value is false.\n"
+        "If the value is not false, the transformation fails and the program exits.\n"
+        "Accepts an optional user-defined error message as additional arguments.\n"
+        "Usage: |assert false -> {value,<Exception thrown if not false>}\n";
+
+    // [Existence]
+
     static bool assertNonEmpty(std::span<std::string_view const> const& args, Data::JsonScope const& jsonDoc);
     static auto constexpr assertNonEmptyName = "assert nonEmpty";
     static auto constexpr assertNonEmptyDesc = "Asserts that the current JSON value is non-empty.\n"
