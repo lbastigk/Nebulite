@@ -5,9 +5,12 @@
 // Includes
 
 // Standard library
+#include <array>
 #include <cstddef>
 #include <cstdint> // NOLINT
+#include <cstring>
 #include <memory>
+#include <stdexcept>
 #include <string>
 #include <string_view>
 #include <vector>
@@ -18,7 +21,7 @@
 // Nebulite
 #include "Nebulite/Data/Document/JSON.hpp"
 #include "Nebulite/Interaction/Context.hpp"
-#include "Nebulite/Interaction/Logic/VariableNameGenerator.hpp"
+#include "Nebulite/Interaction/Logic/LinkedNumericValue.hpp"
 
 //------------------------------------------
 // Forward declarations
@@ -32,6 +35,7 @@ class ScopedKeyView;
 namespace Nebulite::Interaction::Logic {
 class ExpressionComponent;
 class LinkedNumericValue;
+class VariableNameGenerator;
 } // namespace Nebulite::Interaction::Logic
 
 //------------------------------------------
@@ -69,7 +73,10 @@ public:
     /**
      * @brief Standard maximum recursion depth for nested expression evaluations.
      */
-    static constexpr std::size_t standardRecursionDepth = 10;
+    static constexpr std::size_t standardRecursionDepth = 8;
+
+    //------------------------------------------
+    // Evaluation info
 
     /**
      * @brief Checks if the expression can be returned as a double without losing information.
@@ -138,29 +145,13 @@ public:
     static Data::JSON evalAsJson(std::string_view input, ContextScope const& context);
 
     //------------------------------------------
-    // Other helpers
+    // Getter
 
     /**
      * @brief Gets the full expression string that was parsed.
      * @return The full expression string.
      */
-    [[nodiscard]] std::string const& getFullExpression() const noexcept { return fullExpression; }
-
-    /**
-     * @brief Recalculates whether the expression is returnable as a double.
-     * @return True if the expression can be returned as a double, false otherwise.
-     */
-    [[nodiscard]] bool recalculateIsReturnableAsDouble() const;
-
-    [[nodiscard]] bool recalculateIsReturnableAsInt() const;
-
-    [[nodiscard]] bool recalculateIsReturnableAsString() const;
-
-    /**
-     * @brief Recalculates whether the expression is always true (i.e., "1").
-     * @return True if the expression is always true, false otherwise.
-     */
-    [[nodiscard]] bool recalculateIsAlwaysTrue() const;
+    [[nodiscard]] std::string const& getFullExpression() const noexcept ;
 
 private:
     /**
@@ -169,58 +160,16 @@ private:
      */
     static auto constexpr allocatedRecursionDepth = 8;
 
-    /**
-     * @brief Unique ids for cache lookup
-     */
-    struct CacheId {
-        uint64_t self = 0;
-        uint64_t other = 0;
-        uint64_t global = 0;
-    } cacheId;
+    //------------------------------------------
+    // Evaluation info
 
-    /**
-     * @struct Nebulite::Interaction::Logic::Expression::LinkedNumericValueLists
-     * @brief Holds lists of LinkedNumericValue entries for different contexts.
-     */
-    struct LinkedNumericValueLists {
-        using lnvList = std::vector<std::shared_ptr<LinkedNumericValue>>;
+    [[nodiscard]] bool recalculateIsReturnableAsDouble() const;
 
-        // Linkable as external cache, no multi-resolve or transformations
-        // This works by Caching the first context used. If the new context address matches the first,
-        // we can use the stable vd_list and simply copy double values.
-        // Otherwise, we need to retrieve them from a document first, which is expensive
-        struct Stable {
-            lnvList self; // Variables from context self
-            lnvList other; // Variables from context other
-            lnvList global; // Variables from context global
-        } stable;
+    [[nodiscard]] bool recalculateIsReturnableAsInt() const;
 
-        // With multi-resolve or transformations, key needs to be resolved each time
-        struct Unstable {
-            lnvList self; // Variables from context self with transformations or multi-resolve
-            lnvList other; // Variables from context other with transformations or multi-resolve
-            lnvList local; // Variables from context marrying: self and other
-            lnvList global; // Variables from context global with transformations or multi-resolve
-            lnvList full; // Variables from context marrying: self, other and global
-            lnvList resource; // Variables from context resource with transformations or multi-resolve
-            lnvList none; // Variables with no context with transformations or multi-resolve
-        } unstable;
+    [[nodiscard]] bool recalculateIsReturnableAsString() const;
 
-        /**
-         * @brief Registers a variable
-         * @param contextType The context to register for
-         * @param key The key to register
-         * @return Pointer to the registered variable
-         */
-        double* registerVariable(ContextDeriver::TargetType contextType, std::string_view key);
-    } linkedNumericValues;
-
-    /**
-     * @brief Generates short variable names for tinyexpr variables.
-     * @details Short names might improve performance, but the main concern is
-     *          that full variable names could contain characters that tinyexpr does not like
-     */
-    VariableNameGenerator varNameGen;
+    [[nodiscard]] bool recalculateIsAlwaysTrue() const;
 
     /**
      * @brief Info about the expressions evaluation-ability
@@ -252,96 +201,102 @@ private:
         bool alwaysTrue = false;
     } evaluationInfo;
 
-    /**
-     * @brief Holds all parsed components from the expression.
-     */
-    std::vector<std::shared_ptr<ExpressionComponent>> components;
-
-    /**
-     * @brief Holds the full expression as a string.
-     */
-    std::string fullExpression;
-
-    /**
-     * @brief Collection of all variable names
-     */
-    std::vector<std::shared_ptr<std::string>> te_names; // Names of variables for TinyExpr evaluation
-
-    /**
-     * @brief Collection of all registered variables and functions
-     */
-    std::vector<te_variable> te_variables; // Variables for TinyExpr evaluation
-
     //------------------------------------------
-    // Core Helper functions
+    // Caching
 
     /**
-     * @brief Provides an empty JSON document that can be used as a context placeholder
-     * @return The empty JSON document reference
+     * @brief Unique ids for cache lookup
      */
-    static Data::JsonScope const& emptyDoc();
+    struct CacheId {
+        uint64_t self = 0;
+        uint64_t other = 0;
+        uint64_t global = 0;
+    } cacheId;
 
     /**
-     * @brief Parses a given expression string with a constant reference to the document cache and the self and global JSON objects.
-     * @param expr The expression string to parse.
+     * @brief TinyExpr variables are shortened using VariableNameGenerator.
+     * @details 3 Characters are enough for 26^3 = 17576 unique variable names, which is more than enough for any expression.
      */
-    void parse(std::string_view expr);
+    struct ShortName {
+        std::array<char, 4> data{};
+
+        ShortName() = default;
+
+        explicit ShortName(std::string const& s) {
+            if (s.size() >= sizeof(data)) {
+                throw std::length_error("ShortName too long! Too many variables in expression.");
+            }
+            std::memcpy(data.data(), s.data(), s.size());
+            data[s.size()] = '\0';
+        }
+
+        explicit operator std::string_view() const {
+            return {data.data()};
+        }
+    };
 
     /**
-     * @brief Resets the expression to its initial state.
-     * @details This function:
-     *          - Clears all components
-     *          - Clears all variables and re-registers standard functions
-     *          - Clears all virtual double entries
+     * @brief Value to be registered after all components are parsed, for memory alignment
      */
-    void reset();
+    struct LateRegistration {
+        std::string key;
+        ShortName teName;
+        ContextDeriver::TargetType contextType;
+    };
 
     /**
-     * @brief Compiles a component, if its of type Expression
-     * @param component The component to potentially compile
+     * @brief Memory alignment helper
      */
-    void compileIfExpression(std::shared_ptr<ExpressionComponent> const& component) const;
+    struct Cache {
+        std::vector<double> values;
+        std::vector<ShortName> teNames;
+    } cache;
 
     /**
-     * @brief Registers a variable with the given name and key in the context of the component.
-     *        Makes sure to only register variables that are not already registered.
-     * @param te_name The name of the variable as used in TinyExpr.
-     * @param key The key in the JSON document that the variable refers to.
-     * @param contextType The context from which the variable is being registered.
+     * @struct Nebulite::Interaction::Logic::Expression::LinkedNumericValueLists
+     * @brief Holds lists of LinkedNumericValue entries for different contexts.
      */
-    void registerVariable(std::string te_name, std::string_view key, ContextDeriver::TargetType contextType);
+    mutable struct LinkedNumericValueLists {
+        using lnvList = std::vector<std::unique_ptr<LinkedNumericValue>>;
+
+        // Linkable as external cache, no multi-resolve or transformations
+        // This works by Caching the first context used. If the new context address matches the first,
+        // we can use the stable vd_list and simply copy double values.
+        // Otherwise, we need to retrieve them from a document first, which is expensive
+        struct Stable {
+            lnvList self; // Variables from context self
+            lnvList other; // Variables from context other
+            lnvList global; // Variables from context global
+        } stable;
+
+        // With multi-resolve or transformations, key needs to be resolved each time
+        struct Unstable {
+            lnvList self; // Variables from context self with transformations or multi-resolve
+            lnvList other; // Variables from context other with transformations or multi-resolve
+            lnvList local; // Variables from context marrying: self and other
+            lnvList global; // Variables from context global with transformations or multi-resolve
+            lnvList full; // Variables from context marrying: self, other and global
+            lnvList resource; // Variables from context resource with transformations or multi-resolve
+            lnvList none; // Variables with no context with transformations or multi-resolve
+        } unstable;
+
+        /**
+         * @brief Register a new LinkedNumericValue in the appropriate list based on the context type and its key.
+         * @param contextType The context type to determine which list to register the value in.
+         * @param key The key associated with the value
+         * @param v The double reference to register
+         */
+        void registerLnv(ContextDeriver::TargetType contextType, std::string_view key, double& v);
+    } linkedNumericValues;
 
     /**
-     * @brief Parses the given expression into a series of components.
-     * @param expr The expression string to parse.
+     * @brief Registers a variable
+     * @param contextType The context to register for
+     * @param k The key to register
+     * @param teName The name of the variable in tinyexpr
+     * @param v The double reference to register
      */
-    void parseIntoComponents(std::string_view expr);
-
-    /**
-     * @brief Used to parse a string token of type "eval" into a component.
-     * @param token The token to parse.
-     */
-    void parseTokenTypeEval(std::string_view token);
-
-    /**
-     * @brief Used to parse a string token of type "variable" into a component.
-     * @param token The token to parse
-     */
-    void parseTokenTypeVariable(std::string_view token);
-
-    /**
-     * @brief Used to parse a string token of type "text" into a component.
-     * @param token The token to parse.
-     */
-    void parseTokenTypeText(std::string_view token);
-
-    /**
-     * @brief Prints a compilation error message to cerr, includes tips for fixing the error.
-     */
-    void printCompileError(std::shared_ptr<ExpressionComponent> const& component, int error) const;
-
-    //------------------------------------------
-    // Cache helper functions
+    void addTeVariable(ContextDeriver::TargetType contextType, std::string const& k, ShortName const& teName, double& v);
 
     /**
      * @brief Updates caches to reflect current context
@@ -363,6 +318,97 @@ private:
     * @param context The current context to update unstable value caches for
     */
     void updateUnstableValues(ContextScope const& context) const ;
+
+    //------------------------------------------
+    // Data
+
+    /**
+     * @brief Holds all parsed components from the expression.
+     */
+    std::vector<std::shared_ptr<ExpressionComponent>> components;
+
+    /**
+     * @brief Holds the full expression as a string.
+     */
+    std::string fullExpression;
+
+    /**
+     * @brief Collection of all registered variables and functions
+     */
+    std::vector<te_variable> te_variables; // Variables for TinyExpr evaluation
+
+    //------------------------------------------
+    // Core Helper functions
+
+    /**
+     * @brief Provides an empty JSON document that can be used as a context placeholder
+     * @return The empty JSON document reference
+     */
+    static Data::JsonScope const& emptyDoc();
+
+    /**
+     * @brief Resets the expression to its initial state.
+     * @details This function:
+     *          - Clears all components
+     *          - Clears all variables and re-registers standard functions
+     *          - Clears all virtual double entries
+     */
+    void reset();
+
+    //------------------------------------------
+    // Parsing and compiling
+
+    /**
+     * @brief Parses a given expression string with a constant reference to the document cache and the self and global JSON objects.
+     * @param expr The expression string to parse.
+     */
+    void parse(std::string_view expr);
+
+    /**
+     * @brief Compiles a component, if its of type Expression
+     * @param component The component to potentially compile
+     */
+    void compileIfExpression(std::shared_ptr<ExpressionComponent> const& component) const;
+
+    /**
+     * @brief Parses the given expression into a series of components.
+     */
+    void parseIntoComponents();
+
+    /**
+     * @brief Used to parse a string token of type "eval" into a component.
+     * @param token The token to parse.
+     * @param lateRegistrations The list of cache register functions that add values to the cache.
+     * @param varNameGen The variable name generator to ensure unique variable names in TinyExpr.
+     */
+    void parseTokenTypeEval(std::string_view token, std::vector<LateRegistration>& lateRegistrations, VariableNameGenerator& varNameGen);
+
+    /**
+     * @brief Used to parse a string token of type "variable" into a component.
+     * @param token The token to parse
+     */
+    void parseTokenTypeVariable(std::string_view token);
+
+    /**
+     * @brief Used to parse a string token of type "text" into a component.
+     * @param token The token to parse.
+     */
+    void parseTokenTypeText(std::string_view token);
+
+    /**
+     * @brief Prints a compilation error message to cerr, includes tips for fixing the error.
+     */
+    void printCompileError(std::shared_ptr<ExpressionComponent> const& component, int error) const ;
+
+    /**
+     * @brief Registers a variable with the given name and key in the context of the component.
+     *        Makes sure to only register variables that are not already registered.
+     * @param te_name The name of the variable as used in TinyExpr.
+     * @param key The key in the JSON document that the variable refers to.
+     * @param contextType The context from which the variable is being registered.
+     * @param lateRegistrations The list of cache register functions that add values to the cache.
+     */
+    void registerVariable(std::string te_name, std::string_view key, ContextDeriver::TargetType contextType, std::vector<LateRegistration>& lateRegistrations);
 };
 
 } // namespace Nebulite::Interaction::Logic

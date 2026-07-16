@@ -7,6 +7,7 @@
 // Standard library
 #include <array>
 #include <complex>
+#include <concepts>
 #include <cstddef>
 #include <cstdint>
 #include <expected>
@@ -17,6 +18,7 @@
 #include <span>
 #include <stdexcept>
 #include <string>
+#include <type_traits>
 #include <vector>
 
 // Nebulite
@@ -24,6 +26,7 @@
 #include "Nebulite/Constants/ThreadSettings.hpp"
 #include "Nebulite/Data/Document/KeyType.hpp"
 #include "Nebulite/Data/Document/RjDirectAccess.hpp"
+#include "Nebulite/Data/Document/ScopedKey.hpp"
 #include "Nebulite/Data/Document/ScopedKeyView.hpp"
 #include "Nebulite/Data/Document/SimpleValueError.hpp"
 #include "Nebulite/Data/MappedOrderedCacheList.hpp"
@@ -34,7 +37,6 @@
 
 namespace Nebulite::Data {
 class JSON;
-class ScopedKey;
 } // namespace Nebulite::Data
 
 //------------------------------------------
@@ -261,7 +263,22 @@ public:
      */
     static std::size_t assignCacheLookupIndex();
 
-    double** ensureOrderedCacheList(std::uint64_t uniqueId, std::vector<ScopedKeyView> const& keys);
+    /**
+     * @brief Ensures the existence of an ordered cache list of double pointers for a set of keys.
+     * @details Non-locking version, intended for use in threads that have been assigned a unique index via assignCacheLookupIndex().
+     * @tparam R A range of ScopedKeyView objects
+     * @param uniqueId The unique id of the entry
+     * @param keys The keys to potentially create the entry with
+     * @return An ordered vector of double pointers corresponding to the keys, either retrieved from the map or newly created if it did not exist.
+     */
+    template <std::ranges::input_range R> requires std::same_as<std::remove_cvref_t<std::ranges::range_reference_t<R>>,ScopedKeyView>
+    double** ensureOrderedCacheList(std::uint64_t uniqueId, R const& keys) {
+        thread_local std::size_t const threadIndex = assignCacheLookupIndex();
+        if (threadIndex >= cacheLookupThreadCount) {
+            throw std::runtime_error("Thread index exceeds non-locking array size! Too many threads accessing ordered cache lists, increase cacheLookupThreadCount or reduce thread count.");
+        }
+        return odpCache[threadIndex].ensureOrderedCacheListNoLock(uniqueId, keys);
+    }
 
     //------------------------------------------
     // Key Types, Sizes
