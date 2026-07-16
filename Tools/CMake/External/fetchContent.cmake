@@ -13,7 +13,7 @@ function(fetchContent)
     FetchContent_Declare(
             rapidjson
             GIT_REPOSITORY https://github.com/Tencent/rapidjson.git
-            GIT_TAG master    # Replace with pinned commit SHA
+            GIT_TAG master    # Master is fine for rapidjson: rarely updated
     )
     FetchContent_GetProperties(rapidjson)
     if(NOT rapidjson_POPULATED)
@@ -24,56 +24,56 @@ function(fetchContent)
     FetchContent_Declare(
             tinyexpr
             GIT_REPOSITORY https://github.com/codeplea/tinyexpr.git
-            GIT_TAG master    # Replace with pinned commit SHA
+            GIT_TAG master    # Master is fine for tinyexpr: rarely updated
     )
     set(tinyexpr_SOURCE_DIR ${FETCHCONTENT_BASE_DIR}/tinyexpr-src PARENT_SCOPE)
 
     FetchContent_Declare(
             absl
             GIT_REPOSITORY https://github.com/abseil/abseil-cpp.git
-            GIT_TAG master    # Replace with pinned commit SHA
+            GIT_TAG lts_2026_05_26
     )
     # Absl sets source dir itself, so we don't need to set it here.
 
     FetchContent_Declare(
             SDL3
             GIT_REPOSITORY https://github.com/libsdl-org/SDL.git
-            GIT_TAG main
+            GIT_TAG release-3.4.4
     )
     # SDL3 sets source dir itself, so we don't need to set it here.
 
     FetchContent_Declare(
             SDL3_image
             GIT_REPOSITORY https://github.com/libsdl-org/SDL_image.git
-            GIT_TAG main      # Replace with pinned commit SHA
+            GIT_TAG release-3.4.4
     )
     # SDL3_image sets source dir itself, so we don't need to set it here.
 
     FetchContent_Declare(
             SDL3_ttf
             GIT_REPOSITORY https://github.com/libsdl-org/SDL_ttf.git
-            GIT_TAG main      # Replace with pinned commit SHA
+            GIT_TAG release-3.2.2
     )
     # SDL3_ttf sets source dir itself, so we don't need to set it here.
 
     FetchContent_Declare(
             imgui
             GIT_REPOSITORY https://github.com/ocornut/imgui.git
-            GIT_TAG master    # Replace with pinned commit SHA
+            GIT_TAG v1.92.8
     )
     set(imgui_SOURCE_DIR ${FETCHCONTENT_BASE_DIR}/imgui-src PARENT_SCOPE)
 
     FetchContent_Declare(
             stb
             GIT_REPOSITORY https://github.com/nothings/stb.git
-            GIT_TAG master    # Replace with pinned commit SHA
+            GIT_TAG master
     )
     set(stb_SOURCE_DIR ${FETCHCONTENT_BASE_DIR}/stb-src PARENT_SCOPE)
 
     FetchContent_Declare(
             rmlui
             GIT_REPOSITORY https://github.com/mikke89/RmlUi.git
-            GIT_TAG master    # Replace with pinned commit SHA
+            GIT_TAG 6.2
     )
     # RmlUi sets source dir itself, so we don't need to set it here.
 
@@ -86,6 +86,8 @@ function(fetchContent)
 
     ##########################################################
     # Make available
+
+    message(STATUS "Fetching external dependencies...")
     FetchContent_MakeAvailable(
             rapidjson
             tinyexpr
