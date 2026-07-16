@@ -176,12 +176,11 @@ void Expression::registerVariable(std::string te_name, std::string_view const ke
     });
 
     if (!found) {
-        LateRegistration lr{
+        lateRegistrations.emplace_back(LateRegistration{
             .contextType = contextType,
             .key = std::string(key),
             .teName = std::string(te_name),
-        };
-        lateRegistrations.push_back(std::move(lr));
+        });
     }
 }
 
@@ -218,6 +217,9 @@ std::vector<std::string> getTokens(std::string_view const expr) {
         //       "Value is: ($(1+1))" -> ["Value is: (", "$(1+1)", ")"]
         //       Currently, this would be split into a single token
         //       Sadly this isn't as straightforward as it seems...
+        //       pCount/bCount needs more info to find end of an eval or var
+        //       - local pCount 0 (check for every ')' -> pushback
+        //       - local bCount 0 and not in eval -> pushback
 
         // Add the token to the current token
         currentToken += token;
