@@ -29,7 +29,6 @@ namespace Nebulite::Interaction::Logic {
  *          where the context changes dynamically during evaluations
  *          or the lifetime is limited.
  *          This distinction is crucial for efficient and accurate expression evaluations.
- * @todo Obsolete, use structure of arrays for key,scopedKey and value in Expression class instead. Easier to manage and more efficient.
  */
 class LinkedNumericValue {
     // We must store both the key and the scopedkey. Using a string + ScopedKeyView is more memory efficient.
@@ -43,8 +42,9 @@ class LinkedNumericValue {
 
     /**
      * @brief Internal cache for non-remanent documents.
+     * @details Pointer instead of reference so the class remains standard-layout
      */
-    double copiedValue = 0.0;
+    double* reference;
 
 public:
     /**
@@ -52,8 +52,9 @@ public:
      * @details This constructor initializes the LinkedNumericValue with a key and a DocumentCache.
      *          It also removes any prefixes from the key to ensure consistent access.
      * @param k The key associated with this LinkedNumericValue.
+     * @param r A pointer to the double value to link.
      */
-    explicit LinkedNumericValue(std::string_view k);
+    explicit LinkedNumericValue(std::string_view k, double& r);
 
     /**
      * @brief Get the key associated with this LinkedNumericValue.
@@ -78,14 +79,6 @@ public:
      * @param val The new double value to set.
      */
     void setDirect(double val) noexcept ;
-
-    /**
-     * @brief Get a pointer to the linked double
-     * @return A pointer to the double value.
-     */
-    [[nodiscard]] double* ptr() noexcept {
-        return &copiedValue;
-    }
 };
 }   // namespace Nebulite::Interaction::Logic
 #endif // NEBULITE_INTERACTION_LOGIC_VIRTUALDOUBLE_HPP

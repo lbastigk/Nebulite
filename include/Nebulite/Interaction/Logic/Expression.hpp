@@ -18,6 +18,7 @@
 // Nebulite
 #include "Nebulite/Data/Document/JSON.hpp"
 #include "Nebulite/Interaction/Context.hpp"
+#include "Nebulite/Interaction/Logic/LinkedNumericValue.hpp"
 #include "Nebulite/Interaction/Logic/VariableNameGenerator.hpp"
 
 //------------------------------------------
@@ -179,11 +180,28 @@ private:
     } cacheId;
 
     /**
+     * @brief Value to be registered after all components are parsed, for memory alignment
+     */
+    struct LateRegistration {
+        ContextDeriver::TargetType contextType;
+        std::string key;
+        std::string teName;
+    };
+
+    /**
+     * @brief Memory alignment helper
+     */
+    struct Cache {
+        std::vector<double> values;
+        std::vector<std::string> teNames;
+    } cache;
+
+    /**
      * @struct Nebulite::Interaction::Logic::Expression::LinkedNumericValueLists
      * @brief Holds lists of LinkedNumericValue entries for different contexts.
      */
-    struct LinkedNumericValueLists {
-        using lnvList = std::vector<std::shared_ptr<LinkedNumericValue>>;
+    mutable struct LinkedNumericValueLists {
+        using lnvList = std::vector<std::unique_ptr<LinkedNumericValue>>;
 
         // Linkable as external cache, no multi-resolve or transformations
         // This works by Caching the first context used. If the new context address matches the first,
@@ -206,14 +224,19 @@ private:
             lnvList none; // Variables with no context with transformations or multi-resolve
         } unstable;
 
-        /**
-         * @brief Registers a variable
-         * @param contextType The context to register for
-         * @param key The key to register
-         * @return Pointer to the registered variable
-         */
-        double* registerVariable(ContextDeriver::TargetType contextType, std::string_view key);
+
+        void registerLnv(ContextDeriver::TargetType contextType, std::string_view key, double& v);
     } linkedNumericValues;
+
+
+    /**
+     * @brief Registers a variable
+     * @param contextType The context to register for
+     * @param k The key to register
+     * @param teName The name of the variable in tinyexpr
+     * @param v The double reference to register
+     */
+    void addTeVariable(ContextDeriver::TargetType contextType, std::string const& k, std::string const& teName, double& v);
 
     /**
      * @brief Generates short variable names for tinyexpr variables.
@@ -263,11 +286,6 @@ private:
     std::string fullExpression;
 
     /**
-     * @brief Collection of all variable names
-     */
-    std::vector<std::shared_ptr<std::string>> te_names; // Names of variables for TinyExpr evaluation
-
-    /**
      * @brief Collection of all registered variables and functions
      */
     std::vector<te_variable> te_variables; // Variables for TinyExpr evaluation
@@ -308,8 +326,9 @@ private:
      * @param te_name The name of the variable as used in TinyExpr.
      * @param key The key in the JSON document that the variable refers to.
      * @param contextType The context from which the variable is being registered.
+     * @param lateRegistrations The list of cache register functions that add values to the cache.
      */
-    void registerVariable(std::string te_name, std::string_view key, ContextDeriver::TargetType contextType);
+    void registerVariable(std::string te_name, std::string_view key, ContextDeriver::TargetType contextType, std::vector<LateRegistration>& lateRegistrations);
 
     /**
      * @brief Parses the given expression into a series of components.
@@ -320,8 +339,9 @@ private:
     /**
      * @brief Used to parse a string token of type "eval" into a component.
      * @param token The token to parse.
+     * @param lateRegistrations The list of cache register functions that add values to the cache.
      */
-    void parseTokenTypeEval(std::string_view token);
+    void parseTokenTypeEval(std::string_view token, std::vector<LateRegistration>& lateRegistrations);
 
     /**
      * @brief Used to parse a string token of type "variable" into a component.

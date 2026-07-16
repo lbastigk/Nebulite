@@ -62,9 +62,6 @@ void Expression::reset() {
     fullExpression.clear();
     components.clear();
 
-    // Clear all variable names
-    te_names.clear();
-
     // Clear all vds
     linkedNumericValues.stable.self.clear();
     linkedNumericValues.stable.other.clear();
@@ -111,14 +108,14 @@ bool isAvailableAsDoublePtr(std::string_view const key) {
 }
 } // anonymous namespace
 
-double* Expression::LinkedNumericValueLists::registerVariable(ContextDeriver::TargetType const contextType, std::string_view const key){
-    auto const vd = std::make_shared<LinkedNumericValue>(key);
+void Expression::LinkedNumericValueLists::registerLnv(ContextDeriver::TargetType const contextType, std::string_view const key, double& v){
+    auto vd = std::make_unique<LinkedNumericValue>(key, v);
     switch (contextType) {
     case ContextDeriver::TargetType::self:
         if (isAvailableAsDoublePtr(key)) {
-            stable.self.push_back(vd);
+            stable.self.push_back(std::move(vd));
         } else {
-            unstable.self.push_back(vd);
+            unstable.self.push_back(std::move(vd));
         }
         break;
     case ContextDeriver::TargetType::other:
@@ -127,60 +124,64 @@ double* Expression::LinkedNumericValueLists::registerVariable(ContextDeriver::Ta
         // Meaning the ones we can get from an ordered list, and the ones we need to resolve each time
         // (e.g. with multi-resolve or transformations)
         if (isAvailableAsDoublePtr(key)) {
-            stable.other.push_back(vd);
+            stable.other.push_back(std::move(vd));
         } else {
-            unstable.other.push_back(vd);
+            unstable.other.push_back(std::move(vd));
         }
         break;
     case ContextDeriver::TargetType::local:
-        unstable.local.push_back(vd);
+        unstable.local.push_back(std::move(vd));
         break;
     case ContextDeriver::TargetType::global:
         if (isAvailableAsDoublePtr(key)) {
-            stable.global.push_back(vd);
+            stable.global.push_back(std::move(vd));
         } else {
-            unstable.global.push_back(vd);
+            unstable.global.push_back(std::move(vd));
         }
         break;
     case ContextDeriver::TargetType::full:
-        unstable.full.push_back(vd);
+        unstable.full.push_back(std::move(vd));
         break;
     case ContextDeriver::TargetType::resource:
-        unstable.resource.push_back(vd);
+        unstable.resource.push_back(std::move(vd));
         break;
     case ContextDeriver::TargetType::none:
         // Use an empty document
-        unstable.none.push_back(vd);
+        unstable.none.push_back(std::move(vd));
         break;
     default:
         // Should not happen
         Global::capture().error.println(__FUNCTION__, ": Tried to register variable with no known context!");
         std::unreachable();
     }
-    return vd->ptr();
 }
 
-void Expression::registerVariable(std::string te_name, std::string_view const key, ContextDeriver::TargetType const contextType) {
+void Expression::addTeVariable(ContextDeriver::TargetType const contextType, std::string const& k, std::string const& teName, double& v) {
+    // Register cache based on context
+    linkedNumericValues.registerLnv(contextType, k, v);
+
+    // Push back into variable components
+    te_variables.push_back({
+        .name=teName.c_str(),
+        .address=&v,
+        .type=TE_VARIABLE,
+        .context=nullptr
+    });
+}
+
+void Expression::registerVariable(std::string te_name, std::string_view const key, ContextDeriver::TargetType const contextType, std::vector<LateRegistration>& lateRegistrations) {
     // Check if variable exists in variables vector:
     bool const found = std::ranges::any_of(te_variables, [&](auto const& te_var) {
         return te_var.name == te_name;
     });
 
     if (!found) {
-        // Register cache based on context
-        auto* const ptr = linkedNumericValues.registerVariable(contextType, key);
-
-        // Store variable name for tinyexpr
-        auto const te_name_ptr = std::make_shared<std::string>(te_name);
-        te_names.push_back(te_name_ptr);
-
-        // Push back into variable components
-        te_variables.push_back({
-            .name=te_names.back()->c_str(),
-            .address=ptr,
-            .type=TE_VARIABLE,
-            .context=nullptr
-        });
+        LateRegistration lr{
+            .contextType = contextType,
+            .key = std::string(key),
+            .teName = std::string(te_name),
+        };
+        lateRegistrations.push_back(std::move(lr));
     }
 }
 
@@ -262,10 +263,11 @@ std::vector<std::string> getTokens(std::string_view const expr) {
 } // namespace
 
 void Expression::parseIntoComponents(std::string_view const expr) {
+    std::vector<LateRegistration> lateRegistrations;
     for (auto const& token : getTokens(expr)) {
         if (!token.empty()) {
             if (token.starts_with('$')) {
-                parseTokenTypeEval(token);
+                parseTokenTypeEval(token, lateRegistrations);
             } else {
                 // Current token is Text
                 // Perhaps mixed with variables...
@@ -282,9 +284,16 @@ void Expression::parseIntoComponents(std::string_view const expr) {
             }
         }
     }
+    cache.values.resize(lateRegistrations.size());
+    cache.teNames.resize(lateRegistrations.size());
+    for (auto [i, lr] : lateRegistrations | Utility::Ranges::enumerate) {
+        cache.teNames[i] = lr.teName;
+        addTeVariable(lr.contextType, lr.key, cache.teNames[i], cache.values[i]);
+    }
+    lateRegistrations.clear();
 }
 
-void Expression::parseTokenTypeEval(std::string_view const token) {
+void Expression::parseTokenTypeEval(std::string_view const token, std::vector<LateRegistration>& lateRegistrations) {
     // $[leading zero][alignment][.][precision]<type:f,i>
     // - bool leading zero   : on/off
     // - int alignment       : <0 means no formatting
@@ -312,7 +321,7 @@ void Expression::parseTokenTypeEval(std::string_view const token) {
             auto const te_name = varNameGen.getUniqueName(subToken);
             auto key = ContextDeriver::stripContext(subToken.substr(1, subToken.length() - 2));
             auto const contextType = ContextDeriver::getTypeFromString(subToken.substr(1, subToken.length() - 2));
-            registerVariable(te_name, key, contextType);
+            registerVariable(te_name, key, contextType, lateRegistrations);
             currentComponent->stringRepresentation += te_name;
         } else {
             currentComponent->stringRepresentation += subToken;
@@ -408,8 +417,6 @@ Expression::Expression(std::string_view const expr){
     };
     reset();
     parse(expr);
-
-
     cacheId.self = Data::MappedOrderedCacheList::generateUniqueId(std::string("self:") + std::string(expr));
     cacheId.other = Data::MappedOrderedCacheList::generateUniqueId(std::string("other:") + std::string(expr));
     cacheId.global = Data::MappedOrderedCacheList::generateUniqueId(std::string("global:") + std::string(expr));
@@ -463,7 +470,7 @@ void Expression::updateCaches(ContextScope const& context) const {
 }
 
 void Expression::updateStableValues(ContextScope const& context) const {
-    auto updateFromCacheList = [](auto& jsonScope, auto const& vdList, uint64_t id) {
+    auto updateFromCacheList = [](auto& jsonScope, auto& vdList, uint64_t id) {
         if (vdList.empty()) {
             return;
         }
@@ -482,7 +489,7 @@ void Expression::updateStableValues(ContextScope const& context) const {
 
 void Expression::updateUnstableValues(ContextScope const& context) const {
     auto updateFromJSON = [&]<typename DataType>(DataType const& jsonScope, auto& vdList) {
-        for (auto const& vde : vdList) {
+        for (auto& vde : vdList) {
             if constexpr (auto const evaluatedKey = eval(vde->getKey(), context); requires { jsonScope.template get<double>(Data::ScopedKey(evaluatedKey)); }) {
                 auto key = Data::ScopedKey(evaluatedKey);
                 vde->setDirect(jsonScope.template get<double>(key).value_or(0.0));
