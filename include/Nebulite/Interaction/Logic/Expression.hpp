@@ -5,9 +5,12 @@
 // Includes
 
 // Standard library
+#include <array>
 #include <cstddef>
 #include <cstdint> // NOLINT
+#include <cstring>
 #include <memory>
+#include <stdexcept>
 #include <string>
 #include <string_view>
 #include <vector>
@@ -189,11 +192,33 @@ private:
     };
 
     /**
+     * @brief TinyExpr variables are shortened using VariableNameGenerator.
+     * @details 3 Characters are enough for 26^3 = 17576 unique variable names, which is more than enough for any expression.
+     */
+    struct ShortName {
+        std::array<char, 4> data{};
+
+        ShortName() = default;
+
+        explicit ShortName(std::string const& s) {
+            if (s.size() >= sizeof(data)) {
+                throw std::length_error("ShortName too long! Too many variables in expression.");
+            }
+            std::memcpy(data.data(), s.data(), s.size());
+            data[s.size()] = '\0';
+        }
+
+        operator std::string_view() const {
+            return {data.data()};
+        }
+    };
+
+    /**
      * @brief Memory alignment helper
      */
     struct Cache {
         std::vector<double> values;
-        std::vector<std::string> teNames;
+        std::vector<ShortName> teNames;
     } cache;
 
     /**
@@ -224,10 +249,14 @@ private:
             lnvList none; // Variables with no context with transformations or multi-resolve
         } unstable;
 
-
+        /**
+         * @brief Register a new LinkedNumericValue in the appropriate list based on the context type and its key.
+         * @param contextType The context type to determine which list to register the value in.
+         * @param key The key associated with the value
+         * @param v The double reference to register
+         */
         void registerLnv(ContextDeriver::TargetType contextType, std::string_view key, double& v);
     } linkedNumericValues;
-
 
     /**
      * @brief Registers a variable
@@ -236,7 +265,7 @@ private:
      * @param teName The name of the variable in tinyexpr
      * @param v The double reference to register
      */
-    void addTeVariable(ContextDeriver::TargetType contextType, std::string const& k, std::string const& teName, double& v);
+    void addTeVariable(ContextDeriver::TargetType contextType, std::string const& k, std::string_view teName, double& v);
 
     /**
      * @brief Generates short variable names for tinyexpr variables.

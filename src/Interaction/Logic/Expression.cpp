@@ -156,13 +156,13 @@ void Expression::LinkedNumericValueLists::registerLnv(ContextDeriver::TargetType
     }
 }
 
-void Expression::addTeVariable(ContextDeriver::TargetType const contextType, std::string const& k, std::string const& teName, double& v) {
+void Expression::addTeVariable(ContextDeriver::TargetType const contextType, std::string const& k, std::string_view const teName, double& v) {
     // Register cache based on context
     linkedNumericValues.registerLnv(contextType, k, v);
 
     // Push back into variable components
     te_variables.push_back({
-        .name=teName.c_str(),
+        .name=teName.data(), // NOLINT
         .address=&v,
         .type=TE_VARIABLE,
         .context=nullptr
@@ -287,7 +287,7 @@ void Expression::parseIntoComponents(std::string_view const expr) {
     cache.values.resize(lateRegistrations.size());
     cache.teNames.resize(lateRegistrations.size());
     for (auto [i, lr] : lateRegistrations | Utility::Ranges::enumerate) {
-        cache.teNames[i] = lr.teName;
+        cache.teNames[i] = ShortName(lr.teName);
         addTeVariable(lr.contextType, lr.key, cache.teNames[i], cache.values[i]);
     }
     lateRegistrations.clear();
