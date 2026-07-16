@@ -227,14 +227,17 @@ cleanup() {
 }
 trap cleanup EXIT
 
+GIT_ERROR=0
 if [ "$1" == "--changed-files" ]; then
     {
         git diff --name-only || {
             >&2 echo "Error: Failed to get changed files. Ensure you are in a git repository."
+            GIT_ERROR=1
             exit 1
         }
         git diff --cached --name-only || {
             >&2 echo "Error: Failed to get staged changed files. Ensure you are in a git repository."
+            GIT_ERROR=1
             exit 1
         }
     } | sort -u | grep -E '\.(cpp|hpp|h|tpp)$' | tr '\n' '\0' | organize_files >"$tmpfile"
@@ -242,14 +245,17 @@ elif [ "$1" == "--main-diff" ]; then
     {
         git diff --merge-base main --name-only || {
             >&2 echo "Error: Failed to get main diff. Ensure you are in a git repository."
+            GIT_ERROR=1
             exit 1
         }
         git diff --name-only || {
             >&2 echo "Error: Failed to get unstaged changes. Ensure you are in a git repository."
+            GIT_ERROR=1
             exit 1
         }
         git diff --cached --name-only || {
             >&2 echo "Error: Failed to get staged changes. Ensure you are in a git repository."
+            GIT_ERROR=1
             exit 1
         }
     } | sort -u | grep -E '\.(cpp|hpp|h|tpp)$' | tr '\n' '\0' | organize_files >"$tmpfile"
@@ -260,6 +266,10 @@ else
     echo ""
     echo "Running clang-tidy on all files..."
     find ./include ./src \( -name '*.hpp' -o -name '*.cpp' -o -name '*.tpp' \) -print0 | organize_files >"$tmpfile"
+fi
+
+if [ "$GIT_ERROR" -ne 0 ]; then
+    exit 1
 fi
 
 if [ "$2" == "--list-only" ]; then
