@@ -5,7 +5,9 @@
 // Includes
 
 // Standard library
+#include <concepts>
 #include <cstddef>
+#include <ranges>
 #include <string_view>
 #include <vector>
 
@@ -13,13 +15,13 @@
 #include <absl/container/flat_hash_map.h>
 
 // Nebulite
-#include "Nebulite/Data/Document/ScopedKey.hpp"
 #include "Nebulite/Utility/Coordination/SharedMutex.hpp"
 
 //------------------------------------------
 // Forward declarations
 
 namespace Nebulite::Data {
+class ScopedKeyView;
 class JsonScope;
 } // namespace Nebulite::Data
 
@@ -51,7 +53,11 @@ public:
      * @param keys The vector of keys to populate the cache with.
      * @return A pointer to the ordered vector of double pointers for the specified keys.
      */
-    double** ensureOrderedCacheList(std::size_t uniqueId, std::vector<ScopedKeyView> const& keys);
+    template <std::ranges::input_range R> requires std::convertible_to<std::ranges::range_reference_t<R>, ScopedKeyView>
+    double** ensureOrderedCacheList(std::size_t uniqueId, R&& keys) {
+        Utility::Coordination::WriteLock const lock(mtxMap);
+        return fromMap(uniqueId, std::forward<R>(keys));
+    }
 
     /**
      * @brief Ensures the existence of an ordered cache list of double pointers for a set of keys. Non-locking version.
@@ -59,7 +65,10 @@ public:
      * @param keys The vector of keys to populate the cache with.
      * @return A pointer to the ordered vector of double pointers for the specified keys.
      */
-    double** ensureOrderedCacheListNoLock(std::size_t uniqueId, std::vector<ScopedKeyView> const& keys);
+    template <std::ranges::input_range R> requires std::convertible_to<std::ranges::range_reference_t<R>, ScopedKeyView>
+    double** ensureOrderedCacheListNoLock(std::size_t uniqueId, R&& keys) {
+        return fromMap(uniqueId, std::forward<R>(keys));
+    }
 
 private:
     /**
@@ -84,7 +93,22 @@ private:
      * @param keys The keys to potentially create the entry with
      * @return An ordered vector of double pointers corresponding to the keys, either retrieved from the map or newly created if it did not exist.
      */
-    double** fromMap(std::size_t uniqueId, std::vector<ScopedKeyView> const& keys);
+    template <std::ranges::input_range R> requires std::convertible_to<std::ranges::range_reference_t<R>, ScopedKeyView>
+    double** fromMap(std::size_t uniqueId, R&& keys){
+        if (auto const it = map.find(uniqueId); it != map.end()) [[likely]] {
+            return it->second.data();
+        }
+        auto [newIt, inserted] = map.try_emplace(uniqueId, OrderedCacheList());
+        if (inserted) {
+            newIt->second.reserve(keys.size());
+            for (auto const& key : std::forward<R>(keys)) {
+                addToVec(newIt->second, reference, key);
+            }
+        }
+        return newIt->second.data();
+    }
+
+    static void addToVec(std::vector<double*>& vec, JsonScope const& reference, ScopedKeyView const& key);
 };
 } // namespace Nebulite::Data
 #endif // NEBULITE_DATA_ORDEREDCACHELIST_HPP

@@ -467,11 +467,10 @@ void Expression::updateStableValues(ContextScope const& context) const {
         if (vdList.empty()) {
             return;
         }
-        std::vector<Data::ScopedKeyView> const keys = vdList
-            | std::views::transform([](auto const& vde) { return vde->getScopedKey(); })
-            | std::ranges::to<std::vector<Data::ScopedKeyView>>();
-
-        auto* v = jsonScope.ensureOrderedCacheList(id, keys);
+        auto* v = jsonScope.ensureOrderedCacheList(
+            id,
+            vdList | std::views::transform([](auto const& vde) { return vde->getScopedKey(); })
+        );
         for (auto [i, vde] : vdList | Utility::Ranges::enumerate) {
             vde->setDirect(*v[i]);
         }

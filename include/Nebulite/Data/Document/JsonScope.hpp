@@ -7,6 +7,7 @@
 // Standard library
 #include <array>
 #include <complex>
+#include <concepts>
 #include <cstddef>
 #include <cstdint>
 #include <expected>
@@ -24,6 +25,7 @@
 #include "Nebulite/Constants/ThreadSettings.hpp"
 #include "Nebulite/Data/Document/KeyType.hpp"
 #include "Nebulite/Data/Document/RjDirectAccess.hpp"
+#include "Nebulite/Data/Document/ScopedKey.hpp"
 #include "Nebulite/Data/Document/ScopedKeyView.hpp"
 #include "Nebulite/Data/Document/SimpleValueError.hpp"
 #include "Nebulite/Data/MappedOrderedCacheList.hpp"
@@ -34,7 +36,6 @@
 
 namespace Nebulite::Data {
 class JSON;
-class ScopedKey;
 } // namespace Nebulite::Data
 
 //------------------------------------------
@@ -261,7 +262,14 @@ public:
      */
     static std::size_t assignCacheLookupIndex();
 
-    double** ensureOrderedCacheList(std::uint64_t uniqueId, std::vector<ScopedKeyView> const& keys);
+    template <std::ranges::input_range R> requires std::convertible_to<std::ranges::range_reference_t<R>, ScopedKeyView>
+    double** ensureOrderedCacheList(std::uint64_t uniqueId, R const& keys) {
+        thread_local std::size_t const threadIndex = assignCacheLookupIndex();
+        if (threadIndex >= cacheLookupThreadCount) {
+            throw std::runtime_error("Thread index exceeds non-locking array size! Too many threads accessing ordered cache lists, increase cacheLookupThreadCount or reduce thread count.");
+        }
+        return odpCache[threadIndex].ensureOrderedCacheListNoLock(uniqueId, keys);
+    }
 
     //------------------------------------------
     // Key Types, Sizes
