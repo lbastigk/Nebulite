@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -o pipefail
+
 help(){
     echo "Usage: $0 [options]"
     echo "Options:"
@@ -236,31 +238,31 @@ trap cleanup EXIT
 if [ "$1" == "--changed-files" ]; then
     {
         git diff --name-only || {
-            echo "Error: Failed to get changed files. Ensure you are in a git repository."
+            >&2 echo "Error: Failed to get changed files. Ensure you are in a git repository."
             exit 1
         }
         git diff --cached --name-only || {
-            echo "Error: Failed to get staged changed files. Ensure you are in a git repository."
+            >&2 echo "Error: Failed to get staged changed files. Ensure you are in a git repository."
             exit 1
         }
     } | sort -u | grep -E '\.(cpp|hpp|h|tpp)$' | tr '\n' '\0' | organize_files >"$tmpfile"
 elif [ "$1" == "--main-diff" ]; then
     {
         git diff main...HEAD --name-only || {
-            echo "Error: Failed to get main diff. Ensure you are in a git repository."
+            >&2 echo "Error: Failed to get main diff. Ensure you are in a git repository."
             exit 1
         }
         git diff --name-only || {
-            echo "Error: Failed to get unstaged changes. Ensure you are in a git repository."
+            >&2 echo "Error: Failed to get unstaged changes. Ensure you are in a git repository."
             exit 1
         }
         git diff --cached --name-only || {
-            echo "Error: Failed to get staged changes. Ensure you are in a git repository."
+            >&2 echo "Error: Failed to get staged changes. Ensure you are in a git repository."
             exit 1
         }
     } | sort -u | grep -E '\.(cpp|hpp|h|tpp)$' | tr '\n' '\0' | organize_files >"$tmpfile"
 elif [ -n "$1" ]; then
-    echo "Error: Unknown argument '$1'. Use --help for usage information."
+    >&2 echo "Error: Unknown argument '$1'. Use --help for usage information."
     exit 1
 else
     echo ""
