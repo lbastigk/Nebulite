@@ -9,7 +9,7 @@ help(){
     echo "Options:"
     echo "  --help           Show this help message"
     echo "  --changed-files  Run clang-tidy on files changed in the current branch compared to the last commit"
-    echo "  --main-diff      Run clang-tidy on files changed in the current branch compared to main"
+    echo "  --main-diff      Run clang-tidy on files changed in the current branch compared to origin/main"
     echo "  --list-only      2nd Argument. List the files that would be checked without running clang-tidy"
     exit 0
 }
@@ -238,7 +238,7 @@ if [ "$1" == "--changed-files" ]; then
     }
 elif [ "$1" == "--main-diff" ]; then
     {
-        git diff --merge-base main --name-only -- '*.cpp' '*.hpp' '*.h' '*.tpp' || { exit 1; }
+        git diff --merge-base origin/main --name-only -- '*.cpp' '*.hpp' '*.h' '*.tpp' || { exit 1; }
         git diff --name-only -- '*.cpp' '*.hpp' '*.h' '*.tpp' || { exit 1; }
         git diff --cached --name-only -- '*.cpp' '*.hpp' '*.h' '*.tpp' || { exit 1; }
     } | sort -u | tr '\n' '\0' | organize_files >"$tmpfile" || {

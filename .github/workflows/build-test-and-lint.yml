@@ -13,15 +13,15 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Install Dependencies
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y podman python3-venv make imagemagick espeak-ng
-
       - name: List changes
         run: |
           echo "Changed files:"
           ./Scripts/Validation/clangCheck.sh --main-diff --list-only
+
+      - name: Install Dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y podman python3-venv make imagemagick espeak-ng
 
       - name: Set up Python environment
         run: |
