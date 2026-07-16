@@ -5,11 +5,11 @@
 // Includes
 
 // Standard library
+#include <array>
 #include <cassert>
 #include <concepts>
 #include <cstddef>
 #include <thread>
-#include <vector>
 
 //------------------------------------------
 // Concepts
@@ -32,11 +32,18 @@ namespace Nebulite::Utility::Coordination {
  * @details Solves the constant resource allocation issue.
  * @tparam T The type of the resource to use
  * @tparam UsageReturn The return type of the usage function.
+ * @tparam AllocatedRecursionDepth The maximum depth without temporary resource allocation
  */
-template <typename T, typename UsageReturn>
+template <typename T, typename UsageReturn, std::size_t AllocatedRecursionDepth = 16>
 class RecursionSecure {
-    std::vector<T> resourceStack{};
+    // A vector resize would invalidate the resource, so we use a fixed size array
+    std::array<T, AllocatedRecursionDepth> resourceStack{};
+
+    // Current depth
     std::size_t recursionDepth = 0;
+
+    // The thread ID of the thread that constructed this object
+    // Used for assertions
     std::thread::id const constructionThreadId = std::this_thread::get_id();
 
 public:

@@ -5,6 +5,7 @@
 // Includes
 
 // Standard library
+#include <array>
 #include <cassert>
 #include <exception>
 #include <functional>
@@ -21,9 +22,9 @@
 //------------------------------------------
 namespace Nebulite::Utility::Coordination {
 
-template<typename T, typename UsageReturn>
+template<typename T, typename UsageReturn, std::size_t AllocatedRecursionDepth>
 template<VoidFunctionOfT<T> PrepareF, FunctionOfTWithReturn<T, UsageReturn> F>
-UsageReturn RecursionSecure<T, UsageReturn>::use(PrepareF&& prepare, F&& f) requires (!std::is_void_v<UsageReturn>){
+UsageReturn RecursionSecure<T, UsageReturn, AllocatedRecursionDepth>::use(PrepareF&& prepare, F&& f) requires (!std::is_void_v<UsageReturn>){
     assert(
         std::this_thread::get_id() == constructionThreadId &&
         "RecursionSecure must be used in the same thread it was constructed in! "
@@ -31,12 +32,18 @@ UsageReturn RecursionSecure<T, UsageReturn>::use(PrepareF&& prepare, F&& f) requ
     );
     recursionDepth++;
     if (resourceStack.size() <= recursionDepth - 1) {
-        resourceStack.emplace_back();
+        // Fallback to manual allocation
+        auto resource = T();
+        std::invoke(std::forward<PrepareF>(prepare), resource);
+        try {
+            auto r = std::invoke(std::forward<F>(f), resource);
+            recursionDepth--;
+            return r;
+        } catch (std::exception& e) {
+            recursionDepth--;
+            throw std::logic_error(e.what());
+        }
     }
-    assert(
-        resourceStack.size() >= recursionDepth &&
-        "Resource stack size should be at least the recursion depth."
-    );
     auto& resource = resourceStack[recursionDepth - 1];
     std::invoke(std::forward<PrepareF>(prepare), resource);
     try {
@@ -49,9 +56,9 @@ UsageReturn RecursionSecure<T, UsageReturn>::use(PrepareF&& prepare, F&& f) requ
     }
 }
 
-template<typename T, typename UsageReturn>
+template<typename T, typename UsageReturn, std::size_t AllocatedRecursionDepth>
 template<VoidFunctionOfT<T> PrepareF, FunctionOfTWithReturn<T, UsageReturn> F>
-void RecursionSecure<T, UsageReturn>::use(PrepareF&& prepare, F&& f) requires (std::is_void_v<UsageReturn>) {
+void RecursionSecure<T, UsageReturn, AllocatedRecursionDepth>::use(PrepareF&& prepare, F&& f) requires (std::is_void_v<UsageReturn>) {
     assert(
         std::this_thread::get_id() == constructionThreadId &&
         "RecursionSecure must be used in the same thread it was constructed in! "
@@ -59,20 +66,27 @@ void RecursionSecure<T, UsageReturn>::use(PrepareF&& prepare, F&& f) requires (s
     );
     recursionDepth++;
     if (resourceStack.size() <= recursionDepth - 1) {
-        resourceStack.emplace_back();
+        // Fallback to manual allocation
+        auto resource = T();
+        std::invoke(std::forward<PrepareF>(prepare), resource);
+        try {
+            std::invoke(std::forward<F>(f), resource);
+            recursionDepth--;
+        } catch (std::exception& e) {
+            recursionDepth--;
+            throw std::logic_error(e.what());
+        }
     }
-    assert(
-        resourceStack.size() >= recursionDepth &&
-        "Resource stack size should be at least the recursion depth."
-    );
-    auto& resource = resourceStack[recursionDepth - 1];
-    std::invoke(std::forward<PrepareF>(prepare), resource);
-    try {
-        std::invoke(std::forward<F>(f), resource);
-        recursionDepth--;
-    } catch (std::exception& e) {
-        recursionDepth--;
-        throw std::logic_error(e.what());
+    else {
+        auto& resource = resourceStack[recursionDepth - 1];
+        std::invoke(std::forward<PrepareF>(prepare), resource);
+        try {
+            std::invoke(std::forward<F>(f), resource);
+            recursionDepth--;
+        } catch (std::exception& e) {
+            recursionDepth--;
+            throw std::logic_error(e.what());
+        }
     }
 }
 

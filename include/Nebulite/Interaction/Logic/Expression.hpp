@@ -164,6 +164,12 @@ public:
 
 private:
     /**
+     * @brief The maximum recursion depth without temporary string allocation
+     * @details Used for Utility::Coordination::RecursionSecure
+     */
+    static auto constexpr allocatedRecursionDepth = 8;
+
+    /**
      * @brief Unique ids for cache lookup
      */
     struct CacheId {

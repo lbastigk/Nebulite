@@ -29,6 +29,7 @@
 #include "Nebulite/Math/ExpressionPrimitives.hpp"
 #include "Nebulite/Nebulite.hpp"
 #include "Nebulite/Utility/CompileTimeEvaluate.hpp"
+#include "Nebulite/Utility/Coordination/RecursionSecure.hpp"
 #include "Nebulite/Utility/Ranges.hpp"
 #include "Nebulite/Utility/StringHandler.hpp"
 
@@ -549,48 +550,11 @@ std::string Expression::eval(ContextScope const& context, std::size_t const recu
     updateCaches(context);
 
     //------------------------------------------
-    // Evaluate expression
-    // Concatenate results of each component
-    std::string result;
-    for (auto const& component : components) {
-        std::string token;
-        switch (component->type) {
-            //------------------------------------------
-        case ExpressionComponent::Type::variable:
-            if (!component->handleComponentTypeVariable(token, context, recursionDepth)) {
-                token = "null";
-            }
-            break;
-            //------------------------------------------
-        case ExpressionComponent::Type::eval:
-            component->handleComponentTypeEval(token);
-            break;
-            //------------------------------------------
-        case ExpressionComponent::Type::text:
-            token = component->stringRepresentation;
-            break;
-            //------------------------------------------
-        default:
-            break;
-        }
-        result += token;
-    }
-    return result;
-}
-
-// Doesn't work ... why? The following test fails: task TaskFiles/Tests/Expression/cache.nebs
-/*
-std::string Expression::eval(ContextScope const& context, std::size_t const recursionDepth) const {
-    //------------------------------------------
-    // Update caches so that tinyexpr has the correct references
-    updateCaches(context);
-
-    //------------------------------------------
     // Resource allocators
 
     // Avoid reallocation of string for each component, as this is a hot path
-    thread_local Utility::Coordination::RecursionSecure<std::string, void> tokenWrapper;
-    thread_local Utility::Coordination::RecursionSecure<std::string, std::string> resultWrapper;
+    thread_local Utility::Coordination::RecursionSecure<std::string, void, allocatedRecursionDepth> tokenWrapper;
+    thread_local Utility::Coordination::RecursionSecure<std::string, std::string, allocatedRecursionDepth> resultWrapper;
 
     //------------------------------------------
     // Evaluate expression
@@ -631,7 +595,6 @@ std::string Expression::eval(ContextScope const& context, std::size_t const recu
         }
     );
 }
-*/
 
 double Expression::evalAsDouble(ContextScope const& context) const {
     updateCaches(context);
