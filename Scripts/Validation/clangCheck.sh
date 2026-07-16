@@ -230,6 +230,7 @@ trap cleanup EXIT
 # Check which argument is provided
 if [ "$1" == "--changed-files" ]; then
     {
+        set -e
         git diff --name-only -- '*.cpp' '*.hpp' '*.h' '*.tpp'
         git diff --cached --name-only -- '*.cpp' '*.hpp' '*.h' '*.tpp'
     } | sort -u | tr '\n' '\0' | organize_files >"$tmpfile" || {
@@ -238,6 +239,7 @@ if [ "$1" == "--changed-files" ]; then
     }
 elif [ "$1" == "--main-diff" ]; then
     {
+        set -e
         git diff --merge-base main --name-only -- '*.cpp' '*.hpp' '*.h' '*.tpp'
         git diff --name-only -- '*.cpp' '*.hpp' '*.h' '*.tpp'
         git diff --cached --name-only -- '*.cpp' '*.hpp' '*.h' '*.tpp'
