@@ -1,6 +1,8 @@
 #!/bin/bash
-
 set -o pipefail
+
+###################################################################
+# Help
 
 help(){
     echo "Usage: $0 [options]"
@@ -8,6 +10,7 @@ help(){
     echo "  --help           Show this help message"
     echo "  --changed-files  Run clang-tidy on files changed in the current branch compared to the last commit"
     echo "  --main-diff      Run clang-tidy on files changed in the current branch compared to main"
+    echo "  --list-only      2nd Argument. List the files that would be checked without running clang-tidy"
     exit 0
 }
 
@@ -47,17 +50,14 @@ declare -A tpp_overrides=(
     ["./include/Nebulite/Utility/Args/FuncTreeArgumentCompletion.tpp"]="./include/Nebulite/Utility/Args/FuncTree.hpp"
 )
 
+# Set the header filter to include .tpp files. Alternative for none: '^$'
+clang_tidy_header_filter='.*\.tpp$'
+
 # Required defines
 clang_tidy_define=-DRMLUI_SDL_VERSION_MAJOR=3
 
 ###################################################################
-# Setup
-
-# Check if clang-tidy is installed
-if ! command -v clang-tidy &> /dev/null; then
-    echo "Error: clang-tidy is not installed. Please install it to proceed."
-    exit 1
-fi
+# Necessary checks
 
 # Ensure we are in the correct directory, must have src and include directories
 # Traverse up to the root directory of the project until we find the src and include directories
@@ -69,36 +69,30 @@ while [ ! -d "src" ] || [ ! -d "include" ]; do
     fi
 done
 
-# Check if the .clang-tidy file exists in the root directory
-if [ ! -f ".clang-tidy" ]; then
-    echo "Error: .clang-tidy configuration file not found in the root directory."
-    exit 1
-fi
-
-# Check clang-tidy file
-echo "Checking clang-tidy configuration..."
-clang-tidy --verify-config -config-file=.clang-tidy
-if [ $? -ne 0 ]; then
-    echo "Error: clang-tidy configuration is invalid. Please check the .clang-tidy file."
-    exit 1
-fi
-
-# Turn list of external includes into a single string for clang-tidy
-external_include_args=()
-for include in "${external_include_list[@]}"; do
-    # Check if the include directory exists
-    if [ ! -d "$include" ]; then
-        >&2 echo "Error: External include directory does not exist: $include"
-        exit 1
-    fi
-    external_include_args+=(-isystem "$include")
-done
-
-# Set the header filter to include .tpp files. Alternative for none: '^$'
-clang_tidy_header_filter='.*\.tpp$'
-
 ###################################################################
 # Functions
+
+clang-check(){
+  # Check if clang-tidy is installed
+  if ! command -v clang-tidy &> /dev/null; then
+      echo "Error: clang-tidy is not installed. Please install it to proceed."
+      exit 1
+  fi
+
+  # Check if the .clang-tidy file exists in the root directory
+  if [ ! -f ".clang-tidy" ]; then
+      echo "Error: .clang-tidy configuration file not found in the root directory."
+      exit 1
+  fi
+
+  # Check clang-tidy file
+  echo "Checking clang-tidy configuration..."
+  clang-tidy --verify-config -config-file=.clang-tidy
+  if [ $? -ne 0 ]; then
+      echo "Error: clang-tidy configuration is invalid. Please check the .clang-tidy file."
+      exit 1
+  fi
+}
 
 organize_files(){
     # Keep track of seen files to avoid processing the same file multiple times
@@ -226,8 +220,6 @@ run_clang_tidy_from_stdin() {
 ###################################################################
 # Main script logic
 
-echo "Running clang-tidy version $(clang-tidy --version | grep -oE '[0-9]+(\.[0-9]+)+')"
-
 # Check if an argument is provided
 tmpfile=$(mktemp)
 cleanup() {
@@ -248,7 +240,7 @@ if [ "$1" == "--changed-files" ]; then
     } | sort -u | grep -E '\.(cpp|hpp|h|tpp)$' | tr '\n' '\0' | organize_files >"$tmpfile"
 elif [ "$1" == "--main-diff" ]; then
     {
-        git diff main...HEAD --name-only || {
+        git diff --merge-base main --name-only || {
             >&2 echo "Error: Failed to get main diff. Ensure you are in a git repository."
             exit 1
         }
@@ -270,13 +262,31 @@ else
     find ./include ./src \( -name '*.hpp' -o -name '*.cpp' -o -name '*.tpp' \) -print0 | organize_files >"$tmpfile"
 fi
 
+if [ "$2" == "--list-only" ]; then
+    cat "$tmpfile" | tr '\0' '\n'
+    exit 0
+fi
+
 if [ ! -s "$tmpfile" ]; then
     echo ""
     echo "No valid changed C++ files to lint after filtering known offenders and .tpp handling."
     exit 0
 fi
 
+# Turn list of external includes into a single string for clang-tidy
+external_include_args=()
+for include in "${external_include_list[@]}"; do
+    # Check if the include directory exists
+    if [ ! -d "$include" ]; then
+        >&2 echo "Error: External include directory does not exist: $include"
+        exit 1
+    fi
+    external_include_args+=(-isystem "$include")
+done
+
 # Run clang-tidy on the organized list of changed files
+clang-check
+echo "Running clang-tidy version $(clang-tidy --version | grep -oE '[0-9]+(\.[0-9]+)+')"
 echo ""
 cat "$tmpfile" | run_clang_tidy_from_stdin
 result=$?

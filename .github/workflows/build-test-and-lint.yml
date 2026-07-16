@@ -18,6 +18,11 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y podman python3-venv make imagemagick espeak-ng
 
+      - name: List changes
+        run: |
+          echo "Changed files:"
+          ./Scripts/Validation/clangCheck.sh --main-diff --list-only
+
       - name: Set up Python environment
         run: |
           make install-deps
