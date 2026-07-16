@@ -230,19 +230,17 @@ trap cleanup EXIT
 # Check which argument is provided
 if [ "$1" == "--changed-files" ]; then
     {
-        set -e
-        git diff --name-only -- '*.cpp' '*.hpp' '*.h' '*.tpp'
-        git diff --cached --name-only -- '*.cpp' '*.hpp' '*.h' '*.tpp'
+        git diff --name-only -- '*.cpp' '*.hpp' '*.h' '*.tpp' || { exit 1; }
+        git diff --cached --name-only -- '*.cpp' '*.hpp' '*.h' '*.tpp' || { exit 1; }
     } | sort -u | tr '\n' '\0' | organize_files >"$tmpfile" || {
         >&2 echo "Error: Failed to get changed files. Ensure you are in a git repository."
         exit 1
     }
 elif [ "$1" == "--main-diff" ]; then
     {
-        set -e
-        git diff --merge-base main --name-only -- '*.cpp' '*.hpp' '*.h' '*.tpp'
-        git diff --name-only -- '*.cpp' '*.hpp' '*.h' '*.tpp'
-        git diff --cached --name-only -- '*.cpp' '*.hpp' '*.h' '*.tpp'
+        git diff --merge-base main --name-only -- '*.cpp' '*.hpp' '*.h' '*.tpp' || { exit 1; }
+        git diff --name-only -- '*.cpp' '*.hpp' '*.h' '*.tpp' || { exit 1; }
+        git diff --cached --name-only -- '*.cpp' '*.hpp' '*.h' '*.tpp' || { exit 1; }
     } | sort -u | tr '\n' '\0' | organize_files >"$tmpfile" || {
        >&2 echo "Error: Failed to get changed files. Ensure you are in a git repository."
        exit 1
