@@ -220,45 +220,31 @@ run_clang_tidy_from_stdin() {
 ###################################################################
 # Main script logic
 
-# Check if an argument is provided
+# Tmp file for changes
 tmpfile=$(mktemp)
 cleanup() {
     rm -f "$tmpfile"
 }
 trap cleanup EXIT
 
-GIT_ERROR=0
+# Check which argument is provided
 if [ "$1" == "--changed-files" ]; then
     {
-        git diff --name-only || {
-            >&2 echo "Error: Failed to get changed files. Ensure you are in a git repository."
-            GIT_ERROR=1
-            exit 1
-        }
-        git diff --cached --name-only || {
-            >&2 echo "Error: Failed to get staged changed files. Ensure you are in a git repository."
-            GIT_ERROR=1
-            exit 1
-        }
-    } | sort -u | grep -E '\.(cpp|hpp|h|tpp)$' | tr '\n' '\0' | organize_files >"$tmpfile"
+        git diff --name-only -- '*.cpp' '*.hpp' '*.h' '*.tpp'
+        git diff --cached --name-only -- '*.cpp' '*.hpp' '*.h' '*.tpp'
+    } | sort -u | tr '\n' '\0' | organize_files >"$tmpfile" || {
+        >&2 echo "Error: Failed to get changed files. Ensure you are in a git repository."
+        exit 1
+    }
 elif [ "$1" == "--main-diff" ]; then
     {
-        git diff --merge-base main --name-only || {
-            >&2 echo "Error: Failed to get main diff. Ensure you are in a git repository."
-            GIT_ERROR=1
-            exit 1
-        }
-        git diff --name-only || {
-            >&2 echo "Error: Failed to get unstaged changes. Ensure you are in a git repository."
-            GIT_ERROR=1
-            exit 1
-        }
-        git diff --cached --name-only || {
-            >&2 echo "Error: Failed to get staged changes. Ensure you are in a git repository."
-            GIT_ERROR=1
-            exit 1
-        }
-    } | sort -u | grep -E '\.(cpp|hpp|h|tpp)$' | tr '\n' '\0' | organize_files >"$tmpfile"
+        git diff --merge-base main --name-only -- '*.cpp' '*.hpp' '*.h' '*.tpp'
+        git diff --name-only -- '*.cpp' '*.hpp' '*.h' '*.tpp'
+        git diff --cached --name-only -- '*.cpp' '*.hpp' '*.h' '*.tpp'
+    } | sort -u | tr '\n' '\0' | organize_files >"$tmpfile" || {
+       >&2 echo "Error: Failed to get changed files. Ensure you are in a git repository."
+       exit 1
+   }
 elif [ -n "$1" ]; then
     >&2 echo "Error: Unknown argument '$1'. Use --help for usage information."
     exit 1
@@ -268,15 +254,13 @@ else
     find ./include ./src \( -name '*.hpp' -o -name '*.cpp' -o -name '*.tpp' \) -print0 | organize_files >"$tmpfile"
 fi
 
-if [ "$GIT_ERROR" -ne 0 ]; then
-    exit 1
-fi
-
+# Handle list-only option if provided as the second argument
 if [ "$2" == "--list-only" ]; then
     cat "$tmpfile" | tr '\0' '\n'
     exit 0
 fi
 
+# Check if there are any valid changed files to lint after filtering known offenders and .tpp handling
 if [ ! -s "$tmpfile" ]; then
     echo ""
     echo "No valid changed C++ files to lint after filtering known offenders and .tpp handling."
