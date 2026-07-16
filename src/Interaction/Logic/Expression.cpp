@@ -122,25 +122,20 @@ std::vector<std::string_view> getTokens(std::string_view const expr) {
             // Cannot be used, as splitOnSameDepth expects the first character to be the opening parenthesis
             auto const start = token.substr(0, token.find('('));
             auto const tokenWithoutStart = token.substr(start.length()); // Remove the leading '$' + formatter
-
-            // Split on same depth
             auto subTokens = Utility::StringHandler::splitOnSameDepthOf(tokenWithoutStart, Utility::StringHandler::Delimiter::parentheses);
-
-            // Add back the '$' + formatter to first subToken
             if (!subTokens.empty()) {
+                // Add the removed part
                 auto first = std::string_view(
                     start.data(),
                     start.size() + subTokens[0].size()
                 );
                 tokens.push_back(first);
-                subTokens.erase(subTokens.begin()); // Remove the first token, as we already added it with the start
+                // Add the rest
+                std::ranges::copy(
+                    subTokens | std::views::drop(1), // Remove the first token, as we already added it
+                    std::back_inserter(tokens)
+                );
             }
-
-            // Add all subtokens to the actual list of tokens
-            //std::ranges::for_each(subTokens, [&tokens](std::string_view const entry) {
-            //    tokens.emplace_back(entry);
-            //});
-            std::ranges::copy(subTokens, std::back_inserter(tokens));
         } else {
             // If it doesn't start with a '$', it's a text token / potentially with variables inside
             // Just add the text token
