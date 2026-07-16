@@ -5,8 +5,8 @@
 // Includes
 
 // Standard library
-#include <array>
 #include <cassert>
+#include <cstddef>
 #include <exception>
 #include <functional>
 #include <stdexcept>
