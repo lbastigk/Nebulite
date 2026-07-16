@@ -7,7 +7,6 @@
 // External
 #include <RmlUi/Config/Config.h>
 #include <RmlUi/Core/Log.h>
-#include <RmlUi_Platform_SDL.h>
 #include <SDL3/SDL_mouse.h>
 #include <SDL3/SDL_video.h>
 
@@ -18,7 +17,9 @@
 //------------------------------------------
 namespace Nebulite::Graphics {
 
-RmlSystemInterface::RmlSystemInterface(SDL_Window* w, Utility::IO::Capture& c) : SystemInterface_SDL(w), capture(c) {}
+RmlSystemInterface::RmlSystemInterface(SDL_Window* w, Utility::IO::Capture& c) : capture(c) {
+    SetWindow(w);
+}
 
 void RmlSystemInterface::update(int const mousePositionX, int const mousePositionY){
     // We order the candidates by priority and pick the first one that has been updated within the hold duration
