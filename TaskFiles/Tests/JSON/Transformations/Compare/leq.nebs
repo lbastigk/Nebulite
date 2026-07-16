@@ -1,0 +1,9 @@
+# Setup
+set var = 10.5
+
+# Compare
+eval nop {self:var|leq 10.5|assert true}
+eval nop {self:var|leq 10.4|assert false}
+eval nop {self:var|leq 10|assert false}
+
+exit

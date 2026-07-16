@@ -53,6 +53,24 @@ public:
     //------------------------------------------
     // Available Transformations
 
+    // [True/False]
+
+    static bool requireTrue(std::span<std::string_view const> const& args, Data::JsonScope const& jsonDoc);
+    static auto constexpr requireTrueName = "require true";
+    static auto constexpr requireTrueDesc = "Requires that the current JSON value is true.\n"
+        "If the value is not true, the transformation fails.\n"
+        "Accepts an optional user-defined error message as additional arguments.\n"
+        "Usage: |require true -> {value,<Returns false if not true>}\n";
+
+    static bool requireFalse(std::span<std::string_view const> const& args, Data::JsonScope const& jsonDoc);
+    static auto constexpr requireFalseName = "require false";
+    static auto constexpr requireFalseDesc = "Requires that the current JSON value is false.\n"
+        "If the value is not false, the transformation fails.\n"
+        "Accepts an optional user-defined error message as additional arguments.\n"
+        "Usage: |require false -> {value,<Returns false if not false>}\n";
+
+    // [Existence]
+
     static bool requireNonEmpty(std::span<std::string_view const> const& args, Data::JsonScope const& jsonDoc);
     static auto constexpr requireNonEmptyName = "require nonEmpty";
     static auto constexpr requireNonEmptyDesc = "Requires that the current JSON value is non-empty.\n"

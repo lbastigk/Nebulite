@@ -1,0 +1,14 @@
+# Test assertion that a value is true or false
+
+# Weird setup: we call 'not' on an empty value to cast to bool
+# TODO: use a "toBool" function instead of this hack
+assign self:value.true = {|not}
+assign self:value.false = {|not|not}
+
+# Scenario 1: must throw
+must-throw eval nop {self:value.true|assert false}
+must-throw eval nop {self:value.false|assert true}
+
+# Scenario 2: success
+eval nop {self:value.true|assert true}
+eval nop {self:value.false|assert false}

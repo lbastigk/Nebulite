@@ -1,10 +1,9 @@
 # Test assertion for null value
 set exists someValue
-set doesNotExist test
 
 # Scenario 1: must fail
 eval nop {global:exists|require empty|unreachable}
 
 # Scenario 2: success
 assign global:null = {global:doesNotExist|require empty|add 0}
-eval nop {global:null|assert empty}
+eval nop {global:null|assert equals int 0}

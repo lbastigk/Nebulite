@@ -20,6 +20,10 @@
         "expected": { "cout": [], "cerr": [] }
     },
     {
+        "command": "task TaskFiles/Tests/JSON/Transformations/Requirements/nonEmpty.nebs",
+        "expected": { "cout": [], "cerr": [] }
+    },
+    {
         "command": "task TaskFiles/Tests/JSON/Transformations/Requirements/typeArray.nebs",
         "expected": { "cout": [], "cerr": [] }
     },

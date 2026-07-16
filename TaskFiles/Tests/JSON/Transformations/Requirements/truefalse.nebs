@@ -1,0 +1,16 @@
+# Test requirement that a value is true or false
+
+# Weird setup: we call 'not' on an empty value to cast to bool
+# TODO: use a "toBool" function instead of this hack
+assign self:value.true = {|not}
+assign self:value.false = {|not|not}
+
+# Scenario 1: must throw
+eval nop {self:value.true|require false|unreachable}
+eval nop {self:value.false|require true|unreachable}
+
+# Scenario 2: success
+assign global:null1 = {self:value.true|require true|sub 1}
+eval nop {global:null1|assert equals int 0}
+assign global:null2 = {self:value.false|require false|add 0}
+eval nop {global:null2|assert equals int 0}

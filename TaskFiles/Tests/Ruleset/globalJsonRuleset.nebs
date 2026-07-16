@@ -1,0 +1,18 @@
+###########################
+# Settings
+set-res 640 480 2
+set-fps 6000
+
+###########################
+# Scene setup
+
+# Player must set camera position
+spawn ./Resources/Renderobjects/Debug/cameraCenter.jsonc|posX=160|posY=160|physics.vNorm=100
+wait 10
+
+###########################
+# Verify
+eval nop {global:renderer.position.X|assert equals int -160} # 160 - 640/2 = -160
+eval nop {global:renderer.position.Y|assert equals int -80}  # 160 - 480/2 =  -80
+
+exit

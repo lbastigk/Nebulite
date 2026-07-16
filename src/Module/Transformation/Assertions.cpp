@@ -7,6 +7,7 @@
 #include <span>
 #include <stdexcept>
 #include <string>
+#include <type_traits>
 
 // Nebulite
 #include "Nebulite/Data/Document/JsonScope.hpp"
@@ -20,6 +21,8 @@ namespace Nebulite::Module::Transformation {
 
 void Assertions::bindTransformations() {
     bindCategory(assertName, assertDesc);
+    bindTransformation(&Assertions::assertTrue, assertTrueName, assertTrueDesc);
+    bindTransformation(&Assertions::assertFalse, assertFalseName, assertFalseDesc);
     bindTransformation(&Assertions::assertNonEmpty, assertNonEmptyName, assertNonEmptyDesc);
     bindTransformation(&Assertions::assertEmpty, assertEmptyName, assertEmptyDesc);
 
@@ -41,6 +44,52 @@ void Assertions::printUserDefinedMessage(std::span<std::string_view const> const
         return; // No message provided
     }
     Global::capture().error.println(Utility::StringHandler::recombineArgs(args.subspan(1)));
+}
+
+bool Assertions::assertTrue(std::span<std::string_view const> const& args, Data::JsonScope const& jsonDoc){
+    auto variant = jsonDoc.getVariant(rootKey);
+    if (!variant) {
+        printUserDefinedMessage(args);
+        static std::string const errorMessage = std::string(assertTrueName) + ": JSON value is null";
+        throw std::runtime_error(errorMessage);
+    }
+    variant.value().visit([&](auto const& value) {
+        if constexpr (std::is_same_v<std::decay_t<decltype(value)>, bool>) {
+            if (!value) {
+                printUserDefinedMessage(args);
+                static std::string const errorMessage = std::string(assertTrueName) + ": JSON value is false";
+                throw std::runtime_error(errorMessage);
+            }
+        } else {
+            printUserDefinedMessage(args);
+            static std::string const errorMessage = std::string(assertTrueName) + ": JSON value is not a boolean";
+            throw std::runtime_error(errorMessage);
+        }
+    });
+    return true;
+}
+
+bool Assertions::assertFalse(std::span<std::string_view const> const& args, Data::JsonScope const& jsonDoc){
+    auto variant = jsonDoc.getVariant(rootKey);
+    if (!variant) {
+        printUserDefinedMessage(args);
+        static std::string const errorMessage = std::string(assertFalseName) + ": JSON value is null";
+        throw std::runtime_error(errorMessage);
+    }
+    variant.value().visit([&](auto const& value) {
+        if constexpr (std::is_same_v<std::decay_t<decltype(value)>, bool>) {
+            if (value) {
+                printUserDefinedMessage(args);
+                static std::string const errorMessage = std::string(assertFalseName) + ": JSON value is true";
+                throw std::runtime_error(errorMessage);
+            }
+        } else {
+            printUserDefinedMessage(args);
+            static std::string const errorMessage = std::string(assertFalseName) + ": JSON value is not a boolean";
+            throw std::runtime_error(errorMessage);
+        }
+    });
+    return true;
 }
 
 bool Assertions::assertNonEmpty(std::span<std::string_view const> const& args, Data::JsonScope const& jsonDoc) {

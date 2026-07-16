@@ -75,8 +75,9 @@ public:
      *                in a specified key. On success, the modified value will be stored back in the same key.
      * @return true if the transformations were successfully applied, false otherwise.
      */
-    bool parse(std::vector<std::string_view> const& transformationList, JsonScope& jsonDoc) const ;
-    bool parse(std::vector<std::string_view> const& transformationList, JSON& jsonDoc) const ;
+    bool parse(std::span<std::string_view const> const& transformationList, JsonScope& jsonDoc) const ;
+    bool parse(std::span<std::string_view const> const& transformationList, JSON& jsonDoc) const ;
+
 
     /**
      * @brief Parse a single transformation with already separated arguments.

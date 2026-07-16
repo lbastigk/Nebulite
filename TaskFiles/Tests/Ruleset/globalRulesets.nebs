@@ -8,31 +8,45 @@
 # 4.) objA/B:physics-set
 # 5.) probe values
 # 6.) Assert non-empty
+# 7.) Assert equal magnitude, opposite direction
 
 ##########################################################################
 # Preparation
 
-set physics.G 10
+set-res 500 500
+cam set 375 375 c
 set-fps 100
-time set-fixed-dt 1
+
+set physics.G 10
+time set-fixed-dt 1000
 
 ##########################################################################
 # Test with static ruleset
 
-eval spawn ./Resources/Renderobjects/Planets/obj1.jsonc|set posX 250|set posY 500|set physics.vX 0|set physics.vY 0
-eval spawn ./Resources/Renderobjects/Planets/obj2.jsonc|set posX 250|set posY 250|set physics.vX 0|set physics.vY 0
+eval spawn ./Resources/Renderobjects/Planets/obj1.jsonc|set posX 375|set posY 250|set physics.vX 0|set physics.vY 0
+eval spawn ./Resources/Renderobjects/Planets/obj2.jsonc|set posX 375|set posY 500|set physics.vX 0|set physics.vY 0
 
+# Select the objects and mirror values to globalspace
 wait 1
 selected-object get 1
 selected-object parse mirror on
 selected-object get 2
 selected-object parse mirror on
-
 wait 100
-eval nop {global:providedScope.module.domain.renderObject.mirror.renderObject.idx1|assert nonEmpty obj1.jsonc mirror could not be found}
-eval nop {global:providedScope.module.domain.renderObject.mirror.renderObject.idx2|assert nonEmpty obj2.jsonc mirror could not be found}
-eval nop {global:providedScope.module.domain.renderObject.mirror.renderObject.idx1.physics.aY|assert nonEmpty Acceleration should not be empty}
-eval nop {global:providedScope.module.domain.renderObject.mirror.renderObject.idx2.physics.aY|assert nonEmpty Acceleration should not be empty}
+
+# Verify: value existence
+eval nop {global:providedScope.module.domain.renderObject.mirror.renderObject.idx1|assert nonEmpty obj1.jsonc Static Ruleset: mirror could not be found}
+eval nop {global:providedScope.module.domain.renderObject.mirror.renderObject.idx2|assert nonEmpty obj2.jsonc Static Ruleset: mirror could not be found}
+eval nop {global:providedScope.module.domain.renderObject.mirror.renderObject.idx1.physics.aY|assert nonEmpty Static Ruleset: Acceleration should not be empty}
+eval nop {global:providedScope.module.domain.renderObject.mirror.renderObject.idx2.physics.aY|assert nonEmpty Static Ruleset: Acceleration should not be empty}
+
+# Verify: Acceleration nonzero, equal magnitude, opposite direction
+eval nop {global:providedScope.module.domain.renderObject.mirror.renderObject.idx1.physics.aY|gt 0|assert true Static Ruleset: Acceleration should be positive}
+eval nop {global:providedScope.module.domain.renderObject.mirror.renderObject.idx2.physics.aY|lt 0|assert true Static Ruleset: Acceleration should be negative}
+assign global:ruleset.static.a = {global:providedScope.module.domain.renderObject.mirror.renderObject.idx1.physics.aY}
+assign global:ruleset.static.b = {global:providedScope.module.domain.renderObject.mirror.renderObject.idx2.physics.aY}
+assign global:ruleset.static.match = $(eq({global:ruleset.static.a},-{global:ruleset.static.b}))
+eval nop {global:ruleset.static.match|not|not|assert true Static Ruleset: Accelerations should be equal magnitude, opposite direction}
 
 ##########################################################################
 # Reset the scene by deleting the objects
@@ -46,20 +60,32 @@ wait 10
 ##########################################################################
 # Test with json ruleset
 
-eval spawn ./Resources/Renderobjects/Planets/obj1_classic.jsonc|set posX 250|set posY 500|set physics.vX 0|set physics.vY 0
-eval spawn ./Resources/Renderobjects/Planets/obj2_classic.jsonc|set posX 250|set posY 250|set physics.vX 0|set physics.vY 0
+eval spawn ./Resources/Renderobjects/Planets/obj2_classic.jsonc|set posX 375|set posY 250|set physics.vX 0|set physics.vY 0
+eval spawn ./Resources/Renderobjects/Planets/obj1_classic.jsonc|set posX 375|set posY 500|set physics.vX 0|set physics.vY 0
 
+# Select the objects and mirror values to globalspace
 wait 1
 selected-object get 3
 selected-object parse mirror on
 selected-object get 4
 selected-object parse mirror on
-
 wait 100
-eval nop {global:providedScope.module.domain.renderObject.mirror.renderObject.idx3|assert nonEmpty obj1_classic.jsonc mirror could not be found}
-eval nop {global:providedScope.module.domain.renderObject.mirror.renderObject.idx4|assert nonEmpty obj2_classic.jsonc mirror could not be found}
-eval nop {global:providedScope.module.domain.renderObject.mirror.renderObject.idx3.physics.aY|assert nonEmpty Acceleration should not be empty}
-eval nop {global:providedScope.module.domain.renderObject.mirror.renderObject.idx4.physics.aY|assert nonEmpty Acceleration should not be empty}
+
+# Verify: value existence
+eval nop {global:providedScope.module.domain.renderObject.mirror.renderObject.idx3|assert nonEmpty obj1_classic.jsonc JSON Ruleset: mirror could not be found}
+eval nop {global:providedScope.module.domain.renderObject.mirror.renderObject.idx4|assert nonEmpty obj2_classic.jsonc JSON Ruleset: mirror could not be found}
+eval nop {global:providedScope.module.domain.renderObject.mirror.renderObject.idx3.physics.aY|assert nonEmpty JSON Ruleset: Acceleration should not be empty}
+eval nop {global:providedScope.module.domain.renderObject.mirror.renderObject.idx4.physics.aY|assert nonEmpty JSON Ruleset: Acceleration should not be empty}
+
+# Verify: Acceleration nonzero, equal magnitude, opposite direction
+eval nop {global:providedScope.module.domain.renderObject.mirror.renderObject.idx3.physics.aY|gt 0|assert true JSON Ruleset: Object A Acceleration should be positive}
+eval nop {global:providedScope.module.domain.renderObject.mirror.renderObject.idx4.physics.aY|lt 0|assert true JSON Ruleset: Object B Acceleration should be negative}
+assign global:ruleset.json.a = {global:providedScope.module.domain.renderObject.mirror.renderObject.idx3.physics.aY}
+assign global:ruleset.json.b = {global:providedScope.module.domain.renderObject.mirror.renderObject.idx4.physics.aY}
+assign global:ruleset.json.match = $(eq({global:ruleset.json.a},-{global:ruleset.json.b}))
+eval nop {global:ruleset.json.match|not|not|assert true JSON Ruleset: Accelerations should be equal magnitude, opposite direction}
+
+
 
 ##########################################################################
 # All done

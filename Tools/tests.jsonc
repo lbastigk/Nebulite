@@ -56,6 +56,7 @@
         "Tools/Tests/JSON/Transformations/Assertions.json",
         "Tools/Tests/JSON/Transformations/Boolean.json",
         "Tools/Tests/JSON/Transformations/Casting.json",
+        "Tools/Tests/JSON/Transformations/Compare.json",
         "Tools/Tests/JSON/Transformations/Collection.json",
         "Tools/Tests/JSON/Transformations/Debug.json",
         "Tools/Tests/JSON/Transformations/Domain.json",
@@ -67,8 +68,8 @@
         "Tools/Tests/JSON/Transformations/Types.json",
         //---------------------------------------
         // Ruleset tests
-        "Tools/Tests/Rulesets/DebugUtils.json",
-        "Tools/Tests/Rulesets/selfOtherGlobalInteraction.json",
+        "Tools/Tests/Ruleset/DebugUtils.json",
+        "Tools/Tests/Ruleset/selfOtherGlobalInteraction.json",
         //---------------------------------------
         // GlobalSpace tests
         "Tools/Tests/GlobalSpace/time.json",

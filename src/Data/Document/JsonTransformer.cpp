@@ -22,6 +22,7 @@
 #include "Nebulite/Module/Transformation/Boolean.hpp"
 #include "Nebulite/Module/Transformation/Casting.hpp"
 #include "Nebulite/Module/Transformation/Collection.hpp"
+#include "Nebulite/Module/Transformation/Compare.hpp"
 #include "Nebulite/Module/Transformation/Complex.hpp"
 #include "Nebulite/Module/Transformation/Debug.hpp"
 #include "Nebulite/Module/Transformation/Domain.hpp"
@@ -53,6 +54,7 @@ JsonTransformer::JsonTransformer() {
     initModule<Module::Transformation::Boolean>();
     initModule<Module::Transformation::Casting>();
     initModule<Module::Transformation::Collection>();
+    initModule<Module::Transformation::Compare>();
     initModule<Module::Transformation::Complex>();
     initModule<Module::Transformation::Debug>();
     initModule<Module::Transformation::Domain>();
@@ -77,7 +79,9 @@ JsonTransformer& JsonTransformer::instance() {
     return instance;
 }
 
-bool JsonTransformer::parse(std::vector<std::string_view> const& transformationList, JsonScope& jsonDoc) const {
+// SPAN
+
+bool JsonTransformer::parse(std::span<std::string_view const> const& transformationList, JsonScope& jsonDoc) const {
     if (transformationList.empty()) [[unlikely]] {
         return false;
     }
@@ -89,10 +93,12 @@ bool JsonTransformer::parse(std::vector<std::string_view> const& transformationL
     });
 }
 
-bool JsonTransformer::parse(std::vector<std::string_view> const& transformationList, JSON& jsonDoc) const {
+bool JsonTransformer::parse(std::span<std::string_view const> const& transformationList, JSON& jsonDoc) const {
     auto& scope = jsonDoc.fullScope();
     return parse(transformationList, scope);
 }
+
+// Single
 
 bool JsonTransformer::parseSingleTransformation(std::span<std::string_view const> const& args, JsonScope& jsonDoc) const {
     return transformationFuncTree->parse(args, jsonDoc);
