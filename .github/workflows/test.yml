@@ -1,4 +1,4 @@
-name: Pull Request Tests
+name: Pull request binary tests
 
 on:
   pull_request:

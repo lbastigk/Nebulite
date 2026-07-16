@@ -1,4 +1,4 @@
-name: clang-tidy.yml
+name: clang-tidy checks
 on:
   pull_request:
 
@@ -13,8 +13,17 @@ jobs:
       - name: Install Dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y clang-tidy
+          sudo apt-get install -y python3-venv
 
-      - name: Run clang-tidy
+      - name: Set up Python environment
         run: |
-          Scripts/Validation/clangCheck.sh --main-diff
+          make install-deps
+
+      - name: Activate virtualenv
+        run: |
+          . .venv/bin/activate
+          echo PATH=$PATH >> $GITHUB_ENV
+
+      - name: Lint with clang-tidy
+        run: |
+          python Container/build.py linux-debug --lint

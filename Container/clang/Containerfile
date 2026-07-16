@@ -4,6 +4,7 @@ RUN dnf -y update && \
     dnf -y install \
         clang \
         clang-tools-extra \
+        clang-tidy \
         llvm \
         lld \
         git-core \
