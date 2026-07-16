@@ -1,5 +1,18 @@
 #!/bin/bash
 
+help(){
+    echo "Usage: $0 [options]"
+    echo "Options:"
+    echo "  --help           Show this help message"
+    echo "  --changed-files  Run clang-tidy on files changed in the current branch compared to the last commit"
+    echo "  --main-diff      Run clang-tidy on files changed in the current branch compared to main"
+    exit 0
+}
+
+if [ "$1" == "--help" ]; then
+    help
+fi
+
 ###################################################################
 # Settings/Constants/etc.
 
@@ -215,6 +228,11 @@ echo "Running clang-tidy version $(clang-tidy --version | grep -oE '[0-9]+(\.[0-
 
 # Check if an argument is provided
 tmpfile=$(mktemp)
+cleanup() {
+    rm -f "$tmpfile"
+}
+trap cleanup EXIT
+
 if [ "$1" == "--changed-files" ]; then
     {
         git diff --name-only
@@ -226,6 +244,9 @@ elif [ "$1" == "--main-diff" ]; then
         git diff --name-only
         git diff --cached --name-only
     } | sort -u | grep -E '\.(cpp|hpp|h|tpp)$' | tr '\n' '\0' | organize_files >"$tmpfile"
+elif [ -n "$1" ]; then
+    echo "Error: Unknown argument '$1'. Use --help for usage information."
+    exit 1
 else
     echo ""
     echo "Running clang-tidy on all files..."
@@ -242,5 +263,4 @@ fi
 echo ""
 cat "$tmpfile" | run_clang_tidy_from_stdin
 result=$?
-rm -f "$tmpfile"
 exit "$result"
