@@ -10,7 +10,6 @@
 #include <mutex>
 #include <optional>
 #include <span>
-#include <stdexcept>
 #include <string>
 #include <vector>
 
@@ -172,14 +171,6 @@ std::size_t JsonScope::assignCacheLookupIndex() {
     static auto indexCounter = Utility::Coordination::IdGenerator::atomicIncrementIdGenerator();
     thread_local std::size_t const threadIndex = indexCounter();
     return threadIndex;
-}
-
-double** JsonScope::ensureOrderedCacheList(std::uint64_t const uniqueId, std::vector<ScopedKeyView> const& keys) {
-    thread_local std::size_t const threadIndex = assignCacheLookupIndex();
-    if (threadIndex >= cacheLookupThreadCount) {
-        throw std::runtime_error("Thread index exceeds non-locking array size! Too many threads accessing ordered cache lists, increase cacheLookupThreadCount or reduce thread count.");
-    }
-    return odpCache[threadIndex].ensureOrderedCacheListNoLock(uniqueId, keys);
 }
 
 //------------------------------------------
