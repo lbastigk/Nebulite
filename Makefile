@@ -7,45 +7,55 @@
 # Base CMake Presets Build Targets
 ############################################
 
+JOBS := $(or $(shell ./Scripts/calcJobs.sh),2)
+
 linux-release:
 	@echo "Building preset: $@"
+	@echo "Using $(JOBS) parallel jobs for build."
 	@cmake --preset $@
-	@cmake --build --preset $@ -j$(nproc)
+	@cmake --build --preset $@ -j$(JOBS)
 
 linux-debug:
 	@echo "Building preset: $@"
+	@echo "Using $(JOBS) parallel jobs for build."
 	@cmake --preset $@
-	@cmake --build --preset $@ -j$(nproc)
+	@cmake --build --preset $@ -j$(JOBS)
 
 linux-coverage:
 	@echo "Building preset: $@"
+	@echo "Using $(JOBS) parallel jobs for build."
 	@cmake --preset $@
-	@cmake --build --preset $@ -j$(nproc)
+	@cmake --build --preset $@ -j$(JOBS)
 
 linux-profiling:
 	@echo "Building preset: $@"
+	@echo "Using $(JOBS) parallel jobs for build."
 	@cmake --preset $@
-	@cmake --build --preset $@ -j$(nproc)
+	@cmake --build --preset $@ -j$(JOBS)
 
 windows-release:
 	@echo "Building preset: $@"
+	@echo "Using $(JOBS) parallel jobs for build."
 	@cmake --preset $@
-	@cmake --build --preset $@ -j$(nproc)
+	@cmake --build --preset $@ -j$(JOBS)
 
 windows-debug:
 	@echo "Building preset: $@"
+	@echo "Using $(JOBS) parallel jobs for build."
 	@cmake --preset $@
-	@cmake --build --preset $@ -j$(nproc)
+	@cmake --build --preset $@ -j$(JOBS)
 
 macos-release:
 	@echo "Building preset: $@"
+	@echo "Using $(JOBS) parallel jobs for build."
 	@cmake --preset $@
-	@cmake --build --preset $@ -j$(nproc)
+	@cmake --build --preset $@ -j$(JOBS)
 
 macos-debug:
 	@echo "Building preset: $@"
+	@echo "Using $(JOBS) parallel jobs for build."
 	@cmake --preset $@
-	@cmake --build --preset $@ -j$(nproc)
+	@cmake --build --preset $@ -j$(JOBS)
 
 ############################################
 # TODO: move available/native/all to python script
