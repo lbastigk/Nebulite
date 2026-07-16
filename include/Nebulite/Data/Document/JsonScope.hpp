@@ -18,6 +18,7 @@
 #include <span>
 #include <stdexcept>
 #include <string>
+#include <type_traits>
 #include <vector>
 
 // Nebulite
@@ -262,7 +263,15 @@ public:
      */
     static std::size_t assignCacheLookupIndex();
 
-    template <std::ranges::input_range R> requires std::convertible_to<std::ranges::range_reference_t<R>, ScopedKeyView>
+    /**
+     * @brief Ensures the existence of an ordered cache list of double pointers for a set of keys.
+     * @details Non-locking version, intended for use in threads that have been assigned a unique index via assignCacheLookupIndex().
+     * @tparam R A range of ScopedKeyView objects
+     * @param uniqueId The unique id of the entry
+     * @param keys The keys to potentially create the entry with
+     * @return An ordered vector of double pointers corresponding to the keys, either retrieved from the map or newly created if it did not exist.
+     */
+    template <std::ranges::input_range R> requires std::same_as<std::remove_cvref_t<std::ranges::range_reference_t<R>>,ScopedKeyView>
     double** ensureOrderedCacheList(std::uint64_t uniqueId, R const& keys) {
         thread_local std::size_t const threadIndex = assignCacheLookupIndex();
         if (threadIndex >= cacheLookupThreadCount) {

@@ -5,10 +5,12 @@
 // Includes
 
 // Standard library
+#include <cassert>
 #include <concepts>
 #include <cstddef>
 #include <ranges>
 #include <string_view>
+#include <type_traits>
 #include <vector>
 
 // External
@@ -49,11 +51,12 @@ public:
 
     /**
      * @brief Ensures the existence of an ordered cache list of double pointers for a set of keys.
-     * @param uniqueId The unique ID for the ordered cache list.
-     * @param keys The vector of keys to populate the cache with.
-     * @return A pointer to the ordered vector of double pointers for the specified keys.
+     * @tparam R A range of ScopedKeyView objects
+     * @param uniqueId The unique id of the entry
+     * @param keys The keys to potentially create the entry with
+     * @return An ordered vector of double pointers corresponding to the keys, either retrieved from the map or newly created if it did not exist.
      */
-    template <std::ranges::input_range R> requires std::convertible_to<std::ranges::range_reference_t<R>, ScopedKeyView>
+    template <std::ranges::input_range R> requires std::same_as<std::remove_cvref_t<std::ranges::range_reference_t<R>>,ScopedKeyView>
     double** ensureOrderedCacheList(std::size_t uniqueId, R&& keys) {
         Utility::Coordination::WriteLock const lock(mtxMap);
         return fromMap(uniqueId, std::forward<R>(keys));
@@ -61,11 +64,13 @@ public:
 
     /**
      * @brief Ensures the existence of an ordered cache list of double pointers for a set of keys. Non-locking version.
-     * @param uniqueId The unique ID for the ordered cache list.
-     * @param keys The vector of keys to populate the cache with.
-     * @return A pointer to the ordered vector of double pointers for the specified keys.
+     * @details Not protected by any mutex
+     * @tparam R A range of ScopedKeyView objects
+     * @param uniqueId The unique id of the entry
+     * @param keys The keys to potentially create the entry with
+     * @return An ordered vector of double pointers corresponding to the keys, either retrieved from the map or newly created if it did not exist.
      */
-    template <std::ranges::input_range R> requires std::convertible_to<std::ranges::range_reference_t<R>, ScopedKeyView>
+    template <std::ranges::input_range R> requires std::same_as<std::remove_cvref_t<std::ranges::range_reference_t<R>>,ScopedKeyView>
     double** ensureOrderedCacheListNoLock(std::size_t uniqueId, R&& keys) {
         return fromMap(uniqueId, std::forward<R>(keys));
     }
@@ -89,11 +94,12 @@ private:
     /**
      * @brief Retrieves or creates an ordered cache list of double pointers for a set of keys from the map.
      * @details Not protected by any mutex
+     * @tparam R A range of ScopedKeyView objects
      * @param uniqueId The unique id of the entry
      * @param keys The keys to potentially create the entry with
      * @return An ordered vector of double pointers corresponding to the keys, either retrieved from the map or newly created if it did not exist.
      */
-    template <std::ranges::input_range R> requires std::convertible_to<std::ranges::range_reference_t<R>, ScopedKeyView>
+    template <std::ranges::input_range R> requires std::same_as<std::remove_cvref_t<std::ranges::range_reference_t<R>>,ScopedKeyView>
     double** fromMap(std::size_t uniqueId, R&& keys){
         if (auto const it = map.find(uniqueId); it != map.end()) [[likely]] {
             return it->second.data();
@@ -105,6 +111,7 @@ private:
                 addToVec(newIt->second, reference, key);
             }
         }
+        assert(newIt->second.size() == keys.size());
         return newIt->second.data();
     }
 
