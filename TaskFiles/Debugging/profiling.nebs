@@ -23,7 +23,7 @@ echo "Starting profiling.nebs"
 # - gameScene
 # - loading
 # - jsonRuleset
-set settings.profilingTask jsonRuleset
+set settings.profilingTask transformations
 ####################################################
 
 ###################

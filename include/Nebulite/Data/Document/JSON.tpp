@@ -6,10 +6,12 @@
 // Includes
 
 // Standard library
+#include <cassert>
 #include <expected>
 #include <memory>
 #include <mutex>
 #include <optional>
+#include <span>
 #include <string>
 #include <string_view>
 #include <type_traits>
@@ -86,6 +88,7 @@ std::expected<T, SimpleValueRetrievalError> JSON::get(std::string_view const key
 template<typename T>
 std::expected<T, SimpleValueRetrievalError> JSON::getWithTransformations(std::string_view const key) const {
     auto args = splitKeyWithTransformations(key);
+    assert(!args.empty());
 
     // In order to minimize the re-initialization overhead of an entire JSON document,
     // we use a thread-local temporary JSON document for applying transformations.
@@ -104,8 +107,8 @@ std::expected<T, SimpleValueRetrievalError> JSON::getWithTransformations(std::st
     }
 
     // Apply each transformation in sequence
-    args.erase(args.begin());
-    if (!JsonTransformer::instance().parse(args, tempDoc)) {
+    auto argsSpan = std::span<std::string_view const>(args.begin()+1, args.end());
+    if (!JsonTransformer::instance().parse(argsSpan, tempDoc)) {
         return std::unexpected(SimpleValueRetrievalError::TRANSFORMATION_FAILURE); // if any transformation fails, return default value
     }
     return tempDoc.get<T>(Module::Base::TransformationModule::rootKeyStr);
