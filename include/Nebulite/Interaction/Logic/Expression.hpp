@@ -22,7 +22,6 @@
 #include "Nebulite/Data/Document/JSON.hpp"
 #include "Nebulite/Interaction/Context.hpp"
 #include "Nebulite/Interaction/Logic/LinkedNumericValue.hpp"
-#include "Nebulite/Interaction/Logic/VariableNameGenerator.hpp"
 
 //------------------------------------------
 // Forward declarations
@@ -36,6 +35,7 @@ class ScopedKeyView;
 namespace Nebulite::Interaction::Logic {
 class ExpressionComponent;
 class LinkedNumericValue;
+class VariableNameGenerator;
 } // namespace Nebulite::Interaction::Logic
 
 //------------------------------------------
@@ -73,7 +73,10 @@ public:
     /**
      * @brief Standard maximum recursion depth for nested expression evaluations.
      */
-    static constexpr std::size_t standardRecursionDepth = 10;
+    static constexpr std::size_t standardRecursionDepth = 8;
+
+    //------------------------------------------
+    // Evaluation info
 
     /**
      * @brief Checks if the expression can be returned as a double without losing information.
@@ -142,29 +145,13 @@ public:
     static Data::JSON evalAsJson(std::string_view input, ContextScope const& context);
 
     //------------------------------------------
-    // Other helpers
+    // Getter
 
     /**
      * @brief Gets the full expression string that was parsed.
      * @return The full expression string.
      */
-    [[nodiscard]] std::string const& getFullExpression() const noexcept { return fullExpression; }
-
-    /**
-     * @brief Recalculates whether the expression is returnable as a double.
-     * @return True if the expression can be returned as a double, false otherwise.
-     */
-    [[nodiscard]] bool recalculateIsReturnableAsDouble() const;
-
-    [[nodiscard]] bool recalculateIsReturnableAsInt() const;
-
-    [[nodiscard]] bool recalculateIsReturnableAsString() const;
-
-    /**
-     * @brief Recalculates whether the expression is always true (i.e., "1").
-     * @return True if the expression is always true, false otherwise.
-     */
-    [[nodiscard]] bool recalculateIsAlwaysTrue() const;
+    [[nodiscard]] std::string const& getFullExpression() const noexcept ;
 
 private:
     /**
@@ -172,6 +159,50 @@ private:
      * @details Used for Utility::Coordination::RecursionAllocator
      */
     static auto constexpr allocatedRecursionDepth = 8;
+
+    //------------------------------------------
+    // Evaluation info
+
+    [[nodiscard]] bool recalculateIsReturnableAsDouble() const;
+
+    [[nodiscard]] bool recalculateIsReturnableAsInt() const;
+
+    [[nodiscard]] bool recalculateIsReturnableAsString() const;
+
+    [[nodiscard]] bool recalculateIsAlwaysTrue() const;
+
+    /**
+     * @brief Info about the expressions evaluation-ability
+     * @details Some expressions are not always castable to types like numeric values or strings
+     *          without the loss of information
+     */
+    struct EvaluationInfo {
+        /**
+         * @brief Only true if the expression consists of a single component of type eval
+         */
+        bool returnableAsDouble = false;
+
+        /**
+         * @brief Only true if the expression consists of a single component of type eval with cast to int
+         */
+        bool returnableAsInt = false;
+
+        /**
+         * @brief Only false if the expression consists of a single component of type variable
+         * @details This is because retrieving values without any additional text etc. has no implicit cast to string
+         *          A single value could hold more complex types: "{global:someObject}",
+         *          whereas "My value is: {global:value}" has an implicit cast to a string.
+         */
+        bool returnableAsString = false;
+
+        /**
+         * @brief True if the expression is a simple non-zero numeric value to evaluate
+         */
+        bool alwaysTrue = false;
+    } evaluationInfo;
+
+    //------------------------------------------
+    // Caching
 
     /**
      * @brief Unique ids for cache lookup
@@ -181,15 +212,6 @@ private:
         uint64_t other = 0;
         uint64_t global = 0;
     } cacheId;
-
-    /**
-     * @brief Value to be registered after all components are parsed, for memory alignment
-     */
-    struct LateRegistration {
-        ContextDeriver::TargetType contextType;
-        std::string key;
-        std::string teName;
-    };
 
     /**
      * @brief TinyExpr variables are shortened using VariableNameGenerator.
@@ -208,9 +230,18 @@ private:
             data[s.size()] = '\0';
         }
 
-        operator std::string_view() const {
+        explicit operator std::string_view() const {
             return {data.data()};
         }
+    };
+
+    /**
+     * @brief Value to be registered after all components are parsed, for memory alignment
+     */
+    struct LateRegistration {
+        std::string key;
+        ShortName teName;
+        ContextDeriver::TargetType contextType;
     };
 
     /**
@@ -265,44 +296,31 @@ private:
      * @param teName The name of the variable in tinyexpr
      * @param v The double reference to register
      */
-    void addTeVariable(ContextDeriver::TargetType contextType, std::string const& k, std::string_view teName, double& v);
+    void addTeVariable(ContextDeriver::TargetType contextType, std::string const& k, ShortName const& teName, double& v);
 
     /**
-     * @brief Generates short variable names for tinyexpr variables.
-     * @details Short names might improve performance, but the main concern is
-     *          that full variable names could contain characters that tinyexpr does not like
+     * @brief Updates caches to reflect current context
+     * @param context The context to update caches for
      */
-    VariableNameGenerator varNameGen;
+    void updateCaches(ContextScope const& context) const ;
 
     /**
-     * @brief Info about the expressions evaluation-ability
-     * @details Some expressions are not always castable to types like numeric values or strings
-     *          without the loss of information
+     * @brief Updates the stable value caches based on the current context.
+     * @details Either copies from first context via pointers (fast),
+     *          or copies from the current context via json->get (slow)
+     * @param context The current context to update stable value caches for
      */
-    struct EvaluationInfo {
-        /**
-         * @brief Only true if the expression consists of a single component of type eval
-         */
-        bool returnableAsDouble = false;
+    void updateStableValues(ContextScope const& context) const ;
 
-        /**
-         * @brief Only true if the expression consists of a single component of type eval with cast to int
-         */
-        bool returnableAsInt = false;
+    /**
+    * @brief Updates the unstable value caches based on the current context.
+    * @details Evaluates member and fetches value from the context
+    * @param context The current context to update unstable value caches for
+    */
+    void updateUnstableValues(ContextScope const& context) const ;
 
-        /**
-         * @brief Only false if the expression consists of a single component of type variable
-         * @details This is because retrieving values without any additional text etc. has no implicit cast to string
-         *          A single value could hold more complex types: "{global:someObject}",
-         *          whereas "My value is: {global:value}" has an implicit cast to a string.
-         */
-        bool returnableAsString = false;
-
-        /**
-         * @brief True if the expression is a simple non-zero numeric value to evaluate
-         */
-        bool alwaysTrue = false;
-    } evaluationInfo;
+    //------------------------------------------
+    // Data
 
     /**
      * @brief Holds all parsed components from the expression.
@@ -329,12 +347,6 @@ private:
     static Data::JsonScope const& emptyDoc();
 
     /**
-     * @brief Parses a given expression string with a constant reference to the document cache and the self and global JSON objects.
-     * @param expr The expression string to parse.
-     */
-    void parse(std::string_view expr);
-
-    /**
      * @brief Resets the expression to its initial state.
      * @details This function:
      *          - Clears all components
@@ -343,6 +355,15 @@ private:
      */
     void reset();
 
+    //------------------------------------------
+    // Parsing and compiling
+
+    /**
+     * @brief Parses a given expression string with a constant reference to the document cache and the self and global JSON objects.
+     * @param expr The expression string to parse.
+     */
+    void parse(std::string_view expr);
+
     /**
      * @brief Compiles a component, if its of type Expression
      * @param component The component to potentially compile
@@ -350,27 +371,17 @@ private:
     void compileIfExpression(std::shared_ptr<ExpressionComponent> const& component) const;
 
     /**
-     * @brief Registers a variable with the given name and key in the context of the component.
-     *        Makes sure to only register variables that are not already registered.
-     * @param te_name The name of the variable as used in TinyExpr.
-     * @param key The key in the JSON document that the variable refers to.
-     * @param contextType The context from which the variable is being registered.
-     * @param lateRegistrations The list of cache register functions that add values to the cache.
-     */
-    void registerVariable(std::string te_name, std::string_view key, ContextDeriver::TargetType contextType, std::vector<LateRegistration>& lateRegistrations);
-
-    /**
      * @brief Parses the given expression into a series of components.
-     * @param expr The expression string to parse.
      */
-    void parseIntoComponents(std::string_view expr);
+    void parseIntoComponents();
 
     /**
      * @brief Used to parse a string token of type "eval" into a component.
      * @param token The token to parse.
      * @param lateRegistrations The list of cache register functions that add values to the cache.
+     * @param varNameGen The variable name generator to ensure unique variable names in TinyExpr.
      */
-    void parseTokenTypeEval(std::string_view token, std::vector<LateRegistration>& lateRegistrations);
+    void parseTokenTypeEval(std::string_view token, std::vector<LateRegistration>& lateRegistrations, VariableNameGenerator& varNameGen);
 
     /**
      * @brief Used to parse a string token of type "variable" into a component.
@@ -387,31 +398,17 @@ private:
     /**
      * @brief Prints a compilation error message to cerr, includes tips for fixing the error.
      */
-    void printCompileError(std::shared_ptr<ExpressionComponent> const& component, int error) const;
-
-    //------------------------------------------
-    // Cache helper functions
+    void printCompileError(std::shared_ptr<ExpressionComponent> const& component, int error) const ;
 
     /**
-     * @brief Updates caches to reflect current context
-     * @param context The context to update caches for
+     * @brief Registers a variable with the given name and key in the context of the component.
+     *        Makes sure to only register variables that are not already registered.
+     * @param te_name The name of the variable as used in TinyExpr.
+     * @param key The key in the JSON document that the variable refers to.
+     * @param contextType The context from which the variable is being registered.
+     * @param lateRegistrations The list of cache register functions that add values to the cache.
      */
-    void updateCaches(ContextScope const& context) const ;
-
-    /**
-     * @brief Updates the stable value caches based on the current context.
-     * @details Either copies from first context via pointers (fast),
-     *          or copies from the current context via json->get (slow)
-     * @param context The current context to update stable value caches for
-     */
-    void updateStableValues(ContextScope const& context) const ;
-
-    /**
-    * @brief Updates the unstable value caches based on the current context.
-    * @details Evaluates member and fetches value from the context
-    * @param context The current context to update unstable value caches for
-    */
-    void updateUnstableValues(ContextScope const& context) const ;
+    void registerVariable(std::string te_name, std::string_view key, ContextDeriver::TargetType contextType, std::vector<LateRegistration>& lateRegistrations);
 };
 
 } // namespace Nebulite::Interaction::Logic
