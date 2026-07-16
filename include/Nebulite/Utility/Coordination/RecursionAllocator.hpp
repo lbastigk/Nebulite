@@ -27,7 +27,7 @@ concept FunctionOfTWithReturn = requires(F f, T& t) {
 //------------------------------------------
 namespace Nebulite::Utility::Coordination {
 /**
- * @class RecursionSecure
+ * @class RecursionAllocator
  * @brief Intended to be used as a thread_local variable to allow recursion-safe access to a resource.
  * @details Solves the constant resource allocation issue.
  * @tparam T The type of the resource to use
@@ -35,7 +35,7 @@ namespace Nebulite::Utility::Coordination {
  * @tparam AllocatedRecursionDepth The maximum depth without temporary resource allocation
  */
 template <typename T, typename UsageReturn, std::size_t AllocatedRecursionDepth = 16>
-class RecursionSecure {
+class RecursionAllocator {
     // A vector resize would invalidate the resource, so we use a fixed size array
     std::array<T, AllocatedRecursionDepth> resourceStack{};
 
@@ -47,13 +47,13 @@ class RecursionSecure {
     std::thread::id const constructionThreadId = std::this_thread::get_id();
 
 public:
-    RecursionSecure() = default;
-    ~RecursionSecure() = default;
+    RecursionAllocator() = default;
+    ~RecursionAllocator() = default;
 
-    RecursionSecure(const RecursionSecure&) = delete;
-    RecursionSecure& operator=(const RecursionSecure&) = delete;
-    RecursionSecure(RecursionSecure&&) = delete;
-    RecursionSecure& operator=(RecursionSecure&&) = delete;
+    RecursionAllocator(const RecursionAllocator&) = delete;
+    RecursionAllocator& operator=(const RecursionAllocator&) = delete;
+    RecursionAllocator(RecursionAllocator&&) = delete;
+    RecursionAllocator& operator=(RecursionAllocator&&) = delete;
 
     /**
      * @brief Use the resource in a recursion-safe manner.
@@ -79,5 +79,5 @@ public:
     void use(PrepareF&& prepare, F&& f) requires (std::is_void_v<UsageReturn>);
 };
 } // namespace Nebulite::Utility::Coordination
-#include "Nebulite/Utility/Coordination/RecursionSecure.tpp" // NOLINT
+#include "Nebulite/Utility/Coordination/RecursionAllocator.tpp" // NOLINT
 #endif // NEBULITE_UTILITY_COORDINATION_RECURSIONSECURE_HPP

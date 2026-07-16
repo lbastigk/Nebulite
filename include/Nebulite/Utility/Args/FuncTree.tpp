@@ -27,7 +27,7 @@
 #include "Nebulite/Utility/Args/FuncTreeErrorMessages.hpp"
 #include "Nebulite/Utility/Args/ShapeClassifier.hpp"
 #include "Nebulite/Utility/CompileTimeEvaluate.hpp"
-#include "Nebulite/Utility/Coordination/RecursionSecure.hpp"
+#include "Nebulite/Utility/Coordination/RecursionAllocator.hpp"
 #include "Nebulite/Utility/FunctionIdentity.hpp"
 #include "Nebulite/Utility/IO/Capture.hpp"
 #include "Nebulite/Utility/Sort.hpp"
@@ -490,7 +490,7 @@ ReturnValue FuncTree<ReturnValue, AdditionalArgs...>::parseStr(std::string_view 
     if (cmd.empty()) {
         return standardReturn.valDefault;
     }
-    thread_local Coordination::RecursionSecure<std::vector<std::string_view>, ReturnValue> argsV; // Pre-allocated recursion-safe storage for parsed arguments
+    thread_local Coordination::RecursionAllocator<std::vector<std::string_view>, ReturnValue> argsV; // Pre-allocated recursion-safe storage for parsed arguments
     return argsV.use(
         [](std::vector<std::string_view>& args) noexcept {
             args.clear();

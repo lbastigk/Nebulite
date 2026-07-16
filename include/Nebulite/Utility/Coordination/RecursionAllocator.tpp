@@ -16,7 +16,7 @@
 // Conditional include
 
 #ifndef NEBULITE_UTILITY_COORDINATION_RECURSIONSECURE_HPP
-#include "Nebulite/Utility/Coordination/RecursionSecure.hpp"
+#include "Nebulite/Utility/Coordination/RecursionAllocator.hpp"
 #endif // NEBULITE_UTILITY_COORDINATION_RECURSIONSECURE_HPP
 
 //------------------------------------------
@@ -24,10 +24,10 @@ namespace Nebulite::Utility::Coordination {
 
 template<typename T, typename UsageReturn, std::size_t AllocatedRecursionDepth>
 template<VoidFunctionOfT<T> PrepareF, FunctionOfTWithReturn<T, UsageReturn> F>
-UsageReturn RecursionSecure<T, UsageReturn, AllocatedRecursionDepth>::use(PrepareF&& prepare, F&& f) requires (!std::is_void_v<UsageReturn>){
+UsageReturn RecursionAllocator<T, UsageReturn, AllocatedRecursionDepth>::use(PrepareF&& prepare, F&& f) requires (!std::is_void_v<UsageReturn>){
     assert(
         std::this_thread::get_id() == constructionThreadId &&
-        "RecursionSecure must be used in the same thread it was constructed in! "
+        "RecursionAllocator must be used in the same thread it was constructed in! "
         "Did you forget to make the variable thread_local?"
     );
     recursionDepth++;
@@ -58,10 +58,10 @@ UsageReturn RecursionSecure<T, UsageReturn, AllocatedRecursionDepth>::use(Prepar
 
 template<typename T, typename UsageReturn, std::size_t AllocatedRecursionDepth>
 template<VoidFunctionOfT<T> PrepareF, FunctionOfTWithReturn<T, UsageReturn> F>
-void RecursionSecure<T, UsageReturn, AllocatedRecursionDepth>::use(PrepareF&& prepare, F&& f) requires (std::is_void_v<UsageReturn>) {
+void RecursionAllocator<T, UsageReturn, AllocatedRecursionDepth>::use(PrepareF&& prepare, F&& f) requires (std::is_void_v<UsageReturn>) {
     assert(
         std::this_thread::get_id() == constructionThreadId &&
-        "RecursionSecure must be used in the same thread it was constructed in! "
+        "RecursionAllocator must be used in the same thread it was constructed in! "
         "Did you forget to make the variable thread_local?"
     );
     recursionDepth++;

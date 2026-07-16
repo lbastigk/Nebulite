@@ -29,7 +29,7 @@
 #include "Nebulite/Math/ExpressionPrimitives.hpp"
 #include "Nebulite/Nebulite.hpp"
 #include "Nebulite/Utility/CompileTimeEvaluate.hpp"
-#include "Nebulite/Utility/Coordination/RecursionSecure.hpp"
+#include "Nebulite/Utility/Coordination/RecursionAllocator.hpp"
 #include "Nebulite/Utility/Ranges.hpp"
 #include "Nebulite/Utility/StringHandler.hpp"
 
@@ -553,8 +553,8 @@ std::string Expression::eval(ContextScope const& context, std::size_t const recu
     // Resource allocators
 
     // Avoid reallocation of string for each component, as this is a hot path
-    thread_local Utility::Coordination::RecursionSecure<std::string, void, allocatedRecursionDepth> tokenWrapper;
-    thread_local Utility::Coordination::RecursionSecure<std::string, std::string, allocatedRecursionDepth> resultWrapper;
+    thread_local Utility::Coordination::RecursionAllocator<std::string, void, allocatedRecursionDepth> tokenWrapper;
+    thread_local Utility::Coordination::RecursionAllocator<std::string, std::string, allocatedRecursionDepth> resultWrapper;
 
     //------------------------------------------
     // Evaluate expression

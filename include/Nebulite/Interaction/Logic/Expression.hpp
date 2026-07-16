@@ -165,7 +165,7 @@ public:
 private:
     /**
      * @brief The maximum recursion depth without temporary string allocation
-     * @details Used for Utility::Coordination::RecursionSecure
+     * @details Used for Utility::Coordination::RecursionAllocator
      */
     static auto constexpr allocatedRecursionDepth = 8;
 
