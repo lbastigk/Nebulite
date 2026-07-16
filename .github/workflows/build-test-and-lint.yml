@@ -1,4 +1,4 @@
-name: Pull request binary tests
+name: Pull request binary tests + linting
 
 on:
   pull_request:
@@ -52,3 +52,7 @@ jobs:
           fi
           python Container/build.py linux-debug --test
           make delete-binaries
+
+      - name: Lint with clang-tidy
+        run: |
+          python Container/build.py linux-debug --lint
