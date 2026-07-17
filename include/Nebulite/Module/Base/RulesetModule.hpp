@@ -12,7 +12,7 @@
 #include <vector>
 
 // Nebulite
-#include "Nebulite/Data/Document/ScopedKey.hpp"
+#include "Nebulite/Data/Document/ScopedKeyView.hpp"
 #include "Nebulite/Interaction/Rules/StaticRulesetMap.hpp"
 #include "Nebulite/ScopeAccessor.hpp"
 
@@ -25,6 +25,12 @@ class Context;
 
 //------------------------------------------
 namespace Nebulite::Module::Base {
+/**
+ * @class RulesetModule
+ * @brief Base class for all ruleset modules, providing functionality to bind static rulesets with metadata and register them into a StaticRulesetMap.
+ * @todo Add canonical double pointer GlobalValues struct for all modules, add static polling for values from domain, pass to every ruleset function
+ *       Less code duplication, and if we ever decide to allow non-globalspace global contexts, we can easily poll the values from that context
+ */
 class RulesetModule {
 public:
     using RulesetType = Interaction::Rules::StaticRulesetMap::StaticRulesetWithMetadata::Type;
