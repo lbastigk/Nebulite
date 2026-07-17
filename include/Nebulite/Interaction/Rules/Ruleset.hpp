@@ -7,6 +7,8 @@
 // Standard library
 #include <algorithm>
 #include <cstddef>
+#include <cstdint>
+#include <functional>
 #include <memory>
 #include <string>
 #include <vector>
@@ -14,7 +16,6 @@
 // Nebulite
 #include "Nebulite/Interaction/Logic/Assignment.hpp"
 #include "Nebulite/Interaction/Logic/Expression.hpp"
-#include "Nebulite/Interaction/Rules/StaticRulesetMap.hpp"
 
 //------------------------------------------
 // Forward declarations
@@ -31,6 +32,10 @@ class Domain;
 namespace Nebulite::Interaction::Rules {
 struct Listener;
 } // namespace Nebulite::Interaction::Rules
+
+namespace Nebulite::Module::Base {
+class RulesetModule;
+} // namespace Nebulite::Module::Base
 
 //------------------------------------------
 namespace Nebulite::Interaction::Rules {
@@ -55,6 +60,18 @@ public:
     Ruleset& operator=(Ruleset const&) = delete;
     Ruleset(Ruleset&&) = delete;
     Ruleset& operator=(Ruleset&&) = delete;
+
+    //------------------------------------------
+    // Types, used for metadata
+
+    enum class Type : std::uint8_t {
+        Local,
+        Global,
+        invalid
+    };
+
+    using StaticRulesetFunction = void (*)(void*, Context const&, double**, double**);
+    using BaseListFunction = std::function<double**(Execution::Domain const&)>;
 
     //------------------------------------------
     // Friend classes
@@ -205,6 +222,7 @@ public:
     StaticRuleset(StaticRuleset&&) = delete;
     StaticRuleset& operator=(StaticRuleset&&) = delete;
 
+
     //------------------------------------------
     // Friend classes
     friend class Construction::RulesetCompiler;
@@ -248,6 +266,7 @@ public:
 
 private:
     StaticRulesetFunction staticFunction = nullptr;
+    void* instance = nullptr;
 };
 
 /**

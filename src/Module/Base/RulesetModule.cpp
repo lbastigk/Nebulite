@@ -20,7 +20,7 @@ RulesetModule::RulesetModule(std::string_view const moduleName)
 : id{Data::MappedOrderedCacheList::generateUniqueId(moduleName)}
 {}
 
-Interaction::Rules::BaseListFunction RulesetModule::generateBaseListFunction(std::vector<Data::ScopedKeyView> const& baseKeys) const {
+Interaction::Rules::Ruleset::BaseListFunction RulesetModule::generateBaseListFunction(std::vector<Data::ScopedKeyView> const& baseKeys) const {
     return [this, baseKeys](const Interaction::Execution::Domain& domain) -> double** {
         try {
             return domain.ensureOrderedCacheList(id, baseKeys);

@@ -21,6 +21,7 @@
 #include "Nebulite/Interaction/Logic/Expression.hpp"
 #include "Nebulite/Interaction/Rules/Construction/RulesetCompiler.hpp"
 #include "Nebulite/Interaction/Rules/Ruleset.hpp"
+#include "Nebulite/Interaction/Rules/StaticRulesetMap.hpp"
 #include "Nebulite/Nebulite.hpp"
 #include "Nebulite/Utility/Ranges.hpp"
 #include "Nebulite/Utility/StringHandler.hpp"
@@ -211,13 +212,14 @@ RulesetCompiler::AnyRuleset RulesetCompiler::getRuleset(Data::JsonScope const& d
 
         if (
             auto const& staticRulesetEntry = StaticRulesetMap::getInstance().getStaticRulesetByName(staticFunctionName);
-            staticRulesetEntry.type != StaticRulesetMap::StaticRulesetWithMetadata::Type::invalid
+            staticRulesetEntry.type != Ruleset::Type::invalid
         ) {
             // Is a valid static ruleset
             auto Ruleset = std::make_shared<StaticRuleset>(self);
             Ruleset->topic = staticRulesetEntry.topic;
-            Ruleset->_isGlobal = staticRulesetEntry.type == StaticRulesetMap::StaticRulesetWithMetadata::Type::Global;
+            Ruleset->_isGlobal = staticRulesetEntry.type == Ruleset::Type::Global;
             Ruleset->staticFunction = staticRulesetEntry.function;
+            Ruleset->instance = staticRulesetEntry.instance;
             Ruleset->baseListFunction = staticRulesetEntry.baseListFunc;
             Ruleset->slf = staticRulesetEntry.baseListFunc(self);
             return Ruleset;

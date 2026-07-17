@@ -10,7 +10,8 @@
 #include <vector>
 
 // Nebulite
-#include "Nebulite/Data/Document/ScopedKey.hpp"
+#include "Nebulite/Data/Document/ScopedKeyView.hpp"
+#include "Nebulite/Interaction/Rules/Ruleset.hpp"
 #include "Nebulite/Module/Base/RulesetModule.hpp"
 
 //------------------------------------------
@@ -41,11 +42,11 @@ public:
         auto const baseListFunc = generateBaseListFunction(baseKeys);
 
         // Local
-        bind<messageName>(RulesetType::Local, &Debug::message, messageDesc, baseListFunc);
-        bind<errorName>(RulesetType::Local, &Debug::error, errorDesc, baseListFunc);
+        bind<messageName, Debug, &Debug::message>(Interaction::Rules::Ruleset::Type::Local, messageDesc, baseListFunc);
+        bind<errorName, Debug, &Debug::error>(Interaction::Rules::Ruleset::Type::Local, errorDesc, baseListFunc);
 
         // Global
-        bind<whoInteractsName>(RulesetType::Global, &Debug::whoInteracts, whoInteractsDesc, baseListFunc);
+        bind<whoInteractsName, Debug, &Debug::whoInteracts>(Interaction::Rules::Ruleset::Type::Global, whoInteractsDesc, baseListFunc);
     }
 
     static std::string_view constexpr moduleName = "::debug";

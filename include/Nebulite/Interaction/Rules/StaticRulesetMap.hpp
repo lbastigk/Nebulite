@@ -5,8 +5,6 @@
 // Includes
 
 // Standard library
-#include <cstdint>
-#include <functional>
 #include <string>
 #include <string_view>
 #include <vector>
@@ -16,6 +14,7 @@
 
 // Nebulite
 #include "Nebulite/Interaction/Context.hpp"
+#include "Nebulite/Interaction/Rules/Ruleset.hpp"
 
 //------------------------------------------
 // Forward declarations
@@ -33,26 +32,17 @@ class Domain;
 namespace Nebulite::Interaction::Rules {
 
 //------------------------------------------
-// Defining what a ruleset function looks like
-
-using StaticRulesetFunction = std::function<void(const Context&, double** slf, double** otr)>;
-using BaseListFunction = std::function<double**(Execution::Domain const&)>;
-
-//------------------------------------------
 // Defining a Ruleset Map where static rulesets can be looked up by name
 
 class StaticRulesetMap {
 public:
     struct StaticRulesetWithMetadata {
-        enum class Type : std::uint8_t {
-            Local,
-            Global,
-            invalid
-        } type = Type::invalid;
+        Ruleset::Type type = Ruleset::Type::invalid;
         std::string_view topic;
         std::string_view description;
-        StaticRulesetFunction function = nullptr;
-        BaseListFunction baseListFunc = nullptr;
+        void* instance;
+        Ruleset::StaticRulesetFunction function = nullptr;
+        Ruleset::BaseListFunction baseListFunc = nullptr;
     };
 
     StaticRulesetMap();
@@ -72,7 +62,7 @@ public:
 
     // Owned version of metadata for sharing info
     struct StaticRulesetMetadata {
-        StaticRulesetWithMetadata::Type type;
+        Ruleset::Type type;
         std::string topic;
         std::string description;
     };
@@ -102,9 +92,10 @@ public:
 private:
     absl::flat_hash_map<std::string, StaticRulesetWithMetadata> container;
     StaticRulesetWithMetadata invalidEntry{
-        .type=StaticRulesetWithMetadata::Type::invalid,
+        .type=Ruleset::Type::invalid,
         .topic="",
         .description="",
+        .instance=nullptr,
         .function=nullptr
     };
 
@@ -112,7 +103,7 @@ private:
     void help(Context const& context, double** slf, double** otr) const ;
     static std::string_view constexpr helpName = "::help";
     static std::string_view constexpr helpDesc = "Lists all available static rulesets with their descriptions.";
-    BaseListFunction const helpBaseListFunc = [](const Execution::Domain&) -> double** {return nullptr;};
+    Ruleset::BaseListFunction const helpBaseListFunc = [](const Execution::Domain&) -> double** {return nullptr;};
 };
 } // namespace Nebulite::Interaction::Rules
 #endif // NEBULITE_INTERACTION_RULES_STATICRULESETMAP_HPP
