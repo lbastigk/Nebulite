@@ -31,9 +31,13 @@ Interaction::Rules::BaseListFunction RulesetModule::generateBaseListFunction(std
 }
 
 void RulesetModule::checkGlobalContextCorrectness(Interaction::Context const& context) {
-    if (context.global.getId() != Global::instance().getId()) {
+    if (!isGlobalContextCorrect(context)) {
         throw std::runtime_error("The global context must be the actual GlobalSpace, as this function relies on pre-cached global variables.");
     }
+}
+
+bool RulesetModule::isGlobalContextCorrect(Interaction::Context const& context){
+    return context.global.getId() == Global::instance().getId();
 }
 
 } // namespace Nebulite::Module::Base

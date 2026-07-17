@@ -2,6 +2,7 @@
 // Includes
 
 // Standard Library
+#include <cassert>
 #include <cmath>
 #include <stdexcept>
 
@@ -141,7 +142,7 @@ void Physics::elasticCollision(Interaction::Context const& context, double** slf
 
 
 void Physics::gravity(Interaction::Context const& context, double** slf, double** otr) const {
-    checkGlobalContextCorrectness(context);
+    assert(isGlobalContextCorrect(context));
 
     double const dx = baseVal(slf, Key::posX) - baseVal(otr, Key::posX);
     double const dy = baseVal(slf, Key::posY) - baseVal(otr, Key::posY);
@@ -171,7 +172,7 @@ void Physics::storeLastPosition(Interaction::Context const& /*context*/, double*
 }
 
 void Physics::applyForce(Interaction::Context const& context, double** slf, double** /*otr*/) const {
-    checkGlobalContextCorrectness(context);
+    assert(isGlobalContextCorrect(context));
 
     // Pre-calculate values before locking
     double const dt = *globalVal.dt;

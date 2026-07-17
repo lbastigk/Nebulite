@@ -1,6 +1,9 @@
 //------------------------------------------
 // Includes
 
+// Standard Library
+#include <cassert>
+
 // Nebulite
 #include "Nebulite/Constants/KeyNames.hpp"
 #include "Nebulite/Data/Document/JsonScope.hpp"
@@ -33,27 +36,27 @@ Camera::Camera() : RulesetModule(moduleName) {
 // TODO: Add another namespace for camera following rulesets using a PT1 controller for smooth movement
 
 void Camera::alignCenter(Interaction::Context const& context, double** slf, double** /*otr*/) const {
-    checkGlobalContextCorrectness(context);
+    assert(isGlobalContextCorrect(context));
     setCameraPosition(getAdjustedObjectPosition(slf, Align::Center), Align::Center);
 }
 
 void Camera::alignTop(Interaction::Context const& context, double** slf, double** /*otr*/) const {
-    checkGlobalContextCorrectness(context);
+    assert(isGlobalContextCorrect(context));
     setCameraPosition(getAdjustedObjectPosition(slf, Align::Center), Align::Top);
 }
 
 void Camera::alignBottom(Interaction::Context const& context, double** slf, double** /*otr*/) const {
-    checkGlobalContextCorrectness(context);
+    assert(isGlobalContextCorrect(context));
     setCameraPosition(getAdjustedObjectPosition(slf, Align::Center), Align::Bottom);
 }
 
 void Camera::alignLeft(Interaction::Context const& context, double** slf, double** /*otr*/) const {
-    checkGlobalContextCorrectness(context);
+    assert(isGlobalContextCorrect(context));
     setCameraPosition(getAdjustedObjectPosition(slf, Align::Center), Align::Left);
 }
 
 void Camera::alignRight(Interaction::Context const& context, double** slf, double** /*otr*/) const {
-    checkGlobalContextCorrectness(context);
+    assert(isGlobalContextCorrect(context));
     setCameraPosition(getAdjustedObjectPosition(slf, Align::Center), Align::Right);
 }
 

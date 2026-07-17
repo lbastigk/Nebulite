@@ -122,8 +122,16 @@ protected:
     /**
      * @brief Checks if the global context is the actual GlobalSpace, and throws an exception if not.
      * @details This is required for function relying on pre-cached global variables
+     * @throws std::runtime_error if the global context is not the actual GlobalSpace
      */
     static void checkGlobalContextCorrectness(Interaction::Context const& context);
+
+    /**
+     * @brief Checks if the global context is the actual GlobalSpace
+     * @details This is required for function relying on pre-cached global variables
+     * @return true if the global context is correct, false otherwise
+     */
+    static bool isGlobalContextCorrect(Interaction::Context const& context);
 
 private:
     // Vector of all static rulesets from this module
