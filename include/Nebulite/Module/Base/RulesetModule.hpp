@@ -79,9 +79,9 @@ protected:
      */
     template<std::string_view const& topic, typename DerivedRulesetModule, auto Func>
     void bind(
-        Interaction::Rules::Ruleset::Type type,
+        Interaction::Rules::StaticRuleset::Type type,
         std::string_view description,
-        Interaction::Rules::Ruleset::BaseListFunction const& baseListFunc
+        Interaction::Rules::StaticRuleset::BaseListFunction const& baseListFunc
     ){
         assert(Func != nullptr);
         static_assert(isValidTopic(topic), "RulesetModule::bind(): The topic name is not valid. It must start with '::' and contain no spaces.");
@@ -123,7 +123,7 @@ protected:
      * @param baseKeys The key list to retrieve
      * @return The BaseList-ensurer function.
      */
-    [[nodiscard]] Interaction::Rules::Ruleset::BaseListFunction generateBaseListFunction(std::vector<Data::ScopedKeyView> const& baseKeys) const ;
+    [[nodiscard]] Interaction::Rules::StaticRuleset::BaseListFunction generateBaseListFunction(std::vector<Data::ScopedKeyView> const& baseKeys) const ;
 
     /**
      * @brief Checks if the global context is the actual GlobalSpace, and throws an exception if not.

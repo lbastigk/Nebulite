@@ -62,18 +62,6 @@ public:
     Ruleset& operator=(Ruleset&&) = delete;
 
     //------------------------------------------
-    // Types, used for metadata
-
-    enum class Type : std::uint8_t {
-        Local,
-        Global,
-        invalid
-    };
-
-    using StaticRulesetFunction = void (*)(void*, Context const&, double**, double**);
-    using BaseListFunction = std::function<double**(Execution::Domain const&)>;
-
-    //------------------------------------------
     // Friend classes
     friend class Construction::RulesetCompiler;
 
@@ -186,16 +174,6 @@ protected:
      *          Due to the large checks needed for `all`, it should only be used when absolutely necessary.
      */
     std::string topic = "all";
-
-    /**
-     * @brief BaseList generator function
-     */
-    BaseListFunction baseListFunction;
-
-    /**
-     * @brief Ordered list of variables for this ruleset to use as self
-     */
-    double** slf = nullptr;
 };
 
 /**
@@ -222,6 +200,17 @@ public:
     StaticRuleset(StaticRuleset&&) = delete;
     StaticRuleset& operator=(StaticRuleset&&) = delete;
 
+    //------------------------------------------
+    // Types
+
+    enum class Type : std::uint8_t {
+        Local,
+        Global,
+        invalid
+    };
+
+    using Function = void (*)(void*, Context const&, double**, double**);
+    using BaseListFunction = std::function<double**(Execution::Domain const&)>;
 
     //------------------------------------------
     // Friend classes
@@ -265,8 +254,16 @@ public:
     void applyDomain(Execution::Domain& global) override ;
 
 private:
-    StaticRulesetFunction staticFunction = nullptr;
     void* instance = nullptr;
+
+    Function staticFunction = nullptr;
+
+    BaseListFunction baseListFunction;
+
+    /**
+     * @brief Ordered list of variables for this ruleset to use as self
+     */
+    double** slf = nullptr;
 };
 
 /**

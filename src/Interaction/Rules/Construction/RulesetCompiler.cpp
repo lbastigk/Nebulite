@@ -212,12 +212,12 @@ RulesetCompiler::AnyRuleset RulesetCompiler::getRuleset(Data::JsonScope const& d
 
         if (
             auto const& staticRulesetEntry = StaticRulesetMap::getInstance().getStaticRulesetByName(staticFunctionName);
-            staticRulesetEntry.type != Ruleset::Type::invalid
+            staticRulesetEntry.type != StaticRuleset::Type::invalid
         ) {
             // Is a valid static ruleset
             auto Ruleset = std::make_shared<StaticRuleset>(self);
             Ruleset->topic = staticRulesetEntry.topic;
-            Ruleset->_isGlobal = staticRulesetEntry.type == Ruleset::Type::Global;
+            Ruleset->_isGlobal = staticRulesetEntry.type == StaticRuleset::Type::Global;
             Ruleset->staticFunction = staticRulesetEntry.function;
             Ruleset->instance = staticRulesetEntry.instance;
             Ruleset->baseListFunction = staticRulesetEntry.baseListFunc;

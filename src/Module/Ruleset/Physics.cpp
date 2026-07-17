@@ -25,14 +25,14 @@ Physics::Physics() : RulesetModule(moduleName) {
     auto const baseListFunc = generateBaseListFunction(baseKeys);
 
     // Global rulesets
-    bind<elasticCollisionName, Physics, &Physics::elasticCollision>(Interaction::Rules::Ruleset::Type::Global, elasticCollisionDesc, baseListFunc);
-    bind<gravityName, Physics, &Physics::gravity>(Interaction::Rules::Ruleset::Type::Global, gravityDesc, baseListFunc);
+    bind<elasticCollisionName, Physics, &Physics::elasticCollision>(Interaction::Rules::StaticRuleset::Type::Global, elasticCollisionDesc, baseListFunc);
+    bind<gravityName, Physics, &Physics::gravity>(Interaction::Rules::StaticRuleset::Type::Global, gravityDesc, baseListFunc);
 
     // Local rulesets
-    bind<storeLastPositionName, Physics, &Physics::storeLastPosition>(Interaction::Rules::Ruleset::Type::Local, storeLastPositionDesc, baseListFunc);
-    bind<applyForceName, Physics, &Physics::applyForce>(Interaction::Rules::Ruleset::Type::Local, applyForceDesc, baseListFunc);
-    bind<applyCorrectionName, Physics, &Physics::applyCorrection>(Interaction::Rules::Ruleset::Type::Local, applyCorrectionDesc, baseListFunc);
-    bind<dragName, Physics, &Physics::drag>(Interaction::Rules::Ruleset::Type::Local, dragDesc, baseListFunc);
+    bind<storeLastPositionName, Physics, &Physics::storeLastPosition>(Interaction::Rules::StaticRuleset::Type::Local, storeLastPositionDesc, baseListFunc);
+    bind<applyForceName, Physics, &Physics::applyForce>(Interaction::Rules::StaticRuleset::Type::Local, applyForceDesc, baseListFunc);
+    bind<applyCorrectionName, Physics, &Physics::applyCorrection>(Interaction::Rules::StaticRuleset::Type::Local, applyCorrectionDesc, baseListFunc);
+    bind<dragName, Physics, &Physics::drag>(Interaction::Rules::StaticRuleset::Type::Local, dragDesc, baseListFunc);
 
     // Global Variables
     auto const token = getRulesetModuleAccessToken(*this);
