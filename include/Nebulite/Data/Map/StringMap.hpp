@@ -39,7 +39,7 @@ private:
         if (key.empty()) {
             return 0;
         }
-        return static_cast<unsigned char>(key.back());
+        return static_cast<std::size_t>(key.back());
     }
 
 public:
