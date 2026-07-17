@@ -6,7 +6,6 @@
 
 // Standard library
 #include <memory>
-#include <string>
 #include <vector>
 
 //------------------------------------------
@@ -19,7 +18,7 @@
 #include "Nebulite/Data/Map/StringMap.hpp"
 
 //------------------------------------------
-template <typename Storage> using MapType = StringMap<std::vector<std::shared_ptr<Storage>>>;
+template <typename Storage> using MapType = Nebulite::Data::StringMap<std::vector<std::shared_ptr<Storage>>>;
 
 #else // NEBULITE_USE_INVOKE_CONTAINER_STRINGMAP
 
@@ -27,6 +26,7 @@ template <typename Storage> using MapType = StringMap<std::vector<std::shared_pt
 // Includes
 
 // Standard library
+#include <string>
 #include <string_view>
 
 // External

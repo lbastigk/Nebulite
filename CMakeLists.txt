@@ -10,6 +10,7 @@ include(${CMAKE_SOURCE_DIR}/Tools/CMake/External/sdlsettings.cmake)
 include(${CMAKE_SOURCE_DIR}/Tools/CMake/warnings.cmake)
 include(${CMAKE_SOURCE_DIR}/Tools/CMake/binarysettings.cmake)
 include(${CMAKE_SOURCE_DIR}/Tools/CMake/commonsources.cmake)
+include(${CMAKE_SOURCE_DIR}/Tools/CMake/nebuliteMacros.cmake)
 
 ############################################################
 # Info messages
@@ -48,6 +49,7 @@ setup_binary_settings()
 setup_common_sources(Nebulite)
 configure_common_dependencies(Nebulite)
 configure_warnings(Nebulite)
+setNebuliteMacros(Nebulite)
 target_include_directories(Nebulite PUBLIC ${CMAKE_SOURCE_DIR}/include)
 
 ############################################################
@@ -60,11 +62,16 @@ optimize_rapidjson(Nebulite)
 # Check source dir variables
 get_cmake_property(_variableNames VARIABLES)
 list(SORT _variableNames)
-
 foreach(_variableName ${_variableNames})
     if(_variableName MATCHES "SOURCE_DIR$")
         message(STATUS "VARIABLE: ${_variableName}=${${_variableName}}")
     endif()
+endforeach()
+
+# Check compile definitions for Nebulite
+get_target_property(_compile_defs Nebulite COMPILE_DEFINITIONS)
+foreach(_def ${_compile_defs})
+    message(STATUS "COMPILE_DEFINITION: ${_def}")
 endforeach()
 
 ############################################################
