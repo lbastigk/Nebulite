@@ -8,6 +8,7 @@
 #include "Nebulite/Constants/KeyNames.hpp"
 #include "Nebulite/Data/Document/JsonScope.hpp"
 #include "Nebulite/Interaction/Context.hpp"
+#include "Nebulite/Interaction/Rules/Ruleset.hpp"
 #include "Nebulite/Module/Base/RulesetModule.hpp"
 #include "Nebulite/Module/Ruleset/Camera.hpp"
 #include "Nebulite/Nebulite.hpp"
@@ -19,11 +20,11 @@ Camera::Camera() : RulesetModule(moduleName) {
     auto const baseListFunc = generateBaseListFunction(baseKeys);
 
     // Bind Camera-related static rulesets here
-    bind<alignCenterName>(RulesetType::Local, &Camera::alignCenter, alignCenterDesc, baseListFunc);
-    bind<alignTopName>(RulesetType::Local, &Camera::alignTop, alignTopDesc, baseListFunc);
-    bind<alignBottomName>(RulesetType::Local, &Camera::alignBottom, alignBottomDesc, baseListFunc);
-    bind<alignLeftName>(RulesetType::Local, &Camera::alignLeft, alignLeftDesc, baseListFunc);
-    bind<alignRightName>(RulesetType::Local, &Camera::alignRight, alignRightDesc, baseListFunc);
+    bind<alignCenterName>(&Camera::alignCenter, baseListFunc, Interaction::Rules::StaticRuleset::Type::Local, alignCenterDesc);
+    bind<alignTopName>(&Camera::alignTop, baseListFunc, Interaction::Rules::StaticRuleset::Type::Local, alignTopDesc);
+    bind<alignBottomName>(&Camera::alignBottom, baseListFunc, Interaction::Rules::StaticRuleset::Type::Local, alignBottomDesc);
+    bind<alignLeftName>(&Camera::alignLeft, baseListFunc, Interaction::Rules::StaticRuleset::Type::Local, alignLeftDesc);
+    bind<alignRightName>(&Camera::alignRight, baseListFunc, Interaction::Rules::StaticRuleset::Type::Local, alignRightDesc);
 
     // References
     auto const token = getRulesetModuleAccessToken(*this);

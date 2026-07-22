@@ -9,6 +9,7 @@
 // Nebulite
 #include "Nebulite/Core/GlobalSpace.hpp"
 #include "Nebulite/Interaction/Context.hpp"
+#include "Nebulite/Interaction/Rules/Ruleset.hpp"
 #include "Nebulite/Interaction/Rules/StaticRulesetMap.hpp"
 #include "Nebulite/Math/Equality.hpp"
 #include "Nebulite/Module/Domain/GlobalSpace/Physics.hpp"
@@ -24,14 +25,14 @@ Physics::Physics() : RulesetModule(moduleName) {
     auto const baseListFunc = generateBaseListFunction(baseKeys);
 
     // Global rulesets
-    bind<elasticCollisionName>(RulesetType::Global, &Physics::elasticCollision, elasticCollisionDesc, baseListFunc);
-    bind<gravityName>(RulesetType::Global, &Physics::gravity, gravityDesc, baseListFunc);
+    bind<elasticCollisionName>(&Physics::elasticCollision, baseListFunc, Interaction::Rules::StaticRuleset::Type::Global, elasticCollisionDesc);
+    bind<gravityName>(&Physics::gravity, baseListFunc, Interaction::Rules::StaticRuleset::Type::Global, gravityDesc);
 
     // Local rulesets
-    bind<storeLastPositionName>(RulesetType::Local, &Physics::storeLastPosition, storeLastPositionDesc, baseListFunc);
-    bind<applyForceName>(RulesetType::Local, &Physics::applyForce, applyForceDesc, baseListFunc);
-    bind<applyCorrectionName>(RulesetType::Local, &Physics::applyCorrection, applyCorrectionDesc, baseListFunc);
-    bind<dragName>(RulesetType::Local, &Physics::drag, dragDesc, baseListFunc);
+    bind<storeLastPositionName>(&Physics::storeLastPosition, baseListFunc, Interaction::Rules::StaticRuleset::Type::Local, storeLastPositionDesc);
+    bind<applyForceName>(&Physics::applyForce, baseListFunc, Interaction::Rules::StaticRuleset::Type::Local, applyForceDesc);
+    bind<applyCorrectionName>(&Physics::applyCorrection, baseListFunc, Interaction::Rules::StaticRuleset::Type::Local, applyCorrectionDesc);
+    bind<dragName>(&Physics::drag, baseListFunc, Interaction::Rules::StaticRuleset::Type::Local, dragDesc);
 
     // Global Variables
     auto const token = getRulesetModuleAccessToken(*this);

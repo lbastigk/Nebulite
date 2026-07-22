@@ -4,6 +4,7 @@
 // Standard library
 #include <algorithm>
 #include <cassert>
+#include <cmath>
 #include <cstddef>
 #include <cstdint> // NOLINT
 #include <iterator>
@@ -34,7 +35,6 @@
 #include "Nebulite/Utility/Coordination/RecursionAllocator.hpp"
 #include "Nebulite/Utility/Ranges.hpp"
 #include "Nebulite/Utility/StringHandler.hpp"
-
 
 //------------------------------------------
 namespace Nebulite::Interaction::Logic {
@@ -122,8 +122,7 @@ std::vector<std::string_view> getTokens(std::string_view const expr) {
             // Cannot be used, as splitOnSameDepth expects the first character to be the opening parenthesis
             auto const start = token.substr(0, token.find('('));
             auto const tokenWithoutStart = token.substr(start.length()); // Remove the leading '$' + formatter
-            auto subTokens = Utility::StringHandler::splitOnSameDepthOf(tokenWithoutStart, Utility::StringHandler::Delimiter::parentheses);
-            if (!subTokens.empty()) {
+            if (auto subTokens = Utility::StringHandler::splitOnSameDepthOf(tokenWithoutStart, Utility::StringHandler::Delimiter::parentheses); !subTokens.empty()) {
                 // Add the removed part
                 auto first = std::string_view(
                     start.data(),
@@ -246,6 +245,10 @@ int64_t Expression::evalAsInt(ContextScope const& context) const {
 
 bool Expression::evalAsBool(ContextScope const& context) const {
     double const result = evalAsDouble(context);
+    if (std::isnan(result)) {
+        // We consider NaN as false
+        return false;
+    }
     return !Math::isZero(result);
 }
 
@@ -492,7 +495,7 @@ void Expression::parse(std::string_view const expr) {
     evaluationInfo.alwaysTrue = recalculateIsAlwaysTrue();
 }
 
-void Expression::compileIfExpression(std::shared_ptr<ExpressionComponent> const& component) const {
+void Expression::compileIfExpression(std::unique_ptr<ExpressionComponent> const& component) const {
     if (component->type == ExpressionComponent::Type::eval) {
         // Compile the expression using TinyExpr
         int error{};
@@ -513,21 +516,17 @@ void Expression::parseIntoComponents() {
     VariableNameGenerator variableNameGenerator;
     std::vector<LateRegistration> lateRegistrations;
     for (auto const& token : getTokens(fullExpression)) {
-        if (!token.empty()) {
-            if (token.starts_with('$')) {
-                parseTokenTypeEval(token, lateRegistrations, variableNameGenerator);
-            } else {
-                // Current token is Text
-                // Perhaps mixed with variables...
-                for (auto const& subToken : Utility::StringHandler::splitOnSameDepthOf(token, Utility::StringHandler::Delimiter::brace)) {
-                    // Token is type variable
-                    if (isTypeVariable(subToken)) {
-                        parseTokenTypeVariable(subToken);
-                    }
-                    // Token is type text
-                    else {
-                        parseTokenTypeText(subToken);
-                    }
+        if (token.starts_with('$')) {
+            parseTokenTypeEval(token, lateRegistrations, variableNameGenerator);
+        } else {
+            // Current token is Text
+            // Perhaps mixed with variables...
+            for (auto const& subToken : Utility::StringHandler::splitOnSameDepthOf(token, Utility::StringHandler::Delimiter::brace)) {
+                if (isTypeVariable(subToken)) {
+                    parseTokenTypeVariable(subToken);
+                }
+                else {
+                    parseTokenTypeText(subToken);
                 }
             }
         }
@@ -541,28 +540,22 @@ void Expression::parseIntoComponents() {
 }
 
 void Expression::parseTokenTypeEval(std::string_view const token, std::vector<LateRegistration>& lateRegistrations, VariableNameGenerator& varNameGen) {
-    // $[leading zero][alignment][.][precision]<type:f,i>
-    // - bool leading zero   : on/off
-    // - int alignment       : <0 means no formatting
-    // - int precision       : <0 means no formatting
-    // - CastType::none is then used to determine if we can simply use the double return from tinyexpr
+    // Extract formatter and expression
+    std::size_t const exprStart = token.find('('); // Opening parenthesis of the expression
+    auto const formatter = token.substr(1, exprStart - 1); // Remove leading $
+    auto const expression = token.substr(exprStart);
 
-    // 1.) find next '(' and split into formatter and token
-    // Examples:
-    // input        formatter       expression
-    // $(1+1)       ""              "(1+1)"
-    // $f(1.23)     "f"             "(1.23)"
-    // $i(42)       "i"             "(42)"
-    // $4.2f(2/3)   "4.2f"          "(2/3)"
-    auto const currentComponent = std::make_shared<ExpressionComponent>();
-
-    std::size_t const pos = token.find('(');
-    auto const formatter = token.substr(1, pos - 1); // Remove leading $
-    auto const expression = token.substr(pos);
+    // Write basic component data
+    auto currentComponent = std::make_unique<ExpressionComponent>();
     currentComponent->formatter = Formatter::readFormatter(formatter);
+    currentComponent->type = ExpressionComponent::Type::eval;
+    currentComponent->contextType = ContextDeriver::TargetType::none; // None, since this is an eval expression
+    currentComponent->key = ""; // No key for eval expressions
 
     // Register internal variables
     // And build equivalent expression using new variable names
+    // New string length is hard to estimate; every shortened variable is  ~1 character in size compared to the arbitrary length of the original variable name.
+    currentComponent->stringRepresentation.reserve(expression.length() / 4);
     for (auto const& subToken : Utility::StringHandler::splitOnSameDepthOf(expression, Utility::StringHandler::Delimiter::brace)) {
         if (subToken.starts_with('{')) {
             auto const te_name = varNameGen.getUniqueName(subToken);
@@ -575,17 +568,12 @@ void Expression::parseTokenTypeEval(std::string_view const token, std::vector<La
         }
     }
 
-    // Write component data
-    currentComponent->type = ExpressionComponent::Type::eval;
-    currentComponent->contextType = ContextDeriver::TargetType::none; // None, since this is an eval expression
-    currentComponent->key = ""; // No key for eval expressions
-
     // Add to components
-    components.push_back(currentComponent);
+    components.push_back(std::move(currentComponent));
 }
 
 void Expression::parseTokenTypeVariable(std::string_view const token) {
-    auto const currentComponent = std::make_shared<ExpressionComponent>();
+    auto currentComponent = std::make_unique<ExpressionComponent>();
 
     // 1.) remove {}
     // We keep all other potential {} inside the variable name for later MultiResolve
@@ -608,20 +596,19 @@ void Expression::parseTokenTypeVariable(std::string_view const token) {
     currentComponent->contextType = ContextDeriver::getTypeFromString(inner);
     currentComponent->key = ContextDeriver::stripContext(inner);
 
-    components.push_back(currentComponent);
+    components.push_back(std::move(currentComponent));
 }
 
 void Expression::parseTokenTypeText(std::string_view const token) {
-    auto const currentComponent = std::make_shared<ExpressionComponent>();
-    // Determine context
+    auto currentComponent = std::make_unique<ExpressionComponent>();
     currentComponent->type = ExpressionComponent::Type::text;
     currentComponent->stringRepresentation = token;
     currentComponent->contextType = ContextDeriver::TargetType::none;
     currentComponent->key = ""; // No key for text expressions
-    components.push_back(currentComponent);
+    components.push_back(std::move(currentComponent));
 }
 
-void Expression::printCompileError(std::shared_ptr<ExpressionComponent> const& component, int const error) const {
+void Expression::printCompileError(std::unique_ptr<ExpressionComponent> const& component, int const error) const {
     std::string offendingChar;
     if (error <= 0 || static_cast<size_t>(error) > component->stringRepresentation.size()) {
         offendingChar = "N/A (error position out of bounds)";

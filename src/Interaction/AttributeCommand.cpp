@@ -15,6 +15,7 @@
 #include "Nebulite/Interaction/AttributeCommand.hpp"
 #include "Nebulite/Interaction/Execution/Domain.hpp"
 #include "Nebulite/Interaction/Rules/Construction/RulesetCompiler.hpp"
+#include "Nebulite/Interaction/Rules/Ruleset.hpp"
 #include "Nebulite/Utility/IO/Capture.hpp"
 #include "Nebulite/Utility/StringHandler.hpp"
 

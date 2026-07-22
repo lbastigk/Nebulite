@@ -13,6 +13,7 @@
 
 // Nebulite
 #include "Nebulite/Data/Document/ScopedKeyView.hpp"
+#include "Nebulite/Interaction/Rules/Ruleset.hpp"
 #include "Nebulite/Interaction/Rules/StaticRulesetMap.hpp"
 #include "Nebulite/ScopeAccessor.hpp"
 
@@ -33,8 +34,6 @@ namespace Nebulite::Module::Base {
  */
 class RulesetModule {
 public:
-    using RulesetType = Interaction::Rules::StaticRulesetMap::StaticRulesetWithMetadata::Type;
-
     explicit RulesetModule(std::string_view moduleName);
 
     /**
@@ -80,22 +79,22 @@ protected:
      */
     template<std::string_view const& topic, typename DerivedRulesetModule>
     void bind(
-        RulesetType const& type,
         void (DerivedRulesetModule::*func)(Interaction::Context const&, double**, double**) const,
-        std::string_view description,
-        Interaction::Rules::BaseListFunction const& baseListFunc
+        Interaction::Rules::StaticRuleset::BaseListFunction const& baseListFunc,
+        Interaction::Rules::StaticRuleset::Type const& type,
+        std::string_view const description
     ){
         assert(func != nullptr);
         static_assert(isValidTopic(topic), "RulesetModule::bind(): The topic name is not valid. It must start with '::' and contain no spaces.");
-        static_assert(std::is_base_of_v<RulesetModule, DerivedRulesetModule>, "RulesetModule::bind(): T must derive from RulesetModule");
-        static_assert(std::is_same_v<decltype(DerivedRulesetModule::moduleName), const std::string_view>, "RulesetModule::bind(): DerivedRulesetModule must have a static member 'moduleName' of type std::string_view");
         static_assert(topic.starts_with(DerivedRulesetModule::moduleName), "RulesetModule::bind(): The topic name must start with the module's name as prefix.");
+        static_assert(std::is_base_of_v<RulesetModule, DerivedRulesetModule>, "RulesetModule::bind(): T must derive from RulesetModule");
+        static_assert(std::is_same_v<decltype(DerivedRulesetModule::moduleName), std::string_view const>, "RulesetModule::bind(): DerivedRulesetModule must have a static member 'moduleName' of type std::string_view");
         moduleRulesets.push_back({
             type,
             topic,
             description,
-            [this, func](Interaction::Context const& ctx, double** slf, double** otr) { (
-                static_cast<DerivedRulesetModule const*>(this)->*func)(ctx, slf, otr);
+            [this, func](Interaction::Context const& ctx, double** slf, double** otr) {
+                (static_cast<DerivedRulesetModule const*>(this)->*func)(ctx, slf, otr);
             },
             baseListFunc
         });
@@ -123,7 +122,7 @@ protected:
      * @param baseKeys The key list to retrieve
      * @return The BaseList-ensurer function.
      */
-    [[nodiscard]] Interaction::Rules::BaseListFunction generateBaseListFunction(std::vector<Data::ScopedKeyView> const& baseKeys) const ;
+    [[nodiscard]] Interaction::Rules::StaticRuleset::BaseListFunction generateBaseListFunction(std::vector<Data::ScopedKeyView> const& baseKeys) const ;
 
     /**
      * @brief Checks if the global context is the actual GlobalSpace, and throws an exception if not.

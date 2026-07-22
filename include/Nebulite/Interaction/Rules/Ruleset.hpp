@@ -7,6 +7,8 @@
 // Standard library
 #include <algorithm>
 #include <cstddef>
+#include <cstdint>
+#include <functional>
 #include <memory>
 #include <string>
 #include <vector>
@@ -14,7 +16,6 @@
 // Nebulite
 #include "Nebulite/Interaction/Logic/Assignment.hpp"
 #include "Nebulite/Interaction/Logic/Expression.hpp"
-#include "Nebulite/Interaction/Rules/StaticRulesetMap.hpp"
 
 //------------------------------------------
 // Forward declarations
@@ -31,6 +32,10 @@ class Domain;
 namespace Nebulite::Interaction::Rules {
 struct Listener;
 } // namespace Nebulite::Interaction::Rules
+
+namespace Nebulite::Module::Base {
+class RulesetModule;
+} // namespace Nebulite::Module::Base
 
 //------------------------------------------
 namespace Nebulite::Interaction::Rules {
@@ -64,8 +69,8 @@ public:
     // Methods: Getters
 
     /**
-     * @brief Gets the id of the ruleset.
-     * @return The id of the ruleset, as const reference.
+     * @brief Gets the id of the ruleset owner.
+     * @return The id of the owner, as const reference.
      */
     [[nodiscard]] std::size_t getId() const ;
 
@@ -75,12 +80,6 @@ public:
     * @return The hashed id of the ruleset, as const reference.
     */
     [[nodiscard]] std::size_t getIdHashed() const ;
-
-    /**
-     * @brief Gets the index of the ruleset in the owning Domain's list of entries.
-     * @return The index of the ruleset, as const reference.
-     */
-    [[nodiscard]] std::size_t getIndex() const { return index; }
 
     /**
      * @brief Returns the topic of the ruleset.
@@ -98,7 +97,7 @@ public:
      * @brief Checks whether the ruleset is global.
      * @return True if the ruleset is global, false otherwise.
      */
-    [[nodiscard]] bool isGlobal() const { return _isGlobal; }
+    [[nodiscard]] bool isGlobal() const { return !topic.empty(); }
 
     //------------------------------------------
     // Methods: Workflow
@@ -143,12 +142,6 @@ protected:
     std::size_t index = 0;
 
     /**
-     * @brief Indicates whether the ruleset is global or local.
-     * @details if true, the Ruleset is global and can be broadcasted to other objects: Same as a nonempty topic
-     */
-    bool _isGlobal = true;
-
-    /**
      * @brief Pointer to the Domain that owns this ruleset; the `self` domain.
      */
     Execution::Domain& self;
@@ -160,25 +153,11 @@ protected:
 
     /**
      * @brief The topic of the ruleset, used for routing and filtering in the broadcast-listen-model of the Invoke class.
-     * @details e.g. `gravity`, `hitbox`, `collision`. `all` is the default value. Any Domain listening should be subscribed to this topic.
-     *          However, we are allowed to remove the topic listen `all` from any object, though it is not recommended.
-     *          As an example, say we wish to implement a console feature to quickly remove any object.
-     *          We can do so by sending an `ambassador` object that finds all other object at location (x,y) and deletes them.
-     *          This object would broadcast its invoke to `all`. Removing any objects subscription to `all` makes this impossible.
-     *
-     *          Due to the large checks needed for `all`, it should only be used when absolutely necessary.
+     * @details Not the same as the name of the ruleset, which is not stored.
+     *          If the ruleset is local, the topic is empty.
+     * @todo Use topicId instead? + modulo-based rulesetmap?
      */
     std::string topic = "all";
-
-    /**
-     * @brief BaseList generator function
-     */
-    BaseListFunction baseListFunction;
-
-    /**
-     * @brief Ordered list of variables for this ruleset to use as self
-     */
-    double** slf = nullptr;
 };
 
 /**
@@ -204,6 +183,18 @@ public:
     StaticRuleset& operator=(StaticRuleset const&) = delete;
     StaticRuleset(StaticRuleset&&) = delete;
     StaticRuleset& operator=(StaticRuleset&&) = delete;
+
+    //------------------------------------------
+    // Types
+
+    enum class Type : std::uint8_t {
+        Local,
+        Global,
+        invalid
+    };
+
+    using Function = std::function<void(const Context&, double** slf, double** otr)>;
+    using BaseListFunction = std::function<double**(Execution::Domain const&)>;
 
     //------------------------------------------
     // Friend classes
@@ -247,7 +238,13 @@ public:
     void applyDomain(Execution::Domain& global) override ;
 
 private:
-    StaticRulesetFunction staticFunction = nullptr;
+    Function staticFunction = nullptr;
+    BaseListFunction baseListFunction = nullptr;
+
+    /**
+     * @brief Ordered list of variables for this ruleset to use as self
+     */
+    double** slf = nullptr;
 };
 
 /**

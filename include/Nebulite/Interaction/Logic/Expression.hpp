@@ -21,6 +21,7 @@
 // Nebulite
 #include "Nebulite/Data/Document/JSON.hpp"
 #include "Nebulite/Interaction/Context.hpp"
+#include "Nebulite/Interaction/Logic/ExpressionComponent.hpp"
 #include "Nebulite/Interaction/Logic/LinkedNumericValue.hpp"
 
 //------------------------------------------
@@ -33,7 +34,6 @@ class ScopedKeyView;
 } // namespace Nebulite::Data
 
 namespace Nebulite::Interaction::Logic {
-class ExpressionComponent;
 class LinkedNumericValue;
 class VariableNameGenerator;
 } // namespace Nebulite::Interaction::Logic
@@ -325,7 +325,7 @@ private:
     /**
      * @brief Holds all parsed components from the expression.
      */
-    std::vector<std::shared_ptr<ExpressionComponent>> components;
+    std::vector<std::unique_ptr<ExpressionComponent>> components;
 
     /**
      * @brief Holds the full expression as a string.
@@ -368,7 +368,7 @@ private:
      * @brief Compiles a component, if its of type Expression
      * @param component The component to potentially compile
      */
-    void compileIfExpression(std::shared_ptr<ExpressionComponent> const& component) const;
+    void compileIfExpression(std::unique_ptr<ExpressionComponent> const& component) const;
 
     /**
      * @brief Parses the given expression into a series of components.
@@ -398,7 +398,7 @@ private:
     /**
      * @brief Prints a compilation error message to cerr, includes tips for fixing the error.
      */
-    void printCompileError(std::shared_ptr<ExpressionComponent> const& component, int error) const ;
+    void printCompileError(std::unique_ptr<ExpressionComponent> const& component, int error) const ;
 
     /**
      * @brief Registers a variable with the given name and key in the context of the component.
