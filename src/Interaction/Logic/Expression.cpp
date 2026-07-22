@@ -516,21 +516,19 @@ void Expression::parseIntoComponents() {
     VariableNameGenerator variableNameGenerator;
     std::vector<LateRegistration> lateRegistrations;
     for (auto const& token : getTokens(fullExpression)) {
-        if (!token.empty()) {
-            if (token.starts_with('$')) {
-                parseTokenTypeEval(token, lateRegistrations, variableNameGenerator);
-            } else {
-                // Current token is Text
-                // Perhaps mixed with variables...
-                for (auto const& subToken : Utility::StringHandler::splitOnSameDepthOf(token, Utility::StringHandler::Delimiter::brace)) {
-                    // Token is type variable
-                    if (isTypeVariable(subToken)) {
-                        parseTokenTypeVariable(subToken);
-                    }
-                    // Token is type text
-                    else {
-                        parseTokenTypeText(subToken);
-                    }
+        if (token.starts_with('$')) {
+            parseTokenTypeEval(token, lateRegistrations, variableNameGenerator);
+        } else {
+            // Current token is Text
+            // Perhaps mixed with variables...
+            for (auto const& subToken : Utility::StringHandler::splitOnSameDepthOf(token, Utility::StringHandler::Delimiter::brace)) {
+                // Token is type variable
+                if (isTypeVariable(subToken)) {
+                    parseTokenTypeVariable(subToken);
+                }
+                // Token is type text
+                else {
+                    parseTokenTypeText(subToken);
                 }
             }
         }
