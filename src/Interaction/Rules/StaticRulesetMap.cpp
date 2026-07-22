@@ -35,11 +35,7 @@ StaticRulesetMap::StaticRulesetMap(){
         .type=StaticRuleset::Type::Local,
         .topic=helpName,
         .description=helpDesc,
-        .instance = this,
-        .function=[](void* instance, Context const& context, double** slf, double** otr) {
-            auto* self = static_cast<StaticRulesetMap*>(instance);
-            self->help(context, slf, otr);
-        },
+        .function=[this](const Context& context, double** slf, double** otr) { help(context, slf, otr); },
         .baseListFunc=helpBaseListFunc
     });
 }
@@ -75,7 +71,6 @@ StaticRulesetMap::StaticRulesetWithMetadata& StaticRulesetMap::getStaticRulesetB
             .type=StaticRuleset::Type::invalid,
             .topic="",
             .description="",
-            .instance = nullptr,
             .function=nullptr
         };
         return invalid;

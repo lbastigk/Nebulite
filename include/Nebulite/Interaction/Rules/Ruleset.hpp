@@ -209,7 +209,7 @@ public:
         invalid
     };
 
-    using Function = void (*)(void*, Context const&, double**, double**);
+    using Function = std::function<void(const Context&, double** slf, double** otr)>;
     using BaseListFunction = std::function<double**(Execution::Domain const&)>;
 
     //------------------------------------------
@@ -254,10 +254,7 @@ public:
     void applyDomain(Execution::Domain& global) override ;
 
 private:
-    void* instance = nullptr;
-
     Function staticFunction = nullptr;
-
     BaseListFunction baseListFunction;
 
     /**

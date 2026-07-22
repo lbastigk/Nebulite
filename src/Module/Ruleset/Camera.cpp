@@ -20,11 +20,11 @@ Camera::Camera() : RulesetModule(moduleName) {
     auto const baseListFunc = generateBaseListFunction(baseKeys);
 
     // Bind Camera-related static rulesets here
-    bind<alignCenterName, Camera, &Camera::alignCenter>(Interaction::Rules::StaticRuleset::Type::Local, alignCenterDesc, baseListFunc);
-    bind<alignTopName, Camera, &Camera::alignTop>(Interaction::Rules::StaticRuleset::Type::Local, alignTopDesc, baseListFunc);
-    bind<alignBottomName, Camera, &Camera::alignBottom>(Interaction::Rules::StaticRuleset::Type::Local, alignBottomDesc, baseListFunc);
-    bind<alignLeftName, Camera, &Camera::alignLeft>(Interaction::Rules::StaticRuleset::Type::Local, alignLeftDesc, baseListFunc);
-    bind<alignRightName, Camera, &Camera::alignRight>(Interaction::Rules::StaticRuleset::Type::Local, alignRightDesc, baseListFunc);
+    bind<alignCenterName>(&Camera::alignCenter, baseListFunc, Interaction::Rules::StaticRuleset::Type::Local, alignCenterDesc);
+    bind<alignTopName>(&Camera::alignTop, baseListFunc, Interaction::Rules::StaticRuleset::Type::Local, alignTopDesc);
+    bind<alignBottomName>(&Camera::alignBottom, baseListFunc, Interaction::Rules::StaticRuleset::Type::Local, alignBottomDesc);
+    bind<alignLeftName>(&Camera::alignLeft, baseListFunc, Interaction::Rules::StaticRuleset::Type::Local, alignLeftDesc);
+    bind<alignRightName>(&Camera::alignRight, baseListFunc, Interaction::Rules::StaticRuleset::Type::Local, alignRightDesc);
 
     // References
     auto const token = getRulesetModuleAccessToken(*this);

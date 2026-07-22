@@ -40,7 +40,6 @@ public:
         StaticRuleset::Type type = StaticRuleset::Type::invalid;
         std::string_view topic;
         std::string_view description;
-        void* instance;
         StaticRuleset::Function function = nullptr;
         StaticRuleset::BaseListFunction baseListFunc = nullptr;
     };
@@ -95,7 +94,6 @@ private:
         .type=StaticRuleset::Type::invalid,
         .topic="",
         .description="",
-        .instance=nullptr,
         .function=nullptr
     };
 

@@ -59,17 +59,17 @@ bool StaticRuleset::evaluateConditionLocally(Execution::Domain& /*global*/) {
 void StaticRuleset::applyContext(Context& context, ContextScope& /*contextScope*/){
     auto* slfFromProvidedContext = baseListFunction(context.self);
     auto* otrFromProvidedContext = baseListFunction(context.other);
-    staticFunction(instance, context, slfFromProvidedContext, otrFromProvidedContext);
+    staticFunction(context, slfFromProvidedContext, otrFromProvidedContext);
 }
 
 void StaticRuleset::applyListener(std::shared_ptr<Listener> const& listener, Execution::Domain& global) {
     Context const context{self, listener->domain, global};
-    staticFunction(instance, context, slf, listener->otr);
+    staticFunction(context, slf, listener->otr);
 }
 
 void StaticRuleset::applyDomain(Execution::Domain& global) {
     Context const context{self, self, global};
-    staticFunction(instance, context, slf, slf);
+    staticFunction(context, slf, slf);
 }
 
 //------------------------------------------
