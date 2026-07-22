@@ -495,7 +495,7 @@ void Expression::parse(std::string_view const expr) {
     evaluationInfo.alwaysTrue = recalculateIsAlwaysTrue();
 }
 
-void Expression::compileIfExpression(std::shared_ptr<ExpressionComponent> const& component) const {
+void Expression::compileIfExpression(std::unique_ptr<ExpressionComponent> const& component) const {
     if (component->type == ExpressionComponent::Type::eval) {
         // Compile the expression using TinyExpr
         int error{};
@@ -546,7 +546,7 @@ void Expression::parseTokenTypeEval(std::string_view const token, std::vector<La
     auto const expression = token.substr(exprStart);
 
     // Write basic component data
-    auto const currentComponent = std::make_shared<ExpressionComponent>();
+    auto currentComponent = std::make_unique<ExpressionComponent>();
     currentComponent->formatter = Formatter::readFormatter(formatter);
     currentComponent->type = ExpressionComponent::Type::eval;
     currentComponent->contextType = ContextDeriver::TargetType::none; // None, since this is an eval expression
@@ -569,11 +569,11 @@ void Expression::parseTokenTypeEval(std::string_view const token, std::vector<La
     }
 
     // Add to components
-    components.push_back(currentComponent);
+    components.push_back(std::move(currentComponent));
 }
 
 void Expression::parseTokenTypeVariable(std::string_view const token) {
-    auto const currentComponent = std::make_shared<ExpressionComponent>();
+    auto currentComponent = std::make_unique<ExpressionComponent>();
 
     // 1.) remove {}
     // We keep all other potential {} inside the variable name for later MultiResolve
@@ -596,20 +596,19 @@ void Expression::parseTokenTypeVariable(std::string_view const token) {
     currentComponent->contextType = ContextDeriver::getTypeFromString(inner);
     currentComponent->key = ContextDeriver::stripContext(inner);
 
-    components.push_back(currentComponent);
+    components.push_back(std::move(currentComponent));
 }
 
 void Expression::parseTokenTypeText(std::string_view const token) {
-    auto const currentComponent = std::make_shared<ExpressionComponent>();
-    // Determine context
+    auto currentComponent = std::make_unique<ExpressionComponent>();
     currentComponent->type = ExpressionComponent::Type::text;
     currentComponent->stringRepresentation = token;
     currentComponent->contextType = ContextDeriver::TargetType::none;
     currentComponent->key = ""; // No key for text expressions
-    components.push_back(currentComponent);
+    components.push_back(std::move(currentComponent));
 }
 
-void Expression::printCompileError(std::shared_ptr<ExpressionComponent> const& component, int const error) const {
+void Expression::printCompileError(std::unique_ptr<ExpressionComponent> const& component, int const error) const {
     std::string offendingChar;
     if (error <= 0 || static_cast<size_t>(error) > component->stringRepresentation.size()) {
         offendingChar = "N/A (error position out of bounds)";
