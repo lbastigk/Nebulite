@@ -32,7 +32,7 @@ namespace Nebulite::Interaction::Rules {
 StaticRulesetMap::StaticRulesetMap(){
     Construction::rulesetMapInit(this);
     bindStaticRuleset(StaticRulesetWithMetadata{
-        .type=StaticRulesetWithMetadata::Type::Local,
+        .type=StaticRuleset::Type::Local,
         .topic=helpName,
         .description=helpDesc,
         .function=[this](const Context& context, double** slf, double** otr) { help(context, slf, otr); },
@@ -52,7 +52,7 @@ StaticRulesetMap& StaticRulesetMap::getInstance() {
 std::vector<StaticRulesetMap::StaticRulesetMetadata> StaticRulesetMap::getList() {
     std::vector<StaticRulesetMetadata> list;
     for (auto const& rule : getInstance().container | std::views::values) {
-        if (rule.type != StaticRulesetWithMetadata::Type::invalid) {
+        if (rule.type != StaticRuleset::Type::invalid) {
             list.push_back(StaticRulesetMetadata{
                 .type=rule.type,
                 .topic=std::string(rule.topic),
@@ -68,7 +68,7 @@ StaticRulesetMap::StaticRulesetWithMetadata& StaticRulesetMap::getStaticRulesetB
     if (statusTracker.mapDeleted) {
         // Using a custom static invalid entry, just in case the in-class one becomes invalid!
         static auto invalid = StaticRulesetWithMetadata{
-            .type=StaticRulesetWithMetadata::Type::invalid,
+            .type=StaticRuleset::Type::invalid,
             .topic="",
             .description="",
             .function=nullptr

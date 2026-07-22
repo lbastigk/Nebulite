@@ -19,10 +19,10 @@ Movement::Movement() : RulesetModule(moduleName) {
     auto const baseListFunc = generateBaseListFunction(baseKeys);
 
     // Global rulesets
-    bind<detectClippingName>(RulesetType::Global, &Movement::detectClipping, detectClippingDesc, baseListFunc);
+    bind<detectClippingName>(&Movement::detectClipping, baseListFunc, Interaction::Rules::StaticRuleset::Type::Global, detectClippingDesc);
 
     // Local rulesets
-    bind<processClippingName>(RulesetType::Local, &Movement::processClipping, processClippingDesc, baseListFunc);
+    bind<processClippingName>(&Movement::processClipping, baseListFunc, Interaction::Rules::StaticRuleset::Type::Local, processClippingDesc);
 }
 
 // NOLINTNEXTLINE

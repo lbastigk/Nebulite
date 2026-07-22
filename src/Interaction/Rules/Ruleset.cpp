@@ -2,10 +2,7 @@
 // Includes
 
 // Standard library
-#include <cmath>
 #include <cstddef>
-#include <cstdlib>
-#include <limits>
 #include <memory>
 #include <string>
 
@@ -81,23 +78,17 @@ void sendTask(Execution::Domain& domain, std::string const& task) {
 }
 } // namespace
 
-
 //------------------------------------------
 // Derived Class Methods: JsonRuleset
 
 bool JsonRuleset::evaluateConditionGlobally(Execution::Domain& other, Execution::Domain& global) {
     // Check if logical arg is as simple as just "1", meaning true
-    if (logicalArg->isAlwaysTrue())
+    if (logicalArg->isAlwaysTrue()) {
         return true;
+    }
 
     ContextScope const contextScope{self.domainScope, other.domainScope, global.domainScope};
-    double const result = logicalArg->evalAsDouble(contextScope);
-    if (std::isnan(result)) {
-        // We consider NaN as false
-        return false;
-    }
-    // Any double-value unequal to 0 is seen as "true"
-    return std::abs(result) > std::numeric_limits<double>::epsilon();
+    return logicalArg->evalAsBool(contextScope);
 }
 
 void JsonRuleset::applyContext(Context& context, ContextScope& contextScope){

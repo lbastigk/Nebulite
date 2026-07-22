@@ -2,7 +2,6 @@
 // Includes
 
 // Standard library
-#include <cstddef>
 #include <memory>
 #include <optional>
 #include <ranges>
@@ -10,6 +9,7 @@
 #include <string_view>
 #include <utility>
 #include <variant>
+#include <vector>
 
 // Nebulite
 #include "Nebulite/Constants/KeyNames.hpp"
@@ -17,10 +17,12 @@
 #include "Nebulite/Data/Document/JsonScope.hpp"
 #include "Nebulite/Data/Document/KeyType.hpp"
 #include "Nebulite/Interaction/Context.hpp"
+#include "Nebulite/Interaction/Execution/Domain.hpp"
 #include "Nebulite/Interaction/Logic/Assignment.hpp"
 #include "Nebulite/Interaction/Logic/Expression.hpp"
 #include "Nebulite/Interaction/Rules/Construction/RulesetCompiler.hpp"
 #include "Nebulite/Interaction/Rules/Ruleset.hpp"
+#include "Nebulite/Interaction/Rules/StaticRulesetMap.hpp"
 #include "Nebulite/Nebulite.hpp"
 #include "Nebulite/Utility/Ranges.hpp"
 #include "Nebulite/Utility/StringHandler.hpp"
@@ -29,56 +31,23 @@
 namespace Nebulite::Interaction::Rules::Construction {
 
 void RulesetCompiler::getFunctionCalls(Data::JsonScope const& entryDoc, JsonRuleset& Ruleset) {
-    // Get function calls: GLOBAL, SELF, OTHER
-    if (entryDoc.memberType(Constants::KeyNames::Ruleset::parseOnGlobal) == Data::KeyType::array) {
-        std::size_t const funcSize = entryDoc.memberSize(Constants::KeyNames::Ruleset::parseOnGlobal);
-        for (std::size_t j = 0; j < funcSize; ++j) {
-            auto const funcKey = Constants::KeyNames::Ruleset::parseOnGlobal.addIndex(j);
-            auto funcCall = entryDoc.get<std::string>(funcKey).value_or("");
-
-            // Create a new Expression, parse the function call
-            Logic::Expression invokeExpr(funcCall);
-            Ruleset.functioncalls_global.emplace_back(std::move(invokeExpr));
+    auto getCalls = [&entryDoc](Data::ScopedKeyView const& key, std::vector<Logic::Expression>& target) {
+        if (entryDoc.memberType(key) == Data::KeyType::array) {
+            for (auto const& indexKey : entryDoc.arrayKeys(key)) {
+                target.emplace_back(entryDoc.get<std::string>(indexKey).value_or(""));
+            }
         }
-    }
-    if (entryDoc.memberType(Constants::KeyNames::Ruleset::parseOnSelf) == Data::KeyType::array) {
-        std::size_t const funcSize = entryDoc.memberSize(Constants::KeyNames::Ruleset::parseOnSelf);
-        for (std::size_t j = 0; j < funcSize; ++j) {
-            auto const funcKey = Constants::KeyNames::Ruleset::parseOnSelf.addIndex(j);
-            auto const funcCall = entryDoc.get<std::string>(funcKey).value_or("");
-
-            // Create a new Expression, parse the function call
-            Logic::Expression invokeExpr(funcCall);
-            Ruleset.functioncalls_self.emplace_back(std::move(invokeExpr));
-        }
-    }
-    if (entryDoc.memberType(Constants::KeyNames::Ruleset::parseOnOther) == Data::KeyType::array) {
-        std::size_t const funcSize = entryDoc.memberSize(Constants::KeyNames::Ruleset::parseOnOther);
-        for (std::size_t j = 0; j < funcSize; ++j) {
-            auto const funcKey = Constants::KeyNames::Ruleset::parseOnOther.addIndex(j);
-            auto const funcCall = entryDoc.get<std::string>(funcKey).value_or("");
-
-            // Create a new Expression, parse the function call
-            Logic::Expression invokeExpr(funcCall);
-            Ruleset.functioncalls_other.emplace_back(std::move(invokeExpr));
-        }
-    }
-}
-
-std::optional<Logic::Assignment> RulesetCompiler::getAssignment(Data::JsonScope const& entry, std::size_t const index) {
-    auto const exprKey = Constants::KeyNames::Ruleset::assignments.addIndex(index);
-    if (Logic::Assignment assignment; assignment.parse(entry.get<std::string>(exprKey).value_or(""))) {
-        return assignment;
-    }
-    return std::nullopt;
+    };
+    getCalls(Constants::KeyNames::Ruleset::parseOnGlobal, Ruleset.functioncalls_global);
+    getCalls(Constants::KeyNames::Ruleset::parseOnSelf, Ruleset.functioncalls_self);
+    getCalls(Constants::KeyNames::Ruleset::parseOnOther, Ruleset.functioncalls_other);
 }
 
 bool RulesetCompiler::getAssignments(std::shared_ptr<JsonRuleset> const& Ruleset, Data::JsonScope const& entry) {
     if (entry.memberType(Constants::KeyNames::Ruleset::assignments) == Data::KeyType::array) {
-        std::size_t const exprSize = entry.memberSize(Constants::KeyNames::Ruleset::assignments);
-        for (std::size_t j = 0; j < exprSize; ++j) {
-            if (auto v = getAssignment(entry, j); v.has_value()) {
-                Ruleset->assignments.emplace_back(std::move(*v));
+        for (auto const& key : entry.arrayKeys(Constants::KeyNames::Ruleset::assignments)) {
+            if (Logic::Assignment assignment; assignment.parse(entry.get<std::string>(key).value_or(""))) {
+                Ruleset->assignments.emplace_back(std::move(assignment));
             }
         }
     } else {
@@ -91,24 +60,23 @@ bool RulesetCompiler::getAssignments(std::shared_ptr<JsonRuleset> const& Ruleset
 std::string RulesetCompiler::getCondition(Data::JsonScope const& entry) {
     std::string logicalArg;
     if (entry.memberType(Constants::KeyNames::Ruleset::condition) == Data::KeyType::array) {
-        std::size_t const logicalArgSize = entry.memberSize(Constants::KeyNames::Ruleset::condition);
-        for (std::size_t j = 0; j < logicalArgSize; ++j) {
-            auto logicalArgKey = Constants::KeyNames::Ruleset::condition.addIndex(j);
-            logicalArg += "(" + entry.get<std::string>(logicalArgKey).value_or("0") + ")";
-            if (j < logicalArgSize - 1) {
-                logicalArg += "*"; // Arguments in vector need to be all true: &-logic -> Multiplication
-            }
+        logicalArg = "$(";
+        for (auto const& key : entry.arrayKeys(Constants::KeyNames::Ruleset::condition)) {
+            logicalArg += "(" + entry.get<std::string>(key).value_or("0") + ")";
+            logicalArg += "*"; // Arguments in vector need to be all true: &-logic -> Multiplication
         }
+        if (logicalArg.ends_with("*")) {
+            logicalArg.pop_back(); // Remove last *
+        }
+        logicalArg += ")";
     } else {
         // Assume simple value, string:
         logicalArg = entry.get<std::string>(Constants::KeyNames::Ruleset::condition).value_or("0");
+        // Ensure logicalArg is encapsulated in an evaluation
+        if (!logicalArg.starts_with("$(")) {
+            logicalArg = "$(" + logicalArg + ")";
+        }
     }
-
-    // Ensure logicalArg is encapsulated in an evaluation
-    if (!logicalArg.starts_with("$(")) {
-        logicalArg = "$(" + logicalArg + ")";
-    }
-
     return logicalArg;
 }
 
@@ -147,17 +115,8 @@ void RulesetCompiler::parse(RulesetVector& rulesetsGlobal, RulesetVector& rulese
         return;
     }
 
-    // Get size of entries
-    std::size_t const size = rulesetArray.memberSize(rulesetArray.getRootScope());
-    if (size == 0) {
-        // Object has no rulesets
-        return;
-    }
-
     // Iterate through all entries
-    for (std::size_t idx = 0; idx < size; ++idx) {
-        // Parse entry into separate JSON object
-        auto const key = rulesetArray.getRootScope().addIndex(idx);
+    for (auto const& key : rulesetArray.arrayKeys(rulesetArray.getRootScope())) {
         auto Ruleset = getRuleset(rulesetArray, key.view(), self);
 
         if (std::holds_alternative<std::monostate>(Ruleset)) {
@@ -169,7 +128,7 @@ void RulesetCompiler::parse(RulesetVector& rulesetsGlobal, RulesetVector& rulese
             // Static ruleset, push directly
             auto staticRulesetPtr = std::get<std::shared_ptr<StaticRuleset>>(Ruleset);
             staticRulesetPtr->estimatedCost = 1; // Static rulesets have minimal cost
-            if (staticRulesetPtr->_isGlobal) {
+            if (staticRulesetPtr->isGlobal()) {
                 rulesetsGlobal.push_back(staticRulesetPtr);
             } else {
                 rulesetsLocal.push_back(staticRulesetPtr);
@@ -182,7 +141,7 @@ void RulesetCompiler::parse(RulesetVector& rulesetsGlobal, RulesetVector& rulese
             auto jsonRulesetPtr = std::get<std::shared_ptr<JsonRuleset>>(Ruleset);
             optimize(jsonRulesetPtr, self.domainScope);
             jsonRulesetPtr->estimateComputationalCost();
-            if (jsonRulesetPtr->_isGlobal) {
+            if (jsonRulesetPtr->isGlobal()) {
                 // If topic is empty, it is a local invoke
                 rulesetsGlobal.push_back(jsonRulesetPtr);
             } else {
@@ -211,12 +170,15 @@ RulesetCompiler::AnyRuleset RulesetCompiler::getRuleset(Data::JsonScope const& d
 
         if (
             auto const& staticRulesetEntry = StaticRulesetMap::getInstance().getStaticRulesetByName(staticFunctionName);
-            staticRulesetEntry.type != StaticRulesetMap::StaticRulesetWithMetadata::Type::invalid
+            staticRulesetEntry.type != StaticRuleset::Type::invalid
         ) {
             // Is a valid static ruleset
             auto Ruleset = std::make_shared<StaticRuleset>(self);
-            Ruleset->topic = staticRulesetEntry.topic;
-            Ruleset->_isGlobal = staticRulesetEntry.type == StaticRulesetMap::StaticRulesetWithMetadata::Type::Global;
+            if (staticRulesetEntry.type == StaticRuleset::Type::Global) {
+                Ruleset->topic = staticRulesetEntry.topic;
+            } else {
+                Ruleset->topic = ""; // Local rulesets have no topic
+            }
             Ruleset->staticFunction = staticRulesetEntry.function;
             Ruleset->baseListFunction = staticRulesetEntry.baseListFunc;
             Ruleset->slf = staticRulesetEntry.baseListFunc(self);
@@ -240,7 +202,6 @@ RulesetCompiler::AnyRuleset RulesetCompiler::getRuleset(Data::JsonScope const& d
     std::string_view top = Ruleset->topic;
     Utility::StringHandler::strip(top);
     Ruleset->topic = top;
-    Ruleset->_isGlobal = !Ruleset->topic.empty(); // If topic is empty, it is a local ruleset
 
     // Get and parse all assignments
     getAssignments(Ruleset, entry);

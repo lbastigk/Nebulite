@@ -5,7 +5,6 @@
 // Includes
 
 // Standard library
-#include <cstddef>
 #include <memory>
 #include <optional>
 #include <string>
@@ -14,9 +13,7 @@
 #include <vector>
 
 // Nebulite
-#include "Nebulite/Data/Document/ScopedKey.hpp"
-#include "Nebulite/Interaction/Logic/Assignment.hpp"
-#include "Nebulite/Interaction/Rules/Ruleset.hpp"
+#include "Nebulite/Data/Document/ScopedKeyView.hpp"
 
 //------------------------------------------
 // Forward declarations
@@ -25,16 +22,31 @@ namespace Nebulite::Data {
 class JsonScope;
 } // namespace Nebulite::Data
 
+namespace Nebulite::Interaction::Execution {
+class Domain;
+} // namespace Nebulite::Interaction::Execution
+
+namespace Nebulite::Interaction::Rules {
+class Ruleset;
+class JsonRuleset;
+class StaticRuleset;
+} // namespace Nebulite::Interaction::Rules
+
 //------------------------------------------
 namespace Nebulite::Interaction::Rules::Construction {
 /**
  * @class RulesetCompiler
  * @brief Responsible for parsing compatible JSON documents into `Ruleset` structs.
+ * @todo The current ruleset integration should be flexible enough to integrate this into the Ruleset classes on construction?
  */
 class RulesetCompiler {
 public:
     // A wrapper for all ruleset types, or none
-    using AnyRuleset = std::variant<std::monostate, std::shared_ptr<StaticRuleset>, std::shared_ptr<JsonRuleset>>;
+    using AnyRuleset = std::variant<
+        std::monostate,
+        std::shared_ptr<StaticRuleset>,
+        std::shared_ptr<JsonRuleset>
+    >;
 
     using RulesetVector = std::vector<std::shared_ptr<Ruleset>>;
 
@@ -62,14 +74,6 @@ private:
      * @param Ruleset The Ruleset object to populate with function calls.
      */
     static void getFunctionCalls(Data::JsonScope const& entryDoc, JsonRuleset& Ruleset);
-
-    /**
-     * @brief Extract a single expression from a JSON entry document
-     * @param entry The JSON entry document to extract the expression from.
-     * @param index The index of the expression in the entry document.
-     * @return The extracted expression as a Logic::Assignment object, or std::nullopt if extraction failed.
-     */
-    static std::optional<Logic::Assignment> getAssignment(Data::JsonScope const& entry, std::size_t index);
 
     /**
      * @brief Extracts all expressions from a JSON entry document.
