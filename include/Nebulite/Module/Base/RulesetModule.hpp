@@ -82,7 +82,7 @@ protected:
         void (DerivedRulesetModule::*func)(Interaction::Context const&, double**, double**) const,
         Interaction::Rules::StaticRuleset::BaseListFunction const& baseListFunc,
         Interaction::Rules::StaticRuleset::Type const& type,
-        std::string_view description
+        std::string_view const description
     ){
         assert(func != nullptr);
         static_assert(isValidTopic(topic), "RulesetModule::bind(): The topic name is not valid. It must start with '::' and contain no spaces.");
@@ -93,8 +93,8 @@ protected:
             type,
             topic,
             description,
-            [this, func](Interaction::Context const& ctx, double** slf, double** otr) { (
-                static_cast<DerivedRulesetModule const*>(this)->*func)(ctx, slf, otr);
+            [this, func](Interaction::Context const& ctx, double** slf, double** otr) {
+                (static_cast<DerivedRulesetModule const*>(this)->*func)(ctx, slf, otr);
             },
             baseListFunc
         });
