@@ -155,7 +155,7 @@ enum class Key : uint8_t {
 Inside the constructor, the function is generated and bound to each ruleset that needs it:
 ```cpp
 auto const baseListFunc = generateBaseListFunction(baseKeys);
-bind<alignCenterName>(Interaction::Rules::StaticRuleset::Type::Local, &Camera::alignCenter, alignCenterDesc, baseListFunc);
+bind<alignCenterName>(&Camera::alignCenter, baseListFunc, Interaction::Rules::StaticRuleset::Type::Local, alignCenterDesc);
 // ... bind other rulesets
 ```
 On invocation, both slf and otr have the same list of variables. Use `baseVal(<enum>)` to access the variables in the ruleset function:
