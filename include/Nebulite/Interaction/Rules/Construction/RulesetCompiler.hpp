@@ -5,7 +5,6 @@
 // Includes
 
 // Standard library
-#include <cstddef>
 #include <memory>
 #include <optional>
 #include <string>
@@ -15,7 +14,6 @@
 
 // Nebulite
 #include "Nebulite/Data/Document/ScopedKeyView.hpp"
-#include "Nebulite/Interaction/Logic/Assignment.hpp"
 
 //------------------------------------------
 // Forward declarations
@@ -76,14 +74,6 @@ private:
      * @param Ruleset The Ruleset object to populate with function calls.
      */
     static void getFunctionCalls(Data::JsonScope const& entryDoc, JsonRuleset& Ruleset);
-
-    /**
-     * @brief Extract a single expression from a JSON entry document
-     * @param entry The JSON entry document to extract the expression from.
-     * @param index The index of the expression in the entry document.
-     * @return The extracted expression as a Logic::Assignment object, or std::nullopt if extraction failed.
-     */
-    static std::optional<Logic::Assignment> getAssignment(Data::JsonScope const& entry, std::size_t index);
 
     /**
      * @brief Extracts all expressions from a JSON entry document.
