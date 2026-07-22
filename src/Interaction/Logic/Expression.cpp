@@ -4,6 +4,7 @@
 // Standard library
 #include <algorithm>
 #include <cassert>
+#include <cmath>
 #include <cstddef>
 #include <cstdint> // NOLINT
 #include <iterator>
@@ -34,7 +35,6 @@
 #include "Nebulite/Utility/Coordination/RecursionAllocator.hpp"
 #include "Nebulite/Utility/Ranges.hpp"
 #include "Nebulite/Utility/StringHandler.hpp"
-
 
 //------------------------------------------
 namespace Nebulite::Interaction::Logic {
@@ -122,8 +122,7 @@ std::vector<std::string_view> getTokens(std::string_view const expr) {
             // Cannot be used, as splitOnSameDepth expects the first character to be the opening parenthesis
             auto const start = token.substr(0, token.find('('));
             auto const tokenWithoutStart = token.substr(start.length()); // Remove the leading '$' + formatter
-            auto subTokens = Utility::StringHandler::splitOnSameDepthOf(tokenWithoutStart, Utility::StringHandler::Delimiter::parentheses);
-            if (!subTokens.empty()) {
+            if (auto subTokens = Utility::StringHandler::splitOnSameDepthOf(tokenWithoutStart, Utility::StringHandler::Delimiter::parentheses); !subTokens.empty()) {
                 // Add the removed part
                 auto first = std::string_view(
                     start.data(),
@@ -246,6 +245,10 @@ int64_t Expression::evalAsInt(ContextScope const& context) const {
 
 bool Expression::evalAsBool(ContextScope const& context) const {
     double const result = evalAsDouble(context);
+    if (std::isnan(result)) {
+        // We consider NaN as false
+        return false;
+    }
     return !Math::isZero(result);
 }
 

@@ -17,6 +17,7 @@
 #include "Nebulite/Data/Document/JsonScope.hpp"
 #include "Nebulite/Data/Document/KeyType.hpp"
 #include "Nebulite/Interaction/Context.hpp"
+#include "Nebulite/Interaction/Execution/Domain.hpp"
 #include "Nebulite/Interaction/Logic/Assignment.hpp"
 #include "Nebulite/Interaction/Logic/Expression.hpp"
 #include "Nebulite/Interaction/Rules/Construction/RulesetCompiler.hpp"
@@ -170,7 +171,7 @@ void RulesetCompiler::parse(RulesetVector& rulesetsGlobal, RulesetVector& rulese
             // Static ruleset, push directly
             auto staticRulesetPtr = std::get<std::shared_ptr<StaticRuleset>>(Ruleset);
             staticRulesetPtr->estimatedCost = 1; // Static rulesets have minimal cost
-            if (staticRulesetPtr->_isGlobal) {
+            if (staticRulesetPtr->isGlobal()) {
                 rulesetsGlobal.push_back(staticRulesetPtr);
             } else {
                 rulesetsLocal.push_back(staticRulesetPtr);
@@ -183,7 +184,7 @@ void RulesetCompiler::parse(RulesetVector& rulesetsGlobal, RulesetVector& rulese
             auto jsonRulesetPtr = std::get<std::shared_ptr<JsonRuleset>>(Ruleset);
             optimize(jsonRulesetPtr, self.domainScope);
             jsonRulesetPtr->estimateComputationalCost();
-            if (jsonRulesetPtr->_isGlobal) {
+            if (jsonRulesetPtr->isGlobal()) {
                 // If topic is empty, it is a local invoke
                 rulesetsGlobal.push_back(jsonRulesetPtr);
             } else {
@@ -216,8 +217,11 @@ RulesetCompiler::AnyRuleset RulesetCompiler::getRuleset(Data::JsonScope const& d
         ) {
             // Is a valid static ruleset
             auto Ruleset = std::make_shared<StaticRuleset>(self);
-            Ruleset->topic = staticRulesetEntry.topic;
-            Ruleset->_isGlobal = staticRulesetEntry.type == StaticRuleset::Type::Global;
+            if (staticRulesetEntry.type == StaticRuleset::Type::Global) {
+                Ruleset->topic = staticRulesetEntry.topic;
+            } else {
+                Ruleset->topic = ""; // Local rulesets have no topic
+            }
             Ruleset->staticFunction = staticRulesetEntry.function;
             Ruleset->baseListFunction = staticRulesetEntry.baseListFunc;
             Ruleset->slf = staticRulesetEntry.baseListFunc(self);
@@ -241,7 +245,6 @@ RulesetCompiler::AnyRuleset RulesetCompiler::getRuleset(Data::JsonScope const& d
     std::string_view top = Ruleset->topic;
     Utility::StringHandler::strip(top);
     Ruleset->topic = top;
-    Ruleset->_isGlobal = !Ruleset->topic.empty(); // If topic is empty, it is a local ruleset
 
     // Get and parse all assignments
     getAssignments(Ruleset, entry);
