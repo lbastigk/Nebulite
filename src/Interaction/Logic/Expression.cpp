@@ -522,11 +522,9 @@ void Expression::parseIntoComponents() {
             // Current token is Text
             // Perhaps mixed with variables...
             for (auto const& subToken : Utility::StringHandler::splitOnSameDepthOf(token, Utility::StringHandler::Delimiter::brace)) {
-                // Token is type variable
                 if (isTypeVariable(subToken)) {
                     parseTokenTypeVariable(subToken);
                 }
-                // Token is type text
                 else {
                     parseTokenTypeText(subToken);
                 }
@@ -542,28 +540,22 @@ void Expression::parseIntoComponents() {
 }
 
 void Expression::parseTokenTypeEval(std::string_view const token, std::vector<LateRegistration>& lateRegistrations, VariableNameGenerator& varNameGen) {
-    // $[leading zero][alignment][.][precision]<type:f,i>
-    // - bool leading zero   : on/off
-    // - int alignment       : <0 means no formatting
-    // - int precision       : <0 means no formatting
-    // - CastType::none is then used to determine if we can simply use the double return from tinyexpr
+    // Extract formatter and expression
+    std::size_t const exprStart = token.find('('); // Opening parenthesis of the expression
+    auto const formatter = token.substr(1, exprStart - 1); // Remove leading $
+    auto const expression = token.substr(exprStart);
 
-    // 1.) find next '(' and split into formatter and token
-    // Examples:
-    // input        formatter       expression
-    // $(1+1)       ""              "(1+1)"
-    // $f(1.23)     "f"             "(1.23)"
-    // $i(42)       "i"             "(42)"
-    // $4.2f(2/3)   "4.2f"          "(2/3)"
+    // Write basic component data
     auto const currentComponent = std::make_shared<ExpressionComponent>();
-
-    std::size_t const pos = token.find('(');
-    auto const formatter = token.substr(1, pos - 1); // Remove leading $
-    auto const expression = token.substr(pos);
     currentComponent->formatter = Formatter::readFormatter(formatter);
+    currentComponent->type = ExpressionComponent::Type::eval;
+    currentComponent->contextType = ContextDeriver::TargetType::none; // None, since this is an eval expression
+    currentComponent->key = ""; // No key for eval expressions
 
     // Register internal variables
     // And build equivalent expression using new variable names
+    // New string length is hard to estimate; every shortened variable is  ~1 character in size compared to the arbitrary length of the original variable name.
+    currentComponent->stringRepresentation.reserve(expression.length() / 4);
     for (auto const& subToken : Utility::StringHandler::splitOnSameDepthOf(expression, Utility::StringHandler::Delimiter::brace)) {
         if (subToken.starts_with('{')) {
             auto const te_name = varNameGen.getUniqueName(subToken);
@@ -575,11 +567,6 @@ void Expression::parseTokenTypeEval(std::string_view const token, std::vector<La
             currentComponent->stringRepresentation += subToken;
         }
     }
-
-    // Write component data
-    currentComponent->type = ExpressionComponent::Type::eval;
-    currentComponent->contextType = ContextDeriver::TargetType::none; // None, since this is an eval expression
-    currentComponent->key = ""; // No key for eval expressions
 
     // Add to components
     components.push_back(currentComponent);

@@ -355,6 +355,8 @@ private:
      */
     void reset();
 
+    std::string buildStringRepresentation(std::string_view expression, VariableNameGenerator& varNameGen);
+
     //------------------------------------------
     // Parsing and compiling
 
