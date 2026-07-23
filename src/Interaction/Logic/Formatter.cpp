@@ -7,6 +7,7 @@
 #include <cstddef>
 #include <cstdint>
 #include <optional>
+#include <stdexcept>
 #include <string>
 #include <string_view>
 
@@ -38,6 +39,9 @@ Formatter Formatter::readFormatter(std::string_view formatter) {
     else if (formatter.ends_with("f")) {
         fmt.cast = CastType::to_double;
         formatter.remove_suffix(1);
+    }
+    else {
+        throw std::logic_error("Invalid formatter");
     }
 
     // Read leading zero

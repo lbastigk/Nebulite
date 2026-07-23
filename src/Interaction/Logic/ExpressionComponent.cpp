@@ -4,8 +4,10 @@
 // Standard library
 #include <cstddef>
 #include <expected>
+#include <functional>
 #include <optional>
 #include <string>
+#include <string_view>
 #include <utility>
 
 // External
@@ -18,10 +20,78 @@
 #include "Nebulite/Interaction/Context.hpp"
 #include "Nebulite/Interaction/Logic/Expression.hpp"
 #include "Nebulite/Interaction/Logic/ExpressionComponent.hpp"
+#include "Nebulite/Interaction/Logic/VariableNameGenerator.hpp"
 #include "Nebulite/Nebulite.hpp"
+#include "Nebulite/Utility/StringHandler.hpp"
 
 //------------------------------------------
 namespace Nebulite::Interaction::Logic {
+
+ExpressionComponent ExpressionComponent::parseEval(std::string_view token, VariableNameGenerator& varNameGen, std::function<void(std::string_view, std::string_view, ContextDeriver::TargetType)> const& registerVariableCallback) {
+    // Extract formatter and expression
+    std::size_t const exprStart = token.find('('); // Opening parenthesis of the expression
+    auto const formatter = token.substr(1, exprStart - 1); // Remove leading $
+    auto const expression = token.substr(exprStart);
+
+    // Write basic component data
+    ExpressionComponent currentComponent;
+    currentComponent.formatter = Formatter::readFormatter(formatter);
+    currentComponent.type = Type::eval;
+    currentComponent.contextType = ContextDeriver::TargetType::none; // None, since this is an eval expression
+    currentComponent.key = ""; // No key for eval expressions
+
+    // Register internal variables
+    // And build equivalent expression using new variable names
+    // New string length is hard to estimate; every shortened variable is  ~1 character in size compared to the arbitrary length of the original variable name.
+    currentComponent.stringRepresentation.reserve(expression.length() / 4);
+    for (auto const& subToken : Utility::StringHandler::splitOnSameDepthOf(expression, Utility::StringHandler::Delimiter::brace)) {
+        if (subToken.starts_with('{')) {
+            auto const te_name = varNameGen.getUniqueName(subToken);
+            auto key = ContextDeriver::stripContext(subToken.substr(1, subToken.length() - 2));
+            auto const contextType = ContextDeriver::getTypeFromString(subToken.substr(1, subToken.length() - 2));
+            registerVariableCallback(te_name, key, contextType);
+            currentComponent.stringRepresentation += te_name;
+        } else {
+            currentComponent.stringRepresentation += subToken;
+        }
+    }
+    return currentComponent;
+}
+
+ExpressionComponent ExpressionComponent::parseVariable(std::string_view token){
+    ExpressionComponent currentComponent;
+
+    // 1.) remove {}
+    // We keep all other potential {} inside the variable name for later MultiResolve
+    auto inner = token.substr(1, token.length() - 2);
+
+    // 2.) Check if inner starts with a number followed by an exclamation mark, if so, this is an evaluation wait specifier,
+    // and we set the evaluation wait of the component accordingly, and remove the specifier from the inner string
+    if (auto const exclamationMarkPosition = inner.find('!'); exclamationMarkPosition != std::string::npos) {
+        if (auto const beforeExclamation = inner.substr(0, exclamationMarkPosition); Utility::StringHandler::isNumber(beforeExclamation)) {
+            if (!beforeExclamation.empty()) {
+                currentComponent.evaluationWait = std::stoul(std::string(beforeExclamation));
+            }
+            inner = inner.substr(exclamationMarkPosition + 1);
+        }
+    }
+
+    // 3.) determine context
+    currentComponent.type = Type::variable;
+    currentComponent.stringRepresentation = inner;
+    currentComponent.contextType = ContextDeriver::getTypeFromString(inner);
+    currentComponent.key = ContextDeriver::stripContext(inner);
+    return currentComponent;
+}
+
+ExpressionComponent ExpressionComponent::parseText(std::string_view token){
+    ExpressionComponent currentComponent;
+    currentComponent.type = Type::text;
+    currentComponent.stringRepresentation = token;
+    currentComponent.contextType = ContextDeriver::TargetType::none;
+    currentComponent.key = ""; // No key for text expressions
+    return currentComponent;
+}
 
 namespace {
 
@@ -138,7 +208,48 @@ void setToken(Data::JSON& token, std::string const& evaluatedKey, ContextScope c
 
 } // namespace
 
-bool ExpressionComponent::handleComponentTypeVariable(std::string& token, ContextScope const& context, std::size_t const recursionDepth) const {
+void ExpressionComponent::eval(std::string& result, ContextScope const& context, std::size_t recursionDepth) const {
+    switch (type) {
+        //------------------------------------------
+    case Type::variable:
+        if (!evalComponentTypeVariable(result, context, recursionDepth)) {
+            result = "null";
+        }
+        break;
+        //------------------------------------------
+    case Type::eval:
+        evalComponentTypeEval(result);
+        break;
+    case Type::text:
+        result = stringRepresentation;
+        break;
+    default:
+        break;
+    }
+}
+
+Data::JSON ExpressionComponent::evalAsJson(ContextScope const& context, std::size_t recursionDepth) const {
+    Data::JSON jsonResult;
+    if (type == Type::eval) {
+        if (formatter.cast == Formatter::CastType::none) {
+            jsonResult.set<double>("", te_eval(expression));
+        }
+        else {
+            std::string result;
+            evalComponentTypeEval(result);
+            jsonResult.set<std::string>("", result);
+        }
+    }
+    if (type == Type::variable) {
+        evalComponentTypeVariable(jsonResult, context, recursionDepth);
+    }
+    if (type == Type::text) {
+        jsonResult.set<std::string>("", stringRepresentation);
+    }
+    return jsonResult;
+}
+
+bool ExpressionComponent::evalComponentTypeVariable(std::string& token, ContextScope const& context, std::size_t const recursionDepth) const {
     // Do not evaluate if wait is active
     if (evaluationWait > 1) {
         token = "{" + std::to_string(evaluationWait - 1) + "!" + stringRepresentation + "}";
@@ -161,7 +272,7 @@ bool ExpressionComponent::handleComponentTypeVariable(std::string& token, Contex
     return true;
 }
 
-bool ExpressionComponent::handleComponentTypeVariable(Data::JSON& token, ContextScope const& context, std::size_t const recursionDepth) const {
+bool ExpressionComponent::evalComponentTypeVariable(Data::JSON& token, ContextScope const& context, std::size_t const recursionDepth) const {
     // Do not evaluate if wait is active
     if (evaluationWait > 1) {
         token.set<std::string>("", "{" + std::to_string(evaluationWait - 1) + "!" + stringRepresentation + "}");
@@ -184,7 +295,7 @@ bool ExpressionComponent::handleComponentTypeVariable(Data::JSON& token, Context
     return true;
 }
 
-void ExpressionComponent::handleComponentTypeEval(std::string& token) const {
+void ExpressionComponent::evalComponentTypeEval(std::string& token) const {
     token = formatter.format(te_eval(expression));
 }
 

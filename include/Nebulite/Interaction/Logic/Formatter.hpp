@@ -25,7 +25,7 @@ struct Formatter {
      * @brief Represents the type of cast to apply to an expression component.
      */
     enum class CastType : std::uint8_t {
-        none, // No cast -> using pure string
+        none, // No formatting
         to_int, // Cast to integer
         to_double // Cast to double
     } cast = CastType::none; // Default to none

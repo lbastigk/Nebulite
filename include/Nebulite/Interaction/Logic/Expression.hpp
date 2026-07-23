@@ -376,26 +376,6 @@ private:
     void parseIntoComponents();
 
     /**
-     * @brief Used to parse a string token of type "eval" into a component.
-     * @param token The token to parse.
-     * @param lateRegistrations The list of cache register functions that add values to the cache.
-     * @param varNameGen The variable name generator to ensure unique variable names in TinyExpr.
-     */
-    void parseTokenTypeEval(std::string_view token, std::vector<LateRegistration>& lateRegistrations, VariableNameGenerator& varNameGen);
-
-    /**
-     * @brief Used to parse a string token of type "variable" into a component.
-     * @param token The token to parse
-     */
-    void parseTokenTypeVariable(std::string_view token);
-
-    /**
-     * @brief Used to parse a string token of type "text" into a component.
-     * @param token The token to parse.
-     */
-    void parseTokenTypeText(std::string_view token);
-
-    /**
      * @brief Prints a compilation error message to cerr, includes tips for fixing the error.
      */
     void printCompileError(ExpressionComponent const& component, int error) const ;

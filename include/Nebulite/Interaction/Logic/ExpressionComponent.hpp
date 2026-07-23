@@ -8,8 +8,10 @@
 #include <cstddef>
 #include <cstdint>
 #include <expected>
+#include <functional>
 #include <optional>
 #include <string>
+#include <string_view>
 #include <utility>
 
 // External
@@ -19,6 +21,13 @@
 #include "Nebulite/Data/Document/JSON.hpp"
 #include "Nebulite/Interaction/Context.hpp"
 #include "Nebulite/Interaction/Logic/Formatter.hpp"
+
+//------------------------------------------
+// Forward declarations
+
+namespace Nebulite::Interaction::Logic {
+class VariableNameGenerator;
+} // namespace Nebulite::Interaction::Logic
 
 //------------------------------------------
 namespace Nebulite::Interaction::Logic {
@@ -70,11 +79,6 @@ public:
     te_expr* expression = nullptr;
 
     /**
-     * @brief Default constructor for Component.
-     */
-    ExpressionComponent() = default;
-
-    /**
      * @brief Destructor to clean up allocated resources.
      */
     ~ExpressionComponent() {
@@ -90,35 +94,44 @@ public:
     ExpressionComponent& operator=(ExpressionComponent&& other) = default ;
 
     //------------------------------------------
-    // Component handling methods
+    // Component generation methods
 
     /**
-     * @brief Handles the evaluation of a variable component as a string.
-     * @details Takes care of proper conversion to string, with abbreviated representations for non-value types (arrays, objects and null).
-     * @param token The string to populate with the evaluated value.
-     * @param context The context to evaluate against.
-     * @param recursionDepth The current recursion depth for nested evaluations.
-     * @return True if the evaluation was successful, false otherwise.
+     * @brief Parses an eval component from a given token, generating unique variable names and registering them as needed.
+     * @param token The token representing the eval component to parse.
+     * @param varNameGen The VariableNameGenerator instance used to generate unique variable names for the eval component.
+     * @param registerVariableCallback A callback function to register variables found within the eval component. It takes the generated variable name, the original key, and the context type as parameters.
+     * @return The parsed eval component.
      */
-    bool handleComponentTypeVariable(std::string& token, ContextScope const& context, std::size_t recursionDepth) const ;
+    static ExpressionComponent parseEval(std::string_view token, VariableNameGenerator& varNameGen, std::function<void(std::string_view, std::string_view, ContextDeriver::TargetType)> const& registerVariableCallback);
 
     /**
-     * @brief Handles the evaluation of a variable component as a JSON value.
-     * @details Populates the provided JSON object with the evaluated value, preserving its type.
-     * @param token The JSON object to populate with the evaluated value.
-     * @param context The context to evaluate against.
-     * @param recursionDepth The current recursion depth for nested evaluations.
-     * @return True if the evaluation was successful, false otherwise.
+     * @brief Parses a text component from a given token.
+     * @param token The token representing the text component to parse.
+     * @return The parsed text component.
      */
-    bool handleComponentTypeVariable(Data::JSON& token, ContextScope const& context, std::size_t recursionDepth) const ;
+    static ExpressionComponent parseText(std::string_view token);
 
     /**
-     * @brief Handles the evaluation of an eval component.
-     * @param token The string to populate with the evaluated value.
+     * @brief Parses a variable component from a given token, extracting the context and key information.
+     * @param token The token representing the variable component to parse.
+     * @return The parsed variable component.
      */
-    void handleComponentTypeEval(std::string& token) const ;
+    static ExpressionComponent parseVariable(std::string_view token);
+
+    //------------------------------------------
+    // Evaluation
+
+    void eval(std::string& result, ContextScope const& context, std::size_t recursionDepth) const ;
+
+    [[nodiscard]] Data::JSON evalAsJson(ContextScope const& context, std::size_t recursionDepth) const ;
 
 private:
+    /**
+     * @brief Default constructor for Component.
+     */
+    ExpressionComponent() = default;
+
     enum class KeyEvaluationInfo : std::uint8_t {
         maximumDepthReached, // Could not resolve due to maximum depth reached
         noNesting // No nested variables found
@@ -135,6 +148,32 @@ private:
     [[nodiscard]] std::expected<std::string, KeyEvaluationInfo> evaluateKey(ContextScope const& context, std::size_t recursionDepth) const ;
 
     [[nodiscard]] std::optional<std::pair<std::string, ContextDeriver::TargetType>> handleNesting(ContextScope const& context, std::size_t recursionDepth) const ;
+
+    /**
+     * @brief Handles the evaluation of a variable component as a string.
+     * @details Takes care of proper conversion to string, with abbreviated representations for non-value types (arrays, objects and null).
+     * @param token The string to populate with the evaluated value.
+     * @param context The context to evaluate against.
+     * @param recursionDepth The current recursion depth for nested evaluations.
+     * @return True if the evaluation was successful, false otherwise.
+     */
+    bool evalComponentTypeVariable(std::string& token, ContextScope const& context, std::size_t recursionDepth) const ;
+
+    /**
+     * @brief Handles the evaluation of a variable component as a JSON value.
+     * @details Populates the provided JSON object with the evaluated value, preserving its type.
+     * @param token The JSON object to populate with the evaluated value.
+     * @param context The context to evaluate against.
+     * @param recursionDepth The current recursion depth for nested evaluations.
+     * @return True if the evaluation was successful, false otherwise.
+     */
+    bool evalComponentTypeVariable(Data::JSON& token, ContextScope const& context, std::size_t recursionDepth) const ;
+
+    /**
+     * @brief Handles the evaluation of an eval component.
+     * @param token The string to populate with the evaluated value.
+     */
+    void evalComponentTypeEval(std::string& token) const ;
 };
 
 } // namespace Nebulite::Interaction::Logic
