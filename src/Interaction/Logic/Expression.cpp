@@ -215,8 +215,7 @@ std::string Expression::eval(ContextScope const& context, std::size_t const recu
 }
 
 double Expression::evalAsDouble(ContextScope const& context) const {
-    updateCaches(context);
-    return components[0].evalAsDouble();
+    return components[0].evalAsDouble([&]{updateCaches(context);});
 }
 
 int64_t Expression::evalAsInt(ContextScope const& context) const {
@@ -234,8 +233,7 @@ bool Expression::evalAsBool(ContextScope const& context) const {
 
 Data::JSON Expression::evalAsJson(ContextScope const& context, std::size_t const recursionDepth) const {
     if (components.size() == 1) {
-        updateCaches(context);
-        return components[0].evalAsJson(context, recursionDepth);
+        return components[0].evalAsJson(context, recursionDepth, [&]{updateCaches(context);});
     }
     Data::JSON jsonResult;
     jsonResult.set<std::string>("", eval(context, recursionDepth));

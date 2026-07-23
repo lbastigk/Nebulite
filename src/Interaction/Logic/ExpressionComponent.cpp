@@ -263,12 +263,6 @@ bool ExpressionComponent::isReturnableAsString() const {
 //------------------------------------------
 // Evaluation
 
-// Make sure to update cache before calling this function!
-double ExpressionComponent::evalAsDouble() const {
-    assert(expression != nullptr);
-    return te_eval(expression);
-}
-
 void ExpressionComponent::eval(std::string& result, ContextScope const& context, std::size_t recursionDepth) const {
     switch (type) {
         //------------------------------------------
@@ -289,7 +283,13 @@ void ExpressionComponent::eval(std::string& result, ContextScope const& context,
     }
 }
 
-Data::JSON ExpressionComponent::evalAsJson(ContextScope const& context, std::size_t recursionDepth) const {
+double ExpressionComponent::evalAsDoubleImpl() const {
+    assert(isReturnableAsDouble() || isReturnableAsInt());
+    assert(expression != nullptr);
+    return te_eval(expression);
+}
+
+Data::JSON ExpressionComponent::evalAsJsonImpl(ContextScope const& context, std::size_t recursionDepth) const {
     Data::JSON jsonResult;
     if (type == Type::eval) {
         if (formatter.cast == Formatter::CastType::none) {

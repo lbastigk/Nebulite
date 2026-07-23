@@ -128,13 +128,40 @@ public:
     //------------------------------------------
     // Evaluation
 
-    // TODO: Force cache update by requiring a lambda/std::function to be passed!
-
-    [[nodiscard]] double evalAsDouble() const ;
-
+    /**
+     * @brief Evaluates the component as a string.
+     * @param result The string to store the evaluation result.
+     * @param context The context to evaluate against.
+     * @param recursionDepth The current recursion depth for nested evaluations.
+     */
     void eval(std::string& result, ContextScope const& context, std::size_t recursionDepth) const ;
 
-    [[nodiscard]] Data::JSON evalAsJson(ContextScope const& context, std::size_t recursionDepth) const ;
+    /**
+     * @brief Evaluates the component as a double.
+     * @details Only valid if the component is returnable as double or int!
+     * @tparam F The type of the function object to update caches.
+     * @param cacheUpdater The function object to update caches.
+     * @return The evaluation result as a double.
+     */
+    template<typename F>
+    [[nodiscard]] double evalAsDouble(F cacheUpdater) const {
+        cacheUpdater();
+        return evalAsDoubleImpl();
+    }
+
+    /**
+     * @brief Evaluates the component as a JSON object.
+     * @tparam F The type of the function object to update caches.
+     * @param context The context of the interaction
+     * @param recursionDepth The current recursion depth for nested evaluations.
+     * @param cacheUpdater The function object to update caches.
+     * @return The evaluation result as a JSON object.
+     */
+    template<typename F>
+    [[nodiscard]] Data::JSON evalAsJson(ContextScope const& context, std::size_t recursionDepth, F cacheUpdater) const {
+        cacheUpdater();
+        return evalAsJsonImpl(context, recursionDepth);
+    }
 
 private:
     Type type = Type::text;
@@ -216,6 +243,13 @@ private:
      * @param token The string to populate with the evaluated value.
      */
     void evalComponentTypeEval(std::string& token) const ;
+
+    //------------------------------------------
+    // Evaluation
+
+    [[nodiscard]] double evalAsDoubleImpl() const ;
+
+    [[nodiscard]] Data::JSON evalAsJsonImpl(ContextScope const& context, std::size_t recursionDepth) const ;
 };
 
 } // namespace Nebulite::Interaction::Logic
