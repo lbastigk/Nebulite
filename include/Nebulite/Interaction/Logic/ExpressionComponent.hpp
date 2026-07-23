@@ -86,8 +86,8 @@ public:
     ExpressionComponent& operator=(ExpressionComponent const&) = delete;
 
     // enable moving
-    ExpressionComponent(ExpressionComponent&& other) noexcept ;
-    ExpressionComponent& operator=(ExpressionComponent&& other) noexcept ;
+    ExpressionComponent(ExpressionComponent&& other) = default ;
+    ExpressionComponent& operator=(ExpressionComponent&& other) = default ;
 
     //------------------------------------------
     // Component handling methods

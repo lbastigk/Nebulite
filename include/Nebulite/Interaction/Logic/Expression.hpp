@@ -325,7 +325,7 @@ private:
     /**
      * @brief Holds all parsed components from the expression.
      */
-    std::vector<std::unique_ptr<ExpressionComponent>> components;
+    std::vector<ExpressionComponent> components;
 
     /**
      * @brief Holds the full expression as a string.
@@ -368,7 +368,7 @@ private:
      * @brief Compiles a component, if its of type Expression
      * @param component The component to potentially compile
      */
-    void compileIfExpression(std::unique_ptr<ExpressionComponent> const& component) const;
+    void compileIfExpression(ExpressionComponent& component) const;
 
     /**
      * @brief Parses the given expression into a series of components.
@@ -398,7 +398,7 @@ private:
     /**
      * @brief Prints a compilation error message to cerr, includes tips for fixing the error.
      */
-    void printCompileError(std::unique_ptr<ExpressionComponent> const& component, int error) const ;
+    void printCompileError(ExpressionComponent const& component, int error) const ;
 
     /**
      * @brief Registers a variable with the given name and key in the context of the component.

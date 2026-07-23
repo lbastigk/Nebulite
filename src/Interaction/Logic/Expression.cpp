@@ -157,10 +157,10 @@ Expression::~Expression() {
     te_variables.clear();
 
     // Clear all expressions
-    for (auto const& component : components) {
-        if (component->expression != nullptr) {
-            te_free(component->expression);
-            component->expression = nullptr;
+    for (auto& component : components) {
+        if (component.expression != nullptr) {
+            te_free(component.expression);
+            component.expression = nullptr;
         }
     }
 }
@@ -207,19 +207,19 @@ std::string Expression::eval(ContextScope const& context, std::size_t const recu
                         token.resize(0);
                     },
                     [&](auto& token) {
-                        switch (component->type) {
+                        switch (component.type) {
                         //------------------------------------------
                         case ExpressionComponent::Type::variable:
-                            if (!component->handleComponentTypeVariable(token, context, recursionDepth)) {
+                            if (!component.handleComponentTypeVariable(token, context, recursionDepth)) {
                                 token = "null";
                             }
                             break;
                         //------------------------------------------
                         case ExpressionComponent::Type::eval:
-                            component->handleComponentTypeEval(token);
+                            component.handleComponentTypeEval(token);
                             break;
                         case ExpressionComponent::Type::text:
-                            token = component->stringRepresentation;
+                            token = component.stringRepresentation;
                             break;
                         default:
                             break;
@@ -235,12 +235,12 @@ std::string Expression::eval(ContextScope const& context, std::size_t const recu
 
 double Expression::evalAsDouble(ContextScope const& context) const {
     updateCaches(context);
-    return te_eval(components[0]->expression);
+    return te_eval(components[0].expression);
 }
 
 int64_t Expression::evalAsInt(ContextScope const& context) const {
     updateCaches(context);
-    return static_cast<int64_t>(te_eval(components[0]->expression));
+    return static_cast<int64_t>(te_eval(components[0].expression));
 }
 
 bool Expression::evalAsBool(ContextScope const& context) const {
@@ -253,15 +253,15 @@ bool Expression::evalAsBool(ContextScope const& context) const {
 }
 
 Data::JSON Expression::evalAsJson(ContextScope const& context, std::size_t const recursionDepth) const {
-    if (components.size() == 1 && components[0]->type != ExpressionComponent::Type::text) {
-        if (components[0]->type == ExpressionComponent::Type::eval) {
+    if (components.size() == 1 && components[0].type != ExpressionComponent::Type::text) {
+        if (components[0].type == ExpressionComponent::Type::eval) {
             Data::JSON jsonResult;
             jsonResult.set<double>("", evalAsDouble(context));
             return jsonResult;
         }
-        if (components[0]->type == ExpressionComponent::Type::variable) {
+        if (components[0].type == ExpressionComponent::Type::variable) {
             Data::JSON jsonResult;
-            components[0]->handleComponentTypeVariable(jsonResult, context, recursionDepth);
+            components[0].handleComponentTypeVariable(jsonResult, context, recursionDepth);
             return jsonResult;
         }
     }
@@ -305,21 +305,21 @@ std::string const& Expression::getFullExpression() const noexcept {
 
 bool Expression::recalculateIsReturnableAsDouble() const {
     return components.size() == 1
-           && components[0]->type == ExpressionComponent::Type::eval
-           && components[0]->formatter.cast == Formatter::CastType::none; // no formatter allowed!
+           && components[0].type == ExpressionComponent::Type::eval
+           && components[0].formatter.cast == Formatter::CastType::none; // no formatter allowed!
 }
 
 bool Expression::recalculateIsReturnableAsInt() const {
     return components.size() == 1
-        && components[0]->type == ExpressionComponent::Type::eval
-        && components[0]->formatter.cast == Formatter::CastType::to_int
-        && !components[0]->formatter.alignment
-        && !components[0]->formatter.leadingZero
-        && !components[0]->formatter.precision;
+        && components[0].type == ExpressionComponent::Type::eval
+        && components[0].formatter.cast == Formatter::CastType::to_int
+        && !components[0].formatter.alignment
+        && !components[0].formatter.leadingZero
+        && !components[0].formatter.precision;
 }
 
 bool Expression::recalculateIsReturnableAsString() const {
-    return components.size() != 1 || components[0]->type != ExpressionComponent::Type::variable;
+    return components.size() != 1 || components[0].type != ExpressionComponent::Type::variable;
 }
 
 bool Expression::recalculateIsAlwaysTrue() const {
@@ -495,19 +495,19 @@ void Expression::parse(std::string_view const expr) {
     evaluationInfo.alwaysTrue = recalculateIsAlwaysTrue();
 }
 
-void Expression::compileIfExpression(std::unique_ptr<ExpressionComponent> const& component) const {
-    if (component->type == ExpressionComponent::Type::eval) {
+void Expression::compileIfExpression(ExpressionComponent& component) const {
+    if (component.type == ExpressionComponent::Type::eval) {
         // Compile the expression using TinyExpr
         int error{};
-        component->expression = te_compile(component->stringRepresentation.c_str(), te_variables.data(), static_cast<int>(te_variables.size()), &error);
+        component.expression = te_compile(component.stringRepresentation.c_str(), te_variables.data(), static_cast<int>(te_variables.size()), &error);
         if (error) {
             printCompileError(component, error);
 
             // Resetting expression to nan, as explained in error print:
             // using nan directly is not supported.
             // 0/0 directly yields -nan, so we use abs(0/0)
-            te_free(component->expression);
-            component->expression = te_compile("abs(0/0)", te_variables.data(), static_cast<int>(te_variables.size()), &error);
+            te_free(component.expression);
+            component.expression = te_compile("abs(0/0)", te_variables.data(), static_cast<int>(te_variables.size()), &error);
         }
     }
 }
@@ -546,25 +546,25 @@ void Expression::parseTokenTypeEval(std::string_view const token, std::vector<La
     auto const expression = token.substr(exprStart);
 
     // Write basic component data
-    auto currentComponent = std::make_unique<ExpressionComponent>();
-    currentComponent->formatter = Formatter::readFormatter(formatter);
-    currentComponent->type = ExpressionComponent::Type::eval;
-    currentComponent->contextType = ContextDeriver::TargetType::none; // None, since this is an eval expression
-    currentComponent->key = ""; // No key for eval expressions
+    ExpressionComponent currentComponent;
+    currentComponent.formatter = Formatter::readFormatter(formatter);
+    currentComponent.type = ExpressionComponent::Type::eval;
+    currentComponent.contextType = ContextDeriver::TargetType::none; // None, since this is an eval expression
+    currentComponent.key = ""; // No key for eval expressions
 
     // Register internal variables
     // And build equivalent expression using new variable names
     // New string length is hard to estimate; every shortened variable is  ~1 character in size compared to the arbitrary length of the original variable name.
-    currentComponent->stringRepresentation.reserve(expression.length() / 4);
+    currentComponent.stringRepresentation.reserve(expression.length() / 4);
     for (auto const& subToken : Utility::StringHandler::splitOnSameDepthOf(expression, Utility::StringHandler::Delimiter::brace)) {
         if (subToken.starts_with('{')) {
             auto const te_name = varNameGen.getUniqueName(subToken);
             auto key = ContextDeriver::stripContext(subToken.substr(1, subToken.length() - 2));
             auto const contextType = ContextDeriver::getTypeFromString(subToken.substr(1, subToken.length() - 2));
             registerVariable(te_name, key, contextType, lateRegistrations);
-            currentComponent->stringRepresentation += te_name;
+            currentComponent.stringRepresentation += te_name;
         } else {
-            currentComponent->stringRepresentation += subToken;
+            currentComponent.stringRepresentation += subToken;
         }
     }
 
@@ -573,7 +573,7 @@ void Expression::parseTokenTypeEval(std::string_view const token, std::vector<La
 }
 
 void Expression::parseTokenTypeVariable(std::string_view const token) {
-    auto currentComponent = std::make_unique<ExpressionComponent>();
+    ExpressionComponent currentComponent;
 
     // 1.) remove {}
     // We keep all other potential {} inside the variable name for later MultiResolve
@@ -584,40 +584,40 @@ void Expression::parseTokenTypeVariable(std::string_view const token) {
     if (auto const exclamationMarkPosition = inner.find('!'); exclamationMarkPosition != std::string::npos) {
         if (auto const beforeExclamation = inner.substr(0, exclamationMarkPosition); Utility::StringHandler::isNumber(beforeExclamation)) {
             if (!beforeExclamation.empty()) {
-                currentComponent->evaluationWait = std::stoul(std::string(beforeExclamation));
+                currentComponent.evaluationWait = std::stoul(std::string(beforeExclamation));
             }
             inner = inner.substr(exclamationMarkPosition + 1);
         }
     }
 
     // 3.) determine context
-    currentComponent->type = ExpressionComponent::Type::variable;
-    currentComponent->stringRepresentation = inner;
-    currentComponent->contextType = ContextDeriver::getTypeFromString(inner);
-    currentComponent->key = ContextDeriver::stripContext(inner);
+    currentComponent.type = ExpressionComponent::Type::variable;
+    currentComponent.stringRepresentation = inner;
+    currentComponent.contextType = ContextDeriver::getTypeFromString(inner);
+    currentComponent.key = ContextDeriver::stripContext(inner);
 
     components.push_back(std::move(currentComponent));
 }
 
 void Expression::parseTokenTypeText(std::string_view const token) {
-    auto currentComponent = std::make_unique<ExpressionComponent>();
-    currentComponent->type = ExpressionComponent::Type::text;
-    currentComponent->stringRepresentation = token;
-    currentComponent->contextType = ContextDeriver::TargetType::none;
-    currentComponent->key = ""; // No key for text expressions
+    ExpressionComponent currentComponent;
+    currentComponent.type = ExpressionComponent::Type::text;
+    currentComponent.stringRepresentation = token;
+    currentComponent.contextType = ContextDeriver::TargetType::none;
+    currentComponent.key = ""; // No key for text expressions
     components.push_back(std::move(currentComponent));
 }
 
-void Expression::printCompileError(std::unique_ptr<ExpressionComponent> const& component, int const error) const {
+void Expression::printCompileError(ExpressionComponent const& component, int const error) const {
     std::string offendingChar;
-    if (error <= 0 || static_cast<size_t>(error) > component->stringRepresentation.size()) {
+    if (error <= 0 || static_cast<size_t>(error) > component.stringRepresentation.size()) {
         offendingChar = "N/A (error position out of bounds)";
     } else {
-        offendingChar = std::string(1, component->stringRepresentation[static_cast<size_t>(error) - 1]);
+        offendingChar = std::string(1, component.stringRepresentation[static_cast<size_t>(error) - 1]);
     }
     std::stringstream ss;
     ss << "-----------------------------------------------------------------" << "\n";
-    ss << "Error compiling expression: '" << component->stringRepresentation << "' At position: " << std::to_string(error) << ", offending character: " << offendingChar << "\n";
+    ss << "Error compiling expression: '" << component.stringRepresentation << "' At position: " << std::to_string(error) << ", offending character: " << offendingChar << "\n";
     ss << "You might see this message multiple times due to expression parallelization." << "\n";
     ss << "\n";
     ss << "If you only see the start of your expression, make sure to encompass your expression in quotes" << "\n";

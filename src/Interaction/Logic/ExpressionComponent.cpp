@@ -23,27 +23,6 @@
 //------------------------------------------
 namespace Nebulite::Interaction::Logic {
 
-ExpressionComponent::ExpressionComponent(ExpressionComponent&& other) noexcept :
-    type(other.type), contextType(other.contextType),
-    formatter(other.formatter), stringRepresentation(std::move(other.stringRepresentation)), key(std::move(other.key)),
-    expression(other.expression) {
-    other.expression = nullptr;
-}
-
-ExpressionComponent& ExpressionComponent::operator=(ExpressionComponent&& other) noexcept {
-    if (this != &other) {
-        te_free(expression);
-        type = other.type;
-        contextType = other.contextType;
-        formatter = other.formatter;
-        stringRepresentation = std::move(other.stringRepresentation);
-        key = std::move(other.key);
-        expression = other.expression;
-        other.expression = nullptr;
-    }
-    return *this;
-}
-
 namespace {
 
 template<typename DocumentType, typename KeyType>
