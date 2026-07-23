@@ -5,6 +5,7 @@
 // Includes
 
 // Standard library
+#include <algorithm>
 #include <concepts>
 #include <cstddef>
 #include <functional>
@@ -50,6 +51,7 @@ public:
             if constexpr (std::ranges::sized_range<R>) {
                 result.reserve(std::ranges::size(r));
             }
+
             for (auto&& opt : std::forward<R>(r)) {
                 if (!opt) {
                     return std::optional<std::vector<T>>{std::nullopt};
@@ -82,14 +84,15 @@ public:
                 using T = Optional::value_type;
 
                 std::vector<T> result;
-                if constexpr (std::ranges::sized_range<R>)
+                if constexpr (std::ranges::sized_range<R>) {
                     result.reserve(std::ranges::size(r));
+                }
 
                 for (auto&& elem : std::forward<R>(r)) {
                     auto value = std::invoke(f, elem);
-                    if (!value)
+                    if (!value) {
                         return std::optional<std::vector<T>>{std::nullopt};
-
+                    }
                     result.push_back(std::move(*value));
                 }
 
@@ -215,8 +218,6 @@ public:
         return iota<ReturnType>(0, exclusiveMax);
     }
 
-
-
     /**
      * @brief Checks if all elements in a range are equal and satisfy a given predicate.
      */
@@ -229,27 +230,13 @@ public:
 
             template<std::ranges::input_range R>
             bool operator()(R&& r) const {
-                auto it = std::ranges::begin(r);
-                auto end = std::ranges::end(r);
-                (void)std::forward<R>(r);
-
-                if (it == end)
+                if (std::ranges::empty(r)) {
                     return true;
-
-                auto const& first = *it;
-
-                if (!std::invoke(pred, first))
-                    return false;
-
-                for (++it; it != end; ++it) {
-                    if (!std::invoke(pred, *it))
-                        return false;
-
-                    if (*it != first)
-                        return false;
                 }
-
-                return true;
+                auto const& first = *std::ranges::begin(r);
+                return std::ranges::all_of(std::forward<R>(r), [this, first](auto const& elem) {
+                    return std::invoke(pred, elem) && elem == first;
+                });
             }
         };
 
@@ -267,21 +254,13 @@ public:
     static struct all_equal_fn : std::ranges::range_adaptor_closure<all_equal_fn>{
         template<std::ranges::input_range R>
         bool operator()(R&& r) const {
-            auto it = std::ranges::begin(r);
-            auto end = std::ranges::end(r);
-            (void)std::forward<R>(r);
-
-            if (it == end)
+            if (std::ranges::empty(r)) {
                 return true;
-
-            auto const& first = *it;
-
-            for (++it; it != end; ++it) {
-                if (*it != first)
-                    return false;
             }
-
-            return true;
+            auto const& first = *std::ranges::begin(r);
+            return std::ranges::all_of(std::forward<R>(r), [first](auto const& elem) {
+                return elem == first;
+            });
         }
     } constexpr all_equal{};
 };
