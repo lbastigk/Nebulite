@@ -13,6 +13,7 @@
 #include <string>
 #include <string_view>
 #include <utility>
+#include <vector>
 
 // External
 #include <tinyexpr.h>
@@ -36,48 +37,10 @@ namespace Nebulite::Interaction::Logic {
  * @brief Represents a single component in an expression, such as a variable, evaluation, or text.
  * @details Holds information about a specific part of the expression,
  *          including its type, source, and any associated metadata.
+ * @todo Since the entire parsing and evaluation is internal, we could wrap this in a variant to reduce memory usage
  */
 class ExpressionComponent {
 public:
-    /**
-     * @enum Nebulite::Interaction::Logic::ExpressionComponent::Type
-     * @brief Each component can be of type variable, eval or text that differ in how they are evaluated.
-     */
-    enum class Type : std::uint8_t {
-        variable, // outside $<cast>(...), Starts with self, other, global or a dot for link, represents a variable reference, outside an evaluatable context
-        eval, // inside a $<cast>(...), represents an evaluatable expression
-        text // outside a $<cast>(...), not a variable reference, Represents a plain text string
-    } type = Type::text;
-
-    ContextDeriver::TargetType contextType = ContextDeriver::TargetType::none; // Default to none
-
-    Formatter formatter; // Formatting options for this component, if applicable
-
-    /**
-     * @brief Holds the string representation of the component.
-     *        Depending on context Either:
-     *        - The Expression to evaluate, with formatting specifiers removed
-     *        - The pure text
-     *        - The variable key, with no context stripped
-     */
-    std::string stringRepresentation;
-
-    /**
-     * @brief Holds the context-stripped key of the component, if it's of type variable.
-     */
-    std::string key;
-
-    /**
-     * @brief The evaluation wait count. Used to delay the evaluation of a component.
-     * @details For each evaluation, the count is reduced by 1. Only for component type Variable!
-     */
-    std::size_t evaluationWait = 0;
-
-    /**
-     * @brief Pointer to the tinyexpr representation of the expression.
-     */
-    te_expr* expression = nullptr;
-
     /**
      * @brief Destructor to clean up allocated resources.
      */
@@ -92,6 +55,26 @@ public:
     // enable moving
     ExpressionComponent(ExpressionComponent&& other) = default ;
     ExpressionComponent& operator=(ExpressionComponent&& other) = default ;
+
+    void reset() {
+        if (expression != nullptr) {
+            te_free(expression);
+            expression = nullptr;
+        }
+    }
+
+    //------------------------------------------
+    // Type
+
+    /**
+     * @enum Nebulite::Interaction::Logic::ExpressionComponent::Type
+     * @brief Each component can be of type variable, eval or text that differ in how they are evaluated.
+     */
+    enum class Type : std::uint8_t {
+        variable, // outside $<cast>(...), Starts with self, other, global or a dot for link, represents a variable reference, outside an evaluatable context
+        eval, // inside a $<cast>(...), represents an evaluatable expression
+        text // outside a $<cast>(...), not a variable reference, Represents a plain text string
+    };
 
     //------------------------------------------
     // Component generation methods
@@ -120,13 +103,72 @@ public:
     static ExpressionComponent parseVariable(std::string_view token);
 
     //------------------------------------------
+    // Compile
+
+    /**
+     * @brief Compiles a component, if its of type Expression
+     * @param te_variables The vector of TinyExpr variables
+     */
+    int compile(std::vector<te_variable> const& te_variables);
+
+    //------------------------------------------
+    // Getter
+
+    [[nodiscard]]  std::string const& getStringRepresentation() const ;
+
+    //------------------------------------------
+    // Returnability
+
+    [[nodiscard]] bool isReturnableAsDouble() const ;
+
+    [[nodiscard]] bool isReturnableAsInt() const ;
+
+    [[nodiscard]] bool isReturnableAsString() const ;
+
+    //------------------------------------------
     // Evaluation
+
+    // TODO: Force cache update by requiring a lambda/std::function to be passed!
+
+    [[nodiscard]] double evalAsDouble() const ;
 
     void eval(std::string& result, ContextScope const& context, std::size_t recursionDepth) const ;
 
     [[nodiscard]] Data::JSON evalAsJson(ContextScope const& context, std::size_t recursionDepth) const ;
 
 private:
+    Type type = Type::text;
+
+    ContextDeriver::TargetType contextType = ContextDeriver::TargetType::none; // Default to none
+
+    // Formatting options for this component, if applicable
+    Formatter formatter;
+
+    /**
+     * @brief Holds the string representation of the component.
+     *        Depending on context Either:
+     *        - The Expression to evaluate, with formatting specifiers removed
+     *        - The pure text
+     *        - The variable key, with no context stripped
+     */
+    std::string stringRepresentation;
+
+    /**
+     * @brief Holds the context-stripped key of the component, if it's of type variable.
+     */
+    std::string key;
+
+    /**
+     * @brief The evaluation wait count. Used to delay the evaluation of a component.
+     * @details For each evaluation, the count is reduced by 1. Only for component type Variable!
+     */
+    std::size_t evaluationWait = 0;
+
+    /**
+     * @brief Pointer to the tinyexpr representation of the expression.
+     */
+    te_expr* expression = nullptr;
+
     /**
      * @brief Default constructor for Component.
      */

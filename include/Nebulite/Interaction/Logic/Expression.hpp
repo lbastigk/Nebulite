@@ -365,12 +365,6 @@ private:
     void parse(std::string_view expr);
 
     /**
-     * @brief Compiles a component, if its of type Expression
-     * @param component The component to potentially compile
-     */
-    void compileIfExpression(ExpressionComponent& component) const;
-
-    /**
      * @brief Parses the given expression into a series of components.
      */
     void parseIntoComponents();

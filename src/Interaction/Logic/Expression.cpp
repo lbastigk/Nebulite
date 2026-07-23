@@ -158,10 +158,7 @@ Expression::~Expression() {
 
     // Clear all expressions
     for (auto& component : components) {
-        if (component.expression != nullptr) {
-            te_free(component.expression);
-            component.expression = nullptr;
-        }
+        component.reset();
     }
 }
 
@@ -219,12 +216,11 @@ std::string Expression::eval(ContextScope const& context, std::size_t const recu
 
 double Expression::evalAsDouble(ContextScope const& context) const {
     updateCaches(context);
-    return te_eval(components[0].expression);
+    return components[0].evalAsDouble();
 }
 
 int64_t Expression::evalAsInt(ContextScope const& context) const {
-    updateCaches(context);
-    return static_cast<int64_t>(te_eval(components[0].expression));
+    return static_cast<int64_t>(evalAsDouble(context));
 }
 
 bool Expression::evalAsBool(ContextScope const& context) const {
@@ -280,22 +276,15 @@ std::string const& Expression::getFullExpression() const noexcept {
 // Evaluation info
 
 bool Expression::recalculateIsReturnableAsDouble() const {
-    return components.size() == 1
-           && components[0].type == ExpressionComponent::Type::eval
-           && components[0].formatter.cast == Formatter::CastType::none; // no formatter allowed!
+    return components.size() == 1 && components[0].isReturnableAsDouble();
 }
 
 bool Expression::recalculateIsReturnableAsInt() const {
-    return components.size() == 1
-        && components[0].type == ExpressionComponent::Type::eval
-        && components[0].formatter.cast == Formatter::CastType::to_int
-        && !components[0].formatter.alignment
-        && !components[0].formatter.leadingZero
-        && !components[0].formatter.precision;
+    return components.size() == 1 && components[0].isReturnableAsInt();
 }
 
 bool Expression::recalculateIsReturnableAsString() const {
-    return components.size() != 1 || components[0].type != ExpressionComponent::Type::variable;
+    return components.size() != 1 || components[0].isReturnableAsString();
 }
 
 bool Expression::recalculateIsAlwaysTrue() const {
@@ -463,29 +452,12 @@ void Expression::parse(std::string_view const expr) {
     fullExpression = expr;
     parseIntoComponents();
     for (auto& component : components) {
-        compileIfExpression(component);
+        component.compile(te_variables);
     }
     evaluationInfo.returnableAsDouble = recalculateIsReturnableAsDouble();
     evaluationInfo.returnableAsInt = recalculateIsReturnableAsInt();
     evaluationInfo.returnableAsString = recalculateIsReturnableAsString();
     evaluationInfo.alwaysTrue = recalculateIsAlwaysTrue();
-}
-
-void Expression::compileIfExpression(ExpressionComponent& component) const {
-    if (component.type == ExpressionComponent::Type::eval) {
-        // Compile the expression using TinyExpr
-        int error{};
-        component.expression = te_compile(component.stringRepresentation.c_str(), te_variables.data(), static_cast<int>(te_variables.size()), &error);
-        if (error) {
-            printCompileError(component, error);
-
-            // Resetting expression to nan, as explained in error print:
-            // using nan directly is not supported.
-            // 0/0 directly yields -nan, so we use abs(0/0)
-            te_free(component.expression);
-            component.expression = te_compile("abs(0/0)", te_variables.data(), static_cast<int>(te_variables.size()), &error);
-        }
-    }
 }
 
 void Expression::parseIntoComponents() {
@@ -524,14 +496,14 @@ void Expression::parseIntoComponents() {
 
 void Expression::printCompileError(ExpressionComponent const& component, int const error) const {
     std::string offendingChar;
-    if (error <= 0 || static_cast<size_t>(error) > component.stringRepresentation.size()) {
+    if (error <= 0 || static_cast<size_t>(error) > component.getStringRepresentation().size()) {
         offendingChar = "N/A (error position out of bounds)";
     } else {
-        offendingChar = std::string(1, component.stringRepresentation[static_cast<size_t>(error) - 1]);
+        offendingChar = std::string(1, component.getStringRepresentation()[static_cast<size_t>(error) - 1]);
     }
     std::stringstream ss;
     ss << "-----------------------------------------------------------------" << "\n";
-    ss << "Error compiling expression: '" << component.stringRepresentation << "' At position: " << std::to_string(error) << ", offending character: " << offendingChar << "\n";
+    ss << "Error compiling expression: '" << component.getStringRepresentation() << "' At position: " << std::to_string(error) << ", offending character: " << offendingChar << "\n";
     ss << "You might see this message multiple times due to expression parallelization." << "\n";
     ss << "\n";
     ss << "If you only see the start of your expression, make sure to encompass your expression in quotes" << "\n";

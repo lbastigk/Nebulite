@@ -2,6 +2,7 @@
 // Includes
 
 // Standard library
+#include <cassert>
 #include <cstddef>
 #include <expected>
 #include <functional>
@@ -9,6 +10,7 @@
 #include <string>
 #include <string_view>
 #include <utility>
+#include <vector>
 
 // External
 #include <tinyexpr.h>
@@ -28,6 +30,8 @@
 namespace Nebulite::Interaction::Logic {
 
 ExpressionComponent ExpressionComponent::parseEval(std::string_view token, VariableNameGenerator& varNameGen, std::function<void(std::string_view, std::string_view, ContextDeriver::TargetType)> const& registerVariableCallback) {
+    assert(token.starts_with('$') && "ExpressionComponent::parseEval expects a token starting with '$'");
+
     // Extract formatter and expression
     std::size_t const exprStart = token.find('('); // Opening parenthesis of the expression
     auto const formatter = token.substr(1, exprStart - 1); // Remove leading $
@@ -59,6 +63,9 @@ ExpressionComponent ExpressionComponent::parseEval(std::string_view token, Varia
 }
 
 ExpressionComponent ExpressionComponent::parseVariable(std::string_view token){
+    assert(token.starts_with('{') && "ExpressionComponent::parseVariable expects a token starting with '{'");
+    assert(token.ends_with('}') && "ExpressionComponent::parseVariable expects a token ending with '}'");
+
     ExpressionComponent currentComponent;
 
     // 1.) remove {}
@@ -207,6 +214,60 @@ void setToken(Data::JSON& token, std::string const& evaluatedKey, ContextScope c
 }
 
 } // namespace
+
+//------------------------------------------
+// Compile
+
+/**
+ * @brief Compiles a component, if its of type Expression
+ * @param te_variables The vector of TinyExpr variables
+ */
+int ExpressionComponent::compile(std::vector<te_variable> const& te_variables) {
+    int error{};
+    if (type == Type::eval) {
+        expression = te_compile(stringRepresentation.c_str(), te_variables.data(), static_cast<int>(te_variables.size()), &error);
+        if (error) {
+            te_free(expression);
+            expression = te_compile("abs(0/0)", te_variables.data(), static_cast<int>(te_variables.size()), &error);
+        }
+    }
+    return error;
+}
+
+//------------------------------------------
+// Getter
+
+std::string const& ExpressionComponent::getStringRepresentation() const {
+    return stringRepresentation;
+}
+
+//------------------------------------------
+// Returnability
+
+bool ExpressionComponent::isReturnableAsDouble() const {
+    return type == Type::eval && formatter.cast == Formatter::CastType::none;
+}
+
+bool ExpressionComponent::isReturnableAsInt() const {
+    return type == Type::eval
+        && formatter.cast == Formatter::CastType::to_int
+        && !formatter.alignment
+        && !formatter.leadingZero
+        && !formatter.precision;
+}
+
+bool ExpressionComponent::isReturnableAsString() const {
+    return type != Type::variable; // Returning variables as string loses information
+}
+
+//------------------------------------------
+// Evaluation
+
+// Make sure to update cache before calling this function!
+double ExpressionComponent::evalAsDouble() const {
+    assert(expression != nullptr);
+    return te_eval(expression);
+}
 
 void ExpressionComponent::eval(std::string& result, ContextScope const& context, std::size_t recursionDepth) const {
     switch (type) {
