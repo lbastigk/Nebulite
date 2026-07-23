@@ -55,8 +55,10 @@ struct FunctionIdentity {
 
         // Ensure the function fits in storage
         static_assert(sizeof(function) >= sizeof(fn),
-            "Function too large to store in FunctionIdentity buffer. Please increase buffer size in FunctionIdentity::function."
+            "Function too large to store in FunctionIdentity buffer. Please increase buffer size FunctionIdentity::functionPtrSize."
         );
+
+        // Copy
         std::memcpy(function.data(), &fn, sizeof(fn));
     }
 
@@ -74,11 +76,13 @@ struct FunctionIdentity {
 
         // Ensure the function fits in storage
         static_assert(sizeof(function) >= sizeof(memFn),
-            "Function too large to store in FunctionIdentity buffer. Please increase buffer size in FunctionIdentity::function."
+            "Function too large to store in FunctionIdentity buffer. Please increase buffer size FunctionIdentity::functionPtrSize."
         );
+
+        // Copy
         std::memcpy(function.data(), &memFn, sizeof(memFn));
     }
 };
 
 } // namespace Nebulite::Utility
-#endif
+#endif // NEBULITE_UTILITY_FUNCTIONIDENTITY_HPP
