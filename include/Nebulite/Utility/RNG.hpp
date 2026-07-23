@@ -21,14 +21,14 @@ public:
     /**
      * @brief Retrieves the current RNG value.
      */
-    rngSize_t get(){
+    rngSize_t get() noexcept {
         return current;
     }
 
     /**
      * @brief Retrieves the last RNG value.
      */
-    void update(std::string const& seed){
+    void update(std::string const& seed) noexcept {
         last = current;
         current = static_cast<rngSize_t>(rng_hasher(seed));
     }
@@ -36,7 +36,7 @@ public:
     /**
      * @brief Rolls back to the last RNG value. 
      */
-    void rollback(){
+    void rollback() noexcept {
         current = last;
     }
 
