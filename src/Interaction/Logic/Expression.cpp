@@ -381,7 +381,7 @@ void Expression::LinkedNumericValueLists::registerLnv(ContextDeriver::TargetType
     }
 }
 
-void Expression::addTeVariable(ContextDeriver::TargetType const contextType, std::string const& k, ShortName const& teName, double& v) {
+void Expression::addTeVariable(ContextDeriver::TargetType const contextType, std::string_view const k, ShortName const& teName, double& v) {
     // Register cache based on context
     linkedNumericValues.registerLnv(contextType, k, v);
 
@@ -640,7 +640,7 @@ void Expression::printCompileError(std::unique_ptr<ExpressionComponent> const& c
     Global::capture().error.println(ss.str());
 }
 
-void Expression::registerVariable(std::string te_name, std::string_view const key, ContextDeriver::TargetType const contextType, std::vector<LateRegistration>& lateRegistrations) {
+void Expression::registerVariable(std::string_view const te_name, std::string_view const key, ContextDeriver::TargetType const contextType, std::vector<LateRegistration>& lateRegistrations) {
     // Check if variable exists in variables vector:
     bool const found = std::ranges::any_of(te_variables, [&](auto const& te_var) {
         return te_var.name == te_name;
