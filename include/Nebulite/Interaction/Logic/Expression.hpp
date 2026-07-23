@@ -125,13 +125,17 @@ public:
 
     [[nodiscard]] std::string eval(ContextScope const& context, std::size_t recursionDepth = standardRecursionDepth) const ;
 
+    // Typesafe eval
+    [[nodiscard]] Data::JSON evalAsJson(ContextScope const& context, std::size_t recursionDepth = standardRecursionDepth) const ;
+
+    // Requires check for returnability before calling!
     [[nodiscard]] double evalAsDouble(ContextScope const& context) const ;
 
+    // Requires check for returnability before calling!
     [[nodiscard]] std::int64_t evalAsInt(ContextScope const& context) const ;
 
+    // Requires check for returnability before calling!
     [[nodiscard]] bool evalAsBool(ContextScope const& context) const ;
-
-    [[nodiscard]] Data::JSON evalAsJson(ContextScope const& context, std::size_t recursionDepth = standardRecursionDepth) const ;
 
     //------------------------------------------
     // Static functions for one-time evaluation

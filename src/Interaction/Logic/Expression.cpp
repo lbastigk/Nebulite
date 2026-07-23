@@ -8,6 +8,7 @@
 #include <cstddef>
 #include <cstdint> // NOLINT
 #include <iterator>
+#include <limits>
 #include <memory>
 #include <ranges>
 #include <sstream>
@@ -163,16 +164,17 @@ Expression::~Expression() {
 }
 
 Expression::Expression(std::string_view const expr){
-    evaluationInfo = {
-        .returnableAsDouble = false,
-        .returnableAsString = false,
-        .alwaysTrue = false
-    };
     reset();
     parse(expr);
     cacheId.self = Data::MappedOrderedCacheList::generateUniqueId(std::string("self:") + std::string(expr));
     cacheId.other = Data::MappedOrderedCacheList::generateUniqueId(std::string("other:") + std::string(expr));
     cacheId.global = Data::MappedOrderedCacheList::generateUniqueId(std::string("global:") + std::string(expr));
+    evaluationInfo = {
+        .returnableAsDouble = recalculateIsReturnableAsDouble(),
+        .returnableAsInt = recalculateIsReturnableAsInt(),
+        .returnableAsString = recalculateIsReturnableAsString(),
+        .alwaysTrue = false
+    };
 }
 
 //------------------------------------------
@@ -214,12 +216,29 @@ std::string Expression::eval(ContextScope const& context, std::size_t const recu
     );
 }
 
+Data::JSON Expression::evalAsJson(ContextScope const& context, std::size_t const recursionDepth) const {
+    if (components.size() == 1) {
+        return components[0].evalAsJson(context, recursionDepth, [&]{updateCaches(context);});
+    }
+    Data::JSON jsonResult;
+    jsonResult.set<std::string>("", eval(context, recursionDepth));
+    return jsonResult;
+}
+
 double Expression::evalAsDouble(ContextScope const& context) const {
+    if (!evaluationInfo.returnableAsDouble) {
+        Global::capture().error.println(__FUNCTION__, ": Expression is not returnable as double! Returning NaN.");
+        return std::numeric_limits<double>::quiet_NaN();
+    }
     return components[0].evalAsDouble([&]{updateCaches(context);});
 }
 
 int64_t Expression::evalAsInt(ContextScope const& context) const {
-    return static_cast<int64_t>(evalAsDouble(context));
+    if (!evaluationInfo.returnableAsInt) {
+        Global::capture().error.println(__FUNCTION__, ": Expression is not returnable as int! Returning 0.");
+        return 0;
+    }
+    return static_cast<int64_t>(components[0].evalAsDouble([&]{updateCaches(context);}));
 }
 
 bool Expression::evalAsBool(ContextScope const& context) const {
@@ -229,15 +248,6 @@ bool Expression::evalAsBool(ContextScope const& context) const {
         return false;
     }
     return !Math::isZero(result);
-}
-
-Data::JSON Expression::evalAsJson(ContextScope const& context, std::size_t const recursionDepth) const {
-    if (components.size() == 1) {
-        return components[0].evalAsJson(context, recursionDepth, [&]{updateCaches(context);});
-    }
-    Data::JSON jsonResult;
-    jsonResult.set<std::string>("", eval(context, recursionDepth));
-    return jsonResult;
 }
 
 //------------------------------------------
