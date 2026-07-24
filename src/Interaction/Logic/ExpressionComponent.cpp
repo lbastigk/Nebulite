@@ -244,11 +244,11 @@ std::string const& ExpressionComponent::getStringRepresentation() const {
 //------------------------------------------
 // Returnability
 
-bool ExpressionComponent::isReturnableAsDouble() const {
+bool ExpressionComponent::isSimpleExpression() const noexcept {
     return type == Type::eval && formatter.cast == Formatter::CastType::none;
 }
 
-bool ExpressionComponent::isReturnableAsInt() const {
+bool ExpressionComponent::isSimpleExpressionWithIntCast() const noexcept {
     return type == Type::eval
         && formatter.cast == Formatter::CastType::to_int
         && !formatter.alignment
@@ -256,7 +256,7 @@ bool ExpressionComponent::isReturnableAsInt() const {
         && !formatter.precision;
 }
 
-bool ExpressionComponent::isReturnableAsString() const {
+bool ExpressionComponent::isReturnableAsString() const noexcept {
     return type != Type::variable; // Returning variables as string loses information
 }
 
@@ -284,7 +284,7 @@ void ExpressionComponent::eval(std::string& result, ContextScope const& context,
 }
 
 double ExpressionComponent::evalAsDoubleImpl() const {
-    assert(isReturnableAsDouble() || isReturnableAsInt());
+    assert(isSimpleExpression() || isSimpleExpressionWithIntCast());
     assert(expression != nullptr);
     return te_eval(expression);
 }

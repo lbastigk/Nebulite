@@ -128,13 +128,19 @@ Constants::Event General::func_if(std::span<std::string_view const> const& args,
     std::string const condition = Utility::StringHandler::recombineArgs(args.subspan(1, conditionEnd));
     std::string commands = Utility::StringHandler::recombineArgs(args.subspan(commandStart));
 
-    // condition must start with $( and end with )
-    if (condition.front() != '$' || condition[1] != '(' || condition.back() != ')') {
+    // condition must start with $( and end with ): Simple expressions are boolean-convertible
+    if (!condition.starts_with("$(") || !condition.ends_with(")")) {
         return Constants::StandardCapture::Warning::Functional::unknownArg(ctx.self.capture);
     }
 
     // Conditional check
-    if (Interaction::Logic::Expression::evalAsBool(condition, ctxScope)) {
+    // We ensured that the condition is wrapped in $() above, but there could still be parsing errors (missing parenthesis etc.)
+    Interaction::Logic::Expression const expr(condition);
+    if (!expr.getEvaluationInfo().simpleExpression) {
+        ctx.self.capture.error.println("Critical Error: A custom if-condition failed.\nCondition failed: " + condition + " is not a boolean expression.");
+        return Constants::Event::Warning;
+    }
+    if (expr.evalAsBool(ctxScope)) {
         commands = __FUNCTION__ + std::string(" ") + commands;
         return ctx.self.parseStr(commands, ctx, ctxScope);
     }
@@ -147,13 +153,19 @@ Constants::Event General::func_assert(std::span<std::string_view const> const& a
     }
     std::string const& condition = Utility::StringHandler::recombineArgs(args.subspan(1));
 
-    // condition must start with $( and end with )
+    // condition must start with $( and end with ): Simple expressions are boolean-convertible
     if (condition.front() != '$' || condition[1] != '(' || condition.back() != ')') {
         return Constants::StandardCapture::Warning::Functional::unknownArg(ctx.self.capture);
     }
 
-    // Evaluate condition
-    if (!Interaction::Logic::Expression::evalAsBool(condition, ctxScope)) {
+    // Conditional check
+    // We ensured that the condition is wrapped in $() above, but there could still be parsing errors (missing parenthesis etc.)
+    Interaction::Logic::Expression const expr(condition);
+    if (!expr.getEvaluationInfo().simpleExpression) {
+        ctx.self.capture.error.println("Critical Error: A custom assertion failed.\nAssertion failed: " + condition + " is not a boolean expression.");
+        return Constants::Event::Error;
+    }
+    if (!expr.evalAsBool(ctxScope)) {
         ctx.self.capture.error.println("Critical Error: A custom assertion failed.\nAssertion failed: " + condition + " is not true.");
         return Constants::Event::Error;
     }

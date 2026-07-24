@@ -83,7 +83,7 @@ void sendTask(Execution::Domain& domain, std::string const& task) {
 
 bool JsonRuleset::evaluateConditionGlobally(Execution::Domain& other, Execution::Domain& global) {
     // Check if logical arg is as simple as just "1", meaning true
-    if (logicalArg->isAlwaysTrue()) {
+    if (logicalArg->getEvaluationInfo().alwaysTrue) {
         return true;
     }
 

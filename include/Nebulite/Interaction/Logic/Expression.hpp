@@ -79,46 +79,38 @@ public:
     // Evaluation info
 
     /**
-     * @brief Checks if the expression can be returned as a double without losing information.
-     * @details e.g.:
-     *          "1 + 1"   is not returnable as double, as its just text
-     *          "$(1+1)"  is returnable as double, as it evaluates to 2
-     *          "$i(1+1)" is not returnable as double, due to the casting
-     *          An expression needs to consist of a single eval component
-     *          with no cast and no formatting to be returnable as double.
-     * @return True if the expression can be returned as a double, false otherwise.
+     * @brief Info about the expressions evaluation-ability
+     * @details Some expressions are not always castable to types like numeric values or strings
+     *          without the loss of information
      */
-    [[nodiscard]] bool isReturnableAsDouble() const noexcept {
-        return evaluationInfo.returnableAsDouble;
-    }
+    struct EvaluationInfo {
+        /**
+         * @brief Only true if the expression consists of a single component of type eval
+         * @details No formatting is allowed, just $(...)
+         */
+        bool simpleExpression = false;
 
-    /**
-     * @brief Checks if the expression can be returned as into without losing information.
-     * @details An expression needs to consist of a single eval component
-     *          with cast to int and no formatting to be returnable as int.
-     * @return True if the expression can be returned as int, false otherwise
-     */
-    [[nodiscard]] bool isReturnableAsInt() const noexcept {
-        return evaluationInfo.returnableAsInt;
-    }
+        /**
+         * @brief Only true if the expression consists of a single component of type eval with cast to int
+         * @details No leading zeros or other formatting is allowed, just $i(...)
+         */
+        bool simpleExpressionWithIntCast = false;
 
-    /**
-     * @brief Checks if the expression can be returned as a string.
-     * @details This is almost always the case. The only exception is an expression with only one variable,
-     *          e.g. "{global:var}" or "{self:arr}"
-     * @return True if the expression can be returned as string, false otherwise.
-     */
-    [[nodiscard]] bool isReturnableAsString() const noexcept {
-        return evaluationInfo.returnableAsString;
-    }
+        /**
+         * @brief Only false if the expression consists of a single component of type variable
+         * @details This is because retrieving values without any additional text etc. has no implicit cast to string
+         *          A single value could hold more complex types: "{global:someObject}",
+         *          whereas "My value is: {global:value}" has an implicit cast to a string,
+         *          as it is part of a larger string
+         */
+        bool returnableAsString = false;
 
-    /**
-     * @brief Checks if the expression is always true (i.e., "1").
-     * @return True if the expression is always true, false otherwise.
-     */
-    [[nodiscard]] bool isAlwaysTrue() const noexcept {
-        return evaluationInfo.alwaysTrue;
-    }
+        /**
+         * @brief True if the expression is a simple non-zero numeric eval to evaluate
+         * @details E.g.: $(1)
+         */
+        bool alwaysTrue = false;
+    };
 
     //------------------------------------------
     // Actual evaluation functions
@@ -127,6 +119,8 @@ public:
 
     // Typesafe eval
     [[nodiscard]] Data::JSON evalAsJson(ContextScope const& context, std::size_t recursionDepth = standardRecursionDepth) const ;
+
+    // Unsafe evaluations:
 
     // Requires check for returnability before calling!
     [[nodiscard]] double evalAsDouble(ContextScope const& context) const ;
@@ -142,10 +136,6 @@ public:
 
     static std::string eval(std::string_view input, ContextScope const& context);
 
-    static double evalAsDouble(std::string_view input, ContextScope const& context);
-
-    static bool evalAsBool(std::string_view input, ContextScope const& context);
-
     static Data::JSON evalAsJson(std::string_view input, ContextScope const& context);
 
     //------------------------------------------
@@ -157,6 +147,10 @@ public:
      */
     [[nodiscard]] std::string const& getFullExpression() const noexcept ;
 
+    EvaluationInfo const& getEvaluationInfo() const noexcept {
+        return evaluationInfo;
+    }
+
 private:
     /**
      * @brief The maximum recursion depth without temporary string allocation
@@ -167,43 +161,11 @@ private:
     //------------------------------------------
     // Evaluation info
 
-    [[nodiscard]] bool recalculateIsReturnableAsDouble() const;
+    void recalculateEvaluationInfo() noexcept ;
 
-    [[nodiscard]] bool recalculateIsReturnableAsInt() const;
+    [[nodiscard]] bool calculateIsAlwaysTrue() const ;
 
-    [[nodiscard]] bool recalculateIsReturnableAsString() const;
-
-    [[nodiscard]] bool recalculateIsAlwaysTrue() const;
-
-    /**
-     * @brief Info about the expressions evaluation-ability
-     * @details Some expressions are not always castable to types like numeric values or strings
-     *          without the loss of information
-     */
-    struct EvaluationInfo {
-        /**
-         * @brief Only true if the expression consists of a single component of type eval
-         */
-        bool returnableAsDouble = false;
-
-        /**
-         * @brief Only true if the expression consists of a single component of type eval with cast to int
-         */
-        bool returnableAsInt = false;
-
-        /**
-         * @brief Only false if the expression consists of a single component of type variable
-         * @details This is because retrieving values without any additional text etc. has no implicit cast to string
-         *          A single value could hold more complex types: "{global:someObject}",
-         *          whereas "My value is: {global:value}" has an implicit cast to a string.
-         */
-        bool returnableAsString = false;
-
-        /**
-         * @brief True if the expression is a simple non-zero numeric value to evaluate
-         */
-        bool alwaysTrue = false;
-    } evaluationInfo;
+    EvaluationInfo evaluationInfo;
 
     //------------------------------------------
     // Caching

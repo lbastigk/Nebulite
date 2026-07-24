@@ -119,11 +119,11 @@ public:
     //------------------------------------------
     // Returnability
 
-    [[nodiscard]] bool isReturnableAsDouble() const ;
+    [[nodiscard]] bool isSimpleExpression() const noexcept ;
 
-    [[nodiscard]] bool isReturnableAsInt() const ;
+    [[nodiscard]] bool isSimpleExpressionWithIntCast() const noexcept ;
 
-    [[nodiscard]] bool isReturnableAsString() const ;
+    [[nodiscard]] bool isReturnableAsString() const noexcept;
 
     //------------------------------------------
     // Evaluation

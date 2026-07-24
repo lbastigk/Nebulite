@@ -169,12 +169,6 @@ Expression::Expression(std::string_view const expr){
     cacheId.self = Data::MappedOrderedCacheList::generateUniqueId(std::string("self:") + std::string(expr));
     cacheId.other = Data::MappedOrderedCacheList::generateUniqueId(std::string("other:") + std::string(expr));
     cacheId.global = Data::MappedOrderedCacheList::generateUniqueId(std::string("global:") + std::string(expr));
-    evaluationInfo = {
-        .returnableAsDouble = recalculateIsReturnableAsDouble(),
-        .returnableAsInt = recalculateIsReturnableAsInt(),
-        .returnableAsString = recalculateIsReturnableAsString(),
-        .alwaysTrue = false
-    };
 }
 
 //------------------------------------------
@@ -226,7 +220,7 @@ Data::JSON Expression::evalAsJson(ContextScope const& context, std::size_t const
 }
 
 double Expression::evalAsDouble(ContextScope const& context) const {
-    if (!evaluationInfo.returnableAsDouble) {
+    if (!evaluationInfo.simpleExpression) {
         Global::capture().error.println(__FUNCTION__, ": Expression is not returnable as double! Returning NaN.");
         return std::numeric_limits<double>::quiet_NaN();
     }
@@ -234,7 +228,7 @@ double Expression::evalAsDouble(ContextScope const& context) const {
 }
 
 int64_t Expression::evalAsInt(ContextScope const& context) const {
-    if (!evaluationInfo.returnableAsInt) {
+    if (!evaluationInfo.simpleExpressionWithIntCast) {
         Global::capture().error.println(__FUNCTION__, ": Expression is not returnable as int! Returning 0.");
         return 0;
     }
@@ -258,16 +252,6 @@ std::string Expression::eval(std::string_view const input, ContextScope const& c
     return expr.eval(context);
 }
 
-double Expression::evalAsDouble(std::string_view const input, ContextScope const& context) {
-    Expression const expr(input);
-    return expr.evalAsDouble(context);
-}
-
-bool Expression::evalAsBool(std::string_view const input, ContextScope const& context) {
-    Expression const expr(input);
-    return expr.evalAsBool(context);
-}
-
 Data::JSON Expression::evalAsJson(std::string_view const input, ContextScope const& context) {
     Expression const expr(input);
     return expr.evalAsJson(context);
@@ -283,19 +267,16 @@ std::string const& Expression::getFullExpression() const noexcept {
 //------------------------------------------
 // Evaluation info
 
-bool Expression::recalculateIsReturnableAsDouble() const {
-    return components.size() == 1 && components[0].isReturnableAsDouble();
+void Expression::recalculateEvaluationInfo() noexcept {
+    evaluationInfo = {
+        .simpleExpression = components.size() == 1 && components[0].isSimpleExpression(),
+        .simpleExpressionWithIntCast = components.size() == 1 && components[0].isSimpleExpressionWithIntCast(),
+        .returnableAsString = components.size() != 1 || components[0].isReturnableAsString(),
+        .alwaysTrue = calculateIsAlwaysTrue()
+    };
 }
 
-bool Expression::recalculateIsReturnableAsInt() const {
-    return components.size() == 1 && components[0].isReturnableAsInt();
-}
-
-bool Expression::recalculateIsReturnableAsString() const {
-    return components.size() != 1 || components[0].isReturnableAsString();
-}
-
-bool Expression::recalculateIsAlwaysTrue() const {
+bool Expression::calculateIsAlwaysTrue() const {
     if (fullExpression.starts_with("$(") && fullExpression.ends_with(")")){
         std::string const innerExpression = fullExpression.substr(2, fullExpression.size() - 3);
         return Utility::StringHandler::isNumber(innerExpression) && !Math::isEqual(0.0,std::stod(innerExpression));
@@ -462,10 +443,7 @@ void Expression::parse(std::string_view const expr) {
     for (auto& component : components) {
         component.compile(te_variables);
     }
-    evaluationInfo.returnableAsDouble = recalculateIsReturnableAsDouble();
-    evaluationInfo.returnableAsInt = recalculateIsReturnableAsInt();
-    evaluationInfo.returnableAsString = recalculateIsReturnableAsString();
-    evaluationInfo.alwaysTrue = recalculateIsAlwaysTrue();
+    recalculateEvaluationInfo();
 }
 
 void Expression::parseIntoComponents() {
