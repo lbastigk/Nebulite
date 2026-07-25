@@ -201,18 +201,19 @@ public:
     void setSubDoc(ScopedKeyView const& key, JsonScope const& subDoc);
     void setSubDoc(ScopedKey const& key, JsonScope const& subDoc){setSubDoc(key.view(), subDoc);}
 
-    template<typename T>
-    void setArray(ScopedKeyView const& key, std::vector<T> const& array) { // Later on, we should use C++26 reflection once widely available, see branch feature/jsonscope/reflection
+    // Later on, we should use C++26 reflection once widely available, see branch feature/jsonscope/reflection
+    template <std::ranges::input_range R>
+    void setArray(ScopedKeyView const& key, R const& range) {
         setEmptyArray(key);
-        for (auto const [index, indexKey] : getArrayKeys(key, array.size()) | Utility::Ranges::enumerate) {
-            if constexpr (std::is_same_v<T, std::complex<double>>) {
-                setComplex(indexKey, array[index]);
+        for (auto const [index, indexKey] : getArrayKeys(key, range.size()) | Utility::Ranges::enumerate) {
+            if constexpr (std::is_same_v<typename R::value_type, std::complex<double>>) {
+                setComplex(indexKey, range[index]);
             }
-            else if constexpr (std::is_same_v<T, JSON> || std::is_same_v<T, JsonScope>) {
-                setSubDoc(indexKey, array[index]);
+            else if constexpr (std::is_same_v<typename R::value_type, JSON> || std::is_same_v<typename R::value_type, JsonScope>) {
+                setSubDoc(indexKey, range[index]);
             }
             else {
-                set<T>(indexKey, array[index]);
+                set<typename R::value_type>(indexKey, range[index]);
             }
         }
     }
