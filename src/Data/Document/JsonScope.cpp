@@ -9,6 +9,7 @@
 #include <memory>
 #include <mutex>
 #include <optional>
+#include <ranges>
 #include <span>
 #include <stdexcept>
 #include <string>
@@ -327,13 +328,11 @@ void JsonScope::copyMember(ScopedKey const& fromKey, ScopedKeyView const& toKey)
 // Member listing
 
 std::vector<ScopedKey> JsonScope::listAvailableKeys(ScopedKeyView const& key) const {
-    std::vector<std::string> const keys = baseDocument->listAvailableMembers(key.full(*this));
-    std::vector<ScopedKey> scopedKeys;
-    scopedKeys.reserve(keys.size());
-    for (auto const& k : keys) {
-        scopedKeys.emplace_back(key.addMember(k));
-    }
-    return scopedKeys;
+    return listAvailableMembers(key)
+        | std::views::transform([&key](std::string const& member) {
+            return key.addMember(member);
+        })
+        | std::ranges::to<std::vector<ScopedKey>>();
 }
 
 std::vector<ScopedKey> JsonScope::listAvailableKeys(ScopedKey const& key) const {
@@ -341,18 +340,14 @@ std::vector<ScopedKey> JsonScope::listAvailableKeys(ScopedKey const& key) const 
 }
 
 std::vector<JsonScope::MemberAndKey> JsonScope::listAvailableMembersAndKeys(ScopedKeyView const& key) const {
-    std::vector<std::string> const keys = baseDocument->listAvailableMembers(key.full(*this));
-    std::vector<MemberAndKey> scopedKeys;
-    scopedKeys.reserve(keys.size());
-    for (auto const& k : keys) {
-        scopedKeys.emplace_back(
-            MemberAndKey{
-                .member=k,
-                .key=key.addMember(k)
-            }
-        );
-    }
-    return scopedKeys;
+    return listAvailableMembers(key)
+        | std::views::transform([&key](std::string const& member) {
+            return MemberAndKey{
+                .member=member,
+                .key=key.addMember(member)
+            };
+        })
+        | std::ranges::to<std::vector<MemberAndKey>>();
 }
 
 std::vector<JsonScope::MemberAndKey> JsonScope::listAvailableMembersAndKeys(ScopedKey const& key) const {
