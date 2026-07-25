@@ -92,6 +92,16 @@ private:
      */
     static std::string generatePrefix(std::string const& givenPrefix);
 
+    /**
+     * @brief Generates the scope prefix based on the provided document and optional prefix.
+     * @tparam DocType The type of the document, either JSON or JsonScope.
+     * @param doc The document from which to generate the scope prefix.
+     * @param prefix An optional prefix to be used in generating the scope prefix.
+     * @return An optional string containing the generated scope prefix, or std::nullopt if no prefix is provided.
+     */
+    template<typename DocType>
+    std::optional<std::string> generateScopePrefix(DocType const& doc, std::optional<std::string> const& prefix);
+
     static auto getArrayKeys(ScopedKey const& key, std::size_t exclusiveMax) {
         return std::views::iota(0)
             | std::views::take_while([exclusiveMax](std::size_t const i) { return i < exclusiveMax; })

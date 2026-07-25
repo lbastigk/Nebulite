@@ -23,6 +23,23 @@
 //------------------------------------------
 namespace Nebulite::Data {
 
+template<typename DocType>
+std::optional<std::string> JsonScope::generateScopePrefix(DocType const& doc, std::optional<std::string> const& prefix) {
+    if constexpr (std::is_same_v<DocType, JSON>) {
+        if (prefix.has_value()) {
+            return {generatePrefix(prefix.value())};
+        }
+    } else if constexpr (std::is_same_v<DocType, JsonScope>) {
+        if (prefix.has_value()) { // More complicated: We need to generate the full prefix based on the other JsonScope and the new prefix
+            return {ScopedKeyView(generatePrefix(prefix.value())).full(doc)};
+        }
+    } else {
+        static_assert(std::is_same_v<DocType, JSON> || std::is_same_v<DocType, JsonScope>, "Unsupported document type for generateScopePrefix");
+    }
+    // No prefix provided
+    return std::nullopt;
+}
+
 template<typename T>
 std::expected<T, SimpleValueRetrievalError> JsonScope::get(ScopedKeyView const& key) const {
     return baseDocument->get<T>(key.full(*this));
