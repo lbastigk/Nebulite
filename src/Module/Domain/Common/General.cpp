@@ -21,6 +21,7 @@
 #include "Nebulite/Interaction/Logic/Expression.hpp"
 #include "Nebulite/Module/Domain/Common/General.hpp"
 #include "Nebulite/Nebulite.hpp"
+#include "Nebulite/Utility/Promise.hpp"
 #include "Nebulite/Utility/Ranges.hpp"
 #include "Nebulite/Utility/StringHandler.hpp"
 
@@ -136,11 +137,11 @@ Constants::Event General::func_if(std::span<std::string_view const> const& args,
     // Conditional check
     // We ensured that the condition is wrapped in $() above, but there could still be parsing errors (missing parenthesis etc.)
     Interaction::Logic::Expression const expr(condition);
-    if (!expr.getEvaluationInfo().simpleExpression) {
+    if (!expr.isReturnableAsBool()) {
         ctx.self.capture.error.println("Critical Error: A custom if-condition failed.\nCondition failed: " + condition + " is not a boolean expression.");
         return Constants::Event::Warning;
     }
-    if (expr.evalAsBool(ctxScope)) {
+    if (expr.evalAsBool(ctxScope, Utility::Promise<&Interaction::Logic::Expression::isReturnableAsBool>{})) {
         commands = __FUNCTION__ + std::string(" ") + commands;
         return ctx.self.parseStr(commands, ctx, ctxScope);
     }
@@ -161,11 +162,11 @@ Constants::Event General::func_assert(std::span<std::string_view const> const& a
     // Conditional check
     // We ensured that the condition is wrapped in $() above, but there could still be parsing errors (missing parenthesis etc.)
     Interaction::Logic::Expression const expr(condition);
-    if (!expr.getEvaluationInfo().simpleExpression) {
+    if (!expr.isReturnableAsBool()) {
         ctx.self.capture.error.println("Critical Error: A custom assertion failed.\nAssertion failed: " + condition + " is not a boolean expression.");
         return Constants::Event::Error;
     }
-    if (!expr.evalAsBool(ctxScope)) {
+    if (!expr.evalAsBool(ctxScope, Utility::Promise<&Interaction::Logic::Expression::isReturnableAsBool>{})) {
         ctx.self.capture.error.println("Critical Error: A custom assertion failed.\nAssertion failed: " + condition + " is not true.");
         return Constants::Event::Error;
     }

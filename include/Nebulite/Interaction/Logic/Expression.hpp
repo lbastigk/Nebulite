@@ -23,6 +23,7 @@
 #include "Nebulite/Interaction/Context.hpp"
 #include "Nebulite/Interaction/Logic/ExpressionComponent.hpp"
 #include "Nebulite/Interaction/Logic/LinkedNumericValue.hpp"
+#include "Nebulite/Utility/Promise.hpp"
 
 //------------------------------------------
 // Forward declarations
@@ -76,6 +77,118 @@ public:
     static constexpr std::size_t standardRecursionDepth = 8;
 
     //------------------------------------------
+    // Returnable checks
+
+    /**
+     * @brief Checks if the expression can be returned as a string without loss of information.
+     * @return True if the expression can be returned as a string, false otherwise.
+     */
+    bool isReturnableAsString() const noexcept { return evaluationInfo.returnableAsString; }
+
+    /**
+     * @brief Checks if the expression can be returned as a boolean without loss of information.
+     * @return True if the expression can be returned as a boolean, false otherwise.
+     */
+    bool isReturnableAsBool() const noexcept { return evaluationInfo.simpleExpression; }
+
+    /**
+     * @brief Checks if the expression can be returned as an integer without loss of information.
+     * @details Not true if the expression is a simple expression with padding, e.g. $05i(...) would be a string, not an int.
+     *          Only true for simple expressions with an int cast: $i(...)
+     * @return True if the expression can be returned as an integer, false otherwise.
+     */
+    bool isReturnableAsInt() const noexcept { return evaluationInfo.simpleExpressionWithIntCast; }
+
+    /**
+     * @brief Checks if the expression can be returned as a double without loss of information.
+     * @details Only true for simple expressions without any formatting, e.g. $(...) would be a double, but $03.2f(...) would be a string.
+     * @return True if the expression can be returned as a double, false otherwise.
+     */
+    bool isReturnableAsDouble() const noexcept { return evaluationInfo.simpleExpression; }
+
+    /**
+     * @brief Checks if the expression is always true, meaning it evaluates to a non-zero numeric value.
+     * @details This is only true for simple expressions that evaluate to a non-zero numeric value, e.g. $(1) or $i(1).
+     *          It is false for expressions that evaluate to zero, non-numeric values or expressions with padding/formatting
+     *          that isn't just an integer cast.
+     * @return True if the expression is always true, false otherwise.
+     */
+    bool isAlwaysTrue() const noexcept { return evaluationInfo.alwaysTrue; }
+
+    //------------------------------------------
+    // Actual evaluation functions
+
+    /**
+     * @brief Evaluates the expression and returns the result as a string.
+     * @details Complex variables are allowed, but will be shortened to '[array]' or '{object}' if they are not convertible to a string.
+     * @param context The context to evaluate the expression against.
+     * @param recursionDepth The maximum recursion depth for nested evaluations. Defaults to standardRecursionDepth.
+     * @return The result of the evaluation as a string.
+     */
+    [[nodiscard]] std::string eval(ContextScope const& context, std::size_t recursionDepth = standardRecursionDepth) const ;
+
+    /**
+     * @brief Canonical, typesafe evaluation function that returns a JSON document.
+     * @param context The context to evaluate the expression against.
+     * @param recursionDepth The maximum recursion depth for nested evaluations. Defaults to standardRecursionDepth.
+     * @return The result of the evaluation as a JSON document.
+     */
+    [[nodiscard]] Data::JSON evalAsJson(ContextScope const& context, std::size_t recursionDepth = standardRecursionDepth) const ;
+
+    /**
+     * @brief Evaluates the expression and returns the result as a double.
+     * @param context The context to evaluate the expression against.
+     * @param promise A promise that the expression is returnable as a double. This is used to ensure type safety. This reduces conditional checks in hot loops.
+     *                The promise itself does not affect the evaluation, it is for the user as a reminder that the expression must be returnable as a double.
+     *                If that promise is not fulfilled, the evaluation can result in undefined behavior.
+     * @return The result of the evaluation as a double.
+     */
+    [[nodiscard]] double evalAsDouble(ContextScope const& context, Utility::Promise<&Expression::isReturnableAsDouble> promise) const ;
+
+    /**
+     * @brief Evaluates the expression and returns the result as an integer.
+     * @param context The context to evaluate the expression against.
+     * @param promise A promise that the expression is returnable as an integer. This is used to ensure type safety. This reduces conditional checks in hot loops.
+     *                The promise itself does not affect the evaluation, it is for the user as a reminder that the expression must be returnable as an integer.
+     *                If that promise is not fulfilled, the evaluation can result in undefined behavior.
+     * @return The result of the evaluation as an integer.
+     */
+    [[nodiscard]] std::int64_t evalAsInt(ContextScope const& context, Utility::Promise<&Expression::isReturnableAsInt> promise) const ;
+
+    /**
+     * @brief Evaluates the expression and returns the result as a boolean.
+     * @param context The context to evaluate the expression against.
+     * @param promise A promise that the expression is returnable as a boolean. This is used to ensure type safety. This reduces conditional checks in hot loops.
+     *                The promise itself does not affect the evaluation, it is for the user as a reminder that the expression must be returnable as a boolean.
+     *                If that promise is not fulfilled, the evaluation can result in undefined behavior.
+     * @return The result of the evaluation as a boolean.
+     */
+    [[nodiscard]] bool evalAsBool(ContextScope const& context, Utility::Promise<&Expression::isReturnableAsBool> promise) const ;
+
+    //------------------------------------------
+    // Static functions for one-time evaluation
+
+    static std::string eval(std::string_view input, ContextScope const& context);
+
+    static Data::JSON evalAsJson(std::string_view input, ContextScope const& context);
+
+    //------------------------------------------
+    // Getter
+
+    /**
+     * @brief Gets the full expression string that was parsed.
+     * @return The full expression string.
+     */
+    [[nodiscard]] std::string const& getFullExpression() const noexcept ;
+
+private:
+    /**
+     * @brief The maximum recursion depth without temporary string allocation
+     * @details Used for Utility::Coordination::RecursionAllocator
+     */
+    static auto constexpr allocatedRecursionDepth = 8;
+
+    //------------------------------------------
     // Evaluation info
 
     /**
@@ -111,55 +224,6 @@ public:
          */
         bool alwaysTrue = false;
     };
-
-    //------------------------------------------
-    // Actual evaluation functions
-
-    [[nodiscard]] std::string eval(ContextScope const& context, std::size_t recursionDepth = standardRecursionDepth) const ;
-
-    // Typesafe eval
-    [[nodiscard]] Data::JSON evalAsJson(ContextScope const& context, std::size_t recursionDepth = standardRecursionDepth) const ;
-
-    // Unsafe evaluations:
-
-    // Requires check for returnability before calling!
-    [[nodiscard]] double evalAsDouble(ContextScope const& context) const ;
-
-    // Requires check for returnability before calling!
-    [[nodiscard]] std::int64_t evalAsInt(ContextScope const& context) const ;
-
-    // Requires check for returnability before calling!
-    [[nodiscard]] bool evalAsBool(ContextScope const& context) const ;
-
-    //------------------------------------------
-    // Static functions for one-time evaluation
-
-    static std::string eval(std::string_view input, ContextScope const& context);
-
-    static Data::JSON evalAsJson(std::string_view input, ContextScope const& context);
-
-    //------------------------------------------
-    // Getter
-
-    /**
-     * @brief Gets the full expression string that was parsed.
-     * @return The full expression string.
-     */
-    [[nodiscard]] std::string const& getFullExpression() const noexcept ;
-
-    EvaluationInfo const& getEvaluationInfo() const noexcept {
-        return evaluationInfo;
-    }
-
-private:
-    /**
-     * @brief The maximum recursion depth without temporary string allocation
-     * @details Used for Utility::Coordination::RecursionAllocator
-     */
-    static auto constexpr allocatedRecursionDepth = 8;
-
-    //------------------------------------------
-    // Evaluation info
 
     void recalculateEvaluationInfo() noexcept ;
 

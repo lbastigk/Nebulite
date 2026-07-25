@@ -8,7 +8,6 @@
 #include <cstddef>
 #include <cstdint> // NOLINT
 #include <iterator>
-#include <limits>
 #include <memory>
 #include <ranges>
 #include <sstream>
@@ -34,6 +33,7 @@
 #include "Nebulite/Nebulite.hpp"
 #include "Nebulite/Utility/CompileTimeEvaluate.hpp"
 #include "Nebulite/Utility/Coordination/RecursionAllocator.hpp"
+#include "Nebulite/Utility/Promise.hpp"
 #include "Nebulite/Utility/Ranges.hpp"
 #include "Nebulite/Utility/StringHandler.hpp"
 
@@ -219,24 +219,19 @@ Data::JSON Expression::evalAsJson(ContextScope const& context, std::size_t const
     return jsonResult;
 }
 
-double Expression::evalAsDouble(ContextScope const& context) const {
-    if (!evaluationInfo.simpleExpression) {
-        Global::capture().error.println(__FUNCTION__, ": Expression is not returnable as double! Returning NaN.");
-        return std::numeric_limits<double>::quiet_NaN();
-    }
+double Expression::evalAsDouble(ContextScope const& context, Utility::Promise<&Expression::isReturnableAsDouble> /*promise*/) const {
+    assert(isReturnableAsDouble() && "Expression is not returnable as double! Promise not fulfilled.");
     return components[0].evalAsDouble([&]{updateCaches(context);});
 }
 
-int64_t Expression::evalAsInt(ContextScope const& context) const {
-    if (!evaluationInfo.simpleExpressionWithIntCast) {
-        Global::capture().error.println(__FUNCTION__, ": Expression is not returnable as int! Returning 0.");
-        return 0;
-    }
+int64_t Expression::evalAsInt(ContextScope const& context, Utility::Promise<&Expression::isReturnableAsInt> /*promise*/) const {
+    assert(isReturnableAsInt() && "Expression is not returnable as int! Promise not fulfilled.");
     return static_cast<int64_t>(components[0].evalAsDouble([&]{updateCaches(context);}));
 }
 
-bool Expression::evalAsBool(ContextScope const& context) const {
-    double const result = evalAsDouble(context);
+bool Expression::evalAsBool(ContextScope const& context, Utility::Promise<&Expression::isReturnableAsBool> /*promise*/) const {
+    assert(isReturnableAsBool() && "Expression is not returnable as bool! Promise not fulfilled.");
+    double const result = evalAsDouble(context, Utility::Promise<&Expression::isReturnableAsDouble>{});
     if (std::isnan(result)) {
         // We consider NaN as false
         return false;
