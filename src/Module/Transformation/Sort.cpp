@@ -11,6 +11,7 @@
 #include "Nebulite/Interaction/Context.hpp"
 #include "Nebulite/Interaction/Logic/Expression.hpp"
 #include "Nebulite/Module/Transformation/Sort.hpp"
+#include "Nebulite/Utility/Promise.hpp"
 #include "Nebulite/Utility/Sort.hpp"
 #include "Nebulite/Utility/StringHandler.hpp"
 
@@ -53,6 +54,7 @@ bool Sort::sortCustom(std::span<std::string_view const> const& args, Data::JsonS
     if (jsonDoc.memberType(rootKey) != Data::KeyType::array) return false; // Not an array, cannot sort
     if (args.size() < 2) return false;
     Interaction::Logic::Expression const expression('$' + Utility::StringHandler::recombineArgs(args.subspan(1)));
+    if (!expression.isReturnableAsBool()) return false;
     arraySort<bool>(jsonDoc, false, [&](auto& a, auto& b) {
         auto& slf = a.second.shareManagedScope("");
         auto& otr = b.second.shareManagedScope("");
@@ -63,7 +65,7 @@ bool Sort::sortCustom(std::span<std::string_view const> const& args, Data::JsonS
                 .global = slf
             }
         };
-        return expression.evalAsBool(ctxScope);
+        return expression.evalAsBool(ctxScope, Utility::Promise<&Interaction::Logic::Expression::isReturnableAsBool>{});
     });
     return true;
 }

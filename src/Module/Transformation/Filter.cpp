@@ -19,6 +19,7 @@
 #include "Nebulite/Interaction/Logic/Expression.hpp"
 #include "Nebulite/Module/Transformation/Filter.hpp"
 #include "Nebulite/Utility/Glob.hpp"
+#include "Nebulite/Utility/Promise.hpp"
 #include "Nebulite/Utility/Ranges.hpp"
 #include "Nebulite/Utility/StringHandler.hpp"
 
@@ -183,6 +184,7 @@ bool Filter::filterCustom(std::span<std::string_view const> const& args, Data::J
     if (jsonDoc.memberType(rootKey) != Data::KeyType::array) return false; // Not an array, cannot sort
     if (args.size() < 2) return false;
     Interaction::Logic::Expression const expression('$' + Utility::StringHandler::recombineArgs(args.subspan(1)));
+    if (!expression.isReturnableAsBool()) return false;
     arrayFilter(jsonDoc, [&](Data::JsonScope& element) {
         Interaction::ContextScope const ctxScope{
             {
@@ -191,7 +193,7 @@ bool Filter::filterCustom(std::span<std::string_view const> const& args, Data::J
                 .global = element
             }
         };
-        return expression.evalAsBool(ctxScope);
+        return expression.evalAsBool(ctxScope, Utility::Promise<&Interaction::Logic::Expression::isReturnableAsBool>{});
     });
     return true;
 }

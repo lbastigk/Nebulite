@@ -11,6 +11,7 @@
 #include "Nebulite/Interaction/Execution/Domain.hpp"
 #include "Nebulite/Interaction/Rules/Listener.hpp"
 #include "Nebulite/Interaction/Rules/Ruleset.hpp"
+#include "Nebulite/Utility/Promise.hpp"
 
 //------------------------------------------
 namespace Nebulite::Interaction::Rules {
@@ -83,12 +84,13 @@ void sendTask(Execution::Domain& domain, std::string const& task) {
 
 bool JsonRuleset::evaluateConditionGlobally(Execution::Domain& other, Execution::Domain& global) {
     // Check if logical arg is as simple as just "1", meaning true
-    if (logicalArg->getEvaluationInfo().alwaysTrue) {
+    if (logicalArg->isAlwaysTrue()) {
         return true;
     }
 
+    // Promise was fulfilled during ruleset parsing
     ContextScope const contextScope{self.domainScope, other.domainScope, global.domainScope};
-    return logicalArg->evalAsBool(contextScope);
+    return logicalArg->evalAsBool(contextScope, Utility::Promise<&Logic::Expression::isReturnableAsBool>{});
 }
 
 void JsonRuleset::applyContext(Context& context, ContextScope& contextScope){

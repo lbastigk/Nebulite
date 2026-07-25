@@ -197,6 +197,10 @@ RulesetCompiler::AnyRuleset RulesetCompiler::getRuleset(Data::JsonScope const& d
     std::string_view lsa = logicalArgStr;
     Utility::StringHandler::strip(lsa);
     Ruleset->logicalArg = std::make_unique<Logic::Expression>(lsa);
+    if (!Ruleset->logicalArg->isReturnableAsBool()) {
+        Global::capture().error.println("Ruleset entry with logical arg '", lsa, "' cannot be evaluated as a boolean. Skipping entry.");
+        return std::monostate{};
+    }
 
     // Remove whitespaces at start and end from topic:
     std::string_view top = Ruleset->topic;
