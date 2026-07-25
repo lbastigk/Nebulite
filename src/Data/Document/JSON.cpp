@@ -649,7 +649,7 @@ void JSON::moveMember(std::string_view const fromKey, std::string_view const toK
             }
 
             // Remove all other members except toKey
-            for (auto const keys = listAvailableKeys(); auto const& key : keys) {
+            for (auto const keys = listAvailableMembers(); auto const& key : keys) {
                 if (key != toKeyStr) removeMember(key);
             }
 
@@ -678,7 +678,7 @@ void JSON::copyMember(std::string_view const fromKey, std::string_view const toK
     setSubDoc(toKey, *this, fromKey);
 }
 
-std::vector<std::string> JSON::listAvailableKeys(std::string_view const key) const {
+std::vector<std::string> JSON::listAvailableMembers(std::string_view const key) const {
     std::scoped_lock const lockGuard(mtx);
 
     // Flush cache before accessing document
@@ -686,7 +686,7 @@ std::vector<std::string> JSON::listAvailableKeys(std::string_view const key) con
 
     // Traverse to the specified key
     if (rapidjson::Value const* val = RjDirectAccess::traversePath(key, doc); val != nullptr) {
-        return RjDirectAccess::listAvailableKeys(*val);
+        return RjDirectAccess::listAvailableMembers(*val);
     }
     return {};
 }

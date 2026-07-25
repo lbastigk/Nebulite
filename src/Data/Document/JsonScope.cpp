@@ -10,6 +10,7 @@
 #include <mutex>
 #include <optional>
 #include <span>
+#include <stdexcept>
 #include <string>
 #include <vector>
 
@@ -52,12 +53,39 @@ JsonScope::JsonScope()
 JsonScope::~JsonScope() = default;
 
 //------------------------------------------
+// Private helpers
+
+std::string JsonScope::generatePrefix(std::string const& givenPrefix) {
+    std::string fullPrefix = givenPrefix;
+    if (!fullPrefix.empty() && !fullPrefix.ends_with(".")) fullPrefix += ".";
+    return fullPrefix;
+}
+
+//------------------------------------------
+// Prefix
+
+std::string const& JsonScope::getScopePrefix() const {
+    if (!scopePrefix.has_value()) {
+        throw std::runtime_error("JsonScope: Access not granted. Attempted to get scope prefix of a dummy scope. Did you mean to use the caller's scope?");
+    }
+    return scopePrefix.value();
+}
+
+ScopedKeyView JsonScope::getRootScope() const {
+    return ScopedKeyView{getScopePrefix(), ""};
+}
+
+//------------------------------------------
 // Sharing a scope
 
 JsonScope& JsonScope::shareScope(ScopedKeyView const& key) const {
     return baseDocument->shareManagedScope(
         key.full(*this)
     );
+}
+
+JsonScope& JsonScope::shareScope(ScopedKey const& key) const {
+    return shareScope(key.view());
 }
 
 JsonScope& JsonScope::shareScope(std::string const& key) const {
@@ -84,6 +112,10 @@ std::expected<RjDirectAccess::simpleValue, SimpleValueRetrievalError> JsonScope:
     return baseDocument->getVariant(key.full(*this));
 }
 
+std::expected<RjDirectAccess::simpleValue, SimpleValueRetrievalError> JsonScope::getVariant(ScopedKey const& key) const {
+    return getVariant(key.view());
+}
+
 JSON JsonScope::getSubDoc(ScopedKeyView const& key) const {
     return baseDocument->getSubDoc(key.full(*this));
 }
@@ -93,6 +125,10 @@ JSON JsonScope::getSubDoc(ScopedKey const& key) const {
 
 double* JsonScope::getStableDoublePointer(ScopedKeyView const& key) const {
     return baseDocument->getStableDoublePointer(key.full(*this));
+}
+
+double* JsonScope::getStableDoublePointer(ScopedKey const& key) const {
+    return getStableDoublePointer(key.view());
 }
 
 std::optional<std::complex<double>> JsonScope::getComplex(ScopedKeyView const& key) const {
@@ -106,6 +142,10 @@ std::optional<std::complex<double>> JsonScope::getComplex(ScopedKeyView const& k
     return std::nullopt;
 }
 
+std::optional<std::complex<double>> JsonScope::getComplex(ScopedKey const& key) const {
+    return getComplex(key.view());
+}
+
 //------------------------------------------
 // Setter
 
@@ -113,8 +153,16 @@ void JsonScope::setVariant(ScopedKeyView const& key, RjDirectAccess::simpleValue
     doc().setVariant(key.full(*this), value);
 }
 
+void JsonScope::setVariant(ScopedKey const& key, RjDirectAccess::simpleValue const& value) {
+    setVariant(key.view(), value);
+}
+
 void JsonScope::setSubDoc(ScopedKeyView const& key, JSON const& subDoc){
     doc().setSubDoc(key.full(*this), subDoc);
+}
+
+void JsonScope::setSubDoc(ScopedKey const& key, JSON const& subDoc) {
+    setSubDoc(key.view(), subDoc);
 }
 
 void JsonScope::setSubDoc(ScopedKeyView const& key, JsonScope const& subDoc){
@@ -124,14 +172,26 @@ void JsonScope::setSubDoc(ScopedKeyView const& key, JsonScope const& subDoc){
     doc().setSubDoc(key.full(*this), subDocScope);
 }
 
+void JsonScope::setSubDoc(ScopedKey const& key, JsonScope const& subDoc) {
+    setSubDoc(key.view(), subDoc);
+}
+
 void JsonScope::setEmptyArray(ScopedKeyView const& key){
     doc().setEmptyArray(key.full(*this));
+}
+
+void JsonScope::setEmptyArray(ScopedKey const& key) {
+    setEmptyArray(key.view());
 }
 
 void JsonScope::setComplex(ScopedKeyView const& key, std::complex<double> const& value){
     baseDocument->removeMember(key.full(*this)); // Remove any existing member to avoid type conflicts
     baseDocument->set<double>(key.addMember(complexRe).view().full(*this), value.real());
     baseDocument->set<double>(key.addMember(complexIm).view().full(*this), value.imag());
+}
+
+void JsonScope::setComplex(ScopedKey const& key, std::complex<double> const& value) {
+    setComplex(key.view(), value);
 }
 
 //------------------------------------------
@@ -141,20 +201,40 @@ void JsonScope::set_add(ScopedKeyView const& key, double const val){
     doc().set_add(key.full(*this), val);
 }
 
+void JsonScope::set_add(ScopedKey const& key, double const val) {
+    set_add(key.view(), val);
+}
+
 void JsonScope::set_add(ScopedKeyView const& key, std::int64_t const val){
     doc().set_add(key.full(*this), val);
+}
+
+void JsonScope::set_add(ScopedKey const& key, std::int64_t const val) {
+    set_add(key.view(), val);
 }
 
 void JsonScope::set_multiply(ScopedKeyView const& key, double const val){
     doc().set_multiply(key.full(*this), val);
 }
 
+void JsonScope::set_multiply(ScopedKey const& key, double const val) {
+    set_multiply(key.view(), val);
+}
+
 void JsonScope::set_multiply(ScopedKeyView const& key, std::int64_t const val){
     doc().set_multiply(key.full(*this), val);
 }
 
+void JsonScope::set_multiply(ScopedKey const& key, std::int64_t const val) {
+    set_multiply(key.view(), val);
+}
+
 void JsonScope::set_concat(ScopedKeyView const& key, std::string const& valStr){
     doc().set_concat(key.full(*this), valStr);
+}
+
+void JsonScope::set_concat(ScopedKey const& key, std::string const& valStr) {
+    set_concat(key.view(), valStr);
 }
 
 //------------------------------------------
@@ -180,28 +260,74 @@ KeyType JsonScope::memberType(ScopedKeyView const& key) const {
     return baseDocument->memberType(key.full(*this));
 }
 
+KeyType JsonScope::memberType(ScopedKey const& key) const {
+    return memberType(key.view());
+}
+
 std::string JsonScope::memberTypeString(ScopedKeyView const& key) const {
     return baseDocument->memberTypeString(key.full(*this));
+}
+
+std::string JsonScope::memberTypeString(ScopedKey const& key) const {
+    return memberTypeString(key.view());
 }
 
 std::size_t JsonScope::memberSize(ScopedKeyView const& key) const {
     return baseDocument->memberSize(key.full(*this));
 }
 
+std::size_t JsonScope::memberSize(ScopedKey const& key) const {
+    return memberSize(key.view());
+}
+
+//------------------------------------------
+// Member manipulation
+
 void JsonScope::removeMember(ScopedKeyView const& key){
     doc().removeMember(key.full(*this));
+}
+
+void JsonScope::removeMember(ScopedKey const& key) {
+    removeMember(key.view());
 }
 
 void JsonScope::moveMember(ScopedKeyView const& fromKey, ScopedKeyView const& toKey){
     doc().moveMember(fromKey.full(*this), toKey.full(*this));
 }
 
+void JsonScope::moveMember(ScopedKey const& fromKey, ScopedKey const& toKey) {
+    moveMember(fromKey.view(), toKey.view());
+}
+
+void JsonScope::moveMember(ScopedKeyView const& fromKey, ScopedKey const& toKey) {
+    moveMember(fromKey, toKey.view());
+}
+
+void JsonScope::moveMember(ScopedKey const& fromKey, ScopedKeyView const& toKey) {
+    moveMember(fromKey.view(), toKey);
+}
+
 void JsonScope::copyMember(ScopedKeyView const& fromKey, ScopedKeyView const& toKey){
     doc().copyMember(fromKey.full(*this), toKey.full(*this));
 }
 
+void JsonScope::copyMember(ScopedKey const& fromKey, ScopedKey const& toKey) {
+    copyMember(fromKey.view(), toKey.view());
+}
+
+void JsonScope::copyMember(ScopedKeyView const& fromKey, ScopedKey const& toKey) {
+    copyMember(fromKey, toKey.view());
+}
+
+void JsonScope::copyMember(ScopedKey const& fromKey, ScopedKeyView const& toKey) {
+    copyMember(fromKey.view(), toKey);
+}
+
+//------------------------------------------
+// Member listing
+
 std::vector<ScopedKey> JsonScope::listAvailableKeys(ScopedKeyView const& key) const {
-    std::vector<std::string> const keys = baseDocument->listAvailableKeys(key.full(*this));
+    std::vector<std::string> const keys = baseDocument->listAvailableMembers(key.full(*this));
     std::vector<ScopedKey> scopedKeys;
     scopedKeys.reserve(keys.size());
     for (auto const& k : keys) {
@@ -210,8 +336,12 @@ std::vector<ScopedKey> JsonScope::listAvailableKeys(ScopedKeyView const& key) co
     return scopedKeys;
 }
 
+std::vector<ScopedKey> JsonScope::listAvailableKeys(ScopedKey const& key) const {
+    return listAvailableKeys(key.view());
+}
+
 std::vector<JsonScope::MemberAndKey> JsonScope::listAvailableMembersAndKeys(ScopedKeyView const& key) const {
-    std::vector<std::string> const keys = baseDocument->listAvailableKeys(key.full(*this));
+    std::vector<std::string> const keys = baseDocument->listAvailableMembers(key.full(*this));
     std::vector<MemberAndKey> scopedKeys;
     scopedKeys.reserve(keys.size());
     for (auto const& k : keys) {
@@ -225,6 +355,18 @@ std::vector<JsonScope::MemberAndKey> JsonScope::listAvailableMembersAndKeys(Scop
     return scopedKeys;
 }
 
+std::vector<JsonScope::MemberAndKey> JsonScope::listAvailableMembersAndKeys(ScopedKey const& key) const {
+    return listAvailableMembersAndKeys(key.view());
+}
+
+std::vector<std::string> JsonScope::listAvailableMembers(ScopedKeyView const& key) const {
+    return baseDocument->listAvailableMembers(key.full(*this));
+}
+
+std::vector<std::string> JsonScope::listAvailableMembers(ScopedKey const& key) const {
+    return listAvailableMembers(key.view());
+}
+
 //------------------------------------------
 // Deserialize/Serialize
 
@@ -235,6 +377,10 @@ std::string JsonScope::serialize() const {
 
 std::string JsonScope::serialize(ScopedKeyView const& key) const {
     return baseDocument->serialize(key.full(*this));
+}
+
+std::string JsonScope::serialize(ScopedKey const& key) const {
+    return serialize(key.view());
 }
 
 void JsonScope::deserialize(std::string_view const serialOrLink) {
@@ -257,6 +403,14 @@ bool JsonScope::transform(std::span<std::string_view const> const& args){
 
 void JsonScope::assertAccess(ScopedKeyView const& key) const{
     (void)key.full(*this); // Just generate full key to test access
+}
+
+void JsonScope::assertAccess(ScopedKey const& key) const {
+    assertAccess(key.view());
+}
+
+bool JsonScope::isDummy() const {
+    return !scopePrefix.has_value();
 }
 
 } // namespace Nebulite::Data

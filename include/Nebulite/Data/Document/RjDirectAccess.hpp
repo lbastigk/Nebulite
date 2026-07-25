@@ -258,7 +258,7 @@ public:
      *         - For arrays, returns indices in bracket notation (e.g., "[0]", "[1]", ...).
      *         - For any other type, returns an empty vector.
      */
-    static std::vector<std::string> listAvailableKeys(rapidjson::Value const& val);
+    static std::vector<std::string> listAvailableMembers(rapidjson::Value const& val);
 
     // Special characters for key parsing
     struct SpecialCharacter {

@@ -517,14 +517,14 @@ public:
 
 
     /**
-     * @brief Lists all available keys in a rapidjson object.
-     * @param key The key to list keys from. (Optional: leave empty to list from root)
+     * @brief Lists all available member keys in a rapidjson object.
+     * @param key The key to list member keys from. (Optional: leave empty to list from root)
      * @return A vector of strings containing all available keys.
      *         - For objects, returns member names.
      *         - For arrays, returns indices in bracket notation (e.g., "[0]", "[1]", ...).
      *         - For any other type, returns an empty vector.
      */
-    std::vector<std::string> listAvailableKeys(std::string_view key = "") const ;
+    std::vector<std::string> listAvailableMembers(std::string_view key = "") const ;
 
     //------------------------------------------
     // Serialize/Deserialize

@@ -16,8 +16,8 @@
 #include <optional>
 #include <ranges>
 #include <span>
-#include <stdexcept>
 #include <string>
+#include <string_view>
 #include <type_traits>
 #include <vector>
 
@@ -30,7 +30,6 @@
 #include "Nebulite/Data/Document/ScopedKeyView.hpp"
 #include "Nebulite/Data/Document/SimpleValueError.hpp"
 #include "Nebulite/Data/MappedOrderedCacheList.hpp"
-#include "Nebulite/Utility/Ranges.hpp"
 
 //------------------------------------------
 // Forward declarations
@@ -91,11 +90,7 @@ private:
      * @param givenPrefix The user-provided prefix.
      * @return The properly formatted prefix.
      */
-    static std::string generatePrefix(std::string const& givenPrefix) {
-        std::string fullPrefix = givenPrefix;
-        if (!fullPrefix.empty() && !fullPrefix.ends_with(".")) fullPrefix += ".";
-        return fullPrefix;
-    }
+    static std::string generatePrefix(std::string const& givenPrefix);
 
     static auto getArrayKeys(ScopedKey const& key, std::size_t exclusiveMax) {
         return std::views::iota(0)
@@ -143,16 +138,13 @@ public:
      * @return The scope prefix as a const reference to std::string.
      * @throws std::runtime_error if this is a dummy scope.
      */
-    [[nodiscard]] std::string const& getScopePrefix() const {
-        if (!scopePrefix.has_value()) {
-            throw std::runtime_error("JsonScope: Access not granted. Attempted to get scope prefix of a dummy scope. Did you mean to use the caller's scope?");
-        }
-        return scopePrefix.value();
-    }
+    [[nodiscard]] std::string const& getScopePrefix() const ;
 
-    [[nodiscard]] ScopedKeyView getRootScope() const {
-        return ScopedKeyView{getScopePrefix(), ""};
-    }
+    /**
+     * @brief Returns the key representing the root of this scope.
+     * @return The root scope key.
+     */
+    [[nodiscard]] ScopedKeyView getRootScope() const ;
 
     //------------------------------------------
     // Sharing a scope (Base only, no Domain Functionality)
@@ -161,7 +153,7 @@ public:
     // So we can pass a key as string and generate the full key internally based on our scopePrefix
 
     [[nodiscard]] JsonScope& shareScope(ScopedKeyView const& key) const ;
-    [[nodiscard]] JsonScope& shareScope(ScopedKey const& key) const {return shareScope(key.view());}
+    [[nodiscard]] JsonScope& shareScope(ScopedKey const& key) const ;
     [[nodiscard]] JsonScope& shareScope(std::string const& key) const ;
 
     // Share a dummy scope, where all access is denied
@@ -170,21 +162,24 @@ public:
     //------------------------------------------
     // Getter
 
-    template<typename T> std::expected<T, SimpleValueRetrievalError> get(ScopedKeyView const& key) const ;
-    template<typename T> std::expected<T, SimpleValueRetrievalError> get(ScopedKey const& key) const {return get<T>(key.view());}
+    template<typename T>
+    std::expected<T, SimpleValueRetrievalError> get(ScopedKeyView const& key) const ;
+
+    template<typename T>
+    std::expected<T, SimpleValueRetrievalError> get(ScopedKey const& key) const {return get<T>(key.view());}
 
     [[nodiscard]] std::expected<RjDirectAccess::simpleValue, SimpleValueRetrievalError> getVariant(ScopedKeyView const& key) const ;
-    [[nodiscard]] std::expected<RjDirectAccess::simpleValue, SimpleValueRetrievalError> getVariant(ScopedKey const& key) const {return getVariant(key.view());}
+    [[nodiscard]] std::expected<RjDirectAccess::simpleValue, SimpleValueRetrievalError> getVariant(ScopedKey const& key) const ;
 
     [[nodiscard]] JSON getSubDoc(ScopedKeyView const& key) const ;
     [[nodiscard]] JSON getSubDoc(ScopedKey const& key) const ;
 
     [[nodiscard]] double* getStableDoublePointer(ScopedKeyView const& key) const ;
-    [[nodiscard]] double* getStableDoublePointer(ScopedKey const& key) const {return getStableDoublePointer(key.view());}
+    [[nodiscard]] double* getStableDoublePointer(ScopedKey const& key) const ;
 
     // Requires both real and imaginary parts to be present, otherwise returns nullopt
     [[nodiscard]] std::optional<std::complex<double>> getComplex(ScopedKeyView const& key) const ;
-    [[nodiscard]] std::optional<std::complex<double>> getComplex(ScopedKey const& key) const {return getComplex(key.view());}
+    [[nodiscard]] std::optional<std::complex<double>> getComplex(ScopedKey const& key) const ;
 
     //------------------------------------------
     // Setter
@@ -193,54 +188,41 @@ public:
     template<typename T> void set(ScopedKey const& key, T const& value){set(key.view(), value);}
 
     void setVariant(ScopedKeyView const& key, RjDirectAccess::simpleValue const& value);
-    void setVariant(ScopedKey const& key, RjDirectAccess::simpleValue const& value){setVariant(key.view(), value);}
+    void setVariant(ScopedKey const& key, RjDirectAccess::simpleValue const& value);
 
     void setSubDoc(ScopedKeyView const& key, JSON const& subDoc);
-    void setSubDoc(ScopedKey const& key, JSON const& subDoc){setSubDoc(key.view(), subDoc);}
+    void setSubDoc(ScopedKey const& key, JSON const& subDoc);
 
     void setSubDoc(ScopedKeyView const& key, JsonScope const& subDoc);
-    void setSubDoc(ScopedKey const& key, JsonScope const& subDoc){setSubDoc(key.view(), subDoc);}
+    void setSubDoc(ScopedKey const& key, JsonScope const& subDoc);
 
     // Later on, we should use C++26 reflection once widely available, see branch feature/jsonscope/reflection
     template <std::ranges::input_range R>
-    void setArray(ScopedKeyView const& key, R const& range) {
-        setEmptyArray(key);
-        for (auto const [index, indexKey] : getArrayKeys(key, range.size()) | Utility::Ranges::enumerate) {
-            if constexpr (std::is_same_v<typename R::value_type, std::complex<double>>) {
-                setComplex(indexKey, range[index]);
-            }
-            else if constexpr (std::is_same_v<typename R::value_type, JSON> || std::is_same_v<typename R::value_type, JsonScope>) {
-                setSubDoc(indexKey, range[index]);
-            }
-            else {
-                set<typename R::value_type>(indexKey, range[index]);
-            }
-        }
-    }
+    void setArray(ScopedKeyView const& key, R const& range);
 
     void setEmptyArray(ScopedKeyView const& key);
-    void setEmptyArray(ScopedKey const& key){setEmptyArray(key.view());}
+    void setEmptyArray(ScopedKey const& key);
 
     void setComplex(ScopedKeyView const& key, std::complex<double> const& value);
-    void setComplex(ScopedKey const& key, std::complex<double> const& value){setComplex(key.view(), value);}
+    void setComplex(ScopedKey const& key, std::complex<double> const& value);
 
     //------------------------------------------
     // Special sets for threadsafe maths operations
 
     void set_add(ScopedKeyView const& key, double val);
-    void set_add(ScopedKey const& key, double const val) {set_add(key.view(), val);}
+    void set_add(ScopedKey const& key, double val);
 
     void set_add(ScopedKeyView const& key, std::int64_t val);
-    void set_add(ScopedKey const& key, std::int64_t const val) {set_add(key.view(), val);}
+    void set_add(ScopedKey const& key, std::int64_t val);
 
     void set_multiply(ScopedKeyView const& key, double val);
-    void set_multiply(ScopedKey const& key, double const val) {set_multiply(key.view(), val);}
+    void set_multiply(ScopedKey const& key, double val);
 
     void set_multiply(ScopedKeyView const& key, std::int64_t val);
-    void set_multiply(ScopedKey const& key, std::int64_t const val) {set_multiply(key.view(), val);}
+    void set_multiply(ScopedKey const& key, std::int64_t val);
 
     void set_concat(ScopedKeyView const& key, std::string const& valStr);
-    void set_concat(ScopedKey const& key, std::string const& valStr) {set_concat(key.view(), valStr);}
+    void set_concat(ScopedKey const& key, std::string const& valStr);
 
     //------------------------------------------
     // Range of members
@@ -273,41 +255,41 @@ public:
      * @return An ordered vector of double pointers corresponding to the keys, either retrieved from the map or newly created if it did not exist.
      */
     template <std::ranges::input_range R> requires std::same_as<std::remove_cvref_t<std::ranges::range_reference_t<R>>,ScopedKeyView>
-    double** ensureOrderedCacheList(std::uint64_t uniqueId, R const& keys) {
-        thread_local std::size_t const threadIndex = assignCacheLookupIndex();
-        if (threadIndex >= cacheLookupThreadCount) {
-            throw std::runtime_error("Thread index exceeds non-locking array size! Too many threads accessing ordered cache lists, increase cacheLookupThreadCount or reduce thread count.");
-        }
-        return odpCache[threadIndex].ensureOrderedCacheListNoLock(uniqueId, keys);
-    }
+    double** ensureOrderedCacheList(std::uint64_t uniqueId, R const& keys);
 
     //------------------------------------------
     // Key Types, Sizes
 
     [[nodiscard]] KeyType memberType(ScopedKeyView const& key) const ;
-    [[nodiscard]] KeyType memberType(ScopedKey const& key) const {return memberType(key.view());}
+    [[nodiscard]] KeyType memberType(ScopedKey const& key) const ;
 
     [[nodiscard]] std::string memberTypeString(ScopedKeyView const& key) const ;
-    [[nodiscard]] std::string memberTypeString(ScopedKey const& key) const {return memberTypeString(key.view());}
+    [[nodiscard]] std::string memberTypeString(ScopedKey const& key) const ;
 
     [[nodiscard]] std::size_t memberSize(ScopedKeyView const& key) const ;
-    [[nodiscard]] std::size_t memberSize(ScopedKey const& key) const {return memberSize(key.view());}
+    [[nodiscard]] std::size_t memberSize(ScopedKey const& key) const ;
+
+    //------------------------------------------
+    // Member manipulation
 
     void removeMember(ScopedKeyView const& key);
-    void removeMember(ScopedKey const& key) {removeMember(key.view());}
+    void removeMember(ScopedKey const& key);
 
     void moveMember(ScopedKeyView const& fromKey, ScopedKeyView const& toKey);
-    void moveMember(ScopedKey const& fromKey, ScopedKey const& toKey) {moveMember(fromKey.view(), toKey.view());}
-    void moveMember(ScopedKeyView const& fromKey, ScopedKey const& toKey) {moveMember(fromKey, toKey.view());}
-    void moveMember(ScopedKey const& fromKey, ScopedKeyView const& toKey) {moveMember(fromKey.view(), toKey);}
+    void moveMember(ScopedKey const& fromKey, ScopedKey const& toKey);
+    void moveMember(ScopedKeyView const& fromKey, ScopedKey const& toKey);
+    void moveMember(ScopedKey const& fromKey, ScopedKeyView const& toKey);
 
     void copyMember(ScopedKeyView const& fromKey, ScopedKeyView const& toKey);
-    void copyMember(ScopedKey const& fromKey, ScopedKey const& toKey) {copyMember(fromKey.view(), toKey.view());}
-    void copyMember(ScopedKeyView const& fromKey, ScopedKey const& toKey) {copyMember(fromKey, toKey.view());}
-    void copyMember(ScopedKey const& fromKey, ScopedKeyView const& toKey) {copyMember(fromKey.view(), toKey);}
+    void copyMember(ScopedKey const& fromKey, ScopedKey const& toKey);
+    void copyMember(ScopedKeyView const& fromKey, ScopedKey const& toKey);
+    void copyMember(ScopedKey const& fromKey, ScopedKeyView const& toKey);
+
+    //------------------------------------------
+    // Member listing
 
     [[nodiscard]] std::vector<ScopedKey> listAvailableKeys(ScopedKeyView const& key) const ;
-    [[nodiscard]] std::vector<ScopedKey> listAvailableKeys(ScopedKey const& key) const {return listAvailableKeys(key.view());}
+    [[nodiscard]] std::vector<ScopedKey> listAvailableKeys(ScopedKey const& key) const ;
 
     // Helper struct for holding a member as well as its full key
     struct MemberAndKey {
@@ -316,14 +298,17 @@ public:
     };
 
     [[nodiscard]] std::vector<MemberAndKey> listAvailableMembersAndKeys(ScopedKeyView const& key) const ;
-    [[nodiscard]] std::vector<MemberAndKey> listAvailableMembersAndKeys(ScopedKey const& key) const {return listAvailableMembersAndKeys(key.view());}
+    [[nodiscard]] std::vector<MemberAndKey> listAvailableMembersAndKeys(ScopedKey const& key) const ;
+
+    [[nodiscard]] std::vector<std::string> listAvailableMembers(ScopedKeyView const& key) const ;
+    [[nodiscard]] std::vector<std::string> listAvailableMembers(ScopedKey const& key) const ;
 
     //------------------------------------------
     // Serialize/Deserialize
 
     [[nodiscard]] std::string serialize() const ;
     [[nodiscard]] std::string serialize(ScopedKeyView const& key) const ;
-    [[nodiscard]] std::string serialize(ScopedKey const& key) const {return serialize(key.view());}
+    [[nodiscard]] std::string serialize(ScopedKey const& key) const ;
 
     void deserialize(std::string_view serialOrLink);
 
@@ -349,11 +334,9 @@ public:
      * @param key The scoped key to check access for.
      */
     void assertAccess(ScopedKeyView const& key) const ;
-    void assertAccess(ScopedKey const& key) const { assertAccess(key.view()); }
+    void assertAccess(ScopedKey const& key) const ;
 
-    [[nodiscard]] bool isDummy() const {
-        return !scopePrefix.has_value();
-    }
+    [[nodiscard]] bool isDummy() const ;
 };
 } // namespace Nebulite::Data
 #include "Nebulite/Data/Document/JsonScope.tpp" // NOLINT

@@ -512,7 +512,7 @@ bool RjDirectAccess::isValidKey(std::string_view const key) {
     return true;
 }
 
-std::vector<std::string> RjDirectAccess::listAvailableKeys(rapidjson::Value const& val){
+std::vector<std::string> RjDirectAccess::listAvailableMembers(rapidjson::Value const& val){
     std::vector<std::string> keys;
     if (val.IsArray()) {
         // Generate a list of array keys: [0], [1], ...
