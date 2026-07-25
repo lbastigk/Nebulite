@@ -20,6 +20,7 @@
 #include "Nebulite/Interaction/Logic/Assignment.hpp"
 #include "Nebulite/Interaction/Logic/Expression.hpp"
 #include "Nebulite/Nebulite.hpp"
+#include "Nebulite/Utility/Promise.hpp"
 #include "Nebulite/Utility/StringHandler.hpp"
 
 //------------------------------------------
@@ -223,8 +224,8 @@ void Assignment::apply(ContextScope const& context) const {
     // Update
 
     // If the expression is returnable as double, we can optimize numeric operations
-    if (expression->getEvaluationInfo().simpleExpression && isNumericOperation(operation)) {
-        double const resolved = expression->evalAsDouble(context);
+    if (expression->isReturnableAsDouble() && isNumericOperation(operation)) {
+        double const resolved = expression->evalAsDouble(context, Utility::Promise<&Expression::isReturnableAsDouble>{});
         if (targetValuePtr != nullptr) {
             setValueOfKey(resolved, targetValuePtr);
         } else {
@@ -248,13 +249,13 @@ void Assignment::apply(ContextScope const& context) const {
     // If the expression is returnable as int, we use that
     // only $i(...) is supported, as any formatting like $05i(...)
     // would make the result a string to respect formatting
-    else if (expression->getEvaluationInfo().simpleExpressionWithIntCast && isNumericOperation(operation)) {
-        auto const resolved = expression->evalAsInt(context);
+    else if (expression->isReturnableAsInt() && isNumericOperation(operation)) {
+        auto const resolved = expression->evalAsInt(context, Utility::Promise<&Expression::isReturnableAsInt>{});
         auto const scopedKey = Data::ScopedKey(key->eval(context));
         setValueOfKey(scopedKey.view(), resolved, targetDocument);
     }
     // Check if returning as a JSON is preferred
-    else if (!expression->getEvaluationInfo().returnableAsString && this->operation == Operation::set) {
+    else if (!expression->isReturnableAsString() && this->operation == Operation::set) {
         auto const resolved = expression->evalAsJson(context);
         auto const k = Data::ScopedKey(key->eval(context));
         targetDocument.setSubDoc(k.view(), std::move(resolved));

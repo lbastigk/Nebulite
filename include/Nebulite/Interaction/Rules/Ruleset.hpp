@@ -155,7 +155,7 @@ protected:
      * @brief The topic of the ruleset, used for routing and filtering in the broadcast-listen-model of the Invoke class.
      * @details Not the same as the name of the ruleset, which is not stored.
      *          If the ruleset is local, the topic is empty.
-     * @todo Use topicId instead? + modulo-based rulesetmap?
+     * @todo Use topicId instead? + modulo-based rulesetMap?
      */
     std::string topic = "all";
 };
