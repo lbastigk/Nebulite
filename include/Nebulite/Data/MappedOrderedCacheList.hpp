@@ -100,7 +100,7 @@ private:
      * @return An ordered vector of double pointers corresponding to the keys, either retrieved from the map or newly created if it did not exist.
      */
     template <std::ranges::input_range R> requires std::same_as<std::remove_cvref_t<std::ranges::range_reference_t<R>>,ScopedKeyView>
-    double** fromMap(std::size_t uniqueId, R&& keys){
+    double** fromMap(std::size_t const uniqueId, R&& keys){
         if (auto const it = map.find(uniqueId); it != map.end()) [[likely]] {
             return it->second.data();
         }

@@ -14,6 +14,7 @@
 // Nebulite
 #include "Nebulite/Data/Document/JsonScope.hpp"
 #include "Nebulite/Data/Document/KeyType.hpp"
+#include "Nebulite/Data/Document/ScopedKey.hpp"
 #include "Nebulite/Module/Transformation/Collection.hpp"
 #include "Nebulite/Utility/Ranges.hpp"
 

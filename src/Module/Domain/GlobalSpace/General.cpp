@@ -70,7 +70,7 @@ Constants::Event General::task(int const argc, char const** argv) const {
     return Constants::Event::Success;
 }
 
-Constants::Event General::taskExec(std::span<std::string_view const> args, Interaction::Context ctx, Interaction::ContextScope ctxScope) const {
+Constants::Event General::taskExec(std::span<std::string_view const> const args, Interaction::Context ctx, Interaction::ContextScope ctxScope) const {
     auto const fileName = Utility::StringHandler::recombineArgs(args.subspan(1));
     domain.capture.log.println("Loading task list from file and executing immediately: ", fileName);
 

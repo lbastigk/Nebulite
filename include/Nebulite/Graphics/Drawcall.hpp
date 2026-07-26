@@ -21,7 +21,6 @@
 #include "Nebulite/Data/Document/JsonScope.hpp"
 #include "Nebulite/Interaction/Execution/Domain.hpp"
 #include "Nebulite/Utility/Coordination/TimedRoutine.hpp"
-#include "Nebulite/Utility/IO/Capture.hpp"
 
 //------------------------------------------
 // Forward declarations
@@ -30,6 +29,10 @@ namespace Nebulite::Interaction {
 class Context;
 class ContextScope;
 } // namespace Nebulite::Interaction
+
+namespace Nebulite::Utility::IO {
+class Capture;
+} // namespace Nebulite::Utility::IO
 
 //------------------------------------------
 namespace Nebulite::Graphics {

@@ -12,7 +12,7 @@
 
 // Nebulite
 #include "Nebulite/Data/Document/JsonScope.hpp"
-#include "Nebulite/Data/Document/ScopedKey.hpp"
+#include "Nebulite/Data/Document/ScopedKeyView.hpp"
 #include "Nebulite/Module/Transformation/Arithmetic.hpp"
 #include "Nebulite/Utility/Ranges.hpp"
 

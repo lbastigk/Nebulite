@@ -14,7 +14,6 @@
 
 // Nebulite
 #include "Nebulite/Data/Document/ScopedKey.hpp"
-#include "Nebulite/Utility/IO/Capture.hpp"
 
 //------------------------------------------
 // Forward declarations
@@ -31,6 +30,10 @@ class ContextScope;
 namespace Nebulite::Interaction::Execution {
 class Domain;
 } // namespace Nebulite::Interaction::Execution
+
+namespace Nebulite::Utility::IO {
+class Capture;
+} // namespace Nebulite::Utility::IO
 
 //------------------------------------------
 namespace Nebulite::Graphics {

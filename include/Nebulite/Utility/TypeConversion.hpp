@@ -28,8 +28,7 @@ public:
             if constexpr (std::is_same_v<NewType, bool>){
                 if (value == "true") return true;
                 if (value == "false") return false;
-                auto numeric = to<float>(value);
-                if (numeric.has_value()) {
+                if (auto const numeric = to<float>(value); numeric.has_value()) {
                     // Any numeric non-zero value is true
                     return !Math::isZero(numeric.value());
                 }

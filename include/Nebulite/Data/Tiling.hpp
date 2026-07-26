@@ -15,7 +15,6 @@
 // Nebulite
 #include "Nebulite/Data/Batch.hpp"
 #include "Nebulite/Math/Vec2.hpp"
-#include "Nebulite/Utility/IO/Capture.hpp"
 
 //------------------------------------------
 // Forward declarations
@@ -23,6 +22,10 @@
 namespace Nebulite::Core {
 class Renderer;
 } // namespace Nebulite::Core
+
+namespace Nebulite::Utility::IO {
+class Capture;
+} // namespace Nebulite::Utility::IO
 
 //------------------------------------------
 namespace Nebulite::Data {

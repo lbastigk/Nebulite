@@ -7,7 +7,6 @@
 // Nebulite
 #include "Nebulite/Core/GlobalSpace.hpp"
 #include "Nebulite/Data/Document/JSON.hpp"
-#include "Nebulite/Data/Document/JsonScope.hpp"
 #include "Nebulite/Nebulite.hpp"
 #include "Nebulite/ScopeAccessor.hpp"
 #include "Nebulite/Utility/IO/Capture.hpp"

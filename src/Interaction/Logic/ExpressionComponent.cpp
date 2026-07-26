@@ -62,7 +62,7 @@ ExpressionComponent ExpressionComponent::parseEval(std::string_view token, Varia
     return currentComponent;
 }
 
-ExpressionComponent ExpressionComponent::parseVariable(std::string_view token){
+ExpressionComponent ExpressionComponent::parseVariable(std::string_view const token){
     assert(token.starts_with('{') && "ExpressionComponent::parseVariable expects a token starting with '{'");
     assert(token.ends_with('}') && "ExpressionComponent::parseVariable expects a token ending with '}'");
 
@@ -91,7 +91,7 @@ ExpressionComponent ExpressionComponent::parseVariable(std::string_view token){
     return currentComponent;
 }
 
-ExpressionComponent ExpressionComponent::parseText(std::string_view token){
+ExpressionComponent ExpressionComponent::parseText(std::string_view const token){
     ExpressionComponent currentComponent;
     currentComponent.type = Type::text;
     currentComponent.stringRepresentation = token;
@@ -263,7 +263,7 @@ bool ExpressionComponent::isReturnableAsString() const noexcept {
 //------------------------------------------
 // Evaluation
 
-void ExpressionComponent::eval(std::string& result, ContextScope const& context, std::size_t recursionDepth) const {
+void ExpressionComponent::eval(std::string& result, ContextScope const& context, std::size_t const recursionDepth) const {
     switch (type) {
         //------------------------------------------
     case Type::variable:
@@ -289,7 +289,7 @@ double ExpressionComponent::evalAsDoubleImpl() const {
     return te_eval(expression);
 }
 
-Data::JSON ExpressionComponent::evalAsJsonImpl(ContextScope const& context, std::size_t recursionDepth) const {
+Data::JSON ExpressionComponent::evalAsJsonImpl(ContextScope const& context, std::size_t const recursionDepth) const {
     Data::JSON jsonResult;
     if (type == Type::eval) {
         if (formatter.cast == Formatter::CastType::none) {

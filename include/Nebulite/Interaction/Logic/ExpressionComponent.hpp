@@ -158,7 +158,7 @@ public:
      * @return The evaluation result as a JSON object.
      */
     template<typename F>
-    [[nodiscard]] Data::JSON evalAsJson(ContextScope const& context, std::size_t recursionDepth, F cacheUpdater) const {
+    [[nodiscard]] Data::JSON evalAsJson(ContextScope const& context, std::size_t const recursionDepth, F cacheUpdater) const {
         cacheUpdater();
         return evalAsJsonImpl(context, recursionDepth);
     }

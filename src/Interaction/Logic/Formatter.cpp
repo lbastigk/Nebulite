@@ -52,12 +52,12 @@ Formatter Formatter::readFormatter(std::string_view formatter) {
         auto const dotPos = formatter.find('.');
         // Read alignment
         if (dotPos != 0) {
-            auto alignmentStr = formatter.substr(0, dotPos);
+            auto const alignmentStr = formatter.substr(0, dotPos);
             fmt.alignment = Utility::TypeConversion::String::to<uint8_t>(alignmentStr);
         }
         // Read precision
         if (dotPos != std::string::npos) {
-            auto precisionStr = formatter.substr(dotPos + 1);
+            auto const precisionStr = formatter.substr(dotPos + 1);
             fmt.precision = Utility::TypeConversion::String::to<uint8_t>(precisionStr);
         }
     }

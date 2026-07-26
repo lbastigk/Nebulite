@@ -11,7 +11,7 @@
 
 // Nebulite
 #include "Nebulite/Constants/KeyNames.hpp"
-#include "Nebulite/Data/Document/ScopedKey.hpp"
+#include "Nebulite/Data/Document/ScopedKeyView.hpp"
 #include "Nebulite/Module/Base/RulesetModule.hpp"
 #include "Nebulite/Module/Domain/GlobalSpace/Physics.hpp"
 

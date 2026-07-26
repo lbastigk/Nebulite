@@ -450,7 +450,7 @@ void Expression::parseIntoComponents() {
                 ExpressionComponent::parseEval(
                     token,
                     variableNameGenerator,
-                    [&](std::string_view te_name, std::string_view key, ContextDeriver::TargetType contextType) {
+                    [&](std::string_view const te_name, std::string_view const key, ContextDeriver::TargetType const contextType) {
                     registerVariable(te_name, key, contextType, lateRegistrations);
                 }
             ));

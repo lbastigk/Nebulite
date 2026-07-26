@@ -13,7 +13,6 @@
 #include <absl/container/flat_hash_map.h>
 
 // Nebulite
-#include "Nebulite/Interaction/Context.hpp"
 #include "Nebulite/Interaction/Rules/Ruleset.hpp"
 
 //------------------------------------------
@@ -23,6 +22,11 @@ namespace Nebulite::Core {
 class RenderObject;
 class GlobalSpace;
 } // namespace Nebulite::Core
+
+namespace Nebulite::Interaction {
+class Context;
+class ContextScope;
+} // namespace Nebulite::Interaction
 
 namespace Nebulite::Interaction::Execution {
 class Domain;

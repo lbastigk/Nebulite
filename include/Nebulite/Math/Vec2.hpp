@@ -91,7 +91,7 @@ struct Vec2<T,CoordinateType::XY> {
      * @return The Euclidean distance between the two vectors.
      * @note This function is only available for floating-point types.
      */
-    T euclideanDistance(Vec2 const& other) const requires(std::is_floating_point_v<T>) {
+    [[nodiscard]] T euclideanDistance(Vec2 const& other) const requires(std::is_floating_point_v<T>) {
         T dx = x - other.x;
         T dy = y - other.y;
         return std::sqrt(dx * dx + dy * dy);
@@ -103,7 +103,7 @@ struct Vec2<T,CoordinateType::XY> {
      * @return The Manhattan distance between the two vectors.
      * @note This function is only available for non-floating-point types.
      */
-    T manhattanDistance(Vec2 const& other) const requires(!std::is_floating_point_v<T>) {
+    [[nodiscard]] T manhattanDistance(Vec2 const& other) const requires(!std::is_floating_point_v<T>) {
         T dx = x - other.x;
         T dy = y - other.y;
         return std::abs(dx) + std::abs(dy);
@@ -115,7 +115,7 @@ struct Vec2<T,CoordinateType::XY> {
      * @return The Chebyshev distance between the two vectors.
      * @note This function is only available for non-floating-point types.
      */
-    T chebyshevDistance(Vec2 const& other) const requires(!std::is_floating_point_v<T>) {
+    [[nodiscard]] T chebyshevDistance(Vec2 const& other) const requires(!std::is_floating_point_v<T>) {
         T dx = std::abs(x - other.x);
         T dy = std::abs(y - other.y);
         return std::max(dx, dy);
