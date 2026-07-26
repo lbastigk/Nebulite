@@ -5,13 +5,12 @@
 // Includes
 
 // Standard library
+#include <array>
 #include <cstdint>
 #include <string_view>
-#include <vector>
 
 // Nebulite
 #include "Nebulite/Constants/KeyNames.hpp"
-#include "Nebulite/Data/Document/ScopedKeyView.hpp"
 #include "Nebulite/Math/Vec2.hpp"
 #include "Nebulite/Module/Base/RulesetModule.hpp"
 
@@ -61,7 +60,7 @@ private:
     //------------------------------------------
     // Base value caching for camera alignment
 
-    std::vector<Data::ScopedKeyView> const baseKeys = {
+    static std::array constexpr baseKeys = {
         Constants::KeyNames::RenderObject::positionX,
         Constants::KeyNames::RenderObject::positionY,
         Constants::KeyNames::RenderObject::sizeX,

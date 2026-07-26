@@ -5,9 +5,9 @@
 // Includes
 
 // Standard library
+#include <array>
 #include <cstddef>
 #include <string_view>
-#include <vector>
 
 // Nebulite
 #include "Nebulite/Data/Document/ScopedKeyView.hpp"
@@ -55,7 +55,7 @@ private:
     //------------------------------------------
     // Base value caching
 
-    std::vector<Data::ScopedKeyView> const baseKeys; // No keys required
+    static std::array<Data::ScopedKeyView, 0> constexpr baseKeys = {}; // No keys required
 
     enum class Key : std::size_t {}; // No keys required
 };

@@ -5,13 +5,12 @@
 // Includes
 
 // Standard library
+#include <array>
 #include <cstdint>
 #include <string_view>
-#include <vector>
 
 // Nebulite
 #include "Nebulite/Constants/KeyNames.hpp"
-#include "Nebulite/Data/Document/ScopedKeyView.hpp"
 #include "Nebulite/Module/Base/RulesetModule.hpp"
 #include "Nebulite/Module/Domain/GlobalSpace/Physics.hpp"
 
@@ -72,7 +71,7 @@ private:
     /**
      * @brief List of keys for per-object physics-related base values in the ordered cache list.
      */
-    std::vector<Data::ScopedKeyView> const baseKeys = {
+    static std::array constexpr baseKeys = {
         // Base values for size
         Constants::KeyNames::RenderObject::positionX,
         Constants::KeyNames::RenderObject::positionY,

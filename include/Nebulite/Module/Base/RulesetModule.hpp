@@ -6,13 +6,16 @@
 
 // Standard library
 #include <cassert>
+#include <concepts>
 #include <cstdint>
+#include <ranges>
 #include <string_view>
 #include <type_traits>
 #include <vector>
 
 // Nebulite
 #include "Nebulite/Data/Document/ScopedKeyView.hpp"
+#include "Nebulite/Interaction/Execution/Domain.hpp"
 #include "Nebulite/Interaction/Rules/Ruleset.hpp"
 #include "Nebulite/Interaction/Rules/StaticRulesetMap.hpp"
 #include "Nebulite/ScopeAccessor.hpp"
@@ -122,7 +125,16 @@ protected:
      * @param baseKeys The key list to retrieve
      * @return The BaseList-ensurer function.
      */
-    [[nodiscard]] Interaction::Rules::StaticRuleset::BaseListFunction generateBaseListFunction(std::vector<Data::ScopedKeyView> const& baseKeys) const ;
+    template <std::ranges::input_range R> requires std::same_as<std::remove_cvref_t<std::ranges::range_reference_t<R>>,Data::ScopedKeyView>
+    [[nodiscard]] Interaction::Rules::StaticRuleset::BaseListFunction generateBaseListFunction(R&& baseKeys) const {
+        return [this, bk = std::forward<R>(baseKeys)](Interaction::Execution::Domain const& domain) -> double** {
+            try {
+                return domain.ensureOrderedCacheList(id, bk);
+            } catch (...) {
+                return nullptr;
+            }
+        };
+    }
 
     /**
      * @brief Checks if the global context is the actual GlobalSpace, and throws an exception if not.

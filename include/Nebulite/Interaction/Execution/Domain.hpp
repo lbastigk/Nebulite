@@ -5,14 +5,17 @@
 // Includes
 
 // Standard library
+#include <concepts>
 #include <cstddef>
 #include <cstdint> // NOLINT
 #include <memory>
 #include <mutex>
 #include <optional>
+#include <ranges>
 #include <span>
 #include <string>
 #include <string_view>
+#include <type_traits>
 #include <vector>
 
 // Nebulite
@@ -475,7 +478,10 @@ public:
      * @param keys The vector of keys to populate the cache with if it does not exist.
      * @return A pointer to the ordered vector of double pointers for the specified keys.
      */
-    [[nodiscard]] double** ensureOrderedCacheList(std::uint64_t uniqueId, std::vector<Data::ScopedKeyView> const& keys) const ;
+    template <std::ranges::input_range R> requires std::same_as<std::remove_cvref_t<std::ranges::range_reference_t<R>>,Data::ScopedKeyView>
+    [[nodiscard]] double** ensureOrderedCacheList(std::uint64_t uniqueId, R&& keys) const {
+        return domainScope.ensureOrderedCacheList(uniqueId, std::forward<R>(keys));
+    }
 
     /**
      * @brief Locks the domain's document for thread-safe access.

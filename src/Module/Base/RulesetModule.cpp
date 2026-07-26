@@ -4,7 +4,6 @@
 // Standard library
 #include <stdexcept>
 #include <string_view>
-#include <vector>
 
 // Nebulite
 #include "Nebulite/Core/GlobalSpace.hpp"
@@ -18,16 +17,6 @@ namespace Nebulite::Module::Base {
 RulesetModule::RulesetModule(std::string_view const moduleName)
 : id{Data::MappedOrderedCacheList::generateUniqueId(moduleName)}
 {}
-
-Interaction::Rules::StaticRuleset::BaseListFunction RulesetModule::generateBaseListFunction(std::vector<Data::ScopedKeyView> const& baseKeys) const {
-    return [this, baseKeys](Interaction::Execution::Domain const& domain) -> double** {
-        try {
-            return domain.ensureOrderedCacheList(id, baseKeys);
-        } catch (...) {
-            return nullptr;
-        }
-    };
-}
 
 void RulesetModule::checkGlobalContextCorrectness(Interaction::Context const& context) {
     if (!isGlobalContextCorrect(context)) {

@@ -137,7 +137,7 @@ and generate a baslist function on construction so that the Invoke class can gen
 Example, using the camera movement ruleset:
 ```cpp
 // Define the list of scoped keys
-std::vector<Data::ScopedKeyView> const baseKeys = {
+static std::array constexpr baseKeys = {
     Constants::KeyNames::RenderObject::positionX,
     Constants::KeyNames::RenderObject::positionY,
     Constants::KeyNames::RenderObject::sizeX,

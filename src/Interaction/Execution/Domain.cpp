@@ -146,10 +146,6 @@ Constants::Event Domain::parse(std::vector<std::string> const& args, Context& ct
     return funcTree->parse(args, ctx, ctxScope);
 }
 
-double** Domain::ensureOrderedCacheList(std::uint64_t const uniqueId, std::vector<Data::ScopedKeyView> const& keys) const {
-    return domainScope.ensureOrderedCacheList(uniqueId, keys);
-}
-
 std::unique_lock<std::recursive_mutex> Domain::lockDocument() const {
     return domainScope.lock();
 }
