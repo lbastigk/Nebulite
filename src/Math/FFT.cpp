@@ -4,6 +4,7 @@
 // Standard library
 #include <algorithm>
 #include <bit>
+#include <cassert>
 #include <cmath>
 #include <complex>
 #include <cstddef>
@@ -114,6 +115,7 @@ std::complex<double> evaluatePolynomial(std::vector<double> const& coefficients,
     std::complex zPow(1.0);
     std::complex result(0.0);
     for (double const c : coefficients | std::views::reverse) { // coefficients hold highest order first
+        assert(!std::isnan(c));
         result += c * zPow;
         zPow *= z;
     }
@@ -138,12 +140,13 @@ std::vector<double> FFT::applyTransferFunctionFrequencyDomain(std::vector<double
         double const omega = 2.0 * std::numbers::pi * static_cast<double>(k) / xSize;
         x *= evalTransfer(omega, num, den);
     }
-    auto const y = fftInverse(X);
-    std::vector<double> dataOut(y.size());
-    std::ranges::transform(y, dataOut.begin(), [](std::complex<double> const& c) {
-        return c.real();
-    });
-    return dataOut;
+    return fftInverse(X)
+        | std::views::transform([](std::complex<double> const& c) {
+            assert(!std::isnan(c.real()) && !std::isnan(c.imag()));
+            assert(Math::isZero(c.imag())); // Input data and tf is real, so output should be real as well
+            return c.real();
+        })
+        | std::ranges::to<std::vector<double>>();
 }
 
 } // namespace Nebulite::Math
