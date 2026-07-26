@@ -56,7 +56,6 @@ public:
 
     static std::string_view constexpr moduleName = "::camera";
 
-private:
     //------------------------------------------
     // Base value caching for camera alignment
 
@@ -74,6 +73,7 @@ private:
         spriteSizeY
     };
 
+private:
     //------------------------------------------
     // Global values
 

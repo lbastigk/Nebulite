@@ -15,7 +15,7 @@
 //------------------------------------------
 namespace Nebulite::Module::Ruleset {
 
-Movement::Movement() : RulesetModule(moduleName) {
+Movement::Movement() : RulesetModule(moduleName, this) {
     auto const baseListFunc = generateBaseListFunction(baseKeys);
 
     // Global rulesets

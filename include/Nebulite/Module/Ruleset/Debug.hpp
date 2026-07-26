@@ -6,7 +6,7 @@
 
 // Standard library
 #include <array>
-#include <cstddef>
+#include <cstdint>
 #include <string_view>
 
 // Nebulite
@@ -38,7 +38,7 @@ public:
 
     //------------------------------------------
     // Constructor
-    Debug() : RulesetModule(moduleName) {
+    Debug() : RulesetModule(moduleName, this) {
         auto const baseListFunc = generateBaseListFunction(baseKeys);
 
         // Local
@@ -51,13 +51,12 @@ public:
 
     static std::string_view constexpr moduleName = "::debug";
 
-private:
     //------------------------------------------
     // Base value caching
 
     static std::array<Data::ScopedKeyView, 0> constexpr baseKeys = {}; // No keys required
 
-    enum class Key : std::size_t {}; // No keys required
+    enum class Key : std::uint8_t {}; // No keys required
 };
 } // namespace Nebulite::Module::Ruleset
 #endif // NEBULITE_MODULE_RULESET_DEBUG_HPP

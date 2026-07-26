@@ -41,7 +41,7 @@ class RulesetModule;
 namespace Nebulite::Interaction::Rules {
 /**
  * @class Ruleset
- * @brief Virtual base class for Ruleset types.
+ * @brief Base class for Ruleset types.
  */
 class Ruleset {
 public:

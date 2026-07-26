@@ -18,6 +18,7 @@
 #include "Nebulite/Interaction/Execution/Domain.hpp"
 #include "Nebulite/Interaction/Rules/Ruleset.hpp"
 #include "Nebulite/Interaction/Rules/StaticRulesetMap.hpp"
+#include "Nebulite/Module/Base/RulesetModuleConcept.hpp"
 #include "Nebulite/ScopeAccessor.hpp"
 
 //------------------------------------------
@@ -37,7 +38,9 @@ namespace Nebulite::Module::Base {
  */
 class RulesetModule {
 public:
-    explicit RulesetModule(std::string_view moduleName);
+    template<DerivedFromRulesetModule DerivedModule>
+    explicit RulesetModule(std::string_view moduleName, DerivedModule* /*derived*/)
+        : id{Data::MappedOrderedCacheList::generateUniqueId(moduleName)}{}
 
     /**
      * @brief Registers all static rulesets from this module into the given container

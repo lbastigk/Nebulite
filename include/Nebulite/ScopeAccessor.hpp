@@ -20,7 +20,6 @@ class Console;
 } // namespace Nebulite::Module::Domain::Renderer
 
 namespace Nebulite::Module::Base {
-
 class RulesetModule;
 
 template<typename DomainType>

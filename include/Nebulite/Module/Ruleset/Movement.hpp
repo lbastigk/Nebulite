@@ -51,11 +51,8 @@ public:
 
     static std::string_view constexpr moduleName = "::movement";
 
-private:
     //------------------------------------------
     // Base values for movement framework
-
-    // 1.) To retrieve from self and other using the ensureOrderedCacheList function
 
     /**
      * @brief List of keys for per-object movement-related base values in the ordered cache list.
@@ -111,6 +108,7 @@ private:
         position_last_Y
     };
 
+private:
     struct Radius {
         double& slf;
         double& otr;

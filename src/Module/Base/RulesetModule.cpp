@@ -3,7 +3,6 @@
 
 // Standard library
 #include <stdexcept>
-#include <string_view>
 
 // Nebulite
 #include "Nebulite/Core/GlobalSpace.hpp"
@@ -13,10 +12,6 @@
 
 //------------------------------------------
 namespace Nebulite::Module::Base {
-
-RulesetModule::RulesetModule(std::string_view const moduleName)
-: id{Data::MappedOrderedCacheList::generateUniqueId(moduleName)}
-{}
 
 void RulesetModule::checkGlobalContextCorrectness(Interaction::Context const& context) {
     if (!isGlobalContextCorrect(context)) {

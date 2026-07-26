@@ -62,7 +62,6 @@ public:
 
     static std::string_view constexpr moduleName = "::physics";
 
-private:
     //------------------------------------------
     // Base values for physics framework
 
@@ -130,8 +129,7 @@ private:
         physics_lastPositionY,
     };
 
-    // 2.) To retrieve from GlobalSpace
-
+private:
     /**
      * @struct GlobalVal
      * @brief Struct to hold pointers to global variables used in physics calculations.

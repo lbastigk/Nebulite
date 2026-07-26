@@ -21,7 +21,7 @@
 //------------------------------------------
 namespace Nebulite::Module::Ruleset {
 
-Physics::Physics() : RulesetModule(moduleName) {
+Physics::Physics() : RulesetModule(moduleName, this) {
     auto const baseListFunc = generateBaseListFunction(baseKeys);
 
     // Global rulesets
