@@ -60,7 +60,7 @@ private:
     /**
      * @brief List of keys for per-object movement-related base values in the ordered cache list.
      */
-    const std::vector<Data::ScopedKeyView> baseKeys = {
+    std::vector<Data::ScopedKeyView> const baseKeys = {
         // Position and size
         Constants::KeyNames::RenderObject::positionX,
         Constants::KeyNames::RenderObject::positionY,

@@ -55,7 +55,7 @@ private:
     //------------------------------------------
     // Base value caching
 
-    const std::vector<Data::ScopedKeyView> baseKeys; // No keys required
+    std::vector<Data::ScopedKeyView> const baseKeys; // No keys required
 
     enum class Key : std::size_t {}; // No keys required
 };

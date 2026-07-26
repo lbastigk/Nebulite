@@ -9,7 +9,7 @@
 #include <optional>
 #include <string>
 #include <string_view>
-#include <system_error>
+#include <system_error> // NOLINT
 #include <type_traits>
 #include <utility>
 
