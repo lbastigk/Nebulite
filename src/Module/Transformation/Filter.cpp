@@ -43,7 +43,7 @@ bool Filter::filterRegex(std::span<std::string_view const> const& args, Data::Js
     try {
         std::string const pattern = Utility::StringHandler::recombineArgs(args.subspan(1));
         regexPattern = std::regex(pattern);
-    } catch (const std::regex_error&) {
+    } catch (std::regex_error const&) {
         return false; // Invalid regex pattern
     }
 
@@ -87,7 +87,7 @@ bool Filter::filterRegexValue(std::span<std::string_view const> const& args, Dat
     try {
         std::string const pattern = Utility::StringHandler::recombineArgs(args.subspan(1));
         regexPattern = std::regex(pattern);
-    } catch (const std::regex_error&) {
+    } catch (std::regex_error const&) {
         return false; // Invalid regex pattern
     }
 
@@ -97,7 +97,7 @@ bool Filter::filterRegexValue(std::span<std::string_view const> const& args, Dat
             [regexPattern](std::string const& value) {
                 try {
                     return std::regex_match(value, regexPattern);
-                } catch (const std::regex_error&) {
+                } catch (std::regex_error const&) {
                     return false; // Invalid regex pattern
                 }
             })

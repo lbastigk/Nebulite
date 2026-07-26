@@ -193,7 +193,7 @@ public:
         invalid
     };
 
-    using Function = std::function<void(const Context&, double** slf, double** otr)>;
+    using Function = std::function<void(Context const&, double** slf, double** otr)>;
     using BaseListFunction = std::function<double**(Execution::Domain const&)>;
 
     //------------------------------------------

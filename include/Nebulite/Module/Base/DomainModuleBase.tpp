@@ -87,7 +87,7 @@ void DomainModuleBase::bindFunction(
     std::string_view helpDescription
 ) {
     // forward to static helper, binding 'this' as the object pointer of type C*
-    bindFunctionStatic(funcTree.get(), static_cast<const C*>(this), functionPtr, name, helpDescription);
+    bindFunctionStatic(funcTree.get(), static_cast<C const*>(this), functionPtr, name, helpDescription);
 }
 
 // Non-static overload: generic free/static/callable

@@ -286,8 +286,8 @@ private:
      *          It allows us to maintain a list of available functions in a structured way.
      */
     struct FunctionInfo {
-        const char* name;
-        const char* description;
+        char const* name;
+        char const* description;
         void* pointer;
         int type;
         void* context;

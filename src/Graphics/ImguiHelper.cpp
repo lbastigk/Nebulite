@@ -214,7 +214,7 @@ void completionCallback(ImGuiInputTextCallbackData* data, ConsoleState const* st
     // Check completions
     if (completions.size() == 1) {
         auto const& toInsert = completions.front();
-        const std::string& cmd = state->command;
+        std::string const& cmd = state->command;
 
         // Find overlap suffix: the part at the end of the current command that matches the beginning of the completion.
         // e.g.: typed is fooBar, fooBarBaz is complete -> remove fooBar and insert full complete string.

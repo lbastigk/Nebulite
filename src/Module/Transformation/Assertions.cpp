@@ -53,7 +53,7 @@ bool Assertions::assertTrue(std::span<std::string_view const> const& args, Data:
         static std::string const errorMessage = std::string(assertTrueName) + ": JSON value is null";
         throw std::runtime_error(errorMessage);
     }
-    variant.value().visit([&](auto const& value) {
+    variant.value().visit([&]<typename T>(T const& value) {
         if constexpr (std::is_same_v<std::decay_t<decltype(value)>, bool>) {
             if (!value) {
                 printUserDefinedMessage(args);
@@ -76,7 +76,7 @@ bool Assertions::assertFalse(std::span<std::string_view const> const& args, Data
         static std::string const errorMessage = std::string(assertFalseName) + ": JSON value is null";
         throw std::runtime_error(errorMessage);
     }
-    variant.value().visit([&](auto const& value) {
+    variant.value().visit([&]<typename T>(T const& value) {
         if constexpr (std::is_same_v<std::decay_t<decltype(value)>, bool>) {
             if (value) {
                 printUserDefinedMessage(args);

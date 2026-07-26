@@ -187,12 +187,12 @@ public:
             return std::to_string(id);
         }
 
-        bool operator==(const RmlElementIdentifier& other) const {
+        bool operator==(RmlElementIdentifier const& other) const {
             return id == other.id;
         }
 
         template <typename H>
-        friend H AbslHashValue(H h, const RmlElementIdentifier& toHash) {
+        friend H AbslHashValue(H h, RmlElementIdentifier const& toHash) {
             return H::combine(std::move(h), toHash.id);
         }
     };

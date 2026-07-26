@@ -61,7 +61,7 @@ void Camera::alignRight(Interaction::Context const& context, double** slf, doubl
     setCameraPosition(getAdjustedObjectPosition(slf, Align::Center), Align::Right);
 }
 
-void Camera::setCameraPosition(const Position& pos, Align const& align) const {
+void Camera::setCameraPosition(Position const& pos, Align const& align) const {
     switch (align) {
         case Align::Top:
             *globalVal.camPosY = pos.y ;

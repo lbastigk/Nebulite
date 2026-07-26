@@ -165,7 +165,7 @@ void setToken(std::string& token, std::string const& evaluatedKey, ContextScope 
     case ContextDeriver::TargetType::none: {
         // No document referenced, direct use of transformations: {|my|Transformations|come|directly|at|the|beginning}
         // This requires an empty document that acts as a parsing mechanism for the transformations
-        thread_local const Data::JsonScope emptyDoc;
+        thread_local Data::JsonScope const emptyDoc;
         token = getStringValue(emptyDoc, scopedKey.view());
         break;
     }
@@ -204,7 +204,7 @@ void setToken(Data::JSON& token, std::string const& evaluatedKey, ContextScope c
     case ContextDeriver::TargetType::none: {
         // No document referenced, direct use of transformations: {|my|Transformations|come|directly|at|the|beginning}
         // This requires an empty document that acts as a parsing mechanism for the transformations
-        thread_local const Data::JsonScope emptyDoc;
+        thread_local Data::JsonScope const emptyDoc;
         token = emptyDoc.getSubDoc(scopedKey.view());
         break;
     }

@@ -61,7 +61,7 @@ private:
     //------------------------------------------
     // Base value caching for camera alignment
 
-    const std::vector<Data::ScopedKeyView> baseKeys = {
+    std::vector<Data::ScopedKeyView> const baseKeys = {
         Constants::KeyNames::RenderObject::positionX,
         Constants::KeyNames::RenderObject::positionY,
         Constants::KeyNames::RenderObject::sizeX,
@@ -101,7 +101,7 @@ private:
     // TODO: Second align parameter for object edge alignment
     //       Each camera align needs to know what part of the object to align to what part of the camera view
     //       e.g.: ::camera::align::right-top would align the camera's right edge to the object's top edge
-    void setCameraPosition(const Position& pos, Align const& align) const ;
+    void setCameraPosition(Position const& pos, Align const& align) const ;
 
     static Position getAdjustedObjectPosition(double** baseValues, Align const& align);
 };

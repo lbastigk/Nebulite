@@ -534,7 +534,7 @@ namespace {
 using Fn = bool (rapidjson::Value::*)() const;
 using Formatter = std::string (*)(rapidjson::Value const*);
 
-std::array<std::pair<Fn, const char*>, 6> numericTypeList = {{
+std::array<std::pair<Fn, char const*>, 6> numericTypeList = {{
     {&rapidjson::Value::IsInt64, "value:int:64"},
     {&rapidjson::Value::IsInt, "value:int:32"},
     {&rapidjson::Value::IsDouble, "value:float:64"},

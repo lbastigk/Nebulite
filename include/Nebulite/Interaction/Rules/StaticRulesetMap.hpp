@@ -105,7 +105,7 @@ private:
     void help(Context const& context, double** slf, double** otr) const ;
     static std::string_view constexpr helpName = "::help";
     static std::string_view constexpr helpDesc = "Lists all available static rulesets with their descriptions.";
-    StaticRuleset::BaseListFunction const helpBaseListFunc = [](const Execution::Domain&) -> double** {return nullptr;};
+    StaticRuleset::BaseListFunction const helpBaseListFunc = [](Execution::Domain const&) -> double** {return nullptr;};
 };
 } // namespace Nebulite::Interaction::Rules
 #endif // NEBULITE_INTERACTION_RULES_STATICRULESETMAP_HPP

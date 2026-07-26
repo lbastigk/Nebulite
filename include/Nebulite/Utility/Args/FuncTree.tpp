@@ -91,7 +91,7 @@ void FuncTree<ReturnValue, AdditionalArgs...>::bindFunction(
     std::string_view helpDescription
 ) {
     auto fp = makeFunctionPtr(functionPtr);
-    auto fp_identity = FunctionIdentity(static_cast<const C*>(this), functionPtr);
+    auto fp_identity = FunctionIdentity(static_cast<C const*>(this), functionPtr);
     bindFunction({fp, fp_identity}, name, helpDescription);
 }
 
@@ -104,7 +104,7 @@ void FuncTree<ReturnValue, AdditionalArgs...>::bindFunction(
     std::string_view helpDescription
 ) {
     auto fp = makeFunctionPtr(functionPtr);
-    auto fp_identity = FunctionIdentity(static_cast<const C*>(this), functionPtr);
+    auto fp_identity = FunctionIdentity(static_cast<C const*>(this), functionPtr);
     bindFunction({fp, fp_identity}, name, helpDescription);
 }
 
@@ -547,7 +547,7 @@ ReturnValue FuncTree<ReturnValue, AdditionalArgs...>::parseWithPrefix(std::vecto
     // Optimize to use parseQuotedArguments(existingArgs,cmd) once it supports vec string_view as output!
     // Quote-aware tokenization
     auto const [args, unclosedQuote] = StringHandler::parseQuotedArguments(cmd);
-    std::ranges::transform(args, std::back_inserter(existingArgs), [](const std::string& str) { return std::string_view(str); });
+    std::ranges::transform(args, std::back_inserter(existingArgs), [](std::string const& str) { return std::string_view(str); });
     if (unclosedQuote) {
         capture.error.println("Warning: Unclosed quote in command: ", cmd);
     }

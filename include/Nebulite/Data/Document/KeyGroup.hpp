@@ -33,7 +33,7 @@ class KeyGroup {
     static auto constexpr prefix = Prefix;
 
 public:
-    static consteval auto makeScoped(const char* keyStr) {
+    static consteval auto makeScoped(char const* keyStr) {
         static_assert(!Prefix.hasOutsideDefinition(), "Cannot create scoped keys if the root scope isn't defined at compile time!");
         return ScopedKeyView::createFromOptionalFixedString<Prefix>(keyStr);
     }

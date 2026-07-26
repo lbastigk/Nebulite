@@ -107,7 +107,7 @@ std::expected<T, SimpleValueRetrievalError> JSON::getWithTransformations(std::st
     }
 
     // Apply each transformation in sequence
-    if (auto argsSpan = std::span<std::string_view const>(args.begin()+1, args.end()); !JsonTransformer::instance().parse(argsSpan, tempDoc)) {
+    if (auto const argsSpan = std::span<std::string_view const>(args.begin()+1, args.end()); !JsonTransformer::instance().parse(argsSpan, tempDoc)) {
         return std::unexpected(SimpleValueRetrievalError::TRANSFORMATION_FAILURE); // if any transformation fails, return default value
     }
     return tempDoc.get<T>(Module::Base::TransformationModule::rootKeyStr);

@@ -50,8 +50,8 @@ public:
     RecursionAllocator() = default;
     ~RecursionAllocator() = default;
 
-    RecursionAllocator(const RecursionAllocator&) = delete;
-    RecursionAllocator& operator=(const RecursionAllocator&) = delete;
+    RecursionAllocator(RecursionAllocator const&) = delete;
+    RecursionAllocator& operator=(RecursionAllocator const&) = delete;
     RecursionAllocator(RecursionAllocator&&) = delete;
     RecursionAllocator& operator=(RecursionAllocator&&) = delete;
 

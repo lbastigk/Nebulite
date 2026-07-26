@@ -402,7 +402,7 @@ void Expression::updateUnstableValues(ContextScope const& context) const {
 // Core Helper functions
 
 Data::JsonScope const& Expression::emptyDoc() {
-    thread_local const Data::JsonScope emptyDoc;
+    thread_local Data::JsonScope const emptyDoc;
     return emptyDoc;
 }
 
