@@ -139,7 +139,7 @@ std::optional<size_t> Environment::getIdFromIndex(std::size_t const index) const
 }
 
 std::optional<size_t> Environment::getIndexFromId(std::size_t const domainId) const {
-    for (const auto& [objIndex, objId] : indexToIdMap) {
+    for (auto const& [objIndex, objId] : indexToIdMap) {
         if (objId == domainId) {
             return objIndex; // Return the index associated with the given ID
         }

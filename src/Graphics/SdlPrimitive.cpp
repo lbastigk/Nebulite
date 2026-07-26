@@ -74,7 +74,7 @@ void SdlPrimitive::drawFilledPolygon(SDL_Renderer* renderer, SDL_Texture* textur
     // Find Y bounds
     float minY = points[0].y;
     float maxY = points[0].y;
-    for (const auto& [_, py] : points) {
+    for (auto const& [_, py] : points) {
         minY = std::min(minY, py);
         maxY = std::max(maxY, py);
     }

@@ -131,7 +131,7 @@ void InputMapping::processMappings() {
 
         // Process each mapping
         int triggerCount = 0;
-        for(const auto& [key, type] : {entry.slotA, entry.slotB, entry.slotC}) {
+        for(auto const& [key, type] : {entry.slotA, entry.slotB, entry.slotC}) {
             if (key.empty())
                 continue;
             switch (type) {

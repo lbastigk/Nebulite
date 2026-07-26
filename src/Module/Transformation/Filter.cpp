@@ -49,7 +49,7 @@ bool Filter::filterRegex(std::span<std::string_view const> const& args, Data::Js
 
     auto const memberKeyPairs = jsonDoc.listAvailableMembersAndKeys(rootKey);
     Data::JSON filtered;
-    for (const auto& [member, key] : memberKeyPairs) {
+    for (auto const& [member, key] : memberKeyPairs) {
         if (std::regex_match(member, regexPattern)) {
             filtered.setSubDoc(member, jsonDoc.getSubDoc(key));
         }
@@ -66,7 +66,7 @@ bool Filter::filterGlob(std::span<std::string_view const> const& args, Data::Jso
     std::string const pattern = Utility::StringHandler::recombineArgs(args.subspan(1));
     auto const memberKeyPairs = jsonDoc.listAvailableMembersAndKeys(rootKey);
     Data::JSON filtered;
-    for (const auto& [member, key] : memberKeyPairs) {
+    for (auto const& [member, key] : memberKeyPairs) {
         if (Utility::globMatch(pattern, member)) {
             filtered.setSubDoc(member, jsonDoc.getSubDoc(key));
         }
@@ -154,7 +154,7 @@ bool Filter::filterNulls(Data::JsonScope& jsonDoc) {
     std::size_t arrayIndex = 0;
     auto const memberKeyPairs = jsonDoc.listAvailableMembersAndKeys(rootKey);
     Data::JSON filteredObject;
-    for (const auto& [member, key] : memberKeyPairs) {
+    for (auto const& [member, key] : memberKeyPairs) {
         auto& memberScope = jsonDoc.shareScope(key);
         filterNulls(memberScope);
 

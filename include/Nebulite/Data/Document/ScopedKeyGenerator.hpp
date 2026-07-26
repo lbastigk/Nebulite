@@ -85,7 +85,7 @@ public:
     [[nodiscard]] ScopedKey build() const {
         ScopedKey result(base_);
         for (std::size_t i = 0; i < count_; ++i) {
-            if (const auto& op = ops_[i]; op.type == OpType::Member) {
+            if (auto const& op = ops_[i]; op.type == OpType::Member) {
                 result = result.addMember(op.memberName);
             } else {
                 result = result.addIndex(op.indexValue);

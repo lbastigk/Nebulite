@@ -421,7 +421,7 @@ void ImguiHelper::renderDomainConsole(Interaction::Context& ctx, Interaction::Co
     ImGui::BeginChild("ConsoleOutput", ImVec2(0, -ImGui::GetFrameHeightWithSpacing()), true);
 
     ImGui::PushTextWrapPos(0.0f); // wrap at window/child width
-    for (const auto& [content, type] : capture.getHistory()){
+    for (auto const& [content, type] : capture.getHistory()){
         std::string contentFull;
         switch (type) {
             case Utility::IO::HistoryLine::Type::Info:

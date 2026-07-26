@@ -104,7 +104,7 @@ bool FileManagement::isDirectory(std::string_view const path) {
 std::vector<std::string> FileManagement::listFilesInDirectory(std::string_view const dir){
     std::vector<std::string> files;
     try {
-        for (const auto& entry : std::filesystem::directory_iterator(dir)) {
+        for (auto const& entry : std::filesystem::directory_iterator(dir)) {
             if (entry.is_regular_file()) {
                     files.push_back(entry.path().filename().string());
             }
@@ -118,7 +118,7 @@ std::vector<std::string> FileManagement::listFilesInDirectory(std::string_view c
 std::vector<std::string> FileManagement::listContentInDirectory(std::string_view const dir) {
     std::vector<std::string> entries;
     try {
-        for (const auto& entry : std::filesystem::directory_iterator(dir)) {
+        for (auto const& entry : std::filesystem::directory_iterator(dir)) {
             entries.push_back(entry.path().filename().string());
         }
     } catch (std::exception const& e) {

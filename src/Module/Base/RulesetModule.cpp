@@ -9,7 +9,6 @@
 // Nebulite
 #include "Nebulite/Core/GlobalSpace.hpp"
 #include "Nebulite/Interaction/Execution/Domain.hpp"
-#include "Nebulite/Interaction/Rules/StaticRulesetMap.hpp"
 #include "Nebulite/Module/Base/RulesetModule.hpp"
 #include "Nebulite/Nebulite.hpp"
 
@@ -21,7 +20,7 @@ RulesetModule::RulesetModule(std::string_view const moduleName)
 {}
 
 Interaction::Rules::StaticRuleset::BaseListFunction RulesetModule::generateBaseListFunction(std::vector<Data::ScopedKeyView> const& baseKeys) const {
-    return [this, baseKeys](const Interaction::Execution::Domain& domain) -> double** {
+    return [this, baseKeys](Interaction::Execution::Domain const& domain) -> double** {
         try {
             return domain.ensureOrderedCacheList(id, baseKeys);
         } catch (...) {

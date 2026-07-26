@@ -81,7 +81,7 @@ public:
 
         // We test with both const and non-const object to support both member types
         using Obj = C&;
-        using ConstObj = const C&;
+        using ConstObj = C const&;
 
         //------------------------------------------
 

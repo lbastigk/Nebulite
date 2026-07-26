@@ -71,7 +71,7 @@ struct Vec2<T,CoordinateType::XY> {
     }
 
     template <typename H>
-    friend H AbslHashValue(H hv, const Vec2& coord) {
+    friend H AbslHashValue(H hv, Vec2 const& coord) {
         return H::combine(std::move(hv), coord.x, coord.y);
     }
 
@@ -160,7 +160,7 @@ struct Vec2<T, CoordinateType::WH> {
     }
 
     template <typename H>
-    friend H AbslHashValue(H hv, const Vec2& coord) {
+    friend H AbslHashValue(H hv, Vec2 const& coord) {
         return H::combine(std::move(hv), coord.w, coord.h);
     }
 
@@ -180,7 +180,7 @@ struct Vec2<T, CoordinateType::WH> {
      * @return The Euclidean distance between the two vectors.
      * @note This function is only available for floating-point types.
      */
-    T euclideanDistance(Vec2 const& other) const requires(std::is_floating_point_v<T>) {
+    [[nodiscard]] T euclideanDistance(Vec2 const& other) const requires(std::is_floating_point_v<T>) {
         T dx = w - other.w;
         T dy = h - other.h;
         return std::sqrt(dx * dx + dy * dy);
@@ -192,7 +192,7 @@ struct Vec2<T, CoordinateType::WH> {
      * @return The Manhattan distance between the two vectors.
      * @note This function is only available for non-floating-point types.
      */
-    T manhattanDistance(Vec2 const& other) const requires(!std::is_floating_point_v<T>) {
+    [[nodiscard]] T manhattanDistance(Vec2 const& other) const requires(!std::is_floating_point_v<T>) {
         T dx = w - other.w;
         T dy = h - other.h;
         return std::abs(dx) + std::abs(dy);
@@ -204,7 +204,7 @@ struct Vec2<T, CoordinateType::WH> {
      * @return The Chebyshev distance between the two vectors.
      * @note This function is only available for non-floating-point types.
      */
-    T chebyshevDistance(Vec2 const& other) const requires(!std::is_floating_point_v<T>) {
+    [[nodiscard]] T chebyshevDistance(Vec2 const& other) const requires(!std::is_floating_point_v<T>) {
         T dx = std::abs(w - other.w);
         T dy = std::abs(h - other.h);
         return std::max(dx, dy);

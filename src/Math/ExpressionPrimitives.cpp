@@ -84,7 +84,7 @@ void ExpressionPrimitives::help(std::span<std::string_view const> const& args) {
     Utility::Args::FuncTree tempFuncTree("Nebulite Expressions", true, true, Global::capture()); // Pass to main capture
 
     // Use a void lambda as binding function
-    for (const auto& funcInfo : availableFunctions()) {
+    for (auto const& funcInfo : availableFunctions()) {
         tempFuncTree.bindFunction(&pseudoBind, funcInfo.name, funcInfo.description);
     }
 
@@ -148,7 +148,7 @@ std::vector<ExpressionPrimitives::FunctionInfo> const& ExpressionPrimitives::ava
 }
 
 void ExpressionPrimitives::registerExpressions(std::vector<te_variable>& te_variables){
-    for (const auto& funcInfo : availableFunctions()) {
+    for (auto const& funcInfo : availableFunctions()) {
         te_variables.push_back({.name=funcInfo.name, .address=funcInfo.pointer, .type=funcInfo.type, .context=funcInfo.context});
     }
 }
