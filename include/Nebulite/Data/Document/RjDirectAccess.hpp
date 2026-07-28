@@ -63,9 +63,7 @@ public:
         );
 
         if (auto const rjVal = traversePath(key, doc); rjVal != nullptr) {
-            if (auto variant = getSimpleValue(rjVal); variant.has_value()) {
-                return variant.value();
-            }
+            return getSimpleValue(rjVal);
         }
         return std::nullopt;
     }

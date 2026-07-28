@@ -99,7 +99,10 @@ public:
             // static assert to ensure scope is valid
             static_assert(len == 0 || RequiredScope.back() == '.', "ScopedKey: The provided scope must be empty or end with a dot ('.')");
 
-            return {std::optional(RequiredScope.view()), std::string_view(keyInScope)};
+            return {
+                std::optional(RequiredScope.view()),
+                std::string_view(keyInScope) // NOLINT
+            };
         }
     }
 

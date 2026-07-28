@@ -119,7 +119,7 @@ public:
      * @param entry The ruleset to broadcast. Make sure the topic is not empty, as this implies a local-only entry!
      */
     void broadcast(std::shared_ptr<Interaction::Rules::Ruleset>&& entry) override {
-        base->broadcast(std::move(entry));
+        base->broadcast(std::move(entry)); // NOLINT
     }
 
     /**
@@ -127,7 +127,7 @@ public:
      * @param listener The listener to add.
      */
     void listen(std::shared_ptr<Interaction::Rules::Listener>&& listener) override {
-        base->listen(std::move(listener));
+        base->listen(std::move(listener)); // NOLINT
     }
 
     /**
@@ -146,10 +146,10 @@ public:
      */
     void process() override {
         if constexpr (Type == FlatContainerType::NoOffset) {
-            base->processNoOffset();
+            base->processNoOffset(); // NOLINT
         }
         else {
-            base->processWithOffset();
+            base->processWithOffset(); // NOLINT
         }
     }
 

@@ -139,7 +139,7 @@ public:
                 using difference_type = std::ptrdiff_t;
 
                 iterator() = default;
-                iterator(base_iterator_t i, std::size_t const idx) : it(i), index(idx) {}
+                iterator(base_iterator_t const& i, std::size_t const idx) : it(i), index(idx) {}
 
                 value_type operator*() const {
                     return value_type{index, *it};

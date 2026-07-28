@@ -382,7 +382,7 @@ public:
      */
     template <typename DomainType, typename DomainModuleType>
     static std::unique_ptr<DomainModuleType> createModule(std::string const& moduleName, Data::JsonScope const& settings, DomainType& domainReference, std::shared_ptr<DomainTree> const& funcTree) {
-        typename Module::Base::DomainModule<DomainType>::ConstructorParams params = {
+        typename Module::Base::DomainModule<DomainType>::ConstructorParams const params = {
             .domainReference = domainReference,
             .name = moduleName,
             .scope = scopeDeriver<DomainType, DomainModuleType>(domainReference.domainScope),
