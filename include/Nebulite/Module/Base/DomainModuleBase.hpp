@@ -167,26 +167,27 @@ public:
      */
     Data::JsonScope const& settingsScope;
 
+protected:
+    //------------------------------------------
+    // Routine management
+
     enum class RoutineUpdateMode : std::uint8_t {
         BEFORE_UPDATE_HOOK, // Update routines before calling the update hook
         AFTER_UPDATE_HOOK   // Update routines after calling the update hook
     };
 
-protected:
-    //------------------------------------------
-    // Routine management
-
     /**
      * @brief Adds a routine to the DomainModule's routine list. Automatically updated on each update-call.
+     * @tparam mode Update routine type, either before or after the update hook.
      * @param routine The routine to add
-     * @param mode Update routine type, either before or after the update hook.
      */
-    void addRoutine(Utility::Coordination::TimedRoutine const& routine, RoutineUpdateMode const mode) {
-        if (mode == RoutineUpdateMode::BEFORE_UPDATE_HOOK) {
-            routinesBeforeHook.push_back(routine);
+    template <RoutineUpdateMode mode>
+    void addRoutine(Utility::Coordination::TimedRoutine&& routine) {
+        if constexpr (mode == RoutineUpdateMode::BEFORE_UPDATE_HOOK) {
+            routinesBeforeHook.push_back(std::move(routine));
         }
-        else if (mode == RoutineUpdateMode::AFTER_UPDATE_HOOK) {
-            routinesAfterHook.push_back(routine);
+        else if constexpr (mode == RoutineUpdateMode::AFTER_UPDATE_HOOK) {
+            routinesAfterHook.push_back(std::move(routine));
         }
         else {
             std::unreachable();

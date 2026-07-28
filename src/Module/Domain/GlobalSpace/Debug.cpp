@@ -239,7 +239,7 @@ void clear_screen() {
     SetConsoleCursorPosition(hStd, home);
 
 #else
-    std::system("clear"); // NOLINT(bugprone-command-processor)
+    std::system("clear"); // NOLINT(bugprone-command-processor, concurrency-mt-unsafe)
 #endif
 }
 } // namespace
@@ -256,7 +256,7 @@ Constants::Event Debug::crash(std::span<std::string_view const> const& args, Int
     if (args.size() > 1) {
         if (auto const& crashType = args[1]; crashType == "segfault") {
             // Cause a segmentation fault
-            raise(SIGSEGV);
+            raise(SIGSEGV); // NOLINT
         } else if (crashType == "abort") {
             // Abort the program
             std::abort();
@@ -272,7 +272,7 @@ Constants::Event Debug::crash(std::span<std::string_view const> const& args, Int
         }
     } else {
         // Default: segmentation fault
-        raise(SIGSEGV);
+        raise(SIGSEGV); // NOLINT
     }
     // Should never reach here
     return Constants::Event::Success;
@@ -303,7 +303,7 @@ Constants::Event Debug::listExpressionFunctions(std::span<std::string_view const
 
 void Debug::addRoutines() {
     // Memory usage monitoring routine
-    addRoutine(
+    addRoutine<RoutineUpdateMode::BEFORE_UPDATE_HOOK>(
         Utility::Coordination::TimedRoutine(
             [this] {
                 // store memory usage in global document
@@ -315,11 +315,10 @@ void Debug::addRoutines() {
             },
             1000 /*ms*/, // Call every second
             Utility::Coordination::TimedRoutine::ConstructionMode::START_IMMEDIATELY
-        ),
-        RoutineUpdateMode::BEFORE_UPDATE_HOOK
+        )
     );
 
-    addRoutine(
+    addRoutine<RoutineUpdateMode::BEFORE_UPDATE_HOOK>(
         Utility::Coordination::TimedRoutine(
             [this] {
                 // store worker count in global document
@@ -337,8 +336,7 @@ void Debug::addRoutines() {
             },
             5000 /*ms*/, // Call every 5 seconds
             Utility::Coordination::TimedRoutine::ConstructionMode::START_IMMEDIATELY
-        ),
-        RoutineUpdateMode::BEFORE_UPDATE_HOOK
+        )
     );
 }
 

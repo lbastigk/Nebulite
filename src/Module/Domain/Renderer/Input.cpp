@@ -6,6 +6,7 @@
 #include <cctype>
 #include <cstddef>
 #include <cstdint> // NOLINT
+#include <ranges>
 #include <string>
 
 // External
@@ -21,6 +22,7 @@
 #include "Nebulite/Data/Document/JsonScope.hpp"
 #include "Nebulite/Module/Domain/Renderer/Input.hpp"
 #include "Nebulite/Utility/Coordination/TimedRoutine.hpp"
+#include "Nebulite/Utility/Ranges.hpp"
 #include "Nebulite/Utility/StringHandler.hpp"
 
 //------------------------------------------
@@ -60,10 +62,8 @@ void Input::mapKeyNames() {
     };
 
     // Keyboard
-    for (std::size_t scancode = SDL_SCANCODE_UNKNOWN; scancode < SDL_SCANCODE_COUNT; ++
-         scancode) {
-        char const* nameRaw = SDL_GetScancodeName(
-            static_cast<SDL_Scancode>(scancode));
+    for (auto const scancode : Utility::Ranges::indices(SDL_SCANCODE_COUNT) | std::views::transform([](std::size_t i) { return static_cast<SDL_Scancode>(i); })) {
+        char const* nameRaw = SDL_GetScancodeName(scancode);
 
         if (nameRaw && nameRaw[0] != '\0') {
             std::string keyName = nameRaw;
@@ -92,7 +92,7 @@ void Input::mapKeyNames() {
 }
 
 void Input::addRoutines(){
-    addRoutine(
+    addRoutine<RoutineUpdateMode::AFTER_UPDATE_HOOK>(
         Utility::Coordination::TimedRoutine(
             [this]() -> void {
                 // Only update if SDL is initialized
@@ -105,8 +105,7 @@ void Input::addRoutines(){
             },
             10 /* ms */,
             Utility::Coordination::TimedRoutine::ConstructionMode::START_IMMEDIATELY
-        ),
-        RoutineUpdateMode::AFTER_UPDATE_HOOK
+        )
     );
 }
 
