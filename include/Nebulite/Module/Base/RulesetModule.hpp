@@ -38,8 +38,13 @@ namespace Nebulite::Module::Base {
  */
 class RulesetModule {
 public:
+    /**
+     * @brief Constructs a RulesetModule with a unique identifier based on the module name.
+     * @tparam DerivedModule The derived module type, which must satisfy the DerivedFromRulesetModule concept.
+     * @param moduleName The name of the module, used to generate a unique identifier.
+     */
     template<DerivedFromRulesetModule DerivedModule>
-    explicit RulesetModule(std::string_view moduleName, DerivedModule* /*derived*/)
+    explicit RulesetModule(std::string_view const moduleName, DerivedModule* /*derived*/)
         : id{Data::MappedOrderedCacheList::generateUniqueId(moduleName)}{}
 
     /**
