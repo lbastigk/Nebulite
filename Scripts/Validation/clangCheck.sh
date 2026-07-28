@@ -50,8 +50,12 @@ declare -A tpp_overrides=(
     ["./include/Nebulite/Utility/Args/FuncTreeArgumentCompletion.tpp"]="./include/Nebulite/Utility/Args/FuncTree.hpp"
 )
 
-# Set the header filter to include .tpp files. Alternative for none: '^$'
-clang_tidy_header_filter='.*\.tpp$'
+# Set the header filter
+# Value for just tpp files: '.*\.tpp$'
+# Value for none: '^$'
+# Value for all Nebulite files: '^./include/Nebulite/.*'
+clang_tidy_header_filter='^./include/Nebulite/.*'
+
 
 # Required defines
 clang_tidy_define=-DRMLUI_SDL_VERSION_MAJOR=3
