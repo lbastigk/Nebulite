@@ -58,7 +58,7 @@ class Stream {
         using U = std::remove_reference_t<T>;
 
         if constexpr (std::is_array_v<U>) {
-            return std::string_view(t);
+            return std::string_view(t); // NOLINT
         } else {
             return std::forward<T>(t);
         }
