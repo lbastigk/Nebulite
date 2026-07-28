@@ -21,7 +21,7 @@ std::string Time::TimeIso8601(ISO8601Format const format, bool const local) {
     std::time_t const time = std::time(nullptr);
 
     // Consider local vs UTC time
-    std::tm const tm_struct = local ? *std::localtime(&time) : *std::gmtime(&time);
+    std::tm const tm_struct = local ? *std::localtime(&time) : *std::gmtime(&time); // NOLINT(concurrency-mt-unsafe)
 
     // Write into buffer
     // Using a switch so that the compiler sees a format literal at compile time,
