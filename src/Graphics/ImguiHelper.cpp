@@ -129,13 +129,12 @@ bool checkCompletionsForCommonPrefix(std::string_view const input, std::vector<s
     }
     auto const& first = completions.front();
     auto const matchingLength = [&] {
-        auto enumeratedString = std::views::enumerate(first);
+        auto enumeratedString = Nebulite::Utility::Ranges::enumerate(first);
         auto const matchIterator = std::ranges::find_if(
             enumeratedString,
             [&](auto tuple) {
-                auto const [i, c] = tuple;
-                auto const idx = static_cast<std::size_t>(i);
-                return std::ranges::any_of(completions, [&](std::string const& s) {
+                auto const [idx, c] = tuple;
+                return std::ranges::any_of(completions, [&](auto const& s) {
                     return idx >= s.size() || s[idx] != c;
                 });
             }
@@ -143,7 +142,7 @@ bool checkCompletionsForCommonPrefix(std::string_view const input, std::vector<s
         if (matchIterator == enumeratedString.end()) {
             return first.size();
         }
-        return static_cast<std::size_t>(std::get<0>(*matchIterator));
+        return matchIterator.index;
     }();
     if (auto const match = first.substr(0, matchingLength); !match.empty() && !input.ends_with(match)) {
         completions.clear();
