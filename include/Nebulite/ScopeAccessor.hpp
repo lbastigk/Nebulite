@@ -82,5 +82,5 @@ public:
     };
 };
 } // namespace Nebulite
-#include "Nebulite/ScopeAccessor.tpp" // NOLINT
+#include "Nebulite/ScopeAccessor.tpp" // NOLINT(misc-include-cleaner)
 #endif // NEBULITE_SCOPEACCESSOR_HPP

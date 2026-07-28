@@ -275,5 +275,5 @@ private:
     static std::string extractKeyPart(std::string_view& keyView);
 };
 } // namespace Nebulite::Data
-#include "RjDirectAccess.tpp" // NOLINT
+#include "RjDirectAccess.tpp" // NOLINT(misc-include-cleaner)
 #endif // NEBULITE_DATA_DOCUMENT_RJDIRECTACCESS_HPP

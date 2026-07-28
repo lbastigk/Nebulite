@@ -560,5 +560,5 @@ public:
     std::expected<RjDirectAccess::simpleValue, SimpleValueRetrievalError> getSimpleValueFromDocument(std::string_view key) const ;
 };
 } // namespace Nebulite::Data
-#include "Nebulite/Data/Document/JSON.tpp" // NOLINT
+#include "Nebulite/Data/Document/JSON.tpp" // NOLINT(misc-include-cleaner)
 #endif // NEBULITE_DATA_DOCUMENT_JSON_HPP

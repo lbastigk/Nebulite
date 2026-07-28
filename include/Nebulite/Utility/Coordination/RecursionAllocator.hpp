@@ -79,5 +79,5 @@ public:
     void use(PrepareF&& prepare, F&& f) requires (std::is_void_v<UsageReturn>);
 };
 } // namespace Nebulite::Utility::Coordination
-#include "Nebulite/Utility/Coordination/RecursionAllocator.tpp" // NOLINT
+#include "Nebulite/Utility/Coordination/RecursionAllocator.tpp" // NOLINT(misc-include-cleaner)
 #endif // NEBULITE_UTILITY_COORDINATION_RECURSIONSECURE_HPP

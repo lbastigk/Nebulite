@@ -54,16 +54,17 @@ uint64_t rollingJitter() {
 namespace Nebulite::Graphics {
 
 Drawcall::Drawcall(Data::JsonScope& workspace, Utility::IO::Capture& parentCapture)
-    : reInitializeRequested(true)
+    : texture(workspace, parentCapture)
     , drawcallScope(workspace)
-    , texture(workspace, parentCapture)
     , updaterRoutine{
         [this] {
             updateDrawcallData();
         },
         updateDrawcallDataIntervalMs + rollingJitter<updateDrawcallDataIntervalJitterMs>(),
         Utility::Coordination::TimedRoutine::ConstructionMode::START_IMMEDIATELY
-    } {
+    }
+    , reInitializeRequested(true)
+{
     refs.initialize(workspace);
     updateDrawcallData();
 }

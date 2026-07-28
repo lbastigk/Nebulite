@@ -87,5 +87,5 @@ private:
     Utility::Coordination::WorkDispatcher<DerivedContainer> dispatcher;
 };
 } // namespace Nebulite::Data::BroadcastListenContainer
-#include "Nebulite/Data/BroadcastListenContainer/BaseContainer.tpp" // NOLINT
+#include "Nebulite/Data/BroadcastListenContainer/BaseContainer.tpp" // NOLINT(misc-include-cleaner)
 #endif // NEBULITE_DATA_BROADCASTLISTENCONTAINER_BASECONTAINER_HPP

@@ -254,5 +254,5 @@ private:
 };
 
 } // namespace Nebulite::Utility::IO
-#include "Nebulite/Utility/IO/Capture.tpp" // NOLINT
+#include "Nebulite/Utility/IO/Capture.tpp" // NOLINT(misc-include-cleaner)
 #endif // NEBULITE_UTILITY_IO_CAPTURE_HPP

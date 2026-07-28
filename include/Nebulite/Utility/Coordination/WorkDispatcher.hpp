@@ -81,5 +81,5 @@ private:
     mutable SharedMutex mutex;
 };
 } // namespace Nebulite::Utility::Coordination
-#include "Nebulite/Utility/Coordination/WorkDispatcher.tpp" // NOLINT
+#include "Nebulite/Utility/Coordination/WorkDispatcher.tpp" // NOLINT(misc-include-cleaner)
 #endif // NEBULITE_UTILITY_COORDINATION_WORKDISPATCHER_HPP

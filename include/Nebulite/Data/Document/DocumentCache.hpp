@@ -121,5 +121,5 @@ private:
     ValueType getValueFromCache(std::string const& doc_key, ValueType const& defaultValue, std::function<ValueType(ReadOnlyDoc const* doc, std::string_view key)> const& retrievalFunction) const ;
 };
 } // namespace Nebulite::Data
-#include "Nebulite/Data/Document/DocumentCache.tpp" // NOLINT
+#include "Nebulite/Data/Document/DocumentCache.tpp" // NOLINT(misc-include-cleaner)
 #endif // NEBULITE_DATA_DOCUMENT_DOCUMENTCACHE_HPP

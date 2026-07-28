@@ -75,7 +75,8 @@ FuncTree<ReturnValue, AdditionalArgs...>::FuncTree(std::string_view const treeNa
         completeDesc
         }
     );
-}
+} // NOLINT(clang-analyzer-cplusplus.NewDeleteLeaks)
+// Somehow marked as "potential memory leak" by clang-tidy, even though it's a unique_ptr and will be cleaned up automatically
 
 //------------------------------------------
 // Binding (Functions, Categories, Variables)
@@ -224,6 +225,7 @@ void FuncTree<ReturnValue, AdditionalArgs...>::bindCategory(std::string_view con
         // Final category we wish to create already exists
         BindErrorMessage::categoryExists(capture, std::string(name));
     }
+
     // Create category
     (*currentCategoryMap)[functionName] = {
         std::make_unique<FuncTree>(
@@ -688,5 +690,4 @@ std::shared_ptr<FuncTree<ReturnValue, AdditionalArgs...>> FuncTree<ReturnValue, 
 }
 
 } // namespace Nebulite::Utility::Args
-#include "Nebulite/Utility/Args/FuncTreeArgumentCompletion.tpp" // NOLINT
 #endif // NEBULITE_UTILITY_ARGS_FUNCTREE_TPP

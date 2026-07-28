@@ -206,5 +206,5 @@ private:
     std::shared_ptr<Interaction::Execution::DomainTree> funcTree;
 };
 } // namespace Nebulite::Module::Base
-#include "DomainModuleBase.tpp" // NOLINT
+#include "DomainModuleBase.tpp" // NOLINT(misc-include-cleaner)
 #endif // NEBULITE_MODULE_BASE_DOMAINMODULEBASE_HPP

@@ -88,5 +88,5 @@ public:
     bool parseSingleTransformation(std::span<std::string_view const> const& args, JsonScope& jsonDoc) const ;
 };
 } // namespace Nebulite::Data
-#include "Nebulite/Data/Document/JsonTransformer.tpp" // NOLINT
+#include "Nebulite/Data/Document/JsonTransformer.tpp" // NOLINT(misc-include-cleaner)
 #endif // NEBULITE_DATA_DOCUMENT_JSONTRANSFORMER_HPP

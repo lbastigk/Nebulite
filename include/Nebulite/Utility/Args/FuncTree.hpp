@@ -420,5 +420,6 @@ private:
 } // namespace Nebulite::Utility::Args
 
 // Template implementations
-#include "Nebulite/Utility/Args/FuncTree.tpp" // NOLINT
+#include "Nebulite/Utility/Args/FuncTree.tpp" // NOLINT(misc-include-cleaner)
+#include "Nebulite/Utility/Args/FuncTreeArgumentCompletion.tpp" // NOLINT
 #endif // NEBULITE_UTILITY_ARGS_FUNCTREE_HPP

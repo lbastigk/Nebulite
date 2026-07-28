@@ -349,5 +349,5 @@ public:
     [[nodiscard]] bool isDummy() const ;
 };
 } // namespace Nebulite::Data
-#include "Nebulite/Data/Document/JsonScope.tpp" // NOLINT
+#include "Nebulite/Data/Document/JsonScope.tpp" // NOLINT(misc-include-cleaner)
 #endif // NEBULITE_DATA_DOCUMENT_JSONSCOPE_HPP

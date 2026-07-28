@@ -140,6 +140,35 @@ public:
     };
 
 private:
+    Core::Texture texture;
+    Data::JsonScope& drawcallScope;
+
+    // Important state for diff-logic
+    // Perhaps changing to std::variant is better, since only one type is required
+    struct State {
+        struct Sprite {
+            std::string link;
+        } sprite;
+
+        struct Text {
+            std::string text;
+            SDL_Color textColor{.r=0,.g=0,.b=0,.a=0};
+        } text;
+
+        struct Circle {
+            int radius{};
+            SDL_Color circleColor{.r=0,.g=0,.b=0,.a=0};
+        } circle;
+
+        struct Polygon {
+            std::size_t pointCount{};
+            SDL_Color polyColor{.r=0,.g=0,.b=0,.a=0};
+        } polygon;
+    } state;
+
+    // Allows periodic updating of drawcall data to reflect current state
+    Utility::Coordination::TimedRoutine updaterRoutine;
+
     /**
      * @struct Refs
      * @brief Holds frequently used references for quick access.
@@ -173,32 +202,9 @@ private:
         void initialize(Data::JsonScope const& scope);
     } refs;
 
-    // Important state for diff-logic
-    // Perhaps changing to std::variant is better, since only one type is required
-    struct State {
-        struct Sprite {
-            std::string link;
-        } sprite;
-
-        struct Text {
-            std::string text;
-            SDL_Color textColor{.r=0,.g=0,.b=0,.a=0};
-        } text;
-
-        struct Circle {
-            int radius{};
-            SDL_Color circleColor{.r=0,.g=0,.b=0,.a=0};
-        } circle;
-
-        struct Polygon {
-            std::size_t pointCount{};
-            SDL_Color polyColor{.r=0,.g=0,.b=0,.a=0};
-        } polygon;
-    } state;
+    SDL_FPoint rotationCenter{.x=0.0f, .y=0.0f};
 
     bool reInitializeRequested = false;
-
-    SDL_FPoint rotationCenter{.x=0.0f, .y=0.0f};
 
     // TODO: requestOverride, allowing us to redraw the texture every frame if needed
 
@@ -221,9 +227,6 @@ private:
         //   > perhaps we should determine if we create a new texture for this or render directly from the original texture?
     }type = Type::SPRITE; // Default to sprite
 
-    Data::JsonScope& drawcallScope;
-    Core::Texture texture; // Holds the data for the texture to draw
-
     //------------------------------------------
     // Updater
 
@@ -231,9 +234,6 @@ private:
     static auto constexpr updateDrawcallDataIntervalJitterMs = static_cast<std::uint64_t>(0.2*updateDrawcallDataIntervalMs); // Add some jitter to avoid sync with other routines
 
     void updateDrawcallData();
-
-    // Allows periodic updating of drawcall data to reflect current state
-    Utility::Coordination::TimedRoutine updaterRoutine;
 
     //------------------------------------------
     // Rendering
