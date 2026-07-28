@@ -59,14 +59,13 @@ struct FunctionIdentity {
         );
 
         // Copy
-        std::memcpy(function.data(), &fn, sizeof(fn));
+        std::memcpy(function.data(), static_cast<void*>(&fn), sizeof(fn));
     }
 
     // Member function + object
     template<typename Obj, typename MemFn>
     explicit FunctionIdentity(Obj* obj, MemFn memFn) : object(obj) {
         // Ensure the passed obj is not a nullptr
-        // As we use "this" inside the constructor of FuncTree to bind functions like "help" and "__complete__", this somehow fails...
         if (obj == nullptr) {
             throw std::invalid_argument(
                 "Object pointer cannot be nullptr for member function pointers. "
@@ -80,7 +79,7 @@ struct FunctionIdentity {
         );
 
         // Copy
-        std::memcpy(function.data(), &memFn, sizeof(memFn));
+        std::memcpy(function.data(), static_cast<void*>(&memFn), sizeof(memFn));
     }
 };
 
