@@ -4,6 +4,7 @@
 // Standard Library
 #include <array>
 #include <cstddef>
+#include <functional>
 #include <numbers>
 #include <ranges>
 #include <span>
@@ -22,7 +23,6 @@
 #include "Nebulite/Constants/Event.hpp"
 #include "Nebulite/Constants/StandardCapture.hpp"
 #include "Nebulite/Core/Renderer.hpp"
-#include "Nebulite/Math/FFT.hpp"
 #include "Nebulite/Module/Domain/Renderer/Audio.hpp"
 #include "Nebulite/Utility/Generate.hpp"
 #include "Nebulite/Utility/IO/Capture.hpp"
@@ -98,7 +98,6 @@ Constants::Event Audio::playSound(std::span<std::string_view const> const& args)
 }
 
 void Audio::initAudio(){
-    // Init
     if (!SDL_Init(SDL_INIT_AUDIO)) {
         domain.capture.error.println("SDL_Init Audio Error: ", SDL_GetError());
         std::abort();
@@ -165,47 +164,12 @@ std::optional<std::shared_ptr<Audio::Sound>> Audio::loadSound(std::string const&
 
     // Push sound data into cache
     Sound sound;
-    std::uint32_t lengthPerSample = 0;
-    std::function<Settings::SampleType(Uint8* data)> convertFunc = nullptr;
-    switch (wavSpec.format) {
-        case SDL_AUDIO_F32:
-            lengthPerSample = sizeof(float);
-            convertFunc = [](Uint8 const* byteData) {
-                std::array<float,4> buffer{};
-                std::memcpy(buffer.data(), byteData, sizeof(float));
-                return *buffer.data();
-            };
-            break;
-        case SDL_AUDIO_S16:
-            lengthPerSample = sizeof(std::int16_t);
-            convertFunc = [](Uint8 const* byteData) {
-                std::array<int16_t,4> buffer{};
-                std::memcpy(buffer.data(), byteData, sizeof(std::int16_t));
-                return static_cast<Settings::SampleType>(*buffer.data()) / static_cast<Settings::SampleType>(std::numeric_limits<int16_t>::max());
-            };
-            break;
-        case SDL_AUDIO_U8:
-            lengthPerSample = sizeof(std::uint8_t);
-            convertFunc = [](Uint8 const* byteData) {
-                std::array<uint8_t,4> buffer{};
-                std::memcpy(buffer.data(), byteData, sizeof(std::uint8_t));
-                Settings::SampleType const valueShifted = static_cast<Settings::SampleType>(*buffer.data()) - static_cast<Settings::SampleType>(128);
-                return valueShifted / (static_cast<Settings::SampleType>(std::numeric_limits<uint8_t>::max()) / static_cast<Settings::SampleType>(2));
-            };
-            break;
-        case SDL_AUDIO_S8:
-        case SDL_AUDIO_S16BE:
-        case SDL_AUDIO_S32:
-        case SDL_AUDIO_S32BE:
-        case SDL_AUDIO_F32BE:
-        case SDL_AUDIO_UNKNOWN:
-            domain.capture.error.println("Unsupported audio format: ", sdlAudioFormatToString(wavSpec.format), " for sound: ", path, ". Feel free to submit a PR to add support for this format in function: ", __func__);
-            SDL_free(data);
-            return std::nullopt;
-        default:
-            std::unreachable();
+    auto converterAndSampleSize = loadConverterFunction(wavSpec.format);
+    if (!converterAndSampleSize) {
+        domain.capture.error.println("Unsupported audio format: ", sdlAudioFormatToString(wavSpec.format), " for sound: ", path, ". Feel free to submit a PR to add support for this format in function: ", __func__);
+        SDL_free(data);
     }
-
+    auto& [convertFunc, lengthPerSample] = converterAndSampleSize.value();
     auto const sampleCount = length / lengthPerSample;
     sound.audioData.reserve(sampleCount);
     for (std::size_t i = 0; i < sampleCount; ++i) {
@@ -235,6 +199,48 @@ std::string Audio::sdlAudioFormatToString(SDL_AudioFormat const format) {
     case SDL_AUDIO_F32BE: return "Floating point 32-bit big-endian";
     case SDL_AUDIO_UNKNOWN: return "Unknown";
     default: std::unreachable();
+    }
+}
+
+std::optional<Audio::ConverterAndSampleSize> Audio::loadConverterFunction(SDL_AudioFormat const format) {
+    switch (format) {
+    case SDL_AUDIO_F32:
+        return std::make_pair(
+            [](Uint8 const* byteData) {
+                std::array<float,4> buffer{};
+                std::memcpy(buffer.data(), byteData, sizeof(float));
+                return *buffer.data();
+            },
+            sizeof(float)
+        );
+    case SDL_AUDIO_S16:
+        return std::make_pair(
+            [](Uint8 const* byteData) {
+                std::array<int16_t,4> buffer{};
+                std::memcpy(buffer.data(), byteData, sizeof(std::int16_t));
+                return static_cast<Settings::SampleType>(*buffer.data()) / static_cast<Settings::SampleType>(std::numeric_limits<int16_t>::max());
+            },
+            sizeof(std::int16_t)
+        );
+    case SDL_AUDIO_U8:
+        return std::make_pair(
+            [](Uint8 const* byteData) {
+                std::array<uint8_t,4> buffer{};
+                std::memcpy(buffer.data(), byteData, sizeof(std::uint8_t));
+                Settings::SampleType const valueShifted = static_cast<Settings::SampleType>(*buffer.data()) - static_cast<Settings::SampleType>(128);
+                return valueShifted / (static_cast<Settings::SampleType>(std::numeric_limits<uint8_t>::max()) / static_cast<Settings::SampleType>(2));
+            },
+            sizeof(std::uint8_t)
+        );
+    case SDL_AUDIO_S8:
+    case SDL_AUDIO_S16BE:
+    case SDL_AUDIO_S32:
+    case SDL_AUDIO_S32BE:
+    case SDL_AUDIO_F32BE:
+    case SDL_AUDIO_UNKNOWN:
+        return std::nullopt;
+    default:
+        std::unreachable();
     }
 }
 

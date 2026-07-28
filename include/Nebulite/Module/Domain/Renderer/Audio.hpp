@@ -7,6 +7,7 @@
 // Standard Library
 #include <array>
 #include <cstddef>
+#include <functional>
 #include <limits>
 #include <memory>
 #include <optional>
@@ -14,10 +15,12 @@
 #include <string>
 #include <string_view>
 #include <type_traits>
+#include <utility>
 #include <vector>
 
 // External
 #include <SDL3/SDL_audio.h>
+#include <SDL3/SDL_stdinc.h>
 #include <absl/container/flat_hash_map.h>
 
 // Nebulite
@@ -124,6 +127,15 @@ private:
      * @return A string representation of the audio format.
      */
     static std::string sdlAudioFormatToString(SDL_AudioFormat format);
+
+    using ConverterAndSampleSize = std::pair<std::function<Settings::SampleType(Uint8* data)>, std::size_t>;
+
+    /**
+     * @brief Loads a converter function for the given SDL_AudioFormat. The converter function takes a pointer to raw audio data and returns a normalized sample of type Settings::SampleType.
+     * @param format The SDL_AudioFormat for which to load a converter function.
+     * @return An optional function that converts raw audio data to a normalized sample, or std::nullopt if the format is not supported.
+     */
+    static std::optional<ConverterAndSampleSize> loadConverterFunction(SDL_AudioFormat format);
 };
 } // namespace Nebulite::Module::Domain::Renderer
 #endif // NEBULITE_MODULE_DOMAIN_RENDERER_AUDIO_HPP
