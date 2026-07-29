@@ -38,7 +38,7 @@ std::array constexpr supportedOperations = {
     OperationInfo{Assignment::Operation::add, "+="},
     OperationInfo{Assignment::Operation::multiply, "*="},
     OperationInfo{Assignment::Operation::concat, "|="},
-    OperationInfo{Assignment::Operation::set, "="} // Must come at last place, otherwise it is registered before any other operator
+    OperationInfo{Assignment::Operation::set, "="}, // Must come at last place, otherwise it is registered before any other operator
 };
 
 } // namespace
@@ -88,7 +88,7 @@ void Assignment::optimize(ContextScope const& contextScope){
      std::array constexpr numeric_operations = {
          Operation::set,
          Operation::add,
-         Operation::multiply
+         Operation::multiply,
      };
 
     // Keys with transformations cannot be optimized to use a stable double pointer

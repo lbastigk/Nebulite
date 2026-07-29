@@ -26,12 +26,12 @@ namespace Nebulite::Interaction {
 struct SpecialAction {
     enum class Type : std::uint8_t {
         blurElement,
-        deleteDocument
+        deleteDocument,
     };
 
     static auto constexpr supported = {
         std::make_pair("blurElement", Type::blurElement),
-        std::make_pair("deleteDocument", Type::deleteDocument)
+        std::make_pair("deleteDocument", Type::deleteDocument),
     };
 
     static std::optional<Type> get(std::string_view const str){

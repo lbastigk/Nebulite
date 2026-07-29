@@ -55,8 +55,7 @@ bool FFT::ifft(Data::JsonScope& jsonDoc) {
     auto const samples = jsonDoc.arrayKeys(rootKey)
         | std::views::transform([&jsonDoc](auto const& key) -> std::optional<std::complex<double>> {
             // Try to retrieve value as real value first (simplest to handle), if not, try to retrieve as complex value
-            auto value = jsonDoc.get<double>(key);
-            if (value) {
+            if (auto value = jsonDoc.get<double>(key); value) {
                 return std::complex<double>(value.value(), 0.0);
             }
             return jsonDoc.getComplex(key); // Potentially nullopt
@@ -75,8 +74,7 @@ bool FFT::applyTransferFunctionFrequencyDomain(std::span<std::string_view const>
     auto const samples = jsonDoc.arrayKeys(rootKey)
         | std::views::transform([&jsonDoc](auto const& key) -> std::optional<double> {
             // Try to retrieve value as real value first (simplest to handle), if not, try to retrieve as complex value
-            auto value = jsonDoc.get<double>(key);
-            if (value) {
+            if (auto value = jsonDoc.get<double>(key); value) {
                 return value.value();
             }
             return std::nullopt;

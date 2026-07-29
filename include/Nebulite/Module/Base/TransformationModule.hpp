@@ -34,8 +34,8 @@ public:
 
     virtual ~TransformationModule();
 
-    TransformationModule(const TransformationModule&) = delete;
-    TransformationModule& operator=(const TransformationModule&) = delete;
+    TransformationModule(TransformationModule const&) = delete;
+    TransformationModule& operator=(TransformationModule const&) = delete;
     TransformationModule(TransformationModule&&) = delete;
     TransformationModule& operator=(TransformationModule&&) = delete;
 
