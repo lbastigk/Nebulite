@@ -126,7 +126,7 @@ private:
             DIRTY, // Modified in cache, needs flushing to RapidJSON, real value
             DERIVED, // Deleted/nonexistent entry that was accessed via double pointer
             DELETED, // Deleted entry due to deserialization or child invalidation, inner value is invalid
-            MALFORMED // A key that is known to be malformed due to transformations. Used in getStableDoublePointer for integrity.
+            MALFORMED, // A key that is known to be malformed due to transformations. Used in getStableDoublePointer for integrity.
         };
 
         //------------------------------------------
