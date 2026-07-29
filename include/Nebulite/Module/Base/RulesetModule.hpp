@@ -7,7 +7,7 @@
 // Standard library
 #include <cassert>
 #include <concepts>
-#include <cstdint>
+#include <cstdint> // NOLINT
 #include <ranges>
 #include <string_view>
 #include <type_traits>
