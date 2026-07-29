@@ -20,7 +20,6 @@
 #include "Nebulite/Data/RendererProcessor.hpp"
 #include "Nebulite/Data/Tiling.hpp"
 #include "Nebulite/Module/Domain/Initializer.hpp"
-#include "Nebulite/Nebulite.hpp"
 #include "Nebulite/Utility/Generate.hpp"
 #include "Nebulite/Utility/IO/Capture.hpp"
 
