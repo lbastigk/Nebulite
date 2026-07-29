@@ -267,12 +267,12 @@ void Expression::recalculateEvaluationInfo() noexcept {
         .simpleExpression = components.size() == 1 && components[0].isSimpleExpression(),
         .simpleExpressionWithIntCast = components.size() == 1 && components[0].isSimpleExpressionWithIntCast(),
         .returnableAsString = components.size() != 1 || components[0].isReturnableAsString(),
-        .alwaysTrue = calculateIsAlwaysTrue()
+        .alwaysTrue = calculateIsAlwaysTrue(),
     };
 }
 
 bool Expression::calculateIsAlwaysTrue() const {
-    if (fullExpression.starts_with("$(") && fullExpression.ends_with(")")){
+    if (fullExpression.starts_with("$(") && fullExpression.ends_with(')')){
         std::string const innerExpression = fullExpression.substr(2, fullExpression.size() - 3);
         return Utility::StringHandler::isNumber(innerExpression) && !Math::isEqual(0.0,std::stod(innerExpression));
     }
@@ -339,7 +339,7 @@ void Expression::addTeVariable(ContextDeriver::TargetType const contextType, std
         .name=teName.data.data(), // NOLINT
         .address=&v,
         .type=TE_VARIABLE,
-        .context=nullptr
+        .context=nullptr,
     });
 }
 
