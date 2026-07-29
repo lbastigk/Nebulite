@@ -466,7 +466,9 @@ void ImguiHelper::renderDomainConsole(Interaction::Context& ctx, Interaction::Co
     std::string& command = state.command; // Get command buffer for this console
     command.reserve(256); // Pre-allocate to avoid reallocations during typing
 
-    if (ImGui::InputText("##ConsoleInput", &command, ImGuiInputTextFlags_EnterReturnsTrue | ImGuiInputTextFlags_CallbackHistory | ImGuiInputTextFlags_CallbackCompletion, consoleInputCallback, &state)) {
+    // Flags are seen as unsigned but guaranteed to be >= 0, so we can or them together
+    static auto constexpr flags = ImGuiInputTextFlags_EnterReturnsTrue | ImGuiInputTextFlags_CallbackHistory | ImGuiInputTextFlags_CallbackCompletion; // NOLINT
+    if (ImGui::InputText("##ConsoleInput", &command, flags, consoleInputCallback, &state)) {
         if (!command.empty()){
             capture.appendToHistory(command, Utility::IO::HistoryLine::Type::Input);
             Global::instance().notifyEvent(domain.parseStr(__FUNCTION__ + std::string(" ") + command, ctx, ctxScope));
