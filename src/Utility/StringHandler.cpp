@@ -58,7 +58,7 @@ bool StringHandler::containsAnyOf(std::string_view const str, std::string_view c
     });
 }
 
-bool StringHandler::isNumber(std::string_view str) {
+bool StringHandler::isNumber(std::string_view const str) {
     return TypeConversion::String::to<double>(str).has_value();
 }
 
@@ -189,7 +189,7 @@ StringHandler::ParseResult StringHandler::parseQuotedArguments(std::string_view 
     return {.args = std::move(result), .unclosedQuote = quoteState};
 }
 
-bool StringHandler::parseQuotedArguments(std::vector<std::string>& existingArgs, std::string_view cmd) {
+bool StringHandler::parseQuotedArguments(std::vector<std::string>& existingArgs, std::string_view const cmd) {
     std::vector<std::string_view> const tokens = split(cmd, ' ');
     QuoteParseState state;
 
