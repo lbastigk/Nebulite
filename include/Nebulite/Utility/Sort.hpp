@@ -17,14 +17,14 @@ namespace Nebulite::Utility {
  */
 class Sort {
 public:
-    struct CaseSensitiveLess {
+    static constexpr struct CaseSensitiveLess {
         template <class L, class R>
-        requires requires (const L& l, const R& r){
+        requires requires (L const& l, R const& r){
             std::string_view{l};
             std::string_view{r};
         }
 
-        constexpr bool operator()(const L& lhs, const R& rhs) const {
+        constexpr bool operator()(L const& lhs, R const& rhs) const {
             const std::string_view a{lhs};
             const std::string_view b{rhs};
 
@@ -33,29 +33,27 @@ public:
                 }
             );
         }
-    };
-    static CaseSensitiveLess caseSensitiveLess;
+    } caseSensitiveLess{};
 
-    struct CaseInsensitiveLess {
+    static constexpr struct CaseInsensitiveLess {
         template <class L, class R>
-        requires requires (const L& l, const R& r) {
+        requires requires (L const& l, R const& r) {
             std::string_view{l};
             std::string_view{r};
         }
 
-        constexpr bool operator()(const L& lhs, const R& rhs) const {
+        constexpr bool operator()(L const& lhs, R const& rhs) const {
             const std::string_view a{lhs};
             const std::string_view b{rhs};
 
             return std::ranges::lexicographical_compare(
                 a, b,
-                [](unsigned char const& x, unsigned char const& y) {
+                [](unsigned char const x, unsigned char const y) {
                     return std::tolower(x) < std::tolower(y);
                 }
             );
         }
-    };
-    static CaseInsensitiveLess caseInsensitiveLess;
+    } caseInsensitiveLess{};
 };
 
 } // namespace Nebulite::Utility
