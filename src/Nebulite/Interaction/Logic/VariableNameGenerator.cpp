@@ -16,7 +16,7 @@ std::string VariableNameGenerator::numberToString(std::uint16_t number) {
     std::string result;
     do {
         char const ch = static_cast<char>('a' + number % 26);
-        result = ch + result;
+        result.append(1, ch);
         number /= 26;
         if (number > 0) {
             number -= 1; // Adjust for 0-based indexing

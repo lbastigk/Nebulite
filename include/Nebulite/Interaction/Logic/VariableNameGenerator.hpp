@@ -27,7 +27,7 @@ class VariableNameGenerator {
     /**
      * @brief Converts a given number to a string representation using a custom base-26 encoding.
      * @details The encoding uses lowercase letters 'a' to 'z' to represent values from 0 to 25.
-     *          For numbers greater than 25, it continues with combinations of letters (e.g., 26 becomes "za", 27 becomes "zb", etc.).
+     *          For numbers greater than 25, it continues with combinations of letters.
      * @param number The number to convert to a string representation.
      * @return A string representation of the given number using the custom base-26 encoding.
      */
