@@ -196,20 +196,22 @@ Rml::Input::KeyIdentifier SDLKeyToRmlKey(SDL_Keycode const& keycode) {
 int SdlModifierToRmlModifier(std::uint32_t const modifier) {
     int result = 0;
 
+    // Flags are seen as unsigned but guaranteed to be >= 0, so we can or them together
+
     if (modifier & SDL_KMOD_ALT)
-        result |= Rml::Input::KM_ALT;
+        result |= Rml::Input::KM_ALT; // NOLINT
 
     if (modifier & SDL_KMOD_CAPS)
-        result |= Rml::Input::KM_CAPSLOCK;
+        result |= Rml::Input::KM_CAPSLOCK; // NOLINT
 
     if (modifier & SDL_KMOD_CTRL)
-        result |= Rml::Input::KM_CTRL;
+        result |= Rml::Input::KM_CTRL; // NOLINT
 
     if (modifier & SDL_KMOD_GUI)
-        result |= Rml::Input::KM_META;
+        result |= Rml::Input::KM_META; // NOLINT
 
     if (modifier & SDL_KMOD_SHIFT)
-        result |= Rml::Input::KM_SHIFT;
+        result |= Rml::Input::KM_SHIFT; // NOLINT
 
     return result;
 }
