@@ -184,7 +184,6 @@ void handleQuotedToken(std::string_view const token, QuoteParseState& state, std
 // [Args]
 
 StringHandler::ParseResult StringHandler::parseQuotedArguments(std::string_view const cmd) {
-    std::vector<std::string_view> const tokens = split(cmd, ' ');
     std::vector<std::string> result;
     bool const quoteState = parseQuotedArguments(result, cmd);
     return {.args = std::move(result), .unclosedQuote = quoteState};
