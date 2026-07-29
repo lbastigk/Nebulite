@@ -109,8 +109,8 @@ public:
 
     ~FlatContainer() override = default;
 
-    FlatContainer(const FlatContainer&) = delete;
-    FlatContainer& operator=(const FlatContainer&) = delete;
+    FlatContainer(FlatContainer const&) = delete;
+    FlatContainer& operator=(FlatContainer const&) = delete;
     FlatContainer(FlatContainer&&) = delete;
     FlatContainer& operator=(FlatContainer&&) = delete;
 

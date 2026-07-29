@@ -25,8 +25,8 @@ public:
         }
 
         constexpr bool operator()(L const& lhs, R const& rhs) const {
-            const std::string_view a{lhs};
-            const std::string_view b{rhs};
+            std::string_view const a{lhs};
+            std::string_view const b{rhs};
 
             return std::ranges::lexicographical_compare(a, b, [](unsigned char const& x, unsigned char const& y) {
                     return x < y;
@@ -43,8 +43,8 @@ public:
         }
 
         constexpr bool operator()(L const& lhs, R const& rhs) const {
-            const std::string_view a{lhs};
-            const std::string_view b{rhs};
+            std::string_view const a{lhs};
+            std::string_view const b{rhs};
 
             return std::ranges::lexicographical_compare(
                 a, b,

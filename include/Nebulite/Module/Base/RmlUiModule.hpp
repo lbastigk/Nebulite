@@ -34,7 +34,7 @@ public:
 
     virtual void processRmlUiEvent(SDL_Event const& event, int keyModifiers, Rml::Element* focusElement);
 
-    void OnDocumentOpen(Rml::Context* /*context*/, const Rml::String& /*document_path*/) override {}
+    void OnDocumentOpen(Rml::Context* /*context*/, Rml::String const& /*document_path*/) override {}
 
     void OnDocumentLoad(Rml::ElementDocument* /*document*/) override {}
 

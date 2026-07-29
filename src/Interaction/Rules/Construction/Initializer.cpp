@@ -12,13 +12,13 @@
 namespace Nebulite::Interaction::Rules::Construction {
 
 void rulesetMapInit(StaticRulesetMap* srm) {
-    static const Module::Ruleset::Camera cameraModule;
+    static Module::Ruleset::Camera const cameraModule;
     cameraModule.registerModule(*srm);
-    static const Module::Ruleset::Debug debugModule;
+    static Module::Ruleset::Debug const debugModule;
     debugModule.registerModule(*srm);
-    static const Module::Ruleset::Movement movementModule;
+    static Module::Ruleset::Movement const movementModule;
     movementModule.registerModule(*srm);
-    static const Module::Ruleset::Physics physicsModule;
+    static Module::Ruleset::Physics const physicsModule;
     physicsModule.registerModule(*srm);
 }
 
