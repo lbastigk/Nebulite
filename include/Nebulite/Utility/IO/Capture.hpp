@@ -228,7 +228,7 @@ private:
         bool startNewLine = false;
         std::deque<HistoryLine> lines;
 
-        bool appendableToLastLine(HistoryLine::Type lineType);
+        [[nodiscard]] bool appendableToLastLine(HistoryLine::Type lineType) const ;
     public:
         History() = default;
         ~History() = default;

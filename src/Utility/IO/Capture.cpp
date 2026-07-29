@@ -43,12 +43,11 @@ void Capture::appendToHistory(std::string const& str, HistoryLine::Type const li
 
 // Capture History
 
-bool Capture::History::appendableToLastLine(HistoryLine::Type const lineType){
+bool Capture::History::appendableToLastLine(HistoryLine::Type const lineType) const {
     if (lines.empty()) {
         return false;
     }
-    auto& back = lines.back();
-    return !startNewLine && back.type == lineType;
+    return !startNewLine && lines.back().type == lineType;
 }
 
 [[nodiscard]] std::deque<HistoryLine> const& Capture::History::getLines() const {
@@ -65,7 +64,7 @@ std::string Capture::History::toString() {
     });
 }
 
-void Capture::History::addHistoryLine(std::string const& str, HistoryLine::Type lineType){
+void Capture::History::addHistoryLine(std::string const& str, HistoryLine::Type const lineType){
     if (appendableToLastLine(lineType)) {
         lines.back().content.append(str);
     }
