@@ -14,7 +14,7 @@ function(setup_binary_settings)
     endif()
 
     add_executable(Nebulite
-        ${CMAKE_SOURCE_DIR}/src/main.cpp
+        ${CMAKE_SOURCE_DIR}/src/Nebulite/main.cpp
         ${COMMON_SOURCES}
     )
     target_compile_options(Nebulite PRIVATE -Wno-system-headers) # Suppress warnings from system headers

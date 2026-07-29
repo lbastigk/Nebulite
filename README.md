@@ -159,7 +159,7 @@ or a pong implementation:
 - Assets like images, rulesets, RenderObjects are located in `./Resources/`.
 - TaskFiles for various Simulations, Tests and Demos are located in `./TaskFiles/`.
 - Tests are located in `./Tools/Tests/`
-- The main engine code is located in `./include/` and `./src/`, with the entry point in `./src/main.cpp`.
+- The main engine code is located in `./include/` and `./src/`, with the entry point in `./src/Nebulite/main.cpp`.
 
 7. Open console (press `^`) and type `help` for interactive commands available for the GlobalSpace domain.
 
