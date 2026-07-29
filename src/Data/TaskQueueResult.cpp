@@ -11,7 +11,7 @@
 //------------------------------------------
 namespace Nebulite::Data {
 
-Constants::Event TaskQueueResult::worstEvent() {
+Constants::Event TaskQueueResult::worstEvent() const {
     auto worst = Constants::Event::Success;
     for (auto const& event : events) {
         switch (event) {

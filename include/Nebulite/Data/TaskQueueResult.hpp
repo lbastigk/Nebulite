@@ -25,7 +25,7 @@ struct TaskQueueResult {
     bool encounteredCriticalResult = false; // Indicates if a critical error was encountered during task resolution
     std::vector<Constants::Event> events;   // List of events encountered during task resolution
 
-    Constants::Event worstEvent();
+    [[nodiscard]] Constants::Event worstEvent() const ;
 };
 }// namespace Nebulite::Data
 #endif // NEBULITE_DATA_TASKQUEUERESULT_HPP
