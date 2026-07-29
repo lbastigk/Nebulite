@@ -59,8 +59,8 @@ std::function<std::size_t(std::string_view)> IdGenerator::stringToRollingIdGener
         if (auto const& it = idMap->find(key); it != idMap->end()) {
             return it->second;
         }
-        std::size_t const id = (*counter)++;
-        (*idMap)[std::string(key)] = id;
+        std::size_t const id = (*counter)++; // NOLINT
+        (*idMap)[std::string(key)] = id; // NOLINT
         return id;
     };
 }
