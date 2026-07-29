@@ -2,9 +2,8 @@
 // Includes
 
 // Standard library
-// NOLINTNEXTLINE
+#include <cstdint> // NOLINT
 #include <cstdlib>
-#include <cstdint>
 #include <span>
 #include <string>
 #include <string_view>
@@ -14,15 +13,14 @@
 #include <tinyexpr.h>
 
 // Nebulite
-#include "Nebulite/Utility/Args/FuncTree.hpp"
 #include "Nebulite/Math/ExpressionPrimitives.hpp"
 #include "Nebulite/Nebulite.hpp"
+#include "Nebulite/Utility/Args/FuncTree.hpp"
 #include "Nebulite/Utility/StringHandler.hpp"
 
 //------------------------------------------
 namespace Nebulite::Math {
 
-// NOLINTNEXTLINE
 double ExpressionPrimitives::rng2arg(double a, double b) {
     if (a<0) a = abs(a) * 125.5;
     if (b<0) b = abs(b) * 125.5;
@@ -34,7 +32,6 @@ double ExpressionPrimitives::rng2arg(double a, double b) {
     return static_cast<double>(seed % 10000) / 10000.0; // Return a value between 0 and 1
 }
 
-// NOLINTNEXTLINE
 double ExpressionPrimitives::rng3arg(double a, double b, double c) {
     if (a<0) a = abs(a) * 125.5;
     if (b<0) b = abs(b) * 125.5;
@@ -47,7 +44,6 @@ double ExpressionPrimitives::rng3arg(double a, double b, double c) {
     return static_cast<double>(seed % 10000) / 10000.0; // Return a value between 0 and 1
 }
 
-// NOLINTNEXTLINE
 double ExpressionPrimitives::rng2argInt16(double a, double b) {
     if (a<0) a = abs(a) * 125.5;
     if (b<0) b = abs(b) * 125.5;
@@ -59,7 +55,6 @@ double ExpressionPrimitives::rng2argInt16(double a, double b) {
     return static_cast<double>(seed % 32768); // Return a value between 0 and 32767
 }
 
-// NOLINTNEXTLINE
 double ExpressionPrimitives::rng3argInt16(double a, double b, double c) {
     if (a<0) a = abs(a) * 125.5;
     if (b<0) b = abs(b) * 125.5;
