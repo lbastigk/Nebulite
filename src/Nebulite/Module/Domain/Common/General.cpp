@@ -130,7 +130,7 @@ Constants::Event General::func_if(std::span<std::string_view const> const& args,
     std::string commands = Utility::StringHandler::recombineArgs(args.subspan(commandStart));
 
     // condition must start with $( and end with ): Simple expressions are boolean-convertible
-    if (!condition.starts_with("$(") || !condition.ends_with(")")) {
+    if (!condition.starts_with("$(") || !condition.ends_with(')')) {
         return Constants::StandardCapture::Warning::Functional::unknownArg(ctx.self.capture);
     }
 
