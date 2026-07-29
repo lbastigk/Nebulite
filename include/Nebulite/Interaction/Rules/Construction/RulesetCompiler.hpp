@@ -12,14 +12,12 @@
 #include <variant>
 #include <vector>
 
-// Nebulite
-#include "Nebulite/Data/Document/ScopedKeyView.hpp"
-
 //------------------------------------------
 // Forward declarations
 
 namespace Nebulite::Data {
 class JsonScope;
+class ScopedKeyView;
 } // namespace Nebulite::Data
 
 namespace Nebulite::Interaction::Execution {
