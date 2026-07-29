@@ -72,13 +72,13 @@ public:
      * @brief Copies the value from another JSON document.
      * @param json The JSON document to copy from.
      */
-    void copyFromJson(Data::JsonScope const& json);
+    void copyFromJson(Data::JsonScope const& json) const ;
 
     /**
      * @brief Set the value of the LinkedNumericValue directly.
      * @param val The new double value to set.
      */
-    void setDirect(double val) noexcept ;
+    void setDirect(double val) const noexcept ;
 };
 }   // namespace Nebulite::Interaction::Logic
 #endif // NEBULITE_INTERACTION_LOGIC_VIRTUALDOUBLE_HPP

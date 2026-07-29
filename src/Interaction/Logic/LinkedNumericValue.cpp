@@ -19,11 +19,11 @@ LinkedNumericValue::LinkedNumericValue(std::string_view const k, double& r) : ke
     static_assert(offsetof(LinkedNumericValue, key) < offsetof(LinkedNumericValue, scopedKey), "key must precede scopedKey");
 }
 
-void LinkedNumericValue::copyFromJson(Data::JsonScope const& json) {
+void LinkedNumericValue::copyFromJson(Data::JsonScope const& json) const {
     *reference = json.get<double>(scopedKey).value_or(0.0);
 }
 
-void LinkedNumericValue::setDirect(double const val) noexcept {
+void LinkedNumericValue::setDirect(double const val) const noexcept {
     *reference = val;
 }
 
