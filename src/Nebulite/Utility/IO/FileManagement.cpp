@@ -80,10 +80,6 @@ bool FileManagement::WriteFile(std::string_view const filename, std::string_view
     return true;
 }
 
-char FileManagement::preferredSeparator() noexcept {
-    return std::filesystem::path::preferred_separator;
-}
-
 std::string FileManagement::currentDir() {
     try {
         return std::filesystem::current_path().string();

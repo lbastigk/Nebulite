@@ -10,6 +10,7 @@
 // Includes
 
 // Standard library
+#include <filesystem>
 #include <string>
 #include <string_view>
 #include <vector>
@@ -53,7 +54,9 @@ public:
      * @brief Returns the preferred directory separator for the platform.
      * @return The preferred directory separator character.
      */
-    static char preferredSeparator() noexcept ;
+    static char constexpr preferredSeparator() noexcept {
+        return std::filesystem::path::preferred_separator;
+    }
 
     /**
      * @brief Returns the current working directory.
