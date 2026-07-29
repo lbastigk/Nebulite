@@ -183,7 +183,7 @@ public:
      */
     enum class SerializationType : bool {
         compact,
-        pretty
+        pretty,
     };
 
     /**

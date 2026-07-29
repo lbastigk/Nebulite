@@ -2,9 +2,9 @@
 // Includes
 
 // Standard library
+#include <algorithm>
 #include <array>
 #include <cstddef>
-#include <numeric>
 #include <ranges>
 #include <string>
 #include <vector>
@@ -45,7 +45,7 @@ Constants::Event Debug::fetchContainer() const {
         auto const layerKey = Key::containerObjectCount.addMember("layer").addIndex(static_cast<size_t>(layer));
         auto const tileKey = layerKey.addMember("tile").addMember(tileName);
         auto const& batches = tile.getBatches();
-        auto const tileObjectCount = std::accumulate(batches.begin(), batches.end(), std::size_t{0}, [](std::size_t const acc, Data::Batch const& batch) {
+        auto const tileObjectCount = std::ranges::fold_left(batches, std::size_t{0}, [](std::size_t const acc, Data::Batch const& batch) {
             return acc + batch.objects.size();
         });
         moduleScope.set<size_t>(tileKey, tileObjectCount);

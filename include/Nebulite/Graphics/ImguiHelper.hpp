@@ -50,7 +50,7 @@ public:
             TOP,
             BOTTOM,
             LEFT,
-            RIGHT
+            RIGHT,
         };
         std::optional<Alignment> windowAlignment = std::nullopt; // Optional alignment to position the window relative to the specified position
     };

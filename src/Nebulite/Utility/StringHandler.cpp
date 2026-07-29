@@ -6,7 +6,6 @@
 #include <array>
 #include <cstddef>
 #include <cstdint> // NOLINT
-#include <numeric>
 #include <ranges>
 #include <span>
 #include <string>
@@ -24,11 +23,13 @@ namespace Nebulite::Utility {
 // [GENERATE]
 
 std::string StringHandler::createPaddedTable(std::vector<std::string> const& words, std::size_t const rowSize){
-    // Find largest word
+    if (words.empty()) {
+        return {};
+    }
     auto maxSize = std::ranges::max_element(words, [](std::string_view const a, std::string_view const b) {
         return a.size() < b.size();
     })->length();
-    return std::accumulate(words.begin(), words.end(), std::string{}, [maxSize, rowSize](std::string_view const acc, std::string_view const a) {
+    return std::ranges::fold_left(words, std::string{}, [maxSize, rowSize](std::string_view const acc, std::string_view const a) {
         std::string const paddedEntry = a + std::string(maxSize - a.length() + 1, ' ');
         if (rowSize > 0) {
             // Determine linebreaks

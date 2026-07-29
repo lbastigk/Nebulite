@@ -2,9 +2,9 @@
 // Includes
 
 // Standard library
+#include <algorithm>
 #include <cstddef>
-#include <cstdint>
-#include <numeric>
+#include <cstdint> // NOLINT
 #include <optional>
 #include <string>
 #include <utility>
@@ -177,8 +177,8 @@ void Environment::purgeObjects() {
 }
 
 size_t Environment::getObjectCount() const {
-    return std::accumulate(
-        roc.begin(), roc.end(), 0u,
+    return std::ranges::fold_left(
+        roc, 0u,
         [](std::size_t const acc, Data::RenderObjectContainer const& container) {
             return acc + container.getObjectCount();
         }
