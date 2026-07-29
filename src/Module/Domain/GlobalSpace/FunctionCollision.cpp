@@ -25,11 +25,11 @@ Constants::Event FunctionCollision::updateHook() {
 // Available Functions
 
 namespace {
-bool testFunctionCollision1(bool arg) {
+bool testFunctionCollision1(bool const arg) {
     return arg;
 }
 
-bool testFunctionCollision2(bool arg) {
+bool testFunctionCollision2(bool const arg) {
     (void)arg; // Avoid unused parameter warning
     return true;
 }
