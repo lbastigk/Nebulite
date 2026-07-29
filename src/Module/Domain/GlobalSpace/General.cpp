@@ -80,8 +80,7 @@ Constants::Event General::taskExec(std::span<std::string_view const> const args,
     // Warn if file ending is not .nebs
     Data::TaskQueue tq("LocalTaskQueue", false);
     tq.addScript(fileName, domain.capture);
-    auto result = tq.resolve(ctx, ctxScope, true);
-    return result.worstEvent();
+    return tq.resolve(ctx, ctxScope, true).worstEvent();
 }
 
 Constants::Event General::always(int argc, char const** argv) const {
