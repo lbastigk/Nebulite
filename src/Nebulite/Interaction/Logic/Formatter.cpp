@@ -32,11 +32,11 @@ Formatter Formatter::readFormatter(std::string_view formatter) {
     }
 
     // Format cast
-    if (formatter.ends_with("i")) {
+    if (formatter.ends_with('i')) {
         fmt.cast = CastType::to_int;
         formatter.remove_suffix(1);
     }
-    else if (formatter.ends_with("f")) {
+    else if (formatter.ends_with('f')) {
         fmt.cast = CastType::to_double;
         formatter.remove_suffix(1);
     }
@@ -45,7 +45,7 @@ Formatter Formatter::readFormatter(std::string_view formatter) {
     }
 
     // Read leading zero
-    if (formatter.starts_with("0")) {
+    if (formatter.starts_with('0')) {
         fmt.leadingZero = true;
     }
     if (!formatter.empty()) {
@@ -104,9 +104,9 @@ std::string Formatter::format(double const value) const {
         std::string padding;
         for (std::size_t i = 0; i < alignment.value() - token.size(); i++) {
             if (leadingZero) {
-                padding += "0";
+                padding += '0';
             } else {
-                padding += " ";
+                padding += ' ';
             }
         }
         token.insert(0, padding);
