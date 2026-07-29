@@ -31,7 +31,7 @@ namespace {
 struct OperationInfo {
     Assignment::Operation op;
     std::string_view symbol;
-    constexpr OperationInfo(Assignment::Operation const o, std::string_view const s) noexcept : op(o), symbol(s) {}
+    constexpr OperationInfo(Assignment::Operation const o, [[clang::lifetimebound]] std::string_view const s) noexcept : op(o), symbol(s) {}
 };
 
 std::array constexpr supportedOperations = {
@@ -206,7 +206,9 @@ void Assignment::setValueOfKey(double const val, double* target) const {
 
 namespace {
 bool isNumericOperation(Assignment::Operation const op) {
-    return op == Assignment::Operation::set || op == Assignment::Operation::add || op == Assignment::Operation::multiply;
+    return op == Assignment::Operation::set
+        || op == Assignment::Operation::add
+        || op == Assignment::Operation::multiply;
 }
 } // namespace
 

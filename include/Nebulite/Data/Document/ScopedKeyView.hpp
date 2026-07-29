@@ -74,10 +74,10 @@ public:
     [[nodiscard]] std::string full(JsonScope const& scope) const;
 
     // Any key shared publicly should be constructed with a required scope to avoid accidental misuse
-    constexpr ScopedKeyView(std::optional<std::string_view> const& requiredScope, std::string_view const keyInScope) noexcept
+    constexpr ScopedKeyView(std::optional<std::string_view> const& requiredScope, [[clang::lifetimebound]] std::string_view const keyInScope) noexcept
         : givenScope(requiredScope), key(keyInScope) {}
 
-    explicit constexpr ScopedKeyView(std::string_view const keyInScope) : key(keyInScope) {}
+    explicit constexpr ScopedKeyView([[clang::lifetimebound]] std::string_view const keyInScope) : key(keyInScope) {}
 
     /**
      * @brief Create a ScopedKeyView from a compile-time fixed string with an optional scope prefix.

@@ -65,7 +65,7 @@ public:
      * @return A range of const references to the vectors of RenderObjects contained in each batch of this tile, without their associated costs.
      */
     [[nodiscard]] auto getBatchedObjects() const {
-        return getBatches() | std::views::transform([](Batch const& b) -> auto const& { return b.objects; });
+        return getBatches() | std::views::transform([]([[clang::lifetimebound]] Batch const& b) -> auto const& { return b.objects; });
     }
 
     /**

@@ -1,7 +1,6 @@
 #ifndef NEBULITE_DATA_DOCUMENT_JSON_TPP
 #define NEBULITE_DATA_DOCUMENT_JSON_TPP
 
-
 //------------------------------------------
 // Includes
 

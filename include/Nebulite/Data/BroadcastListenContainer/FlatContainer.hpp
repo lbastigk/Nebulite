@@ -68,7 +68,7 @@ public:
      */
     void processNoOffset();
 
-    explicit FlatContainerBase(Settings const& s) : settings(s) {}
+    explicit FlatContainerBase([[clang::lifetimebound]] Settings const& s) : settings(s) {}
 };
 
 /**

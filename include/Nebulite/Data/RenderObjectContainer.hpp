@@ -118,7 +118,7 @@ public:
      * @param position The tile position to query: (x, y).
      * @return A reference to the Tile
      */
-    Tile& getContainerAt(TileCoordinate const& position) {
+    Tile& getContainerAt(TileCoordinate const& position) [[clang::lifetimebound]] {
         return ObjectContainer[position];
     }
 

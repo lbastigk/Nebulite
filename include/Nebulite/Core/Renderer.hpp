@@ -325,13 +325,7 @@ public:
      *        Loads the font if it hasn't been loaded yet.
      * @return A pointer to the TTF_Font instance.
      */
-    [[nodiscard]] TTF_Font* getStandardFont() const {return font;}
-
-    /**
-     * @brief Gets the current SDL event.
-     * @return Vector of all SDL events from the current frame.
-     */
-    std::vector<SDL_Event>* getEventHandles() noexcept {return &events;}
+    [[nodiscard]] TTF_Font* getStandardFont() const { return font; }
 
     /**
      * @brief Gets the current window scale factor.

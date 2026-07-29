@@ -146,7 +146,7 @@ private:
         EntryState state = EntryState::DIRTY; // Default to dirty: each new entry needs flushing
         bool managedInternalDouble = false; // Whether the stable double pointer is managed internally or externally (from cacheline)
 
-        CacheEntry(CacheLine& cl, std::size_t& index) {
+        CacheEntry([[clang::lifetimebound]] CacheLine& cl, std::size_t& index) {
             if (index >= CACHELINE_SIZE) [[unlikely]] {
                 stable_double_ptr = new double(standardNumericValue);
                 managedInternalDouble = true;

@@ -99,7 +99,7 @@ public:
         return allLayers;
     }
 
-    auto const& getAllLayers() {
+    auto const& getAllLayers() [[clang::lifetimebound]] {
         return roc;
     }
 
