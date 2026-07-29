@@ -1,0 +1,110 @@
+//------------------------------------------
+// Includes
+
+// Standard library
+#include <algorithm>
+#include <cstddef>
+#include <string>
+#include <string_view>
+#include <utility>
+
+// Nebulite
+#include "Nebulite/Data/Document/DocumentCache.hpp"
+#include "Nebulite/Data/Document/KeyType.hpp"
+#include "Nebulite/Data/Document/ReadOnlyDocs.hpp"
+#include "Nebulite/Interaction/Context.hpp"
+#include "Nebulite/Utility/StringHandler.hpp"
+
+//------------------------------------------
+namespace Nebulite::Data {
+
+// Basic value retrieval: type,size,serial, etc.
+
+double const* DocumentCache::getStableDoublePointer(std::string const& doc_key) const {
+    return getValueFromCache<double const*>(doc_key, &zero, [](ReadOnlyDoc const* docPtr, std::string_view const key) {
+        return docPtr->document.getStableDoublePointer(key);
+    });
+}
+
+KeyType DocumentCache::memberType(std::string const& doc_key) const {
+    return getValueFromCache<KeyType>(doc_key, KeyType::null, [](ReadOnlyDoc const* docPtr, std::string_view const key) {
+        return docPtr->document.memberType(key);
+    });
+}
+
+size_t DocumentCache::memberSize(std::string const& doc_key) const {
+    return getValueFromCache<size_t>(doc_key, 0, [](ReadOnlyDoc const* docPtr, std::string_view const key) {
+        return docPtr->document.memberSize(key);
+    });
+}
+
+std::string DocumentCache::serialize(std::string const& doc_key) const {
+    return getValueFromCache<std::string>(doc_key, "{}", [](ReadOnlyDoc const* docPtr, std::string_view const key) {
+        if (key.empty()) {
+            return docPtr->serial;
+        }
+        JSON const subDoc = docPtr->document.getSubDoc(key);
+        return subDoc.serialize();
+    });
+}
+
+// Document serialization
+
+JSON DocumentCache::getSubDoc(std::string const& doc_key) const {
+    auto [doc, key] = splitDocKey(doc_key);
+
+    ReadOnlyDoc const* docPtr = readOnlyDocs.getDocument(doc);
+    if (!docPtr) {
+        return JSON{};
+    }
+
+    // Check if the document exists in the cache
+    JSON data = docPtr->document.getSubDoc(key);
+
+    // Update the cache (unload old documents) and return the size
+    readOnlyDocs.update();
+    return data;
+}
+
+std::string DocumentCache::getDocString(std::string_view const link) const {
+    ReadOnlyDoc const* docPtr = readOnlyDocs.getDocument(link);
+
+    // Check if the document exists in the cache
+    if (docPtr == nullptr) {
+        return JSON().serialize(); // Return empty JSON if document loading fails
+    }
+
+    // Return string of document:
+    std::string serial = docPtr->serial;
+
+    // Update the cache (unload old documents)
+    readOnlyDocs.update();
+
+    return serial;
+}
+
+std::pair<std::string, std::string> DocumentCache::splitDocKey(std::string const& doc_key) {
+    std::string_view doc_key_view(doc_key);
+    Utility::StringHandler::strip(doc_key_view, ' '); // Remove whitespace for more forgiving input handling
+
+    auto const barPos = doc_key_view.find(JSON::SpecialCharacter::transformationPipe);
+    auto const colonPos = doc_key_view.find(Interaction::ContextDeriver::contextKeySeparator);
+
+    // Choose the first occurring separator
+    auto const pos = std::min(colonPos, barPos);
+
+    if (pos == std::string::npos) {
+        // No colon found, meaning the entire string is document name/link
+        return {std::string(doc_key_view), ""};
+    }
+    auto const doc = doc_key_view.substr(0, pos);
+    auto const key = doc_key_view.substr(pos + 1);
+
+    // Add back the transform part if needed
+    if (pos == barPos) {
+        return {std::string(doc), JSON::SpecialCharacter::transformationPipe + std::string(key)};
+    }
+    return {std::string(doc), std::string(key)};
+}
+
+} // namespace Nebulite::Data

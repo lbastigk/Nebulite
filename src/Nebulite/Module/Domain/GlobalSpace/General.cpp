@@ -1,0 +1,117 @@
+//------------------------------------------
+// Includes
+
+// Standard library
+#include <span>
+#include <sstream>
+#include <string>
+#include <string_view>
+
+// Nebulite
+#include "Nebulite/Constants/Event.hpp"
+#include "Nebulite/Constants/StandardCapture.hpp"
+#include "Nebulite/Core/GlobalSpace.hpp"
+#include "Nebulite/Data/TaskQueue.hpp"
+#include "Nebulite/Interaction/Context.hpp"
+#include "Nebulite/Module/Domain/GlobalSpace/General.hpp"
+#include "Nebulite/Utility/StringHandler.hpp"
+
+//------------------------------------------
+namespace Nebulite::Module::Domain::GlobalSpace {
+
+//------------------------------------------
+// Update
+Constants::Event General::updateHook() {
+    // Add Domain-specific updates here!
+    // General rule:
+    // This is used to update all variables/states that are INTERNAL ONLY
+    return Constants::Event::Success;
+}
+
+//------------------------------------------
+// Domain-Bound Functions
+
+Constants::Event General::exit() const {
+    // Clear all task queues to prevent further execution
+    domain.tasks.clearAllTaskQueues();
+
+    // Set the renderer to quit
+    domain.quitRenderer();
+    return Constants::Event::Success;
+}
+
+Constants::Event General::wait(int const argc, char const** argv) const {
+    if (argc == 2) {
+        domain.tasks.incrementScriptWaitCounter(std::stoull(argv[1]));
+        return Constants::Event::Success;
+    }
+    if (argc < 2) {
+        return Constants::StandardCapture::Warning::Functional::tooFewArgs(domain.capture);
+    }
+    return Constants::StandardCapture::Warning::Functional::tooManyArgs(domain.capture);
+}
+
+Constants::Event General::task(int const argc, char const** argv) const {
+    domain.capture.log.println("Loading task list from file: ", argc > 1 ? std::string(argv[1]) : "none");
+
+    // Rollback RNG, loading a task file should not change the RNG state
+    domain.rngRollback();
+
+    if (argc < 2) {
+        return Constants::StandardCapture::Warning::Functional::tooFewArgs(domain.capture);
+    }
+    if (argc > 2) {
+        return Constants::StandardCapture::Warning::Functional::tooManyArgs(domain.capture);
+    }
+
+    // Warn if file ending is not .nebs
+    std::string const& filename = argv[1];
+    domain.tasks.addScript(filename, domain.capture);
+    return Constants::Event::Success;
+}
+
+Constants::Event General::taskExec(std::span<std::string_view const> const args, Interaction::Context ctx, Interaction::ContextScope ctxScope) const {
+    auto const fileName = Utility::StringHandler::recombineArgs(args.subspan(1));
+    domain.capture.log.println("Loading task list from file and executing immediately: ", fileName);
+
+    // Rollback RNG, loading a task file should not change the RNG state
+    domain.rngRollback();
+
+    // Warn if file ending is not .nebs
+    Data::TaskQueue tq("LocalTaskQueue", false);
+    tq.addScript(fileName, domain.capture);
+    return tq.resolve(ctx, ctxScope, true).worstEvent();
+}
+
+Constants::Event General::always(int argc, char const** argv) const {
+    if (argc > 1) {
+        std::ostringstream oss;
+        for (int i = 1; i < argc; ++i) {
+            if (i > 1)
+                oss << ' ';
+            oss << argv[i];
+        }
+
+        // Split oss.str() on ';' and push each trimmed command
+        std::string const argStr = oss.str();
+        std::stringstream ss(argStr);
+        std::string command;
+
+        while (std::getline(ss, command, ';')) {
+            // Trim whitespace from each command
+            command.erase(0, command.find_first_not_of(" \t"));
+            command.erase(command.find_last_not_of(" \t") + 1);
+            if (!command.empty()) {
+                domain.tasks.addTask(command, Interaction::Execution::Tasks::StandardTasks::always);
+            }
+        }
+    }
+    return Constants::Event::Success;
+}
+
+Constants::Event General::alwaysClear() const {
+    domain.tasks.clearTaskQueue(Interaction::Execution::Tasks::StandardTasks::always);
+    return Constants::Event::Success;
+}
+
+} // namespace Nebulite::Module::Domain::GlobalSpace

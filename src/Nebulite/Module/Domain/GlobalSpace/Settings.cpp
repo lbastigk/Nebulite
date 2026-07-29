@@ -1,0 +1,170 @@
+//------------------------------------------
+// Includes
+
+// Standard library
+#include <cstdint> // NOLINT
+#include <span>
+#include <string>
+
+// Nebulite
+#include "Nebulite/Constants/Event.hpp"
+#include "Nebulite/Constants/StandardCapture.hpp"
+#include "Nebulite/Core/GlobalSpace.hpp"
+#include "Nebulite/Data/Document/JSON.hpp"
+#include "Nebulite/Data/Document/KeyType.hpp"
+#include "Nebulite/Module/Domain/GlobalSpace/InputMapping.hpp"
+#include "Nebulite/Module/Domain/GlobalSpace/Settings.hpp"
+#include "Nebulite/Nebulite.hpp"
+#include "Nebulite/Utility/IO/FileManagement.hpp"
+
+//------------------------------------------
+namespace Nebulite::Module::Domain::GlobalSpace {
+
+Constants::Event Settings::updateHook() {
+    return Constants::Event::Success;
+}
+
+//------------------------------------------
+// Available Functions
+
+// FuncTree currently does not support static methods with no args...
+
+Constants::Event Settings::saveSettings() const {
+    std::string const settings = Global::settings().serialize();
+    if (settings.empty()) {
+        domain.capture.error.println("Failed to serialize settings. No data was written to file.");
+        return Constants::Event::Error;
+    }
+    if (!Utility::IO::FileManagement::WriteFile(defaultSettingsFile, settings)) {
+        return Constants::StandardCapture::Error::File::couldNotWriteFile(domain.capture);
+    }
+    return Constants::Event::Success;
+}
+
+Constants::Event Settings::overWriteSettingsFile() const {
+    // Overwrite settings file with default settings
+    if (auto const loadResult = loadSettings(""); loadResult != Constants::Event::Success) {
+        domain.capture.warning.println("Failed to load settings");
+        return loadResult;
+    }
+    return saveSettings();
+}
+
+Constants::Event Settings::setSettingStr(std::span<std::string_view const> const& args) const {
+    if (args.size() < 2) {
+        return Constants::StandardCapture::Warning::Functional::tooFewArgs(domain.capture);
+    }
+    if (args.size() > 2) {
+        return Constants::StandardCapture::Warning::Functional::tooManyArgs(domain.capture);
+    }
+    auto const& key = args[0];
+    auto const& value = args[1];
+
+    // Set string setting in global settings
+    moduleScope.set<std::string>(moduleScope.getRootScope().addMember(key), std::string(value));
+    return Constants::Event::Success;
+}
+
+Constants::Event Settings::setSettingInt(std::span<std::string_view const> const& args) const {
+    if (args.size() < 2) {
+        return Constants::StandardCapture::Warning::Functional::tooFewArgs(domain.capture);
+    }
+    if (args.size() > 2) {
+        return Constants::StandardCapture::Warning::Functional::tooManyArgs(domain.capture);
+    }
+    auto const& key = args[0];
+    int const value = std::stoi(std::string(args[1]));
+
+    // Set integer setting in global settings
+    moduleScope.set<int>(moduleScope.getRootScope().addMember(key), value);
+    return Constants::Event::Success;
+}
+
+//------------------------------------------
+// Private methods
+
+Constants::Event Settings::loadSettings(std::string const& filename) const {
+    // Load settings file and only set known settings
+    Data::JSON settings;
+
+    // Load defaults if no filename was provided
+    if (!filename.empty()) settings.deserialize(filename);
+
+    // We move the settings into a key to match the same structure as in globalSpace
+    // This way, we can use the scoped keys to set and access settings in the same way as we do for global settings
+    settings.moveMember("", Key::getScope());
+    auto const& settingsFile = settings.shareManagedScope(Key::getScope());
+
+    // Get custom settings
+    moduleScope.setSubDoc(Key::customSettings, settingsFile.getSubDoc(Key::customSettings));
+    if (moduleScope.memberType(Key::customSettings) != Data::KeyType::object) { // Load default if not present
+        moduleScope.set<std::string>(Key::customSettings.addMember("__example__"), "This is an example custom setting. You can add any settings you want under the 'custom' key in the settings file, and they will always be loaded into the globalspace.");
+    }
+
+    //---------------------------------------------------
+    // Cherry-Pick all other values to set in global settings
+    // Fallback to default values if not present
+    // Any unknown settings are ignored
+    // This way, we ensure the presence of all expected settings
+    // For freeform custom settings, users may use the prefix from Key::customSettings
+
+    // Renderer settings
+    moduleScope.set<uint16_t>(Key::resolutionX, settingsFile.get<uint16_t>(Key::resolutionX).value_or(1000));
+    moduleScope.set<uint16_t>(Key::resolutionY, settingsFile.get<uint16_t>(Key::resolutionY).value_or(1000));
+    moduleScope.set<uint8_t>(Key::resolutionScaling, settingsFile.get<uint8_t>(Key::resolutionScaling).value_or(1));
+    moduleScope.set<uint16_t>(Key::targetFPS, settingsFile.get<uint16_t>(Key::targetFPS).value_or(60));
+    moduleScope.set<std::string>(Key::fontMono, settingsFile.get<std::string>(Key::fontMono).value_or("./Resources/Fonts/JetBrainsMono-Regular.ttf"));
+    moduleScope.set<std::string>(Key::fontStandard, settingsFile.get<std::string>(Key::fontStandard).value_or("./Resources/Fonts/Arimo-Regular.ttf"));
+    moduleScope.set<std::string>(Key::cursor, settingsFile.get<std::string>(Key::cursor).value_or("./Resources/Cursor/Drakensang.png"));
+
+    moduleScope.set<double>(Key::fontScale, settingsFile.get<double>(Key::fontScale).value_or(1.0));
+    moduleScope.set<uint16_t>(Key::fontSize1, settingsFile.get<uint16_t>(Key::fontSize1).value_or(40));
+    moduleScope.set<uint16_t>(Key::fontSize2, settingsFile.get<uint16_t>(Key::fontSize2).value_or(60));
+    moduleScope.set<uint16_t>(Key::fontSize3, settingsFile.get<uint16_t>(Key::fontSize3).value_or(80));
+
+    // Commands: On startup
+    moduleScope.setSubDoc(Key::parseOnStartup, settingsFile.getSubDoc(Key::parseOnStartup));
+    if (moduleScope.memberType(Key::parseOnStartup) != Data::KeyType::array) { // Load default if not present
+        moduleScope.setEmptyArray(Key::parseOnStartup);
+    }
+
+    // Commands: When opening Nebulite with no arguments, e.g. by double-clicking the executable
+    moduleScope.setSubDoc(Key::parseIfNoArgs, settingsFile.getSubDoc(Key::parseIfNoArgs));
+    if (moduleScope.memberType(Key::parseIfNoArgs) != Data::KeyType::array) { // Load default if not present
+        moduleScope.set<std::string>(Key::parseIfNoArgs.addIndex(0), "echo Nebulite opened with no arguments provided. Starting empty renderer.");
+        moduleScope.set<std::string>(Key::parseIfNoArgs.addIndex(1), "echo Open the interactive console with the ^ key and type 'help' for available commands.");
+        moduleScope.set<std::string>(Key::parseIfNoArgs.addIndex(2), "set-fps 60"); // TODO: add an initRenderer command and use that instead of setting fps here
+    }
+
+    // Input mappings
+    moduleScope.setSubDoc(Key::inputMapping, settingsFile.getSubDoc(Key::inputMapping));
+    if (moduleScope.memberType(Key::inputMapping) != Data::KeyType::object) { // Load default if not present
+        InputMapping::loadDefaultMappings(moduleScope);
+    }
+
+    /**
+     * @todo: Add more settings:
+     *        - Console settings (like font size, colors, etc.)
+     *        - Language/locale
+     *        - etc...
+     */
+
+    //---------------------------------------------------
+    // Check if settings file existed, if not, write default settings back to file
+    if (settings.memberType("") != Data::KeyType::object) {
+        domain.capture.error.println("Settings: Settings file is invalid. Loading default values.");
+        // Settings file does not exist!
+        // Write default settings to file
+        if (saveSettings() == Constants::Event::Error) {
+            domain.capture.error.println("Settings: Failed to write default settings to file: ", filename);
+        }
+        return Constants::Event::Warning;
+    }
+    return Constants::Event::Success;
+}
+
+void Settings::logInitError() const {
+    domain.capture.warning.println("Failed to load settings during module initialization");
+}
+
+} // namespace Nebulite::Module::Domain::GlobalSpace
