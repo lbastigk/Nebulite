@@ -36,27 +36,27 @@ Camera::Camera() : RulesetModule(moduleName, this) {
 
 // TODO: Add another namespace for camera following rulesets using a PT1 controller for smooth movement
 
-void Camera::alignCenter(Interaction::Context const& context, double** slf, double** /*otr*/) const {
+void Camera::alignCenter([[maybe_unused]] Interaction::Context const& context, double** slf, double** /*otr*/) const {
     assert(isGlobalContextCorrect(context));
     setCameraPosition(getAdjustedObjectPosition(slf, Align::Center), Align::Center);
 }
 
-void Camera::alignTop(Interaction::Context const& context, double** slf, double** /*otr*/) const {
+void Camera::alignTop([[maybe_unused]] Interaction::Context const& context, double** slf, double** /*otr*/) const {
     assert(isGlobalContextCorrect(context));
     setCameraPosition(getAdjustedObjectPosition(slf, Align::Center), Align::Top);
 }
 
-void Camera::alignBottom(Interaction::Context const& context, double** slf, double** /*otr*/) const {
+void Camera::alignBottom([[maybe_unused]] Interaction::Context const& context, double** slf, double** /*otr*/) const {
     assert(isGlobalContextCorrect(context));
     setCameraPosition(getAdjustedObjectPosition(slf, Align::Center), Align::Bottom);
 }
 
-void Camera::alignLeft(Interaction::Context const& context, double** slf, double** /*otr*/) const {
+void Camera::alignLeft([[maybe_unused]] Interaction::Context const& context, double** slf, double** /*otr*/) const {
     assert(isGlobalContextCorrect(context));
     setCameraPosition(getAdjustedObjectPosition(slf, Align::Center), Align::Left);
 }
 
-void Camera::alignRight(Interaction::Context const& context, double** slf, double** /*otr*/) const {
+void Camera::alignRight([[maybe_unused]] Interaction::Context const& context, double** slf, double** /*otr*/) const {
     assert(isGlobalContextCorrect(context));
     setCameraPosition(getAdjustedObjectPosition(slf, Align::Center), Align::Right);
 }

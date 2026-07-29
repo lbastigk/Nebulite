@@ -172,7 +172,7 @@ void Physics::storeLastPosition(Interaction::Context const& /*context*/, double*
     baseVal(slf, Key::physics_lastPositionY) = baseVal(slf, Key::posY);
 }
 
-void Physics::applyForce(Interaction::Context const& context, double** slf, double** /*otr*/) const {
+void Physics::applyForce([[maybe_unused]] Interaction::Context const& context, double** slf, double** /*otr*/) const {
     assert(isGlobalContextCorrect(context));
 
     // Pre-calculate values before locking
