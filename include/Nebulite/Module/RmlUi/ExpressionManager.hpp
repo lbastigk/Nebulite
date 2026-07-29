@@ -48,7 +48,7 @@ public:
     };
 
 private:
-    bool expressionsWereEvaluated = false;
+    bool volatile expressionsWereEvaluated = false;
 
     // Pre-compiled RML strings to expressions
     absl::flat_hash_map<
