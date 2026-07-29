@@ -40,7 +40,7 @@ external_include_list=(
 # Files that cause issues like hangs or crashes that will be skipped during the clang-tidy run
 # all entries must start with './'
 known_offenders=(
-    "./src/Module/Domain/Renderer/Audio.cpp"
+    "./src/Nebulite/Module/Domain/Renderer/Audio.cpp"
 )
 
 # Map of known .tpp -> .hpp overrides.
