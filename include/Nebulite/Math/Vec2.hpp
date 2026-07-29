@@ -8,24 +8,17 @@
 #include <cmath>
 #include <type_traits>
 
+// Nebulite
+#include "Nebulite/Math/Coordinates.hpp"
+
 //------------------------------------------
 // Concepts
 
 template<typename T>
 concept VectorType = std::is_arithmetic_v<T> && std::is_trivially_copyable_v<T>;
 
-
-
 //------------------------------------------
 namespace Nebulite::Math {
-
-//------------------------------------------
-// Types
-
-enum class CoordinateType : bool {
-    XY, // Coordinate names are x and y
-    WH // Coordinate names are w and h
-};
 
 //------------------------------------------
 // Vector implementations
