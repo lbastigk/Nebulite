@@ -50,6 +50,7 @@ function(configure_warnings target_name)
             -Wshadow
             # Disable some warnings
             -Wno-interference-size
+            -Wno-attributes # Ignore clang-specific attributes
         )
 
         # Append external include flags if any
