@@ -112,13 +112,13 @@ void Drawcall::renderTexture(Core::Renderer const& nebuliteRenderer, float const
             .x=std::floor(static_cast<float>(*refs.rectSrcX)),
             .y=std::floor(static_cast<float>(*refs.rectSrcY)),
             .w=std::floor(static_cast<float>(*refs.rectSrcW)),
-            .h=std::floor(static_cast<float>(*refs.rectSrcH))
+            .h=std::floor(static_cast<float>(*refs.rectSrcH)),
         };
         SDL_FRect const dstRect = nebuliteRenderer.scaleRectFromLogicalSize({
             .x=std::floor(static_cast<float>(*refs.rectDstX) + dX),
             .y=std::floor(static_cast<float>(*refs.rectDstY) + dY),
             .w=std::floor(static_cast<float>(*refs.rectDstW)),
-            .h=std::floor(static_cast<float>(*refs.rectDstH))
+            .h=std::floor(static_cast<float>(*refs.rectDstH)),
         });
         if (!Math::isZero(*refs.rotationDegrees)) {
             if (!SDL_RenderTextureRotated(nebuliteRenderer.getSdlRenderer(), texture.getSDLTexture(), &srcRect, &dstRect, *refs.rotationDegrees, &rotationCenter, SDL_FLIP_NONE)) {
@@ -372,7 +372,7 @@ void Drawcall::initializeText() {
         .r=static_cast<Uint8>(*refs.colorR),
         .g=static_cast<Uint8>(*refs.colorG),
         .b=static_cast<Uint8>(*refs.colorB),
-        .a=static_cast<Uint8>(*refs.colorA)
+        .a=static_cast<Uint8>(*refs.colorA),
     };
 
     SDL_Surface* surf = TTF_RenderText_Blended_Wrapped(font, state.text.text.c_str(), 0, state.text.textColor, 0);
@@ -416,7 +416,7 @@ void Drawcall::initializeCircle() {
         .r=static_cast<Uint8>(*refs.colorR),
         .g=static_cast<Uint8>(*refs.colorG),
         .b=static_cast<Uint8>(*refs.colorB),
-        .a=static_cast<Uint8>(*refs.colorA)
+        .a=static_cast<Uint8>(*refs.colorA),
     };
     SDL_SetRenderDrawColor(sdlRenderer, state.circle.circleColor.r, state.circle.circleColor.g, state.circle.circleColor.b, state.circle.circleColor.a);
     SdlPrimitive::drawFilledCircle(sdlRenderer, circleTexture, state.circle.circleColor, state.circle.radius);
@@ -493,7 +493,7 @@ void Drawcall::initializePolygon() {
         .r=static_cast<Uint8>(*refs.colorR),
         .g=static_cast<Uint8>(*refs.colorG),
         .b=static_cast<Uint8>(*refs.colorB),
-        .a=static_cast<Uint8>(*refs.colorA)
+        .a=static_cast<Uint8>(*refs.colorA),
     };
 
     if (!Math::isZero(*refs.polygonFilled)) {

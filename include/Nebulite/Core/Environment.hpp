@@ -61,7 +61,7 @@ public:
         background = 0,
         general,
         foreground,
-        effects
+        effects,
     };
 
     static auto constexpr FinalLayer = Layer::effects;
@@ -73,7 +73,7 @@ private:
         Layer::background, // Special layer: uses pre-calculated textures. Only updated on object removal/insertion
         Layer::general,
         Layer::foreground,
-        Layer::effects
+        Layer::effects,
     };
 
     static_assert(allLayers.back() == FinalLayer, "Layer ordering changed, please review code.");
@@ -256,7 +256,7 @@ public:
             if (isValidPosition(tileCoordinate, layer)) {
                 result.emplace_back(TileAndCoordinate{
                     .tile = &getContainerAt(tileCoordinate, layer),
-                    .coordinate = tileCoordinate
+                    .coordinate = tileCoordinate,
                 });
             }
         }

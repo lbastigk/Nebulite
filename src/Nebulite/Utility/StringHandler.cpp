@@ -282,7 +282,7 @@ namespace {
 std::array constexpr pairs = {
     std::make_pair('(',  ')'),
     std::make_pair('[',  ']'),
-    std::make_pair('{',  '}')
+    std::make_pair('{',  '}'),
 };
 
 int depth(std::string_view const input) {

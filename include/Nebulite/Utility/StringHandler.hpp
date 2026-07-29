@@ -172,7 +172,7 @@ public:
     enum class Delimiter : std::uint8_t {
         parentheses = 0,
         brace,
-        bracket
+        bracket,
     };
 
     /**

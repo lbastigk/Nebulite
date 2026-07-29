@@ -103,7 +103,7 @@ public:
         template <typename F>
         auto operator()(F f) const {
             return closure<std::decay_t<F>>{
-                std::move(f)
+                std::move(f),
             };
         }
     } constexpr tryTransform{};
@@ -243,7 +243,7 @@ public:
         template<class Pred>
         auto operator()(Pred pred) const {
             return all_equal_and_closure<std::decay_t<Pred>>{
-                std::move(pred)
+                std::move(pred),
             };
         }
     } constexpr all_equal_and{};

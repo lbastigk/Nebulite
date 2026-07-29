@@ -190,8 +190,8 @@ bool Filter::filterCustom(std::span<std::string_view const> const& args, Data::J
             {
                 .self = element,
                 .other = element,
-                .global = element
-            }
+                .global = element,
+            },
         };
         return expression.evalAsBool(ctxScope, Utility::Promise<&Interaction::Logic::Expression::isReturnableAsBool>{});
     });

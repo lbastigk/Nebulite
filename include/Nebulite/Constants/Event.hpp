@@ -13,7 +13,7 @@ namespace Nebulite::Constants {
 enum class Event : std::uint8_t {
     Success = 0,
     Warning,
-    Error
+    Error,
 };
 
 } // namespace Nebulite::Constants

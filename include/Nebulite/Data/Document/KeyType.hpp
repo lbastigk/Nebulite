@@ -17,7 +17,7 @@ enum class KeyType : std::uint8_t {
     null = 0,
     value,
     array,
-    object
+    object,
 };
 } // namespace Nebulite::Data
 #endif // NEBULITE_DATA_DOCUMENT_KEYTYPE_HPP
