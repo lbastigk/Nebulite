@@ -133,13 +133,9 @@ double* JsonScope::getStableDoublePointer(ScopedKey const& key) const {
 }
 
 std::optional<std::complex<double>> JsonScope::getComplex(ScopedKeyView const& key) const {
-    auto realPart = baseDocument->get<double>(key.addMember(complexRe).view().full(*this));
-    auto imagPart = baseDocument->get<double>(key.addMember(complexIm).view().full(*this));
-
-    if (realPart.has_value() && imagPart.has_value()) {
+    if (auto const [realPart, imagPart] = getMultiple<double>(key.addMember(complexRe).view(), key.addMember(complexIm).view()); realPart.has_value() && imagPart.has_value()) {
         return {std::complex(realPart.value(), imagPart.value())};
     }
-
     return std::nullopt;
 }
 
@@ -186,9 +182,9 @@ void JsonScope::setEmptyArray(ScopedKey const& key) {
 }
 
 void JsonScope::setComplex(ScopedKeyView const& key, std::complex<double> const& value){
-    baseDocument->removeMember(key.full(*this)); // Remove any existing member to avoid type conflicts
-    baseDocument->set<double>(key.addMember(complexRe).view().full(*this), value.real());
-    baseDocument->set<double>(key.addMember(complexIm).view().full(*this), value.imag());
+    doc().removeMember(key.full(*this)); // Remove any existing member to avoid type conflicts
+    doc().set<double>(key.addMember(complexRe).view().full(*this), value.real());
+    doc().set<double>(key.addMember(complexIm).view().full(*this), value.imag());
 }
 
 void JsonScope::setComplex(ScopedKey const& key, std::complex<double> const& value) {

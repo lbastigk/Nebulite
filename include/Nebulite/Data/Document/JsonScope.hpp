@@ -172,6 +172,9 @@ public:
     //------------------------------------------
     // Getter
 
+    template<typename T, typename... Keys>
+    auto getMultiple(Keys const&... keys) const ;
+
     template<typename T>
     std::expected<T, SimpleValueRetrievalError> get(ScopedKeyView const& key) const ;
 

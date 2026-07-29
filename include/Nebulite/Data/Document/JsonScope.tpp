@@ -40,6 +40,13 @@ std::optional<std::string> JsonScope::generateScopePrefix(DocType const& doc, st
     return std::nullopt;
 }
 
+template<typename T, typename... Keys>
+auto JsonScope::getMultiple(Keys const&... keys) const {
+    return std::tuple{
+        get<T>(keys)...
+    };
+}
+
 template<typename T>
 std::expected<T, SimpleValueRetrievalError> JsonScope::get(ScopedKeyView const& key) const {
     return baseDocument->get<T>(key.full(*this));
