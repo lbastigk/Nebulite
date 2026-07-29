@@ -36,7 +36,7 @@ public:
         resource,
         local,
         full,
-        none
+        none,
     };
 
     /**
@@ -88,7 +88,7 @@ private:
         std::make_pair(TargetType::other, "other"),
         std::make_pair(TargetType::local, "local"),
         std::make_pair(TargetType::global, "global"),
-        std::make_pair(TargetType::full, "full")
+        std::make_pair(TargetType::full, "full"),
     };
 };
 

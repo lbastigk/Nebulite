@@ -31,7 +31,7 @@ namespace Nebulite::Data::BroadcastListenContainer {
 
 enum class FlatContainerType : bool {
     ApplyOffset, // Apply offset based on p = worker index / worker count, parts being p, others p^2
-    NoOffset // No offset at all
+    NoOffset, // No offset at all
 };
 
 template <FlatContainerType Type>

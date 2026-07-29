@@ -57,8 +57,8 @@ public:
                 {1, 2, 5, 6},
                 {4, 3, 8, 7},
                 {5, 6, 1, 2},
-                {8, 7, 4, 3}
-            }
+                {8, 7, 4, 3},
+            },
         };
 
         for (std::size_t row = 0; row < N ; row++) {
@@ -99,7 +99,7 @@ private:
         return {
             {
                 static_cast<T>(std::invoke(std::forward<F>(generator), Is))... // NOLINT
-            }
+            },
         };
     }
 };

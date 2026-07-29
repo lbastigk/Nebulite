@@ -58,7 +58,7 @@ JsonScope::~JsonScope() = default;
 
 std::string JsonScope::generatePrefix(std::string const& givenPrefix) {
     std::string fullPrefix = givenPrefix;
-    if (!fullPrefix.empty() && !fullPrefix.ends_with(".")) fullPrefix += ".";
+    if (!fullPrefix.empty() && !fullPrefix.ends_with('.')) fullPrefix += '.';
     return fullPrefix;
 }
 
@@ -340,7 +340,7 @@ std::vector<JsonScope::MemberAndKey> JsonScope::listAvailableMembersAndKeys(Scop
         | std::views::transform([&key](std::string const& member) {
             return MemberAndKey{
                 .member=member,
-                .key=key.addMember(member)
+                .key=key.addMember(member),
             };
         })
         | std::ranges::to<std::vector<MemberAndKey>>();

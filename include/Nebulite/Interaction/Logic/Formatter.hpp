@@ -27,7 +27,7 @@ struct Formatter {
     enum class CastType : std::uint8_t {
         none, // No formatting
         to_int, // Cast to integer
-        to_double // Cast to double
+        to_double, // Cast to double
     } cast = CastType::none; // Default to none
 
     bool leadingZero = false; // If true, pad with leading zeros

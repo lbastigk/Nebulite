@@ -62,19 +62,19 @@ std::string RulesetCompiler::getCondition(Data::JsonScope const& entry) {
     if (entry.memberType(Constants::KeyNames::Ruleset::condition) == Data::KeyType::array) {
         logicalArg = "$(";
         for (auto const& key : entry.arrayKeys(Constants::KeyNames::Ruleset::condition)) {
-            logicalArg += "(" + entry.get<std::string>(key).value_or("0") + ")";
-            logicalArg += "*"; // Arguments in vector need to be all true: &-logic -> Multiplication
+            logicalArg += '(' + entry.get<std::string>(key).value_or("0") + ')';
+            logicalArg += '*'; // Arguments in vector need to be all true: &-logic -> Multiplication
         }
-        if (logicalArg.ends_with("*")) {
+        if (logicalArg.ends_with('*')) {
             logicalArg.pop_back(); // Remove last *
         }
-        logicalArg += ")";
+        logicalArg += ')';
     } else {
         // Assume simple value, string:
         logicalArg = entry.get<std::string>(Constants::KeyNames::Ruleset::condition).value_or("0");
         // Ensure logicalArg is encapsulated in an evaluation
         if (!logicalArg.starts_with("$(")) {
-            logicalArg = "$(" + logicalArg + ")";
+            logicalArg = "$(" + logicalArg + ')';
         }
     }
     return logicalArg;

@@ -113,13 +113,11 @@ namespace Nebulite::Module::Domain::Renderer {
             ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(6.0f, 2.0f));
             ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(4.0f, 2.0f));
 
+            static auto constexpr flags = ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_AlwaysAutoResize |ImGuiWindowFlags_NoFocusOnAppearing | ImGuiWindowFlags_NoNav; // NOLINT
             ImGui::Begin(
                 "Tile pos",
                 nullptr,
-                ImGuiWindowFlags_NoDecoration |
-                ImGuiWindowFlags_AlwaysAutoResize |
-                ImGuiWindowFlags_NoFocusOnAppearing |
-                ImGuiWindowFlags_NoNav
+                flags
             );
 
             ImGui::Text("Tile: (%+05d, %+05d)",  domain.getTilePositionX(), domain.getTilePositionY());

@@ -212,7 +212,7 @@ private:
         SPRITE,
         TEXT,
         CIRCLE,
-        POLYGON
+        POLYGON,
         // More ideas:
         // - tiledSprite (set fixed size of each tile, or a min/max size, and tile the texture accordingly) Helpful for GUI elements
         //   > dstRect determines the overall area to fill

@@ -149,7 +149,7 @@ void Reflection::setReflectionScopes(Data::JSON& reflectionList, std::unique_ptr
                 .self = newScope,
                 .other = contextAndScope.ctxScope.other,
                 .global = contextAndScope.ctxScope.global,
-            }
+            },
         };
 
         auto const& allocatedId = entry->allocatedIds[idsIndex];

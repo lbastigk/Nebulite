@@ -295,8 +295,8 @@ void RmlInterface::processRmlUiEvent(SDL_Event const& event) const {
         break;
     }
 
-    // Handle Ctrl + A/C/V/X for text input fields
-    if (modifiers & Rml::Input::KM_CTRL && event.type == SDL_EVENT_KEY_DOWN && isTextInputFocused()) {
+    // Handle Ctrl + A/C/V/X for text input fields.
+    if (modifiers & Rml::Input::KM_CTRL && event.type == SDL_EVENT_KEY_DOWN && isTextInputFocused()) { // NOLINT
         auto eventCopy = event;
         RmlSDL::InputEventHandler(context, window, eventCopy);
     }

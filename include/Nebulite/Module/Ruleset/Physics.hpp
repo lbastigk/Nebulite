@@ -94,7 +94,7 @@ public:
         Domain::GlobalSpace::Physics::Key::Local::lastCollisionTimeX,
         Domain::GlobalSpace::Physics::Key::Local::lastCollisionTimeY,
         Domain::GlobalSpace::Physics::Key::Local::lastPositionX,
-        Domain::GlobalSpace::Physics::Key::Local::lastPositionY
+        Domain::GlobalSpace::Physics::Key::Local::lastPositionY,
     };
 
     /**

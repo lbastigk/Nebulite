@@ -403,7 +403,7 @@ public:
     enum class ViewSetting : std::uint8_t {
         high,
         low,
-        lowest
+        lowest,
     } viewSetting = ViewSetting::high;
 
     /**

@@ -40,7 +40,7 @@ struct HistoryLine{
         Input,
         Info,
         Warning,
-        Error
+        Error,
     } type;
 };
 

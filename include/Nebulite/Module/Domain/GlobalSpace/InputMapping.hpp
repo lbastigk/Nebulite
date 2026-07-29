@@ -130,7 +130,7 @@ private:
             current,
             onPress,
             onRelease,
-            onChange // Any change in state, either press or release
+            onChange, // Any change in state, either press or release
         } type = Action::empty;
     };
 
@@ -162,7 +162,7 @@ private:
         enum class LockState : std::uint8_t {
             unlocked,   // The action is not locked and can be triggered by its associated keys.
             lockOnce,   // The action is locked for the current frame, preventing it from being triggered by any of its associated keys. It will be automatically unlocked in the next frame.
-            lockOn      // The action is locked until it is manually unlocked, preventing it from being triggered by any of its associated keys.
+            lockOn,      // The action is locked until it is manually unlocked, preventing it from being triggered by any of its associated keys.
         } lockState = LockState::unlocked; // The current lock state of the action
     };
 
