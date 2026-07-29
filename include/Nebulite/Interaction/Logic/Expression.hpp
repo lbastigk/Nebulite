@@ -260,7 +260,7 @@ private:
             data[s.size()] = '\0';
         }
 
-        explicit operator std::string_view() const {
+        explicit operator std::string_view() const [[clang::lifetimebound]] {
             return {data.data()};
         }
     };

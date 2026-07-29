@@ -51,7 +51,7 @@ public:
     // Make Entry non-copyable and non-movable
     // All entries are local to their Domain
 
-    explicit Ruleset(Execution::Domain& contextSelf) : self(contextSelf) {}
+    explicit Ruleset([[clang::lifetimebound]] Execution::Domain& contextSelf) : self(contextSelf) {}
     virtual ~Ruleset() = default;
 
     // Ruleset is owned by a single Domain, no copy or move semantics
@@ -85,7 +85,7 @@ public:
      * @brief Returns the topic of the ruleset.
      * @return The topic of the ruleset, as const reference.
      */
-    [[nodiscard]] std::string const& getTopic() const { return topic; }
+    [[nodiscard]] std::string const& getTopic() const [[clang::lifetimebound]] { return topic; }
 
     /**
      * @brief Returns the estimated computational cost of the ruleset.

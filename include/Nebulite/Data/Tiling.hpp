@@ -14,6 +14,7 @@
 
 // Nebulite
 #include "Nebulite/Data/Batch.hpp"
+#include "Nebulite/Math/Coordinates.hpp"
 #include "Nebulite/Math/Vec2.hpp"
 
 //------------------------------------------

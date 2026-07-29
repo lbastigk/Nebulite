@@ -60,11 +60,11 @@ public:
      * @brief Get the key associated with this LinkedNumericValue.
      * @return The key as a string.
      */
-    [[nodiscard]] std::string const& getKey() const noexcept {
+    [[nodiscard]] std::string const& getKey() const noexcept [[clang::lifetimebound]] {
         return key;
     }
 
-    [[nodiscard]] Data::ScopedKeyView const& getScopedKey() const noexcept {
+    [[nodiscard]] Data::ScopedKeyView const& getScopedKey() const noexcept [[clang::lifetimebound]] {
         return scopedKey;
     }
 

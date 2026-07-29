@@ -470,7 +470,7 @@ public:
      * @brief Gets the name of the domain.
      * @return The name of the domain.
      */
-    [[nodiscard]] std::string const& getName() const { return domainName; }
+    [[nodiscard]] std::string const& getName() const [[clang::lifetimebound]] { return domainName; }
 
     /**
      * @brief Retrieves the ordered cache list directly with minimal locking

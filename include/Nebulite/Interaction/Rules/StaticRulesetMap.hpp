@@ -94,6 +94,7 @@ public:
 
 private:
     absl::flat_hash_map<std::string, StaticRulesetWithMetadata> container;
+
     StaticRulesetWithMetadata invalidEntry{
         .type=StaticRuleset::Type::invalid,
         .topic="",
