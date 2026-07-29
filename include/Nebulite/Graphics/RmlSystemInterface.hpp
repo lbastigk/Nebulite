@@ -93,7 +93,7 @@ private:
         Cursor{SDL_SYSTEM_CURSOR_CROSSHAIR, [](Rml::String const& cursorName){ return cursorName == "cross"; }},
         Cursor{SDL_SYSTEM_CURSOR_TEXT, [](Rml::String const& cursorName){ return cursorName == "text"; }},
         Cursor{SDL_SYSTEM_CURSOR_NOT_ALLOWED, [](Rml::String const& cursorName){ return cursorName == "unavailable"; }},
-        Cursor{SDL_SYSTEM_CURSOR_DEFAULT, [](Rml::String const& cursorName){ return cursorName.empty() || cursorName == "arrow"; }}
+        Cursor{SDL_SYSTEM_CURSOR_DEFAULT, [](Rml::String const& cursorName){ return cursorName.empty() || cursorName == "arrow"; }},
     };
 
     using Position = Math::Vec2<int>;
