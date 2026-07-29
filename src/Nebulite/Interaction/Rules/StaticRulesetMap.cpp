@@ -35,8 +35,8 @@ StaticRulesetMap::StaticRulesetMap(){
         .type=StaticRuleset::Type::Local,
         .topic=helpName,
         .description=helpDesc,
-        .function=[this](const Context& context, double** slf, double** otr) { help(context, slf, otr); },
-        .baseListFunc=helpBaseListFunc
+        .function=[this](Context const& context, double** slf, double** otr) { help(context, slf, otr); },
+        .baseListFunc=helpBaseListFunc,
     });
 }
 
@@ -56,7 +56,7 @@ std::vector<StaticRulesetMap::StaticRulesetMetadata> StaticRulesetMap::getList()
             list.push_back(StaticRulesetMetadata{
                 .type=rule.type,
                 .topic=std::string(rule.topic),
-                .description=std::string(rule.description)
+                .description=std::string(rule.description),
             });
         }
     }
