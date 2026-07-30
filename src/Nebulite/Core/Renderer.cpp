@@ -11,7 +11,6 @@
 #include <optional>
 #include <random>
 #include <ranges>
-#include <type_traits>
 #include <utility>
 #include <vector>
 
@@ -47,6 +46,7 @@
 #include "Nebulite/Nebulite.hpp"
 #include "Nebulite/Utility/IO/Capture.hpp"
 #include "Nebulite/Utility/IO/FileManagement.hpp"
+#include "Nebulite/Utility/TypeCheck.hpp"
 
 //------------------------------------------
 namespace Nebulite::Core {
@@ -57,9 +57,9 @@ double fontSize(auto const fontSizeKey, double defaultValue) {
 }
 } // namespace
 
-Renderer::Renderer(Data::JsonScope& documentReference, bool* flag_headless, Utility::IO::Capture& parentCapture) :
+Renderer::Renderer(Data::JsonScope& documentReference, bool* headlessFlag, Utility::IO::Capture& parentCapture) :
     Domain("Renderer", documentReference, parentCapture),
-    headless(flag_headless),
+    headless(headlessFlag),
     env(documentReference, parentCapture){
     //------------------------------------------
     // Initialize internal variables
@@ -100,16 +100,16 @@ void Renderer::setupDisplayValues() {
     // Load from settings
     // Default values should never be used, as settings should always exist
     // Still, just in case, we set them to 1000x1000 @ 1x scaling and 60 FPS
-    auto const X = Global::settings().get<uint16_t>(Module::Domain::GlobalSpace::Settings::Key::resolutionX).value_or(1000);
-    auto const Y = Global::settings().get<uint16_t>(Module::Domain::GlobalSpace::Settings::Key::resolutionX).value_or(1000);
+    auto const resX = Global::settings().get<uint16_t>(Module::Domain::GlobalSpace::Settings::Key::resolutionX).value_or(1000);
+    auto const resY = Global::settings().get<uint16_t>(Module::Domain::GlobalSpace::Settings::Key::resolutionX).value_or(1000);
     windowScale = Global::settings().get<uint8_t>(Module::Domain::GlobalSpace::Settings::Key::resolutionScaling).value_or(1);
     fps.target = Global::settings().get<uint16_t>(Module::Domain::GlobalSpace::Settings::Key::targetFPS).value_or(60);
 
     // Set in workspace
-    domainScope.set<unsigned int>(Constants::KeyNames::Renderer::dispResXWindow, X*windowScale);
-    domainScope.set<unsigned int>(Constants::KeyNames::Renderer::dispResYWindow, Y*windowScale);
-    domainScope.set<int>(Constants::KeyNames::Renderer::dispResXLogical, X);
-    domainScope.set<int>(Constants::KeyNames::Renderer::dispResYLogical, Y);
+    domainScope.set<unsigned int>(Constants::KeyNames::Renderer::dispResXWindow, resX*windowScale);
+    domainScope.set<unsigned int>(Constants::KeyNames::Renderer::dispResYWindow, resY*windowScale);
+    domainScope.set<int>(Constants::KeyNames::Renderer::dispResXLogical, resX);
+    domainScope.set<int>(Constants::KeyNames::Renderer::dispResYLogical, resY);
 
     // Start position at 0|0
     // TODO: Move to environment?
@@ -197,11 +197,11 @@ void Renderer::initImgui() {
     // Load a pixel font if available; fallback to default
     // Use a font config that disables oversampling and enables pixel snapping
     auto const size = fontSize(Module::Domain::GlobalSpace::Settings::Key::fontSize1, 40.0);
-    ImFontConfig font_cfg;
-    font_cfg.OversampleH = 1;
-    font_cfg.OversampleV = 1;
-    font_cfg.PixelSnapH  = true;
-    font_cfg.SizePixels = static_cast<float>(size) * fullScale;
+    ImFontConfig fontConfig;
+    fontConfig.OversampleH = 1;
+    fontConfig.OversampleV = 1;
+    fontConfig.PixelSnapH  = true;
+    fontConfig.SizePixels = static_cast<float>(size) * fullScale;
 
     // Set different default font config
     ImFontConfig defaultFontCfg;
@@ -210,7 +210,7 @@ void Renderer::initImgui() {
     // Load font, fallback to default if not found or failed to load
     auto const fontPath = Global::settings().get<std::string>(Module::Domain::GlobalSpace::Settings::Key::fontMono).value_or("null");
     if (Utility::IO::FileManagement::fileExists(fontPath)) {
-        if (ImFont* f = io.Fonts->AddFontFromFileTTF(fontPath.c_str(), 0, &font_cfg, io.Fonts->GetGlyphRangesDefault()); f) {
+        if (ImFont* f = io.Fonts->AddFontFromFileTTF(fontPath.c_str(), 0, &fontConfig, io.Fonts->GetGlyphRangesDefault()); f) {
             io.FontDefault = f;
         }
         else {
@@ -227,11 +227,17 @@ void Renderer::initImgui() {
     ImGui_ImplSDLRenderer3_Init(renderer);
 }
 
+namespace {
+auto getWindowFlags(bool const headless) {
+    return headless ? static_cast<std::uint32_t>(SDL_WINDOW_HIDDEN) : static_cast<std::uint32_t>(SDL_WINDOW_HIGH_PIXEL_DENSITY);
+}
+} // namespace
+
 void Renderer::initSDL() {
     if (status.sdlInitialized) return;
 
     //------------------------------------------
-    // Window
+    // Window and renderer
     setupDisplayValues();
 
     // Create SDL window
@@ -244,11 +250,8 @@ void Renderer::initSDL() {
     int const w = domainScope.get<int>(Constants::KeyNames::Renderer::dispResXWindow).value_or(0);
     int const h = domainScope.get<int>(Constants::KeyNames::Renderer::dispResYWindow).value_or(0);
 
-    //------------------------------------------
-    // Window and renderer
-    std::uint32_t const flags = *headless ? static_cast<std::uint32_t>(SDL_WINDOW_HIDDEN) : static_cast<std::uint32_t>(SDL_WINDOW_HIGH_PIXEL_DENSITY);
-
-    if (!SDL_CreateWindowAndRenderer("Nebulite", w*windowScale, h*windowScale, flags, &window, &renderer)) {
+    // Create window and renderer
+    if (!SDL_CreateWindowAndRenderer("Nebulite", w*windowScale, h*windowScale, getWindowFlags(*headless), &window, &renderer)) {
         capture.error.println("SDL_CreateWindowAndRenderer Error: ", SDL_GetError());
         std::abort();
     }
@@ -309,7 +312,7 @@ void Renderer::initSDL() {
 void Renderer::loadFonts() {
     //------------------------------------------
     // Sizes
-    auto const FontSizeGeneral = fontSize(Module::Domain::GlobalSpace::Settings::Key::fontSize3, 80.0);
+    auto const fontSizeGeneral = fontSize(Module::Domain::GlobalSpace::Settings::Key::fontSize3, 80.0);
 
     //------------------------------------------
     // Font location
@@ -317,7 +320,7 @@ void Renderer::loadFonts() {
 
     //------------------------------------------
     // Load general font
-    font = TTF_OpenFont(fontPath.c_str(), static_cast<float>(FontSizeGeneral)); // Adjust size as needed
+    font = TTF_OpenFont(fontPath.c_str(), static_cast<float>(fontSizeGeneral)); // Adjust size as needed
     if (font == nullptr) {
         // Handle font loading error
         capture.error.println("Failed to load font: ", fontPath);
@@ -547,8 +550,8 @@ Constants::Event Renderer::update() {
 }
 
 bool Renderer::timeToRender() {
-    // Goal: projected_dt() == target
-    // Issue: target might be fractional, projected_dt() is integer milliseconds
+    // Goal: dtProjected() == target
+    // Issue: target might be fractional, dtProjected() is integer milliseconds
     // Solution: use probabilistic rounding
     // Example: target = 16.67 ms
     // set target to 16, remainder = 0.67
@@ -560,7 +563,7 @@ bool Renderer::timeToRender() {
     double const target = 1000.0 / static_cast<double>(fps.target);
     double const remainder = target - static_cast<double>(static_cast<uint32_t>(target)); // between 0.0 and 1.0
     std::uint32_t const adjustedTarget = static_cast<uint32_t>(target) + (distribution(randNum) < remainder ? 1 : 0);
-    return fps.controlTimer.projected_dt() >= adjustedTarget;
+    return fps.controlTimer.dtProjected() >= adjustedTarget;
 }
 
 void Renderer::append(RenderObject* toAppend) {
@@ -648,16 +651,6 @@ void Renderer::setTargetFPS(std::uint16_t const& targetFps) {
     fps.target = targetFps;
 }
 
-namespace {
-
-template <typename T>
-struct is_static_member_function : std::bool_constant<std::is_function_v<std::remove_pointer_t<T>>> {};
-
-template <typename T>
-inline constexpr bool is_static_member_function_v = is_static_member_function<T>::value;
-
-} // namespace
-
 // This does not change the settings file, only the current session
 void Renderer::changeWindowSize(int const w, int const h, std::uint8_t  const scalar) {
     // Validate resolution and scalar
@@ -700,19 +693,20 @@ void Renderer::changeWindowSize(int const w, int const h, std::uint8_t  const sc
     // Rescale rml context
     Graphics::RmlInterface::instance().setDimensions(w * windowScale, h * windowScale);
 
+    // NOLINTBEGIN
     // We assume that the tiling information is based on renderer states such as resolution,
     // if it's not static. If that is the case, we must reinsert all objects to redistribute
     // on resolution change
-    if constexpr (!is_static_member_function_v<decltype(&Renderer::tilingInformation)>) { // NOLINT
+    if constexpr (!Utility::TypeCheck::is_static_member_function_v<decltype(&Renderer::tilingInformation)>) {
         // Unreachable code if it's static, so we use a NOLINTNEXTLINE to suppress the warning
-        // NOLINTNEXTLINE
         reinsertAllObjects();
     }
+    // NOLINTEND
 }
 
-void Renderer::setCam(int const X, int const Y, bool const isMiddle) const {
-    int newPosX = X;
-    int newPosY = Y;
+void Renderer::setCam(int const posX, int const posY, bool const isMiddle) const {
+    int newPosX = posX;
+    int newPosY = posY;
     if (isMiddle) {
         newPosX -= domainScope.get<int>(Constants::KeyNames::Renderer::dispResXLogical).value_or(0) / 2;
         newPosY -= domainScope.get<int>(Constants::KeyNames::Renderer::dispResYLogical).value_or(0) / 2;
@@ -777,7 +771,7 @@ void Renderer::renderFrame() {
 
     //Calculate fps every second
     fps.realCounter++;
-    if (fps.renderTimer.projected_dt() >= 1000) {
+    if (fps.renderTimer.dtProjected() >= 1000) {
         fps.real = fps.realCounter;
         fps.realCounter = 0;
         fps.renderTimer.update();
@@ -860,7 +854,7 @@ void Renderer::loadTexture(std::string const& link) {
 }
 
 SDL_Texture* Renderer::loadTextureToMemory(std::string const& link) {
-    std::string const path = Utility::IO::FileManagement::CombinePaths(baseDirectory, link);
+    std::string const path = Utility::IO::FileManagement::combinePaths(baseDirectory, link);
 
     // Get file extension, based on last dot
     std::string extension;

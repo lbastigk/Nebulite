@@ -35,7 +35,7 @@ Constants::Event Filesystem::cat(std::span<std::string_view const> const& args) 
     }
 
     auto const filePath = Utility::StringHandler::recombineArgs(args.subspan(1));
-    auto const fileContent = Utility::IO::FileManagement::LoadFile(filePath);
+    auto const fileContent = Utility::IO::FileManagement::loadFile(filePath);
     domain.capture.log.println(fileContent);
     return Constants::Event::Success;
 }

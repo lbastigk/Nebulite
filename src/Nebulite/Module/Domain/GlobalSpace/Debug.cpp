@@ -65,23 +65,23 @@ bool safe_open_log(std::unique_ptr<std::ofstream>& out) {
     return out->is_open();
 }
 
-void getMemoryUsageMB(double& virtualMemMB, double& residentMemMB) {
+void getMemoryUsageMegaBytes(double& virtualMemMegaBytes, double& residentMemMegaBytes) {
 #ifdef _WIN32
     // Broken atm
     /*
     PROCESS_MEMORY_COUNTERS_EX pmc;
     GetProcessMemoryInfo(GetCurrentProcess(), (PROCESS_MEMORY_COUNTERS*)&pmc, sizeof(pmc));
-    virtualMemMB = static_cast<double>(pmc.PrivateUsage) / (1024.0 * 1024.0);
-    residentMemMB = static_cast<double>(pmc.WorkingSetSize) / (1024.0 * 1024.0);
+    virtualMemMegaBytes = static_cast<double>(pmc.PrivateUsage) / (1024.0 * 1024.0);
+    residentMemMegaBytes = static_cast<double>(pmc.WorkingSetSize) / (1024.0 * 1024.0);
     */
-    virtualMemMB = std::numeric_limits<double>::quiet_NaN();
-    residentMemMB = std::numeric_limits<double>::quiet_NaN();
+    virtualMemMegaBytes = std::numeric_limits<double>::quiet_NaN();
+    residentMemMegaBytes = std::numeric_limits<double>::quiet_NaN();
 #else
     // derived from
     // https://stackoverflow.com/questions/669438/how-to-get-memory-usage-at-runtime-using-c
 
-    virtualMemMB = 0.0;
-    residentMemMB = 0.0;
+    virtualMemMegaBytes = 0.0;
+    residentMemMegaBytes = 0.0;
 
     // 'file' stat seems to give the most reliable results
     std::ifstream stat_stream("/proc/self/stat", std::ios_base::in);
@@ -123,8 +123,8 @@ void getMemoryUsageMB(double& virtualMemMB, double& residentMemMB) {
     stat_stream.close();
 
     auto const page_size_kb = sysconf(_SC_PAGE_SIZE) / 1024; // in case x86-64 is configured to use 2MB pages
-    virtualMemMB = static_cast<double>(vsize) / (1024.0 * 1024.0);
-    residentMemMB = static_cast<double>(rss) * static_cast<double>(page_size_kb) / 1024.0;
+    virtualMemMegaBytes = static_cast<double>(vsize) / (1024.0 * 1024.0);
+    residentMemMegaBytes = static_cast<double>(rss) * static_cast<double>(page_size_kb) / 1024.0;
 #endif
 }
 } // anonymous namespace
@@ -143,12 +143,12 @@ Constants::Event Debug::log_global(int const argc, char const** argv) const {
     std::string const serialized = moduleScope.serialize();
     if (argc > 1) {
         for (int i = 1; i < argc; i++) {
-            if (!Utility::IO::FileManagement::WriteFile(argv[i], serialized)) {
+            if (!Utility::IO::FileManagement::writeFile(argv[i], serialized)) {
                 return Constants::StandardCapture::Error::File::couldNotWriteFile(domain.capture);
             }
         }
     } else {
-        if (!Utility::IO::FileManagement::WriteFile("global.log.jsonc", serialized)) {
+        if (!Utility::IO::FileManagement::writeFile("global.log.jsonc", serialized)) {
             return Constants::StandardCapture::Error::File::couldNotWriteFile(domain.capture);
         }
     }
@@ -159,12 +159,12 @@ Constants::Event Debug::log_state(int const argc, char const** argv) const {
     std::string const serialized = domain.getRenderer().serialize();
     if (argc > 1) {
         for (int i = 1; i < argc; i++) {
-            if (!Utility::IO::FileManagement::WriteFile(argv[i], serialized)) {
+            if (!Utility::IO::FileManagement::writeFile(argv[i], serialized)) {
                 return Constants::StandardCapture::Error::File::couldNotWriteFile(domain.capture);
             }
         }
     } else {
-        if (!Utility::IO::FileManagement::WriteFile("state.log.jsonc", serialized)) {
+        if (!Utility::IO::FileManagement::writeFile("state.log.jsonc", serialized)) {
             return Constants::StandardCapture::Error::File::couldNotWriteFile(domain.capture);
         }
     }
@@ -172,7 +172,7 @@ Constants::Event Debug::log_state(int const argc, char const** argv) const {
 }
 
 Constants::Event Debug::standardFileRenderObject(std::span<std::string_view const> const& /*args*/) const {
-    if (Core::RenderObject const ro(domain.capture); !Utility::IO::FileManagement::WriteFile("./Resources/Renderobjects/standard.jsonc", ro.serialize())) {
+    if (Core::RenderObject const ro(domain.capture); !Utility::IO::FileManagement::writeFile("./Resources/Renderobjects/standard.jsonc", ro.serialize())) {
         return Constants::StandardCapture::Error::File::couldNotWriteFile(domain.capture);
     }
     return Constants::Event::Success;
@@ -307,11 +307,11 @@ void Debug::addRoutines() {
         Utility::Coordination::TimedRoutine(
             [this] {
                 // store memory usage in global document
-                double virtualMemMB = 0.0;
-                double residentMemMB = 0.0;
-                getMemoryUsageMB(virtualMemMB, residentMemMB);
-                moduleScope.set<double>(Key::memoryVirtualMB, virtualMemMB);
-                moduleScope.set<double>(Key::memoryResidentMB, residentMemMB);
+                double virtualMemMegaBytes = 0.0;
+                double residentMemMegaBytes = 0.0;
+                getMemoryUsageMegaBytes(virtualMemMegaBytes, residentMemMegaBytes);
+                moduleScope.set<double>(Key::memoryVirtualMegaBytes, virtualMemMegaBytes);
+                moduleScope.set<double>(Key::memoryResidentMegaBytes, residentMemMegaBytes);
             },
             1000 /*ms*/, // Call every second
             Utility::Coordination::TimedRoutine::ConstructionMode::START_IMMEDIATELY

@@ -26,8 +26,8 @@ Constants::Event Time::updateHook() {
 
     // Update
     RealTime.update();
-    std::uint64_t const dt_ms = RealTime.get_dt_ms();
-    std::uint64_t const t_ms = RealTime.get_t_ms();
+    std::uint64_t const dt_ms = RealTime.timeDeltaMilliseconds();
+    std::uint64_t const t_ms = RealTime.timeMilliseconds();
 
     // Set in doc
     moduleScope.set<double>(Key::runtime_dt, static_cast<double>(dt_ms) / 1000.0);
@@ -50,8 +50,8 @@ Constants::Event Time::updateHook() {
             // Perhaps adding a max delta time cap in the future to prevent huge jumps?
             SimulationTime.update(dt_ms);
         }
-        auto const sim_dt_ms = SimulationTime.get_dt_ms();
-        auto const sim_t_ms = SimulationTime.get_t_ms();
+        auto const sim_dt_ms = SimulationTime.timeDeltaMilliseconds();
+        auto const sim_t_ms = SimulationTime.timeMilliseconds();
 
         // Set in doc
         moduleScope.set<double>(Key::time_dt, static_cast<double>(sim_dt_ms) / 1000.0);

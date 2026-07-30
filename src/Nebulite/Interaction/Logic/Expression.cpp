@@ -155,7 +155,7 @@ Expression::~Expression() {
     reset();
 
     // Remove variables
-    te_variables.clear();
+    teVariables.clear();
 
     // Clear all expressions
     for (auto& component : components) {
@@ -335,7 +335,7 @@ void Expression::addTeVariable(ContextDeriver::TargetType const contextType, std
     linkedNumericValues.registerLnv(contextType, k, v);
 
     // Push back into variable components
-    te_variables.push_back({
+    teVariables.push_back({
         .name=teName.data.data(), // NOLINT
         .address=&v,
         .type=TE_VARIABLE,
@@ -409,7 +409,7 @@ Data::JsonScope const& Expression::emptyDoc() {
 void Expression::reset() {
     // Clear existing data
     components.clear();
-    te_variables.clear();
+    teVariables.clear();
     fullExpression.clear();
     components.clear();
 
@@ -425,7 +425,7 @@ void Expression::reset() {
 
     //------------------------------------------
     // Register built-in functions
-    Math::ExpressionPrimitives::registerExpressions(te_variables);
+    Math::ExpressionPrimitives::registerExpressions(teVariables);
 }
 
 //------------------------------------------
@@ -436,7 +436,7 @@ void Expression::parse(std::string_view const expr) {
     fullExpression = expr;
     parseIntoComponents();
     for (auto& component : components) {
-        component.compile(te_variables);
+        component.compile(teVariables);
     }
     recalculateEvaluationInfo();
 }
@@ -495,7 +495,7 @@ void Expression::printCompileError(ExpressionComponent const& component, int con
     ss << "if '$(1 + 1)' echo here! # works" << "\n";
     ss << "\n";
     ss << "Registered functions and variables:\n";
-    for (auto const& var : te_variables) {
+    for (auto const& var : teVariables) {
         ss << "\t'" << var.name << "'\n";
     }
     ss << "\n";
@@ -509,8 +509,8 @@ void Expression::printCompileError(ExpressionComponent const& component, int con
 
 void Expression::registerVariable(std::string_view const teName, std::string_view const key, ContextDeriver::TargetType const contextType, std::vector<LateRegistration>& lateRegistrations) {
     // Check if variable exists in variables vector:
-    bool const found = std::ranges::any_of(te_variables, [&](auto const& te_var) {
-        return te_var.name == teName;
+    bool const found = std::ranges::any_of(teVariables, [&](auto const& teVar) {
+        return teVar.name == teName;
     });
 
     if (!found) {

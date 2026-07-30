@@ -40,18 +40,18 @@ public:
     //------------------------------------------
     // Available Functions
 
-    [[nodiscard]] Constants::Event mirror_once();
-    static auto constexpr mirror_onceName = "mirror once";
-    static auto constexpr mirror_onceDesc = "Mirrors the object to the GlobalSpace document once on next update\n"
+    [[nodiscard]] Constants::Event mirrorOnce();
+    static auto constexpr mirrorOnceName = "mirror once";
+    static auto constexpr mirrorOnceDesc = "Mirrors the object to the GlobalSpace document once on next update\n"
         "\n"
         "Usage: mirror once\n"
         "\n"
         "Mirroring is only done for one frame.\n"
         "Mirrors are stored in the GlobalSpace document under key \"mirror.renderObject.id<id>\"\n";
 
-    [[nodiscard]] Constants::Event mirror_on();
-    static auto constexpr mirror_onName = "mirror on";
-    static auto constexpr mirror_onDesc = "Enables mirroring to the GlobalSpace document\n"
+    [[nodiscard]] Constants::Event mirrorOn();
+    static auto constexpr mirrorOnName = "mirror on";
+    static auto constexpr mirrorOnDesc = "Enables mirroring to the GlobalSpace document\n"
         "\n"
         "Usage: mirror on\n"
         "\n"
@@ -59,9 +59,9 @@ public:
         "\n"
         "Mirrors are stored in the GlobalSpace document under key \"mirror.renderObject.id<id>\"\n";
 
-    [[nodiscard]] Constants::Event mirror_off();
-    static auto constexpr mirror_offName = "mirror off";
-    static auto constexpr mirror_offDesc = "Disables mirroring to the GlobalSpace document\n"
+    [[nodiscard]] Constants::Event mirrorOff();
+    static auto constexpr mirrorOffName = "mirror off";
+    static auto constexpr mirrorOffDesc = "Disables mirroring to the GlobalSpace document\n"
         "\n"
         "Usage: mirror off\n"
         "\n"
@@ -69,17 +69,17 @@ public:
         "\n"
         "Mirrors are stored in the GlobalSpace document under key \"mirror.renderObject.id<id>\"\n";
 
-    [[nodiscard]] Constants::Event mirror_delete() const ;
-    static auto constexpr mirror_deleteName = "mirror delete";
-    static auto constexpr mirror_deleteDesc = "Deletes the GlobalSpace document entry for this RenderObject\n"
+    [[nodiscard]] Constants::Event mirrorDelete() const ;
+    static auto constexpr mirrorDeleteName = "mirror delete";
+    static auto constexpr mirrorDeleteDesc = "Deletes the GlobalSpace document entry for this RenderObject\n"
         "\n"
         "Usage: mirror delete\n"
         "\n"
         "Mirrors are removed from the GlobalSpace document under key \"mirror.renderObject.id<id>\"\n";
 
-    [[nodiscard]] Constants::Event mirror_fetch() const ;
-    static auto constexpr mirror_fetchName = "mirror fetch";
-    static auto constexpr mirror_fetchDesc = "Deserializes the RenderObject from the GlobalSpace document entry\n"
+    [[nodiscard]] Constants::Event mirrorFetch() const ;
+    static auto constexpr mirrorFetchName = "mirror fetch";
+    static auto constexpr mirrorFetchDesc = "Deserializes the RenderObject from the GlobalSpace document entry\n"
         "\n"
         "Usage: mirror fetch\n"
         "\n"
@@ -98,11 +98,11 @@ public:
      */
     explicit Mirror(ConstructorParams const& params) : DomainModule(params) {
         bindCategory(mirrorName, mirrorDesc);
-        bindFunction(&Mirror::mirror_once, mirror_onceName, mirror_onceDesc);
-        bindFunction(&Mirror::mirror_on, mirror_onName, mirror_onDesc);
-        bindFunction(&Mirror::mirror_off, mirror_offName, mirror_offDesc);
-        bindFunction(&Mirror::mirror_delete, mirror_deleteName, mirror_deleteDesc);
-        bindFunction(&Mirror::mirror_fetch, mirror_fetchName, mirror_fetchDesc);
+        bindFunction(&Mirror::mirrorOnce, mirrorOnceName, mirrorOnceDesc);
+        bindFunction(&Mirror::mirrorOn, mirrorOnName, mirrorOnDesc);
+        bindFunction(&Mirror::mirrorOff, mirrorOffName, mirrorOffDesc);
+        bindFunction(&Mirror::mirrorDelete, mirrorDeleteName, mirrorDeleteDesc);
+        bindFunction(&Mirror::mirrorFetch, mirrorFetchName, mirrorFetchDesc);
     }
 
     struct Key : Data::KeyGroup<""> { // Requires full access to mirror entire object in update routine.

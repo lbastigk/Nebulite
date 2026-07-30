@@ -43,11 +43,11 @@ std::string RenderObjectContainer::serialize() {
     for (auto& tile : std::views::values(ObjectContainer)) {
         for (auto const& objects : tile.getBatchedObjects()) {
             for (auto const& obj : objects) {
-                JSON obj_serial;
-                obj_serial.deserialize(obj->serialize());
+                JSON objSerial;
+                objSerial.deserialize(obj->serialize());
 
                 // insert into doc
-                doc.setSubDoc(objectsArrayKey.addIndex(i), obj_serial);
+                doc.setSubDoc(objectsArrayKey.addIndex(i), objSerial);
                 i++;
             }
         }
@@ -67,15 +67,15 @@ void RenderObjectContainer::deserialize(std::string const& serialOrLink, TilingI
             auto objectKey = objectsArrayKey.addIndex(i);
 
             // Check if serial or not:
-            auto ro_serial = doc.get<std::string>(objectKey);
+            auto roSerial = doc.get<std::string>(objectKey);
             std::string str;
-            if (!ro_serial.has_value()) {
+            if (!roSerial.has_value()) {
                 JSON tmp;
                 tmp = doc.getSubDoc(objectKey);
                 str = tmp.serialize();
             }
             else {
-                str = ro_serial.value();
+                str = roSerial.value();
             }
 
             auto* ro = new Core::RenderObject(capture);

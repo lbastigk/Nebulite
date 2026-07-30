@@ -72,7 +72,7 @@ void addFileCompletions(std::string_view const input, std::vector<std::string>& 
     std::size_t const endIndex = findFileSeparatorPositionOrFallback(pattern.substr(startIndex)) + startIndex;
     auto const inputToComplete = pattern.substr(endIndex != startIndex ? endIndex + 1 : startIndex);
     auto const innerDir = std::string(pattern.substr(startIndex, endIndex - startIndex)) + Nebulite::Utility::IO::FileManagement::preferredSeparator();
-    auto const directory = Nebulite::Utility::IO::FileManagement::CombinePaths(".", innerDir == "/" ? "" : innerDir);
+    auto const directory = Nebulite::Utility::IO::FileManagement::combinePaths(".", innerDir == "/" ? "" : innerDir);
 
     // Build list
     auto const list = Nebulite::Utility::IO::FileManagement::listContentInDirectory(directory)

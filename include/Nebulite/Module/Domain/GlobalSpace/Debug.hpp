@@ -154,8 +154,8 @@ public:
 
         static auto constexpr platform = makeScoped("debug.platform");
         static auto constexpr buildType = makeScoped("debug.buildType");
-        static auto constexpr memoryVirtualMB = makeScoped("debug.memory.virtualMB");
-        static auto constexpr memoryResidentMB = makeScoped("debug.memory.residentMB");
+        static auto constexpr memoryVirtualMegaBytes = makeScoped("debug.memory.virtualMegaBytes");
+        static auto constexpr memoryResidentMegaBytes = makeScoped("debug.memory.residentMegaBytes");
 
         static auto constexpr workerInvokeUsed = makeScoped("debug.worker.invoke.used");
         static auto constexpr workerInvokeMax = makeScoped("debug.worker.invoke.max");

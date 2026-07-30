@@ -86,8 +86,8 @@ bool FFT::applyTransferFunctionFrequencyDomain(std::span<std::string_view const>
     }
 
     // Get num/den polynomial
-    using optVec = std::optional<std::vector<double>>;
-    auto [num, den] = [&args] -> std::pair<optVec, optVec> {
+    using OptVec = std::optional<std::vector<double>>;
+    auto [num, den] = [&args] -> std::pair<OptVec, OptVec> {
         auto const numPos = std::ranges::find(args, std::string_view{"--num"});
         auto const denPos = std::ranges::find(args, std::string_view{"--den"});
         if (numPos == args.end() || denPos == args.end()) {

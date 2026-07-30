@@ -27,10 +27,10 @@
 namespace Nebulite::Data {
 
 template <typename ValueType>
-ValueType DocumentCache::getValueFromCache(std::string const& doc_key, ValueType const& defaultValue, std::function<ValueType(ReadOnlyDoc const* doc, std::string_view key)> const& retrievalFunction) const {
+ValueType DocumentCache::getValueFromCache(std::string const& docAndKey, ValueType const& defaultValue, std::function<ValueType(ReadOnlyDoc const* doc, std::string_view key)> const& retrievalFunction) const {
     static_assert(!std::is_same_v<ValueType, JSON>, "JSON values cannot be used here. Please re-implement the retrieval logic in a custom way instead of using this helper function.");
 
-    auto [doc, key] = splitDocKey(doc_key);
+    auto [doc, key] = splitDocKey(docAndKey);
 
     ReadOnlyDoc const* docPtr = readOnlyDocs.getDocument(doc);
     if (!docPtr) {
@@ -46,8 +46,8 @@ ValueType DocumentCache::getValueFromCache(std::string const& doc_key, ValueType
 }
 
 template <typename T>
-std::expected<T, SimpleValueRetrievalError> DocumentCache::get(std::string const& doc_key) const {
-    auto [doc, key] = splitDocKey(doc_key);
+std::expected<T, SimpleValueRetrievalError> DocumentCache::get(std::string const& docAndKey) const {
+    auto [doc, key] = splitDocKey(docAndKey);
 
     ReadOnlyDoc const* docPtr = readOnlyDocs.getDocument(doc);
 

@@ -93,31 +93,31 @@ public:
         "Defaults to 1000  for height if argument count < 2\n"
         "Defaults to 1     for scale if argument count < 3\n";
 
-    [[nodiscard]] Constants::Event setFPS(int argc, char const** argv) const ;
-    static auto constexpr setFPSName = "set-fps";
-    static auto constexpr setFPSDesc = "Set FPS of renderer.\n"
+    [[nodiscard]] Constants::Event setFps(int argc, char const** argv) const ;
+    static auto constexpr setFpsName = "set-fps";
+    static auto constexpr setFpsDesc = "Set FPS of renderer.\n"
         "\n"
         "Usage: set-fps [fps]\n\n"
         "Defaults to 60 fps if no argument is provided\n";
 
-    [[nodiscard]] Constants::Event showFPS(int argc, char const** argv) const ;
-    static auto constexpr showFPSName = "show-fps";
-    static auto constexpr showFPSDesc = "Show FPS of renderer.\n"
+    [[nodiscard]] Constants::Event showFps(int argc, char const** argv) const ;
+    static auto constexpr showFpsName = "show-fps";
+    static auto constexpr showFpsDesc = "Show FPS of renderer.\n"
         "\n"
         "Usage: show-fps [on|off]\n\n"
         "Defaults to on if no argument is provided\n";
 
-    [[nodiscard]] Constants::Event cam_move(int argc, char const** argv) const ;
-    static auto constexpr cam_moveName = "cam move";
-    static auto constexpr cam_moveDesc = "Move camera by a given delta.\n"
+    [[nodiscard]] Constants::Event camMove(int argc, char const** argv) const ;
+    static auto constexpr camMoveName = "cam move";
+    static auto constexpr camMoveDesc = "Move camera by a given delta.\n"
         "\n"
         "Usage: cam move <dx> <dy>\n\n"
         "<dx> : Delta x to move camera by\n"
         "<dy> : Delta y to move camera by\n";
 
-    [[nodiscard]] Constants::Event cam_set(int argc, char const** argv) const ;
-    static auto constexpr cam_setName = "cam set";
-    static auto constexpr cam_setDesc = "Set camera to concrete position.\n"
+    [[nodiscard]] Constants::Event camSet(int argc, char const** argv) const ;
+    static auto constexpr camSetName = "cam set";
+    static auto constexpr camSetDesc = "Set camera to concrete position.\n"
         "\n"
         "Usage: cam set <x> <y> [c]\n\n"
         "<x> : X position to set camera to\n"

@@ -388,7 +388,7 @@ std::vector<std::pair<size_t, std::string>> RmlInterface::listOpenedDocuments() 
 // Context Management
 
 bool RmlInterface::loadDocument(std::string_view const name, std::string_view const path, Interaction::Context const& ctx, Interaction::ContextScope const& ctxScope) {
-    auto const document = Utility::IO::FileManagement::LoadFile(path);
+    auto const document = Utility::IO::FileManagement::loadFile(path);
     Rml::ElementDocument* doc = context->LoadDocumentFromMemory(document);
     if (!doc) return false;
 

@@ -37,7 +37,7 @@ public:
     }
 
     std::uint64_t dt() {
-        return usageTracker.projected_dt();
+        return usageTracker.dtProjected();
     }
 
     void update(Rml::String const& currentCursorName) {

@@ -69,17 +69,17 @@ private:
     /**
      * @brief Extracts function calls from a JSON entry document.
      * @param entryDoc The JSON document containing the entry.
-     * @param Ruleset The Ruleset object to populate with function calls.
+     * @param ruleset The Ruleset object to populate with function calls.
      */
-    static void getFunctionCalls(Data::JsonScope const& entryDoc, JsonRuleset& Ruleset);
+    static void getFunctionCalls(Data::JsonScope const& entryDoc, JsonRuleset& ruleset);
 
     /**
      * @brief Extracts all expressions from a JSON entry document.
-     * @param Ruleset The Ruleset object to populate with expressions.
+     * @param ruleset The Ruleset object to populate with expressions.
      * @param entry The JSON entry document to extract expressions from.
      * @return True if the expressions were successfully extracted, false otherwise.
      */
-    static bool getAssignments(std::shared_ptr<JsonRuleset> const& Ruleset, Data::JsonScope const& entry);
+    static bool getAssignments(std::shared_ptr<JsonRuleset> const& ruleset, Data::JsonScope const& entry);
 
     /**
      * @brief Extracts a logical argument from a JSON entry document.

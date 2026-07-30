@@ -114,7 +114,7 @@ Constants::Event General::setResolution(int const argc, char const** argv) const
     return Constants::Event::Success;
 }
 
-Constants::Event General::setFPS(int const argc, char const** argv) const {
+Constants::Event General::setFps(int const argc, char const** argv) const {
     // Standard value for no argument
     std::uint16_t fps = 60;
     if (argc == 2) {
@@ -131,7 +131,7 @@ Constants::Event General::setFPS(int const argc, char const** argv) const {
     return Constants::Event::Success;
 }
 
-Constants::Event General::showFPS(int const argc, char const** argv) const {
+Constants::Event General::showFps(int const argc, char const** argv) const {
     if (argc < 2) {
         domain.toggleFps(true);
     } else {
@@ -147,7 +147,7 @@ Constants::Event General::showFPS(int const argc, char const** argv) const {
     return Constants::Event::Success;
 }
 
-Constants::Event General::cam_move(int const argc, char const** argv) const {
+Constants::Event General::camMove(int const argc, char const** argv) const {
     if (argc < 3) {
         return Constants::StandardCapture::Warning::Functional::tooFewArgs(domain.capture);
     }
@@ -161,7 +161,7 @@ Constants::Event General::cam_move(int const argc, char const** argv) const {
     return Constants::Event::Success;
 }
 
-Constants::Event General::cam_set(int const argc, char const** argv) const {
+Constants::Event General::camSet(int const argc, char const** argv) const {
     if (argc == 3) {
         int const x = std::stoi(argv[1]);
         int const y = std::stoi(argv[2]);
@@ -248,12 +248,12 @@ Constants::Event General::snapshot(int const argc, char const** argv) const {
 
 namespace {
 
-auto constexpr base64_chars =
+auto constexpr base64Chars =
     "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
     "abcdefghijklmnopqrstuvwxyz"
     "0123456789+/";
 
-std::string base64_encode(std::uint8_t const* data, std::size_t const len) {
+std::string base64Encode(std::uint8_t const* data, std::size_t const len) {
     std::string out;
     // NOLINTNEXTLINE
     out.reserve(((len + 2) / 3) * 4);
@@ -261,17 +261,17 @@ std::string base64_encode(std::uint8_t const* data, std::size_t const len) {
     std::uint64_t val = 0;
     int valB = -6;
     for (std::size_t i = 0; i < len; i++) {
-        val = (val << 8) + data[i];
+        val = (val << 8u) + data[i];
         valB += 8;
         while (valB >= 0) {
             // NOLINTNEXTLINE
-            out.push_back(base64_chars[(val >> valB) & 0x3F]);
+            out.push_back(base64Chars[(val >> valB) & 0x3F]);
             valB -= 6;
         }
     }
 
     // NOLINTNEXTLINE
-    if (valB > -6) out.push_back(base64_chars[((val << 8) >> (valB + 8)) & 0x3F]);
+    if (valB > -6) out.push_back(base64Chars[((val << 8) >> (valB + 8)) & 0x3F]);
     while (out.size() % 4) out.push_back('=');
 
     return out;
@@ -286,7 +286,7 @@ struct JpegMemory {
 
 // stb callback: append to vector
 
-void write_jpeg_callback(void* context, void* data, int const size) {
+void writeJpegCallback(void* context, void* data, int const size) {
     auto* buf = static_cast<JpegMemory*>(context);
     auto* bytes = static_cast<uint8_t*>(data);
     buf->data.insert(buf->data.end(), bytes, bytes + size);
@@ -328,7 +328,7 @@ Constants::Event General::dumpView() const {
         // Using stb_image to convert to jpeg
         JpegMemory jpegBuffer;
         int constexpr jpegQuality = 80; // 0-100
-        stbi_write_jpg_to_func(write_jpeg_callback, &jpegBuffer,
+        stbi_write_jpg_to_func(writeJpegCallback, &jpegBuffer,
            width,
            height,
            4,       // channels (RGBA)
@@ -337,7 +337,7 @@ Constants::Event General::dumpView() const {
         );
 
         // Convert data to Base64
-        std::string const encoded = base64_encode(jpegBuffer.data.data(), jpegBuffer.data.size());
+        std::string const encoded = base64Encode(jpegBuffer.data.data(), jpegBuffer.data.size());
         SDL_DestroySurface(surface);
 
         // Set values
@@ -360,14 +360,14 @@ Constants::Event General::dumpView() const {
 General::General(ConstructorParams const& params) : DomainModule(params) {
     bindFunction(&General::spawn, spawnName, spawnDesc);
     bindFunction(&General::setResolution, setResolutionName, setResolutionDesc);
-    bindFunction(&General::setFPS, setFPSName, setFPSDesc);
-    bindFunction(&General::showFPS, showFPSName, showFPSDesc);
+    bindFunction(&General::setFps, setFpsName, setFpsDesc);
+    bindFunction(&General::showFps, showFpsName, showFpsDesc);
     bindFunction(&General::snapshot, snapshotName, snapshotDesc);
     bindFunction(&General::dumpView, dumpViewName, dumpViewDesc);
 
     bindCategory(camName, camDesc);
-    bindFunction(&General::cam_move, cam_moveName, cam_moveDesc);
-    bindFunction(&General::cam_set, cam_setName, cam_setDesc);
+    bindFunction(&General::camMove, camMoveName, camMoveDesc);
+    bindFunction(&General::camSet, camSetName, camSetDesc);
 
     // TODO: move to env domainModule
     bindCategory(envName, envDesc);

@@ -43,8 +43,11 @@ struct BitReversalPermutationClosure : std::ranges::range_adaptor_closure<BitRev
 };
 
 struct BitReversalPermutation {
-    auto operator()(std::size_t n) const {
-        return BitReversalPermutationClosure{{}, n};
+    auto operator()(std::size_t const n) const {
+        return BitReversalPermutationClosure{
+            {},
+            n
+        };
     }
 } constexpr bitReversalPermutation;
 
@@ -86,7 +89,11 @@ struct ApplyStages {
     double fullAngle;
 
     auto operator()(std::size_t const n) const {
-        return ApplyStagesClosure{{}, n, fullAngle};
+        return ApplyStagesClosure{
+            {},
+            n,
+            fullAngle
+        };
     }
 };
 
@@ -108,7 +115,10 @@ struct NormalizeClosure : std::ranges::range_adaptor_closure<NormalizeClosure> {
 
 struct Normalize : std::ranges::range_adaptor_closure<Normalize> {
     auto operator()(std::size_t const n) const {
-        return NormalizeClosure{{}, n};
+        return NormalizeClosure{
+            {},
+            n
+        };
     }
 } constexpr normalize;
 

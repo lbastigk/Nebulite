@@ -50,11 +50,11 @@ public:
     /**
      * @brief Initializes a Renderer with given dimensions and settings.
      * @param documentReference Reference to the JSON document
-     * @param flag_headless Reference to the Boolean flag for headless mode.
+     * @param headlessFlag Reference to the Boolean flag for headless mode.
      * @param parentCapture Reference to the parent capture for logging and error handling.
      *                      Either from the Domain that owns this one or from the global capture if this is a top-level domain.
      */
-    Renderer(Data::JsonScope& documentReference, bool* flag_headless, Utility::IO::Capture& parentCapture);
+    Renderer(Data::JsonScope& documentReference, bool* headlessFlag, Utility::IO::Capture& parentCapture);
 
     ~Renderer() override ;
 
@@ -250,12 +250,12 @@ public:
 
     /**
      * @brief Sets the camera position.
-     * @param X The new X position of the camera.
-     * @param Y The new Y position of the camera.
+     * @param posX The new X position of the camera.
+     * @param posY The new Y position of the camera.
      * @param isMiddle If true, the (x,y) coordinates relate to the middle of the screen.
      *                 If false, they relate to the top left corner.
      */
-    void setCam(int X, int Y, bool isMiddle = false) const;
+    void setCam(int posX, int posY, bool isMiddle = false) const;
 
     /**
      * @brief Moves the camera by a certain amount.

@@ -62,43 +62,43 @@ public:
     //----------------------------------
     // Logical gate functions
 
-    static double logical_not(double a);
+    static double logicalNot(double a);
     static auto constexpr logicalNotName = "not";
     static auto constexpr logicalNotDesc = "Returns 1 if a is logically false (close to zero), otherwise returns 0.\n"
         "Values with absolute value <= epsilon are treated as false.\n"
         "Usage: not(a)";
 
-    static double logical_and(double a, double b);
+    static double logicalAnd(double a, double b);
     static auto constexpr logicalAndName = "and";
     static auto constexpr logicalAndDesc = "Returns 1 if both a and b are logically true, otherwise returns 0.\n"
         "A value is considered true when its absolute value is greater than epsilon.\n"
         "Usage: and(a, b)";
 
-    static double logical_or(double a, double b);
+    static double logicalOr(double a, double b);
     static auto constexpr logicalOrName = "or";
     static auto constexpr logicalOrDesc = "Returns 1 if either a or b is logically true, otherwise returns 0.\n"
         "A value is considered true when its absolute value is greater than epsilon.\n"
         "Usage: or(a, b)";
 
-    static double logical_xor(double a, double b);
+    static double logicalXor(double a, double b);
     static auto constexpr logicalXorName = "xor";
     static auto constexpr logicalXorDesc = "Returns 1 if exactly one of a or b is logically true, otherwise returns 0.\n"
         "Uses epsilon threshold to determine logical truthiness.\n"
         "Usage: xor(a, b)";
 
-    static double logical_nand(double a, double b);
+    static double logicalNand(double a, double b);
     static auto constexpr logicalNandName = "nand";
     static auto constexpr logicalNandDesc = "Returns 1 if at least one of a or b is logically false (i.e. not both true), otherwise returns 0.\n"
         "Uses epsilon to determine logical truthiness.\n"
         "Usage: nand(a, b)";
 
-    static double logical_nor(double a, double b);
+    static double logicalNor(double a, double b);
     static auto constexpr logicalNorName = "nor";
     static auto constexpr logicalNorDesc = "Returns 1 if both a and b are logically false, otherwise returns 0.\n"
         "Values with absolute value <= epsilon are treated as false.\n"
         "Usage: nor(a, b)";
 
-    static double logical_xnor(double a, double b);
+    static double logicalXnor(double a, double b);
     static auto constexpr logicalXnorName = "xnor";
     static auto constexpr logicalXnorDesc = "Returns 1 if a and b are both logically true or both logically false, otherwise returns 0.\n"
         "Uses epsilon threshold to determine logical equality.\n"
@@ -114,10 +114,10 @@ public:
     //----------------------------------
     // Mapping functions
 
-    static double map(double value, double in_min, double in_max, double out_min, double out_max);
+    static double map(double value, double inMin, double inMax, double outMin, double outMax);
     static auto constexpr mapName = "map";
     static auto constexpr mapDesc = "Linearly maps a value from one range to another.\n"
-        "Usage: map(value, in_min, in_max, out_min, out_max)";
+        "Usage: map(value, inMin, inMax, outMin, outMax)";
 
     static double constrain(double value, double min, double max);
     static auto constexpr constrainName = "constrain";
@@ -178,29 +178,29 @@ public:
     // However, perhaps this can still occur if we seed from a non-deterministic source (e.g. time) or derived non-deterministic source.
     // IMPORTANT: Consider non-deterministic propagation!
 
-    static double rng2arg(double a, double b);
-    static auto constexpr rng2argName = "rng2arg";
-    static auto constexpr rng2argDesc = "Returns a pseudo-random number between 0 and 1, deterministically seeded from the input values a and b.\n"
+    static double rng2Arg(double a, double b);
+    static auto constexpr rng2ArgName = "rng2Arg";
+    static auto constexpr rng2ArgDesc = "Returns a pseudo-random number between 0 and 1, deterministically seeded from the input values a and b.\n"
         "The same input values will always produce the same output, making it suitable for deterministic procedural generation.\n"
-        "Usage: rng2arg(a, b)";
+        "Usage: rng2Arg(a, b)";
 
-    static double rng3arg(double a, double b, double c);
-    static auto constexpr rng3argName = "rng3arg";
-    static auto constexpr rng3argDesc = "Returns a pseudo-random number between 0 and 1, deterministically seeded from the input values a, b, and c.\n"
+    static double rng3Arg(double a, double b, double c);
+    static auto constexpr rng3ArgName = "rng3Arg";
+    static auto constexpr rng3ArgDesc = "Returns a pseudo-random number between 0 and 1, deterministically seeded from the input values a, b, and c.\n"
         "The same input values will always produce the same output, making it suitable for deterministic procedural generation.\n"
-        "Usage: rng3arg(a, b, c)";
+        "Usage: rng3Arg(a, b, c)";
 
-    static double rng2argInt16(double a, double b);
-    static auto constexpr rng2argInt16Name = "rng2argInt16";
-    static auto constexpr rng2argInt16Desc = "Returns a pseudo-random integer between 0 and 32767, deterministically seeded from the input values a and b.\n"
+    static double rng2ArgInt16(double a, double b);
+    static auto constexpr rng2ArgInt16Name = "rng2ArgInt16";
+    static auto constexpr rng2ArgInt16Desc = "Returns a pseudo-random integer between 0 and 32767, deterministically seeded from the input values a and b.\n"
         "The same input values will always produce the same output, making it suitable for deterministic procedural generation.\n"
-        "Usage: rng2argInt16(a, b)";
+        "Usage: rng2ArgInt16(a, b)";
 
-    static double rng3argInt16(double a, double b, double c);
-    static auto constexpr rng3argInt16Name = "rng3argInt16";
-    static auto constexpr rng3argInt16Desc = "Returns a pseudo-random integer between 0 and 32767, deterministically seeded from the input values a, b, and c.\n"
+    static double rng3ArgInt16(double a, double b, double c);
+    static auto constexpr rng3ArgInt16Name = "rng3ArgInt16";
+    static auto constexpr rng3ArgInt16Desc = "Returns a pseudo-random integer between 0 and 32767, deterministically seeded from the input values a, b, and c.\n"
         "The same input values will always produce the same output, making it suitable for deterministic procedural generation.\n"
-        "Usage: rng3argInt16(a, b, c)";
+        "Usage: rng3ArgInt16(a, b, c)";
 
 
     //------------------------------------------
@@ -208,9 +208,9 @@ public:
 
     /**
      * @brief Registers all custom functions with TinyExpr by adding them to the provided vector of te_variable.
-     * @param te_variables A vector of te_variable to which the custom functions will be added for registration with TinyExpr.
+     * @param teVariables A vector of te_variable to which the custom functions will be added for registration with TinyExpr.
      */
-    static void registerExpressions(std::vector<te_variable>& te_variables);
+    static void registerExpressions(std::vector<te_variable>& teVariables);
 
     //------------------------------------------
     // List

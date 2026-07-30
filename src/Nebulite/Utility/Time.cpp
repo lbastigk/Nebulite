@@ -16,12 +16,12 @@
 //------------------------------------------
 namespace Nebulite::Utility {
 
-std::string Time::TimeIso8601(ISO8601Format const format, bool const local) {
+std::string Time::timeIso8601(ISO8601Format const format, bool const local) {
     // Get current time
     std::time_t const time = std::time(nullptr);
 
     // Consider local vs UTC time
-    std::tm const tm_struct = local ? *std::localtime(&time) : *std::gmtime(&time); // NOLINT(concurrency-mt-unsafe)
+    std::tm const timeInfo = local ? *std::localtime(&time) : *std::gmtime(&time); // NOLINT(concurrency-mt-unsafe)
 
     // Write into buffer
     // Using a switch so that the compiler sees a format literal at compile time,
@@ -31,19 +31,19 @@ std::string Time::TimeIso8601(ISO8601Format const format, bool const local) {
     std::size_t written = 0;
     switch (format) {
     case ISO8601Format::YYYY:
-        written = std::strftime(buffer.data(), sizeof(buffer), "%Y", &tm_struct);
+        written = std::strftime(buffer.data(), sizeof(buffer), "%Y", &timeInfo);
         break;
     case ISO8601Format::YYYY_MM:
-        written = std::strftime(buffer.data(), sizeof(buffer), "%Y-%m", &tm_struct);
+        written = std::strftime(buffer.data(), sizeof(buffer), "%Y-%m", &timeInfo);
         break;
     case ISO8601Format::YYYY_MM_DD:
-        written = std::strftime(buffer.data(), sizeof(buffer), "%Y-%m-%d", &tm_struct);
+        written = std::strftime(buffer.data(), sizeof(buffer), "%Y-%m-%d", &timeInfo);
         break;
     case ISO8601Format::YYYY_MM_DD_HH_MM_SS:
-        written = std::strftime(buffer.data(), sizeof(buffer), "%Y-%m-%dT%H:%M:%S", &tm_struct);
+        written = std::strftime(buffer.data(), sizeof(buffer), "%Y-%m-%dT%H:%M:%S", &timeInfo);
         break;
     case ISO8601Format::YYYY_MM_DD_HH_MM_SS_TZ:
-        written = std::strftime(buffer.data(), sizeof(buffer), "%Y-%m-%dT%H:%M:%SZ", &tm_struct);
+        written = std::strftime(buffer.data(), sizeof(buffer), "%Y-%m-%dT%H:%M:%SZ", &timeInfo);
         break;
     default:
         return {};

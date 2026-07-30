@@ -56,7 +56,7 @@ void Input::mapKeyNames() {
         .xScaled = moduleScope.getStableDoublePointer(Key::mouseCurrent.addMember("scaledX")),
         .yScaled = moduleScope.getStableDoublePointer(Key::mouseCurrent.addMember("scaledY")),
         .left = moduleScope.getStableDoublePointer(Key::mouseCurrent.addMember("left")),
-        .right = moduleScope.getStableDoublePointer(Key::mouseCurrent.addMember("right"))
+        .right = moduleScope.getStableDoublePointer(Key::mouseCurrent.addMember("right")),
     };
     mouseDelta = MouseValues{
         .x = moduleScope.getStableDoublePointer(Key::mouseDelta.addMember("X")),
@@ -64,14 +64,12 @@ void Input::mapKeyNames() {
         .xScaled = moduleScope.getStableDoublePointer(Key::mouseDelta.addMember("scaledX")),
         .yScaled = moduleScope.getStableDoublePointer(Key::mouseDelta.addMember("scaledY")),
         .left = moduleScope.getStableDoublePointer(Key::mouseDelta.addMember("left")),
-        .right = moduleScope.getStableDoublePointer(Key::mouseDelta.addMember("right"))
+        .right = moduleScope.getStableDoublePointer(Key::mouseDelta.addMember("right")),
     };
 
     // Keyboard
     for (auto const scancode : Utility::Generate::indices(SDL_SCANCODE_COUNT) | std::views::transform([](std::size_t i) { return static_cast<SDL_Scancode>(i); })) {
-        char const* nameRaw = SDL_GetScancodeName(scancode);
-
-        if (nameRaw && nameRaw[0] != '\0') {
+        if (char const* nameRaw = SDL_GetScancodeName(scancode); nameRaw && nameRaw[0] != '\0') {
             std::string keyName = nameRaw;
 
             // Normalize key name: lowercase, spaces to underscores
@@ -100,7 +98,7 @@ void Input::mapKeyNames() {
 void Input::addRoutines(){
     addRoutine<RoutineUpdateMode::AFTER_UPDATE_HOOK>(
         Utility::Coordination::TimedRoutine(
-            [this]() -> void {
+            [this] -> void {
                 // Only update if SDL is initialized
                 if (domain.isSdlInitialized()) {
                     SDL_PumpEvents();

@@ -34,12 +34,12 @@ Constants::Event Logging::logAll(std::span<std::string_view const> const& args, 
     std::string const serialized = ctxScope.self.serialize();
     if (args.size() > 1) {
         for (auto const& arg : args.subspan(1)) {
-            if (!Utility::IO::FileManagement::WriteFile(arg, serialized)) {
+            if (!Utility::IO::FileManagement::writeFile(arg, serialized)) {
                 return Constants::StandardCapture::Error::File::couldNotWriteFile(domain.capture);
             }
         }
     } else {
-        if (!Utility::IO::FileManagement::WriteFile("RenderObject_id" + std::to_string(ctx.self.getId()) + ".log.jsonc", serialized)) {
+        if (!Utility::IO::FileManagement::writeFile("RenderObject_id" + std::to_string(ctx.self.getId()) + ".log.jsonc", serialized)) {
             return Constants::StandardCapture::Error::File::couldNotWriteFile(domain.capture);
         }
     }
@@ -56,7 +56,7 @@ Constants::Event Logging::logKey(std::span<std::string_view const> const& args, 
         file = args[2];
     }
     auto const value = ctxScope.self.get<std::string>(key.view()).value_or("Key not found");
-    if (!Utility::IO::FileManagement::WriteFile(file, value)) {
+    if (!Utility::IO::FileManagement::writeFile(file, value)) {
         return Constants::StandardCapture::Error::File::couldNotWriteFile(domain.capture);
     }
     return Constants::Event::Success;

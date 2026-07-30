@@ -30,7 +30,7 @@
 //------------------------------------------
 namespace Nebulite::Interaction::Rules::Construction {
 
-void RulesetCompiler::getFunctionCalls(Data::JsonScope const& entryDoc, JsonRuleset& Ruleset) {
+void RulesetCompiler::getFunctionCalls(Data::JsonScope const& entryDoc, JsonRuleset& ruleset) {
     auto getCalls = [&entryDoc](Data::ScopedKeyView const& key, std::vector<Logic::Expression>& target) {
         if (entryDoc.memberType(key) == Data::KeyType::array) {
             for (auto const& indexKey : entryDoc.arrayKeys(key)) {
@@ -38,16 +38,16 @@ void RulesetCompiler::getFunctionCalls(Data::JsonScope const& entryDoc, JsonRule
             }
         }
     };
-    getCalls(Constants::KeyNames::Ruleset::parseOnGlobal, Ruleset.functioncallsGlobal);
-    getCalls(Constants::KeyNames::Ruleset::parseOnSelf, Ruleset.functioncallsSelf);
-    getCalls(Constants::KeyNames::Ruleset::parseOnOther, Ruleset.functioncallsOther);
+    getCalls(Constants::KeyNames::Ruleset::parseOnGlobal, ruleset.functioncallsGlobal);
+    getCalls(Constants::KeyNames::Ruleset::parseOnSelf, ruleset.functioncallsSelf);
+    getCalls(Constants::KeyNames::Ruleset::parseOnOther, ruleset.functioncallsOther);
 }
 
-bool RulesetCompiler::getAssignments(std::shared_ptr<JsonRuleset> const& Ruleset, Data::JsonScope const& entry) {
+bool RulesetCompiler::getAssignments(std::shared_ptr<JsonRuleset> const& ruleset, Data::JsonScope const& entry) {
     if (entry.memberType(Constants::KeyNames::Ruleset::assignments) == Data::KeyType::array) {
         for (auto const& key : entry.arrayKeys(Constants::KeyNames::Ruleset::assignments)) {
             if (Logic::Assignment assignment; assignment.parse(entry.get<std::string>(key).value_or(""))) {
-                Ruleset->assignments.emplace_back(std::move(assignment));
+                ruleset->assignments.emplace_back(std::move(assignment));
             }
         }
     } else {
@@ -117,16 +117,16 @@ void RulesetCompiler::parse(RulesetVector& rulesetsGlobal, RulesetVector& rulese
 
     // Iterate through all entries
     for (auto const& key : rulesetArray.arrayKeys(rulesetArray.getRootScope())) {
-        auto Ruleset = getRuleset(rulesetArray, key.view(), self);
+        auto ruleset = getRuleset(rulesetArray, key.view(), self);
 
-        if (std::holds_alternative<std::monostate>(Ruleset)) {
+        if (std::holds_alternative<std::monostate>(ruleset)) {
             // Skip invalid entry
             continue;
         }
 
-        if (std::holds_alternative<std::shared_ptr<StaticRuleset>>(Ruleset)) {
+        if (std::holds_alternative<std::shared_ptr<StaticRuleset>>(ruleset)) {
             // Static ruleset, push directly
-            auto staticRulesetPtr = std::get<std::shared_ptr<StaticRuleset>>(Ruleset);
+            auto staticRulesetPtr = std::get<std::shared_ptr<StaticRuleset>>(ruleset);
             staticRulesetPtr->estimatedCost = 1; // Static rulesets have minimal cost
             if (staticRulesetPtr->isGlobal()) {
                 rulesetsGlobal.push_back(staticRulesetPtr);
@@ -136,9 +136,9 @@ void RulesetCompiler::parse(RulesetVector& rulesetsGlobal, RulesetVector& rulese
             continue;
         }
 
-        if (std::holds_alternative<std::shared_ptr<JsonRuleset>>(Ruleset)) {
+        if (std::holds_alternative<std::shared_ptr<JsonRuleset>>(ruleset)) {
             // Optimize json-defined ruleset and push
-            auto jsonRulesetPtr = std::get<std::shared_ptr<JsonRuleset>>(Ruleset);
+            auto jsonRulesetPtr = std::get<std::shared_ptr<JsonRuleset>>(ruleset);
             optimize(jsonRulesetPtr, self.domainScope);
             jsonRulesetPtr->estimateComputationalCost();
             if (jsonRulesetPtr->isGlobal()) {
@@ -173,16 +173,16 @@ RulesetCompiler::AnyRuleset RulesetCompiler::getRuleset(Data::JsonScope const& d
             staticRulesetEntry.type != StaticRuleset::Type::invalid
         ) {
             // Is a valid static ruleset
-            auto Ruleset = std::make_shared<StaticRuleset>(self);
+            auto ruleset = std::make_shared<StaticRuleset>(self);
             if (staticRulesetEntry.type == StaticRuleset::Type::global) {
-                Ruleset->topic = staticRulesetEntry.topic;
+                ruleset->topic = staticRulesetEntry.topic;
             } else {
-                Ruleset->topic = ""; // Local rulesets have no topic
+                ruleset->topic = ""; // Local rulesets have no topic
             }
-            Ruleset->staticFunction = staticRulesetEntry.function;
-            Ruleset->baseListFunction = staticRulesetEntry.baseListFunc;
-            Ruleset->slf = staticRulesetEntry.baseListFunc(self);
-            return Ruleset;
+            ruleset->staticFunction = staticRulesetEntry.function;
+            ruleset->baseListFunction = staticRulesetEntry.baseListFunc;
+            ruleset->slf = staticRulesetEntry.baseListFunc(self);
+            return ruleset;
         }
         // Skip this entry if it cannot be parsed
         // Warn user of invalid entry
@@ -190,31 +190,31 @@ RulesetCompiler::AnyRuleset RulesetCompiler::getRuleset(Data::JsonScope const& d
         return std::monostate{};
     }
     // Is a valid JSON-defined ruleset
-    auto Ruleset = std::make_shared<JsonRuleset>(self);
-    Ruleset->topic = entry.get<std::string>(Constants::KeyNames::Ruleset::topic).value_or("all");
+    auto ruleset = std::make_shared<JsonRuleset>(self);
+    ruleset->topic = entry.get<std::string>(Constants::KeyNames::Ruleset::topic).value_or("all");
 
     std::string const logicalArgStr = getCondition(entry);
     std::string_view lsa = logicalArgStr;
     Utility::StringHandler::strip(lsa);
-    Ruleset->logicalArg = std::make_unique<Logic::Expression>(lsa);
-    if (!Ruleset->logicalArg->isReturnableAsBool()) {
+    ruleset->logicalArg = std::make_unique<Logic::Expression>(lsa);
+    if (!ruleset->logicalArg->isReturnableAsBool()) {
         Global::capture().error.println("Ruleset entry with logical arg '", lsa, "' cannot be evaluated as a boolean. Skipping entry.");
         return std::monostate{};
     }
 
     // Remove whitespaces at start and end from topic:
-    std::string_view top = Ruleset->topic;
+    std::string_view top = ruleset->topic;
     Utility::StringHandler::strip(top);
-    Ruleset->topic = top;
+    ruleset->topic = top;
 
     // Get and parse all assignments
-    getAssignments(Ruleset, entry);
+    getAssignments(ruleset, entry);
 
     // Parse all function calls
-    getFunctionCalls(entry, *Ruleset);
+    getFunctionCalls(entry, *ruleset);
 
     // Push into vector
-    return Ruleset;
+    return ruleset;
 }
 
 std::optional<std::shared_ptr<Ruleset>> RulesetCompiler::parseSingle(std::string_view const identifier, Execution::Domain& self) {

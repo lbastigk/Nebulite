@@ -48,9 +48,9 @@ public:
     //------------------------------------------
     // Available Functions
 
-    [[nodiscard]] Constants::Event draft_parse(std::span<std::string_view const> const& args, Interaction::Context& ctx, Interaction::ContextScope& ctxScope);
-    static auto constexpr draft_parseName = "draft parse";
-    static auto constexpr draft_parseDesc = "Parse Renderobject-specific functions on the draft.\n"
+    [[nodiscard]] Constants::Event draftParse(std::span<std::string_view const> const& args, Interaction::Context& ctx, Interaction::ContextScope& ctxScope);
+    static auto constexpr draftParseName = "draft parse";
+    static auto constexpr draftParseDesc = "Parse Renderobject-specific functions on the draft.\n"
         "\n"
         "Usage: draft parse <function> [args...]\n"
         "\n"
@@ -61,15 +61,15 @@ public:
         "draft parse set posX 100\n"
         "draft parse set posY 200\n";
 
-    [[nodiscard]] Constants::Event draft_spawn();
-    static auto constexpr draft_spawnName = "draft spawn";
-    static auto constexpr draft_spawnDesc = "Spawn the created draft object.\n"
+    [[nodiscard]] Constants::Event draftSpawn();
+    static auto constexpr draftSpawnName = "draft spawn";
+    static auto constexpr draftSpawnDesc = "Spawn the created draft object.\n"
         "\n"
         "Usage: draft spawn\n";
 
-    [[nodiscard]] Constants::Event draft_reset();
-    static auto constexpr draft_resetName = "draft reset";
-    static auto constexpr draft_resetDesc = "Reset the draft object.\n"
+    [[nodiscard]] Constants::Event draftReset();
+    static auto constexpr draftResetName = "draft reset";
+    static auto constexpr draftResetDesc = "Reset the draft object.\n"
         "\n"
         "This does not reset any spawned ones!\n"
         "\n"

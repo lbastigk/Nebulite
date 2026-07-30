@@ -220,15 +220,15 @@ void setToken(Data::JSON& token, std::string const& evaluatedKey, ContextScope c
 
 /**
  * @brief Compiles a component, if its of type Expression
- * @param te_variables The vector of TinyExpr variables
+ * @param teVariables The vector of TinyExpr variables
  */
-int ExpressionComponent::compile(std::vector<te_variable> const& te_variables) {
+int ExpressionComponent::compile(std::vector<te_variable> const& teVariables) {
     int error{};
     if (type == Type::eval) {
-        expression = te_compile(stringRepresentation.c_str(), te_variables.data(), static_cast<int>(te_variables.size()), &error);
+        expression = te_compile(stringRepresentation.c_str(), teVariables.data(), static_cast<int>(teVariables.size()), &error);
         if (error) {
             te_free(expression);
-            expression = te_compile("abs(0/0)", te_variables.data(), static_cast<int>(te_variables.size()), &error);
+            expression = te_compile("abs(0/0)", teVariables.data(), static_cast<int>(teVariables.size()), &error);
         }
     }
     return error;

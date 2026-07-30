@@ -54,41 +54,41 @@ double ExpressionPrimitives::neq(double const a, double const b) {
 //----------------------------------
 // Logical gate functions
 
-double ExpressionPrimitives::logical_not(double const a) {
+double ExpressionPrimitives::logicalNot(double const a) {
     return !(std::fabs(a) > std::numeric_limits<double>::epsilon());
 }
 
-double ExpressionPrimitives::logical_and(double const a, double const b) {
+double ExpressionPrimitives::logicalAnd(double const a, double const b) {
     bool const aLogical = std::fabs(a) > std::numeric_limits<double>::epsilon();
     bool const bLogical = std::fabs(b) > std::numeric_limits<double>::epsilon();
     return aLogical && bLogical;
 }
 
-double ExpressionPrimitives::logical_or(double const a, double const b) {
+double ExpressionPrimitives::logicalOr(double const a, double const b) {
     bool const aLogical = std::fabs(a) > std::numeric_limits<double>::epsilon();
     bool const bLogical = std::fabs(b) > std::numeric_limits<double>::epsilon();
     return aLogical || bLogical;
 }
 
-double ExpressionPrimitives::logical_xor(double const a, double const b) {
+double ExpressionPrimitives::logicalXor(double const a, double const b) {
     bool const aLogical = std::fabs(a) > std::numeric_limits<double>::epsilon();
     bool const bLogical = std::fabs(b) > std::numeric_limits<double>::epsilon();
     return aLogical != bLogical;
 }
 
-double ExpressionPrimitives::logical_nand(double const a, double const b) {
+double ExpressionPrimitives::logicalNand(double const a, double const b) {
     bool const aLogical = std::fabs(a) > std::numeric_limits<double>::epsilon();
     bool const bLogical = std::fabs(b) > std::numeric_limits<double>::epsilon();
     return !(aLogical && bLogical);
 }
 
-double ExpressionPrimitives::logical_nor(double const a, double const b) {
+double ExpressionPrimitives::logicalNor(double const a, double const b) {
     bool const aLogical = std::fabs(a) > std::numeric_limits<double>::epsilon();
     bool const bLogical = std::fabs(b) > std::numeric_limits<double>::epsilon();
     return !(aLogical || bLogical);
 }
 
-double ExpressionPrimitives::logical_xnor(double const a, double const b) {
+double ExpressionPrimitives::logicalXnor(double const a, double const b) {
     bool const aLogical = std::fabs(a) > std::numeric_limits<double>::epsilon();
     bool const bLogical = std::fabs(b) > std::numeric_limits<double>::epsilon();
     return aLogical == bLogical;
@@ -101,11 +101,11 @@ double ExpressionPrimitives::toBipolar(double const a) {
 //----------------------------------
 // Mapping functions
 
-double ExpressionPrimitives::map(double const value, double const in_min, double const in_max, double const out_min, double const out_max) {
-    if (std::fabs(in_max - in_min) < std::numeric_limits<double>::epsilon()) { return out_min; } // Prevent division by zero
-    if (value < in_min) { return out_min; }
-    if (value > in_max) { return out_max; }
-    return (value - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
+double ExpressionPrimitives::map(double const value, double const inMin, double const inMax, double const outMin, double const outMax) {
+    if (std::fabs(inMax - inMin) < std::numeric_limits<double>::epsilon()) { return outMin; } // Prevent division by zero
+    if (value < inMin) { return outMin; }
+    if (value > inMax) { return outMax; }
+    return (value - inMin) * (outMax - outMin) / (inMax - inMin) + outMin;
 }
 
 double ExpressionPrimitives::constrain(double const value, double const min, double const max) {
@@ -117,28 +117,28 @@ double ExpressionPrimitives::constrain(double const value, double const min, dou
 //----------------------------------
 // Maximum and Minimum functions
 
-double ExpressionPrimitives::max(double a, double b) {
+double ExpressionPrimitives::max(double const a, double const b) {
     return std::max(a,b);
 }
 
-double ExpressionPrimitives::min(double a, double b) {
+double ExpressionPrimitives::min(double const a, double const b) {
     return std::min(a,b);
 }
 
 //----------------------------------
 // Rounding
 
-double ExpressionPrimitives::round(double a, double b) {
+double ExpressionPrimitives::round(double const a, double const b) {
     auto const digits = std::floor(b);
     return std::round(a * std::pow(10, digits)) / std::pow(10, digits);
 }
 
-double ExpressionPrimitives::roundUp(double a, double b) {
+double ExpressionPrimitives::roundUp(double const a, double const b) {
     auto const digits = std::floor(b);
     return std::floor(a * std::pow(10, digits)) / std::pow(10, digits);
 }
 
-double ExpressionPrimitives::roundDown(double a, double b) {
+double ExpressionPrimitives::roundDown(double const a, double const b) {
     auto const digits = std::floor(b);
     return std::ceil(a * std::pow(10, digits)) / std::pow(10, digits);
 }
@@ -146,14 +146,14 @@ double ExpressionPrimitives::roundDown(double a, double b) {
 //----------------------------------
 // More mathematical functions
 
-double ExpressionPrimitives::sgn(double a) {
+double ExpressionPrimitives::sgn(double const a) {
     return std::copysign(1.0, a);
 }
 
 //----------------------------------
 // Pseudo-random functions
 
-double ExpressionPrimitives::rng2arg(double a, double b) {
+double ExpressionPrimitives::rng2Arg(double a, double b) {
     if (a<0) a = abs(a) * 125.5;
     if (b<0) b = abs(b) * 125.5;
 
@@ -164,7 +164,7 @@ double ExpressionPrimitives::rng2arg(double a, double b) {
     return static_cast<double>(seed % 10000) / 10000.0; // Return a value between 0 and 1
 }
 
-double ExpressionPrimitives::rng3arg(double a, double b, double c) {
+double ExpressionPrimitives::rng3Arg(double a, double b, double c) {
     if (a<0) a = abs(a) * 125.5;
     if (b<0) b = abs(b) * 125.5;
     if (c<0) c = abs(c) * 125.5;
@@ -176,7 +176,7 @@ double ExpressionPrimitives::rng3arg(double a, double b, double c) {
     return static_cast<double>(seed % 10000) / 10000.0; // Return a value between 0 and 1
 }
 
-double ExpressionPrimitives::rng2argInt16(double a, double b) {
+double ExpressionPrimitives::rng2ArgInt16(double a, double b) {
     if (a<0) a = abs(a) * 125.5;
     if (b<0) b = abs(b) * 125.5;
 
@@ -187,7 +187,7 @@ double ExpressionPrimitives::rng2argInt16(double a, double b) {
     return static_cast<double>(seed % 32768); // Return a value between 0 and 32767
 }
 
-double ExpressionPrimitives::rng3argInt16(double a, double b, double c) {
+double ExpressionPrimitives::rng3ArgInt16(double a, double b, double c) {
     if (a<0) a = abs(a) * 125.5;
     if (b<0) b = abs(b) * 125.5;
     if (c<0) c = abs(c) * 125.5;
@@ -198,15 +198,13 @@ double ExpressionPrimitives::rng3argInt16(double a, double b, double c) {
     seed = seed ^ seed >> 31u;
     return static_cast<double>(seed % 32768); // Return a value between 0 and 32767
 }
-
-
 
 //------------------------------------------
 // Register
 
-void ExpressionPrimitives::registerExpressions(std::vector<te_variable>& te_variables){
+void ExpressionPrimitives::registerExpressions(std::vector<te_variable>& teVariables){
     for (auto const& funcInfo : availableFunctions()) {
-        te_variables.push_back({.name=funcInfo.name, .address=funcInfo.pointer, .type=funcInfo.type, .context=funcInfo.context});
+        teVariables.push_back({.name=funcInfo.name, .address=funcInfo.pointer, .type=funcInfo.type, .context=funcInfo.context});
     }
 }
 
@@ -255,13 +253,13 @@ std::vector<ExpressionPrimitives::FunctionInfo> const& ExpressionPrimitives::ava
         {.name=neqName, .description=neqDesc, .pointer=reinterpret_cast<void*>(neq), .type=TE_FUNCTION2, .context=nullptr},
 
         // Logical gate functions
-        {.name=logicalNotName, .description=logicalNotDesc, .pointer=reinterpret_cast<void*>(logical_not), .type=TE_FUNCTION1, .context=nullptr},
-        {.name=logicalAndName, .description=logicalAndDesc, .pointer=reinterpret_cast<void*>(logical_and), .type=TE_FUNCTION2, .context=nullptr},
-        {.name=logicalOrName, .description=logicalOrDesc, .pointer=reinterpret_cast<void*>(logical_or), .type=TE_FUNCTION2, .context=nullptr},
-        {.name=logicalXorName, .description=logicalXorDesc, .pointer=reinterpret_cast<void*>(logical_xor), .type=TE_FUNCTION2, .context=nullptr},
-        {.name=logicalNandName, .description=logicalNandDesc, .pointer=reinterpret_cast<void*>(logical_nand), .type=TE_FUNCTION2, .context=nullptr},
-        {.name=logicalNorName, .description=logicalNorDesc, .pointer=reinterpret_cast<void*>(logical_nor), .type=TE_FUNCTION2, .context=nullptr},
-        {.name=logicalXnorName, .description=logicalXnorDesc, .pointer=reinterpret_cast<void*>(logical_xnor), .type=TE_FUNCTION2, .context=nullptr},
+        {.name=logicalNotName, .description=logicalNotDesc, .pointer=reinterpret_cast<void*>(logicalNot), .type=TE_FUNCTION1, .context=nullptr},
+        {.name=logicalAndName, .description=logicalAndDesc, .pointer=reinterpret_cast<void*>(logicalAnd), .type=TE_FUNCTION2, .context=nullptr},
+        {.name=logicalOrName, .description=logicalOrDesc, .pointer=reinterpret_cast<void*>(logicalOr), .type=TE_FUNCTION2, .context=nullptr},
+        {.name=logicalXorName, .description=logicalXorDesc, .pointer=reinterpret_cast<void*>(logicalXor), .type=TE_FUNCTION2, .context=nullptr},
+        {.name=logicalNandName, .description=logicalNandDesc, .pointer=reinterpret_cast<void*>(logicalNand), .type=TE_FUNCTION2, .context=nullptr},
+        {.name=logicalNorName, .description=logicalNorDesc, .pointer=reinterpret_cast<void*>(logicalNor), .type=TE_FUNCTION2, .context=nullptr},
+        {.name=logicalXnorName, .description=logicalXnorDesc, .pointer=reinterpret_cast<void*>(logicalXnor), .type=TE_FUNCTION2, .context=nullptr},
 
         // Other logical functions
         {.name=toBipolarName, .description=toBipolarDesc, .pointer=reinterpret_cast<void*>(toBipolar), .type=TE_FUNCTION1, .context=nullptr},
@@ -283,10 +281,10 @@ std::vector<ExpressionPrimitives::FunctionInfo> const& ExpressionPrimitives::ava
         {.name=sgnName, .description=sgnDesc, .pointer=reinterpret_cast<void*>(sgn), .type=TE_FUNCTION1, .context=nullptr},
 
         // RNG functions
-        {.name=rng2argName,.description=rng2argDesc,.pointer=reinterpret_cast<void*>(rng2arg), .type=TE_FUNCTION2, .context=nullptr},
-        {.name=rng3argName,.description=rng3argDesc,.pointer=reinterpret_cast<void*>(rng3arg), .type=TE_FUNCTION3, .context=nullptr},
-        {.name=rng2argInt16Name,.description=rng2argInt16Desc,.pointer=reinterpret_cast<void*>(rng2argInt16), .type=TE_FUNCTION2, .context=nullptr},
-        {.name=rng3argInt16Name,.description=rng3argInt16Desc,.pointer=reinterpret_cast<void*>(rng3argInt16), .type=TE_FUNCTION3, .context=nullptr},
+        {.name=rng2ArgName,.description=rng2ArgDesc,.pointer=reinterpret_cast<void*>(rng2Arg), .type=TE_FUNCTION2, .context=nullptr},
+        {.name=rng3ArgName,.description=rng3ArgDesc,.pointer=reinterpret_cast<void*>(rng3Arg), .type=TE_FUNCTION3, .context=nullptr},
+        {.name=rng2ArgInt16Name,.description=rng2ArgInt16Desc,.pointer=reinterpret_cast<void*>(rng2ArgInt16), .type=TE_FUNCTION2, .context=nullptr},
+        {.name=rng3ArgInt16Name,.description=rng3ArgInt16Desc,.pointer=reinterpret_cast<void*>(rng3ArgInt16), .type=TE_FUNCTION3, .context=nullptr},
     };
     return functions;
 }

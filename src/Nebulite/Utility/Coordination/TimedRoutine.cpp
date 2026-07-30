@@ -27,7 +27,7 @@ void TimedRoutine::start() {
 }
 
 void TimedRoutine::update() {
-    if (timer.projected_dt() >= interval) {
+    if (timer.dtProjected() >= interval) {
         timer.update();
         foo();
     }

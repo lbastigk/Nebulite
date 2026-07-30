@@ -35,7 +35,7 @@ Constants::Event Settings::saveSettings() const {
         domain.capture.error.println("Failed to serialize settings. No data was written to file.");
         return Constants::Event::Error;
     }
-    if (!Utility::IO::FileManagement::WriteFile(defaultSettingsFile, settings)) {
+    if (!Utility::IO::FileManagement::writeFile(defaultSettingsFile, settings)) {
         return Constants::StandardCapture::Error::File::couldNotWriteFile(domain.capture);
     }
     return Constants::Event::Success;

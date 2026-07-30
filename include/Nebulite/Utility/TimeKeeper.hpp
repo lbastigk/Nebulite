@@ -29,9 +29,9 @@ public:
     /**
      * @brief Updates the timer.
      * @details Calculates the delta time since the last update and updates the timers full runtime.
-     * @param fixed_dt_ms If a fixed delta time is provided, it will be used instead of the calculated delta time.
+     * @param fixedTimeDelta If a fixed delta time is provided, it will be used instead of the calculated delta time.
      */
-    void update(std::optional<std::uint64_t> fixed_dt_ms = std::nullopt);
+    void update(std::optional<std::uint64_t> fixedTimeDelta = std::nullopt);
 
     /**
      * @brief Starts the timer, updating the running state.
@@ -45,7 +45,7 @@ public:
      * @brief Stops the timer.
      * @details Pauses tracking elapsed time.
      *          Any accumulated time will be preserved.
-     *          Note that in stop, `get_dt_ms()` will return the last update's delta time.
+     *          Note that in stop, `timeDeltaMilliseconds()` will return the last update's delta time.
      *          Make sure to call `update()` before `stop()` to get an accurate dt.
      */
     void stop() noexcept ;
@@ -54,7 +54,7 @@ public:
      * @brief Checks if the timer is currently running.
      * @return True if the timer is running, false otherwise.
      */
-    [[nodiscard]] bool is_running() const noexcept ;
+    [[nodiscard]] bool isRunning() const noexcept ;
 
     /**
      * @brief Calculates the projected dt if `update()` were to be called.
@@ -62,7 +62,7 @@ public:
      *          If the timer is not running, the projected delta time will be zero.
      * @return The projected delta time in milliseconds.
      */
-    std::uint64_t projected_dt() noexcept ;
+    std::uint64_t dtProjected() noexcept ;
 
     /**
      * @brief Gets the current time in milliseconds since the timer started.
@@ -71,7 +71,7 @@ public:
      *          as the update function allows for a custom dt.
      * @return The time elapsed since the timer started in milliseconds.
      */
-    [[nodiscard]] std::uint64_t get_t_ms() const noexcept ;
+    [[nodiscard]] std::uint64_t timeMilliseconds() const noexcept ;
 
     /**
      * @brief Gets the delta time in milliseconds since the last update.
@@ -80,7 +80,7 @@ public:
      *          Note that the returned value is not necessarily equal to system time, as the update function allows for a custom dt.
      * @return The time difference between the last two updates in milliseconds.
      */
-    [[nodiscard]] std::uint64_t get_dt_ms() const noexcept ;
+    [[nodiscard]] std::uint64_t timeDeltaMilliseconds() const noexcept ;
 
 private:
     // Basic values for current time

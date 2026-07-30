@@ -107,9 +107,9 @@ public:
 
     /**
      * @brief Compiles a component, if its of type Expression
-     * @param te_variables The vector of TinyExpr variables
+     * @param teVariables The vector of TinyExpr variables
      */
-    int compile(std::vector<te_variable> const& te_variables);
+    int compile(std::vector<te_variable> const& teVariables);
 
     //------------------------------------------
     // Getter

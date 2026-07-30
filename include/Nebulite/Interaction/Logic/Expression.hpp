@@ -365,7 +365,7 @@ private:
     /**
      * @brief Collection of all registered variables and functions
      */
-    std::vector<te_variable> te_variables; // Variables for TinyExpr evaluation
+    std::vector<te_variable> teVariables; // Variables for TinyExpr evaluation
 
     //------------------------------------------
     // Core Helper functions

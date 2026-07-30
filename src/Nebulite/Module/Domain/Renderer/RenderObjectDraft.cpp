@@ -21,7 +21,7 @@ Constants::Event RenderObjectDraft::updateHook() {
     return draft.get(domain.capture).update();
 }
 
-Constants::Event RenderObjectDraft::draft_parse(std::span<std::string_view const> const& args, Interaction::Context& ctx, Interaction::ContextScope& ctxScope) {
+Constants::Event RenderObjectDraft::draftParse(std::span<std::string_view const> const& args, Interaction::Context& ctx, Interaction::ContextScope& ctxScope) {
     if (args.size() < 2) {
         return Constants::StandardCapture::Warning::Functional::tooFewArgs(domain.capture);
     }
@@ -29,7 +29,7 @@ Constants::Event RenderObjectDraft::draft_parse(std::span<std::string_view const
     return draft.get(domain.capture).parseStr(__FUNCTION__ + std::string(" ") + command, ctx, ctxScope);
 }
 
-Constants::Event RenderObjectDraft::draft_spawn() {
+Constants::Event RenderObjectDraft::draftSpawn() {
     // Make a copy of the draft's serialized data
     // Create a new RenderObject on the heap and append it to the renderer
     std::string const serial = draft.get(domain.capture).serialize();
@@ -39,7 +39,7 @@ Constants::Event RenderObjectDraft::draft_spawn() {
     return Constants::Event::Success;
 }
 
-Constants::Event RenderObjectDraft::draft_reset() {
+Constants::Event RenderObjectDraft::draftReset() {
     Core::RenderObject const newDraft(domain.capture);
     draft.get(domain.capture).deserialize(newDraft.serialize());
     return Constants::Event::Success;
@@ -48,9 +48,9 @@ Constants::Event RenderObjectDraft::draft_reset() {
 RenderObjectDraft::RenderObjectDraft(ConstructorParams const& params) : DomainModule(params) {
     // Bind functions
     bindCategory(draftName, draftDesc);
-    bindFunction(&RenderObjectDraft::draft_parse, draft_parseName, draft_parseDesc);
-    bindFunction(&RenderObjectDraft::draft_spawn, draft_spawnName, draft_spawnDesc);
-    bindFunction(&RenderObjectDraft::draft_reset, draft_resetName, draft_resetDesc);
+    bindFunction(&RenderObjectDraft::draftParse, draftParseName, draftParseDesc);
+    bindFunction(&RenderObjectDraft::draftSpawn, draftSpawnName, draftSpawnDesc);
+    bindFunction(&RenderObjectDraft::draftReset, draftResetName, draftResetDesc);
 }
 
 } // namespace Nebulite::Module::Domain::Renderer

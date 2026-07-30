@@ -85,7 +85,7 @@ bool Assignment::parse(std::string_view const str) {
 
 void Assignment::optimize(ContextScope const& contextScope){
     // Supported operations for optimizations
-     std::array constexpr numeric_operations = {
+     std::array constexpr numericOperations = {
          Operation::set,
          Operation::add,
          Operation::multiply,
@@ -101,13 +101,13 @@ void Assignment::optimize(ContextScope const& contextScope){
     // - target global is assumed to stay the same
     // We cannot optimize for target other, as that changes based on the interaction.
     if (onType == ContextDeriver::TargetType::self) {
-        if (std::ranges::find(numeric_operations, operation) != std::ranges::end(numeric_operations)) {
+        if (std::ranges::find(numericOperations, operation) != std::ranges::end(numericOperations)) {
             // Numeric operation on self, try to get a direct pointer
             targetValuePtr = contextScope.self.getStableDoublePointer(Data::ScopedKey(key->eval(contextScope)));
         }
     }
     if (onType == ContextDeriver::TargetType::global) { // We assume the global context target stays the same
-        if (std::ranges::find(numeric_operations, operation) != std::ranges::end(numeric_operations)) {
+        if (std::ranges::find(numericOperations, operation) != std::ranges::end(numericOperations)) {
             // Numeric operation on global, try to get a direct pointer
             targetValuePtr = Global::instance().domainScope.getStableDoublePointer(Data::ScopedKey(key->eval(contextScope)));
         }

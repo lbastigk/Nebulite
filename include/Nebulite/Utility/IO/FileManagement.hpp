@@ -29,7 +29,7 @@ public:
      * @param innerDir The inner directory to append to the base directory.
      * @return The combined path as a string.
      */
-    static std::string CombinePaths(std::string_view baseDir, std::string_view innerDir);
+    static std::string combinePaths(std::string_view baseDir, std::string_view innerDir);
 
     /**
      * @brief Loads the contents of a file into a string.
@@ -38,7 +38,7 @@ public:
      * @return The contents of the file as a string. If the file cannot be read,
      *         an empty string is returned.
      */
-    static std::string LoadFile(std::string_view link);
+    static std::string loadFile(std::string_view link);
 
     /**
      * @brief Writes a string to a file.
@@ -48,7 +48,7 @@ public:
      * @param text The text to write to the file.
      * @return True on success, false on failure
      */
-    [[nodiscard]] static bool WriteFile(std::string_view filename, std::string_view text);
+    [[nodiscard]] static bool writeFile(std::string_view filename, std::string_view text);
 
     /**
      * @brief Returns the preferred directory separator for the platform.

@@ -129,13 +129,13 @@ Constants::Event FunctionCollision::debug_collisionDetect_variable(std::span<std
 
     Utility::Args::FuncTree<bool,bool> testTree("Test",true,true, domain.capture);
     static bool headless = false;
-    static auto constexpr headless_varDesc = "Indicates whether the application is running in headless mode (without GUI).";
+    static auto constexpr headlessVarDesc = "Indicates whether the application is running in headless mode (without GUI).";
 
     if (fail) {
         // This will fail, as the variable name is already registered in GlobalSpace
         try {
-            testTree.bindVariable(&headless, "headless", headless_varDesc); // OK, as this is the first time we bind "headless" in this tree
-            testTree.bindVariable(&headless, "headless", headless_varDesc); // This should cause a collision error
+            testTree.bindVariable(&headless, "headless", headlessVarDesc); // OK, as this is the first time we bind "headless" in this tree
+            testTree.bindVariable(&headless, "headless", headlessVarDesc); // This should cause a collision error
         } catch (...) {
             // Binding failed as expected -> no error
             return Constants::Event::Success;
@@ -143,7 +143,7 @@ Constants::Event FunctionCollision::debug_collisionDetect_variable(std::span<std
         return Constants::StandardCapture::Warning::Functional::bindingCollisionExpected(domain.capture);
     }
     try {
-        testTree.bindVariable(&headless, "headless", headless_varDesc); // OK
+        testTree.bindVariable(&headless, "headless", headlessVarDesc); // OK
     } catch (...) {
         // This should not happen
         return Constants::StandardCapture::Warning::Functional::bindingCollision(domain.capture);

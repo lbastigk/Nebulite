@@ -52,7 +52,7 @@ void ReadOnlyDocs::update() const {
     std::advance(it, dist(rng));
 
     // If the document has not been used recently, unload it
-    if (ReadOnlyDoc* docPtr = &it->second; docPtr->lastUsed.projected_dt() > unloadTime){
+    if (ReadOnlyDoc* docPtr = &it->second; docPtr->lastUsed.dtProjected() > unloadTime){
         docs.erase(it);
     }
 }
@@ -68,7 +68,7 @@ ReadOnlyDoc* ReadOnlyDocs::getDocument(std::string_view const doc) const {
     auto it = docs.find(doc);
     if (it == docs.end()){
         // Load the document if it doesn't exist
-        std::string const serial = Utility::IO::FileManagement::LoadFile(doc);
+        std::string const serial = Utility::IO::FileManagement::loadFile(doc);
         if (serial.empty()){
             docLoadingFailedMessage(doc);
             return nullptr; // Return nullptr if document loading fails

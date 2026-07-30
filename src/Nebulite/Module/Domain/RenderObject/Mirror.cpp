@@ -34,33 +34,33 @@ Constants::Event Mirror::updateHook() {
 //------------------------------------------
 // Available Functions
 
-Constants::Event Mirror::mirror_once() {
+Constants::Event Mirror::mirrorOnce() {
     if (auto const event = setupMirrorKey(); event != Constants::Event::Success)
         return event;
     mirrorOnceEnabled = true;
     return Constants::Event::Success;
 }
 
-Constants::Event Mirror::mirror_on() {
+Constants::Event Mirror::mirrorOn() {
     if (auto const event = setupMirrorKey(); event != Constants::Event::Success)
         return event;
     mirrorEnabled = true;
     return Constants::Event::Success;
 }
 
-Constants::Event Mirror::mirror_off() {
+Constants::Event Mirror::mirrorOff() {
     mirrorEnabled = false;
     return Constants::Event::Success;
 }
 
-Constants::Event Mirror::mirror_delete() const {
+Constants::Event Mirror::mirrorDelete() const {
     auto const token = getDomainModuleAccessToken(*this);
     auto const baseKey = Global::shareScope(token).getRootScope();
     Global::shareScope(token).removeMember(baseKey.addMember(mirrorKey));
     return Constants::Event::Success;
 }
 
-Constants::Event Mirror::mirror_fetch() const {
+Constants::Event Mirror::mirrorFetch() const {
     auto const token = getDomainModuleAccessToken(*this);
     auto const baseKey = Global::shareScope(token).getRootScope();
     if (Global::shareScope(token).memberType(baseKey.addMember(mirrorKey)) != Data::KeyType::object) {

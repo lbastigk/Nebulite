@@ -24,10 +24,10 @@ public:
 
     /**
      * @brief Computes the Inverse Fast Fourier Transform (IFFT) of the given frequency-domain data.
-     * @param X The frequency-domain data to transform back to the time domain.
+     * @param xValues The frequency-domain data to transform back to the time domain.
      * @return A vector of complex numbers representing the IFFT of the input data, which can be converted back to audio samples.
      */
-    static std::vector<std::complex<double>> fftInverse(std::vector<std::complex<double>> const& X);
+    static std::vector<std::complex<double>> fftInverse(std::vector<std::complex<double>> const& xValues);
 
     /**
      * @brief Applies a transfer function defined by the given numerator and denominator coefficients to the input sound data in the frequency domain.
