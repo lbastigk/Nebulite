@@ -2,9 +2,9 @@
 // Includes
 
 // Standard library
+#include <algorithm>
 #include <deque>
 #include <mutex>
-#include <numeric>
 #include <string>
 
 // Nebulite
@@ -59,7 +59,7 @@ void Capture::History::clear() {
 }
 
 std::string Capture::History::toString() {
-    return std::accumulate(std::begin(lines), std::end(lines), std::string{}, [](std::string const& acc, HistoryLine const& line) {
+    return std::ranges::fold_left(lines, std::string{}, [](std::string const& acc, HistoryLine const& line) {
         return acc + line.content;
     });
 }
