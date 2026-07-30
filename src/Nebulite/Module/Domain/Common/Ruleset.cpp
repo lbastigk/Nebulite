@@ -2,11 +2,11 @@
 // Includes
 
 // Standard library
+#include <algorithm>
 #include <cstddef>
-#include <cstdint>
+#include <cstdint> // NOLINT
 #include <memory>
 #include <mutex>
-#include <numeric>
 #include <span>
 #include <string>
 #include <string_view>
@@ -46,16 +46,18 @@ Constants::Event Ruleset::updateHook() {
             // Estimate cost of parsed rulesets
 
             // Local entries
-            std::uint64_t const costLocal = std::accumulate(
-                rulesetsLocal.begin(), rulesetsLocal.end(), std::size_t{0},
+            std::uint64_t const costLocal = std::ranges::fold_left(
+                rulesetsLocal,
+                std::size_t{0},
                 [](std::uint64_t const acc, std::shared_ptr<Interaction::Rules::Ruleset> const& entry) {
                     return acc + entry->getEstimatedCost();
                 }
             );
 
             // Global entries
-            std::uint64_t const costGlobal = std::accumulate(
-                rulesetsGlobal.begin(), rulesetsGlobal.end(), std::size_t{0},
+            std::uint64_t const costGlobal = std::ranges::fold_left(
+                rulesetsGlobal,
+                std::size_t{0},
                 [](std::uint64_t const acc, std::shared_ptr<Interaction::Rules::Ruleset> const& entry) {
                     return acc + entry->getEstimatedCost();
                 }
