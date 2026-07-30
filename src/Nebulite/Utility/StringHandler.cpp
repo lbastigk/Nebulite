@@ -14,8 +14,8 @@
 #include <vector>
 
 // Nebulite
+#include "Nebulite/Utility/Convert/Cast.hpp"
 #include "Nebulite/Utility/StringHandler.hpp"
-#include "Nebulite/Utility/TypeConversion.hpp"
 
 //------------------------------------------
 namespace Nebulite::Utility {
@@ -60,7 +60,7 @@ bool StringHandler::containsAnyOf(std::string_view const str, std::string_view c
 }
 
 bool StringHandler::isNumber(std::string_view const str) {
-    return TypeConversion::String::to<double>(str).has_value();
+    return Convert::Cast::String::to<double>(str).has_value();
 }
 
 // [STRIP]

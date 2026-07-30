@@ -11,7 +11,7 @@
 #include "Nebulite/Data/Document/JsonScope.hpp"
 #include "Nebulite/Data/Document/ScopedKeyView.hpp"
 #include "Nebulite/Module/Transformation/Compare.hpp"
-#include "Nebulite/Utility/TypeConversion.hpp"
+#include "Nebulite/Utility/Convert/Cast.hpp"
 
 //------------------------------------------
 namespace Nebulite::Module::Transformation {
@@ -22,7 +22,7 @@ bool compare(Data::ScopedKeyView rootKey, std::span<std::string_view const> cons
     if (args.size() != 2) return false; // No value provided
     auto const value = jsonDoc.get<double>(rootKey);
     if (!value.has_value()) return false; // Not convertible to double
-    auto const compareValue = Utility::TypeConversion::String::to<double>(args[1]);
+    auto const compareValue = Utility::Convert::Cast::String::to<double>(args[1]);
     if (!compareValue.has_value()) return false; // Not convertible to double
     jsonDoc.set(rootKey, op(value.value(), compareValue.value()));
     return true;

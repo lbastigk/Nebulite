@@ -17,6 +17,7 @@
 // Nebulite
 #include "Nebulite/Math/Equality.hpp"
 #include "Nebulite/Math/FFT.hpp"
+#include "Nebulite/Utility/Convert/Bits.hpp"
 #include "Nebulite/Utility/Ranges.hpp"
 
 //------------------------------------------
@@ -25,28 +26,20 @@ namespace Nebulite::Math {
 // TODO: Turn into range-based, pipe-able functions: bitReversalPermutation, applyStages, normalize
 namespace {
 
-std::size_t reverseBits(std::size_t input, std::size_t const bitCount) {
-    std::size_t result = 0;
-    for (std::size_t i = 0; i < bitCount; ++i) {
-        result <<= 1u;
-        result |= input & 1u;
-        input >>= 1u;
-    }
-    return result;
-}
-
-void bitReversalPermutation(auto& a, std::size_t const n) {
+template<typename A>
+void bitReversalPermutation(A& a, std::size_t const n) {
     auto const bitCount = static_cast<std::size_t>(std::bit_width(n - 1));
     assert(a.size() == n);
     assert(std::has_single_bit(n)); // n must be a power of two
     for (auto const i : Utility::Ranges::indices(n)) {
-        if (auto const b = reverseBits(i, bitCount); i < b) {
+        if (auto const b = Utility::Convert::Bits::reverse(i, bitCount); i < b) {
             std::swap(a[i], a[b]);
         }
     }
 }
 
-void applyStage(auto& a, std::complex<double> const stageTwiddle, std::size_t const stageSize, std::size_t const n) {
+template<typename A>
+void applyStage(A& a, std::complex<double> const stageTwiddle, std::size_t const stageSize, std::size_t const n) {
     auto const halfStageSize = stageSize / 2;
 
     for (auto const i : Utility::Ranges::indices(n) | std::views::stride(stageSize)) {
@@ -80,8 +73,8 @@ constexpr double stageSign() {
     }
 }
 
-template<StageType sign>
-void applyStages(auto& a, auto n) {
+template<StageType sign, typename A>
+void applyStages(A& a, std::size_t const n) {
     static_assert(sign == StageType::FFT || sign == StageType::IFFT, "sign must be either StageType::FFT or StageType::IFFT");
     for (auto const stageSize : Utility::Ranges::powersOfTwo(n)) {
         double const ang = stageSign<sign>() / static_cast<double>(stageSize);

@@ -24,8 +24,8 @@
 #include "Nebulite/Data/Document/RjDirectAccess.hpp"
 #include "Nebulite/Data/Document/SimpleValueError.hpp"
 #include "Nebulite/Module/Base/TransformationModule.hpp"
+#include "Nebulite/Utility/Convert/Cast.hpp"
 #include "Nebulite/Utility/TypeCheck.hpp"
-#include "Nebulite/Utility/TypeConversion.hpp"
 
 //------------------------------------------
 // Conditional includes
@@ -161,18 +161,18 @@ std::optional<newType> JSON::convertVariant(RjDirectAccess::simpleValue const& v
 
         // [BOOL] -> [STRING]
         else if constexpr(std::is_same_v<ValueT, bool> && std::is_same_v<newType, std::string>) {
-            return Utility::TypeConversion::Bool::to<std::string>(value);
+            return Utility::Convert::Cast::Bool::to<std::string>(value);
         }
 
         // [DOUBLE] -> [BOOL]
         // First, as the static_cast from a direct conversion doesn't work well here
         else if constexpr (std::is_same_v<ValueT, double> && std::is_same_v<newType, bool>){
-            return Utility::TypeConversion::Double::to<bool>(value);
+            return Utility::Convert::Cast::Double::to<bool>(value);
         }
 
         // [STRING] -> [ANY]
         else if constexpr (std::is_same_v<ValueT, std::string>) {
-            return Utility::TypeConversion::String::to<newType>(value);
+            return Utility::Convert::Cast::String::to<newType>(value);
         }
 
         //------------------------------------------

@@ -8,21 +8,21 @@
 #include <string>
 
 // Nebulite
-#include "Nebulite/Utility/TypeConversion.hpp"
+#include "Nebulite/Utility/Convert/Cast.hpp"
 
 //------------------------------------------
-namespace Nebulite::Utility {
+namespace Nebulite::Utility::Convert {
 
 // Bool
 
-std::optional<std::string> TypeConversion::Bool::toString(bool const value){
+std::optional<std::string> Cast::Bool::toString(bool const value){
     return value ? std::optional<std::string>{"true"} : std::optional<std::string>{"false"};
 }
 
 // Double
 
-std::optional<bool> TypeConversion::Double::toBool(double const value) {
+std::optional<bool> Cast::Double::toBool(double const value) {
     return std::optional{std::fabs(value) > std::numeric_limits<double>::epsilon()};
 }
 
-} // namespace Nebulite::Utility
+} // namespace Nebulite::Utility::Convert

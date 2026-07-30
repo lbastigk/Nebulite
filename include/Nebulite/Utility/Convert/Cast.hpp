@@ -1,5 +1,5 @@
-#ifndef NEBULITE_UTILITY_TYPECONVERSION_HPP
-#define NEBULITE_UTILITY_TYPECONVERSION_HPP
+#ifndef NEBULITE_UTILITY_CONVERT_CAST_HPP
+#define NEBULITE_UTILITY_CONVERT_CAST_HPP
 
 //------------------------------------------
 // Includes
@@ -17,9 +17,9 @@
 #include "Nebulite/Math/Equality.hpp"
 
 //------------------------------------------
-namespace Nebulite::Utility {
+namespace Nebulite::Utility::Convert {
 // Converter helper functions for convertVariant
-class TypeConversion {
+class Cast {
 public:
     class String {
     public:
@@ -92,5 +92,5 @@ public:
         }
     };
 };
-} // namespace Nebulite::Utility
-#endif // NEBULITE_UTILITY_TYPECONVERSION_HPP
+} // namespace Nebulite::Utility::Convert
+#endif // NEBULITE_UTILITY_CONVERT_CAST_HPP

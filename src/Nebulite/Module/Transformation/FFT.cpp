@@ -17,8 +17,8 @@
 #include "Nebulite/Data/Document/JsonScope.hpp"
 #include "Nebulite/Math/FFT.hpp"
 #include "Nebulite/Module/Transformation/FFT.hpp"
+#include "Nebulite/Utility/Convert/Cast.hpp"
 #include "Nebulite/Utility/Ranges.hpp"
-#include "Nebulite/Utility/TypeConversion.hpp"
 
 //------------------------------------------
 namespace Nebulite::Module::Transformation {
@@ -101,7 +101,7 @@ bool FFT::applyTransferFunctionFrequencyDomain(std::span<std::string_view const>
         auto const denIndex = static_cast<std::size_t>(std::distance(args.begin(), denPos));
 
         auto const tryDoubleConvert = [](std::string_view const arg) -> std::optional<double> {
-            return Utility::TypeConversion::String::to<double>(arg);
+            return Utility::Convert::Cast::String::to<double>(arg);
         };
 
 

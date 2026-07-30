@@ -13,7 +13,7 @@
 
 // Nebulite
 #include "Nebulite/Interaction/Logic/Formatter.hpp"
-#include "Nebulite/Utility/TypeConversion.hpp"
+#include "Nebulite/Utility/Convert/Cast.hpp"
 
 //------------------------------------------
 namespace Nebulite::Interaction::Logic {
@@ -53,12 +53,12 @@ Formatter Formatter::readFormatter(std::string_view formatter) {
         // Read alignment
         if (dotPos != 0) {
             auto const alignmentStr = formatter.substr(0, dotPos);
-            fmt.alignment = Utility::TypeConversion::String::to<uint8_t>(alignmentStr);
+            fmt.alignment = Utility::Convert::Cast::String::to<uint8_t>(alignmentStr);
         }
         // Read precision
         if (dotPos != std::string::npos) {
             auto const precisionStr = formatter.substr(dotPos + 1);
-            fmt.precision = Utility::TypeConversion::String::to<uint8_t>(precisionStr);
+            fmt.precision = Utility::Convert::Cast::String::to<uint8_t>(precisionStr);
         }
     }
     return fmt;
