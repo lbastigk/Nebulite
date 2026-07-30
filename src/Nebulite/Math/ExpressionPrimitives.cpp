@@ -2,8 +2,11 @@
 // Includes
 
 // Standard library
+#include <algorithm>
+#include <cmath>
 #include <cstdint> // NOLINT
 #include <cstdlib>
+#include <limits>
 #include <span>
 #include <string>
 #include <string_view>
@@ -20,6 +23,135 @@
 
 //------------------------------------------
 namespace Nebulite::Math {
+
+//----------------------------------
+// Logical comparison functions
+
+double ExpressionPrimitives::gt(double const a, double const b) {
+    return a > b;
+}
+
+double ExpressionPrimitives::lt(double const a, double const b) {
+    return a < b;
+}
+
+double ExpressionPrimitives::geq(double const a, double const b) {
+    return a >= b;
+}
+
+double ExpressionPrimitives::leq(double const a, double const b) {
+    return a <= b;
+}
+
+double ExpressionPrimitives::eq(double const a, double const b) {
+    return std::fabs(a - b) < std::numeric_limits<double>::epsilon();
+}
+
+double ExpressionPrimitives::neq(double const a, double const b) {
+    return std::fabs(a - b) > std::numeric_limits<double>::epsilon();
+}
+
+//----------------------------------
+// Logical gate functions
+
+double ExpressionPrimitives::logical_not(double const a) {
+    return !(std::fabs(a) > std::numeric_limits<double>::epsilon());
+}
+
+double ExpressionPrimitives::logical_and(double const a, double const b) {
+    bool const aLogical = std::fabs(a) > std::numeric_limits<double>::epsilon();
+    bool const bLogical = std::fabs(b) > std::numeric_limits<double>::epsilon();
+    return aLogical && bLogical;
+}
+
+double ExpressionPrimitives::logical_or(double const a, double const b) {
+    bool const aLogical = std::fabs(a) > std::numeric_limits<double>::epsilon();
+    bool const bLogical = std::fabs(b) > std::numeric_limits<double>::epsilon();
+    return aLogical || bLogical;
+}
+
+double ExpressionPrimitives::logical_xor(double const a, double const b) {
+    bool const aLogical = std::fabs(a) > std::numeric_limits<double>::epsilon();
+    bool const bLogical = std::fabs(b) > std::numeric_limits<double>::epsilon();
+    return aLogical != bLogical;
+}
+
+double ExpressionPrimitives::logical_nand(double const a, double const b) {
+    bool const aLogical = std::fabs(a) > std::numeric_limits<double>::epsilon();
+    bool const bLogical = std::fabs(b) > std::numeric_limits<double>::epsilon();
+    return !(aLogical && bLogical);
+}
+
+double ExpressionPrimitives::logical_nor(double const a, double const b) {
+    bool const aLogical = std::fabs(a) > std::numeric_limits<double>::epsilon();
+    bool const bLogical = std::fabs(b) > std::numeric_limits<double>::epsilon();
+    return !(aLogical || bLogical);
+}
+
+double ExpressionPrimitives::logical_xnor(double const a, double const b) {
+    bool const aLogical = std::fabs(a) > std::numeric_limits<double>::epsilon();
+    bool const bLogical = std::fabs(b) > std::numeric_limits<double>::epsilon();
+    return aLogical == bLogical;
+}
+
+double ExpressionPrimitives::toBipolar(double const a) {
+    return std::fabs(a) > std::numeric_limits<double>::epsilon() ? 1.0 : -1.0;
+}
+
+//----------------------------------
+// Mapping functions
+
+double ExpressionPrimitives::map(double const value, double const in_min, double const in_max, double const out_min, double const out_max) {
+    if (std::fabs(in_max - in_min) < std::numeric_limits<double>::epsilon()) { return out_min; } // Prevent division by zero
+    if (value < in_min) { return out_min; }
+    if (value > in_max) { return out_max; }
+    return (value - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
+}
+
+double ExpressionPrimitives::constrain(double const value, double const min, double const max) {
+    if (value < min) { return min; }
+    if (value > max) { return max; }
+    return value;
+}
+
+//----------------------------------
+// Maximum and Minimum functions
+
+double ExpressionPrimitives::max(double a, double b) {
+    return std::max(a,b);
+}
+
+double ExpressionPrimitives::min(double a, double b) {
+    return std::min(a,b);
+}
+
+//----------------------------------
+// Rounding
+
+double ExpressionPrimitives::round(double a, double b) {
+    auto const digits = std::floor(b);
+    return std::round(a * std::pow(10, digits)) / std::pow(10, digits);
+}
+
+double ExpressionPrimitives::roundUp(double a, double b) {
+    auto const digits = std::floor(b);
+    return std::floor(a * std::pow(10, digits)) / std::pow(10, digits);
+}
+
+double ExpressionPrimitives::roundDown(double a, double b) {
+    auto const digits = std::floor(b);
+    return std::ceil(a * std::pow(10, digits)) / std::pow(10, digits);
+}
+
+//----------------------------------
+// More mathematical functions
+
+double ExpressionPrimitives::sgn(double a) {
+    return std::copysign(1.0, a);
+}
+
+//----------------------------------
+// Pseudo-random functions
 
 double ExpressionPrimitives::rng2arg(double a, double b) {
     if (a<0) a = abs(a) * 125.5;
@@ -67,6 +199,20 @@ double ExpressionPrimitives::rng3argInt16(double a, double b, double c) {
     return static_cast<double>(seed % 32768); // Return a value between 0 and 32767
 }
 
+
+
+//------------------------------------------
+// Register
+
+void ExpressionPrimitives::registerExpressions(std::vector<te_variable>& te_variables){
+    for (auto const& funcInfo : availableFunctions()) {
+        te_variables.push_back({.name=funcInfo.name, .address=funcInfo.pointer, .type=funcInfo.type, .context=funcInfo.context});
+    }
+}
+
+//------------------------------------------
+// List
+
 namespace {
 bool pseudoBind() {
     return true;
@@ -94,6 +240,9 @@ void ExpressionPrimitives::help(std::span<std::string_view const> const& args) {
     }
     tempFuncTree.parseStr(argStr);
 }
+
+//------------------------------------------
+// Private
 
 std::vector<ExpressionPrimitives::FunctionInfo> const& ExpressionPrimitives::availableFunctions() {
     static std::vector<FunctionInfo> const functions = {
@@ -140,12 +289,6 @@ std::vector<ExpressionPrimitives::FunctionInfo> const& ExpressionPrimitives::ava
         {.name=rng3argInt16Name,.description=rng3argInt16Desc,.pointer=reinterpret_cast<void*>(rng3argInt16), .type=TE_FUNCTION3, .context=nullptr},
     };
     return functions;
-}
-
-void ExpressionPrimitives::registerExpressions(std::vector<te_variable>& te_variables){
-    for (auto const& funcInfo : availableFunctions()) {
-        te_variables.push_back({.name=funcInfo.name, .address=funcInfo.pointer, .type=funcInfo.type, .context=funcInfo.context});
-    }
 }
 
 } // namespace Nebulite::Math
