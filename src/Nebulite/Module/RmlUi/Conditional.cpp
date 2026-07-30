@@ -41,7 +41,7 @@ void Conditional::OnElementCreate(Rml::Element* element){
         registeredEntries.emplace(element, RegisteredEntry{
             .element = element,
             .originalDisplay = element->GetDisplay(),
-            .condition = Interaction::Logic::Expression(condition)
+            .condition = Interaction::Logic::Expression(condition),
         });
     }
 }

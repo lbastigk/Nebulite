@@ -62,8 +62,8 @@ bool Sort::sortCustom(std::span<std::string_view const> const& args, Data::JsonS
             {
                 .self = slf,
                 .other = otr,
-                .global = slf
-            }
+                .global = slf,
+            },
         };
         return expression.evalAsBool(ctxScope, Utility::Promise<&Interaction::Logic::Expression::isReturnableAsBool>{});
     });
