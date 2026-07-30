@@ -75,10 +75,10 @@ bool Tile::insertIfCostGoalMatches(Core::RenderObject* toAppend) {
     return false;
 }
 
-void Tile::update(std::vector<Core::RenderObject*>& to_move, std::vector<Core::RenderObject*>& to_delete, TilingInformation const& tilingInfo, TileCoordinate const& coordinate) {
+void Tile::update(std::vector<Core::RenderObject*>& toMove, std::vector<Core::RenderObject*>& toDelete, TilingInformation const& tilingInfo, TileCoordinate const& coordinate) {
     for (auto& batch : batches) {
-        std::vector<Core::RenderObject*> to_move_local;
-        std::vector<Core::RenderObject*> to_delete_local;
+        std::vector<Core::RenderObject*> toMove_local;
+        std::vector<Core::RenderObject*> toDelete_local;
 
         for (auto* obj : batch.objects) {
             if ( auto const event = obj->update(); event != Constants::Event::Success) {
@@ -86,19 +86,19 @@ void Tile::update(std::vector<Core::RenderObject*>& to_move, std::vector<Core::R
             }
             if (!obj->flag.deleteFromScene) {
                 if (RenderObjectContainer::getTilePos(obj->getPosition(), tilingInfo) != coordinate) {
-                    to_move_local.push_back(obj);
+                    toMove_local.push_back(obj);
                 }
             } else {
-                to_delete_local.push_back(obj);
+                toDelete_local.push_back(obj);
             }
         }
         // All objects to move are collected in queue
-        for (auto* ptr : to_move_local) {
+        for (auto* ptr : toMove_local) {
             batch.removeObject(ptr);
         }
 
         // All objects to delete are collected in trash
-        for (auto* ptr : to_delete_local) {
+        for (auto* ptr : toDelete_local) {
             batch.removeObject(ptr);
         }
 
@@ -106,12 +106,12 @@ void Tile::update(std::vector<Core::RenderObject*>& to_move, std::vector<Core::R
         batch.updateCost();
 
         // Invalidate texture
-        if (!to_move_local.empty() || !to_delete_local.empty()) {
+        if (!toMove_local.empty() || !toDelete_local.empty()) {
             deleteTexture();
         }
 
-        std::ranges::move(to_move_local.begin(), to_move_local.end(), std::back_inserter(to_move));
-        std::ranges::move(to_delete_local.begin(), to_delete_local.end(), std::back_inserter(to_delete));
+        std::ranges::move(toMove_local.begin(), toMove_local.end(), std::back_inserter(toMove));
+        std::ranges::move(toDelete_local.begin(), toDelete_local.end(), std::back_inserter(toDelete));
     }
 }
 

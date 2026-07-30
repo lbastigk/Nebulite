@@ -90,12 +90,12 @@ public:
 
     /**
      * @brief Updates all objects of this tile
-     * @param to_move Objects moved out of the tile during the update
-     * @param to_delete Objects that were deleted during the update
+     * @param toMove Objects moved out of the tile during the update
+     * @param toDelete Objects that were deleted during the update
      * @param tilingInfo The pixel height/width of each tile
      * @param coordinate The coordinate of this tile
      */
-    void update(std::vector<Core::RenderObject*>& to_move, std::vector<Core::RenderObject*>& to_delete, TilingInformation const& tilingInfo, TileCoordinate const& coordinate);
+    void update(std::vector<Core::RenderObject*>& toMove, std::vector<Core::RenderObject*>& toDelete, TilingInformation const& tilingInfo, TileCoordinate const& coordinate);
 
     /**
      * @brief Renders the tile to the screen utilizing a pre-rendered texture

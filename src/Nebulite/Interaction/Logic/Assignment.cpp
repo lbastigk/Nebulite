@@ -121,13 +121,13 @@ void Assignment::setValueOfKey(Data::ScopedKeyView const& keyEvaluated, std::str
             target.set<std::string>(keyEvaluated, val);
             break;
         case Operation::add:
-            target.set_add(keyEvaluated, std::stod(val));
+            target.setAdditive(keyEvaluated, std::stod(val));
             break;
         case Operation::multiply:
-            target.set_multiply(keyEvaluated, std::stod(val));
+            target.setMultiplicative(keyEvaluated, std::stod(val));
             break;
         case Operation::concat:
-            target.set_concat(keyEvaluated, val);
+            target.setConcatenative(keyEvaluated, val);
             break;
         case Operation::null:
             Global::capture().error.println("Could not determine context from key, skipping assignment");
@@ -144,13 +144,13 @@ void Assignment::setValueOfKey(Data::ScopedKeyView const& keyEvaluated, double c
             target.set<double>(keyEvaluated, val);
             break;
         case Operation::add:
-            target.set_add(keyEvaluated, val);
+            target.setAdditive(keyEvaluated, val);
             break;
         case Operation::multiply:
-            target.set_multiply(keyEvaluated, val);
+            target.setMultiplicative(keyEvaluated, val);
             break;
         case Operation::concat:
-            target.set_concat(keyEvaluated, std::to_string(val));
+            target.setConcatenative(keyEvaluated, std::to_string(val));
             break;
         case Operation::null:
             Global::capture().error.println("Could not determine context from key, skipping assignment");
@@ -167,13 +167,13 @@ void Assignment::setValueOfKey(Data::ScopedKeyView const& keyEvaluated, std::int
         target.set<int64_t>(keyEvaluated, val);
         break;
     case Operation::add:
-        target.set_add(keyEvaluated, val);
+        target.setAdditive(keyEvaluated, val);
         break;
     case Operation::multiply:
-        target.set_multiply(keyEvaluated, val);
+        target.setMultiplicative(keyEvaluated, val);
         break;
     case Operation::concat:
-        target.set_concat(keyEvaluated, std::to_string(val));
+        target.setConcatenative(keyEvaluated, std::to_string(val));
         break;
     case Operation::null:
         Global::capture().error.println("Could not determine context from key, skipping assignment");

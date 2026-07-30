@@ -331,13 +331,13 @@ double* JSON::getStableDoublePointer(std::string_view const key) const {
     }
 
     // If loading from document failed, create a new derived entry
-    auto new_entry = std::make_unique<CacheEntry>(*cacheLine, cacheline_index);
-    new_entry->value = standardNumericValue;
-    *new_entry->stable_double_ptr = standardNumericValue;
-    new_entry->last_double_value = standardNumericValue;
-    new_entry->state = CacheEntry::EntryState::DERIVED;
-    auto* const ptr = new_entry->stable_double_ptr;
-    cache[key] = std::move(new_entry);
+    auto newEntry = std::make_unique<CacheEntry>(*cacheLine, cacheline_index);
+    newEntry->value = standardNumericValue;
+    *newEntry->stable_double_ptr = standardNumericValue;
+    newEntry->last_double_value = standardNumericValue;
+    newEntry->state = CacheEntry::EntryState::DERIVED;
+    auto* const ptr = newEntry->stable_double_ptr;
+    cache[key] = std::move(newEntry);
     return ptr;
 }
 
@@ -384,17 +384,17 @@ void JSON::setVariant(std::string_view const key, RjDirectAccess::simpleValue co
         synchronizeChildren(key);
 
         // Create new entry directly in DIRTY state
-        auto new_entry = std::make_unique<CacheEntry>(*cacheLine, cacheline_index);
+        auto newEntry = std::make_unique<CacheEntry>(*cacheLine, cacheline_index);
 
         // Set entry values
-        new_entry->value = val;
+        newEntry->value = val;
         // Pointer was created in constructor, no need to redo make_shared
-        *new_entry->stable_double_ptr = convertVariant<double>(new_entry->value).value_or(standardNumericValue); // Default to 0 if conversion fails
-        new_entry->last_double_value = *new_entry->stable_double_ptr;
-        new_entry->state = CacheEntry::EntryState::DIRTY;
+        *newEntry->stable_double_ptr = convertVariant<double>(newEntry->value).value_or(standardNumericValue); // Default to 0 if conversion fails
+        newEntry->last_double_value = *newEntry->stable_double_ptr;
+        newEntry->state = CacheEntry::EntryState::DIRTY;
 
         // Insert into cache
-        cache[key] = std::move(new_entry);
+        cache[key] = std::move(newEntry);
 
         // Flush to RapidJSON document for structural integrity
         flush(key);
@@ -697,7 +697,7 @@ std::vector<std::string> JSON::listAvailableMembers(std::string_view const key) 
 // TODO: optimize by avoiding double cache lookups
 // special get-function that returns the cache pointer instead of value
 
-void JSON::set_add(std::string_view const key, double const val) {
+void JSON::setAdditive(std::string_view const key, double const val) {
     std::scoped_lock const lockGuard(mtx);
 
     // Get current value
@@ -717,11 +717,11 @@ void JSON::set_add(std::string_view const key, double const val) {
     }
 }
 
-void JSON::set_add(std::string_view const key, std::int64_t const val) {
+void JSON::setAdditive(std::string_view const key, std::int64_t const val) {
     std::scoped_lock const lockGuard(mtx);
     static_assert(Math::isZero(standardNumericValue),
         "This function relies on the standard numeric value being 0 for correct defaulting."
-        " If this assertion fails, please review the implementation of set_add for int"
+        " If this assertion fails, please review the implementation of setAdditive for int"
         " and ensure it properly defaults to 0 when retrieval fails."
     );
     auto const current = getVariant(key).value_or(static_cast<int>(standardNumericValue));
@@ -740,7 +740,7 @@ void JSON::set_add(std::string_view const key, std::int64_t const val) {
     }, current);
 }
 
-void JSON::set_multiply(std::string_view const key, double const val) {
+void JSON::setMultiplicative(std::string_view const key, double const val) {
     std::scoped_lock const lockGuard(mtx);
 
     // Get current value
@@ -760,11 +760,11 @@ void JSON::set_multiply(std::string_view const key, double const val) {
     }
 }
 
-void JSON::set_multiply(std::string_view const key, std::int64_t const val) {
+void JSON::setMultiplicative(std::string_view const key, std::int64_t const val) {
     std::scoped_lock const lockGuard(mtx);
     static_assert(Math::isZero(standardNumericValue),
         "This function relies on the standard numeric value being 0 for correct defaulting."
-        " If this assertion fails, please review the implementation of set_add for int"
+        " If this assertion fails, please review the implementation of setAdditive for int"
         " and ensure it properly defaults to 0 when retrieval fails."
     );
     auto const current = getVariant(key).value_or(static_cast<int>(standardNumericValue));
@@ -783,7 +783,7 @@ void JSON::set_multiply(std::string_view const key, std::int64_t const val) {
     }, current);
 }
 
-void JSON::set_concat(std::string_view const key, std::string_view const valStr) {
+void JSON::setConcatenative(std::string_view const key, std::string_view const valStr) {
     std::scoped_lock const lockGuard(mtx);
 
     auto const current = get<std::string>(key).value_or(""); // Default to empty string if retrieval fails
@@ -806,8 +806,8 @@ std::expected<RjDirectAccess::simpleValue, SimpleValueRetrievalError> JSON::getS
         if (it == cache.end() && RjDirectAccess::getSimpleValue(val).has_value()) {
             // Insert only if the value is of a supported type, otherwise complex types might be interpreted as simple values.
             // Create new cache entry and insert into cache
-            auto new_entry = std::make_unique<CacheEntry>(*cacheLine, cacheline_index);
-            cache[key] = std::move(new_entry);
+            auto newEntry = std::make_unique<CacheEntry>(*cacheLine, cacheline_index);
+            cache[key] = std::move(newEntry);
             it = cache.find(key);
         }
 

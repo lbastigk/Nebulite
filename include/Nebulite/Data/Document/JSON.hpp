@@ -386,21 +386,21 @@ public:
     /**
      * @brief Performs an addition operation on a numeric value in the JSON document.
      */
-    void set_add(std::string_view key, double val);
+    void setAdditive(std::string_view key, double val);
 
-    void set_add(std::string_view key, std::int64_t val);
+    void setAdditive(std::string_view key, std::int64_t val);
 
     /**
      * @brief Performs a multiplication operation on a numeric value in the JSON document.
      */
-    void set_multiply(std::string_view key, double val);
+    void setMultiplicative(std::string_view key, double val);
 
-    void set_multiply(std::string_view key, std::int64_t val);
+    void setMultiplicative(std::string_view key, std::int64_t val);
 
     /**
      * @brief Performs a concatenation operation on a string value in the JSON document.
      */
-    void set_concat(std::string_view key, std::string_view valStr);
+    void setConcatenative(std::string_view key, std::string_view valStr);
 
     //------------------------------------------
     // Get methods

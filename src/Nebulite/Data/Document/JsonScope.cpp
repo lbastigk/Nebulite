@@ -194,44 +194,44 @@ void JsonScope::setComplex(ScopedKey const& key, std::complex<double> const& val
 //------------------------------------------
 // Special sets for threadsafe maths operations
 
-void JsonScope::set_add(ScopedKeyView const& key, double const val){
-    doc().set_add(key.full(*this), val);
+void JsonScope::setAdditive(ScopedKeyView const& key, double const val){
+    doc().setAdditive(key.full(*this), val);
 }
 
-void JsonScope::set_add(ScopedKey const& key, double const val) {
-    set_add(key.view(), val);
+void JsonScope::setAdditive(ScopedKey const& key, double const val) {
+    setAdditive(key.view(), val);
 }
 
-void JsonScope::set_add(ScopedKeyView const& key, std::int64_t const val){
-    doc().set_add(key.full(*this), val);
+void JsonScope::setAdditive(ScopedKeyView const& key, std::int64_t const val){
+    doc().setAdditive(key.full(*this), val);
 }
 
-void JsonScope::set_add(ScopedKey const& key, std::int64_t const val) {
-    set_add(key.view(), val);
+void JsonScope::setAdditive(ScopedKey const& key, std::int64_t const val) {
+    setAdditive(key.view(), val);
 }
 
-void JsonScope::set_multiply(ScopedKeyView const& key, double const val){
-    doc().set_multiply(key.full(*this), val);
+void JsonScope::setMultiplicative(ScopedKeyView const& key, double const val){
+    doc().setMultiplicative(key.full(*this), val);
 }
 
-void JsonScope::set_multiply(ScopedKey const& key, double const val) {
-    set_multiply(key.view(), val);
+void JsonScope::setMultiplicative(ScopedKey const& key, double const val) {
+    setMultiplicative(key.view(), val);
 }
 
-void JsonScope::set_multiply(ScopedKeyView const& key, std::int64_t const val){
-    doc().set_multiply(key.full(*this), val);
+void JsonScope::setMultiplicative(ScopedKeyView const& key, std::int64_t const val){
+    doc().setMultiplicative(key.full(*this), val);
 }
 
-void JsonScope::set_multiply(ScopedKey const& key, std::int64_t const val) {
-    set_multiply(key.view(), val);
+void JsonScope::setMultiplicative(ScopedKey const& key, std::int64_t const val) {
+    setMultiplicative(key.view(), val);
 }
 
-void JsonScope::set_concat(ScopedKeyView const& key, std::string const& valStr){
-    doc().set_concat(key.full(*this), valStr);
+void JsonScope::setConcatenative(ScopedKeyView const& key, std::string const& valStr){
+    doc().setConcatenative(key.full(*this), valStr);
 }
 
-void JsonScope::set_concat(ScopedKey const& key, std::string const& valStr) {
-    set_concat(key.view(), valStr);
+void JsonScope::setConcatenative(ScopedKey const& key, std::string const& valStr) {
+    setConcatenative(key.view(), valStr);
 }
 
 //------------------------------------------

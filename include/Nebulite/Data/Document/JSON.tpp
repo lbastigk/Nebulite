@@ -115,25 +115,25 @@ std::expected<T, SimpleValueRetrievalError> JSON::getWithTransformations(std::st
 template<typename T>
 std::optional<T> JSON::jsonValueToCache(std::string_view const key, rapidjson::Value const* val) const {
     // Create a new cache entry
-    auto new_entry = std::make_unique<CacheEntry>(*cacheLine, cacheline_index);
+    auto newEntry = std::make_unique<CacheEntry>(*cacheLine, cacheline_index);
 
     // Get supported types
     auto const& v = RjDirectAccess::getSimpleValue(val);
     if(!v.has_value()) {
         return std::nullopt; // Unsupported type, do not cache
     }
-    new_entry->value = v.value();
+    newEntry->value = v.value();
 
     // Mark as clean
-    new_entry->state = CacheEntry::EntryState::CLEAN;
+    newEntry->state = CacheEntry::EntryState::CLEAN;
 
     // Set stable double pointer
-    *new_entry->stable_double_ptr = convertVariant<double>(new_entry->value).value_or(standardNumericValue); // Default to NAN if conversion fails
-    new_entry->last_double_value = *new_entry->stable_double_ptr;
+    *newEntry->stable_double_ptr = convertVariant<double>(newEntry->value).value_or(standardNumericValue); // Default to NAN if conversion fails
+    newEntry->last_double_value = *newEntry->stable_double_ptr;
 
     // Insert into cache
-    auto const value = convertVariant<T>(new_entry->value);
-    cache[key] = std::move(new_entry);
+    auto const value = convertVariant<T>(newEntry->value);
+    cache[key] = std::move(newEntry);
 
     // Return converted value
     return value;

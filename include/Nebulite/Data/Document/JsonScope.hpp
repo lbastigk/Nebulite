@@ -222,20 +222,20 @@ public:
     //------------------------------------------
     // Special sets for threadsafe maths operations
 
-    void set_add(ScopedKeyView const& key, double val);
-    void set_add(ScopedKey const& key, double val);
+    void setAdditive(ScopedKeyView const& key, double val);
+    void setAdditive(ScopedKey const& key, double val);
 
-    void set_add(ScopedKeyView const& key, std::int64_t val);
-    void set_add(ScopedKey const& key, std::int64_t val);
+    void setAdditive(ScopedKeyView const& key, std::int64_t val);
+    void setAdditive(ScopedKey const& key, std::int64_t val);
 
-    void set_multiply(ScopedKeyView const& key, double val);
-    void set_multiply(ScopedKey const& key, double val);
+    void setMultiplicative(ScopedKeyView const& key, double val);
+    void setMultiplicative(ScopedKey const& key, double val);
 
-    void set_multiply(ScopedKeyView const& key, std::int64_t val);
-    void set_multiply(ScopedKey const& key, std::int64_t val);
+    void setMultiplicative(ScopedKeyView const& key, std::int64_t val);
+    void setMultiplicative(ScopedKey const& key, std::int64_t val);
 
-    void set_concat(ScopedKeyView const& key, std::string const& valStr);
-    void set_concat(ScopedKey const& key, std::string const& valStr);
+    void setConcatenative(ScopedKeyView const& key, std::string const& valStr);
+    void setConcatenative(ScopedKey const& key, std::string const& valStr);
 
     //------------------------------------------
     // Range of members

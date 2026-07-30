@@ -53,7 +53,7 @@ bool Arithmetic::forall(std::span<std::string_view const> const& args, std::func
 bool Arithmetic::add(std::span<std::string_view const> const& args, Data::JsonScope& jsonDoc) {
     return forall(args, [&jsonDoc](std::string_view const arg, Data::ScopedKeyView const& key) {
         double const num = std::stod(std::string(arg));
-        jsonDoc.set_add(key, num);
+        jsonDoc.setAdditive(key, num);
         return true;
     });
 }
@@ -61,7 +61,7 @@ bool Arithmetic::add(std::span<std::string_view const> const& args, Data::JsonSc
 bool Arithmetic::multiply(std::span<std::string_view const> const& args, Data::JsonScope& jsonDoc) {
     return forall(args, [&jsonDoc](std::string_view const arg, Data::ScopedKeyView const& key) {
         double const num = std::stod(std::string(arg));
-        jsonDoc.set_multiply(key, num);
+        jsonDoc.setMultiplicative(key, num);
         return true;
     });
 }
@@ -92,7 +92,7 @@ bool Arithmetic::pow(std::span<std::string_view const> const& args, Data::JsonSc
 bool Arithmetic::subtract(std::span<std::string_view const> const& args, Data::JsonScope& jsonDoc) {
     return forall(args, [&jsonDoc](std::string_view const arg, Data::ScopedKeyView const& key) {
         double const num = - std::stod(std::string(arg));
-        jsonDoc.set_add(key, num);
+        jsonDoc.setAdditive(key, num);
         return true;
     });
 }

@@ -76,19 +76,19 @@ void RendererProcessor::batchWorkerFunc(DispatcherWorkspace const& workspace){
     // Process
     // We update each object and check if it needs to be moved or deleted
     // Every batch worker has potential objects to move or delete
-    std::vector<Core::RenderObject*> to_move;
-    std::vector<Core::RenderObject*> to_delete;
+    std::vector<Core::RenderObject*> toMove;
+    std::vector<Core::RenderObject*> toDelete;
 
-    workspace.work->update(to_move, to_delete, workspace.tilingInformation, workspace.pos);
+    workspace.work->update(toMove, toDelete, workspace.tilingInformation, workspace.pos);
 
     // All objects to move are collected in queue
-    for (auto* ptr : to_move) {
+    for (auto* ptr : toMove) {
         std::scoped_lock const lock(workspace.reinsertionProcess->reinsertMutex);
         workspace.reinsertionProcess->queue.push_back(ptr);
     }
 
     // All objects to delete are collected in trash
-    for (auto* ptr : to_delete) {
+    for (auto* ptr : toDelete) {
         std::scoped_lock const lock(workspace.deletionProcess->deleteMutex);
         workspace.deletionProcess->trash.push_back(ptr);
     }
