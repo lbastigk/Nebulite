@@ -5,7 +5,6 @@
 #include <cfloat>
 #include <cmath>
 #include <cstdint> // NOLINT
-#include <cstdlib>
 #include <string>
 #include <string_view>
 #include <utility>
@@ -475,9 +474,9 @@ void Drawcall::initializePolygon() {
         return;
     }
     points.reserve(state.polygon.pointCount);
-    for (std::size_t i = 0; i < state.polygon.pointCount; ++i) {
-        auto const pointX = w * drawcallScope.get<double>(Key::PolygonSpecific::points.addIndex(i).addMember("x")).value_or(0.0);
-        auto const pointY = h * drawcallScope.get<double>(Key::PolygonSpecific::points.addIndex(i).addMember("y")).value_or(0.0);
+    for (auto const key : Key::PolygonSpecific::points.getArrayKeys(state.polygon.pointCount)) {
+        auto const pointX = w * drawcallScope.get<double>(key.addMember("x")).value_or(0.0);
+        auto const pointY = h * drawcallScope.get<double>(key.addMember("y")).value_or(0.0);
         points.push_back({ .x=static_cast<float>(pointX), .y=static_cast<float>(pointY) });
     }
 

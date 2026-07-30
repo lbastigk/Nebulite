@@ -39,9 +39,8 @@ double Statistics::accumulate(Data::JsonScope const& jsonDoc, std::function<doub
         return result;
     }
 
-    for (std::size_t i = 0; i < size; ++i) {
-        auto const key = rootKey.addIndex(i);
-        double const value = jsonDoc.get<double>(key).value_or(std::numeric_limits<double>::quiet_NaN());
+    for (auto itemKey : rootKey.getArrayKeys(size)) {
+        double const value = jsonDoc.get<double>(itemKey).value_or(std::numeric_limits<double>::quiet_NaN());
         if (std::isnan(value)) {
             return std::numeric_limits<double>::quiet_NaN();
         }
@@ -137,15 +136,15 @@ bool Statistics::stddev(Data::JsonScope& jsonDoc) {
         return false;
     }
 
-    std::vector<double> values(size);
+    std::vector<double> values;
+    values.reserve(size);
     double sum = 0.0;
-    for (std::size_t i = 0; i < size; ++i) {
-        auto const key = rootKey.addIndex(i);
+    for (auto const key : rootKey.getArrayKeys(size)) {
         double const value = jsonDoc.get<double>(key).value_or(std::numeric_limits<double>::quiet_NaN());
         if (std::isnan(value)) {
             return false;
         }
-        values[i] = value;
+        values.push_back(value);
         sum += value;
     }
 

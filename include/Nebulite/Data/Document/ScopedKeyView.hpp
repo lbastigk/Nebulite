@@ -7,10 +7,12 @@
 // Standard library
 #include <cstddef>
 #include <optional>
+#include <ranges>
 #include <string>
 #include <string_view>
 
 // Nebulite
+#include "Nebulite/Data/Document/ScopedKey.hpp"
 #include "Nebulite/Data/OptionalFixedString.hpp"
 
 //------------------------------------------
@@ -133,6 +135,18 @@ public:
      * @brief Adds a specified member to the key
      */
     [[nodiscard]] ScopedKey addMember(std::string_view member) const ;
+
+    /**
+     * @brief Same as addIndex, but for multiple keys
+     * @details Returns a view of keys key[0]...key[exclusiveMax-1]
+     * @param exclusiveMax The exclusive maximum index
+     * @return A view of the keys
+     */
+    [[nodiscard]] auto getArrayKeys(std::size_t const exclusiveMax) const {
+        return std::views::iota(0)
+            | std::views::take_while([exclusiveMax](std::size_t const i) { return i < exclusiveMax; })
+            | std::views::transform([&](std::size_t const i) { return addIndex(i); });
+    }
 };
 } // namespace Nebulite::Data
 #endif // NEBULITE_DATA_DOCUMENT_SCOPEDKEYVIEW_HPP

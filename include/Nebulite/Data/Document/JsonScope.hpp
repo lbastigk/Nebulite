@@ -102,13 +102,13 @@ private:
     template<typename DocType>
     std::optional<std::string> generateScopePrefix(DocType const& doc, std::optional<std::string> const& prefix);
 
-    static auto getArrayKeys(ScopedKey const& key, std::size_t exclusiveMax) {
+    static auto getArrayKeys(ScopedKey const& key, std::size_t const exclusiveMax) {
         return std::views::iota(0)
             | std::views::take_while([exclusiveMax](std::size_t const i) { return i < exclusiveMax; })
             | std::views::transform([&key](std::size_t const i) { return key.addIndex(i); });
     }
 
-    static auto getArrayKeys(ScopedKeyView const& key, std::size_t exclusiveMax) {
+    static auto getArrayKeys(ScopedKeyView const& key, std::size_t const exclusiveMax) {
         return std::views::iota(0)
             | std::views::take_while([exclusiveMax](std::size_t const i) { return i < exclusiveMax; })
             | std::views::transform([&key](std::size_t const i) { return key.addIndex(i); });

@@ -112,8 +112,7 @@ void Clock::readClocksFromDocument() {
 
     std::uint64_t const size = moduleScope.memberSize(Key::arr_active_clocks);
 
-    for (std::uint64_t i = 0; i < size; i++) {
-        auto key = Key::arr_active_clocks.addIndex(i);
+    for (auto key : Key::arr_active_clocks.getArrayKeys(size)) {
         if (auto const interval_type = moduleScope.memberType(key); interval_type != Data::KeyType::value) {
             // Invalid entry, skip
             continue;

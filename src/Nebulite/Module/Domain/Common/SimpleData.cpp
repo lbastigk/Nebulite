@@ -3,6 +3,7 @@
 
 // Standard library
 #include <cstddef>
+#include <ranges>
 #include <span>
 #include <string>
 #include <string_view>
@@ -212,8 +213,7 @@ Constants::Event SimpleData::push_front(std::span<std::string_view const> const&
     // Security check:
     // if any array item is a document, throw error
     // This feature is yet to be implemented!
-    for (std::size_t i = 0; i < size; ++i) {
-        auto itemKey = key.addIndex(i);
+    for (auto itemKey : key.getArrayKeys(size)) {
         if (Data::KeyType const itemType = ctxScope.self.memberType(itemKey); itemType == Data::KeyType::object) {
             ctx.self.capture.error.println("Error: Cannot push_front into an array containing documents.");
             return Constants::StandardCapture::Error::Functional::functionNotImplemented(ctx.self.capture);
@@ -261,8 +261,8 @@ Constants::Event SimpleData::pop_front(std::span<std::string_view const> const& 
     // Security check:
     // if any array item is a document, throw error
     // This feature is yet to be implemented!
-    for (std::size_t i = 0; i < size; ++i) {
-        if (ctxScope.self.memberType(key.addIndex(i)) == Data::KeyType::object) {
+    for (auto itemKey : key.getArrayKeys(size)) {
+        if (ctxScope.self.memberType(itemKey) == Data::KeyType::object) {
             ctx.self.capture.error.println("Error: Cannot push_front into an array containing documents.");
             return Constants::StandardCapture::Error::Functional::functionNotImplemented(ctx.self.capture);
         }
@@ -270,10 +270,8 @@ Constants::Event SimpleData::pop_front(std::span<std::string_view const> const& 
 
     //------------------------------------------
     // Move all existing items one step back
-    for (std::size_t i = 1; i < size; i++) {
-        auto itemKey = key.addIndex(i);
+    for (auto const [newItemKey, itemKey] : key.getArrayKeys(size) | std::views::adjacent<2>) {
         auto itemValue = ctxScope.self.get<std::string>(itemKey).value_or("");
-        auto newItemKey = key.addIndex(i - 1);
         ctxScope.self.set(newItemKey, itemValue);
     }
     // Remove the last item
