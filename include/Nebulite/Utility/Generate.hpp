@@ -8,6 +8,7 @@
 #include <array>
 #include <cstddef>
 #include <functional>
+#include <ranges>
 #include <stdexcept>
 #include <string>
 #include <utility>
@@ -20,6 +21,14 @@ namespace Nebulite::Utility {
 
 class Generate {
 public:
+    /**
+     * @brief Generates an std::array based on a provided generator function
+     * @tparam T The storage type of the array
+     * @tparam N The size of the array
+     * @tparam F The generator function type
+     * @param generator The generator function
+     * @return The generated array
+     */
     template<typename T, std::size_t N, typename F>
     static constexpr std::array<T, N> array(F&& generator) {
         return impl<std::array<T, N>,T>(
@@ -28,6 +37,13 @@ public:
         );
     }
 
+    /**
+     * @brief Generates an std::string based on a provided generator function
+     * @tparam N The size of the string
+     * @tparam F The generator function type
+     * @param generator The generator function
+     * @return The generated string
+     */
     template<std::size_t N, typename F>
     static constexpr std::string string(F&& generator) {
         return impl<std::string, char>(
@@ -91,6 +107,49 @@ public:
         }
 
         return std::move(rounds);
+    }
+
+    /**
+     * @brief Generates a range of powers of two up to a specified maximum value.
+     * @param inclusiveMax The inclusive maximum value for the range of powers of two.
+     * @return A view of the powers of two: [2, 4, 8, ..., inclusiveMax]
+     */
+    static auto constexpr powersOfTwo(std::size_t const inclusiveMax) {
+        return std::views::iota(0)
+            | std::views::transform([](std::size_t const x) { return std::size_t{2} << x; })
+            | std::views::take_while([inclusiveMax](std::size_t const x) { return x <= inclusiveMax; });
+    }
+
+    /**
+     * @brief The stdlib iota has issues with static analyzers, even though it works fine. This is a workaround
+     * @tparam ReturnType The type of the indices to be generated (default is std::size_t)
+     * @param start The start value
+     * @param exclusiveMax The exclusive maximum value for the range
+     * @return A view of the iota range: [0, exclusiveMax) as ReturnType
+     */
+    template<typename ReturnType = std::size_t>
+    static auto constexpr iota(std::size_t const start, std::size_t const exclusiveMax) {
+        if constexpr(std::is_same_v<ReturnType, int>) {
+            return std::views::iota(static_cast<int>(start), static_cast<int>(exclusiveMax));
+        }
+        else {
+            return std::views::iota(static_cast<int>(start), static_cast<int>(exclusiveMax))
+                | std::views::transform([](auto const idx) { return static_cast<ReturnType>(idx); });
+        }
+    }
+
+    /**
+     * @brief Generate indices for a range from 0 to exclusiveMax - 1. This is a workaround for issues with static analyzers and std::views::iota.
+     * @tparam ReturnType The type of the indices to be generated (default is std::size_t)
+     * @param exclusiveMax The exclusive maximum value for the range
+     * @return A view of the iota range: [0, exclusiveMax)
+     */
+    template<typename ReturnType = std::size_t>
+    static auto constexpr indices(std::size_t const exclusiveMax) {
+        if (exclusiveMax == 0) {
+            throw std::invalid_argument("Exclusive max index must be greater than 0.");
+        }
+        return iota<ReturnType>(0, exclusiveMax);
     }
 
 private:

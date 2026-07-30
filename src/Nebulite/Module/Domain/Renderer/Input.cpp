@@ -23,7 +23,7 @@
 #include "Nebulite/Module/Base/DomainModule.hpp"
 #include "Nebulite/Module/Domain/Renderer/Input.hpp"
 #include "Nebulite/Utility/Coordination/TimedRoutine.hpp"
-#include "Nebulite/Utility/Ranges.hpp"
+#include "Nebulite/Utility/Generate.hpp"
 #include "Nebulite/Utility/StringHandler.hpp"
 
 //------------------------------------------
@@ -68,7 +68,7 @@ void Input::mapKeyNames() {
     };
 
     // Keyboard
-    for (auto const scancode : Utility::Ranges::indices(SDL_SCANCODE_COUNT) | std::views::transform([](std::size_t i) { return static_cast<SDL_Scancode>(i); })) {
+    for (auto const scancode : Utility::Generate::indices(SDL_SCANCODE_COUNT) | std::views::transform([](std::size_t i) { return static_cast<SDL_Scancode>(i); })) {
         char const* nameRaw = SDL_GetScancodeName(scancode);
 
         if (nameRaw && nameRaw[0] != '\0') {

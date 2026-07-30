@@ -18,7 +18,7 @@
 #include "Nebulite/Math/Equality.hpp"
 #include "Nebulite/Math/FFT.hpp"
 #include "Nebulite/Utility/Convert/Bits.hpp"
-#include "Nebulite/Utility/Ranges.hpp"
+#include "Nebulite/Utility/Generate.hpp"
 
 //------------------------------------------
 namespace Nebulite::Math {
@@ -33,7 +33,7 @@ struct BitReversalPermutationClosure : std::ranges::range_adaptor_closure<BitRev
         auto const bitCount = static_cast<std::size_t>(std::bit_width(n - 1));
         assert(r.size() == n);
         assert(std::has_single_bit(n)); // n must be a power of two
-        for (auto const i : Utility::Ranges::indices(n)) {
+        for (auto const i : Utility::Generate::indices(n)) {
             if (auto const b = Utility::Convert::Bits::reverse(i, bitCount); i < b) {
                 std::swap(r[i], r[b]);
             }
@@ -56,10 +56,10 @@ struct ApplyStagesClosure : std::ranges::range_adaptor_closure<ApplyStagesClosur
     static void applyStage(R& r, std::complex<double> const stageTwiddle, std::size_t const stageSize, std::size_t const n) {
         auto const halfStageSize = stageSize / 2;
 
-        for (auto const i : Utility::Ranges::indices(n) | std::views::stride(stageSize)) {
+        for (auto const i : Utility::Generate::indices(n) | std::views::stride(stageSize)) {
             std::complex w(1.0);
 
-            for (auto const j : Utility::Ranges::indices(halfStageSize)) {
+            for (auto const j : Utility::Generate::indices(halfStageSize)) {
                 auto const u = r[i + j];
                 auto const v = r[i + j + halfStageSize] * w;
 
@@ -73,7 +73,7 @@ struct ApplyStagesClosure : std::ranges::range_adaptor_closure<ApplyStagesClosur
 
     template<std::ranges::input_range R>
     auto operator()(R&& r) const {
-        for (auto const stageSize : Utility::Ranges::powersOfTwo(n)) {
+        for (auto const stageSize : Utility::Generate::powersOfTwo(n)) {
             double const ang = fullAngle / static_cast<double>(stageSize);
             std::complex const stageTwiddle(std::cos(ang), std::sin(ang));
             applyStage(r, stageTwiddle, stageSize, n);
