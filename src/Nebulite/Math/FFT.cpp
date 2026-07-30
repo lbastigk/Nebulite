@@ -103,8 +103,10 @@ std::vector<std::complex<double>> FFT::fftInverse(std::vector<std::complex<doubl
 
     // normalize
     auto const dN = static_cast<double>(n);
-    for (auto& v : a)
+    for (auto& v : a) {
         v /= dN;
+    }
+
 
     return a;
 }
