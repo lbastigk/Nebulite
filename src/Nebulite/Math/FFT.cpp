@@ -11,6 +11,7 @@
 #include <numbers>
 #include <ranges>
 #include <stdexcept>
+#include <utility>
 #include <vector>
 
 // Nebulite
@@ -21,6 +22,7 @@
 //------------------------------------------
 namespace Nebulite::Math {
 
+// TODO: Turn into range-based, pipe-able functions: bitReversalPermutation, applyStages, normalize
 namespace {
 
 std::size_t reverseBits(std::size_t input, std::size_t const bitCount) {
@@ -31,6 +33,17 @@ std::size_t reverseBits(std::size_t input, std::size_t const bitCount) {
         input >>= 1u;
     }
     return result;
+}
+
+void bitReversalPermutation(auto& a, std::size_t const n) {
+    auto const bitCount = static_cast<std::size_t>(std::bit_width(n - 1));
+    assert(a.size() == n);
+    assert(std::has_single_bit(n)); // n must be a power of two
+    for (auto const i : Utility::Ranges::indices(n)) {
+        if (auto const b = reverseBits(i, bitCount); i < b) {
+            std::swap(a[i], a[b]);
+        }
+    }
 }
 
 void applyStage(auto& a, std::complex<double> const stageTwiddle, std::size_t const stageSize, std::size_t const n) {
@@ -51,63 +64,59 @@ void applyStage(auto& a, std::complex<double> const stageTwiddle, std::size_t co
     }
 }
 
+enum class StageType : bool {
+    FFT, IFFT
+};
+
+template<StageType sign>
+constexpr double stageSign() {
+    if constexpr (sign == StageType::IFFT) {
+        return 2.0 * std::numbers::pi;
+    } else if constexpr (sign == StageType::FFT) {
+        return -2.0 * std::numbers::pi;
+    }
+    else {
+        std::unreachable();
+    }
+}
+
+template<StageType sign>
+void applyStages(auto& a, auto n) {
+    static_assert(sign == StageType::FFT || sign == StageType::IFFT, "sign must be either StageType::FFT or StageType::IFFT");
+    for (auto const stageSize : Utility::Ranges::powersOfTwo(n)) {
+        double const ang = stageSign<sign>() / static_cast<double>(stageSize);
+        std::complex const stageTwiddle(std::cos(ang), std::sin(ang));
+        applyStage(a, stageTwiddle, stageSize, n);
+    }
+}
+
+void normalize(std::vector<std::complex<double>>& a, std::size_t const n) {
+    auto const dN = static_cast<double>(n);
+    for (auto& v : a) {
+        v /= dN;
+    }
+}
+
 } // namespace
 
 std::vector<std::complex<double>> FFT::fft(std::vector<double> const& data) {
     if (data.empty()) return {};
     auto const n = std::bit_ceil(data.size()); // next power of two
-    auto const bitCount = static_cast<std::size_t>(std::bit_width(n - 1));
-
-    // Initialize the complex array with zero-padding
     std::vector<std::complex<double>> a(n); // Initialized to 0.0
     std::copy_n(data.begin(), data.size(), a.begin());
-
-    // bit-reversal permutation for proper ordering of input data (required for cooley-turkey)
-    for (auto const i : Utility::Ranges::indices(n)) {
-        if (auto const b = reverseBits(i, bitCount); i < b) {
-            std::swap(a[i], a[b]);
-        }
-    }
-
-    // FFT stages
-    for (auto const stageSize : Utility::Ranges::powersOfTwo(n)) {
-        double const ang = -2.0 * std::numbers::pi / static_cast<double>(stageSize);
-        std::complex const stageTwiddle(std::cos(ang), std::sin(ang));
-        applyStage(a, stageTwiddle, stageSize, n);
-    }
-
+    bitReversalPermutation(a, n);
+    applyStages<StageType::FFT>(a, n);
     return a;
 }
 
 std::vector<std::complex<double>> FFT::fftInverse(std::vector<std::complex<double>> const& xValues) {
     auto const n = std::bit_ceil(xValues.size()); // next power of two
-    auto const bitCount = static_cast<std::size_t>(std::bit_width(n - 1));
     if (n == 0) return {};
-
     std::vector<std::complex<double>> a = xValues;
     a.resize(n);
-
-    // bit-reversal permutation for proper ordering of input data (required for cooley-turkey)
-    for (auto const i : Utility::Ranges::indices(n)) {
-        if (auto const b = reverseBits(i, bitCount); i < b) {
-            std::swap(a[i], a[b]);
-        }
-    }
-
-    // IFFT stages (note sign flip)
-    for (auto const stageSize : Utility::Ranges::powersOfTwo(n)) {
-        double const ang = 2.0 * std::numbers::pi / static_cast<double>(stageSize);
-        std::complex const stageTwiddle(std::cos(ang), std::sin(ang));
-        applyStage(a, stageTwiddle, stageSize, n);
-    }
-
-    // normalize
-    auto const dN = static_cast<double>(n);
-    for (auto& v : a) {
-        v /= dN;
-    }
-
-
+    bitReversalPermutation(a, n);
+    applyStages<StageType::IFFT>(a, n);
+    normalize(a, n);
     return a;
 }
 
