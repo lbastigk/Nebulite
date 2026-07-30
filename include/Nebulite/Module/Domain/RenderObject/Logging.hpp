@@ -39,17 +39,17 @@ public:
     //------------------------------------------
     // Available Functions
 
-    [[nodiscard]] Constants::Event log_all(std::span<std::string_view const> const& args, Interaction::Context const& ctx, Interaction::ContextScope const& ctxScope) const ;
-    static auto constexpr log_all_name = "log all";
-    static auto constexpr log_all_desc = "Logs the entire RenderObject to a file.\n"
+    [[nodiscard]] Constants::Event logAll(std::span<std::string_view const> const& args, Interaction::Context const& ctx, Interaction::ContextScope const& ctxScope) const ;
+    static auto constexpr logAllName = "log all";
+    static auto constexpr logAllDesc = "Logs the entire RenderObject to a file.\n"
         "\n"
         "Usage: log [filename]\n"
         "\n"
         "Logs to `RenderObject_id<id>.log.jsonc` if no filename is provided.\n";
 
-    [[nodiscard]] Constants::Event log_key(std::span<std::string_view const> const& args, Interaction::Context const& ctx, Interaction::ContextScope const& ctxScope) const ;
-    static auto constexpr log_key_name = "log key";
-    static auto constexpr log_key_desc = "Logs a specific key's value to a file.\n"
+    [[nodiscard]] Constants::Event logKey(std::span<std::string_view const> const& args, Interaction::Context const& ctx, Interaction::ContextScope const& ctxScope) const ;
+    static auto constexpr logKeyName = "log key";
+    static auto constexpr logKeyDesc = "Logs a specific key's value to a file.\n"
         "\n"
         "Usage: log key <key> [filename]\n"
         "\n"
@@ -58,8 +58,8 @@ public:
     //------------------------------------------
     // Categories
 
-    static auto constexpr log_name = "log";
-    static auto constexpr log_desc = "Logging utilities";
+    static auto constexpr logName = "log";
+    static auto constexpr logDesc = "Logging utilities";
 
     //------------------------------------------
     // Setup
@@ -68,9 +68,9 @@ public:
      * @brief Initializes the module, binding functions and variables. 
      */
     explicit Logging(ConstructorParams const& params) : DomainModule(params) {
-        bindCategory(log_name, log_desc);
-        bindFunction(&Logging::log_all, log_all_name, log_all_desc);
-        bindFunction(&Logging::log_key, log_key_name, log_key_desc);
+        bindCategory(logName, logDesc);
+        bindFunction(&Logging::logAll, logAllName, logAllDesc);
+        bindFunction(&Logging::logKey, logKeyName, logKeyDesc);
     }
 };
 } // namespace Nebulite::Module::Domain::RenderObject

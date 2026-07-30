@@ -53,22 +53,22 @@ public:
         "Use invoke ::help to list all available static rulesets.";
 
     [[nodiscard]] Constants::Event broadcast(std::span<std::string_view const> const& args) const ;
-    static auto constexpr broadcast_name = "ruleset broadcast";
-    static auto constexpr broadcast_desc = "Broadcasts a ruleset to its specified topic.\n"
+    static auto constexpr broadcastName = "ruleset broadcast";
+    static auto constexpr broadcastDesc = "Broadcasts a ruleset to its specified topic.\n"
         "Usage: broadcast <ruleset>\n"
         "\n"
         "- ruleset: The ruleset content to be broadcasted.";
 
     [[nodiscard]] Constants::Event listen(std::span<std::string_view const> const& args) const ;
-    static auto constexpr listen_name = "ruleset listen";
-    static auto constexpr listen_desc = "Listens for rulesets on a specified topic.\n"
+    static auto constexpr listenName = "ruleset listen";
+    static auto constexpr listenDesc = "Listens for rulesets on a specified topic.\n"
         "Usage: listen <topic>\n"
         "\n"
         "- topic: The topic to listen for incoming rulesets.";
 
     [[nodiscard]] Constants::Event reload();
-    static auto constexpr reload_name = "ruleset reload";
-    static auto constexpr reload_desc = "Reloads all rulesets for this domain on the next update.\n"
+    static auto constexpr reloadName = "ruleset reload";
+    static auto constexpr reloadDesc = "Reloads all rulesets for this domain on the next update.\n"
         "\n"
         "Usage: ruleset reload\n"
         "\n"
@@ -77,8 +77,8 @@ public:
     //------------------------------------------
     // Categories
 
-    static auto constexpr ruleset_name = "ruleset";
-    static auto constexpr ruleset_desc = "Functions for managing rulesets.";
+    static auto constexpr rulesetName = "ruleset";
+    static auto constexpr rulesetDesc = "Functions for managing rulesets.";
 
     //------------------------------------------
     // Setup
@@ -89,11 +89,11 @@ public:
     explicit Ruleset(ConstructorParams const& params) : DomainModule(params) {
         //------------------------------------------
         // Binding functions to the FuncTree
-        bindCategory(ruleset_name, ruleset_desc);
+        bindCategory(rulesetName, rulesetDesc);
         bindFunction(&Ruleset::invokeOnce, invokeOnceName, invokeOnceDesc);
-        bindFunction(&Ruleset::broadcast, broadcast_name, broadcast_desc);
-        bindFunction(&Ruleset::listen, listen_name, listen_desc);
-        bindFunction(&Ruleset::reload, reload_name, reload_desc);
+        bindFunction(&Ruleset::broadcast, broadcastName, broadcastDesc);
+        bindFunction(&Ruleset::listen, listenName, listenDesc);
+        bindFunction(&Ruleset::reload, reloadName, reloadDesc);
     }
 
     struct Key : Data::KeyGroup<Data::ScopePattern::domainRootScope> {

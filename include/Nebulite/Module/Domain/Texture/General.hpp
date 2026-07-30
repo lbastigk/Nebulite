@@ -30,8 +30,8 @@ public:
     // Available Functions
 
     [[nodiscard]] Constants::Event reloadTexture() const;
-    static auto constexpr reloadTexture_name = "reload-texture";
-    static auto constexpr reloadTexture_desc = "Reload the texture from the document.\n"
+    static auto constexpr reloadTextureName = "reload-texture";
+    static auto constexpr reloadTextureDesc = "Reload the texture from the document.\n"
         "\n"
         "Usage: reload-texture\n";
 
@@ -42,7 +42,7 @@ public:
      * @brief Initializes the module, binding functions and variables. 
      */
     explicit General(ConstructorParams const& params) : DomainModule(params) {
-        bindFunction(&General::reloadTexture, reloadTexture_name, reloadTexture_desc);
+        bindFunction(&General::reloadTexture, reloadTextureName, reloadTextureDesc);
     }
 };
 } // namespace Nebulite::Module::Domain::Texture

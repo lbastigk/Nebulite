@@ -43,8 +43,8 @@ public:
     // Available Functions
 
     [[nodiscard]] Constants::Event errorLog(std::span<std::string_view const> const& args, Interaction::Context const& ctx, Interaction::ContextScope& ctxScope);
-    static auto constexpr errorLog_name = "error-log";
-    static auto constexpr errorLog_desc = "Activates or deactivates error logging to a file.\n"
+    static auto constexpr errorLogName = "error-log";
+    static auto constexpr errorLogDesc = "Activates or deactivates error logging to a file.\n"
         "Usage: error-log <on/off>\n"
         "\n"
         "- on:  Activates error logging to 'error.log' in the working directory.\n"
@@ -54,32 +54,32 @@ public:
     // TODO: offer a per-domain clear option in Nebulite::Module::Domain::Common::Debug. This clears the global capture.
     //       perhaps naming them clear-all and clear respectively?
     [[nodiscard]] static Constants::Event clearConsole(std::span<std::string_view const> const& args);
-    static auto constexpr clearConsole_name = "clear";
-    static auto constexpr clearConsole_desc = "Clears the console screen.\n"
+    static auto constexpr clearConsoleName = "clear";
+    static auto constexpr clearConsoleDesc = "Clears the console screen.\n"
         "Usage: clear\n"
         "\n"
         "Note: This function attempts to clear the console screen using system-specific commands.\n"
         "      It may not work in all environments or IDEs.\n";
 
     [[nodiscard]] Constants::Event log_global(int argc, char const** argv) const ;
-    static auto constexpr log_global_name = "log global";
-    static auto constexpr log_global_desc = "Logs the global document to a file.\n"
+    static auto constexpr log_globalName = "log global";
+    static auto constexpr log_globalDesc = "Logs the global document to a file.\n"
         "Usage: log global [<filenames>...]\n"
         "\n"
         "- <filenames>: Optional. One or more filenames to log the global document to.\n"
         "               If no filenames are provided, defaults to 'global.log.jsonc'.\n";
 
     [[nodiscard]] Constants::Event log_state(int argc, char const** argv) const ;
-    static auto constexpr log_state_name = "log state";
-    static auto constexpr log_state_desc = "Logs the current state of the renderer to a file.\n"
+    static auto constexpr log_stateName = "log state";
+    static auto constexpr log_stateDesc = "Logs the current state of the renderer to a file.\n"
         "Usage: log state [<filenames>...]\n"
         "\n"
         "- <filenames>: Optional. One or more filenames to log the renderer state to.\n"
         "               If no filenames are provided, defaults to 'state.log.jsonc'.\n";
 
     [[nodiscard]] static Constants::Event crash(std::span<std::string_view const> const& args, Interaction::Context const& ctx, Interaction::ContextScope& ctxScope);
-    static auto constexpr crash_name = "crash";
-    static auto constexpr crash_desc = "Crashes the program, useful for checking if the testing suite can catch crashes.\n"
+    static auto constexpr crashName = "crash";
+    static auto constexpr crashDesc = "Crashes the program, useful for checking if the testing suite can catch crashes.\n"
         "Usage: crash [<type>]\n"
         "\n"
         "- <type>: Optional. The type of crash to induce. Options are:\n"
@@ -89,22 +89,22 @@ public:
         "    - throw      : Throws an uncaught exception\n";
 
     [[nodiscard]] static Constants::Event waitForInput(std::span<std::string_view const> const& args, Interaction::Context const& ctx, Interaction::ContextScope& ctxScope);
-    static auto constexpr waitForInput_name = "input-wait";
-    static auto constexpr waitForInput_desc = "Waits for user input before continuing.\n"
+    static auto constexpr waitForInputName = "input-wait";
+    static auto constexpr waitForInputDesc = "Waits for user input before continuing.\n"
         "Usage: input-wait [prompt]\n"
         "\n"
         "Note: This function pauses execution until the user presses Enter\n";
 
     [[nodiscard]] Constants::Event standardFileRenderObject(std::span<std::string_view const> const& args) const ;
-    static auto constexpr standardFileRenderObject_name = "standard-file render-object";
-    static auto constexpr standardFileRenderObject_desc = "Logs a standard render object to a file: ./Resources/Renderobjects/standard.jsonc.\n"
+    static auto constexpr standardFileRenderObjectName = "standard-file render-object";
+    static auto constexpr standardFileRenderObjectDesc = "Logs a standard render object to a file: ./Resources/Renderobjects/standard.jsonc.\n"
         "Usage: standard-file render-object\n"
         "\n"
         "Note: This function creates or overwrites the file 'standard.jsonc' in the './Resources/Renderobjects/' directory.\n";
 
     [[nodiscard]] static Constants::Event listExpressionFunctions(std::span<std::string_view const> const& args);
-    static auto constexpr listExpressionFunctions_name = "expression-help";
-    static auto constexpr listExpressionFunctions_desc = "Lists all available expression functions with their descriptions.\n"
+    static auto constexpr listExpressionFunctionsName = "expression-help";
+    static auto constexpr listExpressionFunctionsDesc = "Lists all available expression functions with their descriptions.\n"
         "Usage: expression-help\n"
         "\n"
         "Note: This function provides a comprehensive list of all functions that can be used within expressions, along with their usage and descriptions.\n";
@@ -112,11 +112,11 @@ public:
     //------------------------------------------
     // Categories
 
-    static auto constexpr log_name = "log";
-    static auto constexpr log_desc = "Functions for logging various states and documents to files.";
+    static auto constexpr logName = "log";
+    static auto constexpr logDesc = "Functions for logging various states and documents to files.";
 
-    static auto constexpr standardFile_name = "standard-file";
-    static auto constexpr standardFile_desc = "Functions for generating standard files for common resources.";
+    static auto constexpr standardFileName = "standard-file";
+    static auto constexpr standardFileDesc = "Functions for generating standard files for common resources.";
 
     //------------------------------------------
     // Setup
@@ -132,18 +132,18 @@ public:
 
         //------------------------------------------
         // Binding functions to the FuncTree
-        bindFunction(&Debug::errorLog, errorLog_name, errorLog_desc);
-        bindFunction(&Debug::clearConsole, clearConsole_name, clearConsole_desc);
-        bindFunction(&Debug::crash, crash_name, crash_desc);
-        bindFunction(&Debug::waitForInput, waitForInput_name, waitForInput_desc);
-        bindFunction(&Debug::listExpressionFunctions, listExpressionFunctions_name, listExpressionFunctions_desc);
+        bindFunction(&Debug::errorLog, errorLogName, errorLogDesc);
+        bindFunction(&Debug::clearConsole, clearConsoleName, clearConsoleDesc);
+        bindFunction(&Debug::crash, crashName, crashDesc);
+        bindFunction(&Debug::waitForInput, waitForInputName, waitForInputDesc);
+        bindFunction(&Debug::listExpressionFunctions, listExpressionFunctionsName, listExpressionFunctionsDesc);
 
-        bindCategory(log_name, log_desc);
-        bindFunction(&Debug::log_global, log_global_name, log_global_desc);
-        bindFunction(&Debug::log_state, log_state_name, log_state_desc);
+        bindCategory(logName, logDesc);
+        bindFunction(&Debug::log_global, log_globalName, log_globalDesc);
+        bindFunction(&Debug::log_state, log_stateName, log_stateDesc);
 
-        bindCategory(standardFile_name, standardFile_desc);
-        bindFunction(&Debug::standardFileRenderObject, standardFileRenderObject_name, standardFileRenderObject_desc);
+        bindCategory(standardFileName, standardFileDesc);
+        bindFunction(&Debug::standardFileRenderObject, standardFileRenderObjectName, standardFileRenderObjectDesc);
 
         // Add routines
         addRoutines();

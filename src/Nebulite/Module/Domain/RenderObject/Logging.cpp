@@ -30,7 +30,7 @@ Constants::Event Logging::updateHook() {
 //------------------------------------------
 // Domain-Bound Functions
 
-Constants::Event Logging::log_all(std::span<std::string_view const> const& args, Interaction::Context const& ctx, Interaction::ContextScope const& ctxScope) const {
+Constants::Event Logging::logAll(std::span<std::string_view const> const& args, Interaction::Context const& ctx, Interaction::ContextScope const& ctxScope) const {
     std::string const serialized = ctxScope.self.serialize();
     if (args.size() > 1) {
         for (auto const& arg : args.subspan(1)) {
@@ -46,7 +46,7 @@ Constants::Event Logging::log_all(std::span<std::string_view const> const& args,
     return Constants::Event::Success;
 }
 
-Constants::Event Logging::log_key(std::span<std::string_view const> const& args, Interaction::Context const& ctx, Interaction::ContextScope const& ctxScope) const {
+Constants::Event Logging::logKey(std::span<std::string_view const> const& args, Interaction::Context const& ctx, Interaction::ContextScope const& ctxScope) const {
     if (args.size() < 2) {
         return Constants::StandardCapture::Warning::Functional::tooFewArgs(ctx.self.capture);
     }

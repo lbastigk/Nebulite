@@ -39,9 +39,9 @@ public:
 
     /**
      * @brief Sets the mouse cursor to the correct type, trying to minimize any rapid cursor changes
-     * @param cursor_name The name of the cursor
+     * @param cursorName The name of the cursor
      */
-    void SetMouseCursor(Rml::String const& cursor_name) override ;
+    void SetMouseCursor(Rml::String const& cursorName) override ;
 
 private:
     Utility::IO::Capture& capture;

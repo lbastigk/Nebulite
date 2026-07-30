@@ -32,7 +32,7 @@ namespace Nebulite::Interaction::Rules {
 StaticRulesetMap::StaticRulesetMap(){
     Construction::rulesetMapInit(this);
     bindStaticRuleset(StaticRulesetWithMetadata{
-        .type=StaticRuleset::Type::Local,
+        .type=StaticRuleset::Type::local,
         .topic=helpName,
         .description=helpDesc,
         .function=[this](Context const& context, double** slf, double** otr) { help(context, slf, otr); },

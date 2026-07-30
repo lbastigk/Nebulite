@@ -30,8 +30,8 @@ public:
     // Available Functions
 
     [[nodiscard]] Constants::Event rotate(int argc, char const** argv) const ;
-    static auto constexpr rotate_name = "rotate";
-    static auto constexpr rotate_desc = "Rotate the texture by a specified angle.\n"
+    static auto constexpr rotateName = "rotate";
+    static auto constexpr rotateDesc = "Rotate the texture by a specified angle.\n"
         "\n"
         "Usage: rotate <angle>\n"
         "\n"
@@ -45,7 +45,7 @@ public:
      * @brief Initializes the module, binding functions and variables. 
      */
     explicit Rotation(ConstructorParams const& params) : DomainModule(params) {
-        bindFunction(&Rotation::rotate, rotate_name, rotate_desc);
+        bindFunction(&Rotation::rotate, rotateName, rotateDesc);
     }
 };
 } // namespace Nebulite::Module::Domain::Texture

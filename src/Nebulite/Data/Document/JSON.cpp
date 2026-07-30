@@ -223,7 +223,7 @@ std::expected<RjDirectAccess::simpleValue, SimpleValueRetrievalError> JSON::getV
         if (JSON tmp; getSubDocWithTransformations(key, tmp)) {
             return tmp.getVariant(Module::Base::TransformationModule::rootKeyStr);
         }
-        return std::unexpected(SimpleValueRetrievalError::TRANSFORMATION_FAILURE);
+        return std::unexpected(SimpleValueRetrievalError::transformationFailure);
     }
 
     // Check cache first
@@ -239,7 +239,7 @@ std::expected<RjDirectAccess::simpleValue, SimpleValueRetrievalError> JSON::getV
         if (it != cache.end() && it->second->state == CacheEntry::EntryState::MALFORMED) {
             Global::capture().error.println("Warning: Attempted to access malformed key in getVariant(): ", key);
             Global::capture().error.println("This is a serious logic issue, the malformed key check should have happened already. Please report to the developers!");
-            return std::unexpected(SimpleValueRetrievalError::MALFORMED_KEY);
+            return std::unexpected(SimpleValueRetrievalError::malformedKey);
         }
 
         if (it != cache.end() && it->second->state != CacheEntry::EntryState::DELETED) {
@@ -827,19 +827,19 @@ std::expected<RjDirectAccess::simpleValue, SimpleValueRetrievalError> JSON::getS
             }
         }
         if (val->IsNull()) {
-            return std::unexpected(SimpleValueRetrievalError::IS_NULL);
+            return std::unexpected(SimpleValueRetrievalError::isNull);
         }
         if (val->IsArray()) {
-            return std::unexpected(SimpleValueRetrievalError::IS_ARRAY);
+            return std::unexpected(SimpleValueRetrievalError::isArray);
         }
         if (val->IsObject()) {
-            return std::unexpected(SimpleValueRetrievalError::IS_OBJECT);
+            return std::unexpected(SimpleValueRetrievalError::isObject);
         }
-        return std::unexpected(SimpleValueRetrievalError::CONVERSION_FAILURE);
+        return std::unexpected(SimpleValueRetrievalError::conversionFailure);
     }
 
     // Value could not be found, return empty optional
-    return std::unexpected(SimpleValueRetrievalError::IS_NULL);
+    return std::unexpected(SimpleValueRetrievalError::isNull);
 }
 
 } // namespace Nebulite::Data

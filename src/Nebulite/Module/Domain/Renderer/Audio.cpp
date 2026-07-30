@@ -105,8 +105,8 @@ Constants::Event Audio::playSound(std::span<std::string_view const> const& args)
 // Setup
 
 Audio::Audio(ConstructorParams const& params) : DomainModule(params) {
-    bindFunction(&Audio::beep, beep_name, beep_desc);
-    bindFunction(&Audio::playSound, playSound_name, playSound_desc);
+    bindFunction(&Audio::beep, beepName, beepDesc);
+    bindFunction(&Audio::playSound, playSoundName, playSoundDesc);
 
     initAudio();
     initWaveforms();
@@ -184,7 +184,7 @@ std::optional<std::shared_ptr<Audio::Sound>> Audio::loadSound(std::string const&
     Sound sound;
     auto converterAndSampleSize = loadConverterFunction(wavSpec.format);
     if (!converterAndSampleSize) {
-        domain.capture.error.println("Unsupported audio format: ", sdlAudioFormatToString(wavSpec.format), " for sound: ", path, ". Feel free to submit a PR to add support for this format in function: ", __func__);
+        domain.capture.error.println("Unsupported audio format: ", sdlAudioFormatToString(wavSpec.format), " for sound: ", path, ". Feel free to submit a PR to add support for this format in function: ", __FUNCTION__);
         SDL_free(data);
     }
     auto& [convertFunc, lengthPerSample] = converterAndSampleSize.value();

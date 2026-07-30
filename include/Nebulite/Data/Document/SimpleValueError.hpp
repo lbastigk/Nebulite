@@ -18,12 +18,12 @@ namespace Nebulite::Data {
  *          such as type mismatches, malformed keys, or transformation failures.
  */
 enum class SimpleValueRetrievalError : std::uint8_t {
-    TRANSFORMATION_FAILURE, // The specified transformations could not be applied successfully.
-    CONVERSION_FAILURE,     // The value could not be converted to the requested type.
-    MALFORMED_KEY,          // The provided key is malformed
-    IS_ARRAY,               // The specified key corresponds to an array, not a simple value.
-    IS_OBJECT,              // The specified key corresponds to an object, not a simple value.
-    IS_NULL                 // The specified key is not a member of the JSON document (null).
+    transformationFailure, // The specified transformations could not be applied successfully.
+    conversionFailure,     // The value could not be converted to the requested type.
+    malformedKey,          // The provided key is malformed
+    isArray,               // The specified key corresponds to an array, not a simple value.
+    isObject,              // The specified key corresponds to an object, not a simple value.
+    isNull                 // The specified key is not a member of the JSON document (null).
 };
 } // namespace Nebulite::Data
 #endif // NEBULITE_DATA_DOCUMENT_SIMPLEVALUEERROR_HPP

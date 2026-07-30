@@ -407,12 +407,12 @@ private:
     /**
      * @brief Registers a variable with the given name and key in the context of the component.
      *        Makes sure to only register variables that are not already registered.
-     * @param te_name The shortened name of the variable as used in TinyExpr.
+     * @param teName The shortened name of the variable as used in TinyExpr.
      * @param key The key in the JSON document that the variable refers to.
      * @param contextType The context from which the variable is being registered.
      * @param lateRegistrations The list of cache register functions that add values to the cache.
      */
-    void registerVariable(std::string_view te_name, std::string_view key, ContextDeriver::TargetType contextType, std::vector<LateRegistration>& lateRegistrations);
+    void registerVariable(std::string_view teName, std::string_view key, ContextDeriver::TargetType contextType, std::vector<LateRegistration>& lateRegistrations);
 };
 
 } // namespace Nebulite::Interaction::Logic

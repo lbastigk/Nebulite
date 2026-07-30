@@ -138,7 +138,7 @@ Constants::Event SimpleData::push_back(std::span<std::string_view const> const& 
 
     if (ctxScope.self.memberType(key) != Data::KeyType::array) {
         std::string command = __FUNCTION__;
-        command += " " + std::string(ensureArray_name);
+        command += " " + std::string(ensureArrayName);
         command += " " + std::string(args[1]);
         if (Constants::Event const result = ctx.self.parseStr(command, ctx, ctxScope); result != Constants::Event::Success) {
             ctx.self.capture.error.println("Error: Failed to ensure array for key '", std::string(args[1]), "'.");
@@ -247,7 +247,7 @@ Constants::Event SimpleData::pop_front(std::span<std::string_view const> const& 
 
     if (ctxScope.self.memberType(key) != Data::KeyType::array) {
         std::string command = __FUNCTION__;
-        command += " " + std::string(ensureArray_name);
+        command += " " + std::string(ensureArrayName);
         command += " " + std::string(args[1]);
         if (Constants::Event const result = ctx.self.parseStr(command, ctx, ctxScope); result != Constants::Event::Success) {
             ctx.self.capture.error.println("Error: Failed to ensure array for key '", std::string(args[1]), "'.");

@@ -43,8 +43,8 @@ public:
     // Available Functions
 
     [[nodiscard]] Constants::Event addClock(int argc, char const** argv);
-    static auto constexpr addClock_name = "add-clock";
-    static auto constexpr addClock_desc = "Adds a clock with specified interval (ms) to the global clock system\n"
+    static auto constexpr addClockName = "add-clock";
+    static auto constexpr addClockDesc = "Adds a clock with specified interval (ms) to the global clock system\n"
         "\n"
         "Usage: add-clock <interval_ms>\n"
         "\n"
@@ -79,7 +79,7 @@ public:
     explicit Clock(ConstructorParams const& params) : DomainModule(params) {
         //------------------------------------------
         // Binding functions to the FuncTree
-        bindFunction(&Clock::addClock, addClock_name, addClock_desc);
+        bindFunction(&Clock::addClock, addClockName, addClockDesc);
 
         // Read clock list from document
         readClocksFromDocument();

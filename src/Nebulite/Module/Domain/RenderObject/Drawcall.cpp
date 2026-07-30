@@ -34,14 +34,14 @@ Constants::Event Drawcall::drawcallParse(std::span<std::string_view const> const
     if (args.size() < 3) {
         return Constants::StandardCapture::Warning::Functional::tooFewArgs(ctx.self.capture);
     }
-    auto const drawcallName = args[1];
+    auto const& name = args[1];
     auto const drawcallArgs = std::string(__FUNCTION__) + " " + Utility::StringHandler::recombineArgs(args.subspan(2));
-    return domain.parseDrawcallCommand(drawcallName, drawcallArgs, ctx, ctxScope);
+    return domain.parseDrawcallCommand(name, drawcallArgs, ctx, ctxScope);
 }
 
 Constants::Event Drawcall::drawcallList(Interaction::Context const& ctx, Interaction::ContextScope& /*ctxScope*/) const {
-    for (auto const& drawcallName : domain.listDrawcalls()) {
-        ctx.self.capture.log.println(drawcallName);
+    for (auto const& name : domain.listDrawcalls()) {
+        ctx.self.capture.log.println(name);
     }
     return Constants::Event::Success;
 }

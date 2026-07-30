@@ -52,9 +52,9 @@ Constants::Event Console::consoleClose() {
 }
 
 Console::Console(ConstructorParams const& params) : DomainModule(params) {
-    bindCategory(console_name, console_desc);
-    bindFunction(&Console::consoleOpen, consoleOpen_name, consoleOpen_desc);
-    bindFunction(&Console::consoleClose, consoleClose_name, consoleClose_desc);
+    bindCategory(consoleName, consoleDesc);
+    bindFunction(&Console::consoleOpen, consoleOpenName, consoleOpenDesc);
+    bindFunction(&Console::consoleClose, consoleCloseName, consoleCloseDesc);
 }
 
 } // namespace Nebulite::Module::Domain::Renderer

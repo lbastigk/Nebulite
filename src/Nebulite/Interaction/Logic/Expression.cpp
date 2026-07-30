@@ -450,8 +450,8 @@ void Expression::parseIntoComponents() {
                 ExpressionComponent::parseEval(
                     token,
                     variableNameGenerator,
-                    [&](std::string_view const te_name, std::string_view const key, ContextDeriver::TargetType const contextType) {
-                    registerVariable(te_name, key, contextType, lateRegistrations);
+                    [&](std::string_view const teName, std::string_view const key, ContextDeriver::TargetType const contextType) {
+                    registerVariable(teName, key, contextType, lateRegistrations);
                 }
             ));
         } else {
@@ -507,16 +507,16 @@ void Expression::printCompileError(ExpressionComponent const& component, int con
     Global::capture().error.println(ss.str());
 }
 
-void Expression::registerVariable(std::string_view const te_name, std::string_view const key, ContextDeriver::TargetType const contextType, std::vector<LateRegistration>& lateRegistrations) {
+void Expression::registerVariable(std::string_view const teName, std::string_view const key, ContextDeriver::TargetType const contextType, std::vector<LateRegistration>& lateRegistrations) {
     // Check if variable exists in variables vector:
     bool const found = std::ranges::any_of(te_variables, [&](auto const& te_var) {
-        return te_var.name == te_name;
+        return te_var.name == teName;
     });
 
     if (!found) {
         lateRegistrations.emplace_back(LateRegistration{
             .key = std::string(key),
-            .teName = ShortName(te_name),
+            .teName = ShortName(teName),
             .contextType = contextType,
         });
     }

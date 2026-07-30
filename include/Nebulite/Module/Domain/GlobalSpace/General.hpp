@@ -35,8 +35,8 @@ public:
     // Available Functions
 
     [[nodiscard]] Constants::Event exit() const ;
-    static auto constexpr exit_name = "exit";
-    static auto constexpr exit_desc = "Exits the entire program.\n"
+    static auto constexpr exitName = "exit";
+    static auto constexpr exitDesc = "Exits the entire program.\n"
         "\n"
         "Usage: exit\n"
         "\n"
@@ -44,8 +44,8 @@ public:
         "Any queued tasks will be discarded.\n";
 
     [[nodiscard]] Constants::Event wait(int argc, char const** argv) const ;
-    static auto constexpr wait_name = "wait";
-    static auto constexpr wait_desc = "Sets the waitCounter to the given value to halt all script tasks for a given amount of frames.\n"
+    static auto constexpr waitName = "wait";
+    static auto constexpr waitDesc = "Sets the waitCounter to the given value to halt all script tasks for a given amount of frames.\n"
         "\n"
         "Usage: wait <frames>\n"
         "\n"
@@ -58,8 +58,8 @@ public:
         "- Tool assisted speedruns (TAS)\n";
 
     [[nodiscard]] Constants::Event task(int argc, char const** argv) const ;
-    static auto constexpr task_name = "task";
-    static auto constexpr task_desc = "Loads tasks from a file into the taskQueue, but does not execute them immediately.\n"
+    static auto constexpr taskName = "task";
+    static auto constexpr taskDesc = "Loads tasks from a file into the taskQueue, but does not execute them immediately.\n"
         "\n"
         "Usage: task <filename>\n"
         "\n"
@@ -84,8 +84,8 @@ public:
     static auto constexpr taskExecDesc = "Same as 'task', but with instant execution.";
 
     [[nodiscard]] Constants::Event always(int argc, char const** argv) const ;
-    static auto constexpr always_name = "always";
-    static auto constexpr always_desc = "Attach a command to the always-taskqueue that is executed on each tick.\n"
+    static auto constexpr alwaysName = "always";
+    static auto constexpr alwaysDesc = "Attach a command to the always-taskqueue that is executed on each tick.\n"
         "\n"
         "Usage: always <command>\n"
         "\n"
@@ -94,8 +94,8 @@ public:
         "This will output \"This command runs every frame!\" on every frame.\n";
 
     [[nodiscard]] Constants::Event alwaysClear() const ;
-    static auto constexpr alwaysClear_name = "always-clear";
-    static auto constexpr alwaysClear_desc = "Clears the entire always-taskqueue.\n"
+    static auto constexpr alwaysClearName = "always-clear";
+    static auto constexpr alwaysClearDesc = "Clears the entire always-taskqueue.\n"
         "\n"
         "Usage: always-clear\n"
         "\n"
@@ -116,12 +116,12 @@ public:
      * @brief Initializes the module, binding functions and variables. 
      */
     explicit General(ConstructorParams const& params) : DomainModule(params) {
-        bindFunction(&General::exit, exit_name, exit_desc);
-        bindFunction(&General::wait, wait_name, wait_desc);
-        bindFunction(&General::task, task_name, task_desc);
+        bindFunction(&General::exit, exitName, exitDesc);
+        bindFunction(&General::wait, waitName, waitDesc);
+        bindFunction(&General::task, taskName, taskDesc);
         bindFunction(&General::taskExec, taskExecName, taskExecDesc);
-        bindFunction(&General::always, always_name, always_desc);
-        bindFunction(&General::alwaysClear, alwaysClear_name, alwaysClear_desc);
+        bindFunction(&General::always, alwaysName, alwaysDesc);
+        bindFunction(&General::alwaysClear, alwaysClearName, alwaysClearDesc);
     }
 };
 } // namespace Nebulite::Module::Domain::GlobalSpace

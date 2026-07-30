@@ -42,11 +42,11 @@ public:
         auto const baseListFunc = generateBaseListFunction(baseKeys);
 
         // Local
-        bind<messageName>(&Debug::message, baseListFunc, Interaction::Rules::StaticRuleset::Type::Local, messageDesc);
-        bind<errorName>(&Debug::error, baseListFunc, Interaction::Rules::StaticRuleset::Type::Local, errorDesc);
+        bind<messageName>(&Debug::message, baseListFunc, Interaction::Rules::StaticRuleset::Type::local, messageDesc);
+        bind<errorName>(&Debug::error, baseListFunc, Interaction::Rules::StaticRuleset::Type::local, errorDesc);
 
         // Global
-        bind<whoInteractsName>(&Debug::whoInteracts, baseListFunc, Interaction::Rules::StaticRuleset::Type::Global, whoInteractsDesc);
+        bind<whoInteractsName>(&Debug::whoInteracts, baseListFunc, Interaction::Rules::StaticRuleset::Type::global, whoInteractsDesc);
     }
 
     static std::string_view constexpr moduleName = "::debug";

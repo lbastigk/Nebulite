@@ -20,7 +20,7 @@ Constants::Event RNG::updateHook() {
     bool RNG_update_enabled = domain.getRenderer().isSdlInitialized() && !domain.getRenderer().hasSkippedUpdate();
     RNG_update_enabled |= !domain.getRenderer().isSdlInitialized(); // If renderer is not initialized, we always update RNGs
     if (RNG_update_enabled) {
-        updateRNGs();
+        updateRng();
     }
 
     return Constants::Event::Success;
@@ -33,31 +33,31 @@ void RNG::rngRollback() {
 }
 
 RNG::RNG(ConstructorParams const& params) : DomainModule(params) {
-    initRNGs();
-    updateRNGs();
+    initRng();
+    updateRng();
 }
 
 //------------------------------------------
 // Private functions
 
-void RNG::initRNGs(){
-    rngMap.emplace("A", Utility::RNG<rngSize_t>());
-    rngMap.emplace("B", Utility::RNG<rngSize_t>());
-    rngMap.emplace("C", Utility::RNG<rngSize_t>());
-    rngMap.emplace("D", Utility::RNG<rngSize_t>());
+void RNG::initRng(){
+    rngMap.emplace("A", Utility::RNG<rngSize>());
+    rngMap.emplace("B", Utility::RNG<rngSize>());
+    rngMap.emplace("C", Utility::RNG<rngSize>());
+    rngMap.emplace("D", Utility::RNG<rngSize>());
 }
 
-void RNG::updateRNGs() {
+void RNG::updateRng() {
     // Set Min and Max values for RNGs in document
     // Always set, so overwrites don't stick around
-    moduleScope.set<rngSize_t>(Key::min, std::numeric_limits<rngSize_t>::min());
-    moduleScope.set<rngSize_t>(Key::max, std::numeric_limits<rngSize_t>::max());
+    moduleScope.set<rngSize>(Key::min, std::numeric_limits<rngSize>::min());
+    moduleScope.set<rngSize>(Key::max, std::numeric_limits<rngSize>::max());
 
     for (auto& [key, rng] : rngMap) {
         auto const seed = key + std::to_string(rng.get());
         rng.update(seed);
         auto scopedKey = Key::root().addMember(key);
-        moduleScope.set<rngSize_t>(scopedKey, rng.get());
+        moduleScope.set<rngSize>(scopedKey, rng.get());
     }
 }
 

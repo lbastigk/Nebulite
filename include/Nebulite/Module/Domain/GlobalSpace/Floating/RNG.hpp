@@ -30,7 +30,7 @@ namespace Nebulite::Module::Domain::GlobalSpace {
  * @class Nebulite::Module::Domain::GlobalSpace::RNG
  * @brief DomainModule for RNG capabilities within the GlobalSpace.
  */
-class RNG final : public Base::DomainModule<Core::GlobalSpace> {
+class RNG final : public Base::DomainModule<Core::GlobalSpace> { // NOLINT
 public:
     [[nodiscard]] Constants::Event updateHook() override;
     void reinit() override {}
@@ -69,19 +69,19 @@ public:
     };
 
 private:
-    using rngSize_t = std::uint16_t; // Modify this to change the size of the RNGs
+    using rngSize = std::uint16_t; // Modify this to change the size of the RNGs
 
-    absl::flat_hash_map<std::string, Utility::RNG<rngSize_t>> rngMap; // Future-proofing for more RNGs
+    absl::flat_hash_map<std::string, Utility::RNG<rngSize>> rngMap; // Future-proofing for more RNGs
 
     /**
      * @brief Initializes standard RNGs
      */
-    void initRNGs();
+    void initRng();
 
     /**
      * @brief Updates all RNGs
      */
-    void updateRNGs();
+    void updateRng();
 };
 } // namespace Nebulite::Module::Domain::GlobalSpace
 #endif // NEBULITE_MODULE_DOMAIN_GLOBALSPACE_FLOATING_RNG_HPP

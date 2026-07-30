@@ -38,9 +38,9 @@ void RulesetCompiler::getFunctionCalls(Data::JsonScope const& entryDoc, JsonRule
             }
         }
     };
-    getCalls(Constants::KeyNames::Ruleset::parseOnGlobal, Ruleset.functioncalls_global);
-    getCalls(Constants::KeyNames::Ruleset::parseOnSelf, Ruleset.functioncalls_self);
-    getCalls(Constants::KeyNames::Ruleset::parseOnOther, Ruleset.functioncalls_other);
+    getCalls(Constants::KeyNames::Ruleset::parseOnGlobal, Ruleset.functioncallsGlobal);
+    getCalls(Constants::KeyNames::Ruleset::parseOnSelf, Ruleset.functioncallsSelf);
+    getCalls(Constants::KeyNames::Ruleset::parseOnOther, Ruleset.functioncallsOther);
 }
 
 bool RulesetCompiler::getAssignments(std::shared_ptr<JsonRuleset> const& Ruleset, Data::JsonScope const& entry) {
@@ -174,7 +174,7 @@ RulesetCompiler::AnyRuleset RulesetCompiler::getRuleset(Data::JsonScope const& d
         ) {
             // Is a valid static ruleset
             auto Ruleset = std::make_shared<StaticRuleset>(self);
-            if (staticRulesetEntry.type == StaticRuleset::Type::Global) {
+            if (staticRulesetEntry.type == StaticRuleset::Type::global) {
                 Ruleset->topic = staticRulesetEntry.topic;
             } else {
                 Ruleset->topic = ""; // Local rulesets have no topic

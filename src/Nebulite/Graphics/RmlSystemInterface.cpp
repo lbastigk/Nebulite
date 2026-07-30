@@ -136,10 +136,10 @@ bool RmlSystemInterface::LogMessage(Rml::Log::Type const type, Rml::String const
     return true; // Continue execution
 }
 
-void RmlSystemInterface::SetMouseCursor(Rml::String const& cursor_name) {
+void RmlSystemInterface::SetMouseCursor(Rml::String const& cursorName) {
     // Update all TON-like-timekeepers
     for (auto& candidate : availableCursors()) {
-        candidate.update(cursor_name);
+        candidate.update(cursorName);
     }
 }
 

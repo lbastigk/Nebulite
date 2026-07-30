@@ -79,7 +79,7 @@ std::expected<T, SimpleValueRetrievalError> JSON::get(std::string_view const key
         if (auto const converted = convertVariant<T>(var.value()); converted.has_value()) {
             return converted.value();
         }
-        return std::unexpected(SimpleValueRetrievalError::CONVERSION_FAILURE);
+        return std::unexpected(SimpleValueRetrievalError::conversionFailure);
     }
     return std::unexpected{var.error()};
 }
@@ -107,7 +107,7 @@ std::expected<T, SimpleValueRetrievalError> JSON::getWithTransformations(std::st
 
     // Apply each transformation in sequence
     if (auto const argsSpan = std::span<std::string_view const>(args.begin()+1, args.end()); !JsonTransformer::instance().parse(argsSpan, tempDoc)) {
-        return std::unexpected(SimpleValueRetrievalError::TRANSFORMATION_FAILURE); // if any transformation fails, return default value
+        return std::unexpected(SimpleValueRetrievalError::transformationFailure); // if any transformation fails, return default value
     }
     return tempDoc.get<T>(Module::Base::TransformationModule::rootKeyStr);
 }

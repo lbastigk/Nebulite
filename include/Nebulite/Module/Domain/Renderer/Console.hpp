@@ -32,23 +32,23 @@ public:
     // Available Functions
 
     [[nodiscard]] Constants::Event consoleOpen();
-    static auto constexpr consoleOpen_name = "console open";
-    static auto constexpr consoleOpen_desc = "Opens the console\n"
+    static auto constexpr consoleOpenName = "console open";
+    static auto constexpr consoleOpenDesc = "Opens the console\n"
         "Pauses the application by sending a skip update signal to the renderer\n"
         "\n"
         "Usage: console open\n";
 
     [[nodiscard]] Constants::Event consoleClose();
-    static auto constexpr consoleClose_name = "console close";
-    static auto constexpr consoleClose_desc = "Closes the console\n"
+    static auto constexpr consoleCloseName = "console close";
+    static auto constexpr consoleCloseDesc = "Closes the console\n"
         "\n"
         "Usage: console close\n";
 
     //------------------------------------------
     // Categories
 
-    static auto constexpr console_name = "console";
-    static auto constexpr console_desc = "Console commands and settings.\n"
+    static auto constexpr consoleName = "console";
+    static auto constexpr consoleDesc = "Console commands and settings.\n"
         "\n"
         "Contains commands to manipulate the in-application console.\n";
 

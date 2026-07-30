@@ -188,8 +188,8 @@ public:
     // Types
 
     enum class Type : std::uint8_t {
-        Local,
-        Global,
+        local,
+        global,
         invalid
     };
 
@@ -319,19 +319,19 @@ private:
      * @brief The function calls that to be executed on global domain.
      * @details Vector of function calls, e.g. "echo example"
      */
-    std::vector<Logic::Expression> functioncalls_global;
+    std::vector<Logic::Expression> functioncallsGlobal;
 
     /**
      * @brief The function calls that to be executed on self domain.
      * @details Vector of function calls, e.g. "mirror on"
      */
-    std::vector<Logic::Expression> functioncalls_self;
+    std::vector<Logic::Expression> functioncallsSelf;
 
     /**
      * @brief The function calls that to be executed on other domain.
      * @details Vector of function calls, e.g. "mirror on"
      */
-    std::vector<Logic::Expression> functioncalls_other;
+    std::vector<Logic::Expression> functioncallsOther;
 
     /**
      * @brief The expressions that are evaluated and applied to the corresponding domains.

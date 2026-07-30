@@ -358,21 +358,21 @@ Constants::Event General::dumpView() const {
 }
 
 General::General(ConstructorParams const& params) : DomainModule(params) {
-    bindFunction(&General::spawn, spawn_name, spawn_desc);
-    bindFunction(&General::setResolution, setResolution_name, setResolution_desc);
-    bindFunction(&General::setFPS, setFPS_name, setFPS_desc);
-    bindFunction(&General::showFPS, showFPS_name, showFPS_desc);
-    bindFunction(&General::snapshot, snapshot_name, snapshot_desc);
-    bindFunction(&General::dumpView, dumpView_name, dumpView_desc);
+    bindFunction(&General::spawn, spawnName, spawnDesc);
+    bindFunction(&General::setResolution, setResolutionName, setResolutionDesc);
+    bindFunction(&General::setFPS, setFPSName, setFPSDesc);
+    bindFunction(&General::showFPS, showFPSName, showFPSDesc);
+    bindFunction(&General::snapshot, snapshotName, snapshotDesc);
+    bindFunction(&General::dumpView, dumpViewName, dumpViewDesc);
 
-    bindCategory(cam_name, cam_desc);
-    bindFunction(&General::cam_move, cam_move_name, cam_move_desc);
-    bindFunction(&General::cam_set, cam_set_name, cam_set_desc);
+    bindCategory(camName, camDesc);
+    bindFunction(&General::cam_move, cam_moveName, cam_moveDesc);
+    bindFunction(&General::cam_set, cam_setName, cam_setDesc);
 
     // TODO: move to env domainModule
-    bindCategory(env_name, env_desc);
-    bindFunction(&General::envLoad, envLoad_name, envLoad_desc);
-    bindFunction(&General::envDeload, envDeload_name, envDeload_desc);
+    bindCategory(envName, envDesc);
+    bindFunction(&General::envLoad, envLoadName, envLoadDesc);
+    bindFunction(&General::envDeload, envDeloadName, envDeloadDesc);
 }
 
 } // namespace Nebulite::Module::Domain::Renderer

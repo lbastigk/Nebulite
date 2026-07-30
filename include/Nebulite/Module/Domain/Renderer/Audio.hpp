@@ -50,8 +50,8 @@ public:
     // Available Functions
 
     [[nodiscard]] Constants::Event beep(std::span<std::string_view const> const& args) const;
-    static auto constexpr beep_name = "beep";
-    static auto constexpr beep_desc = "Make a beep noise.\n"
+    static auto constexpr beepName = "beep";
+    static auto constexpr beepDesc = "Make a beep noise.\n"
         "If no waveform type is specified, defaults to sine.\n"
         "Multiple waveform types can be specified at once, in which case they will be played in the order they were specified.\n"
         "Unknown waveform types will be ignored, but will print an error message.\n"
@@ -59,8 +59,8 @@ public:
         "Usage: beep [sine/square/triangle]\n";
 
     [[nodiscard]] Constants::Event playSound(std::span<std::string_view const> const& args);
-    static auto constexpr playSound_name = "play-sound";
-    static auto constexpr playSound_desc = "Play a sound from a file.\n"
+    static auto constexpr playSoundName = "play-sound";
+    static auto constexpr playSoundDesc = "Play a sound from a file.\n"
         "Usage: play-sound <file-path>\n";
 
     //------------------------------------------

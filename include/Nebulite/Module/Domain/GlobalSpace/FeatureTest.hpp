@@ -37,20 +37,20 @@ public:
     // General
 
     [[nodiscard]] Constants::Event testFuncTree() const ;
-    static auto constexpr testFuncTree_name = "feature-test functree";
-    static auto constexpr testFuncTree_desc = "Builds a funcTree with extra arguments and tests it\n"
+    static auto constexpr testFuncTreeName = "feature-test functree";
+    static auto constexpr testFuncTreeDesc = "Builds a funcTree with extra arguments and tests it\n"
         "Usage: feature-test functree\n";
 
     [[nodiscard]] Constants::Event selfOtherGlobalEvaluation() const ;
-    static auto constexpr selfOtherGlobalEvaluation_name = "feature-test context-evaluation";
-    static auto constexpr selfOtherGlobalEvaluation_desc = "Tests evaluation of self and other global variable access in one expression\n"
+    static auto constexpr selfOtherGlobalEvaluationName = "feature-test context-evaluation";
+    static auto constexpr selfOtherGlobalEvaluationDesc = "Tests evaluation of self and other global variable access in one expression\n"
         "Usage: feature-test context-evaluation\n";
 
     // Keys
 
     [[nodiscard]] Constants::Event keyCombination(std::span<std::string_view const> const& args) const ;
-    static auto constexpr keyCombination_name = "feature-test key-combination";
-    static auto constexpr keyCombination_desc = "Tests key-combinations for the ScopedKey class.\n"
+    static auto constexpr keyCombinationName = "feature-test key-combination";
+    static auto constexpr keyCombinationDesc = "Tests key-combinations for the ScopedKey class.\n"
         "Usage: feature-test key-combination <key1> <key2>\n"
         "Using <empty> as argument will treated as an empty key.\n";
 
@@ -63,8 +63,8 @@ public:
     //------------------------------------------
     // Categories
 
-    static auto constexpr category_feature_test_name = "feature-test";
-    static auto constexpr category_feature_test_desc = "Functions for testing features in the GlobalSpace\n"
+    static auto constexpr category_feature_testName = "feature-test";
+    static auto constexpr category_feature_testDesc = "Functions for testing features in the GlobalSpace\n"
         "Usage: feature-test <function>\n";
 
     //------------------------------------------
@@ -76,14 +76,14 @@ public:
     explicit FeatureTest(ConstructorParams const& params) : DomainModule(params) {
         //------------------------------------------
         // Binding functions to the FuncTree
-        bindCategory(category_feature_test_name, category_feature_test_desc);
+        bindCategory(category_feature_testName, category_feature_testDesc);
 
         // General
-        bindFunction(&FeatureTest::testFuncTree, testFuncTree_name, testFuncTree_desc);
-        bindFunction(&FeatureTest::selfOtherGlobalEvaluation, selfOtherGlobalEvaluation_name, selfOtherGlobalEvaluation_desc);
+        bindFunction(&FeatureTest::testFuncTree, testFuncTreeName, testFuncTreeDesc);
+        bindFunction(&FeatureTest::selfOtherGlobalEvaluation, selfOtherGlobalEvaluationName, selfOtherGlobalEvaluationDesc);
 
         // Keys
-        bindFunction(&FeatureTest::keyCombination, keyCombination_name, keyCombination_desc);
+        bindFunction(&FeatureTest::keyCombination, keyCombinationName, keyCombinationDesc);
         bindFunction(&FeatureTest::findParentKey, findParentKeyName, findParentKeyDesc);
     }
 

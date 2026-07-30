@@ -104,7 +104,7 @@ Constants::Event General::echo(std::span<std::string_view const> const& args) co
     return Constants::Event::Success;
 }
 
-Constants::Event General::func_if(std::span<std::string_view const> const& args, Interaction::Context& ctx, Interaction::ContextScope& ctxScope) {
+Constants::Event General::ifFunc(std::span<std::string_view const> const& args, Interaction::Context& ctx, Interaction::ContextScope& ctxScope) {
     if (args.size() < 3) {
         return Constants::StandardCapture::Warning::Functional::tooFewArgs(ctx.self.capture);
     }
@@ -148,7 +148,7 @@ Constants::Event General::func_if(std::span<std::string_view const> const& args,
     return Constants::Event::Success;
 }
 
-Constants::Event General::func_assert(std::span<std::string_view const> const& args, Interaction::Context const& ctx, Interaction::ContextScope const& ctxScope) {
+Constants::Event General::assertFunc(std::span<std::string_view const> const& args, Interaction::Context const& ctx, Interaction::ContextScope const& ctxScope) {
     if (args.size() < 2) {
         return Constants::StandardCapture::Warning::Functional::tooFewArgs(ctx.self.capture);
     }
@@ -175,7 +175,7 @@ Constants::Event General::func_assert(std::span<std::string_view const> const& a
     return Constants::Event::Success;
 }
 
-Constants::Event General::func_for(std::span<std::string_view const> const& args, Interaction::Context& ctx, Interaction::ContextScope& ctxScope) {
+Constants::Event General::forFunc(std::span<std::string_view const> const& args, Interaction::Context& ctx, Interaction::ContextScope& ctxScope) {
     if (args.size() > 4) {
         auto const& varName = std::string(args[1]);
 
@@ -198,7 +198,7 @@ Constants::Event General::func_for(std::span<std::string_view const> const& args
     return Constants::StandardCapture::Warning::Functional::tooFewArgs(ctx.self.capture);
 }
 
-Constants::Event General::func_forProgress(std::span<std::string_view const> const& args, Interaction::Context& ctx, Interaction::ContextScope& ctxScope) {
+Constants::Event General::forFuncProgress(std::span<std::string_view const> const& args, Interaction::Context& ctx, Interaction::ContextScope& ctxScope) {
     if (args.size() > 4) {
         std::size_t constexpr barWidth = 50;
 

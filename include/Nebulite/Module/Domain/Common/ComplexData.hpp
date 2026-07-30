@@ -39,13 +39,13 @@ public:
      * @todo Not implemented yet
      */
     [[nodiscard]] Constants::Event querySet();
-    static auto constexpr querySet_name = "query set";
-    static auto constexpr querySet_desc = "Sets a key from a SQL query result.\n"
+    static auto constexpr querySetName = "query set";
+    static auto constexpr querySetDesc = "Sets a key from a SQL query result.\n"
         "Not implemented yet.\n";
 
     [[nodiscard]] static Constants::Event jsonSet(std::span<std::string_view const> const& args, Interaction::Context const& ctx, Interaction::ContextScope const& ctxScope);
-    static auto constexpr jsonSet_name = "json set";
-    static auto constexpr jsonSet_desc = "Sets a key from a given expression evaluated as JSON, allowing for complex objects to be set.\n"
+    static auto constexpr jsonSetName = "json set";
+    static auto constexpr jsonSetDesc = "Sets a key from a given expression evaluated as JSON, allowing for complex objects to be set.\n"
         "Usage: json set <key> <expression>\n"
         "\n"
         "Examples:\n"
@@ -56,8 +56,8 @@ public:
         "Same as the function 'assign', but does not allow assigning values in the Global context, and is only for set ('=') operations.\n";
 
     [[nodiscard]] static Constants::Event evaluateMember(std::span<std::string_view const> const& args, Interaction::Context const& ctx, Interaction::ContextScope const& ctxScope);
-    static auto constexpr evaluateMember_name = "json evaluate member";
-    static auto constexpr evaluateMember_desc = "If the member is a string or number, treats it as an expression and evaluates it as JSON, setting the member to the result.\n"
+    static auto constexpr evaluateMemberName = "json evaluate member";
+    static auto constexpr evaluateMemberDesc = "If the member is a string or number, treats it as an expression and evaluates it as JSON, setting the member to the result.\n"
         "If the member is an array or object, it will do nothing.\n"
         "Usage: json evaluate member <key>\n"
         "\n"
@@ -66,8 +66,8 @@ public:
         "If the member myExpression is a string, for example \"{global:names|filterGlob F*}\", myExpression will be set to an array of names starting with F from the global scope.\n";
 
     [[nodiscard]] static Constants::Event evaluateRecursive(std::span<std::string_view const> const& args, Interaction::Context const& ctx, Interaction::ContextScope& ctxScope);
-    static auto constexpr evaluateRecursive_name = "json evaluate recursive";
-    static auto constexpr evaluateRecursive_desc = "Recursively evaluates all string members in the JSON object as expressions, allowing for complex nested structures to be evaluated and set in one command.\n"
+    static auto constexpr evaluateRecursiveName = "json evaluate recursive";
+    static auto constexpr evaluateRecursiveDesc = "Recursively evaluates all string members in the JSON object as expressions, allowing for complex nested structures to be evaluated and set in one command.\n"
         "Usage: json evaluate recursive <key>\n"
         "\n"
         "Examples:\n"
@@ -78,14 +78,14 @@ public:
     //------------------------------------------
     // Categories
 
-    static auto constexpr query_name = "query";
-    static auto constexpr query_desc = "Functions to manipulate JSON data via SQL query results";
+    static auto constexpr queryName = "query";
+    static auto constexpr queryDesc = "Functions to manipulate JSON data via SQL query results";
 
-    static auto constexpr json_name = "json";
-    static auto constexpr json_desc = "Functions to manipulate JSON data via read-only JSON documents";
+    static auto constexpr jsonName = "json";
+    static auto constexpr jsonDesc = "Functions to manipulate JSON data via read-only JSON documents";
 
-    static auto constexpr jsonEvaluate_name = "json evaluate";
-    static auto constexpr jsonEvaluate_desc = "Functions to evaluate and set JSON data as expressions";
+    static auto constexpr jsonEvaluateName = "json evaluate";
+    static auto constexpr jsonEvaluateDesc = "Functions to evaluate and set JSON data as expressions";
 
     //------------------------------------------
     // Setup
@@ -97,17 +97,17 @@ public:
         // Bind functions specific to complex data handling
 
         // SQL Queries
-        bindCategory(query_name, query_desc);
-        bindFunction(&ComplexData::querySet, querySet_name, querySet_desc);
+        bindCategory(queryName, queryDesc);
+        bindFunction(&ComplexData::querySet, querySetName, querySetDesc);
 
         // Set from read only JSON documents
-        bindCategory(json_name, json_desc);
-        bindFunction(&ComplexData::jsonSet, jsonSet_name, jsonSet_desc);
+        bindCategory(jsonName, jsonDesc);
+        bindFunction(&ComplexData::jsonSet, jsonSetName, jsonSetDesc);
 
         // Evaluate members as expressions
-        bindCategory(jsonEvaluate_name, jsonEvaluate_desc);
-        bindFunction(&ComplexData::evaluateMember, evaluateMember_name, evaluateMember_desc);
-        bindFunction(&ComplexData::evaluateRecursive, evaluateRecursive_name, evaluateRecursive_desc);
+        bindCategory(jsonEvaluateName, jsonEvaluateDesc);
+        bindFunction(&ComplexData::evaluateMember, evaluateMemberName, evaluateMemberDesc);
+        bindFunction(&ComplexData::evaluateRecursive, evaluateRecursiveName, evaluateRecursiveDesc);
     }
 };
 } // namespace Nebulite::Module::Domain::Common

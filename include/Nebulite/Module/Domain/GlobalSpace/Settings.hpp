@@ -37,34 +37,34 @@ public:
     // Available Functions
 
     [[nodiscard]] Constants::Event saveSettings() const ;
-    static auto constexpr saveSettings_name = "settings save";
-    static auto constexpr saveSettings_desc = "Saves the current global settings to the default filename.\n"
+    static auto constexpr saveSettingsName = "settings save";
+    static auto constexpr saveSettingsDesc = "Saves the current global settings to the default filename.\n"
         "\n"
         "Usage: settings save\n";
 
     [[nodiscard]] Constants::Event overWriteSettingsFile() const ;
-    static auto constexpr overWriteSettingsFile_name = "settings save-standards";
-    static auto constexpr overWriteSettingsFile_desc = "Overwrites the settings file with default settings.\n"
+    static auto constexpr overWriteSettingsFileName = "settings save-standards";
+    static auto constexpr overWriteSettingsFileDesc = "Overwrites the settings file with default settings.\n"
         "\n"
         "Usage: settings save-standards\n";
 
     [[nodiscard]] Constants::Event setSettingStr(std::span<std::string_view const> const& args) const ;
-    static auto constexpr setSetting_name = "settings set-string";
-    static auto constexpr setSetting_desc = "Sets a global setting to a specified value.\n"
+    static auto constexpr setSettingName = "settings set-string";
+    static auto constexpr setSettingDesc = "Sets a global setting to a specified value.\n"
         "\n"
         "Usage: settings set-string <key> <value>\n";
 
     [[nodiscard]] Constants::Event setSettingInt(std::span<std::string_view const> const& args) const ;
-    static auto constexpr setSettingInt_name = "settings set-integer";
-    static auto constexpr setSettingInt_desc = "Sets a global setting to a specified integer value.\n"
+    static auto constexpr setSettingIntName = "settings set-integer";
+    static auto constexpr setSettingIntDesc = "Sets a global setting to a specified integer value.\n"
         "\n"
         "Usage: settings set-integer <key> <value>\n";
 
     //------------------------------------------
     // Categories
 
-    static auto constexpr settings_name = "settings";
-    static auto constexpr settings_desc = "Functions for managing global settings.";
+    static auto constexpr settingsName = "settings";
+    static auto constexpr settingsDesc = "Functions for managing global settings.";
 
     //------------------------------------------
     // Other constants
@@ -111,11 +111,11 @@ public:
             logInitError();
         }
 
-        bindCategory(settings_name, settings_desc);
-        bindFunction(&Settings::saveSettings, saveSettings_name, saveSettings_desc);
-        bindFunction(&Settings::overWriteSettingsFile, overWriteSettingsFile_name, overWriteSettingsFile_desc);
-        bindFunction(&Settings::setSettingStr, setSetting_name, setSetting_desc);
-        bindFunction(&Settings::setSettingInt, setSettingInt_name, setSettingInt_desc);
+        bindCategory(settingsName, settingsDesc);
+        bindFunction(&Settings::saveSettings, saveSettingsName, saveSettingsDesc);
+        bindFunction(&Settings::overWriteSettingsFile, overWriteSettingsFileName, overWriteSettingsFileDesc);
+        bindFunction(&Settings::setSettingStr, setSettingName, setSettingDesc);
+        bindFunction(&Settings::setSettingInt, setSettingIntName, setSettingIntDesc);
     }
 
 private:

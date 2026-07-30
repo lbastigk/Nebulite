@@ -60,11 +60,11 @@ Constants::Event RmlUi::removeDocument(std::span<std::string_view const> const& 
 }
 
 RmlUi::RmlUi(ConstructorParams const& params) : DomainModule(params) {
-    bindCategory(ui_name, ui_desc);
-    bindCategory(uiDocument_name, uiDocument_desc);
-    bindFunction(&RmlUi::listDocuments, listDocuments_name, listDocuments_desc);
-    bindFunction(&RmlUi::loadDocument, loadDocument_name, loadDocument_desc);
-    bindFunction(&RmlUi::removeDocument, removeDocument_name, removeDocument_desc);
+    bindCategory(uiName, uiDesc);
+    bindCategory(uiDocumentName, uiDocumentDesc);
+    bindFunction(&RmlUi::listDocuments, listDocumentsName, listDocumentsDesc);
+    bindFunction(&RmlUi::loadDocument, loadDocumentName, loadDocumentDesc);
+    bindFunction(&RmlUi::removeDocument, removeDocumentName, removeDocumentDesc);
 }
 
 } // namespace Nebulite::Module::Domain::Renderer

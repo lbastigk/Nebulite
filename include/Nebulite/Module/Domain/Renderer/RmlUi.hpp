@@ -40,28 +40,28 @@ public:
     // Available Functions
 
     [[nodiscard]] Constants::Event listDocuments(std::span<std::string_view const> const& args, Interaction::Context const& ctx, Interaction::ContextScope const& ctxScope) const ;
-    static auto constexpr listDocuments_name = "rmlui document list";
-    static auto constexpr listDocuments_desc = "Lists all currently loaded RmlUI documents in the renderer's context.\n"
+    static auto constexpr listDocumentsName = "rmlui document list";
+    static auto constexpr listDocumentsDesc = "Lists all currently loaded RmlUI documents in the renderer's context.\n"
         "Usage: rmlui document list\n";
 
     [[nodiscard]] Constants::Event loadDocument(std::span<std::string_view const> const& args, Interaction::Context const& ctx, Interaction::ContextScope const& ctxScope) const ;
-    static auto constexpr loadDocument_name = "rmlui document load";
-    static auto constexpr loadDocument_desc = "Loads an RmlUI document from a specified file path and adds it to the renderer's context.\n"
+    static auto constexpr loadDocumentName = "rmlui document load";
+    static auto constexpr loadDocumentDesc = "Loads an RmlUI document from a specified file path and adds it to the renderer's context.\n"
         "Usage: rmlui document load <name> <file_path>\n";
 
     [[nodiscard]] Constants::Event removeDocument(std::span<std::string_view const> const& args, Interaction::Context const& ctx, Interaction::ContextScope& ctxScope) const ;
-    static auto constexpr removeDocument_name = "rmlui document remove";
-    static auto constexpr removeDocument_desc = "Removes a loaded RmlUI document from the renderer's context by its name.\n"
+    static auto constexpr removeDocumentName = "rmlui document remove";
+    static auto constexpr removeDocumentDesc = "Removes a loaded RmlUI document from the renderer's context by its name.\n"
         "Usage: rmlui document remove <name>\n";
 
     //------------------------------------------
     // Categories
 
-    static auto constexpr ui_name = "rmlui";
-    static auto constexpr ui_desc = "Functions for managing RmlUI elements.";
+    static auto constexpr uiName = "rmlui";
+    static auto constexpr uiDesc = "Functions for managing RmlUI elements.";
 
-    static auto constexpr uiDocument_name = "rmlui document";
-    static auto constexpr uiDocument_desc = "Functions for managing RmlUI documents.";
+    static auto constexpr uiDocumentName = "rmlui document";
+    static auto constexpr uiDocumentDesc = "Functions for managing RmlUI documents.";
 
     //------------------------------------------
     // Setup

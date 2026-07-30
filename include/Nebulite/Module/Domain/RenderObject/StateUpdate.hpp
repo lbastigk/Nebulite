@@ -30,8 +30,8 @@ public:
     // Available Functions
 
     [[nodiscard]] Constants::Event deleteObject() const ;
-    static auto constexpr deleteObject_name = "delete";
-    static auto constexpr deleteObject_desc = "Marks object for deletion\n"
+    static auto constexpr deleteObjectName = "delete";
+    static auto constexpr deleteObjectDesc = "Marks object for deletion\n"
         "\n"
         "Usage: delete\n"
         "\n"
@@ -44,7 +44,7 @@ public:
      * @brief Initializes the module, binding functions and variables. 
      */
     explicit StateUpdate(ConstructorParams const& params) : DomainModule(params) {
-        bindFunction(&StateUpdate::deleteObject, deleteObject_name, deleteObject_desc);
+        bindFunction(&StateUpdate::deleteObject, deleteObjectName, deleteObjectDesc);
     }
 };
 } // namespace Nebulite::Module::Domain::RenderObject

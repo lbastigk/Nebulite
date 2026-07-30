@@ -100,13 +100,13 @@ void JsonRuleset::applyContext(Context& context, ContextScope& contextScope){
     }
 
     // 2.) Function calls
-    for (auto& entry : functioncalls_global) {
+    for (auto& entry : functioncallsGlobal) {
         sendTask(context.global, entry.eval(contextScope));
     }
-    for (auto& entry : functioncalls_self) {
+    for (auto& entry : functioncallsSelf) {
         sendTask(context.self, entry.eval(contextScope));
     }
-    for (auto& entry : functioncalls_other) {
+    for (auto& entry : functioncallsOther) {
         sendTask(context.other, entry.eval(contextScope));
     }
 }
@@ -127,13 +127,13 @@ void JsonRuleset::applyDomain(Execution::Domain& global) {
     }
 
     // 2.) Function calls
-    for (auto& entry : functioncalls_global) {
+    for (auto& entry : functioncallsGlobal) {
         sendTask(ctx.global, entry.eval(ctxScope));
     }
-    for (auto& entry : functioncalls_self) {
+    for (auto& entry : functioncallsSelf) {
         sendTask(ctx.self, entry.eval(ctxScope));
     }
-    for (auto& entry : functioncalls_other) {
+    for (auto& entry : functioncallsOther) {
         sendTask(ctx.other, entry.eval(ctxScope));
     }
 }

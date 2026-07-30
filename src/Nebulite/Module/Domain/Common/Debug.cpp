@@ -100,7 +100,7 @@ Constants::Event Debug::error(std::span<std::string_view const> const& args, Int
     return Constants::Event::Error;
 }
 
-Constants::Event Debug::func_throw(std::span<std::string_view const> const& args) {
+Constants::Event Debug::throwFunc(std::span<std::string_view const> const& args) {
     std::string const message = [&] {
         if (args.size() < 2) return std::string("");
         return Utility::StringHandler::recombineArgs(args.subspan(1));

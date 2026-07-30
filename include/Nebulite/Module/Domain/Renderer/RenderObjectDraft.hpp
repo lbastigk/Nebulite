@@ -49,8 +49,8 @@ public:
     // Available Functions
 
     [[nodiscard]] Constants::Event draft_parse(std::span<std::string_view const> const& args, Interaction::Context& ctx, Interaction::ContextScope& ctxScope);
-    static auto constexpr draft_parse_name = "draft parse";
-    static auto constexpr draft_parse_desc = "Parse Renderobject-specific functions on the draft.\n"
+    static auto constexpr draft_parseName = "draft parse";
+    static auto constexpr draft_parseDesc = "Parse Renderobject-specific functions on the draft.\n"
         "\n"
         "Usage: draft parse <function> [args...]\n"
         "\n"
@@ -62,14 +62,14 @@ public:
         "draft parse set posY 200\n";
 
     [[nodiscard]] Constants::Event draft_spawn();
-    static auto constexpr draft_spawn_name = "draft spawn";
-    static auto constexpr draft_spawn_desc = "Spawn the created draft object.\n"
+    static auto constexpr draft_spawnName = "draft spawn";
+    static auto constexpr draft_spawnDesc = "Spawn the created draft object.\n"
         "\n"
         "Usage: draft spawn\n";
 
     [[nodiscard]] Constants::Event draft_reset();
-    static auto constexpr draft_reset_name = "draft reset";
-    static auto constexpr draft_reset_desc = "Reset the draft object.\n"
+    static auto constexpr draft_resetName = "draft reset";
+    static auto constexpr draft_resetDesc = "Reset the draft object.\n"
         "\n"
         "This does not reset any spawned ones!\n"
         "\n"
@@ -78,8 +78,8 @@ public:
     //------------------------------------------
     // Categories
 
-    static auto constexpr draft_name = "draft";
-    static auto constexpr draft_desc = "Functions to manipulate and spawn RenderObjects in draft state";
+    static auto constexpr draftName = "draft";
+    static auto constexpr draftDesc = "Functions to manipulate and spawn RenderObjects in draft state";
 
     //------------------------------------------
     // Setup

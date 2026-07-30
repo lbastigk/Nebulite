@@ -47,10 +47,10 @@ Constants::Event RenderObjectDraft::draft_reset() {
 
 RenderObjectDraft::RenderObjectDraft(ConstructorParams const& params) : DomainModule(params) {
     // Bind functions
-    bindCategory(draft_name, draft_desc);
-    bindFunction(&RenderObjectDraft::draft_parse, draft_parse_name, draft_parse_desc);
-    bindFunction(&RenderObjectDraft::draft_spawn, draft_spawn_name, draft_spawn_desc);
-    bindFunction(&RenderObjectDraft::draft_reset, draft_reset_name, draft_reset_desc);
+    bindCategory(draftName, draftDesc);
+    bindFunction(&RenderObjectDraft::draft_parse, draft_parseName, draft_parseDesc);
+    bindFunction(&RenderObjectDraft::draft_spawn, draft_spawnName, draft_spawnDesc);
+    bindFunction(&RenderObjectDraft::draft_reset, draft_resetName, draft_resetDesc);
 }
 
 } // namespace Nebulite::Module::Domain::Renderer

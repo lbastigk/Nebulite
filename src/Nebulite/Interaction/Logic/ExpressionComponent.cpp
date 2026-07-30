@@ -50,11 +50,11 @@ ExpressionComponent ExpressionComponent::parseEval(std::string_view token, Varia
     currentComponent.stringRepresentation.reserve(expression.length() / 4);
     for (auto const& subToken : Utility::StringHandler::splitOnSameDepthOf(expression, Utility::StringHandler::Delimiter::brace)) {
         if (subToken.starts_with('{')) {
-            auto const te_name = varNameGen.getUniqueName(subToken);
+            auto const teName = varNameGen.getUniqueName(subToken);
             auto key = ContextDeriver::stripContext(subToken.substr(1, subToken.length() - 2));
             auto const contextType = ContextDeriver::getTypeFromString(subToken.substr(1, subToken.length() - 2));
-            registerVariableCallback(te_name, key, contextType);
-            currentComponent.stringRepresentation += te_name;
+            registerVariableCallback(teName, key, contextType);
+            currentComponent.stringRepresentation += teName;
         } else {
             currentComponent.stringRepresentation += subToken;
         }
@@ -109,17 +109,17 @@ std::string getStringValue(DocumentType const& doc, KeyType const& k) {
         return value.value();
     }
     switch (value.error()) {
-    case Data::SimpleValueRetrievalError::CONVERSION_FAILURE:
+    case Data::SimpleValueRetrievalError::conversionFailure:
         return "[TO_STRING_CONVERSION_FAILURE]";
-    case Data::SimpleValueRetrievalError::TRANSFORMATION_FAILURE:
+    case Data::SimpleValueRetrievalError::transformationFailure:
         return "[TRANSFORMATION_FAILURE]";
-    case Data::SimpleValueRetrievalError::MALFORMED_KEY:
+    case Data::SimpleValueRetrievalError::malformedKey:
         return "[MALFORMED_KEY]";
-    case Data::SimpleValueRetrievalError::IS_NULL:
+    case Data::SimpleValueRetrievalError::isNull:
         return "null";
-    case Data::SimpleValueRetrievalError::IS_ARRAY:
+    case Data::SimpleValueRetrievalError::isArray:
         return "[array]";
-    case Data::SimpleValueRetrievalError::IS_OBJECT:
+    case Data::SimpleValueRetrievalError::isObject:
         return "{object}";
     default:
         std::unreachable();

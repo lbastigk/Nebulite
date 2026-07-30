@@ -57,8 +57,8 @@ public:
      *          As of now, the implementation is fully functional so it's a low priority task.
      */
     [[nodiscard]] Constants::Event spawn(std::span<std::string_view const> const& args) const ;
-    static auto constexpr spawn_name = "spawn";
-    static auto constexpr spawn_desc = "Spawn a RenderObject from a json/jsonc file.\n"
+    static auto constexpr spawnName = "spawn";
+    static auto constexpr spawnDesc = "Spawn a RenderObject from a json/jsonc file.\n"
         "\n"
         "Usage: spawn <path/to/file.jsonc>\n\n"
         "Supports lookups in standard resource directories:\n"
@@ -72,21 +72,21 @@ public:
         "and spawns the first found object.\n";
 
     [[nodiscard]] Constants::Event envLoad(std::span<std::string_view const> const& args) const ;
-    static auto constexpr envLoad_name = "env load";
-    static auto constexpr envLoad_desc = "Load an environment/level from a json/jsonc file.\n"
+    static auto constexpr envLoadName = "env load";
+    static auto constexpr envLoadDesc = "Load an environment/level from a json/jsonc file.\n"
         "\n"
         "Usage: env load <path/to/file.jsonc>\n\n"
         "If no argument is provided, an empty environment is loaded.\n";
 
     [[nodiscard]] Constants::Event envDeload() const ;
-    static auto constexpr envDeload_name = "env deload";
-    static auto constexpr envDeload_desc = "Deload entire environment, leaving an empty renderer.\n"
+    static auto constexpr envDeloadName = "env deload";
+    static auto constexpr envDeloadDesc = "Deload entire environment, leaving an empty renderer.\n"
         "\n"
         "Usage: env deload\n";
 
     [[nodiscard]] Constants::Event setResolution(int argc, char const** argv) const ;
-    static auto constexpr setResolution_name = "set-res";
-    static auto constexpr setResolution_desc = "Set resolution of renderer.\n"
+    static auto constexpr setResolutionName = "set-res";
+    static auto constexpr setResolutionDesc = "Set resolution of renderer.\n"
         "\n"
         "Usage: set-res [Width] [Height] [Scale]\n\n"
         "Defaults to 1000  for width if argument count < 1\n"
@@ -94,30 +94,30 @@ public:
         "Defaults to 1     for scale if argument count < 3\n";
 
     [[nodiscard]] Constants::Event setFPS(int argc, char const** argv) const ;
-    static auto constexpr setFPS_name = "set-fps";
-    static auto constexpr setFPS_desc = "Set FPS of renderer.\n"
+    static auto constexpr setFPSName = "set-fps";
+    static auto constexpr setFPSDesc = "Set FPS of renderer.\n"
         "\n"
         "Usage: set-fps [fps]\n\n"
         "Defaults to 60 fps if no argument is provided\n";
 
     [[nodiscard]] Constants::Event showFPS(int argc, char const** argv) const ;
-    static auto constexpr showFPS_name = "show-fps";
-    static auto constexpr showFPS_desc = "Show FPS of renderer.\n"
+    static auto constexpr showFPSName = "show-fps";
+    static auto constexpr showFPSDesc = "Show FPS of renderer.\n"
         "\n"
         "Usage: show-fps [on|off]\n\n"
         "Defaults to on if no argument is provided\n";
 
     [[nodiscard]] Constants::Event cam_move(int argc, char const** argv) const ;
-    static auto constexpr cam_move_name = "cam move";
-    static auto constexpr cam_move_desc = "Move camera by a given delta.\n"
+    static auto constexpr cam_moveName = "cam move";
+    static auto constexpr cam_moveDesc = "Move camera by a given delta.\n"
         "\n"
         "Usage: cam move <dx> <dy>\n\n"
         "<dx> : Delta x to move camera by\n"
         "<dy> : Delta y to move camera by\n";
 
     [[nodiscard]] Constants::Event cam_set(int argc, char const** argv) const ;
-    static auto constexpr cam_set_name = "cam set";
-    static auto constexpr cam_set_desc = "Set camera to concrete position.\n"
+    static auto constexpr cam_setName = "cam set";
+    static auto constexpr cam_setDesc = "Set camera to concrete position.\n"
         "\n"
         "Usage: cam set <x> <y> [c]\n\n"
         "<x> : X position to set camera to\n"
@@ -125,16 +125,16 @@ public:
         "[c] : Optional. If provided, sets the camera's center to the given position.\n";
 
     [[nodiscard]] Constants::Event snapshot(int argc, char const** argv) const ;
-    static auto constexpr snapshot_name = "snapshot";
-    static auto constexpr snapshot_desc = "Create a snapshot of the current renderer state.\n"
+    static auto constexpr snapshotName = "snapshot";
+    static auto constexpr snapshotDesc = "Create a snapshot of the current renderer state.\n"
         "\n"
         "Usage: snapshot [filename]\n\n"
         "Defaults to \"./Resources/Snapshots/snapshot.png\" if no argument is provided.\n"
         "Snapshots are create asynchronously; a snapshot callback function is added to the renderer that is called after the next render pass.\n";
 
     [[nodiscard]] Constants::Event dumpView() const;
-    static auto constexpr dumpView_name = "dump-view";
-    static auto constexpr dumpView_desc = "Dump the current view of the renderer to the console, as JSON.\n"
+    static auto constexpr dumpViewName = "dump-view";
+    static auto constexpr dumpViewDesc = "Dump the current view of the renderer to the console, as JSON.\n"
         "The dump is not synchronous with the call, but is executed after the next render pass.\n"
         "\n"
         "Usage: dump-view\n";
@@ -142,11 +142,11 @@ public:
     //------------------------------------------
     // Categories
 
-    static auto constexpr cam_name = "cam";
-    static auto constexpr cam_desc = "Renderer Camera Functions";
+    static auto constexpr camName = "cam";
+    static auto constexpr camDesc = "Renderer Camera Functions";
 
-    static auto constexpr env_name = "env";
-    static auto constexpr env_desc = "Environment management functions";
+    static auto constexpr envName = "env";
+    static auto constexpr envDesc = "Environment management functions";
 
     //------------------------------------------
     // Setup

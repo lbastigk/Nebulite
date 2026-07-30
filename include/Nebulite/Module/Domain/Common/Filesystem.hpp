@@ -36,15 +36,15 @@ public:
     // Available Functions
 
     [[nodiscard]] Constants::Event cat(std::span<std::string_view const> const& args) const ;
-    static auto constexpr cat_name = "cat";
-    static auto constexpr cat_desc = "Opens a provided file and prints its content to the console.\n"
+    static auto constexpr catName = "cat";
+    static auto constexpr catDesc = "Opens a provided file and prints its content to the console.\n"
         "Usage: cat <filePath>\n"
         "\n"
         "- <filePath>: The path to the file to be read and printed.\n";
 
     [[nodiscard]] Constants::Event ls(std::span<std::string_view const> const& args) const ;
-    static auto constexpr ls_name = "ls";
-    static auto constexpr ls_desc = "Lists the contents of a provided directory.\n"
+    static auto constexpr lsName = "ls";
+    static auto constexpr lsDesc = "Lists the contents of a provided directory.\n"
         "Usage: ls [directoryPath]\n"
         "\n"
         "- [directoryPath]: The path to the directory to list. If not provided, lists the current directory.\n";
@@ -57,8 +57,8 @@ public:
      */
     explicit Filesystem(ConstructorParams const& params) : DomainModule(params) {
         // Binding
-        bindFunction(&Filesystem::cat, cat_name, cat_desc);
-        bindFunction(&Filesystem::ls, ls_name, ls_desc);
+        bindFunction(&Filesystem::cat, catName, catDesc);
+        bindFunction(&Filesystem::ls, lsName, lsDesc);
     }
 
 private:

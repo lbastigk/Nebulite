@@ -24,9 +24,9 @@
 namespace Nebulite::Module::Transformation {
 
 void FFT::bindTransformations() {
-    bindTransformation(&FFT::fft, fft_name, fft_desc);
-    bindTransformation(&FFT::ifft, ifft_name, ifft_desc);
-    bindTransformation(&FFT::applyTransferFunctionFrequencyDomain, applyTransferFunction_name, applyTransferFunction_desc);
+    bindTransformation(&FFT::fft, fftName, fftDesc);
+    bindTransformation(&FFT::ifft, ifftName, ifftDesc);
+    bindTransformation(&FFT::applyTransferFunctionFrequencyDomain, applyTransferFunctionName, applyTransferFunctionDesc);
 }
 
 bool FFT::fft(Data::JsonScope& jsonDoc) {
