@@ -3,11 +3,13 @@
 
 // Standard library
 #include <limits>
+#include <ranges>
 #include <string>
 
 // Nebulite
 #include "Nebulite/Constants/Event.hpp"
 #include "Nebulite/Core/GlobalSpace.hpp"
+#include "Nebulite/Module/Base/DomainModule.hpp"
 #include "Nebulite/Module/Domain/GlobalSpace/Floating/RNG.hpp"
 #include "Nebulite/Utility/RNG.hpp"
 
@@ -23,6 +25,20 @@ Constants::Event RNG::updateHook() {
 
     return Constants::Event::Success;
 }
+
+void RNG::rngRollback() {
+    for (auto& rng : rngMap | std::views::values) {
+        rng.rollback();
+    }
+}
+
+RNG::RNG(ConstructorParams const& params) : DomainModule(params) {
+    initRNGs();
+    updateRNGs();
+}
+
+//------------------------------------------
+// Private functions
 
 void RNG::initRNGs(){
     rngMap.emplace("A", Utility::RNG<rngSize_t>());

@@ -10,6 +10,7 @@
 #include "Nebulite/Constants/Event.hpp"
 #include "Nebulite/Constants/StandardCapture.hpp"
 #include "Nebulite/Core/Renderer.hpp"
+#include "Nebulite/Module/Base/DomainModule.hpp"
 #include "Nebulite/Module/Domain/Renderer/RenderObjectDraft.hpp"
 #include "Nebulite/Utility/StringHandler.hpp"
 
@@ -42,6 +43,14 @@ Constants::Event RenderObjectDraft::draft_reset() {
     Core::RenderObject const newDraft(domain.capture);
     draft.get(domain.capture).deserialize(newDraft.serialize());
     return Constants::Event::Success;
+}
+
+RenderObjectDraft::RenderObjectDraft(ConstructorParams const& params) : DomainModule(params) {
+    // Bind functions
+    bindCategory(draft_name, draft_desc);
+    bindFunction(&RenderObjectDraft::draft_parse, draft_parse_name, draft_parse_desc);
+    bindFunction(&RenderObjectDraft::draft_spawn, draft_spawn_name, draft_spawn_desc);
+    bindFunction(&RenderObjectDraft::draft_reset, draft_reset_name, draft_reset_desc);
 }
 
 } // namespace Nebulite::Module::Domain::Renderer

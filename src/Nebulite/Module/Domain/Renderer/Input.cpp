@@ -20,6 +20,7 @@
 #include "Nebulite/Core/Renderer.hpp"
 #include "Nebulite/Data/Document/JSON.hpp"
 #include "Nebulite/Data/Document/JsonScope.hpp"
+#include "Nebulite/Module/Base/DomainModule.hpp"
 #include "Nebulite/Module/Domain/Renderer/Input.hpp"
 #include "Nebulite/Utility/Coordination/TimedRoutine.hpp"
 #include "Nebulite/Utility/Ranges.hpp"
@@ -37,6 +38,11 @@ Constants::Event Input::updateHook() {
         }
     }
     return Constants::Event::Success;
+}
+
+Input::Input(ConstructorParams const& params) : DomainModule(params) {
+    mapKeyNames();
+    addRoutines();
 }
 
 //------------------------------------------

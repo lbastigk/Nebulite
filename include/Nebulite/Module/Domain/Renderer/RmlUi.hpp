@@ -69,13 +69,7 @@ public:
     /**
      * @brief Initializes the module, binding functions and variables.
      */
-    explicit RmlUi(ConstructorParams const& params) : DomainModule(params) {
-        bindCategory(ui_name, ui_desc);
-        bindCategory(uiDocument_name, uiDocument_desc);
-        bindFunction(&RmlUi::listDocuments, listDocuments_name, listDocuments_desc);
-        bindFunction(&RmlUi::loadDocument, loadDocument_name, loadDocument_desc);
-        bindFunction(&RmlUi::removeDocument, removeDocument_name, removeDocument_desc);
-    }
+    explicit RmlUi(ConstructorParams const& params);
 
     struct Key : Data::KeyGroup<"renderer.RmlUi."> {
         static auto constexpr openedDocuments = makeScoped("openedDocuments"); // Amount of opened documents

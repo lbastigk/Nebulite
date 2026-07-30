@@ -58,11 +58,7 @@ public:
     /**
      * @brief Initializes the module, binding functions and variables.
      */
-    explicit Console(ConstructorParams const& params) : DomainModule(params) {
-        bindCategory(console_name, console_desc);
-        bindFunction(&Console::consoleOpen, consoleOpen_name, consoleOpen_desc);
-        bindFunction(&Console::consoleClose, consoleClose_name, consoleClose_desc);
-    }
+    explicit Console(ConstructorParams const& params);
 
     struct Key : Data::KeyGroup<Input::Key::getPrefix()> { // Same scope as input domainmodule, so we can access input states for toggling the console
         // No keys for now

@@ -21,6 +21,7 @@
 #include "Nebulite/Constants/StandardCapture.hpp"
 #include "Nebulite/Core/Environment.hpp"
 #include "Nebulite/Core/Renderer.hpp"
+#include "Nebulite/Module/Base/DomainModule.hpp"
 #include "Nebulite/Module/Domain/Renderer/Tiling.hpp"
 #include "Nebulite/Utility/Coordination/TimedRoutine.hpp"
 #include "Nebulite/Utility/Ranges.hpp"
@@ -165,6 +166,11 @@ Constants::Event Tiling::viewToggle(std::span<std::string_view const> const& arg
         return Constants::Event::Success;
     }
     return Constants::StandardCapture::Warning::Functional::unknownArg(domain.capture);
+}
+
+Tiling::Tiling(ConstructorParams const& params) : DomainModule(params) {
+    bindFunction(&Tiling::gridToggle, gridToggleName, gridToggleDesc);
+    bindFunction(&Tiling::viewToggle, viewToggleName, viewToggleDesc);
 }
 
 } // namespace Nebulite::Module::Domain::Renderer

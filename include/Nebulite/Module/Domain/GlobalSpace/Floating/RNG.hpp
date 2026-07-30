@@ -6,7 +6,6 @@
 
 // Standard library
 #include <cstdint>
-#include <ranges>
 #include <string>
 
 // External
@@ -51,11 +50,7 @@ public:
      *        Example: calling a script should not modify RNG, so that we can
      *                 always load scripts for TAS without RNG state changes.
      */
-    void rngRollback() {
-        for (auto& rng : rngMap | std::views::values) {
-            rng.rollback();
-        }
-    }
+    void rngRollback();
 
     //------------------------------------------
     // Setup
@@ -63,10 +58,7 @@ public:
     /**
      * @brief Initializes the module, binding functions and variables.
      */
-    explicit RNG(ConstructorParams const& params) : DomainModule(params) {
-        initRNGs();
-        updateRNGs();
-    }
+    explicit RNG(ConstructorParams const& params);
 
     //------------------------------------------
     // Scoped Keys

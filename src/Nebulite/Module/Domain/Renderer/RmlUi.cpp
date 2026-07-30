@@ -12,6 +12,7 @@
 #include "Nebulite/Core/Renderer.hpp"
 #include "Nebulite/Graphics/RmlInterface.hpp"
 #include "Nebulite/Interaction/Context.hpp"
+#include "Nebulite/Module/Base/DomainModule.hpp"
 #include "Nebulite/Module/Domain/Renderer/RmlUi.hpp"
 #include "Nebulite/Utility/StringHandler.hpp"
 
@@ -56,6 +57,14 @@ Constants::Event RmlUi::removeDocument(std::span<std::string_view const> const& 
         return Constants::Event::Warning;
     }
     return Constants::Event::Success;
+}
+
+RmlUi::RmlUi(ConstructorParams const& params) : DomainModule(params) {
+    bindCategory(ui_name, ui_desc);
+    bindCategory(uiDocument_name, uiDocument_desc);
+    bindFunction(&RmlUi::listDocuments, listDocuments_name, listDocuments_desc);
+    bindFunction(&RmlUi::loadDocument, loadDocument_name, loadDocument_desc);
+    bindFunction(&RmlUi::removeDocument, removeDocument_name, removeDocument_desc);
 }
 
 } // namespace Nebulite::Module::Domain::Renderer

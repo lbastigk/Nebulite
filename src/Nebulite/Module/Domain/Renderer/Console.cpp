@@ -6,6 +6,7 @@
 #include "Nebulite/Core/GlobalSpace.hpp" // NOLINT
 #include "Nebulite/Core/Renderer.hpp"
 #include "Nebulite/Graphics/ImguiHelper.hpp"
+#include "Nebulite/Module/Base/DomainModule.hpp"
 #include "Nebulite/Module/Domain/Renderer/Console.hpp"
 #include "Nebulite/Module/Domain/Renderer/Input.hpp"
 #include "Nebulite/Nebulite.hpp"
@@ -48,6 +49,12 @@ Constants::Event Console::consoleOpen() {
 Constants::Event Console::consoleClose() {
     consoleMode = false;
     return Constants::Event::Success;
+}
+
+Console::Console(ConstructorParams const& params) : DomainModule(params) {
+    bindCategory(console_name, console_desc);
+    bindFunction(&Console::consoleOpen, consoleOpen_name, consoleOpen_desc);
+    bindFunction(&Console::consoleClose, consoleClose_name, consoleClose_desc);
 }
 
 } // namespace Nebulite::Module::Domain::Renderer

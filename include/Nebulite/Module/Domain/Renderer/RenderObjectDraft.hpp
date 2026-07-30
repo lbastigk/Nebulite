@@ -87,13 +87,7 @@ public:
     /**
      * @brief Initializes the module, binding functions and variables. 
      */
-    explicit RenderObjectDraft(ConstructorParams const& params) : DomainModule(params) {
-        // Bind functions
-        bindCategory(draft_name, draft_desc);
-        bindFunction(&RenderObjectDraft::draft_parse, draft_parse_name, draft_parse_desc);
-        bindFunction(&RenderObjectDraft::draft_spawn, draft_spawn_name, draft_spawn_desc);
-        bindFunction(&RenderObjectDraft::draft_reset, draft_reset_name, draft_reset_desc);
-    }
+    explicit RenderObjectDraft(ConstructorParams const& params);
 
     struct Key : Data::KeyGroup<"renderer."> {
         // No keys for now
@@ -111,7 +105,7 @@ private:
     public:
         DraftHolder() = default;
 
-        Core::RenderObject& get(Utility::IO::Capture& capture) {
+        Core::RenderObject& get(Utility::IO::Capture& capture) [[clang::lifetimebound]] {
             if (!obj) {
                 obj.emplace(capture);
                 obj->setName("Draft Object");

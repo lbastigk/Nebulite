@@ -49,10 +49,7 @@ public:
     /**
      * @brief Initializes the module, binding functions and variables.
      */
-    explicit Tiling(ConstructorParams const& params) : DomainModule(params) {
-        bindFunction(&Tiling::gridToggle, gridToggleName, gridToggleDesc);
-        bindFunction(&Tiling::viewToggle, viewToggleName, viewToggleDesc);
-    }
+    explicit Tiling(ConstructorParams const& params);
 
     struct Key : Data::KeyGroup<"renderer."> {
         static auto constexpr tileSizeW = makeScoped("debug.tiling.size.w");

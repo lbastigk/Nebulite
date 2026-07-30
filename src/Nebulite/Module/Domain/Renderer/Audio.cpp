@@ -23,6 +23,7 @@
 #include "Nebulite/Constants/Event.hpp"
 #include "Nebulite/Constants/StandardCapture.hpp"
 #include "Nebulite/Core/Renderer.hpp"
+#include "Nebulite/Module/Base/DomainModule.hpp"
 #include "Nebulite/Module/Domain/Renderer/Audio.hpp"
 #include "Nebulite/Utility/Generate.hpp"
 #include "Nebulite/Utility/IO/Capture.hpp"
@@ -34,6 +35,9 @@ namespace Nebulite::Module::Domain::Renderer {
 Constants::Event Audio::updateHook() {
     return Constants::Event::Success;
 }
+
+//------------------------------------------
+// Available Functions
 
 Constants::Event Audio::beep(std::span<std::string_view const> const& args) const {
     if (args.size() < 2) {
@@ -96,6 +100,20 @@ Constants::Event Audio::playSound(std::span<std::string_view const> const& args)
 
     return Constants::Event::Success;
 }
+
+//------------------------------------------
+// Setup
+
+Audio::Audio(ConstructorParams const& params) : DomainModule(params) {
+    bindFunction(&Audio::beep, beep_name, beep_desc);
+    bindFunction(&Audio::playSound, playSound_name, playSound_desc);
+
+    initAudio();
+    initWaveforms();
+}
+
+//------------------------------------------
+// Private functions
 
 void Audio::initAudio(){
     if (!SDL_Init(SDL_INIT_AUDIO)) {

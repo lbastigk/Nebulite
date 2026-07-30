@@ -46,10 +46,7 @@ public:
     /**
      * @brief Initializes the module, binding functions and variables. 
      */
-    explicit Input(ConstructorParams const& params) : DomainModule(params) {
-        mapKeyNames();
-        addRoutines();
-    }
+    explicit Input(ConstructorParams const& params);
 
     struct Key : Data::KeyGroup<"renderer.input."> {
         static auto constexpr keyboard = makeScoped("keyboard.");

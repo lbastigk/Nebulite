@@ -77,7 +77,6 @@ public:
 
     /**
      * @brief Initializes the module, binding functions and variables.
-     * @todo Add domainModules for camera and renderobject-selection and move respective functions in there.
      */
     explicit SelectedObject(ConstructorParams const& params) : DomainModule(params) {
         bindCategory(selectedObject_name, selectedObject_desc);

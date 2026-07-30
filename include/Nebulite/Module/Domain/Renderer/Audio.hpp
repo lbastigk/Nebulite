@@ -69,13 +69,7 @@ public:
     /**
      * @brief Initializes the module, binding functions and variables.
      */
-    explicit Audio(ConstructorParams const& params) : DomainModule(params) {
-        bindFunction(&Audio::beep, beep_name, beep_desc);
-        bindFunction(&Audio::playSound, playSound_name, playSound_desc);
-
-        initAudio();
-        initWaveforms();
-    }
+    explicit Audio(ConstructorParams const& params);
 
 private:
     SDL_AudioStream* stream = nullptr;

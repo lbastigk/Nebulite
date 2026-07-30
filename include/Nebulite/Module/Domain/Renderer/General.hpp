@@ -155,23 +155,7 @@ public:
      * @brief Initializes the module, binding functions and variables.
      * @todo Add domainModules for camera and renderobject-selection and move respective functions in there.
      */
-    explicit General(ConstructorParams const& params) : DomainModule(params) {
-        bindFunction(&General::spawn, spawn_name, spawn_desc);
-        bindFunction(&General::setResolution, setResolution_name, setResolution_desc);
-        bindFunction(&General::setFPS, setFPS_name, setFPS_desc);
-        bindFunction(&General::showFPS, showFPS_name, showFPS_desc);
-        bindFunction(&General::snapshot, snapshot_name, snapshot_desc);
-        bindFunction(&General::dumpView, dumpView_name, dumpView_desc);
-
-        bindCategory(cam_name, cam_desc);
-        bindFunction(&General::cam_move, cam_move_name, cam_move_desc);
-        bindFunction(&General::cam_set, cam_set_name, cam_set_desc);
-
-        // TODO: move to env domainModule
-        bindCategory(env_name, env_desc);
-        bindFunction(&General::envLoad, envLoad_name, envLoad_desc);
-        bindFunction(&General::envDeload, envDeload_name, envDeload_desc);
-    }
+    explicit General(ConstructorParams const& params);
 };
 } // namespace Nebulite::Module::Domain::Renderer
 #endif // NEBULITE_MODULE_DOMAIN_RENDERER_GENERAL_HPP

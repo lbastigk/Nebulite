@@ -30,6 +30,7 @@
 #include "Nebulite/Core/Renderer.hpp"
 #include "Nebulite/Data/Document/JSON.hpp"
 #include "Nebulite/Data/Document/RjDirectAccess.hpp"
+#include "Nebulite/Module/Base/DomainModule.hpp"
 #include "Nebulite/Module/Domain/Renderer/General.hpp"
 #include "Nebulite/Utility/IO/FileManagement.hpp"
 #include "Nebulite/Utility/StringHandler.hpp"
@@ -354,6 +355,24 @@ Constants::Event General::dumpView() const {
         std::cout << view.serialize("", Data::RjDirectAccess::SerializationType::compact) << '\n';
     });
     return Constants::Event::Success;
+}
+
+General::General(ConstructorParams const& params) : DomainModule(params) {
+    bindFunction(&General::spawn, spawn_name, spawn_desc);
+    bindFunction(&General::setResolution, setResolution_name, setResolution_desc);
+    bindFunction(&General::setFPS, setFPS_name, setFPS_desc);
+    bindFunction(&General::showFPS, showFPS_name, showFPS_desc);
+    bindFunction(&General::snapshot, snapshot_name, snapshot_desc);
+    bindFunction(&General::dumpView, dumpView_name, dumpView_desc);
+
+    bindCategory(cam_name, cam_desc);
+    bindFunction(&General::cam_move, cam_move_name, cam_move_desc);
+    bindFunction(&General::cam_set, cam_set_name, cam_set_desc);
+
+    // TODO: move to env domainModule
+    bindCategory(env_name, env_desc);
+    bindFunction(&General::envLoad, envLoad_name, envLoad_desc);
+    bindFunction(&General::envDeload, envDeload_name, envDeload_desc);
 }
 
 } // namespace Nebulite::Module::Domain::Renderer
