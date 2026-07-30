@@ -105,14 +105,14 @@ bool Statistics::median(Data::JsonScope& jsonDoc) {
         return false;
     }
 
-    std::vector<double> values(size);
-    for (std::size_t i = 0; i < size; ++i) {
-        auto const key = rootKey.addIndex(i);
+    std::vector<double> values;
+    values.reserve(size);
+    for (auto const key : rootKey.getArrayKeys(size)) {
         double const value = jsonDoc.get<double>(key).value_or(std::numeric_limits<double>::quiet_NaN());
         if (std::isnan(value)) {
             return false;
         }
-        values[i] = value;
+        values.push_back(value);
     }
 
     std::ranges::sort(values.begin(), values.end());

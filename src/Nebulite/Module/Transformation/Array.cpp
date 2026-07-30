@@ -139,7 +139,8 @@ bool Array::reverse(Data::JsonScope& jsonDoc) {
     Data::JSON const tmp = jsonDoc.getSubDoc(rootKey);
     for (std::size_t i = 0; i < arraySize; ++i) {
         auto const key = rootKey.addIndex(i);
-        Data::JSON const element = tmp.getSubDoc("[" + std::to_string(arraySize - 1 - i) + "]");
+        auto const elementKey = rootKey.addIndex(arraySize - 1 - i).toString();
+        Data::JSON const element = tmp.getSubDoc(elementKey);
         jsonDoc.setSubDoc(key, element);
     }
     return true;
