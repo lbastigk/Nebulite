@@ -26,9 +26,9 @@ double ExpressionPrimitives::rng2arg(double a, double b) {
     if (b<0) b = abs(b) * 125.5;
 
     std::uint64_t seed = static_cast<uint64_t>(a * 73856093) ^ static_cast<uint64_t>(b * 19349663);
-    seed = (seed ^ seed >> 30) * 0xbf58476d1ce4e5b9;
-    seed = (seed ^ seed >> 27) * 0x94d049bb133111eb;
-    seed = seed ^ seed >> 31;
+    seed = (seed ^ seed >> 30u) * 0xbf58476d1ce4e5b9;
+    seed = (seed ^ seed >> 27u) * 0x94d049bb133111eb;
+    seed = seed ^ seed >> 31u;
     return static_cast<double>(seed % 10000) / 10000.0; // Return a value between 0 and 1
 }
 
@@ -38,9 +38,9 @@ double ExpressionPrimitives::rng3arg(double a, double b, double c) {
     if (c<0) c = abs(c) * 125.5;
 
     std::uint64_t seed = static_cast<uint64_t>(a * 73856093) ^ static_cast<uint64_t>(b * 19349663) ^ static_cast<uint64_t>(c * 83492791);
-    seed = (seed ^ seed >> 30) * 0xbf58476d1ce4e5b9;
-    seed = (seed ^ seed >> 27) * 0x94d049bb133111eb;
-    seed = seed ^ seed >> 31;
+    seed = (seed ^ seed >> 30u) * 0xbf58476d1ce4e5b9;
+    seed = (seed ^ seed >> 27u) * 0x94d049bb133111eb;
+    seed = seed ^ seed >> 31u;
     return static_cast<double>(seed % 10000) / 10000.0; // Return a value between 0 and 1
 }
 
@@ -49,9 +49,9 @@ double ExpressionPrimitives::rng2argInt16(double a, double b) {
     if (b<0) b = abs(b) * 125.5;
 
     std::uint64_t seed = static_cast<uint64_t>(a * 73856093) ^ static_cast<uint64_t>(b * 19349663);
-    seed = (seed ^ seed >> 30) * 0xbf58476d1ce4e5b9;
-    seed = (seed ^ seed >> 27) * 0x94d049bb133111eb;
-    seed = seed ^ seed >> 31;
+    seed = (seed ^ seed >> 30u) * 0xbf58476d1ce4e5b9;
+    seed = (seed ^ seed >> 27u) * 0x94d049bb133111eb;
+    seed = seed ^ seed >> 31u;
     return static_cast<double>(seed % 32768); // Return a value between 0 and 32767
 }
 
@@ -61,9 +61,9 @@ double ExpressionPrimitives::rng3argInt16(double a, double b, double c) {
     if (c<0) c = abs(c) * 125.5;
 
     std::uint64_t seed = static_cast<uint64_t>(a * 73856093) ^ static_cast<uint64_t>(b * 19349663) ^ static_cast<uint64_t>(c * 83492791);
-    seed = (seed ^ seed >> 30) * 0xbf58476d1ce4e5b9;
-    seed = (seed ^ seed >> 27) * 0x94d049bb133111eb;
-    seed = seed ^ seed >> 31;
+    seed = (seed ^ seed >> 30u) * 0xbf58476d1ce4e5b9;
+    seed = (seed ^ seed >> 27u) * 0x94d049bb133111eb;
+    seed = seed ^ seed >> 31u;
     return static_cast<double>(seed % 32768); // Return a value between 0 and 32767
 }
 

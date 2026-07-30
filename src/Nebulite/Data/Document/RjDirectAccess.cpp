@@ -496,7 +496,7 @@ bool RjDirectAccess::isValidKey(std::string_view const key) {
             }
 
             // Extract index string between open and close character
-            if (std::string_view const idxStr = keyView.substr(1, closeBracket - 1); !Utility::StringHandler::isNumber(std::string(idxStr))) {
+            if (std::string_view const idxStr = keyView.substr(1, closeBracket - 1); !Utility::StringHandler::isNumber(idxStr)) {
                 return false; // invalid number
             }
 

@@ -281,8 +281,8 @@ std::size_t Domain::Identifier::idGenerator() {
 
 std::size_t Domain::Identifier::splitMix64(std::size_t x) {
     x += 0x9e3779b97f4a7c15;
-    x = (x ^ x >> 30) * 0xbf58476d1ce4e5b9;
-    x = (x ^ x >> 27) * 0x94d049bb133111eb;
+    x = (x ^ x >> 30u) * 0xbf58476d1ce4e5b9;
+    x = (x ^ x >> 27u) * 0x94d049bb133111eb;
     x = x ^ x >> 31;
     return x;
 }

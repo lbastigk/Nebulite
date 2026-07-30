@@ -22,7 +22,6 @@
 #include "Nebulite/Interaction/Context.hpp"
 #include "Nebulite/Module/Base/RmlUiModule.hpp"
 #include "Nebulite/Module/RmlUi/Reflection.hpp"
-#include "Nebulite/Nebulite.hpp"
 #include "Nebulite/Utility/Coordination/TimedRoutine.hpp"
 #include "Nebulite/Utility/IO/Capture.hpp"
 

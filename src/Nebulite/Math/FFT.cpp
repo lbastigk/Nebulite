@@ -26,9 +26,9 @@ namespace {
 std::size_t reverseBits(std::size_t input, std::size_t const bitCount) {
     std::size_t result = 0;
     for (std::size_t i = 0; i < bitCount; ++i) {
-        result <<= 1;
-        result |= input & 1;
-        input >>= 1;
+        result <<= 1u;
+        result |= input & 1u;
+        input >>= 1u;
     }
     return result;
 }

@@ -540,8 +540,8 @@ std::array<std::pair<Fn, char const*>, 6> numericTypeList = {{
     {&rapidjson::Value::IsDouble, "value:float:64"},
     {&rapidjson::Value::IsFloat, "value:float:32"},
     {&rapidjson::Value::IsUint64, "value:uint:64"},
-    {&rapidjson::Value::IsUint, "value:uint:32"}
-}};
+    {&rapidjson::Value::IsUint, "value:uint:32"},
+},};
 
 std::string numberType(rapidjson::Value const* val) {
     for (auto const& [checkFunc, typeStr] : numericTypeList) {
@@ -558,8 +558,8 @@ std::array<std::pair<Fn, Formatter>, 6> constexpr generalTypeList = {{
     {&rapidjson::Value::IsObject, [](rapidjson::Value const* val) -> std::string { return "object:" + std::to_string(val->MemberCount()); }},
     {&rapidjson::Value::IsNumber, [](rapidjson::Value const* val) -> std::string { return numberType(val); }},
     {&rapidjson::Value::IsString, [](rapidjson::Value const* val) -> std::string { return "value:string:" + std::to_string(val->GetStringLength()); }},
-    {&rapidjson::Value::IsBool, [](rapidjson::Value const*) -> std::string { return "value:bool"; }}
-}};
+    {&rapidjson::Value::IsBool, [](rapidjson::Value const*) -> std::string { return "value:bool"; }},
+},};
 
 } // namespace
 
@@ -637,7 +637,7 @@ void JSON::moveMember(std::string_view const fromKey, std::string_view const toK
     flush("");
 
     // Edge case: toKey starts with fromKey, we need a temporary key to avoid deleting after moving
-    if (std::string(toKey).starts_with(std::string(fromKey))) {
+    if (std::string(toKey).starts_with(fromKey)) {
         // Edge case 2: if fromKey is empty
         if (std::string(fromKey).empty()) {
             setSubDoc(toKey, *this);

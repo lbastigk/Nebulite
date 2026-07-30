@@ -258,7 +258,7 @@ std::string base64_encode(std::uint8_t const* data, std::size_t const len) {
     // NOLINTNEXTLINE
     out.reserve(((len + 2) / 3) * 4);
 
-    int val = 0;
+    std::uint64_t val = 0;
     int valB = -6;
     for (std::size_t i = 0; i < len; i++) {
         val = (val << 8) + data[i];
@@ -295,7 +295,7 @@ void write_jpeg_callback(void* context, void* data, int const size) {
 
 // TODO: black bars on the top and right in headless mode!
 Constants::Event General::dumpView() const {
-    domain.addPostRenderCallback([&]() -> void {
+    domain.addPostRenderCallback([&] -> void {
         Data::JSON view;
 
         // Get current window/render target size

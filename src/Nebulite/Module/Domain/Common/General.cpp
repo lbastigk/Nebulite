@@ -43,15 +43,15 @@ Constants::Event General::updateHook() {
                 {
                     .self = *lastContext.self,
                     .other = *lastContext.self,
-                    .global = *lastContext.global
-                }
+                    .global = *lastContext.global,
+                },
             };
             auto ctxScope = Interaction::ContextScope{
                 {
                     .self = *lastContext.selfScope,
                     .other = *lastContext.selfScope,
-                    .global = *lastContext.globalScope
-                }
+                    .global = *lastContext.globalScope,
+                },
             };
             Graphics::ImguiHelper::renderDomain(ctx, ctxScope, domain.capture, domain.getName());
         });
@@ -277,15 +277,15 @@ Constants::Event General::reparseInOther(std::span<std::string_view const> const
         {
             .self = ctx.other,
             .other = ctx.self,
-            .global = ctx.global
-        }
+            .global = ctx.global,
+        },
     };
     Interaction::ContextScope otherCtxScope{
         {
             .self = ctxScope.other,
             .other = ctxScope.self,
-            .global = ctxScope.global
-        }
+            .global = ctxScope.global,
+        },
     };
     return ctx.other.parseStr(argStr, otherCtx, otherCtxScope);
 }
@@ -300,15 +300,15 @@ Constants::Event General::reparseInGlobal(std::span<std::string_view const> cons
         {
             .self = ctx.global,
             .other = ctx.global,
-            .global = ctx.global
-        }
+            .global = ctx.global,
+        },
     };
     Interaction::ContextScope globalCtxScope{
         {
             .self = ctxScope.global,
             .other = ctxScope.global,
-            .global = ctxScope.global
-        }
+            .global = ctxScope.global,
+        },
     };
 
     return ctx.global.parseStr(argStr, globalCtx, globalCtxScope);

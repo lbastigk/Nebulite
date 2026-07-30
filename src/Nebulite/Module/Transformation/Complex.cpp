@@ -27,7 +27,7 @@ struct ComplexView {
 };
 
 std::optional<ComplexView> parseComplexNumberString(std::string_view s){
-    if (!s.ends_with("i")) return std::nullopt; // Not a complex number
+    if (!s.ends_with('i')) return std::nullopt; // Not a complex number
     s.remove_suffix(1); // remove trailing 'i'
     std::size_t split = std::string_view::npos;
 
@@ -68,7 +68,7 @@ void Complex::bindTransformations() {
 }
 
 bool Complex::numberToComplex(Data::JsonScope& jsonDoc){
-    auto num = jsonDoc.get<double>(rootKey);
+    auto const num = jsonDoc.get<double>(rootKey);
     if (!num) {
         return false;
     }
@@ -77,7 +77,7 @@ bool Complex::numberToComplex(Data::JsonScope& jsonDoc){
 }
 
 bool Complex::complexAbs(Data::JsonScope& jsonDoc){
-    auto complexNum = jsonDoc.get<double>(rootKey);
+    auto const complexNum = jsonDoc.get<double>(rootKey);
     if (!complexNum) {
         return false;
     }
@@ -86,7 +86,7 @@ bool Complex::complexAbs(Data::JsonScope& jsonDoc){
 }
 
 bool Complex::complexArg(Data::JsonScope& jsonDoc){
-    auto complexNum = jsonDoc.get<double>(rootKey);
+    auto const complexNum = jsonDoc.get<double>(rootKey);
     if (!complexNum) {
         return false;
     }
@@ -95,10 +95,10 @@ bool Complex::complexArg(Data::JsonScope& jsonDoc){
 }
 
 bool Complex::complexToString(std::span<std::string_view const> const& args, Data::JsonScope& jsonDoc){
-    auto num = jsonDoc.getComplex(rootKey);
+    auto const num = jsonDoc.getComplex(rootKey);
     if (!num) return true;
     try {
-        auto formatter = Interaction::Logic::Formatter::readFormatter(Utility::StringHandler::recombineArgs(args.subspan(1)));
+        auto const formatter = Interaction::Logic::Formatter::readFormatter(Utility::StringHandler::recombineArgs(args.subspan(1)));
         jsonDoc.set(rootKey, complexFormatter(num.value(), formatter));
     } catch (...) {
         return false;
@@ -112,11 +112,11 @@ bool Complex::formatComplexNumberString(std::span<std::string_view const> const&
     if (!value.has_value()) return false; // Not convertible to string
     auto const split = parseComplexNumberString(value.value());
     if (!split.has_value()) return true; // Not a complex number
-    auto num = std::complex{
+    auto const num = std::complex{
         std::stod(std::string(split.value().re)),
         std::stod(std::string(split.value().im))
     };
-    auto formatter = Interaction::Logic::Formatter::readFormatter(args[1]);
+    auto const formatter = Interaction::Logic::Formatter::readFormatter(args[1]);
     jsonDoc.set(rootKey, complexFormatter(num,formatter));
     return true;
 }

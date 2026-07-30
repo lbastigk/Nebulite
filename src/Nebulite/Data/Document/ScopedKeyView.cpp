@@ -19,7 +19,7 @@ namespace Nebulite::Data {
 std::string ScopedKeyView::buildKey() const {
     // See if we require a specific scope
     if (givenScope.has_value()) {
-        return combineKeys(givenScope.value(), std::string(key));
+        return combineKeys(givenScope.value(), key);
     }
     return std::string(key);
 }

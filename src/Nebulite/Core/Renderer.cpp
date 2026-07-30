@@ -192,7 +192,7 @@ void Renderer::initImgui() {
 
     // IO config
     ImGuiIO &io = ImGui::GetIO();
-    io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard | ImGuiConfigFlags_NavEnableGamepad;
+    io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard | ImGuiConfigFlags_NavEnableGamepad; // NOLINT
 
     // Load a pixel font if available; fallback to default
     // Use a font config that disables oversampling and enables pixel snapping
@@ -246,9 +246,7 @@ void Renderer::initSDL() {
 
     //------------------------------------------
     // Window and renderer
-    std::uint32_t const flags = *headless ? SDL_WINDOW_HIDDEN : 0
-    | SDL_WINDOW_HIGH_PIXEL_DENSITY // Add more necessary flags here
-    ;
+    std::uint32_t const flags = *headless ? static_cast<std::uint32_t>(SDL_WINDOW_HIDDEN) : static_cast<std::uint32_t>(SDL_WINDOW_HIGH_PIXEL_DENSITY);
 
     if (!SDL_CreateWindowAndRenderer("Nebulite", w*windowScale, h*windowScale, flags, &window, &renderer)) {
         capture.error.println("SDL_CreateWindowAndRenderer Error: ", SDL_GetError());
@@ -363,7 +361,7 @@ void Renderer::setView(ViewSetting const view) noexcept {
 }
 
 std::vector<Data::TileCoordinate> Renderer::visibleTiles() const {
-    auto getTileCount = [&]() -> std::pair<int, int> {
+    auto getTileCount = [&] -> std::pair<int, int> {
         auto const w = domainScope.get<int16_t>(Constants::KeyNames::Renderer::dispResXLogical).value_or(0);
         auto const h = domainScope.get<int16_t>(Constants::KeyNames::Renderer::dispResYLogical).value_or(0);
 
@@ -437,13 +435,12 @@ void Renderer::renderFPS() const {
     ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(6.0f, 2.0f));
     ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(4.0f, 2.0f));
 
+    auto flags = ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoFocusOnAppearing | ImGuiWindowFlags_NoNav; // NOLINT
+
     ImGui::Begin(
         "FPS Overlay",
         nullptr,
-        ImGuiWindowFlags_NoDecoration |
-        ImGuiWindowFlags_AlwaysAutoResize |
-        ImGuiWindowFlags_NoFocusOnAppearing |
-        ImGuiWindowFlags_NoNav
+        flags
     );
 
     ImGui::Text("FPS: %04d", fps.real);
@@ -706,7 +703,7 @@ void Renderer::changeWindowSize(int const w, int const h, std::uint8_t  const sc
     // We assume that the tiling information is based on renderer states such as resolution,
     // if it's not static. If that is the case, we must reinsert all objects to redistribute
     // on resolution change
-    if constexpr (!is_static_member_function_v<decltype(&Renderer::tilingInformation)>) {
+    if constexpr (!is_static_member_function_v<decltype(&Renderer::tilingInformation)>) { // NOLINT
         // Unreachable code if it's static, so we use a NOLINTNEXTLINE to suppress the warning
         // NOLINTNEXTLINE
         reinsertAllObjects();
@@ -741,7 +738,7 @@ SDL_FRect Renderer::scaleRectFromLogicalSize(SDL_FRect const& logicalRect) const
         .x=logicalRect.x * scale,
         .y=logicalRect.y * scale,
         .w=logicalRect.w * scale,
-        .h=logicalRect.h * scale
+        .h=logicalRect.h * scale,
     };
 }
 
