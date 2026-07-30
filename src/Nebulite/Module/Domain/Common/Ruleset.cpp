@@ -46,19 +46,19 @@ Constants::Event Ruleset::updateHook() {
             // Estimate cost of parsed rulesets
 
             // Local entries
-            std::uint64_t const costLocal = std::ranges::fold_left(
+            auto const costLocal = std::ranges::fold_left(
                 rulesetsLocal,
-                std::size_t{0},
-                [](std::uint64_t const acc, std::shared_ptr<Interaction::Rules::Ruleset> const& entry) {
+                std::uint32_t{0},
+                [](std::uint32_t const acc, std::shared_ptr<Interaction::Rules::Ruleset> const& entry) {
                     return acc + entry->getEstimatedCost();
                 }
             );
 
             // Global entries
-            std::uint64_t const costGlobal = std::ranges::fold_left(
+            auto const costGlobal = std::ranges::fold_left(
                 rulesetsGlobal,
-                std::size_t{0},
-                [](std::uint64_t const acc, std::shared_ptr<Interaction::Rules::Ruleset> const& entry) {
+                std::uint32_t{0},
+                [](std::uint32_t const acc, std::shared_ptr<Interaction::Rules::Ruleset> const& entry) {
                     return acc + entry->getEstimatedCost();
                 }
             );
