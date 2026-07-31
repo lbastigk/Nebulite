@@ -19,77 +19,78 @@
 #include "Nebulite/Math/FFT.hpp"
 #include "Nebulite/Utility/Convert/Bits.hpp"
 #include "Nebulite/Utility/Generate.hpp"
+#include "Nebulite/Utility/Ranges.hpp"
 
 //------------------------------------------
 namespace Nebulite::Math {
 
 namespace {
 
-struct BitReversalPermutationClosure : std::ranges::range_adaptor_closure<BitReversalPermutationClosure> {
-    std::size_t n;
-
-    template<std::ranges::input_range R>
-    auto operator()(R&& r) const {
-        auto const bitCount = static_cast<std::size_t>(std::bit_width(n - 1));
-        assert(r.size() == n);
-        assert(std::has_single_bit(n)); // n must be a power of two
-        for (auto const i : Utility::Generate::indices(n)) {
-            if (auto const b = Utility::Convert::Bits::reverse(i, bitCount); i < b) {
-                std::swap(r[i], r[b]);
-            }
-        }
-        return std::forward<R>(r);
-    }
-};
-
 struct BitReversalPermutation {
+    struct Closure : std::ranges::range_adaptor_closure<Closure> {
+        std::size_t n;
+
+        template<std::ranges::input_range R>
+        auto operator()(R&& r) const {
+            auto const bitCount = static_cast<std::size_t>(std::bit_width(n - 1));
+            assert(r.size() == n);
+            assert(std::has_single_bit(n)); // n must be a power of two
+            for (auto const i : Utility::Generate::indices(n)) {
+                if (auto const b = Utility::Convert::Bits::reverse(i, bitCount); i < b) {
+                    std::swap(r[i], r[b]);
+                }
+            }
+            return std::forward<R>(r);
+        }
+    };
+
     auto operator()(std::size_t const n) const {
-        return BitReversalPermutationClosure{
+        return Closure{
             {},
             n,
         };
     }
 } constexpr bitReversalPermutation;
 
-struct ApplyStagesClosure : std::ranges::range_adaptor_closure<ApplyStagesClosure> {
-    std::size_t const n;
-    double const fullAngle;
+struct ApplyStages {
+    struct Closure : std::ranges::range_adaptor_closure<Closure> {
+        std::size_t const n;
+        double const fullAngle;
 
-    template<std::ranges::input_range R>
-    static void applyStage(R& r, std::complex<double> const stageTwiddle, std::size_t const stageSize, std::size_t const n) {
-        auto const halfStageSize = stageSize / 2;
+        template<std::ranges::input_range R>
+        static void applyStage(R& r, std::complex<double> const stageTwiddle, std::size_t const stageSize, std::size_t const n) {
+            auto const halfStageSize = stageSize / 2;
 
-        for (auto const i : Utility::Generate::indices(n) | std::views::stride(stageSize)) {
-            std::complex w(1.0);
+            for (auto const i : Utility::Generate::indices(n) | std::views::stride(stageSize)) {
+                std::complex w(1.0);
 
-            for (auto const j : Utility::Generate::indices(halfStageSize)) {
-                auto const u = r[i + j];
-                auto const v = r[i + j + halfStageSize] * w;
+                for (auto const j : Utility::Generate::indices(halfStageSize)) {
+                    auto const u = r[i + j];
+                    auto const v = r[i + j + halfStageSize] * w;
 
-                r[i + j] = u + v;
-                r[i + j + halfStageSize] = u - v;
+                    r[i + j] = u + v;
+                    r[i + j + halfStageSize] = u - v;
 
-                w *= stageTwiddle;
+                    w *= stageTwiddle;
+                }
             }
         }
-    }
 
-    template<std::ranges::input_range R>
-    auto operator()(R&& r) const {
-        for (auto const stageSize : Utility::Generate::powersOfTwo(n)) {
-            double const ang = fullAngle / static_cast<double>(stageSize);
-            std::complex const stageTwiddle(std::cos(ang), std::sin(ang));
-            applyStage(r, stageTwiddle, stageSize, n);
+        template<std::ranges::input_range R>
+        auto operator()(R&& r) const {
+            for (auto const stageSize : Utility::Generate::powersOfTwo(n)) {
+                double const ang = fullAngle / static_cast<double>(stageSize);
+                std::complex const stageTwiddle(std::cos(ang), std::sin(ang));
+                applyStage(r, stageTwiddle, stageSize, n);
+            }
+            return std::forward<R>(r);
         }
-        return std::forward<R>(r);
-    }
-};
+    };
 
-struct ApplyStages {
     double fullAngle;
 
     auto operator()(std::size_t const n) const {
-        return ApplyStagesClosure{
+        return Closure{
             {},
             n,
             fullAngle,
@@ -99,28 +100,6 @@ struct ApplyStages {
 
 inline constexpr ApplyStages applyStagesFFT{ -2.0 * std::numbers::pi };
 inline constexpr ApplyStages applyStagesIFFT{ 2.0 * std::numbers::pi };
-
-struct NormalizeClosure : std::ranges::range_adaptor_closure<NormalizeClosure> {
-    std::size_t const n;
-
-    template<std::ranges::input_range R>
-    auto operator()(R&& r) const {
-        auto const dN = static_cast<double>(n);
-        return std::forward<R>(r)
-            | std::views::transform([dN] (std::complex<double> const& v) {
-                return v / dN;
-            });
-    }
-};
-
-struct Normalize : std::ranges::range_adaptor_closure<Normalize> {
-    auto operator()(std::size_t const n) const {
-        return NormalizeClosure{
-            {},
-            n,
-        };
-    }
-} constexpr normalize;
 
 } // namespace
 
@@ -143,7 +122,7 @@ std::vector<std::complex<double>> FFT::fftInverse(std::vector<std::complex<doubl
     return a
         | bitReversalPermutation(n)
         | applyStagesIFFT(n)
-        | normalize(n)
+        | Utility::Ranges::normalize(n)
         | std::ranges::to<std::vector<std::complex<double>>>();
 }
 

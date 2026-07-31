@@ -269,7 +269,7 @@ bool String::strcompareMembers(std::span<std::string_view const> const& args, Da
             }
             return std::nullopt;
         })
-        | Utility::Ranges::all_equal_and([](auto const& opt) { return opt.has_value(); });
+        | Utility::Ranges::allEqualAnd([](auto const& opt) { return opt.has_value(); });
     jsonDoc.set(rootKey, equal);
     return true;
 }

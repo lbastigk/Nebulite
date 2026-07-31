@@ -28,13 +28,15 @@ concept OptionalLike = requires(T x) {
 
 //------------------------------------------
 namespace Nebulite::Utility {
-
+/**
+ * @brief Pipeable range utilities
+ */
 class Ranges {
 public:
     /**
      * @brief Collects a range of optional values into an optional vector. If any value in the range is empty, the result will be an empty optional.
      */
-    static struct collect_optional_fn : std::ranges::range_adaptor_closure<collect_optional_fn> {
+    static struct CollectOptional : std::ranges::range_adaptor_closure<CollectOptional> {
         /**
          * @brief Collects a range of optional values into an optional vector. If any value in the range is empty, the result will be an empty optional.
          * @tparam R The type of the input range.
@@ -65,17 +67,17 @@ public:
      * @brief Collects a range of values into a vector with a transformation function.
      *        If the transformation function returns an empty optional for any value, the result will be an empty optional.
      */
-    static struct try_transform_fn {
+    static struct TryTransform {
         /**
          * @brief Collects a range of values into a vector with a transformation function.
          *        If the transformation function returns an empty optional for any value, the result will be an empty optional.
          * @tparam F The type of the transformation function.
          */
         template <typename F>
-        struct closure : std::ranges::range_adaptor_closure<closure<F>> {
+        struct Closure : std::ranges::range_adaptor_closure<Closure<F>> {
             F f;
 
-            explicit constexpr closure(F func) : f(std::move(func)){}
+            explicit constexpr Closure(F func) : f(std::move(func)){}
 
             template <std::ranges::input_range R>
             auto operator()(R&& r) const {
@@ -101,7 +103,7 @@ public:
 
         template <typename F>
         auto operator()(F f) const {
-            return closure<std::decay_t<F>>{
+            return Closure<std::decay_t<F>>{
                 std::move(f),
             };
         }
@@ -110,7 +112,7 @@ public:
     /**
      * @brief An alternative implementation of std::views::enumerate, where the enumeration index is of type std::size_t
      */
-    static struct enumerate_fn : std::ranges::range_adaptor_closure<enumerate_fn> {
+    static struct Enumerate : std::ranges::range_adaptor_closure<Enumerate> {
         template <typename T>
         struct enumerate_item {
             std::size_t index;
@@ -177,12 +179,12 @@ public:
     /**
      * @brief Checks if all elements in a range are equal and satisfy a given predicate.
      */
-    static struct all_equal_and_fn : std::ranges::range_adaptor_closure<all_equal_and_fn>{
+    static struct AllEqualAnd : std::ranges::range_adaptor_closure<AllEqualAnd>{
         template<class Pred>
-        struct all_equal_and_closure : range_adaptor_closure<all_equal_and_closure<Pred>>{
+        struct Closure : range_adaptor_closure<Closure<Pred>>{
             Pred pred;
 
-            explicit all_equal_and_closure(Pred p) : pred(std::move(p)){}
+            explicit Closure(Pred p) : pred(std::move(p)){}
 
             template<std::ranges::input_range R>
             bool operator()(R&& r) const {
@@ -198,16 +200,16 @@ public:
 
         template<class Pred>
         auto operator()(Pred pred) const {
-            return all_equal_and_closure<std::decay_t<Pred>>{
+            return Closure<std::decay_t<Pred>>{
                 std::move(pred),
             };
         }
-    } constexpr all_equal_and{};
+    } constexpr allEqualAnd{};
 
     /**
      * @brief Checks if all elements in a range are equal
      */
-    static struct all_equal_fn : std::ranges::range_adaptor_closure<all_equal_fn>{
+    static struct AllEqual : std::ranges::range_adaptor_closure<AllEqual>{
         template<std::ranges::input_range R>
         bool operator()(R&& r) const {
             if (std::ranges::empty(r)) {
@@ -218,7 +220,32 @@ public:
                 return elem == first;
             });
         }
-    } constexpr all_equal{};
+    } constexpr allEqual{};
+
+    /**
+     * @brief Normalizes a given range by a value n, keeping the type the same.
+     */
+    static struct Normalize {
+        struct Closure : std::ranges::range_adaptor_closure<Closure> {
+            std::size_t const n;
+
+            template<std::ranges::input_range R>
+            auto operator()(R&& r) const {
+                auto const dN = static_cast<double>(n);
+                return std::forward<R>(r)
+                    | std::views::transform([dN] (auto const& v) {
+                        return v / dN;
+                    });
+            }
+        };
+
+        auto operator()(std::size_t const n) const {
+            return Closure{
+                {},
+                n,
+            };
+        }
+    } constexpr normalize{};
 };
 
 } // namespace Nebulite::Utility

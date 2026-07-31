@@ -42,9 +42,9 @@ class ContextScope;
 
 //------------------------------------------
 namespace {
-template<uint32_t size>
+template<uint32_t Size>
 uint64_t rollingJitter() {
-    static auto jitterGenerator = Nebulite::Utility::Coordination::IdGenerator::atomicRollingIdGenerator(size);
+    static auto jitterGenerator = Nebulite::Utility::Coordination::IdGenerator::atomicRollingIdGenerator(Size);
     return jitterGenerator();
 }
 } // namespace

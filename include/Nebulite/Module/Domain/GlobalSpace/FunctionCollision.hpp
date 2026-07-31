@@ -33,9 +33,9 @@ public:
     //------------------------------------------
     // Available Functions
 
-    [[nodiscard]] Constants::Event debug_collisionDetect_function(std::span<std::string_view const> const& args) const ;
-    static auto constexpr debug_collisionDetect_functionName = "debug collision-detect function";
-    static auto constexpr debug_collisionDetect_functionDesc = "Tests collision detection of function names\n"
+    [[nodiscard]] Constants::Event debugCollisionDetectFunction(std::span<std::string_view const> const& args) const ;
+    static auto constexpr debugCollisionDetectFunctionName = "debug collision-detect function";
+    static auto constexpr debugCollisionDetectFunctionDesc = "Tests collision detection of function names\n"
         "\n"
         "Tries to bind a function name to globalspace that is already registered, expecting a collision error.\n"
         "\n"
@@ -43,9 +43,9 @@ public:
         "\n"
         "Defaults to fail\n";
 
-    [[nodiscard]] Constants::Event debug_collisionDetect_category(std::span<std::string_view const> const& args) const ;
-    static auto constexpr debug_collisionDetect_categoryName = "debug collision-detect category";
-    static auto constexpr debug_collisionDetect_categoryDesc = "Tests collision detection of category names\n"
+    [[nodiscard]] Constants::Event debugCollisionDetectCategory(std::span<std::string_view const> const& args) const ;
+    static auto constexpr debugCollisionDetectCategoryName = "debug collision-detect category";
+    static auto constexpr debugCollisionDetectCategoryDesc = "Tests collision detection of category names\n"
         "\n"
         "Tries to bind a category name to globalspace that is already registered, expecting a collision error.\n"
         "\n"
@@ -53,9 +53,9 @@ public:
         "\n"
         "Defaults to fail\n";
 
-    [[nodiscard]] Constants::Event debug_collisionDetect_variable(std::span<std::string_view const> const& args) const ;
-    static auto constexpr debug_collisionDetect_variableName = "debug collision-detect variable";
-    static auto constexpr debug_collisionDetect_variableDesc = "Tests collision detection of variable names\n"
+    [[nodiscard]] Constants::Event debugCollisionDetectVariable(std::span<std::string_view const> const& args) const ;
+    static auto constexpr debugCollisionDetectVariableName = "debug collision-detect variable";
+    static auto constexpr debugCollisionDetectVariableDesc = "Tests collision detection of variable names\n"
         "\n"
         "Tries to bind a variable name to globalspace that is already registered, expecting a collision error.\n"
         "\n"
@@ -95,9 +95,9 @@ public:
 
         //------------------------------------------
         // Function bindings
-        bindFunction(&FunctionCollision::debug_collisionDetect_function, debug_collisionDetect_functionName, debug_collisionDetect_functionDesc);
-        bindFunction(&FunctionCollision::debug_collisionDetect_category, debug_collisionDetect_categoryName, debug_collisionDetect_categoryDesc);
-        bindFunction(&FunctionCollision::debug_collisionDetect_variable, debug_collisionDetect_variableName, debug_collisionDetect_variableDesc);
+        bindFunction(&FunctionCollision::debugCollisionDetectFunction, debugCollisionDetectFunctionName, debugCollisionDetectFunctionDesc);
+        bindFunction(&FunctionCollision::debugCollisionDetectCategory, debugCollisionDetectCategoryName, debugCollisionDetectCategoryDesc);
+        bindFunction(&FunctionCollision::debugCollisionDetectVariable, debugCollisionDetectVariableName, debugCollisionDetectVariableDesc);
     }
 };
 } // namespace Nebulite::Module::Domain::GlobalSpace
