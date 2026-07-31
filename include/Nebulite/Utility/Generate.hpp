@@ -110,15 +110,25 @@ public:
         return std::move(rounds);
     }
 
+    enum class Policy : bool {
+        included, notIncluded
+    };
+
     /**
-     * @brief Generates a range of powers of two up to a specified maximum value.
-     * @param inclusiveMax The inclusive maximum value for the range of powers of two.
-     * @return A view of the powers of two: [2, 4, 8, ..., inclusiveMax]
-     * @todo Add option to include 1
+     * @brief Generates a range of powers of two up to a specified ceiling.
+     * @tparam ZeroPower The zero inclusion policy. Defaults to notIncluded
+     * @param ceiling The inclusive maximum value for the range of powers of two.
+     * @return A view of the powers of two:
+     *         [2, 4, 8, ..., N] if ZeroPower = Policy::notIncluded
+     *         [1, 2, 4, ..., N] if ZeroPower = Policy::included
+     *         Where N is the highest power of 2 smaller or equal to ceiling.
+     *
      */
-    static auto constexpr powersOfTwo(std::size_t const inclusiveMax) {
-        auto bitWidth = static_cast<std::size_t>(std::bit_width(inclusiveMax));
-        return std::views::iota(1)
+    template<Policy ZeroPower = Policy::notIncluded>
+    static auto constexpr powersOfTwo(std::size_t const ceiling) {
+        auto constexpr start = ZeroPower == Policy::included ? 0 : 1;
+        auto const bitWidth = static_cast<std::size_t>(std::bit_width(ceiling));
+        return std::views::iota(start)
             | std::views::take_while([bitWidth](std::size_t const x) {
                 return x < bitWidth;
             })
