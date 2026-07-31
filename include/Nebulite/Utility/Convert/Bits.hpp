@@ -6,9 +6,13 @@
 
 // Standard library
 #include <cstddef>
+#include <limits>
+#include <string>
+#include <type_traits>
 
 //------------------------------------------
 namespace Nebulite::Utility::Convert::Bits {
+
 /**
  * @brief Reverses the bits of a given input
  * @param input The bits to reverse
@@ -21,6 +25,20 @@ std::size_t constexpr reverse(std::size_t input, std::size_t const bitCount) {
         result <<= 1u;
         result |= input & 1u;
         input >>= 1u;
+    }
+    return result;
+}
+
+template<typename T>
+std::string constexpr toString(T input) {
+    // T must be unsigned
+    static_assert(std::is_integral_v<T>, "T must be integral");
+    static_assert(std::is_unsigned_v<T>, "T must be unsigned");
+
+    std::string result;
+    result.reserve(sizeof(T) * 8);
+    for (T bitMask = std::bit_floor(std::numeric_limits<T>::max()); bitMask; bitMask >>= 1) {
+        result += input & bitMask ? '1' : '0';
     }
     return result;
 }
