@@ -6,6 +6,7 @@
 
 // Standard library
 #include <array>
+#include <bit>
 #include <cstddef>
 #include <functional>
 #include <ranges>
@@ -113,11 +114,17 @@ public:
      * @brief Generates a range of powers of two up to a specified maximum value.
      * @param inclusiveMax The inclusive maximum value for the range of powers of two.
      * @return A view of the powers of two: [2, 4, 8, ..., inclusiveMax]
+     * @todo Add option to include 1
      */
     static auto constexpr powersOfTwo(std::size_t const inclusiveMax) {
-        return std::views::iota(0)
-            | std::views::transform([](std::size_t const x) { return std::size_t{2} << x; })
-            | std::views::take_while([inclusiveMax](std::size_t const x) { return x <= inclusiveMax; });
+        auto bitWidth = static_cast<std::size_t>(std::bit_width(inclusiveMax));
+        return std::views::iota(1)
+            | std::views::take_while([bitWidth](std::size_t const x) {
+                return x < bitWidth;
+            })
+            | std::views::transform([](std::size_t const x) {
+                return std::size_t{1} << x;
+            });
     }
 
     /**
