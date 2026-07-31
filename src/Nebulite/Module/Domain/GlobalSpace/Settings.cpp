@@ -112,7 +112,7 @@ Constants::Event Settings::loadSettings(std::string const& filename) const {
     moduleScope.set<uint16_t>(Key::resolutionX, settingsFile.get<uint16_t>(Key::resolutionX).value_or(1000));
     moduleScope.set<uint16_t>(Key::resolutionY, settingsFile.get<uint16_t>(Key::resolutionY).value_or(1000));
     moduleScope.set<uint8_t>(Key::resolutionScaling, settingsFile.get<uint8_t>(Key::resolutionScaling).value_or(1));
-    moduleScope.set<uint16_t>(Key::targetFPS, settingsFile.get<uint16_t>(Key::targetFPS).value_or(60));
+    moduleScope.set<uint16_t>(Key::targetFps, settingsFile.get<uint16_t>(Key::targetFps).value_or(60));
     moduleScope.set<std::string>(Key::fontMono, settingsFile.get<std::string>(Key::fontMono).value_or("./Resources/Fonts/JetBrainsMono-Regular.ttf"));
     moduleScope.set<std::string>(Key::fontStandard, settingsFile.get<std::string>(Key::fontStandard).value_or("./Resources/Fonts/Arimo-Regular.ttf"));
     moduleScope.set<std::string>(Key::cursor, settingsFile.get<std::string>(Key::cursor).value_or("./Resources/Cursor/Drakensang.png"));

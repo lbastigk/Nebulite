@@ -104,10 +104,10 @@ public:
     /**
      * @brief Initializes SDL and related subsystems.
      */
-    void initSDL();
+    void initSdl();
 
     /**
-     * @brief Initializes ImGui for the Renderer. Called within `initSDL()`.
+     * @brief Initializes ImGui for the Renderer. Called within `initSdl()`.
      */
     void initImgui();
 
@@ -235,7 +235,7 @@ public:
     /**
      * @brief Sets the target FPS for the renderer.
      */
-    void setTargetFPS(std::uint16_t const& targetFps);
+    void setTargetFps(std::uint16_t const& targetFps);
 
     /**
      * @brief Changes the window size.
@@ -278,7 +278,7 @@ public:
      * @brief Gets the amount of textures currently loaded.
      * @return The number of textures.
      */
-    [[nodiscard]] std::size_t getTextureAmount() const { return TextureContainer.size(); }
+    [[nodiscard]] std::size_t getTextureAmount() const { return textureContainer.size(); }
 
     /**
      * @brief Gets the amount of RenderObjects currently loaded.
@@ -290,7 +290,7 @@ public:
      * @brief Gets the current FPS.
      * @return The current FPS.
      */
-    [[nodiscard]] std::uint16_t getFPS() const { return fps.real; }
+    [[nodiscard]] std::uint16_t getFps() const { return fps.real; }
 
     /**
      * @brief Gets the current tile position of the camera in the X direction.
@@ -336,9 +336,9 @@ public:
     // Texture-Related
 
     /**
-     * @brief Loads a texture from a file into memory without adding it to the TextureContainer.
+     * @brief Loads a texture from a file into memory without adding it to the textureContainer.
      * @details Creates the necessary surface and texture object from a given file path,
-     *          but does not store it in the TextureContainer. It is useful for temporary textures or
+     *          but does not store it in the textureContainer. It is useful for temporary textures or
      *          textures that are managed externally.
      * @param link The file path to load the texture from.
      * @return A pointer to the loaded SDL_Texture, or nullptr if loading failed.
@@ -346,7 +346,7 @@ public:
     [[nodiscard]] SDL_Texture* loadTextureToMemory(std::string const& link);
 
     /**
-     * @brief Retrieves a texture from the TextureContainer.
+     * @brief Retrieves a texture from the textureContainer.
      * @details If the texture is not already loaded, it attempts to load it from the specified file path.
      * @param link The file path of the texture to retrieve.
      * @return A pointer to the SDL_Texture, or nullptr if loading failed.
@@ -509,7 +509,7 @@ private:
 
     void renderFrame();
 
-    void renderFPS() const;
+    void renderFps() const;
 
     //------------------------------------------
     // Event and routine Handling
@@ -539,7 +539,7 @@ private:
     // Texture-Related
 
     /**
-     * @brief Loads a texture into the TextureContainer
+     * @brief Loads a texture into the textureContainer
      *        Creates the necessary surface and texture object from a given file path.
      * @param link The file path to load the texture from.
      */
@@ -548,13 +548,13 @@ private:
     /**
      * @brief Texture container for the Renderer
      * @details Holds all loaded textures from RenderObject sprites for the renderer, allowing for easy access and management.
-     *          `TextureContainer[link] -> Texture*`
+     *          `textureContainer[link] -> Texture*`
      */
-    absl::flat_hash_map<std::string, SDL_Texture*> TextureContainer;
+    absl::flat_hash_map<std::string, SDL_Texture*> textureContainer;
 
     /**
      * @brief Contains textures the renderer needs to render between layers
-     * @details `BetweenLayerTextures[layer][link] -> SDL_Texture*`
+     * @details `betweenLayerTextures[layer][link] -> SDL_Texture*`
      */
     absl::flat_hash_map<
         Environment::Layer,
@@ -562,7 +562,7 @@ private:
             std::string,
             std::pair<SDL_Texture*, std::optional<SDL_FRect>> // Pair of texture and its rectangle
         >
-    > BetweenLayerTextures;
+    > betweenLayerTextures;
 
     //------------------------------------------
     // Font-Related

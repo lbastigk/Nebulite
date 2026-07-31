@@ -114,39 +114,39 @@ public:
      */
     static struct Enumerate : std::ranges::range_adaptor_closure<Enumerate> {
         template <typename T>
-        struct enumerate_item {
+        struct EnumerateItem {
             std::size_t index;
             T value;
         };
 
-        // A simple enumerate view implementation that yields enumerate_item{index, element}
+        // A simple enumerate view implementation that yields EnumerateItem{index, element}
         template <std::ranges::view V>
         requires std::ranges::input_range<V>
-        struct enumerate_view : std::ranges::view_interface<enumerate_view<V>> {
+        struct EnumerateView : std::ranges::view_interface<EnumerateView<V>> {
             V base = V();
 
-            enumerate_view() = default;
-            explicit enumerate_view(V b) : base(std::move(b)) {}
+            EnumerateView() = default;
+            explicit EnumerateView(V b) : base(std::move(b)) {}
 
-            using base_iterator_t = std::ranges::iterator_t<V>;
-            using base_sentinel_t = std::ranges::sentinel_t<V>;
+            using BaseIterator = std::ranges::iterator_t<V>;
+            using BaseSentinel = std::ranges::sentinel_t<V>;
 
-            struct iterator {
-                base_iterator_t it{};
+            struct Iterator {
+                BaseIterator it{};
                 std::size_t index = 0;
 
-                using iterator_category = std::input_iterator_tag;
-                using value_type = enumerate_item<std::ranges::range_reference_t<V>>;
-                using difference_type = std::ptrdiff_t;
+                using iterator_category = std::input_iterator_tag; // NOLINT
+                using value_type = EnumerateItem<std::ranges::range_reference_t<V>>; // NOLINT
+                using difference_type = std::ptrdiff_t; // NOLINT
 
-                iterator() = default;
-                iterator(base_iterator_t const& i, std::size_t const idx) : it(i), index(idx) {}
+                Iterator() = default;
+                Iterator(BaseIterator const& i, std::size_t const idx) : it(i), index(idx) {}
 
                 value_type operator*() const {
                     return value_type{index, *it};
                 }
 
-                iterator& operator++() {
+                Iterator& operator++() {
                     ++it;
                     ++index;
                     return *this;
@@ -154,25 +154,25 @@ public:
 
                 void operator++(int) { ++*this; }
 
-                friend bool operator==(iterator const& a, base_iterator_t const& b) { return a.it == b; }
+                friend bool operator==(Iterator const& a, BaseIterator const& b) { return a.it == b; }
             };
 
-            struct sentinel {
-                base_sentinel_t end;
+            struct Sentinel {
+                BaseSentinel end;
             };
 
-            iterator begin() { return iterator{std::ranges::begin(base), 0}; }
-            sentinel end() { return sentinel{std::ranges::end(base)}; }
+            Iterator begin() { return Iterator{std::ranges::begin(base), 0}; }
+            Sentinel end() { return Sentinel{std::ranges::end(base)}; }
 
-            // compare iterator and sentinel
-            friend bool operator==(iterator const& it, sentinel const& s) { return it.it == s.end; }
-            friend bool operator==(sentinel const& s, iterator const& it) { return it == s; }
+            // compare Iterator and sentinel
+            friend bool operator==(Iterator const& it, Sentinel const& s) { return it.it == s.end; }
+            friend bool operator==(Sentinel const& s, Iterator const& it) { return it == s; }
         };
 
         template <std::ranges::viewable_range R>
         auto operator()(R&& r) const {
             using V = std::views::all_t<R>;
-            return enumerate_view<V>(std::views::all(std::forward<R>(r)));
+            return EnumerateView<V>(std::views::all(std::forward<R>(r)));
         }
     } constexpr enumerate{};
 

@@ -16,7 +16,7 @@
 //------------------------------------------
 namespace Nebulite::Utility {
 
-std::string Time::timeIso8601(ISO8601Format const format, bool const local) {
+std::string Time::timeIso8601(Iso8601Format const format, bool const local) {
     // Get current time
     std::time_t const time = std::time(nullptr);
 
@@ -30,19 +30,19 @@ std::string Time::timeIso8601(ISO8601Format const format, bool const local) {
     std::size_t constexpr maxLen = 32; // maximum length of the buffer
     std::size_t written = 0;
     switch (format) {
-    case ISO8601Format::YYYY:
+    case Iso8601Format::YYYY:
         written = std::strftime(buffer.data(), sizeof(buffer), "%Y", &timeInfo);
         break;
-    case ISO8601Format::YYYY_MM:
+    case Iso8601Format::YYYY_MM:
         written = std::strftime(buffer.data(), sizeof(buffer), "%Y-%m", &timeInfo);
         break;
-    case ISO8601Format::YYYY_MM_DD:
+    case Iso8601Format::YYYY_MM_DD:
         written = std::strftime(buffer.data(), sizeof(buffer), "%Y-%m-%d", &timeInfo);
         break;
-    case ISO8601Format::YYYY_MM_DD_HH_MM_SS:
+    case Iso8601Format::YYYY_MM_DD_HH_MM_SS:
         written = std::strftime(buffer.data(), sizeof(buffer), "%Y-%m-%dT%H:%M:%S", &timeInfo);
         break;
-    case ISO8601Format::YYYY_MM_DD_HH_MM_SS_TZ:
+    case Iso8601Format::YYYY_MM_DD_HH_MM_SS_TZ:
         written = std::strftime(buffer.data(), sizeof(buffer), "%Y-%m-%dT%H:%M:%SZ", &timeInfo);
         break;
     default:

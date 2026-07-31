@@ -103,7 +103,7 @@ void Renderer::setupDisplayValues() {
     auto const resX = Global::settings().get<uint16_t>(Module::Domain::GlobalSpace::Settings::Key::resolutionX).value_or(1000);
     auto const resY = Global::settings().get<uint16_t>(Module::Domain::GlobalSpace::Settings::Key::resolutionX).value_or(1000);
     windowScale = Global::settings().get<uint8_t>(Module::Domain::GlobalSpace::Settings::Key::resolutionScaling).value_or(1);
-    fps.target = Global::settings().get<uint16_t>(Module::Domain::GlobalSpace::Settings::Key::targetFPS).value_or(60);
+    fps.target = Global::settings().get<uint16_t>(Module::Domain::GlobalSpace::Settings::Key::targetFps).value_or(60);
 
     // Set in workspace
     domainScope.set<unsigned int>(Constants::KeyNames::Renderer::dispResXWindow, resX*windowScale);
@@ -118,7 +118,7 @@ void Renderer::setupDisplayValues() {
 }
 
 Constants::Event Renderer::preParse() {
-    initSDL();
+    initSdl();
     return Constants::Event::Success;
 }
 
@@ -233,7 +233,7 @@ auto getWindowFlags(bool const headless) {
 }
 } // namespace
 
-void Renderer::initSDL() {
+void Renderer::initSdl() {
     if (status.sdlInitialized) return;
 
     //------------------------------------------
@@ -430,7 +430,7 @@ void Renderer::renderInit() const {
     ImGui::NewFrame();
 }
 
-void Renderer::renderFPS() const {
+void Renderer::renderFps() const {
     ImGui::SetNextWindowPos(ImVec2(5.0f, 5.0f), ImGuiCond_Always);
     ImGui::SetNextWindowBgAlpha(0.35f);
 
@@ -513,7 +513,7 @@ void Renderer::render() {
     Graphics::RmlInterface::instance().render();
 
     // Finalize render
-    if (status.showFps) renderFPS();
+    if (status.showFps) renderFps();
     ImGui::Render();
     ImGui_ImplSDLRenderer3_RenderDrawData(ImGui::GetDrawData(), renderer);
 
@@ -586,23 +586,23 @@ bool Renderer::attachTextureAboveLayer(Environment::Layer const aboveThisLayer, 
     if (texture == nullptr) {
         return false; // Cannot attach a null texture
     }
-    if (BetweenLayerTextures[aboveThisLayer].contains(name)) {
+    if (betweenLayerTextures[aboveThisLayer].contains(name)) {
         return false; // Texture with this name already exists in the specified layer
     }
-    BetweenLayerTextures[aboveThisLayer][name] = std::make_pair(texture, rect);
+    betweenLayerTextures[aboveThisLayer][name] = std::make_pair(texture, rect);
     return true;
 }
 
 bool Renderer::detachTextureAboveLayer(Environment::Layer const aboveThisLayer, std::string const& name) {
-    if (BetweenLayerTextures[aboveThisLayer].contains(name)) {
-        BetweenLayerTextures[aboveThisLayer].erase(name);
+    if (betweenLayerTextures[aboveThisLayer].contains(name)) {
+        betweenLayerTextures[aboveThisLayer].erase(name);
         return true;
     }
     return false;
 }
 
 void Renderer::detachAllTextures() {
-    BetweenLayerTextures.clear();
+    betweenLayerTextures.clear();
 }
 
 //------------------------------------------
@@ -613,11 +613,11 @@ void Renderer::purgeObjects() {
 }
 
 void Renderer::purgeTextures() {
-    // Release resources for TextureContainer
-    for (auto const& texture : std::views::values(TextureContainer)) {
+    // Release resources for textureContainer
+    for (auto const& texture : std::views::values(textureContainer)) {
         SDL_DestroyTexture(texture);
     }
-    TextureContainer.clear(); // Clear the map to release resources
+    textureContainer.clear(); // Clear the map to release resources
 }
 
 void Renderer::destroy() {
@@ -647,7 +647,7 @@ void Renderer::destroy() {
 //------------------------------------------
 // Setting
 
-void Renderer::setTargetFPS(std::uint16_t const& targetFps) {
+void Renderer::setTargetFps(std::uint16_t const& targetFps) {
     fps.target = targetFps;
 }
 
@@ -814,7 +814,7 @@ void Renderer::renderFrame() {
         }
 
         // Render all textures that were attached from outside processes
-        for (auto const& [texture, rect] : std::views::values(BetweenLayerTextures[layer])) {
+        for (auto const& [texture, rect] : std::views::values(betweenLayerTextures[layer])) {
             if (!texture) {
                 continue; // Skip if texture is null
             }
@@ -837,20 +837,20 @@ void Renderer::renderFrame() {
 
 SDL_Texture* Renderer::getTexture(std::string const& link) {
     // Check if texture is already loaded
-    if (auto const it = TextureContainer.find(link); it != TextureContainer.end()) {
+    if (auto const it = textureContainer.find(link); it != textureContainer.end()) {
         return it->second;
     }
 
     // Load texture if not found
     SDL_Texture* texture = loadTextureToMemory(link);
     if (texture != nullptr) {
-        TextureContainer[link] = texture;
+        textureContainer[link] = texture;
     }
     return texture;
 }
 
 void Renderer::loadTexture(std::string const& link) {
-    if (auto* const t = loadTextureToMemory(link); t != nullptr) TextureContainer[link] = t;
+    if (auto* const t = loadTextureToMemory(link); t != nullptr) textureContainer[link] = t;
 }
 
 SDL_Texture* Renderer::loadTextureToMemory(std::string const& link) {

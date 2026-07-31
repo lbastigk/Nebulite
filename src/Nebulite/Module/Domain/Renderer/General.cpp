@@ -127,7 +127,7 @@ Constants::Event General::setFps(int const argc, char const** argv) const {
         if (fpsSigned > 10000)
             fps = 10000;
     }
-    domain.setTargetFPS(fps);
+    domain.setTargetFps(fps);
     return Constants::Event::Success;
 }
 

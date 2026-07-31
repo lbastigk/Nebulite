@@ -34,12 +34,12 @@ public:
      * @details Defines the different formats available for ISO 8601 date strings
      *          and is to be used with the timeIso8601 function.
      */
-    enum class ISO8601Format : std::uint8_t {
-        YYYY,
-        YYYY_MM,
-        YYYY_MM_DD,
-        YYYY_MM_DD_HH_MM_SS,
-        YYYY_MM_DD_HH_MM_SS_TZ,
+    enum class Iso8601Format : std::uint8_t {
+        YYYY, // NOLINT
+        YYYY_MM, // NOLINT
+        YYYY_MM_DD, // NOLINT
+        YYYY_MM_DD_HH_MM_SS, // NOLINT
+        YYYY_MM_DD_HH_MM_SS_TZ, // NOLINT
     };
 
     /**
@@ -50,7 +50,7 @@ public:
      * @param local If true, return the local time; otherwise, return UTC time.
      * @return The current time in ISO 8601 format.
      */
-    static std::string timeIso8601(ISO8601Format format, bool local);
+    static std::string timeIso8601(Iso8601Format format, bool local);
 
     /**
      * @brief Returns the current time since epoch in milliseconds.
