@@ -77,27 +77,27 @@ public:
         "\n"
         "Usage: ensure-array <key>\n";
 
-    [[nodiscard]] static Constants::Event push_back(std::span<std::string_view const> const& args, Interaction::Context& ctx, Interaction::ContextScope& ctxScope);
-    static auto constexpr push_backName = "push-back";
-    static auto constexpr push_backDesc = "Push a value to the back of an array.\n"
+    [[nodiscard]] static Constants::Event pushBack(std::span<std::string_view const> const& args, Interaction::Context& ctx, Interaction::ContextScope& ctxScope);
+    static auto constexpr pushBackName = "push-back";
+    static auto constexpr pushBackDesc = "Push a value to the back of an array.\n"
         "\n"
         "Usage: push-back <key> <value>\n";
 
-    [[nodiscard]] static Constants::Event pop_back(std::span<std::string_view const> const& args, Interaction::Context const& ctx, Interaction::ContextScope const& ctxScope);
-    static auto constexpr pop_backName = "pop-back";
-    static auto constexpr pop_backDesc = "Pop a value from the back of an array.\n"
+    [[nodiscard]] static Constants::Event popBack(std::span<std::string_view const> const& args, Interaction::Context const& ctx, Interaction::ContextScope const& ctxScope);
+    static auto constexpr popBackName = "pop-back";
+    static auto constexpr popBackDesc = "Pop a value from the back of an array.\n"
         "\n"
         "Usage: pop-back <key>\n";
 
-    [[nodiscard]] static Constants::Event push_front(std::span<std::string_view const> const& args, Interaction::Context& ctx, Interaction::ContextScope& ctxScope);
-    static auto constexpr push_frontName = "push-front";
-    static auto constexpr push_frontDesc = "Push a value to the front of an array.\n"
+    [[nodiscard]] static Constants::Event pushFront(std::span<std::string_view const> const& args, Interaction::Context& ctx, Interaction::ContextScope& ctxScope);
+    static auto constexpr pushFrontName = "push-front";
+    static auto constexpr pushFrontDesc = "Push a value to the front of an array.\n"
         "\n"
         "Usage: push-front <key> <value>\n";
 
-    [[nodiscard]] static Constants::Event pop_front(std::span<std::string_view const> const& args, Interaction::Context& ctx, Interaction::ContextScope& ctxScope);
-    static auto constexpr pop_frontName = "pop-front";
-    static auto constexpr pop_frontDesc = "Pop a value from the front of an array.\n"
+    [[nodiscard]] static Constants::Event popFront(std::span<std::string_view const> const& args, Interaction::Context& ctx, Interaction::ContextScope& ctxScope);
+    static auto constexpr popFrontName = "pop-front";
+    static auto constexpr popFrontDesc = "Pop a value from the front of an array.\n"
         "\n"
         "Usage: pop-front <key>\n";
 
@@ -120,10 +120,10 @@ public:
         bindFunction(&SimpleData::keyDelete, keyDeleteName, keyDeleteDesc);
 
         // Array manipulation
-        bindFunction(&SimpleData::push_back, push_backName, push_backDesc);
-        bindFunction(&SimpleData::pop_back, pop_backName, pop_backDesc);
-        bindFunction(&SimpleData::push_front, push_frontName, push_frontDesc);
-        bindFunction(&SimpleData::pop_front, pop_frontName, pop_frontDesc);
+        bindFunction(&SimpleData::pushBack, pushBackName, pushBackDesc);
+        bindFunction(&SimpleData::popBack, popBackName, popBackDesc);
+        bindFunction(&SimpleData::pushFront, pushFrontName, pushFrontDesc);
+        bindFunction(&SimpleData::popFront, popFrontName, popFrontDesc);
         bindFunction(&SimpleData::ensureArray, ensureArrayName, ensureArrayDesc);
     }
 };

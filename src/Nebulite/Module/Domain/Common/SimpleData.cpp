@@ -106,11 +106,9 @@ Constants::Event SimpleData::keyDelete(std::span<std::string_view const> const& 
 Constants::Event SimpleData::ensureArray(std::span<std::string_view const> const& args, Interaction::Context const& ctx, Interaction::ContextScope const& ctxScope) {
     auto lock = ctxScope.self.lock(); // Lock the domain for thread-safe access
     if (args.size() < 2) {
-        ctx.self.capture.error.println("Error: Too few arguments for ensureArray command.");
         return Constants::StandardCapture::Warning::Functional::tooFewArgs(ctx.self.capture);
     }
     if (args.size() > 2) {
-        ctx.self.capture.error.println("Error: Too many arguments for ensureArray command.");
         return Constants::StandardCapture::Warning::Functional::tooManyArgs(ctx.self.capture);
     }
 
@@ -120,10 +118,9 @@ Constants::Event SimpleData::ensureArray(std::span<std::string_view const> const
     return Constants::Event::Success;
 }
 
-Constants::Event SimpleData::push_back(std::span<std::string_view const> const& args, Interaction::Context& ctx, Interaction::ContextScope& ctxScope){
+Constants::Event SimpleData::pushBack(std::span<std::string_view const> const& args, Interaction::Context& ctx, Interaction::ContextScope& ctxScope){
     auto lock = ctxScope.self.lock(); // Lock the domain for thread-safe access
     if (args.size() > 3) {
-        ctx.self.capture.error.println("Error: Too many arguments for push_front command.");
         return Constants::StandardCapture::Warning::Functional::tooManyArgs(ctx.self.capture);
     }
     auto const key = ctxScope.self.getRootScope().addMember(args[1]);
@@ -152,14 +149,12 @@ Constants::Event SimpleData::push_back(std::span<std::string_view const> const& 
     return Constants::Event::Success;
 }
 
-Constants::Event SimpleData::pop_back(std::span<std::string_view const> const& args, Interaction::Context const& ctx, Interaction::ContextScope const& ctxScope) {
+Constants::Event SimpleData::popBack(std::span<std::string_view const> const& args, Interaction::Context const& ctx, Interaction::ContextScope const& ctxScope) {
     auto lock = ctxScope.self.lock(); // Lock the domain for thread-safe access
     if (args.size() < 2) {
-        ctx.self.capture.error.println("Error: Too few arguments for push_back command.");
         return Constants::StandardCapture::Warning::Functional::tooFewArgs(ctx.self.capture);
     }
     if (args.size() > 2) {
-        ctx.self.capture.error.println("Error: Too many arguments for push_back command.");
         return Constants::StandardCapture::Warning::Functional::tooManyArgs(ctx.self.capture);
     }
     auto const key = ctxScope.self.getRootScope().addMember(args[1]);
@@ -183,10 +178,9 @@ Constants::Event SimpleData::pop_back(std::span<std::string_view const> const& a
     return Constants::Event::Success;
 }
 
-Constants::Event SimpleData::push_front(std::span<std::string_view const> const& args, Interaction::Context& ctx, Interaction::ContextScope& ctxScope) {
+Constants::Event SimpleData::pushFront(std::span<std::string_view const> const& args, Interaction::Context& ctx, Interaction::ContextScope& ctxScope) {
     auto lock = ctxScope.self.lock(); // Lock the domain for thread-safe access
     if (args.size() > 3) {
-        ctx.self.capture.error.println("Error: Too many arguments for push_front command.");
         return Constants::StandardCapture::Warning::Functional::tooManyArgs(ctx.self.capture);
     }
     auto const key = ctxScope.self.getRootScope().addMember(args[1]);
@@ -215,7 +209,7 @@ Constants::Event SimpleData::push_front(std::span<std::string_view const> const&
     // This feature is yet to be implemented!
     for (auto itemKey : key.getArrayKeys(size)) {
         if (Data::KeyType const itemType = ctxScope.self.memberType(itemKey); itemType == Data::KeyType::object) {
-            ctx.self.capture.error.println("Error: Cannot push_front into an array containing documents.");
+            ctx.self.capture.error.println("Error: Cannot pushFront into an array containing documents.");
             return Constants::StandardCapture::Error::Functional::functionNotImplemented(ctx.self.capture);
         }
     }
@@ -233,14 +227,12 @@ Constants::Event SimpleData::push_front(std::span<std::string_view const> const&
     return Constants::Event::Success;
 }
 
-Constants::Event SimpleData::pop_front(std::span<std::string_view const> const& args, Interaction::Context& ctx, Interaction::ContextScope& ctxScope) {
+Constants::Event SimpleData::popFront(std::span<std::string_view const> const& args, Interaction::Context& ctx, Interaction::ContextScope& ctxScope) {
     auto lock = ctxScope.self.lock(); // Lock the domain for thread-safe access
     if (args.size() < 2) {
-        ctx.self.capture.error.println("Error: Too few arguments for pop_front command.");
         return Constants::StandardCapture::Warning::Functional::tooFewArgs(ctx.self.capture);
     }
     if (args.size() > 2) {
-        ctx.self.capture.error.println("Error: Too many arguments for pop_front command.");
         return Constants::StandardCapture::Warning::Functional::tooManyArgs(ctx.self.capture);
     }
     auto const key = ctxScope.self.getRootScope().addMember(args[1]);
@@ -263,7 +255,7 @@ Constants::Event SimpleData::pop_front(std::span<std::string_view const> const& 
     // This feature is yet to be implemented!
     for (auto itemKey : key.getArrayKeys(size)) {
         if (ctxScope.self.memberType(itemKey) == Data::KeyType::object) {
-            ctx.self.capture.error.println("Error: Cannot push_front into an array containing documents.");
+            ctx.self.capture.error.println("Error: Cannot pushFront into an array containing documents.");
             return Constants::StandardCapture::Error::Functional::functionNotImplemented(ctx.self.capture);
         }
     }
