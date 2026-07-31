@@ -119,7 +119,7 @@ void Renderer::setupDisplayValues() {
 
 Constants::Event Renderer::preParse() {
     initSdl();
-    return Constants::Event::Success;
+    return Constants::Event::success;
 }
 
 void Renderer::initImgui() {
@@ -544,9 +544,9 @@ Constants::Event Renderer::update() {
     if (SDL_GetError()[0] != '\0') {
         capture.error.println("SDL Error during rendering: ", SDL_GetError());
         SDL_ClearError();
-        return Constants::Event::Warning;
+        return Constants::Event::warning;
     }
-    return Constants::Event::Success;
+    return Constants::Event::success;
 }
 
 bool Renderer::timeToRender() {

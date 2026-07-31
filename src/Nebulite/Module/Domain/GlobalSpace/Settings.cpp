@@ -21,7 +21,7 @@
 namespace Nebulite::Module::Domain::GlobalSpace {
 
 Constants::Event Settings::updateHook() {
-    return Constants::Event::Success;
+    return Constants::Event::success;
 }
 
 //------------------------------------------
@@ -33,17 +33,17 @@ Constants::Event Settings::saveSettings() const {
     std::string const settings = Global::settings().serialize();
     if (settings.empty()) {
         domain.capture.error.println("Failed to serialize settings. No data was written to file.");
-        return Constants::Event::Error;
+        return Constants::Event::error;
     }
     if (!Utility::IO::FileManagement::writeFile(defaultSettingsFile, settings)) {
         return Constants::StandardCapture::Error::File::couldNotWriteFile(domain.capture);
     }
-    return Constants::Event::Success;
+    return Constants::Event::success;
 }
 
 Constants::Event Settings::overWriteSettingsFile() const {
     // Overwrite settings file with default settings
-    if (auto const loadResult = loadSettings(""); loadResult != Constants::Event::Success) {
+    if (auto const loadResult = loadSettings(""); loadResult != Constants::Event::success) {
         domain.capture.warning.println("Failed to load settings");
         return loadResult;
     }
@@ -62,7 +62,7 @@ Constants::Event Settings::setSettingStr(std::span<std::string_view const> const
 
     // Set string setting in global settings
     moduleScope.set<std::string>(moduleScope.getRootScope().addMember(key), std::string(value));
-    return Constants::Event::Success;
+    return Constants::Event::success;
 }
 
 Constants::Event Settings::setSettingInt(std::span<std::string_view const> const& args) const {
@@ -77,7 +77,7 @@ Constants::Event Settings::setSettingInt(std::span<std::string_view const> const
 
     // Set integer setting in global settings
     moduleScope.set<int>(moduleScope.getRootScope().addMember(key), value);
-    return Constants::Event::Success;
+    return Constants::Event::success;
 }
 
 //------------------------------------------
@@ -155,12 +155,12 @@ Constants::Event Settings::loadSettings(std::string const& filename) const {
         domain.capture.error.println("Settings: Settings file is invalid. Loading default values.");
         // Settings file does not exist!
         // Write default settings to file
-        if (saveSettings() == Constants::Event::Error) {
+        if (saveSettings() == Constants::Event::error) {
             domain.capture.error.println("Settings: Failed to write default settings to file: ", filename);
         }
-        return Constants::Event::Warning;
+        return Constants::Event::warning;
     }
-    return Constants::Event::Success;
+    return Constants::Event::success;
 }
 
 void Settings::logInitError() const {

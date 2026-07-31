@@ -33,11 +33,11 @@ Formatter Formatter::readFormatter(std::string_view formatter) {
 
     // Format cast
     if (formatter.ends_with('i')) {
-        fmt.cast = CastType::to_int;
+        fmt.cast = CastType::toInt;
         formatter.remove_suffix(1);
     }
     else if (formatter.ends_with('f')) {
-        fmt.cast = CastType::to_double;
+        fmt.cast = CastType::toDouble;
         formatter.remove_suffix(1);
     }
     else {
@@ -66,10 +66,10 @@ Formatter Formatter::readFormatter(std::string_view formatter) {
 
 std::string Formatter::format(double const value) const {
     std::string token;
-    if (cast == CastType::to_int) {
+    if (cast == CastType::toInt) {
         token = std::to_string(static_cast<int>(value));
     } else {
-        // to_double or none, both use double directly
+        // double or none are both converted to string directly
         double newValue = value;
 
         // Apply rounding if precision is specified
@@ -80,6 +80,7 @@ std::string Formatter::format(double const value) const {
 
         token = std::to_string(newValue);
     }
+
 
     // Precision formatting (after rounding)
     if (precision.has_value()) {

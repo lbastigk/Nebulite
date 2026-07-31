@@ -250,7 +250,7 @@ bool ExpressionComponent::isSimpleExpression() const noexcept {
 
 bool ExpressionComponent::isSimpleExpressionWithIntCast() const noexcept {
     return type == Type::eval
-        && formatter.cast == Formatter::CastType::to_int
+        && formatter.cast == Formatter::CastType::toInt
         && !formatter.alignment
         && !formatter.leadingZero
         && !formatter.precision;

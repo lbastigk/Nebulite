@@ -12,18 +12,18 @@
 namespace Nebulite::Data {
 
 Constants::Event TaskQueueResult::worstEvent() const {
-    auto worst = Constants::Event::Success;
+    auto worst = Constants::Event::success;
     for (auto const& event : events) {
         switch (event) {
-        case Constants::Event::Success:
+        case Constants::Event::success:
             break;
-        case Constants::Event::Warning:
-            if (worst == Constants::Event::Success) {
-                worst = Constants::Event::Warning;
+        case Constants::Event::warning:
+            if (worst == Constants::Event::success) {
+                worst = Constants::Event::warning;
             }
             break;
-        case Constants::Event::Error:
-            worst = Constants::Event::Error;
+        case Constants::Event::error:
+            worst = Constants::Event::error;
             break;
         default:
             std::unreachable();

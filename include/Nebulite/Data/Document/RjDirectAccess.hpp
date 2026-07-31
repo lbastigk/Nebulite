@@ -27,7 +27,7 @@ public:
      * @brief Definition of a simple value variant type.
      *        All of these types are supported for direct access.
      */
-    using simpleValue = std::variant<
+    using SimpleValue = std::variant<
         std::int32_t,
         std::int64_t,
         std::uint32_t,
@@ -40,19 +40,19 @@ public:
     /**
      * @brief Getting a simple value from a rapidjson value, using the right type stored in the document.
      * @param val Pointer to the rapidjson value to get the value from.
-     * @return An optional simpleValue containing the value if successful, or std::nullopt if the type is unsupported.
+     * @return An optional SimpleValue containing the value if successful, or std::nullopt if the type is unsupported.
      */
-    static std::optional<simpleValue> getSimpleValue(rapidjson::Value const* val);
+    static std::optional<SimpleValue> getSimpleValue(rapidjson::Value const* val);
 
     /**
      * @brief Getting a simple value from a rapidjson value, using the right type stored in the document.
      * @tparam RjValType The type of the rapidjson value, should be a rapidjson::Document to ensure correct key traversal.
      * @param key The key to traverse in the document to find the value.
      * @param doc The rapidjson document to search within.
-     * @return An optional simpleValue containing the value if successful, or std::nullopt if the type is unsupported.
+     * @return An optional SimpleValue containing the value if successful, or std::nullopt if the type is unsupported.
      */
     template<typename RjValType>
-    static std::optional<simpleValue> getSimpleValue(std::string_view key, RjValType& doc) {
+    static std::optional<SimpleValue> getSimpleValue(std::string_view key, RjValType& doc) {
         // The given RjValType should be a Document.
         // If we pass a rapidjson value, we risk not starting at the top of the document, where we should apply the key traversal.
         // This fixes implicit conversion worries.
@@ -105,7 +105,7 @@ public:
      * @param defaultValue The default value to use if conversion fails.
      */
     template <typename T> requires (!std::is_trivially_copyable_v<T>)
-    static void ConvertFromJSONValue(rapidjson::Value const& jsonValue, T& result, T const& defaultValue = T());
+    static void ConvertFromJsonValue(rapidjson::Value const& jsonValue, T& result, T const& defaultValue = T());
 
     /**
      * @brief Converts a rapidjson value to a given type.
@@ -115,7 +115,7 @@ public:
      * @param defaultValue The default value to use if conversion fails.
      */
     template <typename T> requires std::is_trivially_copyable_v<T>
-    static void ConvertFromJSONValue(rapidjson::Value const& jsonValue, T& result, T defaultValue = T());
+    static void ConvertFromJsonValue(rapidjson::Value const& jsonValue, T& result, T defaultValue = T());
 
     /**
      * @brief Converts a given type to a rapidjson value.
@@ -125,7 +125,7 @@ public:
      * @param allocator The allocator to use for creating new rapidjson values.
      */
     template <typename T> requires (!std::is_trivially_copyable_v<T>)
-    static void ConvertToJSONValue(T const& data, rapidjson::Value& jsonValue, rapidjson::Document::AllocatorType& allocator);
+    static void ConvertToJsonValue(T const& data, rapidjson::Value& jsonValue, rapidjson::Document::AllocatorType& allocator);
 
     /**
      * @brief Converts a given type to a rapidjson value.
@@ -135,7 +135,7 @@ public:
      * @param allocator The allocator to use for creating new rapidjson values.
      */
     template <typename T> requires std::is_trivially_copyable_v<T>
-    static void ConvertToJSONValue(T data, rapidjson::Value& jsonValue, rapidjson::Document::AllocatorType& allocator);
+    static void ConvertToJsonValue(T data, rapidjson::Value& jsonValue, rapidjson::Document::AllocatorType& allocator);
 
     //------------------------------------------
     // Document traversal

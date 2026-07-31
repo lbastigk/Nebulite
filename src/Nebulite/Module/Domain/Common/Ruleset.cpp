@@ -69,7 +69,7 @@ Constants::Event Ruleset::updateHook() {
             noRulesets = rulesetsLocal.empty() && rulesetsGlobal.empty();
         }
         if (noRulesets) {
-            return Constants::Event::Success;
+            return Constants::Event::success;
         }
 
         // Directly apply local rulesets
@@ -93,7 +93,7 @@ Constants::Event Ruleset::updateHook() {
     else {
         initialized = true;
     }
-    return Constants::Event::Success;
+    return Constants::Event::success;
 }
 
 void Ruleset::reinit() {
@@ -109,7 +109,7 @@ void Ruleset::reinit() {
 
 Constants::Event Ruleset::reload() {
     reloadRulesets = true;
-    return Constants::Event::Success;
+    return Constants::Event::success;
 }
 
 Constants::Event Ruleset::invokeOnce(std::span<std::string_view const> const& args) const {
@@ -122,10 +122,10 @@ Constants::Event Ruleset::invokeOnce(std::span<std::string_view const> const& ar
             else {
                 rs.value()->applyDomain(Global::instance());
             }
-            return Constants::Event::Success;
+            return Constants::Event::success;
         }
         domain.capture.warning.println("Failed to parse ruleset: " + arg);
-        return Constants::Event::Warning;
+        return Constants::Event::warning;
     }
     return Constants::StandardCapture::Warning::Functional::tooFewArgs(domain.capture);
 }
@@ -140,7 +140,7 @@ Constants::Event Ruleset::broadcast(std::span<std::string_view const> const& arg
 
     if (auto const rs = Interaction::Rules::Construction::RulesetCompiler::parseSingle(args[1], domain); rs.has_value()) {
         Global::instance().broadcast(rs.value());
-        return Constants::Event::Success;
+        return Constants::Event::success;
     }
     return Constants::StandardCapture::Error::Ruleset::parsingFailed(domain.capture);
 }
@@ -154,7 +154,7 @@ Constants::Event Ruleset::listen(std::span<std::string_view const> const& args) 
     }
     auto const listener = make_shared<Interaction::Rules::Listener>(domain, args[1]);
     Global::instance().listen(listener);
-    return Constants::Event::Success;
+    return Constants::Event::success;
 }
 
 } // namespace Nebulite::Module::Domain::Common

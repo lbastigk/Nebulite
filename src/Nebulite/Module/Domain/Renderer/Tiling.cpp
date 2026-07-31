@@ -126,7 +126,7 @@ namespace Nebulite::Module::Domain::Renderer {
             ImGui::PopStyleVar(2);
         });
     }
-    return Constants::Event::Success;
+    return Constants::Event::success;
 }
 
 //------------------------------------------
@@ -136,16 +136,16 @@ Constants::Event Tiling::gridToggle(std::span<std::string_view const> const& arg
     if (args.size() > 2) return Constants::StandardCapture::Warning::Functional::tooManyArgs(domain.capture);
     if (args.empty()) {
         gridOn = !gridOn;
-        return Constants::Event::Success;
+        return Constants::Event::success;
     }
     auto const& arg = args[1];
     if (arg == "on") {
         gridOn = true;
-        return Constants::Event::Success;
+        return Constants::Event::success;
     }
     if (arg == "off") {
         gridOn = false;
-        return Constants::Event::Success;
+        return Constants::Event::success;
     }
     return Constants::StandardCapture::Warning::Functional::unknownArg(domain.capture);
 }
@@ -155,15 +155,15 @@ Constants::Event Tiling::viewToggle(std::span<std::string_view const> const& arg
     if (args.size() > 2) return Constants::StandardCapture::Warning::Functional::tooManyArgs(domain.capture);
     if (args[1] == "high") {
         domain.setView(Core::Renderer::ViewSetting::high);
-        return Constants::Event::Success;
+        return Constants::Event::success;
     }
     if (args[1] == "low") {
         domain.setView(Core::Renderer::ViewSetting::low);
-        return Constants::Event::Success;
+        return Constants::Event::success;
     }
     if (args[1] == "lowest") {
         domain.setView(Core::Renderer::ViewSetting::lowest);
-        return Constants::Event::Success;
+        return Constants::Event::success;
     }
     return Constants::StandardCapture::Warning::Functional::unknownArg(domain.capture);
 }

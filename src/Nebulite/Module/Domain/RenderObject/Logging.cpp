@@ -24,7 +24,7 @@ Constants::Event Logging::updateHook() {
     // Add Domain-specific updates here!
     // General rule:
     // This is used to update all variables/states that are INTERNAL ONLY
-    return Constants::Event::Success;
+    return Constants::Event::success;
 }
 
 //------------------------------------------
@@ -43,7 +43,7 @@ Constants::Event Logging::logAll(std::span<std::string_view const> const& args, 
             return Constants::StandardCapture::Error::File::couldNotWriteFile(domain.capture);
         }
     }
-    return Constants::Event::Success;
+    return Constants::Event::success;
 }
 
 Constants::Event Logging::logKey(std::span<std::string_view const> const& args, Interaction::Context const& ctx, Interaction::ContextScope const& ctxScope) const {
@@ -59,7 +59,7 @@ Constants::Event Logging::logKey(std::span<std::string_view const> const& args, 
     if (!Utility::IO::FileManagement::writeFile(file, value)) {
         return Constants::StandardCapture::Error::File::couldNotWriteFile(domain.capture);
     }
-    return Constants::Event::Success;
+    return Constants::Event::success;
 }
 
 } // namespace Nebulite::Module::Domain::RenderObject

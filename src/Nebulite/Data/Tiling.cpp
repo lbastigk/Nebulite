@@ -81,7 +81,7 @@ void Tile::update(std::vector<Core::RenderObject*>& toMove, std::vector<Core::Re
         std::vector<Core::RenderObject*> toDeleteLocal;
 
         for (auto* obj : batch.objects) {
-            if ( auto const event = obj->update(); event != Constants::Event::Success) {
+            if ( auto const event = obj->update(); event != Constants::Event::success) {
                 Global::instance().notifyEvent(event);
             }
             if (!obj->flag.deleteFromScene) {

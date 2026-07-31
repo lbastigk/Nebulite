@@ -24,7 +24,7 @@ Constants::Event Drawcall::updateHook() {
     // Add Domain-specific updates here!
     // General rule:
     // This is used to update all variables/states that are INTERNAL ONLY
-    return Constants::Event::Success;
+    return Constants::Event::success;
 }
 
 //------------------------------------------
@@ -43,7 +43,7 @@ Constants::Event Drawcall::drawcallList(Interaction::Context const& ctx, Interac
     for (auto const& name : domain.listDrawcalls()) {
         ctx.self.capture.log.println(name);
     }
-    return Constants::Event::Success;
+    return Constants::Event::success;
 }
 
 } // namespace Nebulite::Module::Domain::RenderObject

@@ -133,7 +133,7 @@ namespace Nebulite::Module::Domain::GlobalSpace {
 //------------------------------------------
 // Update
 Constants::Event Debug::updateHook() {
-    return Constants::Event::Success;
+    return Constants::Event::success;
 }
 
 //------------------------------------------
@@ -152,7 +152,7 @@ Constants::Event Debug::logGlobal(int const argc, char const** argv) const {
             return Constants::StandardCapture::Error::File::couldNotWriteFile(domain.capture);
         }
     }
-    return Constants::Event::Success;
+    return Constants::Event::success;
 }
 
 Constants::Event Debug::logState(int const argc, char const** argv) const {
@@ -168,14 +168,14 @@ Constants::Event Debug::logState(int const argc, char const** argv) const {
             return Constants::StandardCapture::Error::File::couldNotWriteFile(domain.capture);
         }
     }
-    return Constants::Event::Success;
+    return Constants::Event::success;
 }
 
 Constants::Event Debug::standardFileRenderObject(std::span<std::string_view const> const& /*args*/) const {
     if (Core::RenderObject const ro(domain.capture); !Utility::IO::FileManagement::writeFile("./Resources/Renderobjects/standard.jsonc", ro.serialize())) {
         return Constants::StandardCapture::Error::File::couldNotWriteFile(domain.capture);
     }
-    return Constants::Event::Success;
+    return Constants::Event::success;
 }
 
 Constants::Event Debug::errorLog(std::span<std::string_view const> const& args, Interaction::Context const& ctx, Interaction::ContextScope& /*ctxScope*/) {
@@ -212,7 +212,7 @@ Constants::Event Debug::errorLog(std::span<std::string_view const> const& args, 
         }
         return Constants::StandardCapture::Warning::Functional::tooFewArgs(domain.capture);
     }
-    return Constants::Event::Success;
+    return Constants::Event::success;
 }
 
 namespace {
@@ -248,7 +248,7 @@ void clearScreen() {
 Constants::Event Debug::clearConsole(std::span<std::string_view const> const& /*args*/){
     clearScreen();
     Global::capture().clear();
-    return Constants::Event::Success;
+    return Constants::Event::success;
 }
 
 Constants::Event Debug::crash(std::span<std::string_view const> const& args, Interaction::Context const& ctx, Interaction::ContextScope& /*ctxScope*/) {
@@ -275,7 +275,7 @@ Constants::Event Debug::crash(std::span<std::string_view const> const& args, Int
         raise(SIGSEGV); // NOLINT
     }
     // Should never reach here
-    return Constants::Event::Success;
+    return Constants::Event::success;
 }
 
 Constants::Event Debug::waitForInput(std::span<std::string_view const> const& args, Interaction::Context const& ctx, Interaction::ContextScope& /*ctxScope*/) {
@@ -289,13 +289,13 @@ Constants::Event Debug::waitForInput(std::span<std::string_view const> const& ar
     }
     ctx.self.capture.log.println(message);
     std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-    return Constants::Event::Success;
+    return Constants::Event::success;
 }
 
 Constants::Event Debug::listExpressionFunctions(std::span<std::string_view const> const& args) {
     // Forward to ExpressionPrimitives::help
     Math::ExpressionPrimitives::help(args);
-    return Constants::Event::Success;
+    return Constants::Event::success;
 }
 
 //------------------------------------------
@@ -375,7 +375,7 @@ void Debug::setupDebugInfo() const {
     if (moduleScope.get<std::string>(Key::buildType).value_or("") == "debug") {
         Interaction::Context ctx{domain, domain, domain};
         Interaction::ContextScope ctxScope{moduleScope, moduleScope, moduleScope};
-        if (auto const event = domain.parseStr(__FUNCTION__ + std::string(" ") + Common::General::imguiView_Enable, ctx, ctxScope); event != Constants::Event::Success) {
+        if (auto const event = domain.parseStr(__FUNCTION__ + std::string(" ") + Common::General::imguiView_Enable, ctx, ctxScope); event != Constants::Event::success) {
             domain.capture.error.println("Error enabling ImGui view for GlobalSpace");
         }
     }

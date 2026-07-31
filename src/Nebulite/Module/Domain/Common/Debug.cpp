@@ -26,7 +26,7 @@ Constants::Event Debug::updateHook() {
     // Add Domain-specific updates here!
     // General rule:
     // This is used to update all variables/states that are INTERNAL ONLY
-    return Constants::Event::Success;
+    return Constants::Event::success;
 }
 
 //------------------------------------------
@@ -40,7 +40,7 @@ Constants::Event Debug::fetchId(std::span<std::string_view const> const& args, I
     }
     auto const key = Data::ScopedKey(args[1]);
     ctxScope.self.set(key, ctx.self.getId());
-    return Constants::Event::Success;
+    return Constants::Event::success;
 }
 
 Constants::Event Debug::fetchName(std::span<std::string_view const> const& args, Interaction::Context const& ctx, Interaction::ContextScope const& ctxScope) {
@@ -49,7 +49,7 @@ Constants::Event Debug::fetchName(std::span<std::string_view const> const& args,
     }
     auto const key = Data::ScopedKey(args[1]);
     ctxScope.self.set(key, ctx.self.getName());
-    return Constants::Event::Success;
+    return Constants::Event::success;
 }
 
 Constants::Event Debug::print(std::span<std::string_view const> const& args, Interaction::Context const& ctx, Interaction::ContextScope const& ctxScope) {
@@ -61,29 +61,29 @@ Constants::Event Debug::print(std::span<std::string_view const> const& args, Int
         auto const memberType = ctxScope.self.memberType(scopedKey);
         if (memberType == Data::KeyType::null) {
             ctx.self.capture.log.println("{}");
-            return Constants::Event::Success;
+            return Constants::Event::success;
         }
         if (memberType == Data::KeyType::object || memberType == Data::KeyType::array) {
             ctx.self.capture.log.println(ctxScope.self.serialize(scopedKey));
-            return Constants::Event::Success;
+            return Constants::Event::success;
         }
         if (memberType == Data::KeyType::value) {
             ctx.self.capture.log.println(ctxScope.self.get<std::string>(scopedKey).value_or(""));
-            return Constants::Event::Success;
+            return Constants::Event::success;
         }
     }
     ctx.self.capture.log.println(ctxScope.self.serialize());
-    return Constants::Event::Success;
+    return Constants::Event::success;
 }
 
 Constants::Event Debug::printId(std::span<std::string_view const> const& /*args*/, Interaction::Context const& ctx, Interaction::ContextScope& /*ctxScope*/) {
     ctx.self.capture.log.println(ctx.self.getId());
-    return Constants::Event::Success;
+    return Constants::Event::success;
 }
 
 // Flow
 
-// Ignore lint: Function warn always returns Constants::Event::Warning
+// Ignore lint: Function warn always returns Constants::Event::warning
 // NOLINTNEXTLINE
 Constants::Event Debug::warn(std::span<std::string_view const> const& args) const {
     if (args.size() < 2) {
@@ -91,13 +91,13 @@ Constants::Event Debug::warn(std::span<std::string_view const> const& args) cons
     }
     std::string const argStr = Utility::StringHandler::recombineArgs(args.subspan(1));
     domain.capture.warning.println(argStr);
-    return Constants::Event::Warning;
+    return Constants::Event::warning;
 }
 
 Constants::Event Debug::error(std::span<std::string_view const> const& args, Interaction::Context const& ctx, Interaction::ContextScope& /*ctxScope*/) {
     auto const& argStr = Utility::StringHandler::recombineArgs(args.subspan(1));
     ctx.self.capture.error.println(argStr);
-    return Constants::Event::Error;
+    return Constants::Event::error;
 }
 
 Constants::Event Debug::throwFunc(std::span<std::string_view const> const& args) {
@@ -117,7 +117,7 @@ Constants::Event Debug::mustThrow(std::span<std::string_view const> const& args,
         (void) ctx.self.parseStr(funcCallStr, ctx, ctxScope);
     } catch (...) {
         // An exception was thrown as expected
-        return Constants::Event::Success;
+        return Constants::Event::success;
     }
     // No exception was thrown, but one was expected
     throw std::runtime_error("Expected an exception to be thrown, but no exception was thrown.");

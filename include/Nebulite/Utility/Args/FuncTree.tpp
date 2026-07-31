@@ -271,7 +271,7 @@ FuncTree<ReturnValue, AdditionalArgs...>::makeFunctionPtr(Func functionPtr) {
 
     // Helpful compile-time error for pointer-to-member functions passed without an object
     if constexpr (std::is_member_function_pointer_v<DecayF>) {
-        static_assert(CompileTimeEvaluate::always_false(),
+        static_assert(CompileTimeEvaluate::alwaysFalse(),
                       "makeFunctionPtr(func) received a pointer-to-member-function. "
                       "Pass an object + member pointer using makeFunctionPtr(objPtr, &Class::mem) "
                       "or provide a free/static function or callable (lambda/std::function).");
@@ -317,7 +317,7 @@ FuncTree<ReturnValue, AdditionalArgs...>::makeFunctionPtr(Func functionPtr) {
                                 std::function<ReturnValue(AdditionalArgs...)>(functionPtr));
         }
         else {
-            static_assert(CompileTimeEvaluate::always_false(), "makeFunctionPtr(func) received an unknown free/static function pointer type");
+            static_assert(CompileTimeEvaluate::alwaysFalse(), "makeFunctionPtr(func) received an unknown free/static function pointer type");
         }
     }
 
@@ -347,7 +347,7 @@ FuncTree<ReturnValue, AdditionalArgs...>::makeFunctionPtr(Func functionPtr) {
                             std::function<ReturnValue(AdditionalArgs...)>(functionPtr));
     }
     else {
-        static_assert(CompileTimeEvaluate::always_false(), "makeFunctionPtr(func) could not deduce a supported function shape");
+        static_assert(CompileTimeEvaluate::alwaysFalse(), "makeFunctionPtr(func) could not deduce a supported function shape");
         std::unreachable();
     }
 }
@@ -428,7 +428,7 @@ FuncTree<ReturnValue, AdditionalArgs...>::makeFunctionPtr(Obj* objectPtr, MemFun
         }
     }
     else {
-        static_assert(CompileTimeEvaluate::always_false(), "makeFunctionPtr(Obj, MemFunc) received an unsupported member function pointer type");
+        static_assert(CompileTimeEvaluate::alwaysFalse(), "makeFunctionPtr(Obj, MemFunc) received an unsupported member function pointer type");
         std::unreachable();
     }
 }
@@ -613,7 +613,7 @@ ReturnValue FuncTree<ReturnValue, AdditionalArgs...>::executeFunction(std::strin
             }
             // Unsupported function type
             else {
-                static_assert(CompileTimeEvaluate::always_false(), "Unsupported function signature in FuncTree::executeFunction. Check if you just need to remove some const/ref qualifiers.");
+                static_assert(CompileTimeEvaluate::alwaysFalse(), "Unsupported function signature in FuncTree::executeFunction. Check if you just need to remove some const/ref qualifiers.");
             }
         }, functionPtr);
     }

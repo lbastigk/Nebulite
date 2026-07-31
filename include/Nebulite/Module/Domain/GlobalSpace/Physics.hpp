@@ -38,6 +38,9 @@ public:
     struct Key : Data::KeyGroup<"physics."> {
         // Global physics constants
         struct Global {
+            // Ignore any naming conventions:
+            // NOLINTBEGIN
+
             // Fundamental constants
             static constexpr auto G        = makeScoped("G");        // Gravitational constant (m^3 kg^-1 s^-2)
             static constexpr auto c        = makeScoped("c");        // Speed of light in vacuum (m/s)
@@ -62,6 +65,8 @@ public:
 
             // Earth-related
             static constexpr auto g        = makeScoped("g");        // Standard gravity (m/s^2)
+
+            // NOLINTEND
         };
 
         // Per-object physics properties
@@ -76,8 +81,8 @@ public:
 
             // Correction values
             struct Correction : KeyGroup<"physics.correction."> {
-                static auto constexpr X = makeScoped("X"); // position correction X to resolve overlaps
-                static auto constexpr Y = makeScoped("Y"); // position correction Y to resolve overlaps
+                static auto constexpr posX = makeScoped("posX"); // position correction X to resolve overlaps
+                static auto constexpr posY = makeScoped("posY"); // position correction Y to resolve overlaps
                 static auto constexpr vX = makeScoped("vX"); // velocity correction X to resolve collisions
                 static auto constexpr vY = makeScoped("vY"); // velocity correction Y to resolve collisions
             };

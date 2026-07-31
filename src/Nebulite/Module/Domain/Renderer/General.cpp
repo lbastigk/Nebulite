@@ -45,7 +45,7 @@ Constants::Event General::updateHook() {
     // Add Domain-specific updates here!
     // General rule:
     // This is used to update all variables/states that are INTERNAL ONLY
-    return Constants::Event::Success;
+    return Constants::Event::success;
 }
 
 //------------------------------------------
@@ -55,22 +55,22 @@ Constants::Event General::envLoad(std::span<std::string_view const> const& args)
     if (args.size() < 2) {
         // no name provided, load empty env
         domain.deserialize("{}");
-        return Constants::Event::Success;
+        return Constants::Event::success;
     }
     auto const fileName = Utility::StringHandler::recombineArgs(args.subspan(1));
     if (!Utility::IO::FileManagement::fileExists(fileName)) {
         domain.capture.error.println("File ", fileName, " does not exist! Loading an empty environment.");
         domain.deserialize("{}");
-        return Constants::Event::Warning;
+        return Constants::Event::warning;
     }
     domain.deserialize(fileName);
-    return Constants::Event::Success;
+    return Constants::Event::success;
 }
 
 Constants::Event General::envDeload() const {
     domain.purgeObjects();
     domain.purgeTextures();
-    return Constants::Event::Success;
+    return Constants::Event::success;
 }
 
 Constants::Event General::spawn(std::span<std::string_view const> const& args) const {
@@ -90,7 +90,7 @@ Constants::Event General::spawn(std::span<std::string_view const> const& args) c
         domain.capture.error.println("No RenderObject name provided!");
         return Constants::StandardCapture::Warning::Functional::tooFewArgs(domain.capture);
     }
-    return Constants::Event::Success;
+    return Constants::Event::success;
 }
 
 Constants::Event General::setResolution(int const argc, char const** argv) const {
@@ -111,7 +111,7 @@ Constants::Event General::setResolution(int const argc, char const** argv) const
         }
     }
     domain.changeWindowSize(w, h, scalar);
-    return Constants::Event::Success;
+    return Constants::Event::success;
 }
 
 Constants::Event General::setFps(int const argc, char const** argv) const {
@@ -128,7 +128,7 @@ Constants::Event General::setFps(int const argc, char const** argv) const {
             fps = 10000;
     }
     domain.setTargetFps(fps);
-    return Constants::Event::Success;
+    return Constants::Event::success;
 }
 
 Constants::Event General::showFps(int const argc, char const** argv) const {
@@ -144,7 +144,7 @@ Constants::Event General::showFps(int const argc, char const** argv) const {
             return Constants::StandardCapture::Warning::Functional::unknownArg(domain.capture);
         }
     }
-    return Constants::Event::Success;
+    return Constants::Event::success;
 }
 
 Constants::Event General::camMove(int const argc, char const** argv) const {
@@ -158,7 +158,7 @@ Constants::Event General::camMove(int const argc, char const** argv) const {
     int const dx = std::stoi(argv[1]);
     int const dy = std::stoi(argv[2]);
     domain.moveCam(dx, dy);
-    return Constants::Event::Success;
+    return Constants::Event::success;
 }
 
 Constants::Event General::camSet(int const argc, char const** argv) const {
@@ -166,14 +166,14 @@ Constants::Event General::camSet(int const argc, char const** argv) const {
         int const x = std::stoi(argv[1]);
         int const y = std::stoi(argv[2]);
         domain.setCam(x, y);
-        return Constants::Event::Success;
+        return Constants::Event::success;
     }
     if (argc == 4) {
         if (!strcmp(argv[3], "c")) {
             int const x = std::stoi(argv[1]);
             int const y = std::stoi(argv[2]);
             domain.setCam(x, y, true);
-            return Constants::Event::Success;
+            return Constants::Event::success;
         }
         // unknown arg
         return Constants::StandardCapture::Warning::Functional::unknownArg(domain.capture);
@@ -243,7 +243,7 @@ Constants::Event General::snapshot(int const argc, char const** argv) const {
         SDL_DestroySurface(surface);
     };
     domain.addPostRenderCallback(snapshotFunction);
-    return Constants::Event::Success;
+    return Constants::Event::success;
 }
 
 namespace {
@@ -354,7 +354,7 @@ Constants::Event General::dumpView() const {
         //domain.capture.log.println(view.serialize("", Data::RjDirectAccess::SerializationType::compact));
         std::cout << view.serialize("", Data::RjDirectAccess::SerializationType::compact) << '\n';
     });
-    return Constants::Event::Success;
+    return Constants::Event::success;
 }
 
 General::General(ConstructorParams const& params) : DomainModule(params) {

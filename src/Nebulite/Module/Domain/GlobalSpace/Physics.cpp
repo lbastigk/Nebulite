@@ -11,7 +11,7 @@ namespace Nebulite::Module::Domain::GlobalSpace {
 
 Constants::Event Physics::updateHook() {
     // No dynamic updates needed for constants
-    return Constants::Event::Success;
+    return Constants::Event::success;
 }
 
 void Physics::setupConstants() const {

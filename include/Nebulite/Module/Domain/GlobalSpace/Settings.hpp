@@ -107,7 +107,7 @@ public:
      * @brief Initializes the module, binding functions and variables. 
      */
     explicit Settings(ConstructorParams const& params) : DomainModule(params) {
-        if (loadSettings(defaultSettingsFile) != Constants::Event::Success) {
+        if (loadSettings(defaultSettingsFile) != Constants::Event::success) {
             logInitError();
         }
 

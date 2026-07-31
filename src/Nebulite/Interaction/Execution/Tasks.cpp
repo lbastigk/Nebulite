@@ -90,7 +90,7 @@ Constants::Event Tasks::parse(Context& ctx, ContextScope& ctxScope, bool const r
             return queueResult[name].events.back();
         }
     }
-    return Constants::Event::Success;
+    return Constants::Event::success;
 }
 
 } // namespace Nebulite::Interaction::Execution

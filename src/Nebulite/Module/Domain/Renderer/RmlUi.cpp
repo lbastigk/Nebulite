@@ -22,7 +22,7 @@ namespace Nebulite::Module::Domain::Renderer {
 Constants::Event RmlUi::updateHook() {
     moduleScope.set<size_t>(Key::openedDocuments, Graphics::RmlInterface::instance().countOpenedDocuments());
     moduleScope.set<size_t>(Key::usedElementIds, Graphics::RmlInterface::RmlElementIdentifier::getCount());
-    return Constants::Event::Success;
+    return Constants::Event::success;
 }
 
 Constants::Event RmlUi::listDocuments(std::span<std::string_view const> const& /*args*/, Interaction::Context const& /*ctx*/, Interaction::ContextScope const& /*ctxScope*/) const {
@@ -31,7 +31,7 @@ Constants::Event RmlUi::listDocuments(std::span<std::string_view const> const& /
     for (auto const& [ownerId, name] : documents) {
         domain.capture.log.println(" - Owner Domain ID: ", ownerId, ", Document Name: '", name, "'");
     }
-    return Constants::Event::Success;
+    return Constants::Event::success;
 }
 
 Constants::Event RmlUi::loadDocument(std::span<std::string_view const> const& args, Interaction::Context const& ctx, Interaction::ContextScope const& ctxScope) const {
@@ -42,9 +42,9 @@ Constants::Event RmlUi::loadDocument(std::span<std::string_view const> const& ar
     auto path = Utility::StringHandler::recombineArgs(args.subspan(2));
     if (!Graphics::RmlInterface::instance().loadDocument(name, path, ctx, ctxScope)) {
         domain.capture.warning.println("Failed to load document: '", path, "'. Either the owner already has a document with the same name, or the file could not be loaded. Please check the name and path, and try again.");
-        return Constants::Event::Warning;
+        return Constants::Event::warning;
     }
-    return Constants::Event::Success;
+    return Constants::Event::success;
 }
 
 Constants::Event RmlUi::removeDocument(std::span<std::string_view const> const& args, Interaction::Context const& ctx, Interaction::ContextScope& /*ctxScope*/) const {
@@ -54,9 +54,9 @@ Constants::Event RmlUi::removeDocument(std::span<std::string_view const> const& 
     if (auto const& name = args[1]; !Graphics::RmlInterface::instance().removeDocument(ctx.self.getId(), name)) {
         domain.capture.warning.println("Failed to remove document: '", name, "'. Either the owner does not have a document with this name, or there was an issue removing the document. Please check the name, and try again.");
         domain.capture.warning.println("Ensure that the context self is the actual owner of the document!");
-        return Constants::Event::Warning;
+        return Constants::Event::warning;
     }
-    return Constants::Event::Success;
+    return Constants::Event::success;
 }
 
 RmlUi::RmlUi(ConstructorParams const& params) : DomainModule(params) {

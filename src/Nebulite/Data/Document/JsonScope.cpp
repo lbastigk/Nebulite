@@ -109,11 +109,11 @@ JsonScope& JsonScope::shareDummyScope() {
 //------------------------------------------
 // Getter
 
-std::expected<RjDirectAccess::simpleValue, SimpleValueRetrievalError> JsonScope::getVariant(ScopedKeyView const& key) const {
+std::expected<RjDirectAccess::SimpleValue, SimpleValueRetrievalError> JsonScope::getVariant(ScopedKeyView const& key) const {
     return baseDocument->getVariant(key.full(*this));
 }
 
-std::expected<RjDirectAccess::simpleValue, SimpleValueRetrievalError> JsonScope::getVariant(ScopedKey const& key) const {
+std::expected<RjDirectAccess::SimpleValue, SimpleValueRetrievalError> JsonScope::getVariant(ScopedKey const& key) const {
     return getVariant(key.view());
 }
 
@@ -146,11 +146,11 @@ std::optional<std::complex<double>> JsonScope::getComplex(ScopedKey const& key) 
 //------------------------------------------
 // Setter
 
-void JsonScope::setVariant(ScopedKeyView const& key, RjDirectAccess::simpleValue const& value){
+void JsonScope::setVariant(ScopedKeyView const& key, RjDirectAccess::SimpleValue const& value){
     doc().setVariant(key.full(*this), value);
 }
 
-void JsonScope::setVariant(ScopedKey const& key, RjDirectAccess::simpleValue const& value) {
+void JsonScope::setVariant(ScopedKey const& key, RjDirectAccess::SimpleValue const& value) {
     setVariant(key.view(), value);
 }
 

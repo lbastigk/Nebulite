@@ -22,7 +22,7 @@ namespace Nebulite::Module::Domain::Common {
 class RmlUi final : public Base::DomainModule<Interaction::Execution::Domain> {
 public:
     [[nodiscard]] Constants::Event updateHook() override {
-        return Constants::Event::Success;
+        return Constants::Event::success;
     }
     void reinit() override {}
 

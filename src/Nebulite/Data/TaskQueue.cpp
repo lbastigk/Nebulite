@@ -35,10 +35,10 @@ void resolveArgument(std::string& argStr, TaskQueueResult& fullResult, std::stri
     Constants::Event const currentResult = ctx.self.parseStr(argStr, ctx, ctxScope);
 
     // Check result
-    if (currentResult == Constants::Event::Error) {
+    if (currentResult == Constants::Event::error) {
         fullResult.encounteredCriticalResult = true;
     }
-    if (currentResult != Constants::Event::Success) {
+    if (currentResult != Constants::Event::success) {
         fullResult.events.push_back(currentResult);
     }
 }

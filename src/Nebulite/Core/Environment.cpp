@@ -43,7 +43,7 @@ Environment::~Environment() = default;
 Constants::Event Environment::update() {
     updateModules();
     parseTaskQueues(true);
-    return Constants::Event::Success;
+    return Constants::Event::success;
 }
 
 //------------------------------------------

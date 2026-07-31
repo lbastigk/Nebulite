@@ -25,7 +25,7 @@ Constants::Event General::updateHook() {
     // Add Domain-specific updates here!
     // General rule:
     // This is used to update all variables/states that are INTERNAL ONLY
-    return Constants::Event::Success;
+    return Constants::Event::success;
 }
 
 //------------------------------------------
@@ -37,13 +37,13 @@ Constants::Event General::exit() const {
 
     // Set the renderer to quit
     domain.quitRenderer();
-    return Constants::Event::Success;
+    return Constants::Event::success;
 }
 
 Constants::Event General::wait(int const argc, char const** argv) const {
     if (argc == 2) {
         domain.tasks.incrementScriptWaitCounter(std::stoull(argv[1]));
-        return Constants::Event::Success;
+        return Constants::Event::success;
     }
     if (argc < 2) {
         return Constants::StandardCapture::Warning::Functional::tooFewArgs(domain.capture);
@@ -67,7 +67,7 @@ Constants::Event General::task(int const argc, char const** argv) const {
     // Warn if file ending is not .nebs
     std::string const& filename = argv[1];
     domain.tasks.addScript(filename, domain.capture);
-    return Constants::Event::Success;
+    return Constants::Event::success;
 }
 
 Constants::Event General::taskExec(std::span<std::string_view const> const args, Interaction::Context ctx, Interaction::ContextScope ctxScope) const {
@@ -106,12 +106,12 @@ Constants::Event General::always(int argc, char const** argv) const {
             }
         }
     }
-    return Constants::Event::Success;
+    return Constants::Event::success;
 }
 
 Constants::Event General::alwaysClear() const {
     domain.tasks.clearTaskQueue(Interaction::Execution::Tasks::StandardTasks::always);
-    return Constants::Event::Success;
+    return Constants::Event::success;
 }
 
 } // namespace Nebulite::Module::Domain::GlobalSpace

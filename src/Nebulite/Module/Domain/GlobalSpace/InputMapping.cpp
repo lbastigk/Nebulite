@@ -52,10 +52,10 @@ Constants::Event InputMapping::lockOnce(std::span<std::string_view const> const&
                 entry.lockState = MapEntry::LockState::lockOnce;
             }
         }
-        return Constants::Event::Success;
+        return Constants::Event::success;
     }
     it->second.lockState = MapEntry::LockState::lockOnce;
-    return Constants::Event::Success;
+    return Constants::Event::success;
 }
 
 Constants::Event InputMapping::lockOn(std::span<std::string_view const> const& args) {
@@ -74,10 +74,10 @@ Constants::Event InputMapping::lockOn(std::span<std::string_view const> const& a
                 entry.lockState = MapEntry::LockState::lockOn;
             }
         }
-        return Constants::Event::Success;
+        return Constants::Event::success;
     }
     it->second.lockState = MapEntry::LockState::lockOn;
-    return Constants::Event::Success;
+    return Constants::Event::success;
 }
 
 Constants::Event InputMapping::unlock(std::span<std::string_view const> const& args) {
@@ -96,10 +96,10 @@ Constants::Event InputMapping::unlock(std::span<std::string_view const> const& a
                 entry.lockState = MapEntry::LockState::unlocked;
             }
         }
-        return Constants::Event::Success;
+        return Constants::Event::success;
     }
     it->second.lockState = MapEntry::LockState::unlocked;
-    return Constants::Event::Success;
+    return Constants::Event::success;
 }
 
 //------------------------------------------
@@ -108,7 +108,7 @@ Constants::Event InputMapping::updateHook() {
     if (sdlPolledInput && !Math::isZero(*sdlPolledInput)) {
         processMappings();
     }
-    return Constants::Event::Success;
+    return Constants::Event::success;
 }
 
 void InputMapping::reloadMappings() {

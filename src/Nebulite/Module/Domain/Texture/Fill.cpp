@@ -25,7 +25,7 @@ namespace Nebulite::Module::Domain::Texture {
 
 Constants::Event Fill::updateHook() {
     // Nothing to do in update for fill
-    return Constants::Event::Success;
+    return Constants::Event::success;
 }
 
 Constants::Event Fill::fill(int const argc, char const** argv) const {
@@ -96,7 +96,7 @@ Constants::Event Fill::fill(int const argc, char const** argv) const {
         , " G=", static_cast<int>(g)
         , " B=", static_cast<int>(b)
     );
-    return Constants::Event::Success;
+    return Constants::Event::success;
 }
 
 Constants::Event Fill::averageColor() const {
@@ -162,7 +162,7 @@ Constants::Event Fill::averageColor() const {
         , " A=", static_cast<double>(a) / static_cast<double>(count)
     );
 
-    return Constants::Event::Success;
+    return Constants::Event::success;
 }
 
 } // namespace Nebulite::Module::Domain::Texture

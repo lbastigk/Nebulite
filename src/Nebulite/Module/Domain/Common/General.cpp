@@ -36,7 +36,7 @@ Constants::Event General::updateHook() {
             // Context is not valid, disable imgui view and log error
             imguiViewEnabled = false;
             domain.capture.error.println("Failed to render ImGui view: Context is no longer valid. Disabling ImGui view.");
-            return Constants::Event::Error;
+            return Constants::Event::error;
         }
         Global::instance().getRenderer().addRenderCallback([&] {
             auto ctx = Interaction::Context{
@@ -56,7 +56,7 @@ Constants::Event General::updateHook() {
             Graphics::ImguiHelper::renderDomain(ctx, ctxScope, domain.capture, domain.getName());
         });
     }
-    return Constants::Event::Success;
+    return Constants::Event::success;
 }
 
 Constants::Event General::capture(std::span<std::string_view const> const& args, Interaction::Context& ctx, Interaction::ContextScope& ctxScope){
@@ -66,7 +66,7 @@ Constants::Event General::capture(std::span<std::string_view const> const& args,
 
     // Parse
     auto const argsToParse = Utility::StringHandler::recombineArgs(args.subspan(1));
-    auto result = Constants::Event::Success;
+    auto result = Constants::Event::success;
     auto history = ctx.self.capture.redirectHistory([&] {
         result = ctx.self.parseStr(argsToParse, ctx, ctxScope);
     });
@@ -101,7 +101,7 @@ Constants::Event General::eval(std::span<std::string_view const> const& args, In
 
 Constants::Event General::echo(std::span<std::string_view const> const& args) const {
     domain.capture.log.println(Utility::StringHandler::recombineArgs(args.subspan(1)));
-    return Constants::Event::Success;
+    return Constants::Event::success;
 }
 
 Constants::Event General::ifFunc(std::span<std::string_view const> const& args, Interaction::Context& ctx, Interaction::ContextScope& ctxScope) {
@@ -139,13 +139,13 @@ Constants::Event General::ifFunc(std::span<std::string_view const> const& args, 
     Interaction::Logic::Expression const expr(condition);
     if (!expr.isReturnableAsBool()) {
         ctx.self.capture.error.println("Critical Error: A custom if-condition failed.\nCondition failed: " + condition + " is not a boolean expression.");
-        return Constants::Event::Warning;
+        return Constants::Event::warning;
     }
     if (expr.evalAsBool(ctxScope, Utility::Promise<&Interaction::Logic::Expression::isReturnableAsBool>{})) {
         commands = __FUNCTION__ + std::string(" ") + commands;
         return ctx.self.parseStr(commands, ctx, ctxScope);
     }
-    return Constants::Event::Success;
+    return Constants::Event::success;
 }
 
 Constants::Event General::assertFunc(std::span<std::string_view const> const& args, Interaction::Context const& ctx, Interaction::ContextScope const& ctxScope) {
@@ -164,15 +164,15 @@ Constants::Event General::assertFunc(std::span<std::string_view const> const& ar
     Interaction::Logic::Expression const expr(condition);
     if (!expr.isReturnableAsBool()) {
         ctx.self.capture.error.println("Critical Error: A custom assertion failed.\nAssertion failed: " + condition + " is not a boolean expression.");
-        return Constants::Event::Error;
+        return Constants::Event::error;
     }
     if (!expr.evalAsBool(ctxScope, Utility::Promise<&Interaction::Logic::Expression::isReturnableAsBool>{})) {
         ctx.self.capture.error.println("Critical Error: A custom assertion failed.\nAssertion failed: " + condition + " is not true.");
-        return Constants::Event::Error;
+        return Constants::Event::error;
     }
 
     // All good
-    return Constants::Event::Success;
+    return Constants::Event::success;
 }
 
 Constants::Event General::forFunc(std::span<std::string_view const> const& args, Interaction::Context& ctx, Interaction::ContextScope& ctxScope) {
@@ -189,11 +189,11 @@ Constants::Event General::forFunc(std::span<std::string_view const> const& args,
             for (auto const& arg : args.subspan(4)) {
                 argsVec.push_back(Utility::StringHandler::replaceAll(arg, '{' + varName + '}', replacer));
             }
-            if (auto const event = ctx.self.parse(argsVec, ctx, ctxScope); event != Constants::Event::Success) {
+            if (auto const event = ctx.self.parse(argsVec, ctx, ctxScope); event != Constants::Event::success) {
                 return event;
             }
         }
-        return Constants::Event::Success;
+        return Constants::Event::success;
     }
     return Constants::StandardCapture::Warning::Functional::tooFewArgs(ctx.self.capture);
 }
@@ -227,7 +227,7 @@ Constants::Event General::forFuncProgress(std::span<std::string_view const> cons
             for (auto const& arg : args.subspan(4)) {
                 argsVec.push_back(Utility::StringHandler::replaceAll(arg, '{' + varName + '}', replacer));
             }
-            if (auto const event = ctx.self.parse(argsVec, ctx, ctxScope); event != Constants::Event::Success) {
+            if (auto const event = ctx.self.parse(argsVec, ctx, ctxScope); event != Constants::Event::success) {
                 return event;
             }
         }
@@ -240,14 +240,14 @@ Constants::Event General::forFuncProgress(std::span<std::string_view const> cons
         std::cout.flush();
         std::cout << "\n";
 
-        return Constants::Event::Success;
+        return Constants::Event::success;
     }
     return Constants::StandardCapture::Warning::Functional::tooFewArgs(ctx.self.capture);
 }
 
 Constants::Event General::nop(std::span<std::string_view const> const& /*args*/) {
     // Do nothing
-    return Constants::Event::Success;
+    return Constants::Event::success;
 }
 
 // [FORWARD/REPARSE]
@@ -339,7 +339,7 @@ Constants::Event General::imguiView(std::span<std::string_view const> const& arg
     } else {
         return Constants::StandardCapture::Warning::Functional::unknownArg(domain.capture);
     }
-    return Constants::Event::Success;
+    return Constants::Event::success;
 }
 
 } // namespace Nebulite::Module::Domain::Common

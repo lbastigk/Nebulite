@@ -163,7 +163,7 @@ public:
                              std::is_function_v<std::remove_pointer_t<FunctionPointer>>) {
             return classifyFreeFunction<FunctionPointer, ReturnValue, AdditionalArgs...>();
         } else {
-            static_assert(CompileTimeEvaluate::always_false(), "classifyFunction received an unsupported function pointer type.");
+            static_assert(CompileTimeEvaluate::alwaysFalse(), "classifyFunction received an unsupported function pointer type.");
             return FunctionShape::Unknown;
         }
     }

@@ -26,7 +26,7 @@ public:
      * @brief A helper function that always evaluates to false.
      * @return false
      */
-    static bool consteval always_false() {
+    static bool consteval alwaysFalse() {
         return false;
     }
 

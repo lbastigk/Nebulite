@@ -33,7 +33,7 @@
 namespace Nebulite::Module::Domain::Renderer {
 
 Constants::Event Audio::updateHook() {
-    return Constants::Event::Success;
+    return Constants::Event::success;
 }
 
 //------------------------------------------
@@ -47,7 +47,7 @@ Constants::Event Audio::beep(std::span<std::string_view const> const& args) cons
             basicAudioWaveforms.sineBuffer.data(),
             static_cast<int>(basicAudioWaveforms.sineBuffer.size() * sizeof(std::int16_t))
         );
-        return Constants::Event::Success;
+        return Constants::Event::success;
     }
 
     for (auto const& arg : args | std::views::drop(1)) {
@@ -71,10 +71,10 @@ Constants::Event Audio::beep(std::span<std::string_view const> const& args) cons
             );
         } else {
             domain.capture.warning.println("Unknown waveform type: ", arg);
-            return Constants::Event::Warning;
+            return Constants::Event::warning;
         }
     }
-    return Constants::Event::Success;
+    return Constants::Event::success;
 }
 
 Constants::Event Audio::playSound(std::span<std::string_view const> const& args) {
@@ -98,7 +98,7 @@ Constants::Event Audio::playSound(std::span<std::string_view const> const& args)
         static_cast<int>(sound.value()->audioData.size() * sizeof(Settings::SampleType))
     );
 
-    return Constants::Event::Success;
+    return Constants::Event::success;
 }
 
 //------------------------------------------

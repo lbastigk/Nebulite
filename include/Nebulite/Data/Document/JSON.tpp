@@ -53,10 +53,10 @@ void JSON::set(std::string_view const key, T const& val){
     std::scoped_lock const lockGuard(mtx);
 
     if constexpr (std::is_same_v<T, std::string_view>) {
-        setVariant(key, RjDirectAccess::simpleValue(std::string(val)));
+        setVariant(key, RjDirectAccess::SimpleValue(std::string(val)));
     }
     else {
-        setVariant(key, RjDirectAccess::simpleValue(val));
+        setVariant(key, RjDirectAccess::SimpleValue(val));
     }
 }
 
@@ -115,7 +115,7 @@ std::expected<T, SimpleValueRetrievalError> JSON::getWithTransformations(std::st
 template<typename T>
 std::optional<T> JSON::jsonValueToCache(std::string_view const key, rapidjson::Value const* val) const {
     // Create a new cache entry
-    auto newEntry = std::make_unique<CacheEntry>(*cacheLine, cacheline_index);
+    auto newEntry = std::make_unique<CacheEntry>(*cacheLine, cachelineIndex);
 
     // Get supported types
     auto const& v = RjDirectAccess::getSimpleValue(val);
@@ -125,11 +125,11 @@ std::optional<T> JSON::jsonValueToCache(std::string_view const key, rapidjson::V
     newEntry->value = v.value();
 
     // Mark as clean
-    newEntry->state = CacheEntry::EntryState::CLEAN;
+    newEntry->state = CacheEntry::EntryState::clean;
 
     // Set stable double pointer
-    *newEntry->stable_double_ptr = convertVariant<double>(newEntry->value).value_or(standardNumericValue); // Default to NAN if conversion fails
-    newEntry->last_double_value = *newEntry->stable_double_ptr;
+    *newEntry->stableDoublePointer = convertVariant<double>(newEntry->value).value_or(standardNumericValue); // Default to NAN if conversion fails
+    newEntry->lastDoubleValue = *newEntry->stableDoublePointer;
 
     // Insert into cache
     auto const value = convertVariant<T>(newEntry->value);
@@ -140,51 +140,51 @@ std::optional<T> JSON::jsonValueToCache(std::string_view const key, rapidjson::V
 }
 
 // Using NOLINTNEXTLINE to silence "Arguments passed in possible wrong order" warnings
-template<typename newType>
-std::optional<newType> JSON::convertVariant(RjDirectAccess::simpleValue const& var){
+template<typename NewType>
+std::optional<NewType> JSON::convertVariant(RjDirectAccess::SimpleValue const& var){
     return std::visit([&]<typename T>(T const& value){
         // Removing all qualifiers (const, volatile, references, etc.)
         using ValueT = std::decay_t<decltype(value)>;
 
         //------------------------------------------
         // To float is seen as special case, as we do not store floats.
-        // If newType is float, get double first and convert to float
-        if constexpr(std::is_same_v<newType, float>) {
+        // If NewType is float, get double first and convert to float
+        if constexpr(std::is_same_v<NewType, float>) {
             if (auto const val = convertVariant<double>(var); val.has_value()) {
-                return std::optional<newType>(static_cast<float>(val.value()));
+                return std::optional<NewType>(static_cast<float>(val.value()));
             }
-            return std::optional<newType>(std::nullopt);
+            return std::optional<NewType>(std::nullopt);
         }
 
         //------------------------------------------
         // Try some special conversions first
 
         // [BOOL] -> [STRING]
-        else if constexpr(std::is_same_v<ValueT, bool> && std::is_same_v<newType, std::string>) {
+        else if constexpr(std::is_same_v<ValueT, bool> && std::is_same_v<NewType, std::string>) {
             return Utility::Convert::Cast::Bool::to<std::string>(value);
         }
 
         // [DOUBLE] -> [BOOL]
         // First, as the static_cast from a direct conversion doesn't work well here
-        else if constexpr (std::is_same_v<ValueT, double> && std::is_same_v<newType, bool>){
+        else if constexpr (std::is_same_v<ValueT, double> && std::is_same_v<NewType, bool>){
             return Utility::Convert::Cast::Double::to<bool>(value);
         }
 
         // [STRING] -> [ANY]
         else if constexpr (std::is_same_v<ValueT, std::string>) {
-            return Utility::Convert::Cast::String::to<newType>(value);
+            return Utility::Convert::Cast::String::to<NewType>(value);
         }
 
         //------------------------------------------
         // Try basic direct conversions
 
         // [ANY] -> [ANY] via static_cast
-        else if constexpr (std::is_convertible_v<ValueT, newType>){
-            return std::optional<newType>{static_cast<newType>(value)};
+        else if constexpr (std::is_convertible_v<ValueT, NewType>){
+            return std::optional<NewType>{static_cast<NewType>(value)};
         }
         // [ARITHMETIC] -> [STRING]
-        else if constexpr (std::is_arithmetic_v<ValueT> && std::is_same_v<newType, std::string>){
-            return std::optional<newType>{std::to_string(value)};
+        else if constexpr (std::is_arithmetic_v<ValueT> && std::is_same_v<NewType, std::string>){
+            return std::optional<NewType>{std::to_string(value)};
         }
 
         //------------------------------------------

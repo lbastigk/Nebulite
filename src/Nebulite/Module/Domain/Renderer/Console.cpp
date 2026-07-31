@@ -38,17 +38,17 @@ Constants::Event Console::updateHook() {
         // Render
         Graphics::ImguiHelper::renderDomain(ctx, ctxScope, Global::capture(), "Console", flags);
     }
-    return Constants::Event::Success;
+    return Constants::Event::success;
 }
 
 Constants::Event Console::consoleOpen() {
     consoleMode = true;
-    return Constants::Event::Success;
+    return Constants::Event::success;
 }
 
 Constants::Event Console::consoleClose() {
     consoleMode = false;
-    return Constants::Event::Success;
+    return Constants::Event::success;
 }
 
 Console::Console(ConstructorParams const& params) : DomainModule(params) {

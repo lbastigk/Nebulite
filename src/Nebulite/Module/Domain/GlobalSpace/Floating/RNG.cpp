@@ -23,7 +23,7 @@ Constants::Event RNG::updateHook() {
         updateRng();
     }
 
-    return Constants::Event::Success;
+    return Constants::Event::success;
 }
 
 void RNG::rngRollback() {

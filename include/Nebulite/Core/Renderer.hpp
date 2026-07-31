@@ -382,7 +382,7 @@ public:
      * @param function The callback function to add
      * @param aboveThisLayer The layer above which to execute the callback. The callback will be executed after rendering the specified layer.
      */
-    void addRenderCallback(std::function<void()> const& function, Environment::Layer aboveThisLayer = Environment::FinalLayer);
+    void addRenderCallback(std::function<void()> const& function, Environment::Layer aboveThisLayer = Environment::finalLayer);
 
     /**
     * @brief Adds a callback function to be executed after the current render pass is complete.

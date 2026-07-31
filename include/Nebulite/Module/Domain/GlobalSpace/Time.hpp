@@ -36,41 +36,41 @@ public:
     //------------------------------------------
     // Available Functions
 
-    [[nodiscard]] Constants::Event time_haltOnce();
-    static auto constexpr time_haltOnceName = "time halt-once";
-    static auto constexpr time_haltOnceDesc = "Halts time for one frame\n"
+    [[nodiscard]] Constants::Event timeHaltOnce();
+    static auto constexpr timeHaltOnceName = "time halt-once";
+    static auto constexpr timeHaltOnceDesc = "Halts time for one frame\n"
         "Meaning you can halt time by continuously calling this function.\n"
         "\n"
         "Usage: time halt-once\n";
 
-    [[nodiscard]] Constants::Event time_lock(int argc, char const** argv);
-    static auto constexpr time_lockName = "time lock";
-    static auto constexpr time_lockDesc = "Locks time with lock provided,\n"
+    [[nodiscard]] Constants::Event timeLock(int argc, char const** argv);
+    static auto constexpr timeLockName = "time lock";
+    static auto constexpr timeLockDesc = "Locks time with lock provided,\n"
         "Time can only progress if no locks are present.\n"
         "\n"
         "Usage: time lock <lockName>\n"
         "\n"
         "<lockName> : Name of the lock to add. Any string without whitespace is valid.\n";
 
-    [[nodiscard]] Constants::Event time_unlock(int argc, char const** argv);
-    static auto constexpr time_unlockName = "time unlock";
-    static auto constexpr time_unlockDesc = "Removes a time lock.\n"
+    [[nodiscard]] Constants::Event timeUnlock(int argc, char const** argv);
+    static auto constexpr timeUnlockName = "time unlock";
+    static auto constexpr timeUnlockDesc = "Removes a time lock.\n"
         "Time can only progress if no locks are present.\n"
         "\n"
         "Usage: time unlock <lockName>\n"
         "\n"
         "<lockName> : Name of the lock to remove. Must match an existing lock.\n";
 
-    [[nodiscard]] Constants::Event time_masterUnlock();
-    static auto constexpr time_masterUnlockName = "time master-unlock";
-    static auto constexpr time_masterUnlockDesc = "Removes all time locks.\n"
+    [[nodiscard]] Constants::Event timeMasterUnlock();
+    static auto constexpr timeMasterUnlockName = "time master-unlock";
+    static auto constexpr timeMasterUnlockDesc = "Removes all time locks.\n"
         "Time can only progress if no locks are present.\n"
         "\n"
         "Usage: time master-unlock\n";
 
-    [[nodiscard]] Constants::Event time_setFixedDeltaTime(int argc, char const** argv);
-    static auto constexpr time_setFixedDeltaTimeName = "time set-fixed-dt";
-    static auto constexpr time_setFixedDeltaTimeDesc = "Sets a fixed delta time in milliseconds for the simulation time.\n"
+    [[nodiscard]] Constants::Event timeSetFixedDeltaTime(int argc, char const** argv);
+    static auto constexpr timeSetFixedDeltaTimeName = "time set-fixed-dt";
+    static auto constexpr timeSetFixedDeltaTimeDesc = "Sets a fixed delta time in milliseconds for the simulation time.\n"
         "\n"
         "Usage: time set-fixed-dt <dt_ms>\n"
         "\n"
@@ -109,17 +109,17 @@ public:
     explicit Time(ConstructorParams const& params) : DomainModule(params) {
         //------------------------------------------
         // Start timers
-        SimulationTime.start();
-        RealTime.start();
+        simulationTime.start();
+        realTime.start();
 
         //------------------------------------------
         // Bind functions
         bindCategory(timeName, timeDesc);
-        bindFunction(&Time::time_haltOnce, time_haltOnceName, time_haltOnceDesc);
-        bindFunction(&Time::time_lock, time_lockName, time_lockDesc);
-        bindFunction(&Time::time_unlock, time_unlockName, time_unlockDesc);
-        bindFunction(&Time::time_masterUnlock, time_masterUnlockName, time_masterUnlockDesc);
-        bindFunction(&Time::time_setFixedDeltaTime, time_setFixedDeltaTimeName, time_setFixedDeltaTimeDesc);
+        bindFunction(&Time::timeHaltOnce, timeHaltOnceName, timeHaltOnceDesc);
+        bindFunction(&Time::timeLock, timeLockName, timeLockDesc);
+        bindFunction(&Time::timeUnlock, timeUnlockName, timeUnlockDesc);
+        bindFunction(&Time::timeMasterUnlock, timeMasterUnlockName, timeMasterUnlockDesc);
+        bindFunction(&Time::timeSetFixedDeltaTime, timeSetFixedDeltaTimeName, timeSetFixedDeltaTimeDesc);
     }
 
 private:
@@ -140,12 +140,12 @@ private:
     /**
      * @brief Simulation time, which can be paused/modified.
      */
-    Utility::TimeKeeper SimulationTime;
+    Utility::TimeKeeper simulationTime;
 
     /**
      * @brief Full application runtime
      */
-    Utility::TimeKeeper RealTime;
+    Utility::TimeKeeper realTime;
 
     /**
      * @brief Fixed delta time for the simulation time. If 0, uses real delta time.

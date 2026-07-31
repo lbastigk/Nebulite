@@ -23,7 +23,7 @@ Constants::Event Filesystem::updateHook() {
     // Add Domain-specific updates here!
     // General rule:
     // This is used to update all variables/states that are INTERNAL ONLY
-    return Constants::Event::Success;
+    return Constants::Event::success;
 }
 
 //------------------------------------------
@@ -37,14 +37,14 @@ Constants::Event Filesystem::cat(std::span<std::string_view const> const& args) 
     auto const filePath = Utility::StringHandler::recombineArgs(args.subspan(1));
     auto const fileContent = Utility::IO::FileManagement::loadFile(filePath);
     domain.capture.log.println(fileContent);
-    return Constants::Event::Success;
+    return Constants::Event::success;
 }
 
 Constants::Event Filesystem::ls(std::span<std::string_view const> const& args) const {
     std::string const directoryPath = args.size() >= 2 ? Utility::StringHandler::recombineArgs(args.subspan(1)) : ".";
     auto const entries = Utility::IO::FileManagement::listContentInDirectory(directoryPath);
     domain.capture.log.println(Utility::StringHandler::createPaddedTable(entries, 80));
-    return Constants::Event::Success;
+    return Constants::Event::success;
 }
 
 } // namespace Nebulite::Module::Domain::Common

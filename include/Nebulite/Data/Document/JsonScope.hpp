@@ -73,7 +73,7 @@ private:
     /**
      * @brief Mapped ordered double pointers intended for non-locking access
      */
-    alignas(Constants::Alignment::SIMD_ALIGN) std::array<MappedOrderedCacheList, cacheLookupThreadCount> odpCache;
+    alignas(Constants::Alignment::simdAlign) std::array<MappedOrderedCacheList, cacheLookupThreadCount> odpCache;
 
     //------------------------------------------
     // Complex number prefixes
@@ -181,8 +181,8 @@ public:
     template<typename T>
     std::expected<T, SimpleValueRetrievalError> get(ScopedKey const& key) const {return get<T>(key.view());}
 
-    [[nodiscard]] std::expected<RjDirectAccess::simpleValue, SimpleValueRetrievalError> getVariant(ScopedKeyView const& key) const ;
-    [[nodiscard]] std::expected<RjDirectAccess::simpleValue, SimpleValueRetrievalError> getVariant(ScopedKey const& key) const ;
+    [[nodiscard]] std::expected<RjDirectAccess::SimpleValue, SimpleValueRetrievalError> getVariant(ScopedKeyView const& key) const ;
+    [[nodiscard]] std::expected<RjDirectAccess::SimpleValue, SimpleValueRetrievalError> getVariant(ScopedKey const& key) const ;
 
     [[nodiscard]] JSON getSubDoc(ScopedKeyView const& key) const ;
     [[nodiscard]] JSON getSubDoc(ScopedKey const& key) const ;
@@ -200,8 +200,8 @@ public:
     template<typename T> void set(ScopedKeyView const& key, T const& value);
     template<typename T> void set(ScopedKey const& key, T const& value){set(key.view(), value);}
 
-    void setVariant(ScopedKeyView const& key, RjDirectAccess::simpleValue const& value);
-    void setVariant(ScopedKey const& key, RjDirectAccess::simpleValue const& value);
+    void setVariant(ScopedKeyView const& key, RjDirectAccess::SimpleValue const& value);
+    void setVariant(ScopedKey const& key, RjDirectAccess::SimpleValue const& value);
 
     void setSubDoc(ScopedKeyView const& key, JSON const& subDoc);
     void setSubDoc(ScopedKey const& key, JSON const& subDoc);

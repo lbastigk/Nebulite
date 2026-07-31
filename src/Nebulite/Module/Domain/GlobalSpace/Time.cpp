@@ -25,9 +25,9 @@ Constants::Event Time::updateHook() {
     // Update runtime
 
     // Update
-    RealTime.update();
-    std::uint64_t const deltaTimeMilliSeconds = RealTime.timeDeltaMilliseconds();
-    std::uint64_t const tMilliSeconds = RealTime.timeMilliseconds();
+    realTime.update();
+    std::uint64_t const deltaTimeMilliSeconds = realTime.timeDeltaMilliseconds();
+    std::uint64_t const tMilliSeconds = realTime.timeMilliseconds();
 
     // Set in doc
     moduleScope.set<double>(Key::runTimeDeltaTime, static_cast<double>(deltaTimeMilliSeconds) / 1000.0);
@@ -44,14 +44,14 @@ Constants::Event Time::updateHook() {
         // Update
         if (fixedDeltaTime > 0) {
             // Use fixed delta time
-            SimulationTime.update(fixedDeltaTime);
+            simulationTime.update(fixedDeltaTime);
         } else {
             // Use real delta time
             // Perhaps adding a max delta time cap in the future to prevent huge jumps?
-            SimulationTime.update(deltaTimeMilliSeconds);
+            simulationTime.update(deltaTimeMilliSeconds);
         }
-        auto const simDeltaTimeMilliSeconds = SimulationTime.timeDeltaMilliseconds();
-        auto const simTimeMilliSeconds = SimulationTime.timeMilliseconds();
+        auto const simDeltaTimeMilliSeconds = simulationTime.timeDeltaMilliseconds();
+        auto const simTimeMilliSeconds = simulationTime.timeMilliseconds();
 
         // Set in doc
         moduleScope.set<double>(Key::deltaTime, static_cast<double>(simDeltaTimeMilliSeconds) / 1000.0);
@@ -65,27 +65,27 @@ Constants::Event Time::updateHook() {
     }
     haltThisFrame = false;
 
-    return Constants::Event::Success;
+    return Constants::Event::success;
 }
 
 //------------------------------------------
 // Available Functions
 
-Constants::Event Time::time_haltOnce() {
+Constants::Event Time::timeHaltOnce() {
     haltThisFrame = true;
-    return Constants::Event::Success;
+    return Constants::Event::success;
 }
 
-Constants::Event Time::time_lock(int const argc, char const** argv) {
+Constants::Event Time::timeLock(int const argc, char const** argv) {
     if (argc < 2) {
         return Constants::StandardCapture::Warning::Functional::tooFewArgs(domain.capture);
     }
     std::string const lockName = argv[1];
     timeLocks.insert(lockName);
-    return Constants::Event::Success;
+    return Constants::Event::success;
 }
 
-Constants::Event Time::time_unlock(int const argc, char const** argv) {
+Constants::Event Time::timeUnlock(int const argc, char const** argv) {
     if (argc < 2) {
         return Constants::StandardCapture::Warning::Functional::tooFewArgs(domain.capture);
     }
@@ -95,15 +95,15 @@ Constants::Event Time::time_unlock(int const argc, char const** argv) {
     } else {
         return Constants::StandardCapture::Warning::Functional::unknownArg(domain.capture);
     }
-    return Constants::Event::Success;
+    return Constants::Event::success;
 }
 
-Constants::Event Time::time_masterUnlock() {
+Constants::Event Time::timeMasterUnlock() {
     timeLocks.clear();
-    return Constants::Event::Success;
+    return Constants::Event::success;
 }
 
-Constants::Event Time::time_setFixedDeltaTime(int const argc, char const** argv) {
+Constants::Event Time::timeSetFixedDeltaTime(int const argc, char const** argv) {
     if (argc < 2) {
         return Constants::StandardCapture::Warning::Functional::tooFewArgs(domain.capture);
     }
@@ -113,7 +113,7 @@ Constants::Event Time::time_setFixedDeltaTime(int const argc, char const** argv)
     } catch (...) {
         return Constants::StandardCapture::Warning::Functional::unknownArg(domain.capture);
     }
-    return Constants::Event::Success;
+    return Constants::Event::success;
 }
 
 } // namespace Nebulite::Module::Domain::GlobalSpace

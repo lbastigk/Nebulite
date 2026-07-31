@@ -29,7 +29,7 @@ ScopeAccessor::DomainModuleToken<DomainType>::DomainModuleToken(Module::Base::Do
     } else if constexpr (std::is_same_v<DomainType, Core::RenderObject>) {
         prefix = root.addMember("renderObject").addMember(dm.moduleScope.getScopePrefix()).toString();
     } else {
-        static_assert(Utility::CompileTimeEvaluate::always_false(), "Unsupported DomainType for DomainModuleToken. Please add a specialization for it in the constructor.");
+        static_assert(Utility::CompileTimeEvaluate::alwaysFalse(), "Unsupported DomainType for DomainModuleToken. Please add a specialization for it in the constructor.");
     }
 }
 

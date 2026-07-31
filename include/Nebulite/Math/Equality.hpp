@@ -37,7 +37,7 @@ bool constexpr isEqual(T const& a, T const& b) {
         return a == b;
     }
     else {
-        static_assert(Utility::CompileTimeEvaluate::always_false(), "isEqual does not support this type. It must either be a floating-point type or support operator==.");
+        static_assert(Utility::CompileTimeEvaluate::alwaysFalse(), "isEqual does not support this type. It must either be a floating-point type or support operator==.");
         return false;
     }
 }

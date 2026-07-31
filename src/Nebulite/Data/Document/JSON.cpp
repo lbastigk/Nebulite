@@ -172,10 +172,10 @@ void JSON::synchronizeChildren(std::string_view const parentKey) const {
         bool const startsWithParentKeyPlusArr = base && key[parentKey.length()] == SpecialCharacter::arrayOpen;
         if (bool const parentKeyIsRoot = parentKey.empty(); parentKeyIsRoot || startsWithParentKeyPlusDot || startsWithParentKeyPlusArr) {
             if (auto const variant = RjDirectAccess::getSimpleValue(key, doc); variant.has_value()) {
-                entry->state = CacheEntry::EntryState::CLEAN;
+                entry->state = CacheEntry::EntryState::clean;
                 entry->value = variant.value();
-                *entry->stable_double_ptr = convertVariant<double>(entry->value).value_or(standardNumericValue); // Default to 0 if conversion fails
-                entry->last_double_value = *entry->stable_double_ptr;
+                *entry->stableDoublePointer = convertVariant<double>(entry->value).value_or(standardNumericValue); // Default to 0 if conversion fails
+                entry->lastDoubleValue = *entry->stableDoublePointer;
             }
             else {
                 deleteCacheEntry(entry);
@@ -193,21 +193,21 @@ void JSON::flush(std::string_view const key) const {
         if (!entryKey.starts_with(parent)) continue;
 
         // Skip malformed entries
-        if (entry->state == CacheEntry::EntryState::MALFORMED) {
+        if (entry->state == CacheEntry::EntryState::malformed) {
             continue;
         }
 
         // If double values changed, mark dirty
-        if (!Math::isEqualAllowNan(entry->last_double_value, *entry->stable_double_ptr)) {
-            entry->state = CacheEntry::EntryState::DIRTY;
-            entry->last_double_value = *entry->stable_double_ptr;
-            entry->value = *entry->stable_double_ptr;
+        if (!Math::isEqualAllowNan(entry->lastDoubleValue, *entry->stableDoublePointer)) {
+            entry->state = CacheEntry::EntryState::dirty;
+            entry->lastDoubleValue = *entry->stableDoublePointer;
+            entry->value = *entry->stableDoublePointer;
         }
 
         // Every dirty entry is flushed back to the document and marked clean
-        if (entry->state == CacheEntry::EntryState::DIRTY) {
+        if (entry->state == CacheEntry::EntryState::dirty) {
             (void)RjDirectAccess::set(entryKey.c_str(), entry->value, doc, doc.GetAllocator());
-            entry->state = CacheEntry::EntryState::CLEAN;
+            entry->state = CacheEntry::EntryState::clean;
         }
     }
 }
@@ -215,7 +215,7 @@ void JSON::flush(std::string_view const key) const {
 //------------------------------------------
 // Get methods
 
-std::expected<RjDirectAccess::simpleValue, SimpleValueRetrievalError> JSON::getVariant(std::string_view const key) const {
+std::expected<RjDirectAccess::SimpleValue, SimpleValueRetrievalError> JSON::getVariant(std::string_view const key) const {
     std::scoped_lock const lockGuard(mtx);
 
     // Check for transformations
@@ -231,28 +231,28 @@ std::expected<RjDirectAccess::simpleValue, SimpleValueRetrievalError> JSON::getV
         auto& [cachedKey, entry] = pair;
         return cachedKey.starts_with(key)
             && cachedKey != key
-            && entry->state != CacheEntry::EntryState::DELETED
-            && Math::isEqualAllowNan(*entry->stable_double_ptr, entry->last_double_value);
+            && entry->state != CacheEntry::EntryState::deleted
+            && Math::isEqualAllowNan(*entry->stableDoublePointer, entry->lastDoubleValue);
     })) {
         // Checking for malformed shouldn't be necessary, but just in case
         auto const it = cache.find(key);
-        if (it != cache.end() && it->second->state == CacheEntry::EntryState::MALFORMED) {
+        if (it != cache.end() && it->second->state == CacheEntry::EntryState::malformed) {
             Global::capture().error.println("Warning: Attempted to access malformed key in getVariant(): ", key);
             Global::capture().error.println("This is a serious logic issue, the malformed key check should have happened already. Please report to the developers!");
             return std::unexpected(SimpleValueRetrievalError::malformedKey);
         }
 
-        if (it != cache.end() && it->second->state != CacheEntry::EntryState::DELETED) {
+        if (it != cache.end() && it->second->state != CacheEntry::EntryState::deleted) {
             // Entry exists and is not deleted
 
             // Check its double value for change detection using an epsilon to avoid unsafe direct comparison
-            if (!Math::isEqualAllowNan(*it->second->stable_double_ptr, it->second->last_double_value)) {
+            if (!Math::isEqualAllowNan(*it->second->stableDoublePointer, it->second->lastDoubleValue)) {
                 // Value changed since last check
                 // We update the actual value with the new double value
                 // Then we convert the double to the requested type
-                it->second->last_double_value = *it->second->stable_double_ptr;
-                it->second->value = it->second->last_double_value;
-                it->second->state = CacheEntry::EntryState::DIRTY; // Mark as dirty to sync back
+                it->second->lastDoubleValue = *it->second->stableDoublePointer;
+                it->second->value = it->second->lastDoubleValue;
+                it->second->state = CacheEntry::EntryState::dirty; // Mark as dirty to sync back
             }
             return it->second->value;
         }
@@ -314,29 +314,29 @@ double* JSON::getStableDoublePointer(std::string_view const key) const {
     // Check cache first
     if (auto const it = cache.find(key); it != cache.end()) {
         // If the entry is deleted, we need to update its value from the document
-        if (it->second->state == CacheEntry::EntryState::DELETED) {
-            *it->second->stable_double_ptr = get<double>(key).value_or(0.0); // Default to 0.0 if retrieval fails
-            it->second->last_double_value = *it->second->stable_double_ptr;
-            it->second->state = CacheEntry::EntryState::DERIVED;
+        if (it->second->state == CacheEntry::EntryState::deleted) {
+            *it->second->stableDoublePointer = get<double>(key).value_or(0.0); // Default to 0.0 if retrieval fails
+            it->second->lastDoubleValue = *it->second->stableDoublePointer;
+            it->second->state = CacheEntry::EntryState::derived;
         }
-        return it->second->stable_double_ptr;
+        return it->second->stableDoublePointer;
     }
 
     // Try loading from document into cache
     if (rapidjson::Value const* val = RjDirectAccess::traversePath(key, doc); val != nullptr) {
         if (jsonValueToCache<double>(key, val).has_value()) {
             // Successfully loaded into cache, return pointer
-            return cache[key]->stable_double_ptr;
+            return cache[key]->stableDoublePointer;
         }
     }
 
     // If loading from document failed, create a new derived entry
-    auto newEntry = std::make_unique<CacheEntry>(*cacheLine, cacheline_index);
+    auto newEntry = std::make_unique<CacheEntry>(*cacheLine, cachelineIndex);
     newEntry->value = standardNumericValue;
-    *newEntry->stable_double_ptr = standardNumericValue;
-    newEntry->last_double_value = standardNumericValue;
-    newEntry->state = CacheEntry::EntryState::DERIVED;
-    auto* const ptr = newEntry->stable_double_ptr;
+    *newEntry->stableDoublePointer = standardNumericValue;
+    newEntry->lastDoubleValue = standardNumericValue;
+    newEntry->state = CacheEntry::EntryState::derived;
+    auto* const ptr = newEntry->stableDoublePointer;
     cache[key] = std::move(newEntry);
     return ptr;
 }
@@ -349,7 +349,7 @@ std::unique_lock<std::recursive_mutex> JSON::lock() const {
 //------------------------------------------
 // Set methods
 
-void JSON::setVariant(std::string_view const key, RjDirectAccess::simpleValue const& val) {
+void JSON::setVariant(std::string_view const key, RjDirectAccess::SimpleValue const& val) {
     std::scoped_lock const lockGuard(mtx);
     helperNonConstVar++; // Signal non-const operation
 
@@ -371,11 +371,11 @@ void JSON::setVariant(std::string_view const key, RjDirectAccess::simpleValue co
 
         // Update the entry, mark as dirty
         it->second->value = val;
-        it->second->state = CacheEntry::EntryState::DIRTY;
+        it->second->state = CacheEntry::EntryState::dirty;
 
         // Update double pointer value
-        *it->second->stable_double_ptr = convertVariant<double>(val).value_or(standardNumericValue); // Default to 0 if conversion fails
-        it->second->last_double_value = *it->second->stable_double_ptr;
+        *it->second->stableDoublePointer = convertVariant<double>(val).value_or(standardNumericValue); // Default to 0 if conversion fails
+        it->second->lastDoubleValue = *it->second->stableDoublePointer;
     } else {
         // New cache value, structural validity is not guaranteed
         // so we flush contents into the rapidjson document after inserting
@@ -384,14 +384,14 @@ void JSON::setVariant(std::string_view const key, RjDirectAccess::simpleValue co
         synchronizeChildren(key);
 
         // Create new entry directly in DIRTY state
-        auto newEntry = std::make_unique<CacheEntry>(*cacheLine, cacheline_index);
+        auto newEntry = std::make_unique<CacheEntry>(*cacheLine, cachelineIndex);
 
         // Set entry values
         newEntry->value = val;
         // Pointer was created in constructor, no need to redo make_shared
-        *newEntry->stable_double_ptr = convertVariant<double>(newEntry->value).value_or(standardNumericValue); // Default to 0 if conversion fails
-        newEntry->last_double_value = *newEntry->stable_double_ptr;
-        newEntry->state = CacheEntry::EntryState::DIRTY;
+        *newEntry->stableDoublePointer = convertVariant<double>(newEntry->value).value_or(standardNumericValue); // Default to 0 if conversion fails
+        newEntry->lastDoubleValue = *newEntry->stableDoublePointer;
+        newEntry->state = CacheEntry::EntryState::dirty;
 
         // Insert into cache
         cache[key] = std::move(newEntry);
@@ -706,13 +706,13 @@ void JSON::setAdditive(std::string_view const key, double const val) {
 
     // Update double pointer value
     if (auto it = cache.find(key); it != cache.end()) {
-        *it->second->stable_double_ptr = newValue;
+        *it->second->stableDoublePointer = newValue;
     } else {
         set<double>(key, newValue);
         it = cache.find(key);
         if (it != cache.end()) {
-            *it->second->stable_double_ptr = newValue;
-            it->second->last_double_value = newValue;
+            *it->second->stableDoublePointer = newValue;
+            it->second->lastDoubleValue = newValue;
         }
     }
 }
@@ -749,13 +749,13 @@ void JSON::setMultiplicative(std::string_view const key, double const val) {
 
     // Update double pointer value
     if (auto it = cache.find(key); it != cache.end()) {
-        *it->second->stable_double_ptr = newValue;
+        *it->second->stableDoublePointer = newValue;
     } else {
         set<double>(key, newValue);
         it = cache.find(key);
         if (it != cache.end()) {
-            *it->second->stable_double_ptr = newValue;
-            it->second->last_double_value = newValue;
+            *it->second->stableDoublePointer = newValue;
+            it->second->lastDoubleValue = newValue;
         }
     }
 }
@@ -792,21 +792,21 @@ void JSON::setConcatenative(std::string_view const key, std::string_view const v
     // Update double pointer value to default NAN
     if (auto const it = cache.find(key); it != cache.end()) {
         // Strings Default to 0
-        *it->second->stable_double_ptr = standardNumericValue;
-        it->second->last_double_value = standardNumericValue;
+        *it->second->stableDoublePointer = standardNumericValue;
+        it->second->lastDoubleValue = standardNumericValue;
     }
 }
 
 //------------------------------------------
 // JSON - Rapidjson
 
-std::expected<RjDirectAccess::simpleValue, SimpleValueRetrievalError> JSON::getSimpleValueFromDocument(std::string_view const key) const {
+std::expected<RjDirectAccess::SimpleValue, SimpleValueRetrievalError> JSON::getSimpleValueFromDocument(std::string_view const key) const {
     if (rapidjson::Value const* val = RjDirectAccess::traversePath(key, doc); val != nullptr) {
         auto it = cache.find(key);
         if (it == cache.end() && RjDirectAccess::getSimpleValue(val).has_value()) {
             // Insert only if the value is of a supported type, otherwise complex types might be interpreted as simple values.
             // Create new cache entry and insert into cache
-            auto newEntry = std::make_unique<CacheEntry>(*cacheLine, cacheline_index);
+            auto newEntry = std::make_unique<CacheEntry>(*cacheLine, cachelineIndex);
             cache[key] = std::move(newEntry);
             it = cache.find(key);
         }
@@ -817,11 +817,11 @@ std::expected<RjDirectAccess::simpleValue, SimpleValueRetrievalError> JSON::getS
                 it->second->value = v.value();
 
                 // Mark as clean
-                it->second->state = CacheEntry::EntryState::CLEAN;
+                it->second->state = CacheEntry::EntryState::clean;
 
                 // Set stable double pointer
-                *it->second->stable_double_ptr = convertVariant<double>(it->second->value).value_or(standardNumericValue); // Default to 0 if conversion fails
-                it->second->last_double_value = *it->second->stable_double_ptr;
+                *it->second->stableDoublePointer = convertVariant<double>(it->second->value).value_or(standardNumericValue); // Default to 0 if conversion fails
+                it->second->lastDoubleValue = *it->second->stableDoublePointer;
 
                 return v.value();
             }

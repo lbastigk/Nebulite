@@ -37,7 +37,7 @@ Constants::Event Input::updateHook() {
             resetDeltaOnNextUpdate = false;
         }
     }
-    return Constants::Event::Success;
+    return Constants::Event::success;
 }
 
 Input::Input(ConstructorParams const& params) : DomainModule(params) {

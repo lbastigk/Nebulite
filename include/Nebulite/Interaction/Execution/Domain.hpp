@@ -254,7 +254,7 @@ class Domain : public DocumentAccessor {
      *         an error code otherwise.
      */
     [[nodiscard]] virtual Constants::Event preParse() {
-        return Constants::Event::Success;
+        return Constants::Event::success;
     }
 
 public:
@@ -322,7 +322,7 @@ public:
      * @brief Updates the domain.
      *        On overwriting, make sure to update all subdomains and DomainModules as well.
      */
-    [[nodiscard]] virtual Constants::Event update() { return Constants::Event::Success; }
+    [[nodiscard]] virtual Constants::Event update() { return Constants::Event::success; }
 
     //------------------------------------------
     // Module Initialization and Updating

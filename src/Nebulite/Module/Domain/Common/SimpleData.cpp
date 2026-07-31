@@ -24,7 +24,7 @@ namespace Nebulite::Module::Domain::Common {
 
 Constants::Event SimpleData::updateHook() {
     // No periodic update needed, SimpleData is stateless
-    return Constants::Event::Success;
+    return Constants::Event::success;
 }
 
 //------------------------------------------
@@ -41,7 +41,7 @@ Constants::Event SimpleData::set(std::span<std::string_view const> const& args, 
     auto const key = ctxScope.self.getRootScope().addMember(args[1]);
     std::string const value = args.size() < 3 ? std::string("") : Utility::StringHandler::recombineArgs(args.subspan(2));
     ctxScope.self.set(key, value);
-    return Constants::Event::Success;
+    return Constants::Event::success;
 }
 
 Constants::Event SimpleData::assign(std::span<std::string_view const> const& args, Interaction::Context const& ctx, Interaction::ContextScope const& ctxScope){
@@ -53,10 +53,10 @@ Constants::Event SimpleData::assign(std::span<std::string_view const> const& arg
     Interaction::Logic::Assignment assignment;
     if (!assignment.parse(assignmentString)) {
         ctx.self.capture.error.println("Error: Failed to parse assignment string '", assignmentString, "'.");
-        return Constants::Event::Warning;
+        return Constants::Event::warning;
     }
     assignment.apply(ctxScope);
-    return Constants::Event::Success;
+    return Constants::Event::success;
 }
 
 Constants::Event SimpleData::move(std::span<std::string_view const> const& args, Interaction::Context const& ctx, Interaction::ContextScope const& ctxScope) {
@@ -70,7 +70,7 @@ Constants::Event SimpleData::move(std::span<std::string_view const> const& args,
     auto const sourceKey = ctxScope.self.getRootScope().addMember(args[1]);
     auto const targetKey = ctxScope.self.getRootScope().addMember(args[2]);
     ctxScope.self.moveMember(sourceKey, targetKey);
-    return Constants::Event::Success;
+    return Constants::Event::success;
 }
 
 Constants::Event SimpleData::copy(std::span<std::string_view const> const& args, Interaction::Context const& ctx, Interaction::ContextScope const& ctxScope) {
@@ -84,7 +84,7 @@ Constants::Event SimpleData::copy(std::span<std::string_view const> const& args,
     auto const sourceKey = ctxScope.self.getRootScope().addMember(args[1]);
     auto const targetKey = ctxScope.self.getRootScope().addMember(args[2]);
     ctxScope.self.copyMember(sourceKey, targetKey);
-    return Constants::Event::Success;
+    return Constants::Event::success;
 }
 
 Constants::Event SimpleData::keyDelete(std::span<std::string_view const> const& args, Interaction::Context const& ctx, Interaction::ContextScope const& ctxScope) {
@@ -97,7 +97,7 @@ Constants::Event SimpleData::keyDelete(std::span<std::string_view const> const& 
     }
     auto const key = ctxScope.self.getRootScope().addMember(args[1]);
     ctxScope.self.removeMember(key);
-    return Constants::Event::Success;
+    return Constants::Event::success;
 }
 
 //------------------------------------------
@@ -115,7 +115,7 @@ Constants::Event SimpleData::ensureArray(std::span<std::string_view const> const
     if (auto const key = ctxScope.self.getRootScope().addMember(args[1]); ctxScope.self.memberType(key) != Data::KeyType::array) {
         ctxScope.self.moveMember(key, key.addIndex(0)); // Move existing value to array index 0
     }
-    return Constants::Event::Success;
+    return Constants::Event::success;
 }
 
 Constants::Event SimpleData::pushBack(std::span<std::string_view const> const& args, Interaction::Context& ctx, Interaction::ContextScope& ctxScope){
@@ -137,7 +137,7 @@ Constants::Event SimpleData::pushBack(std::span<std::string_view const> const& a
         std::string command = __FUNCTION__;
         command += " " + std::string(ensureArrayName);
         command += " " + std::string(args[1]);
-        if (Constants::Event const result = ctx.self.parseStr(command, ctx, ctxScope); result != Constants::Event::Success) {
+        if (Constants::Event const result = ctx.self.parseStr(command, ctx, ctxScope); result != Constants::Event::success) {
             ctx.self.capture.error.println("Error: Failed to ensure array for key '", std::string(args[1]), "'.");
             return result;
         }
@@ -146,7 +146,7 @@ Constants::Event SimpleData::pushBack(std::span<std::string_view const> const& a
     std::size_t const size = ctxScope.self.memberSize(key);
     auto const itemKey = key.addIndex(size);
     ctxScope.self.set(itemKey, value);
-    return Constants::Event::Success;
+    return Constants::Event::success;
 }
 
 Constants::Event SimpleData::popBack(std::span<std::string_view const> const& args, Interaction::Context const& ctx, Interaction::ContextScope const& ctxScope) {
@@ -161,7 +161,7 @@ Constants::Event SimpleData::popBack(std::span<std::string_view const> const& ar
 
     if (ctxScope.self.memberType(key) != Data::KeyType::array) {
         std::vector<std::string_view> ensureArrayArgs = {"", args[1]};
-        if (Constants::Event const result = ensureArray(ensureArrayArgs, ctx, ctxScope); result != Constants::Event::Success) {
+        if (Constants::Event const result = ensureArray(ensureArrayArgs, ctx, ctxScope); result != Constants::Event::success) {
             ctx.self.capture.error.println("Error: Failed to ensure array for key '", std::string(args[1]), "'.");
             return result;
         }
@@ -170,12 +170,12 @@ Constants::Event SimpleData::popBack(std::span<std::string_view const> const& ar
     std::size_t const size = ctxScope.self.memberSize(key);
     if (size == 0) {
         // nothing to pop out, not seen as error
-        return Constants::Event::Success;
+        return Constants::Event::success;
     }
 
     auto const itemKey = key.addIndex(size - 1);
     ctxScope.self.removeMember(itemKey);
-    return Constants::Event::Success;
+    return Constants::Event::success;
 }
 
 Constants::Event SimpleData::pushFront(std::span<std::string_view const> const& args, Interaction::Context& ctx, Interaction::ContextScope& ctxScope) {
@@ -195,7 +195,7 @@ Constants::Event SimpleData::pushFront(std::span<std::string_view const> const& 
 
     if (ctxScope.self.memberType(key) != Data::KeyType::array) {
         std::vector<std::string_view> ensureArrayArgs = {"", args[1]};
-        if (Constants::Event const result = ensureArray(ensureArrayArgs, ctx, ctxScope); result != Constants::Event::Success) {
+        if (Constants::Event const result = ensureArray(ensureArrayArgs, ctx, ctxScope); result != Constants::Event::success) {
             ctx.self.capture.error.println("Error: Failed to ensure array for key '", std::string(args[1]), "'.");
             return result;
         }
@@ -224,7 +224,7 @@ Constants::Event SimpleData::pushFront(std::span<std::string_view const> const& 
     }
     auto const itemKey = key.addIndex(0);
     ctxScope.self.set(itemKey, value);
-    return Constants::Event::Success;
+    return Constants::Event::success;
 }
 
 Constants::Event SimpleData::popFront(std::span<std::string_view const> const& args, Interaction::Context& ctx, Interaction::ContextScope& ctxScope) {
@@ -241,7 +241,7 @@ Constants::Event SimpleData::popFront(std::span<std::string_view const> const& a
         std::string command = __FUNCTION__;
         command += " " + std::string(ensureArrayName);
         command += " " + std::string(args[1]);
-        if (Constants::Event const result = ctx.self.parseStr(command, ctx, ctxScope); result != Constants::Event::Success) {
+        if (Constants::Event const result = ctx.self.parseStr(command, ctx, ctxScope); result != Constants::Event::success) {
             ctx.self.capture.error.println("Error: Failed to ensure array for key '", std::string(args[1]), "'.");
             return result;
         }
@@ -269,7 +269,7 @@ Constants::Event SimpleData::popFront(std::span<std::string_view const> const& a
     // Remove the last item
     auto const lastItemKey = key.addIndex(size - 1);
     ctxScope.self.removeMember(lastItemKey);
-    return Constants::Event::Success;
+    return Constants::Event::success;
 }
 
 } // namespace Nebulite::Module::Domain::Common

@@ -90,20 +90,20 @@ private:
     /**
      * @brief The amount of pre-cached double values per Document.
      */
-    static auto constexpr CACHELINE_SIZE = 1024 / sizeof(double);
+    static auto constexpr cachelineSize = 1024 / sizeof(double);
 
     /**
      * @brief Pre-allocated cacheline for fast double value access.
      * @details Instead of always allocating new double values, we use a pre-allocated cacheline.
      *          This reduces memory fragmentation and improves cache locality.
      */
-    using CacheLine = std::array<double, CACHELINE_SIZE>;
+    using CacheLine = std::array<double, cachelineSize>;
     mutable std::unique_ptr<CacheLine> cacheLine;
 
     /**
      * @brief Current index in the cacheline for the next double value.
      */
-    mutable std::size_t cacheline_index = 0;
+    mutable std::size_t cachelineIndex = 0;
 
     /**
      * @struct CacheEntry
@@ -122,11 +122,11 @@ private:
          *        - Values may be marked DELETED if their parent is modified or deleted.
          */
         enum class EntryState : std::uint8_t {
-            CLEAN, // Synchronized with RapidJSON document, real value. NOTE: This may be invalid at any time if double pointer is used elsewhere! This just marks the last known state.
-            DIRTY, // Modified in cache, needs flushing to RapidJSON, real value
-            DERIVED, // Deleted/nonexistent entry that was accessed via double pointer
-            DELETED, // Deleted entry due to deserialization or child invalidation, inner value is invalid
-            MALFORMED, // A key that is known to be malformed due to transformations. Used in getStableDoublePointer for integrity.
+            clean, // Synchronized with RapidJSON document, real value. NOTE: This may be invalid at any time if double pointer is used elsewhere! This just marks the last known state.
+            dirty, // Modified in cache, needs flushing to RapidJSON, real value
+            derived, // Deleted/nonexistent entry that was accessed via double pointer
+            deleted, // Deleted entry due to deserialization or child invalidation, inner value is invalid
+            malformed, // A key that is known to be malformed due to transformations. Used in getStableDoublePointer for integrity.
         };
 
         //------------------------------------------
@@ -140,29 +140,29 @@ private:
         //------------------------------------------
         // Data members
 
-        RjDirectAccess::simpleValue value = standardNumericValue;
-        double last_double_value = standardNumericValue;
-        double* stable_double_ptr = nullptr; // Stable pointer to double value
-        EntryState state = EntryState::DIRTY; // Default to dirty: each new entry needs flushing
+        RjDirectAccess::SimpleValue value = standardNumericValue;
+        double lastDoubleValue = standardNumericValue;
+        double* stableDoublePointer = nullptr; // Stable pointer to double value
+        EntryState state = EntryState::dirty; // Default to dirty: each new entry needs flushing
         bool managedInternalDouble = false; // Whether the stable double pointer is managed internally or externally (from cacheline)
 
         CacheEntry([[clang::lifetimebound]] CacheLine& cl, std::size_t& index) {
-            if (index >= CACHELINE_SIZE) [[unlikely]] {
-                stable_double_ptr = new double(standardNumericValue);
+            if (index >= cachelineSize) [[unlikely]] {
+                stableDoublePointer = new double(standardNumericValue);
                 managedInternalDouble = true;
             }
             else [[likely]] {
                 // Assign stable double pointer from cacheline
-                stable_double_ptr = &cl[index];
+                stableDoublePointer = &cl[index];
                 index++;
-                *stable_double_ptr = standardNumericValue;
+                *stableDoublePointer = standardNumericValue;
                 managedInternalDouble = false;
             }
         }
 
         ~CacheEntry() {
             if (managedInternalDouble) {
-                delete stable_double_ptr;
+                delete stableDoublePointer;
             }
         }
     };
@@ -209,10 +209,10 @@ private:
     /**
      * @brief Helper function to convert any type from cache into another type.
      * @param var The variant value stored in the cache.
-     * @return The converted value of type newType, or nullopt if conversion fails.
+     * @return The converted value of type NewType, or nullopt if conversion fails.
      */
-    template <typename newType>
-    static std::optional<newType> convertVariant(RjDirectAccess::simpleValue const& var);
+    template <typename NewType>
+    static std::optional<NewType> convertVariant(RjDirectAccess::SimpleValue const& var);
 
     /**
      * @brief Flush all DIRTY entries in the cache back to the RapidJSON document.
@@ -261,10 +261,10 @@ private:
     }
 
     static void deleteCacheEntry(std::unique_ptr<CacheEntry> const& entry) {
-        entry->state = CacheEntry::EntryState::DELETED; // Mark as deleted
+        entry->state = CacheEntry::EntryState::deleted; // Mark as deleted
         entry->value = standardNumericValue;
-        *entry->stable_double_ptr = standardNumericValue;
-        entry->last_double_value = standardNumericValue;
+        *entry->stableDoublePointer = standardNumericValue;
+        entry->lastDoubleValue = standardNumericValue;
     }
 
 public:
@@ -272,7 +272,7 @@ public:
     // Assertions
 
     // Make sure cache size is a power of two for optimal performance
-    static_assert(Utility::CompileTimeEvaluate::isPowerOfTwo(CACHELINE_SIZE), "CACHELINE_SIZE must be a power of two for optimal performance.");
+    static_assert(Utility::CompileTimeEvaluate::isPowerOfTwo(cachelineSize), "cachelineSize must be a power of two for optimal performance.");
 
     //------------------------------------------
     // Constructor/Destructor
@@ -359,7 +359,7 @@ public:
      * @param key The key of the value to set.
      * @param val The variant value to set.
      */
-    void setVariant(std::string_view key, RjDirectAccess::simpleValue const& val);
+    void setVariant(std::string_view key, RjDirectAccess::SimpleValue const& val);
 
     /**
      * @brief Sets a sub-document in the JSON document.
@@ -422,7 +422,7 @@ public:
      * @param key The key of the value to retrieve.
      * @return The variant value associated with the key, or an error if the retrieval failed.
      */
-    std::expected<RjDirectAccess::simpleValue, SimpleValueRetrievalError> getVariant(std::string_view key) const ;
+    std::expected<RjDirectAccess::SimpleValue, SimpleValueRetrievalError> getVariant(std::string_view key) const ;
 
     /**
      * @brief Gets a sub-document from the JSON document.
@@ -557,7 +557,7 @@ public:
      * @param key The key of the value to retrieve
      * @return The value, or a SimpleValueRetrievalError if retrieval failed (e.g. key doesn't exist, type not supported, etc.)
      */
-    std::expected<RjDirectAccess::simpleValue, SimpleValueRetrievalError> getSimpleValueFromDocument(std::string_view key) const ;
+    std::expected<RjDirectAccess::SimpleValue, SimpleValueRetrievalError> getSimpleValueFromDocument(std::string_view key) const ;
 };
 } // namespace Nebulite::Data
 #include "Nebulite/Data/Document/JSON.tpp" // NOLINT(misc-include-cleaner)

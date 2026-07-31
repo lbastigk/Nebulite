@@ -34,7 +34,7 @@ Constants::Event Texture::update() {
     parseTaskQueues(true);
 
     // No evaluation of previous lines for now, just return NONE
-    return Constants::Event::Success;
+    return Constants::Event::success;
 }
 
 namespace {
@@ -119,7 +119,7 @@ Constants::Event Texture::preParse() {
         // Failed to copy texture, cannot proceed with modifications
         return Constants::StandardCapture::Error::Texture::copyFailed(capture);
     }
-    return Constants::Event::Success;
+    return Constants::Event::success;
 }
 
 } // namespace Nebulite::Core

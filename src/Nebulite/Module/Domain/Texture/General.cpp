@@ -15,7 +15,7 @@
 namespace Nebulite::Module::Domain::Texture {
 
 Constants::Event General::updateHook() {
-    return Constants::Event::Success;
+    return Constants::Event::success;
 }
 
 Constants::Event General::reloadTexture() const {
@@ -25,7 +25,7 @@ Constants::Event General::reloadTexture() const {
         return Constants::StandardCapture::Error::File::invalidFile(domain.capture);// No valid path in document
     }
     domain.loadTextureFromFile(path);
-    return Constants::Event::Success; // No error
+    return Constants::Event::success; // No error
 }
 
 } // namespace Nebulite::Module::Domain::Texture

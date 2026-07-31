@@ -18,7 +18,7 @@ namespace Nebulite::Module::Domain::GlobalSpace {
 
 Constants::Event FunctionCollision::updateHook() {
     // No periodic update needed for this domain module
-    return Constants::Event::Success;
+    return Constants::Event::success;
 }
 
 //------------------------------------------
@@ -57,7 +57,7 @@ Constants::Event FunctionCollision::debugCollisionDetectFunction(std::span<std::
             testTree.bindFunction(&testFunctionCollision2, "test", "Test function for collision detection"); // This should cause a collision error
         } catch (...) {
             // Binding failed as expected -> no error
-            return Constants::Event::Success;
+            return Constants::Event::success;
         }
         return Constants::StandardCapture::Warning::Functional::bindingCollisionExpected(domain.capture);
     }
@@ -69,7 +69,7 @@ Constants::Event FunctionCollision::debugCollisionDetectFunction(std::span<std::
         // This should not happen
         return Constants::StandardCapture::Warning::Functional::bindingCollision(domain.capture);
     }
-    return Constants::Event::Success;
+    return Constants::Event::success;
 }
 
 Constants::Event FunctionCollision::debugCollisionDetectCategory(std::span<std::string_view const> const& args) const {
@@ -93,7 +93,7 @@ Constants::Event FunctionCollision::debugCollisionDetectCategory(std::span<std::
             testTree.bindCategory("test-category", "Test category for collision detection"); // Already exists, should cause a collision error
         } catch (...) {
             // Binding failed as expected -> no error
-            return Constants::Event::Success;
+            return Constants::Event::success;
         }
         return Constants::StandardCapture::Warning::Functional::bindingCollisionExpected(domain.capture);
     }
@@ -112,7 +112,7 @@ Constants::Event FunctionCollision::debugCollisionDetectCategory(std::span<std::
         // This should not happen
         return Constants::StandardCapture::Warning::Functional::bindingCollision(domain.capture);
     }
-    return Constants::Event::Success;
+    return Constants::Event::success;
 }
 
 Constants::Event FunctionCollision::debugCollisionDetectVariable(std::span<std::string_view const> const& args) const {
@@ -138,7 +138,7 @@ Constants::Event FunctionCollision::debugCollisionDetectVariable(std::span<std::
             testTree.bindVariable(&headless, "headless", headlessVarDesc); // This should cause a collision error
         } catch (...) {
             // Binding failed as expected -> no error
-            return Constants::Event::Success;
+            return Constants::Event::success;
         }
         return Constants::StandardCapture::Warning::Functional::bindingCollisionExpected(domain.capture);
     }
@@ -148,7 +148,7 @@ Constants::Event FunctionCollision::debugCollisionDetectVariable(std::span<std::
         // This should not happen
         return Constants::StandardCapture::Warning::Functional::bindingCollision(domain.capture);
     }
-    return Constants::Event::Success;
+    return Constants::Event::success;
 }
 
 } // namespace Nebulite::Module::Domain::GlobalSpace

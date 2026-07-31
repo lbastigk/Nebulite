@@ -27,7 +27,7 @@ Constants::Event ComplexData::updateHook() {
     // Add Domain-specific updates here!
     // General rule:
     // This is used to update all variables/states that are INTERNAL ONLY
-    return Constants::Event::Success;
+    return Constants::Event::success;
 }
 
 //------------------------------------------
@@ -51,7 +51,7 @@ Constants::Event ComplexData::jsonSet(std::span<std::string_view const> const& a
     // Evaluate
     auto const result = Interaction::Logic::Expression::evalAsJson(expression, ctxScope);
     ctxScope.self.setSubDoc(ctxScope.self.getRootScope().addMember(myKey), result);
-    return Constants::Event::Success;
+    return Constants::Event::success;
 }
 
 Constants::Event ComplexData::evaluateMember(std::span<std::string_view const> const& args, Interaction::Context const& ctx, Interaction::ContextScope const& ctxScope) {
@@ -67,14 +67,14 @@ Constants::Event ComplexData::evaluateMember(std::span<std::string_view const> c
     auto const fullKey = ctxScope.self.getRootScope().addMember(args[1]);
     if (ctxScope.self.memberType(fullKey) != Data::KeyType::value) {
         // If it's not a value, we can't evaluate it as an expression, so we do nothing
-        return Constants::Event::Success;
+        return Constants::Event::success;
     }
 
     // Evaluate the string as an expression and set the member to the result
     auto const expressionStr = ctxScope.self.get<std::string>(fullKey).value_or("");
     auto const result = Interaction::Logic::Expression::evalAsJson(expressionStr, ctxScope);
     ctxScope.self.setSubDoc(fullKey, result);
-    return Constants::Event::Success;
+    return Constants::Event::success;
 }
 
 Constants::Event ComplexData::evaluateRecursive(std::span<std::string_view const> const& args, Interaction::Context const& ctx, Interaction::ContextScope& ctxScope){
@@ -114,7 +114,7 @@ Constants::Event ComplexData::evaluateRecursive(std::span<std::string_view const
 
     auto const fullKey = ctxScope.self.getRootScope().addMember(args[1]);
     recursiveEvaluate(fullKey);
-    return Constants::Event::Success;
+    return Constants::Event::success;
 }
 
 } // namespace Nebulite::Module::Domain::Common

@@ -25,7 +25,7 @@ Constants::Event Clock::updateHook() {
     for (auto& clockEntry : std::views::values(clockEntries)) {
         clockEntry.update(currentTimeMilliSeconds);
     }
-    return Constants::Event::Success;
+    return Constants::Event::success;
 }
 
 //------------------------------------------
@@ -45,18 +45,18 @@ Constants::Event Clock::addClock(int const argc, char const** argv) {
         intervalMilliSeconds = std::stoull(argv[1]);
     } catch (...) {
         domain.capture.warning.println("Invalid interval argument, must be a positive integer.");
-        return Constants::Event::Warning;
+        return Constants::Event::warning;
     }
 
     if (intervalMilliSeconds < 1) {
         domain.capture.warning.println("Interval must be greater than 0");
-        return Constants::Event::Warning;
+        return Constants::Event::warning;
     }
 
     // Check if clock already exists
     if (clockEntries.find(intervalMilliSeconds) != clockEntries.end()) {
         domain.capture.warning.println("Clock with this interval already exists.");
-        return Constants::Event::Warning;
+        return Constants::Event::warning;
     }
 
     // Add to document
@@ -66,7 +66,7 @@ Constants::Event Clock::addClock(int const argc, char const** argv) {
     // Create new ClockEntry
     clockEntries.emplace(intervalMilliSeconds, ClockEntry(intervalMilliSeconds, moduleScope, currentTimeMilliSeconds));
 
-    return Constants::Event::Success;
+    return Constants::Event::success;
 }
 
 //------------------------------------------

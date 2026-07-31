@@ -36,13 +36,13 @@ Constants::Event RenderObjectDraft::draftSpawn() {
     auto* newObj = new Core::RenderObject(domain.capture);
     newObj->deserialize(serial);
     domain.append(newObj);
-    return Constants::Event::Success;
+    return Constants::Event::success;
 }
 
 Constants::Event RenderObjectDraft::draftReset() {
     Core::RenderObject const newDraft(domain.capture);
     draft.get(domain.capture).deserialize(newDraft.serialize());
-    return Constants::Event::Success;
+    return Constants::Event::success;
 }
 
 RenderObjectDraft::RenderObjectDraft(ConstructorParams const& params) : DomainModule(params) {

@@ -25,7 +25,7 @@ Constants::Event SelectedObject::updateHook() {
     // Add Domain-specific updates here!
     // General rule:
     // This is used to update all variables/states that are INTERNAL ONLY
-    return Constants::Event::Success;
+    return Constants::Event::success;
 }
 
 //------------------------------------------
@@ -36,7 +36,7 @@ Constants::Event SelectedObject::selectedObjectUpdate() const {
         return selectedRenderObject->update();
     }
     domain.capture.warning.println("No RenderObject selected! Use selectedObjectGet <id> to select a valid object.");
-    return Constants::Event::Warning;
+    return Constants::Event::warning;
 }
 
 Constants::Event SelectedObject::selectedObjectGet(int const argc, char const** argv){
@@ -53,11 +53,11 @@ Constants::Event SelectedObject::selectedObjectGet(int const argc, char const** 
         auto [obj, scope] = objAndScope.value();
         selectedRenderObject = obj;
         selectedRenderObjectData = scope;
-        return Constants::Event::Success;
+        return Constants::Event::success;
     }
     selectedRenderObject = nullptr;
     domain.capture.warning.println("No RenderObject with ID ", idx, " found. Selection cleared.");
-    return Constants::Event::Warning;
+    return Constants::Event::warning;
 }
 
 Constants::Event SelectedObject::selectedObjectParse(std::span<std::string_view const> const& args, Interaction::Context const& ctx, Interaction::ContextScope const& ctxScope) const {
@@ -67,7 +67,7 @@ Constants::Event SelectedObject::selectedObjectParse(std::span<std::string_view 
     std::string const command = Utility::StringHandler::recombineArgs(args.subspan(1));
     if (selectedRenderObject == nullptr || selectedRenderObjectData == nullptr) {
         domain.capture.warning.println("No RenderObject selected! Use selectedObjectGet <id> to select a valid object.");
-        return Constants::Event::Warning;
+        return Constants::Event::warning;
     }
 
     Interaction::Context objectCtx = {

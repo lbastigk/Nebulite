@@ -23,7 +23,7 @@
 namespace Nebulite::Module::Domain::GlobalSpace {
 
 Constants::Event FeatureTest::updateHook() {
-    return Constants::Event::Success;
+    return Constants::Event::success;
 }
 
 // General
@@ -61,7 +61,7 @@ Constants::Event FeatureTest::testFuncTree() const {
     auto constexpr funcCall = "<name> add 1.5 2.5 3.0";
     double const result = testTree.parseStr(funcCall, 0.0);
     domain.capture.log.println("FuncTree result for call '", funcCall, "': ", result);
-    return Constants::Event::Success;
+    return Constants::Event::success;
 }
 
 Constants::Event FeatureTest::selfOtherGlobalEvaluation() const {
@@ -89,7 +89,7 @@ Constants::Event FeatureTest::selfOtherGlobalEvaluation() const {
         Interaction::Logic::Expression const expr("{self:testKey} {other:testKey} {global:testKey}");
         domain.capture.log.println(expr.eval({self2, other2, globalScope}));
     }
-    return Constants::Event::Success;
+    return Constants::Event::success;
 }
 
 // Keys
@@ -105,13 +105,13 @@ Constants::Event FeatureTest::keyCombination(std::span<std::string_view const> c
     auto const key2 = args[2] == "<empty>" ? "" : args[2];
     auto const key = Data::ScopedKey(key1).addMember(key2);
     domain.capture.log.println(key.view().toString());
-    return Constants::Event::Success;
+    return Constants::Event::success;
 }
 
 Constants::Event FeatureTest::findParentKey(std::span<std::string_view const> const& args) const {
     auto const key = args.size() > 1 ? Utility::StringHandler::recombineArgs(args.subspan(1)) : "";
     domain.capture.log.println(Data::JSON::findParentKey(key));
-    return Constants::Event::Success;
+    return Constants::Event::success;
 }
 
 } // namespace Nebulite::Module::Domain::GlobalSpace

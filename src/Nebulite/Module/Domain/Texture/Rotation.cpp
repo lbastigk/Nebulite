@@ -21,7 +21,7 @@ namespace Nebulite::Module::Domain::Texture {
 
 Constants::Event Rotation::updateHook() {
     // Nothing to do in update for rotation
-    return Constants::Event::Success;
+    return Constants::Event::success;
 }
 
 Constants::Event Rotation::rotate(int const argc, char const** argv) const {
@@ -76,7 +76,7 @@ Constants::Event Rotation::rotate(int const argc, char const** argv) const {
 
     // Replace the original texture with the rotated texture
     domain.setInternalTexture(rotatedTexture);
-    return Constants::Event::Success;
+    return Constants::Event::success;
 }
 
 } // namespace Nebulite::Module::Domain::Texture

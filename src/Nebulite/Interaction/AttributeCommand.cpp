@@ -41,13 +41,13 @@ void ActionsImpl::parseString(std::string_view const stringToParse, Utility::IO:
         std::string_view taskView = task;
         Utility::StringHandler::lStrip(taskView);
         switch (std::string const str = std::string(__FUNCTION__) + " " + taskView; ctx.self.parseStr(str,ctx, scope)) {
-        case Constants::Event::Warning:
+        case Constants::Event::warning:
             cap.warning.println("Parsing string resulted in warning. String: ", str);
             break;
-        case Constants::Event::Error:
+        case Constants::Event::error:
             cap.error.println("Parsing string resulted in error. String: ", str);
             break;
-        case Constants::Event::Success:
+        case Constants::Event::success:
             break;
         default:
             std::unreachable();

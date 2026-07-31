@@ -56,8 +56,8 @@ Domain::Domain(std::string const& name, Data::JsonScope& documentReference, Util
     // FuncTree initialization
     funcTree = std::make_shared<DomainTree>(
         name,
-        Constants::Event::Success,
-        Constants::Event::Warning,
+        Constants::Event::success,
+        Constants::Event::warning,
         capture
     );
     funcTree->setPreParse([this] { return preParse(); });
@@ -73,8 +73,8 @@ Domain::Domain(std::string const& name, Utility::IO::Capture& parentCapture)
     // FuncTree initialization
     funcTree = std::make_shared<DomainTree>(
         name,
-        Constants::Event::Success,
-        Constants::Event::Warning,
+        Constants::Event::success,
+        Constants::Event::warning,
         capture
     );
     funcTree->setPreParse([this] { return preParse(); });
@@ -91,8 +91,8 @@ Domain::Domain(std::string const& name, Data::JsonScope& documentReference)
     // FuncTree initialization
     funcTree = std::make_shared<DomainTree>(
         name,
-        Constants::Event::Success,
-        Constants::Event::Warning,
+        Constants::Event::success,
+        Constants::Event::warning,
         capture
     );
     funcTree->setPreParse([this] { return preParse(); });
@@ -108,8 +108,8 @@ Domain::Domain(std::string const& name)
     // FuncTree initialization
     funcTree = std::make_shared<DomainTree>(
         name,
-        Constants::Event::Success,
-        Constants::Event::Warning,
+        Constants::Event::success,
+        Constants::Event::warning,
         capture
     );
     funcTree->setPreParse([this] { return preParse(); });
@@ -237,7 +237,7 @@ void Domain::baseDeserialization(std::string const& serialOrLinkWithCommands) {
         // Forward to FunctionTree for resolution
         // At this point, all context and all contextScope is the domain itself.
         Context ctx{*this, *this, Global::instance()};
-        if (ContextScope ctxScope{domainScope, domainScope, Global::instance().domainScope}; parseStr(callStr, ctx, ctxScope) != Constants::Event::Success) {
+        if (ContextScope ctxScope{domainScope, domainScope, Global::instance().domainScope}; parseStr(callStr, ctx, ctxScope) != Constants::Event::success) {
             capture.error.println("Failed to apply deserialize transformation: ", callStr);
         }
     }

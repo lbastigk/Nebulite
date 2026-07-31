@@ -28,36 +28,36 @@ Constants::Event Mirror::updateHook() {
         // Reset once-flag
         mirrorOnceEnabled = false;
     }
-    return Constants::Event::Success;
+    return Constants::Event::success;
 }
 
 //------------------------------------------
 // Available Functions
 
 Constants::Event Mirror::mirrorOnce() {
-    if (auto const event = setupMirrorKey(); event != Constants::Event::Success)
+    if (auto const event = setupMirrorKey(); event != Constants::Event::success)
         return event;
     mirrorOnceEnabled = true;
-    return Constants::Event::Success;
+    return Constants::Event::success;
 }
 
 Constants::Event Mirror::mirrorOn() {
-    if (auto const event = setupMirrorKey(); event != Constants::Event::Success)
+    if (auto const event = setupMirrorKey(); event != Constants::Event::success)
         return event;
     mirrorEnabled = true;
-    return Constants::Event::Success;
+    return Constants::Event::success;
 }
 
 Constants::Event Mirror::mirrorOff() {
     mirrorEnabled = false;
-    return Constants::Event::Success;
+    return Constants::Event::success;
 }
 
 Constants::Event Mirror::mirrorDelete() const {
     auto const token = getDomainModuleAccessToken(*this);
     auto const baseKey = Global::shareScope(token).getRootScope();
     Global::shareScope(token).removeMember(baseKey.addMember(mirrorKey));
-    return Constants::Event::Success;
+    return Constants::Event::success;
 }
 
 Constants::Event Mirror::mirrorFetch() const {
@@ -65,10 +65,10 @@ Constants::Event Mirror::mirrorFetch() const {
     auto const baseKey = Global::shareScope(token).getRootScope();
     if (Global::shareScope(token).memberType(baseKey.addMember(mirrorKey)) != Data::KeyType::object) {
         domain.capture.warning.println("Mirror fetch failed: Key '" + mirrorKey + "' not of type document");
-        return Constants::Event::Warning;
+        return Constants::Event::warning;
     }
     domain.deserialize(Global::shareScope(token).serialize(baseKey.addMember(mirrorKey)));
-    return Constants::Event::Success;
+    return Constants::Event::success;
 }
 
 //------------------------------------------
@@ -79,17 +79,17 @@ Constants::Event Mirror::setupMirrorKey() {
     auto const id = domain.getId();
     if (id < 1) {
         domain.capture.warning.println("Mirror key setup failed: RenderObject has invalid id");
-        return Constants::Event::Warning;
+        return Constants::Event::warning;
     }
 
     auto const idx = Global::instance().getIndexFromId(id);
     if (!idx.has_value()) {
         mirrorKey = "";
         domain.capture.warning.println("Mirror key setup failed: RenderObject id not found in Renderer");
-        return Constants::Event::Warning;
+        return Constants::Event::warning;
     }
     mirrorKey = "mirror.renderObject.idx" + std::to_string(idx.value());
-    return Constants::Event::Success;
+    return Constants::Event::success;
 }
 
 } // namespace Nebulite::Module::Domain::RenderObject

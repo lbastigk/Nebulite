@@ -31,7 +31,7 @@ namespace Nebulite::Data {
 //------------------------------------------
 // Static Public Helper Functions
 
-std::optional<RjDirectAccess::simpleValue> RjDirectAccess::getSimpleValue(rapidjson::Value const* val) {
+std::optional<RjDirectAccess::SimpleValue> RjDirectAccess::getSimpleValue(rapidjson::Value const* val) {
     // Integers
     if (val->IsInt())    return val->GetInt();
     if (val->IsInt64())  return val->GetInt64();

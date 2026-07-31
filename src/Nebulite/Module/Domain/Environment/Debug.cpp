@@ -31,7 +31,7 @@ Constants::Event Debug::updateHook() {
     }
     moduleScope.set<size_t>(Key::containerTotalTiles, containerTotalTiles);
     moduleScope.set<size_t>(Key::containerTotalCost, containerTotalCost);
-    return Constants::Event::Success;
+    return Constants::Event::success;
 }
 
 Constants::Event Debug::fetchContainer() const {
@@ -62,7 +62,7 @@ Constants::Event Debug::fetchContainer() const {
 
     // Set total count
     moduleScope.set<size_t>(Key::containerObjectCount.addMember("total"), objectCount);
-    return Constants::Event::Success;
+    return Constants::Event::success;
 }
 
 } // namespace Nebulite::Module::Domain::Environment

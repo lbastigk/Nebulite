@@ -108,7 +108,7 @@ Constants::Event GlobalSpace::updateInnerDomains() {
         frameCount++;
         return event;
     }
-    return Constants::Event::Success;
+    return Constants::Event::success;
 }
 
 Constants::Event GlobalSpace::update() {
@@ -156,7 +156,7 @@ Constants::Event GlobalSpace::update() {
         queueParsed = false;
     }
 
-    return Constants::Event::Success;
+    return Constants::Event::success;
 }
 
 void GlobalSpace::parseCommandLineArguments(int const argc, char const** argv) {
@@ -260,11 +260,11 @@ std::optional<size_t> GlobalSpace::getIndexFromId(std::size_t const searchId) co
 
 void GlobalSpace::notifyEvent(Constants::Event const event) {
     switch (event) {
-    case Constants::Event::Success:
-    case Constants::Event::Warning:
+    case Constants::Event::success:
+    case Constants::Event::warning:
         // No action needed
         break;
-    case Constants::Event::Error:
+    case Constants::Event::error:
         if (!cmdVars.recover) {
             continueLoop = false; // Stop the main loop on critical error if not in recover mode
         }
@@ -292,7 +292,7 @@ Constants::Event GlobalSpace::preParse() {
     // Meaning its timing is consistent and not dependent on framerate, frame time variations, etc.
     // Meaning everything we do here is, timing wise, deterministic!
     (void)floatingDM.rng->update();
-    return Constants::Event::Success;
+    return Constants::Event::success;
 }
 
 } // namespace Nebulite::Core

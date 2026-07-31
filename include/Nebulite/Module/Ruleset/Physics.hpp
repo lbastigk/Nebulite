@@ -86,8 +86,8 @@ public:
         Domain::GlobalSpace::Physics::Key::Local::FX,
         Domain::GlobalSpace::Physics::Key::Local::FY,
         // Correction values
-        Domain::GlobalSpace::Physics::Key::Local::Correction::X,
-        Domain::GlobalSpace::Physics::Key::Local::Correction::Y,
+        Domain::GlobalSpace::Physics::Key::Local::Correction::posX,
+        Domain::GlobalSpace::Physics::Key::Local::Correction::posY,
         Domain::GlobalSpace::Physics::Key::Local::Correction::vX,
         Domain::GlobalSpace::Physics::Key::Local::Correction::vY,
         // More specialized keys

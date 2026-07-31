@@ -367,7 +367,7 @@ void Expression::updateStableValues(ContextScope const& context) const {
 }
 
 void Expression::updateUnstableValues(ContextScope const& context) const {
-    auto updateFromJSON = [&]<typename DataType>(DataType const& jsonScope, auto& vdList) {
+    auto updateFromJson = [&]<typename DataType>(DataType const& jsonScope, auto& vdList) {
         for (auto& vde : vdList) {
             if constexpr (auto const evaluatedKey = eval(vde->getKey(), context); requires { jsonScope.template get<double>(Data::ScopedKey(evaluatedKey)); }) {
                 auto key = Data::ScopedKey(evaluatedKey);
@@ -375,26 +375,26 @@ void Expression::updateUnstableValues(ContextScope const& context) const {
             } else if constexpr (requires { jsonScope.template get<double>(evaluatedKey); }) {
                 vde->setDirect(jsonScope.template get<double>(evaluatedKey).value_or(0.0));
             } else {
-                static_assert(Utility::CompileTimeEvaluate::always_false(), "Unsupported key type for get()");
+                static_assert(Utility::CompileTimeEvaluate::alwaysFalse(), "Unsupported key type for get()");
             }
         }
     };
-    updateFromJSON(context.self, linkedNumericValues.unstable.self);
-    updateFromJSON(context.other, linkedNumericValues.unstable.other);
-    updateFromJSON(context.global, linkedNumericValues.unstable.global);
-    updateFromJSON(Global::instance().getDocCache(), linkedNumericValues.unstable.resource);
-    updateFromJSON(emptyDoc(), linkedNumericValues.unstable.none);
+    updateFromJson(context.self, linkedNumericValues.unstable.self);
+    updateFromJson(context.other, linkedNumericValues.unstable.other);
+    updateFromJson(context.global, linkedNumericValues.unstable.global);
+    updateFromJson(Global::instance().getDocCache(), linkedNumericValues.unstable.resource);
+    updateFromJson(emptyDoc(), linkedNumericValues.unstable.none);
 
     // Merge docs for context-married values using a temporary JSON
     if (!linkedNumericValues.unstable.local.empty()) {
         Data::JsonScope merged;
         context.combineLocal(merged);
-        updateFromJSON(merged, linkedNumericValues.unstable.local);
+        updateFromJson(merged, linkedNumericValues.unstable.local);
     }
     if (!linkedNumericValues.unstable.full.empty()) {
         Data::JsonScope merged;
         context.combineAll(merged);
-        updateFromJSON(merged, linkedNumericValues.unstable.full);
+        updateFromJson(merged, linkedNumericValues.unstable.full);
     }
 }
 
