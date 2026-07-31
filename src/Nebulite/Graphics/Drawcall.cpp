@@ -256,7 +256,7 @@ Constants::Event Drawcall::parseStr(std::string_view const str, Interaction::Con
     return texture.parseStr(str, ctx, ctxScope);
 }
 
-void Drawcall::ApplyDefault::Sprite(Data::JsonScope& scope) {
+void Drawcall::ApplyDefault::sprite(Data::JsonScope& scope) {
     // Default type
     scope.set<std::string>(Key::type, "sprite");
     scope.set<std::string>(Key::SpriteSpecific::imageLocation, "Resources/Sprites/TEST001P/001.bmp");
@@ -272,7 +272,7 @@ void Drawcall::ApplyDefault::Sprite(Data::JsonScope& scope) {
     scope.set<double>(Key::Rect::dstH, 32.0);
 }
 
-void Drawcall::ApplyDefault::Text(Data::JsonScope& scope) {
+void Drawcall::ApplyDefault::text(Data::JsonScope& scope) {
     // Default type
     scope.set<std::string>(Key::type, "text");
     scope.set<std::string>(Key::TextSpecific::str, "Hello, Nebulite!");

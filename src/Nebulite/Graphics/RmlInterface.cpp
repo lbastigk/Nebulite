@@ -174,7 +174,7 @@ void RmlInterface::close() const {
 
 namespace {
 
-Rml::Input::KeyIdentifier SDLKeyToRmlKey(SDL_Keycode const& keycode) {
+Rml::Input::KeyIdentifier sdlKeyToRmlKey(SDL_Keycode const& keycode) {
     switch (keycode) {
         // Basic text editing keys
         case SDL_SCANCODE_BACKSPACE: return Rml::Input::KI_BACK;
@@ -193,7 +193,7 @@ Rml::Input::KeyIdentifier SDLKeyToRmlKey(SDL_Keycode const& keycode) {
     }
 }
 
-int SdlModifierToRmlModifier(std::uint32_t const modifier) {
+int sdlModifierToRmlModifier(std::uint32_t const modifier) {
     int result = 0;
 
     // Flags are seen as unsigned but guaranteed to be >= 0, so we can or them together
@@ -250,7 +250,7 @@ void RmlInterface::processKeyEvent(SDL_Event const& event, int const modifiers) 
         return;
     }
 
-    auto const rmlKey = SDLKeyToRmlKey(event.key.scancode);
+    auto const rmlKey = sdlKeyToRmlKey(event.key.scancode);
     if (event.type == SDL_EVENT_KEY_DOWN) {
         context->ProcessKeyDown(rmlKey, modifiers);
     }
@@ -266,7 +266,7 @@ void RmlInterface::processRmlUiEvent(SDL_Event const& event) const {
     if (!context) return;
 
     // Get common data for event processing
-    auto const modifiers = SdlModifierToRmlModifier(event.key.mod);
+    auto const modifiers = sdlModifierToRmlModifier(event.key.mod);
 
     // Core events
     switch (event.type) {
@@ -277,7 +277,7 @@ void RmlInterface::processRmlUiEvent(SDL_Event const& event) const {
     case SDL_EVENT_MOUSE_WHEEL: {
         context->ProcessMouseWheel(
             {event.wheel.x, event.wheel.y},
-            SdlModifierToRmlModifier(event.key.mod)
+            sdlModifierToRmlModifier(event.key.mod)
         );
         break;
     }

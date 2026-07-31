@@ -49,7 +49,7 @@ auto const* logFilename = "errors.log";
 /**
  * @brief Safely opens a log file for writing, ensuring it is not a symlink.
  */
-bool safe_open_log(std::unique_ptr<std::ofstream>& out) {
+bool safeOpenLog(std::unique_ptr<std::ofstream>& out) {
 #ifdef _WIN32
     DWORD attrs = GetFileAttributesA(logFilename);
     if (attrs != INVALID_FILE_ATTRIBUTES && (attrs & FILE_ATTRIBUTE_REPARSE_POINT)) {
@@ -84,7 +84,7 @@ void getMemoryUsageMegaBytes(double& virtualMemMegaBytes, double& residentMemMeg
     residentMemMegaBytes = 0.0;
 
     // 'file' stat seems to give the most reliable results
-    std::ifstream stat_stream("/proc/self/stat", std::ios_base::in);
+    std::ifstream statStream("/proc/self/stat", std::ios_base::in);
 
     // dummy vars for leading entries in stat that we don't care about
     //
@@ -94,37 +94,37 @@ void getMemoryUsageMegaBytes(double& virtualMemMegaBytes, double& residentMemMeg
     std::string ppid;
     std::string pgrp;
     std::string session;
-    std::string tty_nr;
+    std::string ttyNr;
     std::string tpgid;
     std::string flags;
     std::string minflt;
     std::string cminflt;
     std::string majflt;
     std::string cmajflt;
-    std::string utime;
-    std::string stime;
-    std::string cutime;
-    std::string cstime;
+    std::string uTime;
+    std::string sTime;
+    std::string cuTime;
+    std::string csTime;
     std::string priority;
     std::string nice;
-    std::string O;
-    std::string itrealvalue;
-    std::string starttime;
+    std::string o;
+    std::string itRealValue;
+    std::string startTime;
 
     // the two fields we want
     unsigned long vsize{};
     long rss{};
 
-    stat_stream >> pid >> comm >> state >> ppid >> pgrp >> session >> tty_nr
+    statStream >> pid >> comm >> state >> ppid >> pgrp >> session >> ttyNr
         >> tpgid >> flags >> minflt >> cminflt >> majflt >> cmajflt
-        >> utime >> stime >> cutime >> cstime >> priority >> nice
-        >> O >> itrealvalue >> starttime >> vsize >> rss; // don't care about the rest
+        >> uTime >> sTime >> cuTime >> csTime >> priority >> nice
+        >> o >> itRealValue >> startTime >> vsize >> rss; // don't care about the rest
 
-    stat_stream.close();
+    statStream.close();
 
-    auto const page_size_kb = sysconf(_SC_PAGE_SIZE) / 1024; // in case x86-64 is configured to use 2MB pages
+    auto const pageSizeKiloBytes = sysconf(_SC_PAGE_SIZE) / 1024; // in case x86-64 is configured to use 2MB pages
     virtualMemMegaBytes = static_cast<double>(vsize) / (1024.0 * 1024.0);
-    residentMemMegaBytes = static_cast<double>(rss) * static_cast<double>(page_size_kb) / 1024.0;
+    residentMemMegaBytes = static_cast<double>(rss) * static_cast<double>(pageSizeKiloBytes) / 1024.0;
 #endif
 }
 } // anonymous namespace
@@ -139,7 +139,7 @@ Constants::Event Debug::updateHook() {
 //------------------------------------------
 // Domain-Bound Functions
 
-Constants::Event Debug::log_global(int const argc, char const** argv) const {
+Constants::Event Debug::logGlobal(int const argc, char const** argv) const {
     std::string const serialized = moduleScope.serialize();
     if (argc > 1) {
         for (int i = 1; i < argc; i++) {
@@ -155,7 +155,7 @@ Constants::Event Debug::log_global(int const argc, char const** argv) const {
     return Constants::Event::Success;
 }
 
-Constants::Event Debug::log_state(int const argc, char const** argv) const {
+Constants::Event Debug::logState(int const argc, char const** argv) const {
     std::string const serialized = domain.getRenderer().serialize();
     if (argc > 1) {
         for (int i = 1; i < argc; i++) {
@@ -187,7 +187,7 @@ Constants::Event Debug::errorLog(std::span<std::string_view const> const& args, 
     if (args.size() == 2) {
         if (args[1] == "on") {
             if (!errorLogStatus) {
-                if (!safe_open_log(errorFile)) {
+                if (!safeOpenLog(errorFile)) {
                     ctx.self.capture.error.println("Refusing to open log file: '", logFilename, "' is a symlink or could not be opened.");
                     return Constants::StandardCapture::Error::File::invalidFile(domain.capture);
                 }
@@ -216,7 +216,7 @@ Constants::Event Debug::errorLog(std::span<std::string_view const> const& args, 
 }
 
 namespace {
-void clear_screen() {
+void clearScreen() {
 #ifdef _WIN32
     // Use Win32 API to clear the console buffer and move cursor to home (0,0).
     HANDLE hStd = GetStdHandle(STD_OUTPUT_HANDLE);
@@ -246,7 +246,7 @@ void clear_screen() {
 
 
 Constants::Event Debug::clearConsole(std::span<std::string_view const> const& /*args*/){
-    clear_screen();
+    clearScreen();
     Global::capture().clear();
     return Constants::Event::Success;
 }

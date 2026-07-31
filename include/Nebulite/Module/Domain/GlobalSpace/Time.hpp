@@ -87,17 +87,17 @@ public:
     struct Key : Data::KeyGroup<"time."> {
         // Keys for simulation time
         // May be unequal to actual time, if a custom dt is set
-        static auto constexpr time_t = makeScoped("t");
-        static auto constexpr time_t_ms = makeScoped("t_ms");
-        static auto constexpr time_dt = makeScoped("dt");
-        static auto constexpr time_dt_ms = makeScoped("dt_ms");
-        static auto constexpr time_locked = makeScoped("lock");
+        static auto constexpr time = makeScoped("t");
+        static auto constexpr timeMilliSeconds = makeScoped("t_ms");
+        static auto constexpr deltaTime = makeScoped("dt");
+        static auto constexpr timeDeltaTimeMilliSeconds = makeScoped("dt_ms");
+        static auto constexpr timeLocked = makeScoped("lock");
 
         // More specific keys for actual runtime
-        static auto constexpr runtime_t = makeScoped("runtime.t");
-        static auto constexpr runtime_t_ms = makeScoped("runtime.t_ms");
-        static auto constexpr runtime_dt = makeScoped("runtime.dt");
-        static auto constexpr runtime_dt_ms = makeScoped("runtime.dt_ms");
+        static auto constexpr runTime = makeScoped("runtime.t");
+        static auto constexpr runtimeMilliSeconds = makeScoped("runtime.t_ms");
+        static auto constexpr runTimeDeltaTime = makeScoped("runtime.dt");
+        static auto constexpr runTimeDeltaTimeMilliSeconds = makeScoped("runtime.dt_ms");
     };
 
     //------------------------------------------

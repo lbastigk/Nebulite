@@ -57,7 +57,7 @@ bool Tile::insertIfCostGoalMatches(Core::RenderObject* toAppend) {
         batches.end(),
         // NOLINTNEXTLINE
         [&](Batch const& b) {
-            if constexpr (batchCostGoal == 0) {
+            if constexpr (batchCostGoal == 0) { // NOLINT
                 // NOLINTNEXTLINE
                 return true; // No cost goal, accept all batches
             }
@@ -77,8 +77,8 @@ bool Tile::insertIfCostGoalMatches(Core::RenderObject* toAppend) {
 
 void Tile::update(std::vector<Core::RenderObject*>& toMove, std::vector<Core::RenderObject*>& toDelete, TilingInformation const& tilingInfo, TileCoordinate const& coordinate) {
     for (auto& batch : batches) {
-        std::vector<Core::RenderObject*> toMove_local;
-        std::vector<Core::RenderObject*> toDelete_local;
+        std::vector<Core::RenderObject*> toMoveLocal;
+        std::vector<Core::RenderObject*> toDeleteLocal;
 
         for (auto* obj : batch.objects) {
             if ( auto const event = obj->update(); event != Constants::Event::Success) {
@@ -86,19 +86,19 @@ void Tile::update(std::vector<Core::RenderObject*>& toMove, std::vector<Core::Re
             }
             if (!obj->flag.deleteFromScene) {
                 if (RenderObjectContainer::getTilePos(obj->getPosition(), tilingInfo) != coordinate) {
-                    toMove_local.push_back(obj);
+                    toMoveLocal.push_back(obj);
                 }
             } else {
-                toDelete_local.push_back(obj);
+                toDeleteLocal.push_back(obj);
             }
         }
         // All objects to move are collected in queue
-        for (auto* ptr : toMove_local) {
+        for (auto* ptr : toMoveLocal) {
             batch.removeObject(ptr);
         }
 
         // All objects to delete are collected in trash
-        for (auto* ptr : toDelete_local) {
+        for (auto* ptr : toDeleteLocal) {
             batch.removeObject(ptr);
         }
 
@@ -106,12 +106,12 @@ void Tile::update(std::vector<Core::RenderObject*>& toMove, std::vector<Core::Re
         batch.updateCost();
 
         // Invalidate texture
-        if (!toMove_local.empty() || !toDelete_local.empty()) {
+        if (!toMoveLocal.empty() || !toDeleteLocal.empty()) {
             deleteTexture();
         }
 
-        std::ranges::move(toMove_local.begin(), toMove_local.end(), std::back_inserter(toMove));
-        std::ranges::move(toDelete_local.begin(), toDelete_local.end(), std::back_inserter(toDelete));
+        std::ranges::move(toMoveLocal.begin(), toMoveLocal.end(), std::back_inserter(toMove));
+        std::ranges::move(toDeleteLocal.begin(), toDeleteLocal.end(), std::back_inserter(toDelete));
     }
 }
 
@@ -157,7 +157,7 @@ void Tile::render(
         .x = static_cast<float>(windowScale * (coordinate.x * tilingInfo.w - dispPosX)),
         .y = static_cast<float>(windowScale * (coordinate.y * tilingInfo.h - dispPosY)),
         .w = static_cast<float>(2 * windowScale * tilingInfo.w),
-        .h = static_cast<float>(2 * windowScale * tilingInfo.h)
+        .h = static_cast<float>(2 * windowScale * tilingInfo.h),
     };
     if (!SDL_RenderTexture(renderer, texture, nullptr, &destRect)) {
         capture.error.println("Failed to render background tile texture: ", SDL_GetError());

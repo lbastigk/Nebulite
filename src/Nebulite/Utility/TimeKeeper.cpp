@@ -15,19 +15,19 @@ namespace Nebulite::Utility {
 TimeKeeper::TimeKeeper() noexcept : t_start(Time::getTime()) {}
 
 void TimeKeeper::update(std::optional<std::uint64_t> const fixedTimeDelta) {
-    onUpdate.last_t_ms = onUpdate.t_ms;
-    onUpdate.t_ms      = Time::getTime() - t_start;
+    onUpdate.lastTimeMilliSeconds = onUpdate.tMilliSeconds;
+    onUpdate.tMilliSeconds      = Time::getTime() - t_start;
     if(running){
         // Check if we have a fixed dt
         if(fixedTimeDelta.has_value()){
-            dt_ms = fixedTimeDelta.value();
+            deltaTimeMilliSeconds = fixedTimeDelta.value();
         } else {
-            dt_ms = onUpdate.t_ms - onUpdate.last_t_ms;
+            deltaTimeMilliSeconds = onUpdate.tMilliSeconds - onUpdate.lastTimeMilliSeconds;
         }
     } else {
-        dt_ms = 0;
+        deltaTimeMilliSeconds = 0;
     }
-    t_ms += dt_ms;
+    tMilliSeconds += deltaTimeMilliSeconds;
 }
 
 void TimeKeeper::start() noexcept {
@@ -44,20 +44,20 @@ bool TimeKeeper::isRunning() const noexcept {
 
 std::uint64_t TimeKeeper::dtProjected() noexcept {
     if(running){
-        onSimulation.last_t_ms = onUpdate.t_ms;
-        onSimulation.t_ms = Time::getTime() - t_start;
-        onSimulation.dt = onSimulation.t_ms - onSimulation.last_t_ms;
+        onSimulation.lastTimeMilliSeconds = onUpdate.tMilliSeconds;
+        onSimulation.tMilliSeconds = Time::getTime() - t_start;
+        onSimulation.dt = onSimulation.tMilliSeconds - onSimulation.lastTimeMilliSeconds;
         return onSimulation.dt;
     }
     return 0;
 }
 
 std::uint64_t TimeKeeper::timeMilliseconds() const noexcept {
-    return t_ms;
+    return tMilliSeconds;
 }
 
 std::uint64_t TimeKeeper::timeDeltaMilliseconds() const noexcept {
-    return dt_ms;
+    return deltaTimeMilliSeconds;
 }
 
 } // namespace Nebulite::Utility

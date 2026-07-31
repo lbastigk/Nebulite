@@ -26,14 +26,14 @@ Constants::Event Time::updateHook() {
 
     // Update
     RealTime.update();
-    std::uint64_t const dt_ms = RealTime.timeDeltaMilliseconds();
-    std::uint64_t const t_ms = RealTime.timeMilliseconds();
+    std::uint64_t const deltaTimeMilliSeconds = RealTime.timeDeltaMilliseconds();
+    std::uint64_t const tMilliSeconds = RealTime.timeMilliseconds();
 
     // Set in doc
-    moduleScope.set<double>(Key::runtime_dt, static_cast<double>(dt_ms) / 1000.0);
-    moduleScope.set<double>(Key::runtime_t, static_cast<double>(t_ms) / 1000.0);
-    moduleScope.set<Uint64>(Key::runtime_dt_ms, dt_ms);
-    moduleScope.set<Uint64>(Key::runtime_t_ms, t_ms);
+    moduleScope.set<double>(Key::runTimeDeltaTime, static_cast<double>(deltaTimeMilliSeconds) / 1000.0);
+    moduleScope.set<double>(Key::runTime, static_cast<double>(tMilliSeconds) / 1000.0);
+    moduleScope.set<Uint64>(Key::runTimeDeltaTimeMilliSeconds, deltaTimeMilliSeconds);
+    moduleScope.set<Uint64>(Key::runtimeMilliSeconds, tMilliSeconds);
 
     //------------------------------------------
     // Update simulation time
@@ -48,19 +48,19 @@ Constants::Event Time::updateHook() {
         } else {
             // Use real delta time
             // Perhaps adding a max delta time cap in the future to prevent huge jumps?
-            SimulationTime.update(dt_ms);
+            SimulationTime.update(deltaTimeMilliSeconds);
         }
-        auto const sim_dt_ms = SimulationTime.timeDeltaMilliseconds();
-        auto const sim_t_ms = SimulationTime.timeMilliseconds();
+        auto const simDeltaTimeMilliSeconds = SimulationTime.timeDeltaMilliseconds();
+        auto const simTimeMilliSeconds = SimulationTime.timeMilliseconds();
 
         // Set in doc
-        moduleScope.set<double>(Key::time_dt, static_cast<double>(sim_dt_ms) / 1000.0);
-        moduleScope.set<double>(Key::time_t, static_cast<double>(sim_t_ms) / 1000.0);
-        moduleScope.set<Uint64>(Key::time_dt_ms, sim_dt_ms);
-        moduleScope.set<Uint64>(Key::time_t_ms, sim_t_ms);
-        moduleScope.set<bool>(Key::time_locked, false);
+        moduleScope.set<double>(Key::deltaTime, static_cast<double>(simDeltaTimeMilliSeconds) / 1000.0);
+        moduleScope.set<double>(Key::time, static_cast<double>(simTimeMilliSeconds) / 1000.0);
+        moduleScope.set<Uint64>(Key::timeDeltaTimeMilliSeconds, simDeltaTimeMilliSeconds);
+        moduleScope.set<Uint64>(Key::timeMilliSeconds, simTimeMilliSeconds);
+        moduleScope.set<bool>(Key::timeLocked, false);
     } else {
-        moduleScope.set<bool>(Key::time_locked, true);
+        moduleScope.set<bool>(Key::timeLocked, true);
         domain.getRenderer().skipUpdateNextFrame();
     }
     haltThisFrame = false;

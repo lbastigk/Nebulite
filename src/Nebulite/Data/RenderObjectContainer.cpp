@@ -157,8 +157,8 @@ void RenderObjectContainer::update(std::vector<TileCoordinate> const& viewport, 
     }
 
     // Objects to move to new tile positions
-    for (auto* const obj_ptr : reinsertionProcess.queue) {
-        append(obj_ptr, tilingInformation);
+    for (auto* const obj : reinsertionProcess.queue) {
+        append(obj, tilingInformation);
     }
     reinsertionProcess.queue.clear();
 }

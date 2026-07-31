@@ -45,8 +45,8 @@ void setStandardValues(Data::JsonScope& document) {
     document.set(Constants::KeyNames::RenderObject::layer, 1);
 
     // Create a basic drawcall
-    Graphics::Drawcall::ApplyDefault::Sprite(document.shareScope(Constants::KeyNames::RenderObject::draw.addMember("exampleSprite")));
-    Graphics::Drawcall::ApplyDefault::Text(document.shareScope(Constants::KeyNames::RenderObject::draw.addMember("exampleText")));
+    Graphics::Drawcall::ApplyDefault::sprite(document.shareScope(Constants::KeyNames::RenderObject::draw.addMember("exampleSprite")));
+    Graphics::Drawcall::ApplyDefault::text(document.shareScope(Constants::KeyNames::RenderObject::draw.addMember("exampleText")));
 
     // Set default size
     document.set(Constants::KeyNames::RenderObject::sizeX, 32);

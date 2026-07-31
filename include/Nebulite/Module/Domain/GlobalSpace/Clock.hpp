@@ -46,7 +46,7 @@ public:
     static auto constexpr addClockName = "add-clock";
     static auto constexpr addClockDesc = "Adds a clock with specified interval (ms) to the global clock system\n"
         "\n"
-        "Usage: add-clock <interval_ms>\n"
+        "Usage: add-clock <interval>\n"
         "\n"
         "Example:\n"
         "add-clock 100\n";
@@ -90,15 +90,15 @@ private:
      * @brief Current time in milliseconds since the program started.
      * @details Extracted from the global document, calculated via Time DomainModule.
      */
-    std::uint64_t current_time_ms = 0;
+    std::uint64_t currentTimeMilliSeconds = 0;
 
     /**
      * @struct ClockEntry
      * @brief Structure representing a clock entry in the global clock list.
      */
     struct ClockEntry {
-        std::uint64_t last_trigger_ms; // Last time the clock was triggered
-        std::uint64_t interval_ms; // Trigger interval in milliseconds
+        std::uint64_t lastTriggerMilliSeconds; // Last time the clock was triggered
+        std::uint64_t intervalMilliSeconds; // Trigger interval in milliseconds
         double* globalReference; // Pointer to the global document entry
 
         ClockEntry(std::uint64_t interval, Data::JsonScope& doc, std::uint64_t current_time);
@@ -131,10 +131,10 @@ private:
      *          While up to std::uint64_t is supported, practical clock intervals should be much lower, so we don't pad for the full length.
      *          This makes the keys more manageable while still being properly sorted for typical use cases.
      *          Example: An interval of 100ms becomes "ms000100".
-     * @param interval_ms The clock interval in milliseconds.
+     * @param intervalMilliSeconds The clock interval in milliseconds.
      * @return The key string for the clock entry.
      */
-    static std::string intervalToKey(std::uint64_t interval_ms);
+    static std::string intervalToKey(std::uint64_t intervalMilliSeconds);
 };
 } // namespace Nebulite::Module::Domain::GlobalSpace
 #endif // NEBULITE_MODULE_DOMAIN_GLOBALSPACE_CLOCK_HPP

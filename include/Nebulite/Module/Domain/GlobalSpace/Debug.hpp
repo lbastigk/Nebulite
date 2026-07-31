@@ -61,17 +61,17 @@ public:
         "Note: This function attempts to clear the console screen using system-specific commands.\n"
         "      It may not work in all environments or IDEs.\n";
 
-    [[nodiscard]] Constants::Event log_global(int argc, char const** argv) const ;
-    static auto constexpr log_globalName = "log global";
-    static auto constexpr log_globalDesc = "Logs the global document to a file.\n"
+    [[nodiscard]] Constants::Event logGlobal(int argc, char const** argv) const ;
+    static auto constexpr logGlobalName = "log global";
+    static auto constexpr logGlobalDesc = "Logs the global document to a file.\n"
         "Usage: log global [<filenames>...]\n"
         "\n"
         "- <filenames>: Optional. One or more filenames to log the global document to.\n"
         "               If no filenames are provided, defaults to 'global.log.jsonc'.\n";
 
-    [[nodiscard]] Constants::Event log_state(int argc, char const** argv) const ;
-    static auto constexpr log_stateName = "log state";
-    static auto constexpr log_stateDesc = "Logs the current state of the renderer to a file.\n"
+    [[nodiscard]] Constants::Event logState(int argc, char const** argv) const ;
+    static auto constexpr logStateName = "log state";
+    static auto constexpr logStateDesc = "Logs the current state of the renderer to a file.\n"
         "Usage: log state [<filenames>...]\n"
         "\n"
         "- <filenames>: Optional. One or more filenames to log the renderer state to.\n"
@@ -139,8 +139,8 @@ public:
         bindFunction(&Debug::listExpressionFunctions, listExpressionFunctionsName, listExpressionFunctionsDesc);
 
         bindCategory(logName, logDesc);
-        bindFunction(&Debug::log_global, log_globalName, log_globalDesc);
-        bindFunction(&Debug::log_state, log_stateName, log_stateDesc);
+        bindFunction(&Debug::logGlobal, logGlobalName, logGlobalDesc);
+        bindFunction(&Debug::logState, logStateName, logStateDesc);
 
         bindCategory(standardFileName, standardFileDesc);
         bindFunction(&Debug::standardFileRenderObject, standardFileRenderObjectName, standardFileRenderObjectDesc);

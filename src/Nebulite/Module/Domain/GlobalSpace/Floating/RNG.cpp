@@ -17,9 +17,9 @@
 namespace Nebulite::Module::Domain::GlobalSpace {
 Constants::Event RNG::updateHook() {
     // Disabled if renderer skipped update last frame, active otherwise
-    bool RngUpdateEnabled = domain.getRenderer().isSdlInitialized() && !domain.getRenderer().hasSkippedUpdate();
-    RngUpdateEnabled |= !domain.getRenderer().isSdlInitialized(); // If renderer is not initialized, we always update RNGs
-    if (RngUpdateEnabled) {
+    bool rngUpdateEnabled = domain.getRenderer().isSdlInitialized() && !domain.getRenderer().hasSkippedUpdate();
+    rngUpdateEnabled |= !domain.getRenderer().isSdlInitialized(); // If renderer is not initialized, we always update RNGs
+    if (rngUpdateEnabled) {
         updateRng();
     }
 

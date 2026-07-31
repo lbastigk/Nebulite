@@ -37,8 +37,8 @@ Physics::Physics() : RulesetModule(moduleName, this) {
     // Global Variables
     auto const token = getRulesetModuleAccessToken(*this);
     globalVal.G = Global::shareScope(token).getStableDoublePointer(Domain::GlobalSpace::Physics::Key::Global::G); // Gravitational constant
-    globalVal.dt = Global::shareScope(token).getStableDoublePointer(Domain::GlobalSpace::Time::Key::time_dt); // Simulation delta time
-    globalVal.t = Global::shareScope(token).getStableDoublePointer(Domain::GlobalSpace::Time::Key::time_t); // Simulation time
+    globalVal.dt = Global::shareScope(token).getStableDoublePointer(Domain::GlobalSpace::Time::Key::deltaTime); // Simulation delta time
+    globalVal.t = Global::shareScope(token).getStableDoublePointer(Domain::GlobalSpace::Time::Key::time); // Simulation time
 }
 
 // Global rulesets

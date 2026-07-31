@@ -91,39 +91,39 @@ void Movement::detectClipping(Interaction::Context const& context, double** slf,
 // NOLINTNEXTLINE
 void Movement::processClipping(Interaction::Context const& /*context*/, double** slf, double** /*otr*/) const {
     // Nearest corners
-    double& N = baseVal(slf, Key::clip_closest_N);
-    double& E = baseVal(slf, Key::clip_closest_E);
-    double& S = baseVal(slf, Key::clip_closest_S);
-    double& W = baseVal(slf, Key::clip_closest_W);
+    double& directionN = baseVal(slf, Key::clip_closest_N);
+    double& directionE = baseVal(slf, Key::clip_closest_E);
+    double& directionS = baseVal(slf, Key::clip_closest_S);
+    double& directionW = baseVal(slf, Key::clip_closest_W);
 
-    double& X = baseVal(slf, Key::posX);
-    double& Y = baseVal(slf, Key::posY);
+    double& posX = baseVal(slf, Key::posX);
+    double& posY = baseVal(slf, Key::posY);
 
     auto const [dX, dY] = std::make_pair(
-        X - baseVal(slf, Key::position_last_X),
-        Y - baseVal(slf, Key::position_last_Y)
+        posX - baseVal(slf, Key::position_last_X),
+        posY - baseVal(slf, Key::position_last_Y)
     );
 
     // Reposition checks
-    if (dY > 0.0 && dY > S) {
-        Y = Y - dY + S;
+    if (dY > 0.0 && dY > directionS) {
+        posY = posY - dY + directionS;
     }
-    else if (dY < 0.0 && - dY > N) {
-        Y = Y - dY - N;
+    else if (dY < 0.0 && - dY > directionN) {
+        posY = posY - dY - directionN;
     }
 
-    if (dX > 0.0 && dX > E) {
-        X = X - dX + E;
+    if (dX > 0.0 && dX > directionE) {
+        posX = posX - dX + directionE;
     }
-    else if (dX < 0.0 && - dX > W) {
-        X = X - dX - W;
+    else if (dX < 0.0 && - dX > directionW) {
+        posX = posX - dX - directionW;
     }
 
     // Set clip values to max double for next frame's detection
-    N = std::numeric_limits<double>::max();
-    E = std::numeric_limits<double>::max();
-    S = std::numeric_limits<double>::max();
-    W = std::numeric_limits<double>::max();
+    directionN = std::numeric_limits<double>::max();
+    directionE = std::numeric_limits<double>::max();
+    directionS = std::numeric_limits<double>::max();
+    directionW = std::numeric_limits<double>::max();
 }
 
 } // namespace Nebulite::Module::Ruleset

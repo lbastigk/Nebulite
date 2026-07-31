@@ -94,12 +94,12 @@ private:
     /**
      * @brief The current time in milliseconds of the last update.
      */
-    std::uint64_t t_ms = 0;
+    std::uint64_t tMilliSeconds = 0;
 
     /**
      * @brief The delta time in milliseconds between the last two updates.
      */
-    std::uint64_t dt_ms = 0;
+    std::uint64_t deltaTimeMilliSeconds = 0;
 
     /**
      * @brief Indicates whether the timer is currently running.
@@ -112,8 +112,8 @@ private:
      * @brief Stores the timing information for the update phase.
      */
     struct OnUpdate{
-        std::uint64_t last_t_ms = 0;
-        std::uint64_t t_ms = 0;
+        std::uint64_t lastTimeMilliSeconds = 0;
+        std::uint64_t tMilliSeconds = 0;
         OnUpdate() = default;
     } onUpdate;
 
@@ -122,8 +122,8 @@ private:
      * @brief Stores the timing information for the update simulation phase.
      */
     struct OnSimulation{
-        std::uint64_t last_t_ms = 0;
-        std::uint64_t t_ms = 0;
+        std::uint64_t lastTimeMilliSeconds = 0;
+        std::uint64_t tMilliSeconds = 0;
         std::uint64_t dt = 0;
         OnSimulation() = default;
     } onSimulation;

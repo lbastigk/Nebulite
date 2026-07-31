@@ -74,13 +74,13 @@ public:
          * @brief Sets a default drawcall configuration for a sprite.
          * @param scope The JSON scope to set defaults in.
          */
-        static void Sprite(Data::JsonScope& scope);
+        static void sprite(Data::JsonScope& scope);
 
         /**
          * @brief Sets a default drawcall configuration for text.
          * @param scope The JSON scope to set defaults in.
          */
-        static void Text(Data::JsonScope& scope);
+        static void text(Data::JsonScope& scope);
     };
 
     /**
