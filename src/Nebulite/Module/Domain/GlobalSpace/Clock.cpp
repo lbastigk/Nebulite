@@ -72,8 +72,8 @@ Constants::Event Clock::addClock(int const argc, char const** argv) {
 //------------------------------------------
 // ClockEntry
 
-Clock::ClockEntry::ClockEntry(std::uint64_t const interval, Data::JsonScope& doc, std::uint64_t const current_time) :
-    lastTriggerMilliSeconds(current_time),
+Clock::ClockEntry::ClockEntry(std::uint64_t const interval, Data::JsonScope& doc, std::uint64_t const currentTime) :
+    lastTriggerMilliSeconds(currentTime),
     intervalMilliSeconds(interval) {
     // Extract reference to global document entry
     auto const key = Key::doc_status_clocks.addMember(intervalToKey(intervalMilliSeconds));
@@ -81,13 +81,13 @@ Clock::ClockEntry::ClockEntry(std::uint64_t const interval, Data::JsonScope& doc
     this->globalReference = doc.getStableDoublePointer(key);
 }
 
-void Clock::ClockEntry::update(std::uint64_t const current_time) {
+void Clock::ClockEntry::update(std::uint64_t const currentTime) {
     // Check projected dt of timer
-    if (current_time - lastTriggerMilliSeconds >= intervalMilliSeconds) {
-        // Instead of setting lastTriggerMilliSeconds to current_time,
+    if (currentTime - lastTriggerMilliSeconds >= intervalMilliSeconds) {
+        // Instead of setting lastTriggerMilliSeconds to currentTime,
         // we set it forward by as much intervalMilliSeconds as possible to avoid drift
         // in case of delays
-        std::uint64_t const dt = current_time - lastTriggerMilliSeconds;
+        std::uint64_t const dt = currentTime - lastTriggerMilliSeconds;
         std::uint64_t const intervalsPassed = dt / intervalMilliSeconds;
         lastTriggerMilliSeconds += intervalsPassed * intervalMilliSeconds;
         *globalReference = 1.0;
@@ -110,7 +110,7 @@ void Clock::readClocksFromDocument() {
         return;
     }
     for (std::uint64_t const size = moduleScope.memberSize(Key::arr_active_clocks); auto key : Key::arr_active_clocks.getArrayKeys(size)) {
-        if (auto const interval_type = moduleScope.memberType(key); interval_type != Data::KeyType::value) {
+        if (auto const intervalType = moduleScope.memberType(key); intervalType != Data::KeyType::value) {
             // Invalid entry, skip
             continue;
         }

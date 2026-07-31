@@ -101,14 +101,14 @@ private:
         std::uint64_t intervalMilliSeconds; // Trigger interval in milliseconds
         double* globalReference; // Pointer to the global document entry
 
-        ClockEntry(std::uint64_t interval, Data::JsonScope& doc, std::uint64_t current_time);
+        ClockEntry(std::uint64_t interval, Data::JsonScope& doc, std::uint64_t currentTime);
 
         /**
          * @brief Updates the clock entry, setting the global reference based on the timer.
          * @details If dt is greater than or equal to the interval, sets the global reference to 1.0.
          *          Otherwise, sets it to 0.0.
          */
-        void update(std::uint64_t current_time);
+        void update(std::uint64_t currentTime);
     };
 
     /**
