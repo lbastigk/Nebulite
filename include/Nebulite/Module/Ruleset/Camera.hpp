@@ -90,11 +90,11 @@ private:
     using Position = Math::Vec2<double>;
 
     enum class Align : std::uint8_t {
-        Center,
-        Top,
-        Bottom,
-        Left,
-        Right,
+        center,
+        top,
+        bottom,
+        left,
+        right,
     };
 
     // TODO: Second align parameter for object edge alignment

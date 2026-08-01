@@ -30,8 +30,8 @@ struct Listener;
 namespace Nebulite::Data::BroadcastListenContainer {
 
 enum class FlatContainerType : bool {
-    ApplyOffset, // Apply offset based on p = worker index / worker count, parts being p, others p^2
-    NoOffset, // No offset at all
+    applyOffset, // Apply offset based on p = worker index / worker count, parts being p, others p^2
+    noOffset, // No offset at all
 };
 
 template <FlatContainerType Type>
@@ -85,14 +85,14 @@ public:
         : BaseContainer<FlatContainer*>(stopFlag, workerIndex, workerCount, this) {
         FlatContainerBase::Settings settings{};
 
-        if constexpr (Type == FlatContainerType::ApplyOffset) { // Set offsets based on worker index
+        if constexpr (Type == FlatContainerType::applyOffset) { // Set offsets based on worker index
             settings.relativeOffset = static_cast<double>(workerIndex) / static_cast<double>(workerCount);
             settings.listenerOffset = std::pow(settings.relativeOffset, 1);
             settings.broadcasterOffset = std::pow(settings.relativeOffset, 1);
             settings.lvOffset = std::pow(settings.relativeOffset, 2);
             settings.bvOffset = std::pow(settings.relativeOffset, 2);
         }
-        else if constexpr (Type == FlatContainerType::NoOffset) { // No offsets, workers start at the same index for listeners and broadcasters
+        else if constexpr (Type == FlatContainerType::noOffset) { // No offsets, workers start at the same index for listeners and broadcasters
             settings.relativeOffset = 0;
             settings.listenerOffset = std::pow(settings.relativeOffset, 1);
             settings.broadcasterOffset = std::pow(settings.relativeOffset, 1);
@@ -145,7 +145,7 @@ public:
      *        matching them with listeners and executing the appropriate actions.
      */
     void process() override {
-        if constexpr (Type == FlatContainerType::NoOffset) {
+        if constexpr (Type == FlatContainerType::noOffset) {
             base->processNoOffset(); // NOLINT
         }
         else {

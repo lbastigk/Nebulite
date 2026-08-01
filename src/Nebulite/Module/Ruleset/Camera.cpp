@@ -38,44 +38,44 @@ Camera::Camera() : RulesetModule(moduleName, this) {
 
 void Camera::alignCenter([[maybe_unused]] Interaction::Context const& context, double** slf, double** /*otr*/) const {
     assert(isGlobalContextCorrect(context));
-    setCameraPosition(getAdjustedObjectPosition(slf, Align::Center), Align::Center);
+    setCameraPosition(getAdjustedObjectPosition(slf, Align::center), Align::center);
 }
 
 void Camera::alignTop([[maybe_unused]] Interaction::Context const& context, double** slf, double** /*otr*/) const {
     assert(isGlobalContextCorrect(context));
-    setCameraPosition(getAdjustedObjectPosition(slf, Align::Center), Align::Top);
+    setCameraPosition(getAdjustedObjectPosition(slf, Align::center), Align::top);
 }
 
 void Camera::alignBottom([[maybe_unused]] Interaction::Context const& context, double** slf, double** /*otr*/) const {
     assert(isGlobalContextCorrect(context));
-    setCameraPosition(getAdjustedObjectPosition(slf, Align::Center), Align::Bottom);
+    setCameraPosition(getAdjustedObjectPosition(slf, Align::center), Align::bottom);
 }
 
 void Camera::alignLeft([[maybe_unused]] Interaction::Context const& context, double** slf, double** /*otr*/) const {
     assert(isGlobalContextCorrect(context));
-    setCameraPosition(getAdjustedObjectPosition(slf, Align::Center), Align::Left);
+    setCameraPosition(getAdjustedObjectPosition(slf, Align::center), Align::left);
 }
 
 void Camera::alignRight([[maybe_unused]] Interaction::Context const& context, double** slf, double** /*otr*/) const {
     assert(isGlobalContextCorrect(context));
-    setCameraPosition(getAdjustedObjectPosition(slf, Align::Center), Align::Right);
+    setCameraPosition(getAdjustedObjectPosition(slf, Align::center), Align::right);
 }
 
 void Camera::setCameraPosition(Position const& pos, Align const& align) const {
     switch (align) {
-        case Align::Top:
+        case Align::top:
             *globalVal.camPosY = pos.y ;
             break;
-        case Align::Bottom:
+        case Align::bottom:
             *globalVal.camPosY = pos.y - *globalVal.dispResY;
             break;
-        case Align::Left:
+        case Align::left:
             *globalVal.camPosX = pos.x;
             break;
-        case Align::Right:
+        case Align::right:
             *globalVal.camPosX = pos.x - *globalVal.dispResX;
             break;
-        case Align::Center:
+        case Align::center:
         default: // Fallback to center
             *globalVal.camPosX = pos.x - *globalVal.dispResX / 2.0;
             *globalVal.camPosY = pos.y - *globalVal.dispResY / 2.0;
@@ -89,24 +89,24 @@ Camera::Position Camera::getAdjustedObjectPosition(double** baseValues, Align co
     switch (align) {
         // Not used at the moment:
         // NOLINTBEGIN
-        case Align::Top:
+        case Align::top:
             pos.x = baseVal(baseValues, Key::posX) + baseVal(baseValues, Key::spriteSizeX) / 2.0;
             pos.y = baseVal(baseValues, Key::posY) + baseVal(baseValues, Key::spriteSizeY);
             break;
-        case Align::Bottom:
+        case Align::bottom:
             pos.x = baseVal(baseValues, Key::posX) + baseVal(baseValues, Key::spriteSizeX) / 2.0;
             pos.y = baseVal(baseValues, Key::posY);
             break;
-        case Align::Left:
+        case Align::left:
             pos.x = baseVal(baseValues, Key::posX);
             pos.y = baseVal(baseValues, Key::posY) + baseVal(baseValues, Key::spriteSizeY) / 2.0;
             break;
-        case Align::Right:
+        case Align::right:
             pos.x = baseVal(baseValues, Key::posX) + baseVal(baseValues, Key::spriteSizeX);
             pos.y = baseVal(baseValues, Key::posY) + baseVal(baseValues, Key::spriteSizeY) / 2.0;
             break;
         // NOLINTEND
-        case Align::Center:
+        case Align::center:
         default: // Fallback to center
             pos.x = baseVal(baseValues, Key::posX) + baseVal(baseValues, Key::spriteSizeX) / 2.0;
             pos.y = baseVal(baseValues, Key::posY) + baseVal(baseValues, Key::spriteSizeY) / 2.0;

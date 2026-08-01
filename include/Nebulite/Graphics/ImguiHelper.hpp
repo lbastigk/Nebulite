@@ -46,11 +46,11 @@ public:
         std::optional<ImVec2> windowSize = std::nullopt; // Optional size
 
         enum class Alignment : std::uint8_t {
-            NONE, // No automatic alignment, use exact position specified in windowPos
-            TOP,
-            BOTTOM,
-            LEFT,
-            RIGHT,
+            none, // No automatic alignment, use exact position specified in windowPos
+            top,
+            bottom,
+            left,
+            right,
         };
         std::optional<Alignment> windowAlignment = std::nullopt; // Optional alignment to position the window relative to the specified position
     };

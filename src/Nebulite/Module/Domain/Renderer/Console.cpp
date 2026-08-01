@@ -26,7 +26,7 @@ Constants::Event Console::updateHook() {
         // Set console flags
         Graphics::ImguiHelper::DomainRenderingFlags flags;
         flags.showCloseButton = false;
-        flags.windowAlignment = Graphics::ImguiHelper::DomainRenderingFlags::Alignment::BOTTOM;
+        flags.windowAlignment = Graphics::ImguiHelper::DomainRenderingFlags::Alignment::bottom;
 
         // Set context/scope
         Interaction::Execution::Domain& global = Global::instance();

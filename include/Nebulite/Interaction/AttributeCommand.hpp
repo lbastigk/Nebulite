@@ -102,20 +102,20 @@ private:
     std::optional<SpecialAction::Type> specialAction = std::nullopt; // TODO: support multiple special actions using comma separation
 };
 
-template <Data::OptionalFixedString trigger>
+template <Data::OptionalFixedString Trigger>
 struct FullCommand {
     constexpr FullCommand(std::string_view special) : specialization(special) {} // NOLINT
 
     std::string_view specialization;
 
     [[nodiscard]] std::string toString() const {
-        return std::string(trigger.view()) + "#" + std::string(specialization);
+        return std::string(Trigger.view()) + "#" + std::string(specialization);
     }
 };
 
-template <Data::OptionalFixedString trigger>
+template <Data::OptionalFixedString Trigger>
 class AttributeCommand {
-    static consteval FullCommand<trigger> addCommand(std::string_view specialization) {
+    static consteval FullCommand<Trigger> addCommand(std::string_view specialization) {
         return {specialization};
     }
 public:

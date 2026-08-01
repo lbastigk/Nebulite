@@ -298,35 +298,35 @@ void ImguiHelper::align(DomainRenderingFlags::Alignment const& alignment) {
     auto const rightPos  = ImVec2(vpPos.x + vpSize.x, vpPos.y);
 
     switch (alignment) {
-    case DomainRenderingFlags::Alignment::TOP:
+    case DomainRenderingFlags::Alignment::top:
         ImGui::SetNextWindowPos(topPos, ImGuiCond_Always, ImVec2(0.0f, 0.0f));
         ImGui::SetNextWindowSize(
             ImVec2(vpSize.x, vpSize.y * 0.5f),
             ImGuiCond_Always
         );
         break;
-    case DomainRenderingFlags::Alignment::BOTTOM:
+    case DomainRenderingFlags::Alignment::bottom:
         ImGui::SetNextWindowPos(bottomPos, ImGuiCond_Always, ImVec2(0.0f, 1.0f));
         ImGui::SetNextWindowSize(
             ImVec2(vpSize.x, vpSize.y * 0.5f),
             ImGuiCond_Always
         );
         break;
-    case DomainRenderingFlags::Alignment::LEFT:
+    case DomainRenderingFlags::Alignment::left:
         ImGui::SetNextWindowPos(leftPos, ImGuiCond_Always, ImVec2(0.0f, 0.0f));
         ImGui::SetNextWindowSize(
             ImVec2(vpSize.x * 0.5f, vpSize.y),
             ImGuiCond_Always
         );
         break;
-    case DomainRenderingFlags::Alignment::RIGHT:
+    case DomainRenderingFlags::Alignment::right:
         ImGui::SetNextWindowPos(rightPos, ImGuiCond_Always, ImVec2(1.0f, 0.0f));
         ImGui::SetNextWindowSize(
             ImVec2(vpSize.x * 0.5f, vpSize.y),
             ImGuiCond_Always
         );
         break;
-    case DomainRenderingFlags::Alignment::NONE:
+    case DomainRenderingFlags::Alignment::none:
         break;
     default:
         std::unreachable();
