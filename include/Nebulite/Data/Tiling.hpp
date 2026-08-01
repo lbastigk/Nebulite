@@ -24,9 +24,9 @@ namespace Nebulite::Core {
 class Renderer;
 } // namespace Nebulite::Core
 
-namespace Nebulite::Utility::IO {
+namespace Nebulite::Utility::Io {
 class Capture;
-} // namespace Nebulite::Utility::IO
+} // namespace Nebulite::Utility::Io
 
 //------------------------------------------
 namespace Nebulite::Data {
@@ -116,7 +116,7 @@ public:
         Core::Renderer const& nebuliteRenderer,
         TileCoordinate const& coordinate,
         TilingInformation const& tilingInfo,
-        Utility::IO::Capture& capture,
+        Utility::Io::Capture& capture,
         int dispPosX,
         int dispPosY,
         int windowScale

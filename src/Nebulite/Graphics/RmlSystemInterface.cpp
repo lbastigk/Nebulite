@@ -17,7 +17,7 @@
 // Nebulite
 #include "Nebulite/Graphics/RmlSystemInterface.hpp"
 #include "Nebulite/Math/Vec2.hpp"
-#include "Nebulite/Utility/IO/Capture.hpp"
+#include "Nebulite/Utility/Io/Capture.hpp"
 #include "Nebulite/Utility/TimeKeeper.hpp"
 
 //------------------------------------------
@@ -71,7 +71,7 @@ auto& availableCursors() {
 //------------------------------------------
 namespace Nebulite::Graphics {
 
-RmlSystemInterface::RmlSystemInterface(SDL_Window* w, Utility::IO::Capture& c) : capture(c) {
+RmlSystemInterface::RmlSystemInterface(SDL_Window* w, Utility::Io::Capture& c) : capture(c) {
     SetWindow(w);
 }
 

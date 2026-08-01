@@ -12,11 +12,11 @@
 //------------------------------------------
 namespace Nebulite::Utility {
 
-TimeKeeper::TimeKeeper() noexcept : t_start(Time::getTime()) {}
+TimeKeeper::TimeKeeper() noexcept : tStart(Time::getTime()) {}
 
 void TimeKeeper::update(std::optional<std::uint64_t> const fixedTimeDelta) {
     onUpdate.lastTimeMilliSeconds = onUpdate.tMilliSeconds;
-    onUpdate.tMilliSeconds      = Time::getTime() - t_start;
+    onUpdate.tMilliSeconds      = Time::getTime() - tStart;
     if(running){
         // Check if we have a fixed dt
         if(fixedTimeDelta.has_value()){
@@ -45,7 +45,7 @@ bool TimeKeeper::isRunning() const noexcept {
 std::uint64_t TimeKeeper::dtProjected() noexcept {
     if(running){
         onSimulation.lastTimeMilliSeconds = onUpdate.tMilliSeconds;
-        onSimulation.tMilliSeconds = Time::getTime() - t_start;
+        onSimulation.tMilliSeconds = Time::getTime() - tStart;
         onSimulation.dt = onSimulation.tMilliSeconds - onSimulation.lastTimeMilliSeconds;
         return onSimulation.dt;
     }

@@ -20,7 +20,7 @@
 #include "Nebulite/Interaction/Rules/Ruleset.hpp"
 #include "Nebulite/Module/Domain/Initializer.hpp"
 #include "Nebulite/Nebulite.hpp"
-#include "Nebulite/Utility/IO/Capture.hpp"
+#include "Nebulite/Utility/Io/Capture.hpp"
 
 //------------------------------------------
 // Forward declarations
@@ -54,7 +54,7 @@ void setStandardValues(Data::JsonScope& document) {
 }
 } // namespace
 
-RenderObject::RenderObject(Utility::IO::Capture& parentCapture)
+RenderObject::RenderObject(Utility::Io::Capture& parentCapture)
     : Domain("RenderObject", parentCapture){
     //------------------------------------------
     // Set standard values

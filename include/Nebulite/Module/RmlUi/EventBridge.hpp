@@ -14,7 +14,7 @@
 // Nebulite
 #include "Nebulite/Interaction/AttributeCommand.hpp"
 #include "Nebulite/Module/Base/RmlUiModule.hpp"
-#include "Nebulite/Utility/IO/Capture.hpp"
+#include "Nebulite/Utility/Io/Capture.hpp"
 
 //------------------------------------------
 // Forward declarations
@@ -28,15 +28,15 @@ namespace Nebulite::Graphics {
 class RmlInterface;
 } // namespace Nebulite::Graphics
 
-namespace Nebulite::Utility::IO {
+namespace Nebulite::Utility::Io {
 class Capture;
-} // namespace Nebulite::Utility::IO
+} // namespace Nebulite::Utility::Io
 
 //------------------------------------------
 namespace Nebulite::Module::RmlUi {
 class EventBridge final : public Base::RmlUiModule {
 public:
-    explicit EventBridge(Utility::IO::Capture& c, Graphics::RmlInterface& i);
+    explicit EventBridge(Utility::Io::Capture& c, Graphics::RmlInterface& i);
 
     void update() override ;
 
@@ -48,15 +48,15 @@ public:
         struct OnDestroy : Interaction::AttributeCommand<"onDestroy"> {
             // Processing trigger during element deletion used to be buggy.
             // If we ever notice an issue, store the DeletedElement and apply on next cycle
-            static void processTrigger(Graphics::RmlInterface& manager, Utility::IO::Capture& capture, Rml::Element* element);
+            static void processTrigger(Graphics::RmlInterface& manager, Utility::Io::Capture& capture, Rml::Element* element);
         };
 
         struct OnEnter : Interaction::AttributeCommand<"onEnter"> {
-            static void processTrigger(Graphics::RmlInterface& manager, Utility::IO::Capture& capture, SDL_Event const& event, int keyModifiers, Rml::Element* focusElement);
+            static void processTrigger(Graphics::RmlInterface& manager, Utility::Io::Capture& capture, SDL_Event const& event, int keyModifiers, Rml::Element* focusElement);
         };
 
         struct OnClick : Interaction::AttributeCommand<"onClick"> {
-            static  void processTrigger(Graphics::RmlInterface& manager, Utility::IO::Capture& capture, SDL_Event const& event, int keyModifiers, Rml::Element* focusElement);
+            static  void processTrigger(Graphics::RmlInterface& manager, Utility::Io::Capture& capture, SDL_Event const& event, int keyModifiers, Rml::Element* focusElement);
         };
 
         // TODO: New Triggers:
@@ -111,7 +111,7 @@ private:
 
         Interaction::Actions<TriggerType> actions;
 
-        void apply(Graphics::RmlInterface& manager, Utility::IO::Capture& capture, Rml::Element* element) const ;
+        void apply(Graphics::RmlInterface& manager, Utility::Io::Capture& capture, Rml::Element* element) const ;
     };
 };
 
@@ -125,7 +125,7 @@ EventBridge::BridgeEntry<TriggerType>::BridgeEntry(Rml::Element* element) : acti
 }
 
 template<typename TriggerType>
-void EventBridge::BridgeEntry<TriggerType>::apply(Graphics::RmlInterface& manager, Utility::IO::Capture& capture, Rml::Element* element) const {
+void EventBridge::BridgeEntry<TriggerType>::apply(Graphics::RmlInterface& manager, Utility::Io::Capture& capture, Rml::Element* element) const {
     auto ctxAndScope = [&] -> std::optional<Graphics::RmlInterface::ContextAndScope> {
         if (elementIdentifier.has_value()) {
             return manager.getRmlElementContextAndScope(elementIdentifier.value());

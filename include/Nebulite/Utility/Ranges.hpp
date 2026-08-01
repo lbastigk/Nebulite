@@ -241,7 +241,7 @@ public:
 
         auto operator()(std::size_t const n) const {
             return Closure{
-                {},
+                {}, // NOLINT
                 n,
             };
         }

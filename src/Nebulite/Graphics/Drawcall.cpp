@@ -30,7 +30,7 @@
 #include "Nebulite/Math/Equality.hpp"
 #include "Nebulite/Nebulite.hpp"
 #include "Nebulite/Utility/Coordination/IdGenerator.hpp"
-#include "Nebulite/Utility/IO/Capture.hpp"
+#include "Nebulite/Utility/Io/Capture.hpp"
 
 //------------------------------------------
 // Forward declarations
@@ -52,7 +52,7 @@ uint64_t rollingJitter() {
 //------------------------------------------
 namespace Nebulite::Graphics {
 
-Drawcall::Drawcall(Data::JsonScope& workspace, Utility::IO::Capture& parentCapture)
+Drawcall::Drawcall(Data::JsonScope& workspace, Utility::Io::Capture& parentCapture)
     : texture(workspace, parentCapture)
     , drawcallScope(workspace)
     , updaterRoutine{

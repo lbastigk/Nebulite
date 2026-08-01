@@ -35,7 +35,7 @@ Constants::Event Rotation::rotate(int const argc, char const** argv) const {
     // Get the SDL_Renderer
     SDL_Renderer* renderer = Global::instance().getSdlRenderer();
     if (renderer == nullptr) {
-        return Constants::StandardCapture::Error::SDL::initFailed(domain.capture);
+        return Constants::StandardCapture::Error::Sdl::initFailed(domain.capture);
     }
 
     // Get the texture to rotate
@@ -60,7 +60,7 @@ Constants::Event Rotation::rotate(int const argc, char const** argv) const {
     // Set the new texture as the render target
     if (SDL_SetRenderTarget(renderer, rotatedTexture) != 0) {
         SDL_DestroyTexture(rotatedTexture);
-        return Constants::StandardCapture::Error::SDL::settingTargetFailed(domain.capture);
+        return Constants::StandardCapture::Error::Sdl::settingTargetFailed(domain.capture);
     }
 
     // Clear the render target

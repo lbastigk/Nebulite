@@ -11,7 +11,7 @@
 #include "Nebulite/Constants/StandardCapture.hpp"
 #include "Nebulite/Interaction/Execution/Domain.hpp"
 #include "Nebulite/Module/Domain/Common/Filesystem.hpp"
-#include "Nebulite/Utility/IO/FileManagement.hpp"
+#include "Nebulite/Utility/Io/FileManagement.hpp"
 #include "Nebulite/Utility/StringHandler.hpp"
 
 //------------------------------------------
@@ -35,14 +35,14 @@ Constants::Event Filesystem::cat(std::span<std::string_view const> const& args) 
     }
 
     auto const filePath = Utility::StringHandler::recombineArgs(args.subspan(1));
-    auto const fileContent = Utility::IO::FileManagement::loadFile(filePath);
+    auto const fileContent = Utility::Io::FileManagement::loadFile(filePath);
     domain.capture.log.println(fileContent);
     return Constants::Event::success;
 }
 
 Constants::Event Filesystem::ls(std::span<std::string_view const> const& args) const {
     std::string const directoryPath = args.size() >= 2 ? Utility::StringHandler::recombineArgs(args.subspan(1)) : ".";
-    auto const entries = Utility::IO::FileManagement::listContentInDirectory(directoryPath);
+    auto const entries = Utility::Io::FileManagement::listContentInDirectory(directoryPath);
     domain.capture.log.println(Utility::StringHandler::createPaddedTable(entries, 80));
     return Constants::Event::success;
 }

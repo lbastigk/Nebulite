@@ -44,8 +44,8 @@
 #include "Nebulite/Module/Domain/GlobalSpace/Settings.hpp"
 #include "Nebulite/Module/Domain/Initializer.hpp"
 #include "Nebulite/Nebulite.hpp"
-#include "Nebulite/Utility/IO/Capture.hpp"
-#include "Nebulite/Utility/IO/FileManagement.hpp"
+#include "Nebulite/Utility/Io/Capture.hpp"
+#include "Nebulite/Utility/Io/FileManagement.hpp"
 #include "Nebulite/Utility/TypeCheck.hpp"
 
 //------------------------------------------
@@ -57,13 +57,13 @@ double fontSize(auto const fontSizeKey, double defaultValue) {
 }
 } // namespace
 
-Renderer::Renderer(Data::JsonScope& documentReference, bool* headlessFlag, Utility::IO::Capture& parentCapture) :
+Renderer::Renderer(Data::JsonScope& documentReference, bool* headlessFlag, Utility::Io::Capture& parentCapture) :
     Domain("Renderer", documentReference, parentCapture),
     headless(headlessFlag),
     env(documentReference, parentCapture){
     //------------------------------------------
     // Initialize internal variables
-    baseDirectory = Utility::IO::FileManagement::currentDir();
+    baseDirectory = Utility::Io::FileManagement::currentDir();
 
     //------------------------------------------
     // Inherit
@@ -209,7 +209,7 @@ void Renderer::initImgui() {
 
     // Load font, fallback to default if not found or failed to load
     auto const fontPath = Global::settings().get<std::string>(Module::Domain::GlobalSpace::Settings::Key::fontMono).value_or("null");
-    if (Utility::IO::FileManagement::fileExists(fontPath)) {
+    if (Utility::Io::FileManagement::fileExists(fontPath)) {
         if (ImFont* f = io.Fonts->AddFontFromFileTTF(fontPath.c_str(), 0, &fontConfig, io.Fonts->GetGlyphRangesDefault()); f) {
             io.FontDefault = f;
         }
@@ -854,7 +854,7 @@ void Renderer::loadTexture(std::string const& link) {
 }
 
 SDL_Texture* Renderer::loadTextureToMemory(std::string const& link) {
-    std::string const path = Utility::IO::FileManagement::combinePaths(baseDirectory, link);
+    std::string const path = Utility::Io::FileManagement::combinePaths(baseDirectory, link);
 
     // Get file extension, based on last dot
     std::string extension;

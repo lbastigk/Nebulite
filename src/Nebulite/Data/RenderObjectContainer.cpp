@@ -22,7 +22,7 @@
 #include "Nebulite/Data/RendererProcessor.hpp"
 #include "Nebulite/Data/Tiling.hpp"
 #include "Nebulite/Utility/Coordination/WorkDispatcher.hpp"
-#include "Nebulite/Utility/IO/Capture.hpp"
+#include "Nebulite/Utility/Io/Capture.hpp"
 
 //------------------------------------------
 namespace Nebulite::Data {
@@ -58,7 +58,7 @@ std::string RenderObjectContainer::serialize() {
     return doc.serialize();
 }
 
-void RenderObjectContainer::deserialize(std::string const& serialOrLink, TilingInformation const& tilingInformation, Utility::IO::Capture& capture) {
+void RenderObjectContainer::deserialize(std::string const& serialOrLink, TilingInformation const& tilingInformation, Utility::Io::Capture& capture) {
     JsonScope doc;
     auto const objectsArrayKey = doc.getRootScope().addMember("objects");
     doc.deserialize(serialOrLink);

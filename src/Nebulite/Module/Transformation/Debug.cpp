@@ -11,7 +11,7 @@
 #include "Nebulite/Data/Document/JsonScope.hpp"
 #include "Nebulite/Module/Transformation/Debug.hpp"
 #include "Nebulite/Nebulite.hpp"
-#include "Nebulite/Utility/IO/FileManagement.hpp"
+#include "Nebulite/Utility/Io/FileManagement.hpp"
 #include "Nebulite/Utility/StringHandler.hpp"
 
 //------------------------------------------
@@ -75,7 +75,7 @@ bool Debug::store(std::span<std::string_view const> const& args, Data::JsonScope
         return false;
     }
     auto const filename = Utility::StringHandler::recombineArgs(args.subspan(1));
-    if (!Utility::IO::FileManagement::writeFile(filename, jsonDoc.serialize())) {
+    if (!Utility::Io::FileManagement::writeFile(filename, jsonDoc.serialize())) {
         Global::capture().error.println("Error writing to file.");
         return false;
     }

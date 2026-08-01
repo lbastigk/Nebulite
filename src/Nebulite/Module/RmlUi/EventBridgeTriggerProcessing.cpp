@@ -12,12 +12,12 @@
 // Nebulite
 #include "Nebulite/Graphics/RmlInterface.hpp"
 #include "Nebulite/Module/RmlUi/EventBridge.hpp"
-#include "Nebulite/Utility/IO/Capture.hpp"
+#include "Nebulite/Utility/Io/Capture.hpp"
 
 //------------------------------------------
 namespace Nebulite::Module::RmlUi {
 
-void EventBridge::Attribute::OnDestroy::processTrigger(Graphics::RmlInterface& manager, Utility::IO::Capture& capture, Rml::Element* element){
+void EventBridge::Attribute::OnDestroy::processTrigger(Graphics::RmlInterface& manager, Utility::Io::Capture& capture, Rml::Element* element){
     if (!element) return;
     if (!hasSupportedAttribute(element)) return;
     if (std::string const tag = element->GetTagName(); tag == "rml" || tag == "head" || tag == "body") {
@@ -29,7 +29,7 @@ void EventBridge::Attribute::OnDestroy::processTrigger(Graphics::RmlInterface& m
     entry.apply(manager, capture, element);
 }
 
-void EventBridge::Attribute::OnEnter::processTrigger(Graphics::RmlInterface& manager, Utility::IO::Capture& capture, SDL_Event const& event, int /*keyModifiers*/, Rml::Element* focusElement){
+void EventBridge::Attribute::OnEnter::processTrigger(Graphics::RmlInterface& manager, Utility::Io::Capture& capture, SDL_Event const& event, int /*keyModifiers*/, Rml::Element* focusElement){
     if (!focusElement) return;
     if (event.type != SDL_EVENT_KEY_DOWN) return;
     if (event.key.scancode != SDL_SCANCODE_RETURN && event.key.scancode != SDL_SCANCODE_KP_ENTER) return;
@@ -37,7 +37,7 @@ void EventBridge::Attribute::OnEnter::processTrigger(Graphics::RmlInterface& man
     entry.apply(manager, capture, focusElement);
 }
 
-void EventBridge::Attribute::OnClick::processTrigger(Graphics::RmlInterface& manager, Utility::IO::Capture& capture, SDL_Event const& event, int /*keyModifiers*/, Rml::Element* focusElement){
+void EventBridge::Attribute::OnClick::processTrigger(Graphics::RmlInterface& manager, Utility::Io::Capture& capture, SDL_Event const& event, int /*keyModifiers*/, Rml::Element* focusElement){
     if (!focusElement) return;
     if (event.type != SDL_EVENT_MOUSE_BUTTON_DOWN) return;
     BridgeEntry<OnClick> const entry(focusElement);

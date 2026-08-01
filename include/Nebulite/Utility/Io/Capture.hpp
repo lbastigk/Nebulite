@@ -23,12 +23,12 @@
 //------------------------------------------
 // Forward declarations
 
-namespace Nebulite::Utility::IO {
+namespace Nebulite::Utility::Io {
 class Capture;
-} // namespace Nebulite::Utility::IO
+} // namespace Nebulite::Utility::Io
 
 //------------------------------------------
-namespace Nebulite::Utility::IO {
+namespace Nebulite::Utility::Io {
 
 /**
  * @struct HistoryLine
@@ -120,7 +120,7 @@ public:
 };
 
 /**
- * @class Nebulite::Utility::IO::Capture
+ * @class Nebulite::Utility::Io::Capture
  * @brief Unified capture class providing multiple streams with a potential hierarchy, allowing for both domain-specific logging and unified logging,
  *        while ensuring thread-safe access to the captured output.
  */
@@ -253,6 +253,6 @@ private:
     std::vector<History> redirectorStack;
 };
 
-} // namespace Nebulite::Utility::IO
-#include "Nebulite/Utility/IO/Capture.tpp" // NOLINT(misc-include-cleaner)
+} // namespace Nebulite::Utility::Io
+#include "Nebulite/Utility/Io/Capture.tpp" // NOLINT(misc-include-cleaner)
 #endif // NEBULITE_UTILITY_IO_CAPTURE_HPP

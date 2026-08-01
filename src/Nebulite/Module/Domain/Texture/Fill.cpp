@@ -36,7 +36,7 @@ Constants::Event Fill::fill(int const argc, char const** argv) const {
     // Get the SDL_Renderer
     SDL_Renderer* renderer = Global::instance().getSdlRenderer();
     if (renderer == nullptr) {
-        return Constants::StandardCapture::Error::SDL::initFailed(domain.capture);
+        return Constants::StandardCapture::Error::Sdl::initFailed(domain.capture);
     }
 
     // Get the texture to fill

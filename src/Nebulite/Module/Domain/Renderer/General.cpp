@@ -32,7 +32,7 @@
 #include "Nebulite/Data/Document/RjDirectAccess.hpp"
 #include "Nebulite/Module/Base/DomainModule.hpp"
 #include "Nebulite/Module/Domain/Renderer/General.hpp"
-#include "Nebulite/Utility/IO/FileManagement.hpp"
+#include "Nebulite/Utility/Io/FileManagement.hpp"
 #include "Nebulite/Utility/StringHandler.hpp"
 
 //------------------------------------------
@@ -58,7 +58,7 @@ Constants::Event General::envLoad(std::span<std::string_view const> const& args)
         return Constants::Event::success;
     }
     auto const fileName = Utility::StringHandler::recombineArgs(args.subspan(1));
-    if (!Utility::IO::FileManagement::fileExists(fileName)) {
+    if (!Utility::Io::FileManagement::fileExists(fileName)) {
         domain.capture.error.println("File ", fileName, " does not exist! Loading an empty environment.");
         domain.deserialize("{}");
         return Constants::Event::warning;

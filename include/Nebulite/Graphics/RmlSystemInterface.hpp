@@ -12,7 +12,7 @@
 
 // Nebulite
 #include "Nebulite/Math/Vec2.hpp"
-#include "Nebulite/Utility/IO/Capture.hpp"
+#include "Nebulite/Utility/Io/Capture.hpp"
 
 //------------------------------------------
 namespace Nebulite::Graphics {
@@ -21,7 +21,7 @@ namespace Nebulite::Graphics {
  */
 class RmlSystemInterface final : public SystemInterface_SDL {
 public:
-    RmlSystemInterface(SDL_Window* w, Utility::IO::Capture& c);
+    RmlSystemInterface(SDL_Window* w, Utility::Io::Capture& c);
 
     void update(int mousePositionX, int mousePositionY);
 
@@ -44,7 +44,7 @@ public:
     void SetMouseCursor(Rml::String const& cursorName) override ;
 
 private:
-    Utility::IO::Capture& capture;
+    Utility::Io::Capture& capture;
     bool logEnabled = true;
 
     using Position = Math::Vec2<int>;

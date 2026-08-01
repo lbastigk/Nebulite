@@ -35,9 +35,9 @@ namespace Nebulite::Interaction {
 class ContextScope;
 } // namespace Nebulite::Interaction
 
-namespace Nebulite::Utility::IO {
+namespace Nebulite::Utility::Io {
 class Capture;
-} // namespace Nebulite::Utility::IO
+} // namespace Nebulite::Utility::Io
 
 //------------------------------------------
 namespace Nebulite::Core {
@@ -54,7 +54,7 @@ public:
      * @param parentCapture Reference to the parent capture for logging and error handling.
      *                      Either from the Domain that owns this one or from the global capture if this is a top-level domain.
      */
-    Renderer(Data::JsonScope& documentReference, bool* headlessFlag, Utility::IO::Capture& parentCapture);
+    Renderer(Data::JsonScope& documentReference, bool* headlessFlag, Utility::Io::Capture& parentCapture);
 
     ~Renderer() override ;
 

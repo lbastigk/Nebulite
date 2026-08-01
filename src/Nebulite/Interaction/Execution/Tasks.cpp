@@ -48,7 +48,7 @@ void Tasks::addTask(std::string_view const name, std::string_view const queueNam
     tasks[queueName]->pushBack(name);
 }
 
-void Tasks::addScript(std::string_view const filename, Utility::IO::Capture& capture) {
+void Tasks::addScript(std::string_view const filename, Utility::Io::Capture& capture) {
     tasks[StandardTasks::script]->addScript(filename, capture);
 }
 

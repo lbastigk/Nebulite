@@ -16,9 +16,9 @@
 #include <vector>
 
 //------------------------------------------
-namespace Nebulite::Utility::IO {
+namespace Nebulite::Utility::Io {
 /**
- * @class Nebulite::Utility::IO::FileManagement
+ * @class Nebulite::Utility::Io::FileManagement
  * @brief Provides utilities for file management operations via a static class.
  */
 class FileManagement{
@@ -95,5 +95,5 @@ public:
      */
      static std::vector<std::string> listContentInDirectory(std::string_view dir);
 };
-} // namespace Nebulite::Utility::IO
+} // namespace Nebulite::Utility::Io
 #endif // NEBULITE_UTILITY_IO_FILEMANAGEMENT_HPP

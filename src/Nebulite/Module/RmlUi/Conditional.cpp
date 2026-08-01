@@ -19,12 +19,12 @@
 #include "Nebulite/Math/Equality.hpp"
 #include "Nebulite/Module/Base/RmlUiModule.hpp"
 #include "Nebulite/Module/RmlUi/Conditional.hpp"
-#include "Nebulite/Utility/IO/Capture.hpp"
+#include "Nebulite/Utility/Io/Capture.hpp"
 
 //------------------------------------------
 namespace Nebulite::Module::RmlUi {
 
-Conditional::Conditional(Utility::IO::Capture& c, Graphics::RmlInterface& i) : RmlUiModule(c,i) {}
+Conditional::Conditional(Utility::Io::Capture& c, Graphics::RmlInterface& i) : RmlUiModule(c,i) {}
 
 void Conditional::update() {
     for (auto& entry : registeredEntries | std::views::values) {

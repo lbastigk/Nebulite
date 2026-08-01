@@ -30,9 +30,9 @@ namespace Nebulite::Data {
 class RendererProcessor;
 } // namespace Nebulite::Data
 
-namespace Nebulite::Utility::IO {
+namespace Nebulite::Utility::Io {
 class Capture;
-} // namespace Nebulite::Utility::IO
+} // namespace Nebulite::Utility::Io
 
 //------------------------------------------
 namespace Nebulite::Core {
@@ -108,7 +108,7 @@ public:
     //------------------------------------------
     // Special Members
 
-    explicit Environment(Data::JsonScope& documentReference, Utility::IO::Capture& parentCapture);
+    explicit Environment(Data::JsonScope& documentReference, Utility::Io::Capture& parentCapture);
 
     ~Environment() override ;
 

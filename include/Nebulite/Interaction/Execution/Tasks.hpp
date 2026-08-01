@@ -26,9 +26,9 @@ namespace Nebulite::Interaction::Execution {
 class Domain;
 } // namespace Nebulite::Interaction::Execution
 
-namespace Nebulite::Utility::IO {
+namespace Nebulite::Utility::Io {
 class Capture;
-} // namespace Nebulite::Utility::IO
+} // namespace Nebulite::Utility::Io
 
 //------------------------------------------
 namespace Nebulite::Interaction::Execution {
@@ -80,7 +80,7 @@ public:
      * @param filename The name of the script file to add.
      * @param capture The capture instance for handling script output.
      */
-    void addScript(std::string_view filename, Utility::IO::Capture& capture);
+    void addScript(std::string_view filename, Utility::Io::Capture& capture);
 
     /**
      * @brief Clears all tasks from any queues, but does not remove the TaskQueues themselves.

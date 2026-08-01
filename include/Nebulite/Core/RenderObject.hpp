@@ -28,9 +28,9 @@ namespace Nebulite::Interaction::Rules {
 class Ruleset;
 } // namespace Nebulite::Interaction::Rules
 
-namespace Nebulite::Utility::IO {
+namespace Nebulite::Utility::Io {
 class Capture;
-} // namespace Nebulite::Utility::IO
+} // namespace Nebulite::Utility::Io
 
 //------------------------------------------
 namespace Nebulite::Core {
@@ -58,7 +58,7 @@ public:
     /**
      * @brief Constructs a new RenderObject.
      */
-    explicit RenderObject(Utility::IO::Capture& parentCapture);
+    explicit RenderObject(Utility::Io::Capture& parentCapture);
 
     /**
      * @brief Destroys the RenderObject.

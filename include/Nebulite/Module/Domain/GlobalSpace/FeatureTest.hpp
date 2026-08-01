@@ -63,8 +63,8 @@ public:
     //------------------------------------------
     // Categories
 
-    static auto constexpr category_feature_testName = "feature-test";
-    static auto constexpr category_feature_testDesc = "Functions for testing features in the GlobalSpace\n"
+    static auto constexpr categoryFeatureTestName = "feature-test";
+    static auto constexpr categoryFeatureTestDesc = "Functions for testing features in the GlobalSpace\n"
         "Usage: feature-test <function>\n";
 
     //------------------------------------------
@@ -76,7 +76,7 @@ public:
     explicit FeatureTest(ConstructorParams const& params) : DomainModule(params) {
         //------------------------------------------
         // Binding functions to the FuncTree
-        bindCategory(category_feature_testName, category_feature_testDesc);
+        bindCategory(categoryFeatureTestName, categoryFeatureTestDesc);
 
         // General
         bindFunction(&FeatureTest::testFuncTree, testFuncTreeName, testFuncTreeDesc);

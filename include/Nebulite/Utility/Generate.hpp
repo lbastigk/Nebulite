@@ -111,7 +111,8 @@ public:
     }
 
     enum class Policy : bool {
-        included, notIncluded
+        included,
+        notIncluded,
     };
 
     /**

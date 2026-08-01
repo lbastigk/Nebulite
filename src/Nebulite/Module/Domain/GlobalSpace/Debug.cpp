@@ -25,7 +25,7 @@
 #include "Nebulite/Module/Domain/GlobalSpace/Debug.hpp"
 #include "Nebulite/Nebulite.hpp"
 #include "Nebulite/Utility/Coordination/TimedRoutine.hpp"
-#include "Nebulite/Utility/IO/FileManagement.hpp"
+#include "Nebulite/Utility/Io/FileManagement.hpp"
 
 //------------------------------------------
 #ifdef _WIN32
@@ -143,12 +143,12 @@ Constants::Event Debug::logGlobal(int const argc, char const** argv) const {
     std::string const serialized = moduleScope.serialize();
     if (argc > 1) {
         for (int i = 1; i < argc; i++) {
-            if (!Utility::IO::FileManagement::writeFile(argv[i], serialized)) {
+            if (!Utility::Io::FileManagement::writeFile(argv[i], serialized)) {
                 return Constants::StandardCapture::Error::File::couldNotWriteFile(domain.capture);
             }
         }
     } else {
-        if (!Utility::IO::FileManagement::writeFile("global.log.jsonc", serialized)) {
+        if (!Utility::Io::FileManagement::writeFile("global.log.jsonc", serialized)) {
             return Constants::StandardCapture::Error::File::couldNotWriteFile(domain.capture);
         }
     }
@@ -159,12 +159,12 @@ Constants::Event Debug::logState(int const argc, char const** argv) const {
     std::string const serialized = domain.getRenderer().serialize();
     if (argc > 1) {
         for (int i = 1; i < argc; i++) {
-            if (!Utility::IO::FileManagement::writeFile(argv[i], serialized)) {
+            if (!Utility::Io::FileManagement::writeFile(argv[i], serialized)) {
                 return Constants::StandardCapture::Error::File::couldNotWriteFile(domain.capture);
             }
         }
     } else {
-        if (!Utility::IO::FileManagement::writeFile("state.log.jsonc", serialized)) {
+        if (!Utility::Io::FileManagement::writeFile("state.log.jsonc", serialized)) {
             return Constants::StandardCapture::Error::File::couldNotWriteFile(domain.capture);
         }
     }
@@ -172,7 +172,7 @@ Constants::Event Debug::logState(int const argc, char const** argv) const {
 }
 
 Constants::Event Debug::standardFileRenderObject(std::span<std::string_view const> const& /*args*/) const {
-    if (Core::RenderObject const ro(domain.capture); !Utility::IO::FileManagement::writeFile("./Resources/Renderobjects/standard.jsonc", ro.serialize())) {
+    if (Core::RenderObject const ro(domain.capture); !Utility::Io::FileManagement::writeFile("./Resources/Renderobjects/standard.jsonc", ro.serialize())) {
         return Constants::StandardCapture::Error::File::couldNotWriteFile(domain.capture);
     }
     return Constants::Event::success;

@@ -28,9 +28,9 @@ class Context;
 class ContextScope;
 } // namespace Nebulite::Interaction
 
-namespace Nebulite::Utility::IO {
+namespace Nebulite::Utility::Io {
 class Capture;
-} // namespace Nebulite::Utility::IO
+} // namespace Nebulite::Utility::Io
 
 //------------------------------------------
 namespace Nebulite::Module::Domain::Renderer {
@@ -105,7 +105,7 @@ private:
     public:
         DraftHolder() = default;
 
-        Core::RenderObject& get(Utility::IO::Capture& capture) [[clang::lifetimebound]] {
+        Core::RenderObject& get(Utility::Io::Capture& capture) [[clang::lifetimebound]] {
             if (!obj) {
                 obj.emplace(capture);
                 obj->setName("Draft Object");

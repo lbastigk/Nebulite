@@ -22,9 +22,9 @@ class JSON;
 class JsonScope;
 } // namespace Nebulite::Data
 
-namespace Nebulite::Utility::IO {
+namespace Nebulite::Utility::Io {
 class Capture;
-} // namespace Nebulite::Utility::IO
+} // namespace Nebulite::Utility::Io
 
 //------------------------------------------
 // Global class for singleton access
@@ -66,7 +66,7 @@ public:
      * @details Whenever possible, use the local capture provided by the Domain (or DomainModule) instead of this global capture, to ensure proper hierarchical capture behavior.
      * @return Reference to the global capture instance.
      */
-    static Utility::IO::Capture& capture();
+    static Utility::Io::Capture& capture();
 
 private:
     /**

@@ -30,9 +30,9 @@ class Context;
 class ContextScope;
 } // namespace Nebulite::Interaction
 
-namespace Nebulite::Utility::IO {
+namespace Nebulite::Utility::Io {
 class Capture;
-} // namespace Nebulite::Utility::IO
+} // namespace Nebulite::Utility::Io
 
 //------------------------------------------
 namespace Nebulite::Graphics {
@@ -52,7 +52,7 @@ namespace Nebulite::Graphics {
 class Drawcall {
 public:
     // Any Drawcall is based on a scopes data
-    explicit Drawcall(Data::JsonScope& workspace, Utility::IO::Capture& parentCapture);
+    explicit Drawcall(Data::JsonScope& workspace, Utility::Io::Capture& parentCapture);
 
     ~Drawcall() = default;
 

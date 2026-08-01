@@ -25,7 +25,7 @@
 #include "Nebulite/Module/Domain/Common/Ruleset.hpp"
 #include "Nebulite/Module/Domain/Initializer.hpp"
 #include "Nebulite/Nebulite.hpp"
-#include "Nebulite/Utility/IO/Capture.hpp"
+#include "Nebulite/Utility/Io/Capture.hpp"
 #include "Nebulite/Utility/StringHandler.hpp"
 
 //------------------------------------------
@@ -48,7 +48,7 @@ DocumentAccessor::DocumentAccessor() : ScopeOwnershipManager(ScopeOwnership::Own
 
 DocumentAccessor::~DocumentAccessor() = default;
 
-Domain::Domain(std::string const& name, Data::JsonScope& documentReference, Utility::IO::Capture& parentCapture)
+Domain::Domain(std::string const& name, Data::JsonScope& documentReference, Utility::Io::Capture& parentCapture)
     : DocumentAccessor(documentReference)
     , domainName(name)
     , capture(&parentCapture)
@@ -66,7 +66,7 @@ Domain::Domain(std::string const& name, Data::JsonScope& documentReference, Util
     Module::Domain::Initializer::initCommon(this);
 }
 
-Domain::Domain(std::string const& name, Utility::IO::Capture& parentCapture)
+Domain::Domain(std::string const& name, Utility::Io::Capture& parentCapture)
     : domainName(name)
     , capture(&parentCapture)
     , cost(domainScope) {

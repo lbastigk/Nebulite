@@ -9,12 +9,12 @@
 #include "Nebulite/Graphics/RmlInterface.hpp"
 #include "Nebulite/Module/Base/RmlUiModule.hpp"
 #include "Nebulite/Module/RmlUi/EventBridge.hpp"
-#include "Nebulite/Utility/IO/Capture.hpp"
+#include "Nebulite/Utility/Io/Capture.hpp"
 
 //------------------------------------------
 namespace Nebulite::Module::RmlUi {
 
-EventBridge::EventBridge(Utility::IO::Capture& c, Graphics::RmlInterface& i) : RmlUiModule(c,i) {}
+EventBridge::EventBridge(Utility::Io::Capture& c, Graphics::RmlInterface& i) : RmlUiModule(c,i) {}
 
 void EventBridge::update() {}
 

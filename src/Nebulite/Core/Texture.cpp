@@ -18,12 +18,12 @@
 #include "Nebulite/Interaction/Execution/Domain.hpp"
 #include "Nebulite/Module/Domain/Initializer.hpp"
 #include "Nebulite/Nebulite.hpp"
-#include "Nebulite/Utility/IO/Capture.hpp"
+#include "Nebulite/Utility/Io/Capture.hpp"
 
 //------------------------------------------
 namespace Nebulite::Core {
 
-Texture::Texture(Data::JsonScope& documentReference, Utility::IO::Capture& parentCapture)
+Texture::Texture(Data::JsonScope& documentReference, Utility::Io::Capture& parentCapture)
     : Domain("Texture", documentReference, parentCapture) {
     // Initialize all DomainModules
     Module::Domain::Initializer::initTexture(this);
@@ -38,7 +38,7 @@ Constants::Event Texture::update() {
 }
 
 namespace {
-SDL_Texture* copySdlTexture(SDL_Texture* source, SDL_Renderer* renderer, Utility::IO::Capture& capture) {
+SDL_Texture* copySdlTexture(SDL_Texture* source, SDL_Renderer* renderer, Utility::Io::Capture& capture) {
     auto* const currentTarget = SDL_GetRenderTarget(renderer);
 
     // Query

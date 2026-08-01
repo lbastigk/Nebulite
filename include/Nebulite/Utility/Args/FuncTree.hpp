@@ -22,7 +22,7 @@
 // Nebulite
 #include "Nebulite/Utility/Args/CmdArgs.hpp"
 #include "Nebulite/Utility/FunctionIdentity.hpp"
-#include "Nebulite/Utility/IO/Capture.hpp"
+#include "Nebulite/Utility/Io/Capture.hpp"
 
 //------------------------------------------
 namespace Nebulite::Utility::Args {
@@ -112,7 +112,7 @@ public:
      * @param valFunctionNotFound Value to return if the parsed function was not found
      * @param captureInstance Capture instance for logging
      */
-    FuncTree(std::string_view treeName, ReturnValue const& valDefault, ReturnValue const& valFunctionNotFound, IO::Capture& captureInstance);
+    FuncTree(std::string_view treeName, ReturnValue const& valDefault, ReturnValue const& valFunctionNotFound, Io::Capture& captureInstance);
 
     /**
      * @brief Inherits functions from another Tree.
@@ -245,7 +245,7 @@ private:
     std::function<ReturnValue()> preParse = nullptr;
 
     // Capture instance for logging
-    IO::Capture& capture;
+    Io::Capture& capture;
 
     struct StandardReturnValues {
         ReturnValue valDefault;

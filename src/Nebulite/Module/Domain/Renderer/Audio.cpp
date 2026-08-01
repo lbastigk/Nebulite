@@ -26,7 +26,7 @@
 #include "Nebulite/Module/Base/DomainModule.hpp"
 #include "Nebulite/Module/Domain/Renderer/Audio.hpp"
 #include "Nebulite/Utility/Generate.hpp"
-#include "Nebulite/Utility/IO/Capture.hpp"
+#include "Nebulite/Utility/Io/Capture.hpp"
 #include "Nebulite/Utility/StringHandler.hpp"
 
 //------------------------------------------

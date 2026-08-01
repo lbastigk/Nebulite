@@ -20,7 +20,6 @@
 #include <absl/container/flat_hash_map.h>
 #include <rapidjson/document.h>
 
-
 // Nebulite
 #include "Nebulite/Data/Document/KeyType.hpp"
 #include "Nebulite/Data/Document/RjDirectAccess.hpp"

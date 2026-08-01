@@ -23,9 +23,9 @@ namespace Nebulite::Graphics {
 class RmlInterface;
 } // namespace Nebulite::Graphics
 
-namespace Nebulite::Utility::IO {
+namespace Nebulite::Utility::Io {
 class Capture;
-} // namespace Nebulite::Utility::IO
+} // namespace Nebulite::Utility::Io
 
 //------------------------------------------
 namespace Nebulite::Module::RmlUi {
@@ -35,7 +35,7 @@ namespace Nebulite::Module::RmlUi {
  */
 class Conditional final : public Base::RmlUiModule {
 public:
-    explicit Conditional(Utility::IO::Capture& c, Graphics::RmlInterface& i);
+    explicit Conditional(Utility::Io::Capture& c, Graphics::RmlInterface& i);
 
     void update() override ;
 

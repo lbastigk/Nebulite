@@ -11,7 +11,7 @@
 
 // Nebulite
 #include "Nebulite/Graphics/RmlInterface.hpp"
-#include "Nebulite/Utility/IO/Capture.hpp"
+#include "Nebulite/Utility/Io/Capture.hpp"
 
 //------------------------------------------
 // Forward declarations
@@ -26,7 +26,7 @@ class ElementDocument;
 namespace Nebulite::Module::Base {
 class RmlUiModule : public Rml::Plugin {
 public:
-    explicit RmlUiModule(Utility::IO::Capture& c, Graphics::RmlInterface& i);
+    explicit RmlUiModule(Utility::Io::Capture& c, Graphics::RmlInterface& i);
 
     virtual void update();
 
@@ -41,7 +41,7 @@ public:
     void OnDocumentUnload(Rml::ElementDocument* /*document*/) override {}
 
 protected:
-    Utility::IO::Capture& capture;
+    Utility::Io::Capture& capture;
 
     Graphics::RmlInterface& interface;
 };

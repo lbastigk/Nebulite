@@ -17,9 +17,9 @@
 //------------------------------------------
 // Forward declarations
 
-namespace Nebulite::Utility::IO {
+namespace Nebulite::Utility::Io {
 class Capture;
-} // namespace Nebulite::Utility::IO
+} // namespace Nebulite::Utility::Io
 
 //------------------------------------------
 namespace Nebulite::Core {
@@ -38,7 +38,7 @@ public:
      * @param parentCapture Reference to the parent capture for logging and error handling.
      *                      Either from the Domain that owns this one or from the global capture if this is a top-level domain.
      */
-    explicit Texture(Data::JsonScope& documentReference, Utility::IO::Capture& parentCapture);
+    explicit Texture(Data::JsonScope& documentReference, Utility::Io::Capture& parentCapture);
 
     /**
      * @brief Destroys the Texture and frees resources.

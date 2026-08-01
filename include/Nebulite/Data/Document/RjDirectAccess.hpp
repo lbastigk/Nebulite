@@ -105,7 +105,7 @@ public:
      * @param defaultValue The default value to use if conversion fails.
      */
     template <typename T> requires (!std::is_trivially_copyable_v<T>)
-    static void ConvertFromJsonValue(rapidjson::Value const& jsonValue, T& result, T const& defaultValue = T());
+    static void convertFromJsonValue(rapidjson::Value const& jsonValue, T& result, T const& defaultValue = T());
 
     /**
      * @brief Converts a rapidjson value to a given type.
@@ -115,7 +115,7 @@ public:
      * @param defaultValue The default value to use if conversion fails.
      */
     template <typename T> requires std::is_trivially_copyable_v<T>
-    static void ConvertFromJsonValue(rapidjson::Value const& jsonValue, T& result, T defaultValue = T());
+    static void convertFromJsonValue(rapidjson::Value const& jsonValue, T& result, T defaultValue = T());
 
     /**
      * @brief Converts a given type to a rapidjson value.
@@ -125,7 +125,7 @@ public:
      * @param allocator The allocator to use for creating new rapidjson values.
      */
     template <typename T> requires (!std::is_trivially_copyable_v<T>)
-    static void ConvertToJsonValue(T const& data, rapidjson::Value& jsonValue, rapidjson::Document::AllocatorType& allocator);
+    static void convertToJsonValue(T const& data, rapidjson::Value& jsonValue, rapidjson::Document::AllocatorType& allocator);
 
     /**
      * @brief Converts a given type to a rapidjson value.
@@ -135,7 +135,7 @@ public:
      * @param allocator The allocator to use for creating new rapidjson values.
      */
     template <typename T> requires std::is_trivially_copyable_v<T>
-    static void ConvertToJsonValue(T data, rapidjson::Value& jsonValue, rapidjson::Document::AllocatorType& allocator);
+    static void convertToJsonValue(T data, rapidjson::Value& jsonValue, rapidjson::Document::AllocatorType& allocator);
 
     //------------------------------------------
     // Document traversal

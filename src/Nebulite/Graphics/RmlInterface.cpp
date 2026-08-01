@@ -33,7 +33,7 @@
 #include "Nebulite/Graphics/RmlInterface.hpp"
 #include "Nebulite/Graphics/RmlSystemInterface.hpp"
 #include "Nebulite/Interaction/Context.hpp"
-#include "Nebulite/Utility/IO/FileManagement.hpp"
+#include "Nebulite/Utility/Io/FileManagement.hpp"
 
 // Nebulite: RmlUi-Modules
 #include "Nebulite/Module/RmlUi/Conditional.hpp"
@@ -154,7 +154,7 @@ void RmlInterface::init(Core::Renderer& renderer, int const width, int const hei
         throw std::runtime_error("Failed to create RmlUi context!");
     }
 
-    for (auto constexpr fontDirectory = "./Resources/Fonts/"; auto& fontFile : Utility::IO::FileManagement::listFilesInDirectory(fontDirectory)) {
+    for (auto constexpr fontDirectory = "./Resources/Fonts/"; auto& fontFile : Utility::Io::FileManagement::listFilesInDirectory(fontDirectory)) {
         if (fontFile.ends_with(".ttf")) {
             if (auto const fontPath = fontDirectory + fontFile; !Rml::LoadFontFace(fontPath)) {
                 throw std::runtime_error("Failed to load font face for RmlUi from path: " + fontPath);
@@ -388,7 +388,7 @@ std::vector<std::pair<size_t, std::string>> RmlInterface::listOpenedDocuments() 
 // Context Management
 
 bool RmlInterface::loadDocument(std::string_view const name, std::string_view const path, Interaction::Context const& ctx, Interaction::ContextScope const& ctxScope) {
-    auto const document = Utility::IO::FileManagement::loadFile(path);
+    auto const document = Utility::Io::FileManagement::loadFile(path);
     Rml::ElementDocument* doc = context->LoadDocumentFromMemory(document);
     if (!doc) return false;
 

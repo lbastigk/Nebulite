@@ -23,16 +23,16 @@ namespace Nebulite::Graphics {
 class RmlInterface;
 } // namespace Nebulite::Graphics
 
-namespace Nebulite::Utility::IO {
+namespace Nebulite::Utility::Io {
 class Capture;
-} // namespace Nebulite::Utility::IO
+} // namespace Nebulite::Utility::Io
 
 //------------------------------------------
 namespace Nebulite::Module::RmlUi {
 
 class ExpressionManager final : public Base::RmlUiModule {
 public:
-    explicit ExpressionManager(Utility::IO::Capture& c, Graphics::RmlInterface& i);
+    explicit ExpressionManager(Utility::Io::Capture& c, Graphics::RmlInterface& i);
 
     void update() override ;
 

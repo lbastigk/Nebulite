@@ -22,7 +22,7 @@
 #include "Nebulite/Data/RenderObjectContainer.hpp"
 #include "Nebulite/Data/Tiling.hpp"
 #include "Nebulite/Nebulite.hpp"
-#include "Nebulite/Utility/IO/Capture.hpp"
+#include "Nebulite/Utility/Io/Capture.hpp"
 
 //------------------------------------------
 namespace Nebulite::Data {
@@ -119,7 +119,7 @@ void Tile::render(
     Core::Renderer const& nebuliteRenderer,
     TileCoordinate const& coordinate,
     TilingInformation const& tilingInfo,
-    Utility::IO::Capture& capture,
+    Utility::Io::Capture& capture,
     int const dispPosX,
     int const dispPosY,
     int const windowScale

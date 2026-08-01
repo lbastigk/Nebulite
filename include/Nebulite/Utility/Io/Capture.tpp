@@ -13,11 +13,11 @@
 // Conditional includes
 
 #ifndef NEBULITE_UTILITY_IO_CAPTURE_HPP
-    #include "Nebulite/Utility/IO/Capture.hpp"
+    #include "Nebulite/Utility/Io/Capture.hpp"
 #endif // NEBULITE_UTILITY_IO_CAPTURE_HPP
 
 //------------------------------------------
-namespace Nebulite::Utility::IO {
+namespace Nebulite::Utility::Io {
 
 template<std::ostream* BaseStream, HistoryLine::Type LineType>
 void Stream<BaseStream, LineType>::putStr(std::string const& str, bool const printToConsole) const {
@@ -70,5 +70,5 @@ void HierarchicalStream<BaseStream, LineType>::println(Args&&... args){
     coutStream.println(!parent && outputEnabled, std::forward<Args>(args)...);
 }
 
-} // namespace Nebulite::Utility::IO
+} // namespace Nebulite::Utility::Io
 #endif // NEBULITE_UTILITY_IO_CAPTURE_TPP

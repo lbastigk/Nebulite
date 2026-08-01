@@ -16,8 +16,8 @@
 #include "Nebulite/Data/TaskQueueResult.hpp"
 #include "Nebulite/Interaction/Context.hpp"
 #include "Nebulite/Interaction/Execution/Domain.hpp"
-#include "Nebulite/Utility/IO/Capture.hpp"
-#include "Nebulite/Utility/IO/FileManagement.hpp"
+#include "Nebulite/Utility/Io/Capture.hpp"
+#include "Nebulite/Utility/Io/FileManagement.hpp"
 #include "Nebulite/Utility/StringHandler.hpp"
 
 //------------------------------------------
@@ -80,12 +80,12 @@ TaskQueueResult TaskQueue::resolve(Interaction::Context& ctx, Interaction::Conte
     return fullResult;
 }
 
-void TaskQueue::addScript(std::string_view const filename, Utility::IO::Capture& capture){
+void TaskQueue::addScript(std::string_view const filename, Utility::Io::Capture& capture){
     if (filename.length() < 6 || !filename.ends_with(".nebs")) {
         capture.error.println("Warning: unexpected file ending for task file '", filename, "'. Expected '.nebs'. Trying to load anyway.");
     }
 
-    std::string fileContent = Utility::IO::FileManagement::loadFile(filename);
+    std::string fileContent = Utility::Io::FileManagement::loadFile(filename);
 
     // Replace all "\n " with "\n" to allow for multi-line commands with leading spaces
     while (fileContent.contains("\n ")) {

@@ -9,7 +9,7 @@
 #include "Nebulite/Data/Document/JSON.hpp"
 #include "Nebulite/Nebulite.hpp"
 #include "Nebulite/ScopeAccessor.hpp"
-#include "Nebulite/Utility/IO/Capture.hpp"
+#include "Nebulite/Utility/Io/Capture.hpp"
 
 //------------------------------------------
 namespace Nebulite {
@@ -28,7 +28,7 @@ Data::JsonScope& Global::shareScope(ScopeAccessor::BaseAccessToken const& at, st
     return globalDoc().shareManagedScope(at.getPrefix() + prefix);
 }
 
-Utility::IO::Capture& Global::capture() {
+Utility::Io::Capture& Global::capture() {
     return instance().capture;
 }
 

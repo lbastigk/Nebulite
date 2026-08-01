@@ -12,8 +12,8 @@
 
 // Nebulite
 #include "Nebulite/Nebulite.hpp"
-#include "Nebulite/Utility/IO/Capture.hpp"
-#include "Nebulite/Utility/IO/FileManagement.hpp"
+#include "Nebulite/Utility/Io/Capture.hpp"
+#include "Nebulite/Utility/Io/FileManagement.hpp"
 
 //------------------------------------------
 // Set error printing function
@@ -26,7 +26,7 @@ void errorPrintln(Args&&... args) {
 } // namespace
 
 //------------------------------------------
-namespace Nebulite::Utility::IO {
+namespace Nebulite::Utility::Io {
 
 std::string FileManagement::combinePaths(std::string_view const baseDir, std::string_view const innerDir) {
     std::filesystem::path const basePath(baseDir);
@@ -123,4 +123,4 @@ std::vector<std::string> FileManagement::listContentInDirectory(std::string_view
     return entries;
 }
 
-} // namespace Nebulite::Utility::IO
+} // namespace Nebulite::Utility::Io

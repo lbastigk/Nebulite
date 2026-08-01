@@ -22,9 +22,9 @@ class Context;
 class ContextScope;
 } // namespace Nebulite::Interaction
 
-namespace Nebulite::Utility::IO {
+namespace Nebulite::Utility::Io {
 class Capture;
-} // namespace Nebulite::Utility::IO
+} // namespace Nebulite::Utility::Io
 
 //------------------------------------------
 namespace Nebulite::Data {
@@ -57,7 +57,7 @@ public:
      * @param filename The name of the script file to add. Expected to have a ".nebs" extension.
      * @param capture The capture instance for printing warnings and errors during script loading.
      */
-    void addScript(std::string_view filename, Utility::IO::Capture& capture);
+    void addScript(std::string_view filename, Utility::Io::Capture& capture);
 
     /**
      * @brief Appends a task to the task queue.

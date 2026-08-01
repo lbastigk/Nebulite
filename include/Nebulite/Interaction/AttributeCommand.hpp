@@ -18,7 +18,7 @@
 // Nebulite
 #include "Nebulite/Data/OptionalFixedString.hpp"
 #include "Nebulite/Graphics/RmlInterface.hpp"
-#include "Nebulite/Utility/IO/Capture.hpp"
+#include "Nebulite/Utility/Io/Capture.hpp"
 
 //------------------------------------------
 namespace Nebulite::Interaction {
@@ -52,7 +52,7 @@ protected:
      * @param cap The capture for logging
      * @param ctxAndScope The context and scope for executing the parsed string
      */
-    static void applyRuleset(std::string_view ruleset, Utility::IO::Capture& cap, Graphics::RmlInterface::ContextAndScope& ctxAndScope);
+    static void applyRuleset(std::string_view ruleset, Utility::Io::Capture& cap, Graphics::RmlInterface::ContextAndScope& ctxAndScope);
 
     /**
      * @brief Applies a special action
@@ -60,7 +60,7 @@ protected:
      * @param cap The capture for logging
      * @param ctxAndScope The context and scope for executing the parsed string
      */
-    static void parseString(std::string_view stringToParse, Utility::IO::Capture& cap, Graphics::RmlInterface::ContextAndScope& ctxAndScope);
+    static void parseString(std::string_view stringToParse, Utility::Io::Capture& cap, Graphics::RmlInterface::ContextAndScope& ctxAndScope);
 
     /**
      * @brief Applies a special action
@@ -90,7 +90,7 @@ public:
         }
     }
 
-    void apply(Graphics::RmlInterface& manager, Utility::IO::Capture& cap, Graphics::RmlInterface::ContextAndScope& ctxAndScope, Rml::Element* element, Rml::ElementDocument* document) const {
+    void apply(Graphics::RmlInterface& manager, Utility::Io::Capture& cap, Graphics::RmlInterface::ContextAndScope& ctxAndScope, Rml::Element* element, Rml::ElementDocument* document) const {
         if (rulesetLink) applyRuleset(rulesetLink.value(), cap, ctxAndScope);
         if (stringToParse) parseString(stringToParse.value(), cap, ctxAndScope);
         if (specialAction) applySpecialAction(specialAction.value(), manager, element, document);

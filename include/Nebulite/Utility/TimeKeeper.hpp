@@ -5,7 +5,7 @@
 // Includes
 
 // Standard library
-#include <cstdint>
+#include <cstdint> // NOLINT
 #include <optional>
 
 //------------------------------------------
@@ -89,7 +89,7 @@ private:
      * @brief The start time in milliseconds when the timer was created.
      * @details For Reference: This value is used to calculate the total elapsed time since the timer was created.
      */
-    std::uint64_t t_start;
+    std::uint64_t tStart;
 
     /**
      * @brief The current time in milliseconds of the last update.

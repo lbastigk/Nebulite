@@ -23,12 +23,12 @@
 #include "Nebulite/Module/Base/RmlUiModule.hpp"
 #include "Nebulite/Module/RmlUi/Reflection.hpp"
 #include "Nebulite/Utility/Coordination/TimedRoutine.hpp"
-#include "Nebulite/Utility/IO/Capture.hpp"
+#include "Nebulite/Utility/Io/Capture.hpp"
 
 //------------------------------------------
 namespace Nebulite::Module::RmlUi {
 
-Reflection::Reflection(Utility::IO::Capture& c, Graphics::RmlInterface& i) : RmlUiModule(c,i) {
+Reflection::Reflection(Utility::Io::Capture& c, Graphics::RmlInterface& i) : RmlUiModule(c,i) {
     evaluationRoutine = std::make_unique<Utility::Coordination::TimedRoutine>(
         [this] {
             removeDeletedElements();

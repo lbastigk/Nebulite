@@ -22,7 +22,7 @@
 #include "Nebulite/Core/RenderObject.hpp"
 #include "Nebulite/Data/RendererProcessor.hpp"
 #include "Nebulite/Data/Tiling.hpp"
-#include "Nebulite/Utility/IO/Capture.hpp"
+#include "Nebulite/Utility/Io/Capture.hpp"
 
 //------------------------------------------
 namespace Nebulite::Data {
@@ -60,7 +60,7 @@ public:
      * @param tilingInformation Width and height of each tile
      * @param capture Capture instance to pass to RenderObjects during construction.
      */
-    void deserialize(std::string const& serialOrLink, TilingInformation const& tilingInformation, Utility::IO::Capture& capture);
+    void deserialize(std::string const& serialOrLink, TilingInformation const& tilingInformation, Utility::Io::Capture& capture);
 
     //------------------------------------------
     // Pipeline

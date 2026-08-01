@@ -31,9 +31,9 @@ namespace Nebulite::Interaction::Execution {
 class Domain;
 } // namespace Nebulite::Interaction::Execution
 
-namespace Nebulite::Utility::IO {
+namespace Nebulite::Utility::Io {
 class Capture;
-} // namespace Nebulite::Utility::IO
+} // namespace Nebulite::Utility::Io
 
 //------------------------------------------
 namespace Nebulite::Graphics {
@@ -87,7 +87,7 @@ public:
     static void renderDomain(
         Interaction::Context& ctx,
         Interaction::ContextScope& ctxScope,
-        Utility::IO::Capture& capture,
+        Utility::Io::Capture& capture,
         std::string const& name,
         DomainRenderingFlags const& flags = {.showCloseButton = true, .windowPos = std::nullopt, .windowSize = std::nullopt, .windowAlignment = std::nullopt}
     );
@@ -113,7 +113,7 @@ private:
      * @param capture The capture to render.
      * @param name The name of the ImGui window.
      */
-    static void renderDomainConsole(Interaction::Context& ctx, Interaction::ContextScope& ctxScope, Utility::IO::Capture& capture, std::string const& name);
+    static void renderDomainConsole(Interaction::Context& ctx, Interaction::ContextScope& ctxScope, Utility::Io::Capture& capture, std::string const& name);
 };
 
 } // namespace Nebulite::Graphics

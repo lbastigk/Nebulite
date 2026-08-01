@@ -6,7 +6,7 @@
 
 // Nebulite
 #include "Nebulite/Module/Base/RmlUiModule.hpp"
-#include "Nebulite/Utility/IO/Capture.hpp"
+#include "Nebulite/Utility/Io/Capture.hpp"
 
 //------------------------------------------
 // Forward declarations
@@ -15,16 +15,16 @@ namespace Nebulite::Graphics {
 class RmlInterface;
 } // namespace Nebulite::Graphics
 
-namespace Nebulite::Utility::IO {
+namespace Nebulite::Utility::Io {
 class Capture;
-} // namespace Nebulite::Utility::IO
+} // namespace Nebulite::Utility::Io
 
 //------------------------------------------
 namespace Nebulite::Module::RmlUi {
 
 class ContextManager final : public Base::RmlUiModule {
 public:
-    explicit ContextManager(Utility::IO::Capture& c, Graphics::RmlInterface& i);
+    explicit ContextManager(Utility::Io::Capture& c, Graphics::RmlInterface& i);
 
     void update() override ;
 };

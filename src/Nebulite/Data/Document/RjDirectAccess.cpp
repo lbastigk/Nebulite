@@ -22,7 +22,7 @@
 #include "Nebulite/Core/GlobalSpace.hpp"
 #include "Nebulite/Data/Document/RjDirectAccess.hpp"
 #include "Nebulite/Nebulite.hpp"
-#include "Nebulite/Utility/IO/Capture.hpp"
+#include "Nebulite/Utility/Io/Capture.hpp"
 #include "Nebulite/Utility/StringHandler.hpp"
 
 //------------------------------------------

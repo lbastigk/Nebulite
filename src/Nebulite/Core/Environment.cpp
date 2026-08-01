@@ -21,12 +21,12 @@
 #include "Nebulite/Data/Tiling.hpp"
 #include "Nebulite/Module/Domain/Initializer.hpp"
 #include "Nebulite/Utility/Generate.hpp"
-#include "Nebulite/Utility/IO/Capture.hpp"
+#include "Nebulite/Utility/Io/Capture.hpp"
 
 //------------------------------------------
 namespace Nebulite::Core {
 
-Environment::Environment(Data::JsonScope& documentReference, Utility::IO::Capture& parentCapture)
+Environment::Environment(Data::JsonScope& documentReference, Utility::Io::Capture& parentCapture)
     : Domain("Environment", documentReference, parentCapture)
     , roc(Utility::Generate::array<Data::RenderObjectContainer, allLayers.size()>([](std::size_t) {
           return Data::RenderObjectContainer{};

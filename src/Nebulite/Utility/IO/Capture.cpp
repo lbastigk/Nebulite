@@ -8,10 +8,10 @@
 #include <string>
 
 // Nebulite
-#include "Nebulite/Utility/IO/Capture.hpp"
+#include "Nebulite/Utility/Io/Capture.hpp"
 
 //------------------------------------------
-namespace Nebulite::Utility::IO {
+namespace Nebulite::Utility::Io {
 
 std::deque<HistoryLine> const& Capture::getHistory() const {
     return localHistory.getLines();
@@ -80,4 +80,4 @@ void Capture::History::addHistoryLine(std::string const& str, HistoryLine::Type 
     }
 }
 
-} // namespace Nebulite::Utility::IO
+} // namespace Nebulite::Utility::Io

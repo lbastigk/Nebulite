@@ -12,12 +12,12 @@
 #include "Nebulite/Module/RmlUi/EventBridge.hpp"
 #include "Nebulite/Module/RmlUi/ExpressionManager.hpp"
 #include "Nebulite/Module/RmlUi/Reflection.hpp"
-#include "Nebulite/Utility/IO/Capture.hpp"
+#include "Nebulite/Utility/Io/Capture.hpp"
 
 //------------------------------------------
 namespace Nebulite::Module::RmlUi {
 
-ContextManager::ContextManager(Utility::IO::Capture& c, Graphics::RmlInterface& i) : RmlUiModule(c,i) {}
+ContextManager::ContextManager(Utility::Io::Capture& c, Graphics::RmlInterface& i) : RmlUiModule(c,i) {}
 
 void ContextManager::update() {
     auto anySupportedAttribute = [] (Rml::Element* element, Rml::Element* parent) {

@@ -26,8 +26,8 @@
 #include "Nebulite/Interaction/Execution/Domain.hpp"
 #include "Nebulite/Module/Domain/Common/General.hpp"
 #include "Nebulite/Nebulite.hpp"
-#include "Nebulite/Utility/IO/Capture.hpp"
-#include "Nebulite/Utility/IO/FileManagement.hpp"
+#include "Nebulite/Utility/Io/Capture.hpp"
+#include "Nebulite/Utility/Io/FileManagement.hpp"
 #include "Nebulite/Utility/Ranges.hpp"
 #include "Nebulite/Utility/Sort.hpp"
 #include "Nebulite/Utility/StringHandler.hpp"
@@ -39,7 +39,7 @@ namespace {
 
 size_t findFileSeparatorPositionOrFallback(std::string_view const str) {
     auto const result = std::ranges::find_last_if(str, [](char const& c) {
-        return c == Nebulite::Utility::IO::FileManagement::preferredSeparator();
+        return c == Nebulite::Utility::Io::FileManagement::preferredSeparator();
     });
 
     if (result.empty()) {
@@ -71,19 +71,19 @@ void addFileCompletions(std::string_view const input, std::vector<std::string>& 
     std::size_t const startIndex = pattern.starts_with("./") ? 2 : 0; // If pattern starts with "./", we want to ignore that for file searching
     std::size_t const endIndex = findFileSeparatorPositionOrFallback(pattern.substr(startIndex)) + startIndex;
     auto const inputToComplete = pattern.substr(endIndex != startIndex ? endIndex + 1 : startIndex);
-    auto const innerDir = std::string(pattern.substr(startIndex, endIndex - startIndex)) + Nebulite::Utility::IO::FileManagement::preferredSeparator();
-    auto const directory = Nebulite::Utility::IO::FileManagement::combinePaths(".", innerDir == "/" ? "" : innerDir);
+    auto const innerDir = std::string(pattern.substr(startIndex, endIndex - startIndex)) + Nebulite::Utility::Io::FileManagement::preferredSeparator();
+    auto const directory = Nebulite::Utility::Io::FileManagement::combinePaths(".", innerDir == "/" ? "" : innerDir);
 
     // Build list
-    auto const list = Nebulite::Utility::IO::FileManagement::listContentInDirectory(directory)
+    auto const list = Nebulite::Utility::Io::FileManagement::listContentInDirectory(directory)
         | std::views::filter([&](std::string const& fileOrDirectory) {
             return fileOrDirectory.starts_with(inputToComplete);
         })
         | std::views::transform([&](std::string const& fileOrDirectory) -> std::optional<std::string> {
             // Make sure to append a separator if it's a directory
             try {
-                if (Nebulite::Utility::IO::FileManagement::isDirectory(directory + fileOrDirectory)) {
-                    return fileOrDirectory + Nebulite::Utility::IO::FileManagement::preferredSeparator();
+                if (Nebulite::Utility::Io::FileManagement::isDirectory(directory + fileOrDirectory)) {
+                    return fileOrDirectory + Nebulite::Utility::Io::FileManagement::preferredSeparator();
                 }
                 return fileOrDirectory;
             } catch (...) {
@@ -116,7 +116,7 @@ struct ConsoleState {
     std::string command;
     std::string draftCommand;
     std::size_t historyIndex = 0;
-    Nebulite::Utility::IO::Capture* capture = nullptr;
+    Nebulite::Utility::Io::Capture* capture = nullptr;
     Nebulite::Interaction::Context* ctx = nullptr;
     Nebulite::Interaction::ContextScope* ctxScope = nullptr;
 };
@@ -162,7 +162,7 @@ void historyScrollingCallback(ImGuiInputTextCallbackData* data, ConsoleState* st
 
         while (newIndex < state->capture->getHistory().size() - 1) {
             newIndex++;
-            if (state->capture->getHistory().at(historySize - newIndex).type == Nebulite::Utility::IO::HistoryLine::Type::Input) {
+            if (state->capture->getHistory().at(historySize - newIndex).type == Nebulite::Utility::Io::HistoryLine::Type::Input) {
                 state->historyIndex = newIndex;
                 state->command = state->capture->getHistory().at(historySize-state->historyIndex).content; // Load command from history
                 data->DeleteChars(0, data->BufTextLen);
@@ -177,7 +177,7 @@ void historyScrollingCallback(ImGuiInputTextCallbackData* data, ConsoleState* st
         }
         std::size_t newIndex = state->historyIndex - 1;
         while (newIndex > 0) {
-            if (state->capture->getHistory().at(historySize - newIndex).type == Nebulite::Utility::IO::HistoryLine::Type::Input) {
+            if (state->capture->getHistory().at(historySize - newIndex).type == Nebulite::Utility::Io::HistoryLine::Type::Input) {
                 state->historyIndex = newIndex;
                 break;
             }
@@ -231,7 +231,7 @@ void completionCallback(ImGuiInputTextCallbackData* data, ConsoleState const* st
 
         // Insert additional whitespace under certain conditions:
         static auto endCharsToIgnore = {
-            Nebulite::Utility::IO::FileManagement::preferredSeparator(), // Directory Path
+            Nebulite::Utility::Io::FileManagement::preferredSeparator(), // Directory Path
             Nebulite::Data::JSON::SpecialCharacter::dot, // JSON indexing
             Nebulite::Data::JSON::SpecialCharacter::arrayClose, // JSON array indexing
         };
@@ -333,7 +333,7 @@ void ImguiHelper::align(DomainRenderingFlags::Alignment const& alignment) {
     }
 }
 
-void ImguiHelper::renderDomain(Interaction::Context& ctx, Interaction::ContextScope& ctxScope, Utility::IO::Capture& capture, std::string const& name, DomainRenderingFlags const& flags) {
+void ImguiHelper::renderDomain(Interaction::Context& ctx, Interaction::ContextScope& ctxScope, Utility::Io::Capture& capture, std::string const& name, DomainRenderingFlags const& flags) {
     auto const& domain = ctx.self;
     auto const& scope = ctxScope.self;
     std::string const additionalIdentifier = !domain.capture.hasParent() ? "GLOBAL" : "";
@@ -413,7 +413,7 @@ void ImguiHelper::renderJsonTreeNode(Data::JsonScope const& s, Data::ScopedKeyVi
     }
 }
 
-void ImguiHelper::renderDomainConsole(Interaction::Context& ctx, Interaction::ContextScope& ctxScope, Utility::IO::Capture& capture, std::string const& name) {
+void ImguiHelper::renderDomainConsole(Interaction::Context& ctx, Interaction::ContextScope& ctxScope, Utility::Io::Capture& capture, std::string const& name) {
     auto const& domain = ctx.self;
 
     // Console output area
@@ -423,16 +423,16 @@ void ImguiHelper::renderDomainConsole(Interaction::Context& ctx, Interaction::Co
     for (auto const& [content, type] : capture.getHistory()){
         std::string contentFull;
         switch (type) {
-            case Utility::IO::HistoryLine::Type::Info:
+            case Utility::Io::HistoryLine::Type::Info:
                 ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1.0f, 1.0f, 1.0f, 1.0f)); // white
                 break;
-            case Utility::IO::HistoryLine::Type::Warning:
+            case Utility::Io::HistoryLine::Type::Warning:
                 ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1.0f, 165.0f / 265.0f, 0.0f, 1.0f)); // orange
                 break;
-            case Utility::IO::HistoryLine::Type::Error:
+            case Utility::Io::HistoryLine::Type::Error:
                 ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1.0f, 0.0f, 0.0f, 1.0f)); // red
                 break;
-            case Utility::IO::HistoryLine::Type::Input:
+            case Utility::Io::HistoryLine::Type::Input:
                 contentFull = "> ";
                 ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.9f, 0.9f, 0.9f, 1.0f)); // grey
                 break;
@@ -470,7 +470,7 @@ void ImguiHelper::renderDomainConsole(Interaction::Context& ctx, Interaction::Co
     static auto constexpr flags = ImGuiInputTextFlags_EnterReturnsTrue | ImGuiInputTextFlags_CallbackHistory | ImGuiInputTextFlags_CallbackCompletion; // NOLINT
     if (ImGui::InputText("##ConsoleInput", &command, flags, consoleInputCallback, &state)) {
         if (!command.empty()){
-            capture.appendToHistory(command, Utility::IO::HistoryLine::Type::Input);
+            capture.appendToHistory(command, Utility::Io::HistoryLine::Type::Input);
             Global::instance().notifyEvent(domain.parseStr(__FUNCTION__ + std::string(" ") + command, ctx, ctxScope));
             command.clear();
             state.historyIndex = 0; // Reset history index after executing a command
