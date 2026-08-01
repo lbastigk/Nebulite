@@ -23,7 +23,7 @@
 #include "Nebulite/Data/Document/ScopedKey.hpp"
 #include "Nebulite/Interaction/Rules/Listener.hpp"
 #include "Nebulite/Interaction/Rules/Ruleset.hpp"
-#include "Nebulite/Module/Domain/GlobalSpace/Floating/RNG.hpp"
+#include "Nebulite/Module/Domain/GlobalSpace/Floating/Random.hpp"
 #include "Nebulite/Module/Domain/GlobalSpace/Settings.hpp"
 #include "Nebulite/Module/Domain/Initializer.hpp"
 #include "Nebulite/Nebulite.hpp"
@@ -39,7 +39,7 @@ GlobalSpace::GlobalSpace(std::string const& name) :
     ),
     renderer(
         Global::shareScope(ScopeAccessor::Full(), "renderer"),
-        &cmdVars.headless,
+        &commandLineVariables.headless,
         capture
     ){
     //------------------------------------------
@@ -50,7 +50,7 @@ GlobalSpace::GlobalSpace(std::string const& name) :
 
     //------------------------------------------
     // Initialize floating DomainModules
-    floatingDM.rng = createModule<GlobalSpace, Module::Domain::GlobalSpace::RNG>(
+    floatingDomainModule.rng = createModule<GlobalSpace, Module::Domain::GlobalSpace::Random>(
         "RNG",
         Global::settings(),
         *this,
@@ -117,7 +117,7 @@ Constants::Event GlobalSpace::update() {
     //------------------------------------------
     // TaskQueue parsing
     if (!queueParsed) {
-        parseTaskQueues(cmdVars.recover);
+        parseTaskQueues(commandLineVariables.recover);
         queueParsed = true;
     }
 
@@ -195,7 +195,7 @@ void GlobalSpace::parseCommandLineArguments(int const argc, char const** argv) {
 }
 
 Constants::Event GlobalSpace::parseQueue() {
-    return tasks.parse(*this, domainScope, cmdVars.recover);
+    return tasks.parse(*this, domainScope, commandLineVariables.recover);
 }
 
 void GlobalSpace::quitRenderer() {
@@ -265,7 +265,7 @@ void GlobalSpace::notifyEvent(Constants::Event const event) {
         // No action needed
         break;
     case Constants::Event::error:
-        if (!cmdVars.recover) {
+        if (!commandLineVariables.recover) {
             continueLoop = false; // Stop the main loop on critical error if not in recover mode
         }
         errorOccurred = true;
@@ -279,8 +279,8 @@ void GlobalSpace::notifyEvent(Constants::Event const event) {
 // Special Functions
 
 void GlobalSpace::rngRollback() const {
-    if (floatingDM.rng) {
-        floatingDM.rng->rngRollback();
+    if (floatingDomainModule.rng) {
+        floatingDomainModule.rng->rngRollback();
     }
 }
 
@@ -291,7 +291,7 @@ Constants::Event GlobalSpace::preParse() {
     // NOTE: This function is only called once there is a parse-command
     // Meaning its timing is consistent and not dependent on framerate, frame time variations, etc.
     // Meaning everything we do here is, timing wise, deterministic!
-    (void)floatingDM.rng->update();
+    (void)floatingDomainModule.rng->update();
     return Constants::Event::success;
 }
 

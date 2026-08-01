@@ -1,5 +1,5 @@
-#ifndef NEBULITE_MODULE_DOMAIN_GLOBALSPACE_FLOATING_RNG_HPP
-#define NEBULITE_MODULE_DOMAIN_GLOBALSPACE_FLOATING_RNG_HPP
+#ifndef NEBULITE_MODULE_DOMAIN_GLOBALSPACE_FLOATING_RANDOM_HPP
+#define NEBULITE_MODULE_DOMAIN_GLOBALSPACE_FLOATING_RANDOM_HPP
 
 //------------------------------------------
 // Includes
@@ -15,7 +15,7 @@
 #include "Nebulite/Constants/Event.hpp"
 #include "Nebulite/Data/Document/KeyGroup.hpp"
 #include "Nebulite/Module/Base/DomainModule.hpp"
-#include "Nebulite/Utility/RNG.hpp"
+#include "Nebulite/Utility/Random.hpp"
 
 //------------------------------------------
 // Forward declarations
@@ -27,10 +27,10 @@ class GlobalSpace;
 //------------------------------------------
 namespace Nebulite::Module::Domain::GlobalSpace {
 /**
- * @class Nebulite::Module::Domain::GlobalSpace::RNG
- * @brief DomainModule for RNG capabilities within the GlobalSpace.
+ * @class Nebulite::Module::Domain::GlobalSpace::Random
+ * @brief DomainModule for Random number generation within the GlobalSpace.
  */
-class RNG final : public Base::DomainModule<Core::GlobalSpace> { // NOLINT
+class Random final : public Base::DomainModule<Core::GlobalSpace> { // NOLINT
 public:
     [[nodiscard]] Constants::Event updateHook() override;
     void reinit() override {}
@@ -58,7 +58,7 @@ public:
     /**
      * @brief Initializes the module, binding functions and variables.
      */
-    explicit RNG(ConstructorParams const& params);
+    explicit Random(ConstructorParams const& params);
 
     //------------------------------------------
     // Scoped Keys
@@ -71,7 +71,7 @@ public:
 private:
     using rngSize = std::uint16_t; // Modify this to change the size of the RNGs
 
-    absl::flat_hash_map<std::string, Utility::RNG<rngSize>> rngMap; // Future-proofing for more RNGs
+    absl::flat_hash_map<std::string, Utility::Random<rngSize>> rngMap; // Future-proofing for more RNGs
 
     /**
      * @brief Initializes standard RNGs
@@ -84,4 +84,4 @@ private:
     void updateRng();
 };
 } // namespace Nebulite::Module::Domain::GlobalSpace
-#endif // NEBULITE_MODULE_DOMAIN_GLOBALSPACE_FLOATING_RNG_HPP
+#endif // NEBULITE_MODULE_DOMAIN_GLOBALSPACE_FLOATING_RANDOM_HPP

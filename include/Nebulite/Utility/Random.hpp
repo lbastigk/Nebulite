@@ -1,5 +1,5 @@
-#ifndef NEBULITE_UTILITY_RNG_HPP
-#define NEBULITE_UTILITY_RNG_HPP
+#ifndef NEBULITE_UTILITY_RANDOM_HPP
+#define NEBULITE_UTILITY_RANDOM_HPP
 
 //------------------------------------------
 // Includes
@@ -11,12 +11,12 @@
 //------------------------------------------
 namespace Nebulite::Utility {
 /**
- * @class RNG
+ * @class Random
  * @brief Simple RNG class using string seeds.
  * @tparam rngSize The type used for RNG values (e.g., std::uint32_t, std::uint64_t).
  */
 template<typename rngSize>
-class RNG {
+class Random {
 public:
     /**
      * @brief Retrieves the current RNG value.
@@ -56,6 +56,5 @@ private:
      */
     rngSize last = 0;
 };
-
 } // namespace Nebulite::Utility
-#endif // NEBULITE_UTILITY_RNG_HPP
+#endif // NEBULITE_UTILITY_RANDOM_HPP

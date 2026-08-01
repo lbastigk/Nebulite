@@ -30,7 +30,7 @@ struct Listener;
 } // namespace Nebulite::Interaction::Rules
 
 namespace Nebulite::Module::Domain::GlobalSpace {
-class RNG;
+class Random;
 } // namespace Nebulite::Module::Domain::GlobalSpace
 
 //------------------------------------------
@@ -164,11 +164,11 @@ public:
     //------------------------------------------
     // DomainModule variables
 
-    struct commandLineVariables {
+    struct CommandLineVariables {
         bool headless = false; // Headless mode (no window)
         bool recover = false; // Enable recoverable error mode
         /*Add more variables as needed*/
-    } cmdVars;
+    } commandLineVariables;
 
     //------------------------------------------
     // Status
@@ -214,10 +214,10 @@ private:
     // Structs
 
     /**
-     * @struct names
+     * @struct Names
      * @brief Contains names used in the global space that are not bound to the global document.
      */
-    struct names {
+    struct Names {
         std::string state; // Name of the state where files are saved (equal to savegame name)
         std::string binary; // Name of the binary, used for parsing arguments
     } names;
@@ -226,9 +226,9 @@ private:
     //------------------------------------------
     // Floating DomainModules
 
-    struct FloatingDomainModules {
-        std::unique_ptr<Module::Domain::GlobalSpace::RNG> rng;
-    } floatingDM;
+    struct FloatingDomainModule {
+        std::unique_ptr<Module::Domain::GlobalSpace::Random> rng;
+    } floatingDomainModule;
 
     //------------------------------------------
     // Methods

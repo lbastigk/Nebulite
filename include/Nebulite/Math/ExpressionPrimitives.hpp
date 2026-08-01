@@ -167,17 +167,6 @@ public:
     //----------------------------------
     // Pseudo-random functions
 
-    // Idea: offer various RNG functions here, useful for pseudo-random logic:
-    // RNG2ARG(a,b) -> returns a random number, seeded from a and b
-    // RNG3ARG(a,b,c) -> returns a random number, seeded from a, b and c
-    // etc.
-    // We could use this to:
-    // - determine tileset usage based on position
-    // - offer more variety of predefined RNGs in GlobalSpace
-    // This is still deterministic, so we don't have to worry about issues with variation between runs.
-    // However, perhaps this can still occur if we seed from a non-deterministic source (e.g. time) or derived non-deterministic source.
-    // IMPORTANT: Consider non-deterministic propagation!
-
     static double rng2Arg(double a, double b);
     static auto constexpr rng2ArgName = "rng2Arg";
     static auto constexpr rng2ArgDesc = "Returns a pseudo-random number between 0 and 1, deterministically seeded from the input values a and b.\n"
@@ -201,7 +190,6 @@ public:
     static auto constexpr rng3ArgInt16Desc = "Returns a pseudo-random integer between 0 and 32767, deterministically seeded from the input values a, b, and c.\n"
         "The same input values will always produce the same output, making it suitable for deterministic procedural generation.\n"
         "Usage: rng3ArgInt16(a, b, c)";
-
 
     //------------------------------------------
     // Register

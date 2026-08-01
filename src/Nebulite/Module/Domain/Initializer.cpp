@@ -185,12 +185,12 @@ void Initializer::initGlobalSpace(Core::GlobalSpace* target) {
     //------------------------------------------
     // Initialize Variable Bindings
     target->bindVariable(
-        &target->cmdVars.headless,
+        &target->commandLineVariables.headless,
         "headless",
         "Set headless mode (no renderer)"
     );
     target->bindVariable(
-        &target->cmdVars.recover,
+        &target->commandLineVariables.recover,
         "recover",
         "Enable recoverable error mode"
     );
