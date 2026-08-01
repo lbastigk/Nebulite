@@ -32,19 +32,19 @@ void RmlInterface::determineNewContext(auto const& ctxAndScope, Key const& key, 
     if (oldCtx.other.getId() != domainId && oldCtx.global.getId() != domainId) {
         return;
     }
-    using newDomainAndScope = std::pair<Interaction::Execution::Domain*, Data::JsonScope*>;
-    newDomainAndScope const newOther = oldCtx.other.getId() == domainId ? std::make_pair(&oldCtx.self, &oldCtxScope.self) : std::make_pair(&oldCtx.other, &oldCtxScope.other);
-    newDomainAndScope const newGlobal = oldCtx.global.getId() == domainId ? std::make_pair(&oldCtx.self, &oldCtxScope.self) : std::make_pair(&oldCtx.global, &oldCtxScope.global);
+    using NewDomainAndScope = std::pair<Interaction::Execution::Domain*, Data::JsonScope*>;
+    NewDomainAndScope const newOther = oldCtx.other.getId() == domainId ? std::make_pair(&oldCtx.self, &oldCtxScope.self) : std::make_pair(&oldCtx.other, &oldCtxScope.other);
+    NewDomainAndScope const newGlobal = oldCtx.global.getId() == domainId ? std::make_pair(&oldCtx.self, &oldCtxScope.self) : std::make_pair(&oldCtx.global, &oldCtxScope.global);
     ContextAndScope const newCtxAndScope = {
         {
             ctxAndScope.ctx.self,
             *newOther.first,
-            *newGlobal.first
+            *newGlobal.first,
         },
         {
             ctxAndScope.ctxScope.self,
             *newOther.second,
-            *newGlobal.second
+            *newGlobal.second,
         },
     };
     container.emplace_back(key, newCtxAndScope);

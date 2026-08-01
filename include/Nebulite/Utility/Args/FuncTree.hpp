@@ -107,12 +107,12 @@ public:
 
     /**
      * @brief Constructor for the FuncTree class.
-     * @param treeName Name of the tree
+     * @param name Name of the tree
      * @param valDefault Value to return if everything is okay
      * @param valFunctionNotFound Value to return if the parsed function was not found
      * @param captureInstance Capture instance for logging
      */
-    FuncTree(std::string_view treeName, ReturnValue const& valDefault, ReturnValue const& valFunctionNotFound, Io::Capture& captureInstance);
+    FuncTree(std::string_view name, ReturnValue const& valDefault, ReturnValue const& valFunctionNotFound, Io::Capture& captureInstance);
 
     /**
      * @brief Inherits functions from another Tree.
@@ -239,7 +239,7 @@ public:
 
 private:
     // Name of the tree, used for help and output
-    std::string TreeName;
+    std::string treeName;
 
     // Function to call before parsing (e.g., for setting up variables or locking resources)
     std::function<ReturnValue()> preParse = nullptr;
@@ -344,18 +344,19 @@ private:
      */
     void specificHelp(std::string_view funcName);
 
-    using categoryIterator = decltype(bindingContainer.categories)::iterator;
-    using functionIterator = decltype(bindingContainer.functions)::iterator;
-    using variableIterator = decltype(bindingContainer.variables)::iterator;
+    using CategoryIterator = decltype(bindingContainer.categories)::iterator;
+    using FunctionIterator = decltype(bindingContainer.functions)::iterator;
+    using VariableIterator = decltype(bindingContainer.variables)::iterator;
+
     /**
      * @using BindingSearchResult
      * @brief Helper type to store search results for finding functions, categories, and variables by name.
      */
     using BindingSearchResult = std::optional<
         std::variant<
-            categoryIterator,
-            functionIterator,
-            variableIterator
+            CategoryIterator,
+            FunctionIterator,
+            VariableIterator
         >
     >;
 

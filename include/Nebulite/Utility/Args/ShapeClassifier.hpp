@@ -47,7 +47,7 @@ public:
         Free_Modern_FullConstRef,
 
         Free_NoArgs,
-        Free_NoCmdArgs
+        Free_NoCmdArgs,
     };
 
     // Extract return, class and parameter list from member-function pointer types

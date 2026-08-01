@@ -172,21 +172,21 @@ protected:
     // Routine management
 
     enum class RoutineUpdateMode : std::uint8_t {
-        BEFORE_UPDATE_HOOK, // Update routines before calling the update hook
-        AFTER_UPDATE_HOOK   // Update routines after calling the update hook
+        beforeUpdateHook, // Update routines before calling the update hook
+        afterUpdateHook,   // Update routines after calling the update hook
     };
 
     /**
      * @brief Adds a routine to the DomainModule's routine list. Automatically updated on each update-call.
-     * @tparam mode Update routine type, either before or after the update hook.
+     * @tparam Mode Update routine type, either before or after the update hook.
      * @param routine The routine to add
      */
-    template <RoutineUpdateMode mode>
+    template <RoutineUpdateMode Mode>
     void addRoutine(Utility::Coordination::TimedRoutine&& routine) {
-        if constexpr (mode == RoutineUpdateMode::BEFORE_UPDATE_HOOK) {
+        if constexpr (Mode == RoutineUpdateMode::beforeUpdateHook) {
             routinesBeforeHook.push_back(std::move(routine));
         }
-        else if constexpr (mode == RoutineUpdateMode::AFTER_UPDATE_HOOK) {
+        else if constexpr (Mode == RoutineUpdateMode::afterUpdateHook) {
             routinesAfterHook.push_back(std::move(routine));
         }
         else {

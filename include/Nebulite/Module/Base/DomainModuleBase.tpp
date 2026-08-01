@@ -33,13 +33,13 @@ void DomainModuleBase::bindFunctionStatic(
 ) {
     // Delegate to FuncTree helper to construct FunctionPtr and bind
     auto fp = FuncTreeType::makeFunctionPtr(functionPtr);
-    auto fp_identity = Utility::FunctionIdentity(functionPtr);
+    auto fpIdentity = Utility::FunctionIdentity(functionPtr);
     if (helpDescription.ends_with('\n')) {
-        tree->bindFunction({fp, fp_identity}, name, helpDescription);
+        tree->bindFunction({fp, fpIdentity}, name, helpDescription);
     }
     else {
         std::string const withNewline = std::string(helpDescription) + '\n';
-        tree->bindFunction({fp, fp_identity}, name, withNewline);
+        tree->bindFunction({fp, fpIdentity}, name, withNewline);
     }
 }
 
@@ -56,13 +56,13 @@ void DomainModuleBase::bindFunctionStatic(
 
     // Delegate to FuncTree helper that binds the member pointer to the object
     auto fp = FuncTreeType::makeFunctionPtr(objectPtr, functionPtr);
-    auto fp_identity = Utility::FunctionIdentity(objectPtr, functionPtr);
+    auto fpIdentity = Utility::FunctionIdentity(objectPtr, functionPtr);
     if (helpDescription.ends_with('\n')) {
-        tree->bindFunction({fp, fp_identity}, name, helpDescription);
+        tree->bindFunction({fp, fpIdentity}, name, helpDescription);
     }
     else {
         std::string const withNewline = std::string(helpDescription) + '\n';
-        tree->bindFunction({fp, fp_identity}, name, withNewline);
+        tree->bindFunction({fp, fpIdentity}, name, withNewline);
     }
 }
 

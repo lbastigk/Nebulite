@@ -60,7 +60,7 @@ Constants::Event Clock::addClock(int const argc, char const** argv) {
     }
 
     // Add to document
-    auto const key = Key::arr_active_clocks.addIndex(moduleScope.memberSize(Key::arr_active_clocks));
+    auto const key = Key::activeClocks.addIndex(moduleScope.memberSize(Key::activeClocks));
     moduleScope.set(key, intervalMilliSeconds);
 
     // Create new ClockEntry
@@ -76,7 +76,7 @@ Clock::ClockEntry::ClockEntry(std::uint64_t const interval, Data::JsonScope& doc
     lastTriggerMilliSeconds(currentTime),
     intervalMilliSeconds(interval) {
     // Extract reference to global document entry
-    auto const key = Key::doc_status_clocks.addMember(intervalToKey(intervalMilliSeconds));
+    auto const key = Key::clockStatus.addMember(intervalToKey(intervalMilliSeconds));
     doc.set(key, 0.0); // Initialize to 0.0
     this->globalReference = doc.getStableDoublePointer(key);
 }
@@ -105,11 +105,11 @@ void Clock::readClocksFromDocument() {
     clockEntries.clear();
 
     // Read all clocks from the document
-    if (moduleScope.memberType(Key::arr_active_clocks) != Data::KeyType::array) {
+    if (moduleScope.memberType(Key::activeClocks) != Data::KeyType::array) {
         // No clocks found, nothing to do
         return;
     }
-    for (std::uint64_t const size = moduleScope.memberSize(Key::arr_active_clocks); auto key : Key::arr_active_clocks.getArrayKeys(size)) {
+    for (std::uint64_t const size = moduleScope.memberSize(Key::activeClocks); auto key : Key::activeClocks.getArrayKeys(size)) {
         if (auto const intervalType = moduleScope.memberType(key); intervalType != Data::KeyType::value) {
             // Invalid entry, skip
             continue;

@@ -85,12 +85,12 @@ class ScopeOwnershipManager {
 
 public:
     enum class ScopeOwnership : bool {
-        Owned, // Will create and own a new JsonScope (default constructor)
-        Borrowed // Will be left empty
+        owned, // Will create and own a new JsonScope (default constructor)
+        borrowed, // Will be left empty
     };
 
     virtual ~ScopeOwnershipManager();
-    explicit ScopeOwnershipManager(ScopeOwnership ownership = ScopeOwnership::Borrowed);
+    explicit ScopeOwnershipManager(ScopeOwnership ownership = ScopeOwnership::borrowed);
 
     ScopeOwnershipManager(ScopeOwnershipManager const&) = delete;
     ScopeOwnershipManager& operator=(ScopeOwnershipManager const&) = delete;
@@ -387,11 +387,11 @@ public:
             .name = moduleName,
             .scope = scopeDeriver<DomainType, DomainModuleType>(domainReference.domainScope),
             .funcTreePtr = funcTree,
-            .settings = settings
+            .settings = settings,
         };
-        auto DomainModule = std::make_unique<DomainModuleType>(params);
-        DomainModule->reinit();
-        return DomainModule;
+        auto module = std::make_unique<DomainModuleType>(params);
+        module->reinit();
+        return module;
     }
 
     /**

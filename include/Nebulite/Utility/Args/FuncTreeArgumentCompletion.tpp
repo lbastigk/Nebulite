@@ -87,16 +87,16 @@ void FuncTree<ReturnValue, AdditionalArgs...>::specificHelp(std::string_view fun
         std::visit([&]<typename T>(T& iterator) {
             using Decayed = std::decay_t<T>;
 
-            if constexpr (std::is_same_v<Decayed, categoryIterator>) {
+            if constexpr (std::is_same_v<Decayed, CategoryIterator>) {
                 iterator->second.tree->help({});
             }
-            else if constexpr (std::is_same_v<Decayed, functionIterator>) {
+            else if constexpr (std::is_same_v<Decayed, FunctionIterator>) {
                 capture.log.println();
                 capture.log.println("Help for function '", funcName, "':");
                 capture.log.println();
                 capture.log.println(iterator->second.description);
             }
-            else if constexpr (std::is_same_v<Decayed, variableIterator>) {
+            else if constexpr (std::is_same_v<Decayed, VariableIterator>) {
                 capture.log.println();
                 capture.log.println("Help for variable '--", funcName, "':");
                 capture.log.println();
@@ -104,7 +104,7 @@ void FuncTree<ReturnValue, AdditionalArgs...>::specificHelp(std::string_view fun
             }
         }, searchResult.value());
     } else {
-        capture.error.println("Function or Category '", funcName, "' not found in FuncTree '", TreeName, "'.");
+        capture.error.println("Function or Category '", funcName, "' not found in FuncTree '", treeName, "'.");
     }
 }
 
@@ -150,8 +150,8 @@ void FuncTree<ReturnValue, AdditionalArgs...>::generalHelp() {
 
     // Display:
     capture.log.println();
-    capture.log.println("Help for ", TreeName);
-    capture.log.println("Add the entries name to the command for more details: ", TreeName, " help <foo>");
+    capture.log.println("Help for ", treeName);
+    capture.log.println("Add the entries name to the command for more details: ", treeName, " help <foo>");
     capture.log.println("Available functions:");
     std::ranges::for_each(allFunctions, [&](auto const& funcInfo) {
         auto const& [name, description] = funcInfo;
@@ -181,7 +181,7 @@ FuncTree<ReturnValue, AdditionalArgs...>::find(std::string_view name) {
     };
 
     // --- Categories ---
-    categoryIterator catIt = bindingContainer.categories.find(name);
+    CategoryIterator catIt = bindingContainer.categories.find(name);
     if (catIt == bindingContainer.categories.end()) {
         if (searchInInherited(&BindingContainer::categories, catIt)) {
             return catIt;
@@ -192,7 +192,7 @@ FuncTree<ReturnValue, AdditionalArgs...>::find(std::string_view name) {
     }
 
     // --- Functions ---
-    functionIterator funIt = bindingContainer.functions.find(name);
+    FunctionIterator funIt = bindingContainer.functions.find(name);
     if (funIt == bindingContainer.functions.end()) {
         if (searchInInherited(&BindingContainer::functions, funIt)) {
             return funIt;
@@ -203,7 +203,7 @@ FuncTree<ReturnValue, AdditionalArgs...>::find(std::string_view name) {
     }
 
     // --- Variables ---
-    variableIterator varIt = bindingContainer.variables.find(name);
+    VariableIterator varIt = bindingContainer.variables.find(name);
     if (varIt == bindingContainer.variables.end()) {
         if (searchInInherited(&BindingContainer::variables, varIt)) {
             return varIt;
@@ -219,7 +219,7 @@ FuncTree<ReturnValue, AdditionalArgs...>::find(std::string_view name) {
 template <typename ReturnValue, typename ... AdditionalArgs>
 ReturnValue FuncTree<ReturnValue, AdditionalArgs...>::complete(std::span<std::string_view const> const& args){
     // Traverse into categories based on args, get pattern to complete
-    auto const [pattern, ftree] = [&]() -> std::pair<std::string_view, FuncTree*> {
+    auto const [pattern, ftree] = [&] -> std::pair<std::string_view, FuncTree*> {
         auto argsSpan = args.subspan(1); // Skip binary name or last function name
         if (argsSpan.empty()) {
             // No pattern provided
@@ -292,7 +292,7 @@ std::vector<std::string> FuncTree<ReturnValue, AdditionalArgs...>::findCompletio
     auto [argsVec, _] = StringHandler::parseQuotedArguments(patternStr);
 
     // Traverse into categories based on args, get pattern to complete
-    auto const [pattern, ftree] = [&]() -> std::pair<std::string, FuncTree*> {
+    auto const [pattern, ftree] = [&] -> std::pair<std::string, FuncTree*> {
         auto args = std::span(argsVec.data(), argsVec.size());
         if (args.empty()) {
             // No pattern provided, assume root

@@ -303,7 +303,7 @@ Constants::Event Debug::listExpressionFunctions(std::span<std::string_view const
 
 void Debug::addRoutines() {
     // Memory usage monitoring routine
-    addRoutine<RoutineUpdateMode::BEFORE_UPDATE_HOOK>(
+    addRoutine<RoutineUpdateMode::beforeUpdateHook>(
         Utility::Coordination::TimedRoutine(
             [this] {
                 // store memory usage in global document
@@ -318,7 +318,7 @@ void Debug::addRoutines() {
         )
     );
 
-    addRoutine<RoutineUpdateMode::BEFORE_UPDATE_HOOK>(
+    addRoutine<RoutineUpdateMode::beforeUpdateHook>(
         Utility::Coordination::TimedRoutine(
             [this] {
                 // store worker count in global document

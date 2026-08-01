@@ -23,12 +23,12 @@ class JsonScope;
 //------------------------------------------
 namespace Nebulite::Module::Transformation {
 /**
- * @class Nebulite::Module::Transformation::FFT
+ * @class Nebulite::Module::Transformation::Fft
  * @brief Various FFT transformations
  */
-class FFT final : public Base::TransformationModule {
+class Fft final : public Base::TransformationModule {
 public:
-    explicit FFT(std::shared_ptr<Utility::Args::FuncTree<bool, Data::JsonScope&>> const& funcTree)
+    explicit Fft(std::shared_ptr<Utility::Args::FuncTree<bool, Data::JsonScope&>> const& funcTree)
         : TransformationModule(funcTree) {}
 
     void bindTransformations() override;
@@ -36,14 +36,14 @@ public:
     //------------------------------------------
     // Available Transformations
 
-    [[nodiscard]] static bool fft(Data::JsonScope& jsonDoc);
-    static auto constexpr fftName = "fft";
-    static auto constexpr fftDesc = "Stores the fft of a given real-number series as complex numbers\n"
+    [[nodiscard]] static bool applyFft(Data::JsonScope& jsonDoc);
+    static auto constexpr applyFftName = "fft";
+    static auto constexpr applyFftDesc = "Stores the fft of a given real-number series as complex numbers\n"
         "Usage: fft <sample1> <sample2> ... <sampleN>\n";
 
-    [[nodiscard]] static bool ifft(Data::JsonScope& jsonDoc);
-    static auto constexpr ifftName = "ifft";
-    static auto constexpr ifftDesc = "Stores the inverse fft of a given complex-number or real-number series (mixable)\n"
+    [[nodiscard]] static bool applyIfft(Data::JsonScope& jsonDoc);
+    static auto constexpr applyIfftName = "ifft";
+    static auto constexpr applyIfftDesc = "Stores the inverse fft of a given complex-number or real-number series (mixable)\n"
         "Usage: ifft\n";
 
     [[nodiscard]] static bool applyTransferFunctionFrequencyDomain(std::span<std::string_view const> const& args, Data::JsonScope& jsonDoc);

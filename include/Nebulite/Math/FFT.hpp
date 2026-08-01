@@ -13,7 +13,7 @@ namespace Nebulite::Math {
 /**
  * @brief A class that provides static methods for performing Fast Fourier Transform (FFT) and related operations on audio data.
  */
-class FFT {
+class Fft {
 public:
     /**
      * @brief Computes the Fast Fourier Transform (FFT) of the given sound data.

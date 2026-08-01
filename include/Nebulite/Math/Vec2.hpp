@@ -23,11 +23,11 @@ namespace Nebulite::Math {
 //------------------------------------------
 // Vector implementations
 
-template<VectorType T, CoordinateType C = CoordinateType::XY>
+template<VectorType T, CoordinateType C = CoordinateType::xy>
 struct Vec2;
 
 template<VectorType T>
-struct Vec2<T,CoordinateType::XY> {
+struct Vec2<T,CoordinateType::xy> {
     T x;
     T y;
 
@@ -116,7 +116,7 @@ struct Vec2<T,CoordinateType::XY> {
 };
 
 template<VectorType T>
-struct Vec2<T, CoordinateType::WH> {
+struct Vec2<T, CoordinateType::wh> {
     T w;
     T h;
 

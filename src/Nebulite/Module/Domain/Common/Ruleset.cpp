@@ -35,7 +35,7 @@ Constants::Event Ruleset::updateHook() {
             auto mtx = moduleScope.lock();
             Interaction::Rules::Construction::RulesetCompiler::parse(rulesetsGlobal, rulesetsLocal, domain, moduleScope.shareScope(scopedKey.broadcast));
             listeners.clear();
-            for (std::size_t idx = 0; idx < subscription_size; idx++) {
+            for (std::size_t idx = 0; idx < subscriptionSize; idx++) {
                 auto const key = scopedKey.listen.addIndex(idx);
                 auto const subscription = moduleScope.get<std::string>(key).value_or("");
                 auto listener = std::make_shared<Interaction::Rules::Listener>(domain, subscription);
@@ -101,7 +101,7 @@ void Ruleset::reinit() {
     Key const scopedKey(moduleScope);
     reloadRulesets = true;
     initialized = false;
-    subscription_size = moduleScope.memberSize(scopedKey.listen);
+    subscriptionSize = moduleScope.memberSize(scopedKey.listen);
 }
 
 //------------------------------------------

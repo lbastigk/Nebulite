@@ -31,7 +31,7 @@ class Capture;
 //------------------------------------------
 namespace Nebulite::Data {
 
-using TilingInformation = Math::Vec2<std::uint16_t, Math::CoordinateType::WH>;
+using TilingInformation = Math::Vec2<std::uint16_t, Math::CoordinateType::wh>;
 using TileCoordinate = Math::Vec2<std::int16_t>;
 
 class Tile {

@@ -190,7 +190,7 @@ public:
     enum class Type : std::uint8_t {
         local,
         global,
-        invalid
+        invalid,
     };
 
     using Function = std::function<void(Context const&, double** slf, double** otr)>;

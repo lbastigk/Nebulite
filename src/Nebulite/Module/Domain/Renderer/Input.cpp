@@ -96,7 +96,7 @@ void Input::mapKeyNames() {
 }
 
 void Input::addRoutines(){
-    addRoutine<RoutineUpdateMode::AFTER_UPDATE_HOOK>(
+    addRoutine<RoutineUpdateMode::afterUpdateHook>(
         Utility::Coordination::TimedRoutine(
             [this] -> void {
                 // Only update if SDL is initialized

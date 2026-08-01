@@ -39,7 +39,7 @@ Constants::Event Rotation::rotate(int const argc, char const** argv) const {
     }
 
     // Get the texture to rotate
-    SDL_Texture* texture = domain.getSDLTexture();
+    SDL_Texture* texture = domain.getSdlTexture();
     if (texture == nullptr) {
         return Constants::StandardCapture::Error::Texture::notFound(domain.capture);
     }

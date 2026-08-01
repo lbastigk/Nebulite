@@ -40,7 +40,7 @@ Constants::Event Fill::fill(int const argc, char const** argv) const {
     }
 
     // Get the texture to fill
-    SDL_Texture* texture = domain.getSDLTexture();
+    SDL_Texture* texture = domain.getSdlTexture();
     if (texture == nullptr) {
         return Constants::StandardCapture::Error::Texture::notFound(domain.capture);
     }
@@ -100,7 +100,7 @@ Constants::Event Fill::fill(int const argc, char const** argv) const {
 }
 
 Constants::Event Fill::averageColor() const {
-    SDL_Texture* texture = domain.getSDLTexture();
+    SDL_Texture* texture = domain.getSdlTexture();
     if (!texture) {
         return Constants::StandardCapture::Error::Texture::notFound(domain.capture);
     }

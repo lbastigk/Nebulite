@@ -63,14 +63,14 @@ public:
         Constants::KeyNames::RenderObject::positionX,
         Constants::KeyNames::RenderObject::positionY,
         Constants::KeyNames::RenderObject::sizeX,
-        Constants::KeyNames::RenderObject::sizeX
+        Constants::KeyNames::RenderObject::sizeX,
     };
 
     enum class Key : std::uint8_t {
         posX,
         posY,
         spriteSizeX,
-        spriteSizeY
+        spriteSizeY,
     };
 
 private:
@@ -94,7 +94,7 @@ private:
         Top,
         Bottom,
         Left,
-        Right
+        Right,
     };
 
     // TODO: Second align parameter for object edge alignment

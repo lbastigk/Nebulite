@@ -106,7 +106,7 @@ public:
      * @brief Gets the current SDL_Texture.
      * @return Pointer to the current SDL_Texture.
      */
-    [[nodiscard]] SDL_Texture* getSDLTexture() const noexcept {
+    [[nodiscard]] SDL_Texture* getSdlTexture() const noexcept {
         return texture;
     }
 

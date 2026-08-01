@@ -58,7 +58,7 @@ JsonTransformer::JsonTransformer() {
     initModule<Module::Transformation::Complex>();
     initModule<Module::Transformation::Debug>();
     initModule<Module::Transformation::Domain>();
-    initModule<Module::Transformation::FFT>();
+    initModule<Module::Transformation::Fft>();
     initModule<Module::Transformation::Filter>();
     initModule<Module::Transformation::General>();
     initModule<Module::Transformation::Requirements>();

@@ -41,23 +41,23 @@ Random::Random(ConstructorParams const& params) : DomainModule(params) {
 // Private functions
 
 void Random::initRng(){
-    rngMap.emplace("A", Utility::Random<rngSize>());
-    rngMap.emplace("B", Utility::Random<rngSize>());
-    rngMap.emplace("C", Utility::Random<rngSize>());
-    rngMap.emplace("D", Utility::Random<rngSize>());
+    rngMap.emplace("A", Utility::Random<RngSize>());
+    rngMap.emplace("B", Utility::Random<RngSize>());
+    rngMap.emplace("C", Utility::Random<RngSize>());
+    rngMap.emplace("D", Utility::Random<RngSize>());
 }
 
 void Random::updateRng() {
     // Set Min and Max values for RNGs in document
     // Always set, so overwrites don't stick around
-    moduleScope.set<rngSize>(Key::min, std::numeric_limits<rngSize>::min());
-    moduleScope.set<rngSize>(Key::max, std::numeric_limits<rngSize>::max());
+    moduleScope.set<RngSize>(Key::min, std::numeric_limits<RngSize>::min());
+    moduleScope.set<RngSize>(Key::max, std::numeric_limits<RngSize>::max());
 
     for (auto& [key, rng] : rngMap) {
         auto const seed = key + std::to_string(rng.get());
         rng.update(seed);
         auto scopedKey = Key::root().addMember(key);
-        moduleScope.set<rngSize>(scopedKey, rng.get());
+        moduleScope.set<RngSize>(scopedKey, rng.get());
     }
 }
 

@@ -69,9 +69,9 @@ public:
     };
 
 private:
-    using rngSize = std::uint16_t; // Modify this to change the size of the RNGs
+    using RngSize = std::uint16_t; // Modify this to change the size of the RNGs
 
-    absl::flat_hash_map<std::string, Utility::Random<rngSize>> rngMap; // Future-proofing for more RNGs
+    absl::flat_hash_map<std::string, Utility::Random<RngSize>> rngMap; // Future-proofing for more RNGs
 
     /**
      * @brief Initializes standard RNGs

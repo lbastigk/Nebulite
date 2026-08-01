@@ -123,7 +123,7 @@ private:
      *                  - action::onPress: Whether the key was pressed in the current frame.
      *                  - action::onRelease: Whether the key was released in the current frame.
      */
-    struct association{
+    struct Association {
         std::string key; // e.g. "space"
         enum class Action : std::uint8_t {
             empty,
@@ -134,20 +134,20 @@ private:
         } type = Action::empty;
     };
 
-    static association::Action stringToAssociationType(std::string const& typeStr) {
+    static Association::Action stringToAssociationType(std::string const& typeStr) {
         if (typeStr == "current") {
-            return association::Action::current;
+            return Association::Action::current;
         }
         if (typeStr == "onPress") {
-            return association::Action::onPress;
+            return Association::Action::onPress;
         }
         if (typeStr == "onRelease") {
-            return association::Action::onRelease;
+            return Association::Action::onRelease;
         }
         if (typeStr == "onChange") {
-            return association::Action::onChange;
+            return Association::Action::onChange;
         }
-        return association::Action::empty;
+        return Association::Action::empty;
     }
 
     /**
@@ -155,9 +155,9 @@ private:
      * @details Any input action can be associated with up to three keys.
      */
     struct MapEntry{
-        association slotA{.key="", .type=association::Action::empty}; // First key associated with the action
-        association slotB{.key="", .type=association::Action::empty}; // Second key associated with the action
-        association slotC{.key="", .type=association::Action::empty}; // Third key associated with the action
+        Association slotA{.key="", .type=Association::Action::empty}; // First key associated with the action
+        Association slotB{.key="", .type=Association::Action::empty}; // Second key associated with the action
+        Association slotC{.key="", .type=Association::Action::empty}; // Third key associated with the action
 
         enum class LockState : std::uint8_t {
             unlocked,   // The action is not locked and can be triggered by its associated keys.

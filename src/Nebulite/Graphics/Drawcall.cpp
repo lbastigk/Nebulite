@@ -120,12 +120,12 @@ void Drawcall::renderTexture(Core::Renderer const& nebuliteRenderer, float const
             .h=std::floor(static_cast<float>(*refs.rectDstH)),
         });
         if (!Math::isZero(*refs.rotationDegrees)) {
-            if (!SDL_RenderTextureRotated(nebuliteRenderer.getSdlRenderer(), texture.getSDLTexture(), &srcRect, &dstRect, *refs.rotationDegrees, &rotationCenter, SDL_FLIP_NONE)) {
+            if (!SDL_RenderTextureRotated(nebuliteRenderer.getSdlRenderer(), texture.getSdlTexture(), &srcRect, &dstRect, *refs.rotationDegrees, &rotationCenter, SDL_FLIP_NONE)) {
                 texture.capture.error.println("Failed to render rotated sprite texture in drawcall: ", SDL_GetError());
             }
         }
         else {
-            if (!SDL_RenderTexture(nebuliteRenderer.getSdlRenderer(), texture.getSDLTexture(), &srcRect, &dstRect)) {
+            if (!SDL_RenderTexture(nebuliteRenderer.getSdlRenderer(), texture.getSdlTexture(), &srcRect, &dstRect)) {
                 texture.capture.error.println("Failed to render sprite texture in drawcall: ", SDL_GetError());
             }
         }

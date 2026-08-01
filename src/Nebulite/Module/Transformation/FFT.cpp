@@ -23,13 +23,13 @@
 //------------------------------------------
 namespace Nebulite::Module::Transformation {
 
-void FFT::bindTransformations() {
-    bindTransformation(&FFT::fft, fftName, fftDesc);
-    bindTransformation(&FFT::ifft, ifftName, ifftDesc);
-    bindTransformation(&FFT::applyTransferFunctionFrequencyDomain, applyTransferFunctionName, applyTransferFunctionDesc);
+void Fft::bindTransformations() {
+    bindTransformation(&Fft::applyFft, applyFftName, applyFftDesc);
+    bindTransformation(&Fft::applyIfft, applyIfftName, applyIfftDesc);
+    bindTransformation(&Fft::applyTransferFunctionFrequencyDomain, applyTransferFunctionName, applyTransferFunctionDesc);
 }
 
-bool FFT::fft(Data::JsonScope& jsonDoc) {
+bool Fft::applyFft(Data::JsonScope& jsonDoc) {
     auto const samples = jsonDoc.arrayKeys(rootKey)
         | std::views::transform([&jsonDoc](auto const& key) -> std::optional<double> {
             auto value = jsonDoc.get<double>(key);
@@ -46,12 +46,12 @@ bool FFT::fft(Data::JsonScope& jsonDoc) {
     if (samples.value().empty()) {
         return true;
     }
-    auto const result = Math::FFT::fft(samples.value());
+    auto const result = Math::Fft::fft(samples.value());
     jsonDoc.setArray(rootKey, result);
     return true;
 }
 
-bool FFT::ifft(Data::JsonScope& jsonDoc) {
+bool Fft::applyIfft(Data::JsonScope& jsonDoc) {
     auto const samples = jsonDoc.arrayKeys(rootKey)
         | std::views::transform([&jsonDoc](auto const& key) -> std::optional<std::complex<double>> {
             // Try to retrieve value as real value first (simplest to handle), if not, try to retrieve as complex value
@@ -65,12 +65,12 @@ bool FFT::ifft(Data::JsonScope& jsonDoc) {
     if (!samples) {
         return false;
     }
-    auto const result = Math::FFT::fftInverse(samples.value());
+    auto const result = Math::Fft::fftInverse(samples.value());
     jsonDoc.setArray(rootKey, result);
     return true;
 }
 
-bool FFT::applyTransferFunctionFrequencyDomain(std::span<std::string_view const> const& args, Data::JsonScope& jsonDoc) {
+bool Fft::applyTransferFunctionFrequencyDomain(std::span<std::string_view const> const& args, Data::JsonScope& jsonDoc) {
     auto const samples = jsonDoc.arrayKeys(rootKey)
         | std::views::transform([&jsonDoc](auto const& key) -> std::optional<double> {
             // Try to retrieve value as real value first (simplest to handle), if not, try to retrieve as complex value
@@ -117,7 +117,7 @@ bool FFT::applyTransferFunctionFrequencyDomain(std::span<std::string_view const>
         return false;
     }
 
-    auto const result = Math::FFT::applyTransferFunctionFrequencyDomain(samples.value(), num.value(), den.value());
+    auto const result = Math::Fft::applyTransferFunctionFrequencyDomain(samples.value(), num.value(), den.value());
     jsonDoc.setArray(rootKey, result);
     return true;
 }

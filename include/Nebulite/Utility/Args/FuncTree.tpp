@@ -47,10 +47,10 @@ namespace Nebulite::Utility::Args {
 // Constructor implementation
 
 template <typename ReturnValue, typename... AdditionalArgs>
-FuncTree<ReturnValue, AdditionalArgs...>::FuncTree(std::string_view const treeName, ReturnValue const& valDefault, ReturnValue const& valFunctionNotFound, Io::Capture& captureInstance)
-    : TreeName(treeName)
+FuncTree<ReturnValue, AdditionalArgs...>::FuncTree(std::string_view const name, ReturnValue const& valDefault, ReturnValue const& valFunctionNotFound, Io::Capture& captureInstance)
+    : treeName(name)
     , capture(captureInstance)
-    , standardReturn{valDefault, valFunctionNotFound}
+    , standardReturn{.valDefault = valDefault, .valFunctionNotFound = valFunctionNotFound}
 {
     // Add help function for displaying help information
     bindingContainer.functions.emplace(
@@ -92,8 +92,8 @@ void FuncTree<ReturnValue, AdditionalArgs...>::bindFunction(
     std::string_view helpDescription
 ) {
     auto fp = makeFunctionPtr(functionPtr);
-    auto fp_identity = FunctionIdentity(static_cast<C const*>(this), functionPtr);
-    bindFunction({fp, fp_identity}, name, helpDescription);
+    auto fpIdentity = FunctionIdentity(static_cast<C const*>(this), functionPtr);
+    bindFunction({fp, fpIdentity}, name, helpDescription);
 }
 
 // Non-static overload: member-function pointer (const)
@@ -105,8 +105,8 @@ void FuncTree<ReturnValue, AdditionalArgs...>::bindFunction(
     std::string_view helpDescription
 ) {
     auto fp = makeFunctionPtr(functionPtr);
-    auto fp_identity = FunctionIdentity(static_cast<C const*>(this), functionPtr);
-    bindFunction({fp, fp_identity}, name, helpDescription);
+    auto fpIdentity = FunctionIdentity(static_cast<C const*>(this), functionPtr);
+    bindFunction({fp, fpIdentity}, name, helpDescription);
 }
 
 // Non-static overload: generic free/static/callable
@@ -118,8 +118,8 @@ void FuncTree<ReturnValue, AdditionalArgs...>::bindFunction(
     std::string_view helpDescription
 ) {
     auto fp = makeFunctionPtr(functionPtr);
-    auto fp_identity = FunctionIdentity(functionPtr);
-    bindFunction({fp, fp_identity}, name, helpDescription);
+    auto fpIdentity = FunctionIdentity(functionPtr);
+    bindFunction({fp, fpIdentity}, name, helpDescription);
 }
 
 template <typename ReturnValue, typename... AdditionalArgs>
@@ -135,7 +135,7 @@ void FuncTree<ReturnValue, AdditionalArgs...>::bindFunction(WrappedFunction cons
         for (std::size_t idx = 0; idx < pathStructure.size() - 1; idx++) {
             auto const& currentCategoryName = pathStructure[idx];
             if (currentCategoryMap->find(currentCategoryName) == currentCategoryMap->end()) {
-                BindErrorMessage::missingCategory(capture, TreeName, currentCategoryName, std::string(name));
+                BindErrorMessage::missingCategory(capture, treeName, currentCategoryName, name);
             }
             targetTree = (*currentCategoryMap)[currentCategoryName].tree.get();
             currentCategoryMap = &targetTree->bindingContainer.categories;
@@ -145,14 +145,14 @@ void FuncTree<ReturnValue, AdditionalArgs...>::bindFunction(WrappedFunction cons
         return;
     }
 
-    if (auto searchResult = find(std::string(name)); searchResult.has_value()) {
+    if (auto searchResult = find(name); searchResult.has_value()) {
         bool const shouldReturn = std::visit([&]<typename T>(T& iterator) -> bool {
             using Decayed = std::decay_t<T>;
 
-            if constexpr (std::is_same_v<Decayed, categoryIterator>) {
+            if constexpr (std::is_same_v<Decayed, CategoryIterator>) {
                 BindErrorMessage::functionShadowsCategory(capture, name);
             }
-            else if constexpr (std::is_same_v<Decayed, functionIterator>) {
+            else if constexpr (std::is_same_v<Decayed, FunctionIterator>) {
                 if (func.identity == iterator->second.function.identity) {
                     return true; // signal: exit outer function
                 }
@@ -166,12 +166,12 @@ void FuncTree<ReturnValue, AdditionalArgs...>::bindFunction(WrappedFunction cons
 
                 if (conflictIt != inheritedTrees.end()) {
                     auto const& conflictTree = *conflictIt;
-                    BindErrorMessage::functionExistsInInheritedTree(capture, TreeName, conflictTree->TreeName, name);
+                    BindErrorMessage::functionExistsInInheritedTree(capture, treeName, conflictTree->treeName, name);
                 }
 
-                BindErrorMessage::functionExists(capture, TreeName, name);
+                BindErrorMessage::functionExists(capture, treeName, name);
             }
-            else if constexpr (std::is_same_v<Decayed, variableIterator>) {
+            else if constexpr (std::is_same_v<Decayed, VariableIterator>) {
                 BindErrorMessage::functionShadowsVariable(capture, name);
             }
 
@@ -199,9 +199,9 @@ void FuncTree<ReturnValue, AdditionalArgs...>::bindCategory(std::string_view con
     if (BindingSearchResult const searchResult = find(std::string(name)); searchResult.has_value()) {
         std::visit([&]<typename T>(T&&) {
             using Decayed = std::decay_t<T>;
-            if constexpr (std::is_same_v<Decayed, categoryIterator>) {
+            if constexpr (std::is_same_v<Decayed, CategoryIterator>) {
                 BindErrorMessage::categoryExists(capture, name);
-            } else if constexpr (std::is_same_v<Decayed, functionIterator>) {
+            } else if constexpr (std::is_same_v<Decayed, FunctionIterator>) {
                 BindErrorMessage::functionShadowsCategory(capture, name);
             }
         }, searchResult.value());
@@ -216,14 +216,14 @@ void FuncTree<ReturnValue, AdditionalArgs...>::bindCategory(std::string_view con
             currentCategoryMap = &(*currentCategoryMap)[currentCategoryName].tree->bindingContainer.categories;
         } else {
             // Category does not exist, throw error
-            BindErrorMessage::parentCategoryDoesNotExist(capture, std::string(name), currentCategoryName);
+            BindErrorMessage::parentCategoryDoesNotExist(capture, name, currentCategoryName);
         }
     }
     // Last category, create it, if it doesn't exist yet
     auto const& functionName = categoryStructure.back();
     if (currentCategoryMap->find(functionName) != currentCategoryMap->end()) {
         // Final category we wish to create already exists
-        BindErrorMessage::categoryExists(capture, std::string(name));
+        BindErrorMessage::categoryExists(capture, name);
     }
 
     // Create category
@@ -242,12 +242,12 @@ template <typename ReturnValue, typename... AdditionalArgs>
 void FuncTree<ReturnValue, AdditionalArgs...>::bindVariable(bool* varPtr, std::string_view name, std::string_view const helpDescription) {
     // Make sure there are no whitespaces in the variable name
     if (name.contains(' ')) {
-        BindErrorMessage::variableHasWhitespace(capture, TreeName, name);
+        BindErrorMessage::variableHasWhitespace(capture, treeName, name);
     }
 
     // Make sure the variable isn't bound yet
     if (bindingContainer.variables.find(name) != bindingContainer.variables.end()) {
-        BindErrorMessage::variableExists(capture, TreeName, name);
+        BindErrorMessage::variableExists(capture, treeName, name);
     }
 
     // Bind the variable
@@ -580,8 +580,8 @@ ReturnValue FuncTree<ReturnValue, AdditionalArgs...>::executeFunction(std::strin
             if constexpr (std::is_same_v<T, std::function<ReturnValue(int, char const**)>>) {
                 // Convert to argc/argv
                 std::size_t const argc = args.size();
-                std::vector<char const*> argv_vec;
-                argv_vec.reserve(argc + 1);
+                std::vector<char const*> argvVec;
+                argvVec.reserve(argc + 1);
                 std::vector<std::string> argsOwned;
                 std::transform(
                     args.begin(),
@@ -592,11 +592,11 @@ ReturnValue FuncTree<ReturnValue, AdditionalArgs...>::executeFunction(std::strin
                 std::transform(
                     argsOwned.begin(),
                     argsOwned.end(),
-                    std::back_inserter(argv_vec),
+                    std::back_inserter(argvVec),
                     [](std::string const& str) { return str.c_str(); }
                 );
-                argv_vec.push_back(nullptr); // Null-terminate
-                return func(static_cast<int>(argc), argv_vec.data());
+                argvVec.push_back(nullptr); // Null-terminate
+                return func(static_cast<int>(argc), argvVec.data());
             }
             // Modern function types
             else if constexpr (std::is_same_v<T, typename SupportedFunctions::Modern::Full> || std::is_same_v<T, typename SupportedFunctions::Modern::FullConstRef>) {
@@ -627,7 +627,7 @@ ReturnValue FuncTree<ReturnValue, AdditionalArgs...>::executeFunction(std::strin
         auto [i, arg] = indexedArg;
         return acc + std::string("argv[") + std::to_string(i) + "] = '" + arg + "'\n";
     });
-    ExecutionErrorMessage::functionNotFound(capture, TreeName, function, arguments);
+    ExecutionErrorMessage::functionNotFound(capture, treeName, function, arguments);
     return standardReturn.valFunctionNotFound;
 }
 
@@ -658,7 +658,7 @@ void FuncTree<ReturnValue, AdditionalArgs...>::processVariable(std::string_view 
     }
 
     // Print error if not found
-    if (!found) ExecutionErrorMessage::unknownVariable(capture, TreeName, varName);
+    if (!found) ExecutionErrorMessage::unknownVariable(capture, treeName, varName);
 }
 
 template <typename ReturnValue, typename... AdditionalArgs>

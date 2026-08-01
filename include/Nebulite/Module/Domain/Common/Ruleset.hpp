@@ -119,7 +119,7 @@ private:
     std::mutex initializeMutex;
 
     // Size of subscriptions
-    std::size_t subscription_size = 0;
+    std::size_t subscriptionSize = 0;
 
     // Check if rulesets need to be reloaded
     bool reloadRulesets = true;

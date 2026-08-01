@@ -73,7 +73,7 @@ public:
     enum class Type : std::uint8_t {
         variable, // outside $<cast>(...), Starts with self, other, global or a dot for link, represents a variable reference, outside an evaluatable context
         eval, // inside a $<cast>(...), represents an evaluatable expression
-        text // outside a $<cast>(...), not a variable reference, Represents a plain text string
+        text, // outside a $<cast>(...), not a variable reference, Represents a plain text string
     };
 
     //------------------------------------------
@@ -203,7 +203,7 @@ private:
 
     enum class KeyEvaluationInfo : std::uint8_t {
         maximumDepthReached, // Could not resolve due to maximum depth reached
-        noNesting // No nested variables found
+        noNesting, // No nested variables found
     };
 
     /**

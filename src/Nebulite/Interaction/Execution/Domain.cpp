@@ -34,14 +34,14 @@ namespace Nebulite::Interaction::Execution {
 ScopeOwnershipManager::~ScopeOwnershipManager() = default;
 
 ScopeOwnershipManager::ScopeOwnershipManager(ScopeOwnership const ownership) {
-    if (ownership == ScopeOwnership::Owned) {
+    if (ownership == ScopeOwnership::owned) {
         domainScopeOwned.emplace();
     }
 }
 
-DocumentAccessor::DocumentAccessor(Data::JsonScope& d) : ScopeOwnershipManager(ScopeOwnership::Borrowed), domainScope(d) {}
+DocumentAccessor::DocumentAccessor(Data::JsonScope& d) : ScopeOwnershipManager(ScopeOwnership::borrowed), domainScope(d) {}
 
-DocumentAccessor::DocumentAccessor() : ScopeOwnershipManager(ScopeOwnership::Owned), domainScope(domainScopeOwned.value()) {
+DocumentAccessor::DocumentAccessor() : ScopeOwnershipManager(ScopeOwnership::owned), domainScope(domainScopeOwned.value()) {
     // Note: This creates a new JsonScope that is owned by this DocumentAccessor.
     // It will be automatically cleaned up when the DocumentAccessor is destroyed.
 }
