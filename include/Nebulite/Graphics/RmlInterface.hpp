@@ -319,6 +319,26 @@ private:
     absl::flat_hash_map<Rml::ElementDocument*, ContextAndScope> documentToContext; // Map of document to its context and scope for expression evaluation
     absl::flat_hash_map<RmlElementIdentifier, ContextAndScope> elementToContext; // Map of element to its context and scope for expression evaluation
 
+    /**
+     * @brief Checks a container for any references to a given domainId in context 'other' or 'global' and replaces them with context 'self'
+     * @tparam Key The identifier type of the element/document
+     * @tparam Container The temporary container for the new context
+     * @param ctxAndScope The current context and context scope
+     * @param key The identifier of the element/document
+     * @param container The container to check
+     * @param domainId The domain id to check for
+     */
+    template <typename Key, typename Container>
+    static void determineNewContext(auto const& ctxAndScope, Key const& key, Container& container, std::size_t domainId);
+    /**
+     * @brief Purges a given domain id from any context 'other' and 'global', replacing them with 'self'
+     * @tparam Container The container type to modify
+     * @param ownerId The identifier of the domain to remove
+     * @param container The container to modify
+     */
+    template<typename Container>
+    static void removeContext(std::size_t ownerId, Container& container);
+
     // Document manager
     class DocumentManager final : public Rml::Plugin {
     public:
@@ -349,4 +369,5 @@ private:
     void processKeyEvent(SDL_Event const& event, int modifiers) const ;
 };
 } // namespace Nebulite::Graphics
+#include "Nebulite/Graphics/RmlInterface.tpp" // NOLINT
 #endif // NEBULITE_GRAPHICS_RMLINTERFACE_HPP
