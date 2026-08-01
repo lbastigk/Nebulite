@@ -1,6 +1,9 @@
 //------------------------------------------
 // Includes
 
+// Standard library
+#include <optional>
+
 // Nebulite
 #include "Nebulite/Constants/Event.hpp"
 #include "Nebulite/Core/GlobalSpace.hpp" // NOLINT
@@ -24,9 +27,12 @@ Constants::Event Console::updateHook() {
         domain.skipUpdateNextFrame();
 
         // Set console flags
-        Graphics::ImguiHelper::DomainRenderingFlags flags;
-        flags.showCloseButton = false;
-        flags.windowAlignment = Graphics::ImguiHelper::DomainRenderingFlags::Alignment::bottom;
+        Graphics::ImguiHelper::DomainRenderingFlags const flags{
+            .showCloseButton = false,
+            .windowPos = std::nullopt,
+            .windowSize = std::nullopt,
+            .windowAlignment = Graphics::ImguiHelper::DomainRenderingFlags::Alignment::bottom,
+        };
 
         // Set context/scope
         Interaction::Execution::Domain& global = Global::instance();
