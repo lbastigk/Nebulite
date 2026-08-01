@@ -65,6 +65,7 @@ evaluate
 exists
 exit
 expression-help
+false
 feature-test
 fetch
 fetch-container
@@ -143,6 +144,7 @@ nop
 nor
 not
 numberToComplex
+numeric
 numerically
 object
 off
@@ -179,10 +181,10 @@ replace
 require
 reverse
 rmlui
-rng2arg
-rng2argInt16
-rng3arg
-rng3argInt16
+rng2Arg
+rng2ArgInt16
+rng3Arg
+rng3ArgInt16
 root
 round
 roundDown
@@ -236,6 +238,7 @@ toInt
 toLower
 toString
 toUpper
+true
 type
 typeAsNumber
 typeAsSimpleString

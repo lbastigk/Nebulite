@@ -2,7 +2,7 @@
 
 This documentation is automatically generated.
 
-Generated on: Thu Jul 16 00:06:08 CEST 2026
+Generated on: Sat Aug  1 17:04:03 CEST 2026
 
 ## Table of Contents
 
@@ -105,7 +105,7 @@ Available Variables
 ```
 Adds a clock with specified interval (ms) to the global clock system
 
-Usage: add-clock <interval_ms>
+Usage: add-clock <interval>
 
 Example:
 add-clock 100
@@ -484,7 +484,7 @@ Available Functions
 | Function | Description |
 |----------|-------------|
 | `context-evaluation` | Tests evaluation of self and other global variable access in one expression |
-| `find-parent-key` | Finds the parent key of a given key using the JSON::findParentKey method. |
+| `find-parent-key` | Finds the parent key of a given key using the Json::findParentKey method. |
 | `functree` | Builds a funcTree with extra arguments and tests it |
 | `help` | Show available commands and their descriptions |
 | `key-combination` | Tests key-combinations for the ScopedKey class. |
@@ -499,7 +499,7 @@ Usage: feature-test context-evaluation
 ##### `feature-test find-parent-key`
 
 ```
-Finds the parent key of a given key using the JSON::findParentKey method.
+Finds the parent key of a given key using the Json::findParentKey method.
 Usage: feature-test find-parent-key <key>
 Using no argument will treated as an empty key.
 ```
@@ -1246,9 +1246,9 @@ Usage: time halt-once
 Locks time with lock provided,
 Time can only progress if no locks are present.
 
-Usage: time lock <lock_name>
+Usage: time lock <lockName>
 
-<lock_name> : Name of the lock to add. Any string without whitespace is valid.
+<lockName> : Name of the lock to add. Any string without whitespace is valid.
 ```
 
 ##### `time master-unlock`
@@ -1276,9 +1276,9 @@ Usage: time set-fixed-dt <dt_ms>
 Removes a time lock.
 Time can only progress if no locks are present.
 
-Usage: time unlock <lock_name>
+Usage: time unlock <lockName>
 
-<lock_name> : Name of the lock to remove. Must match an existing lock.
+<lockName> : Name of the lock to remove. Must match an existing lock.
 ```
 
 #### `view`
@@ -2115,9 +2115,11 @@ Available Functions
 |----------|-------------|
 | `empty` | Asserts that the current JSON value is empty. |
 | `equals` | Assertion transformations that validate JSON value equality and throw exceptions on failure. |
+| `false` | Asserts that the current JSON value is false. |
 | `help` | Show available commands and their descriptions |
 | `match` | Assertion transformations that validate JSON string values with patterns and throw exceptions on failure. |
 | `nonEmpty` | Asserts that the current JSON value is non-empty. |
+| `true` | Asserts that the current JSON value is true. |
 | `type` | Assertion transformations that validate JSON value types and throw exceptions on failure. |
 
 ##### `assert empty`
@@ -2155,6 +2157,15 @@ If the value is not equal to the specified string, the transformation fails and 
 Usage: |assert equals string <expected> -> {value,<Exception thrown if not equal>}
 ```
 
+##### `assert false`
+
+```
+Asserts that the current JSON value is false.
+If the value is not false, the transformation fails and the program exits.
+Accepts an optional user-defined error message as additional arguments.
+Usage: |assert false -> {value,<Exception thrown if not false>}
+```
+
 ##### `assert match`
 
 Available Functions
@@ -2181,6 +2192,15 @@ Accepts an optional user-defined error message as additional arguments.
 Usage: |assert nonEmpty -> {value,<Exception thrown if empty>}
 ```
 
+##### `assert true`
+
+```
+Asserts that the current JSON value is true.
+If the value is not true, the transformation fails and the program exits.
+Accepts an optional user-defined error message as additional arguments.
+Usage: |assert true -> {value,<Exception thrown if not true>}
+```
+
 ##### `assert type`
 
 Available Functions
@@ -2190,6 +2210,7 @@ Available Functions
 | `array` | Asserts that the current JSON value is of type array. |
 | `basicValue` | Asserts that the current JSON value is a basic value (not object or array or null). |
 | `help` | Show available commands and their descriptions |
+| `numeric` | Asserts that the current JSON value is numeric |
 | `object` | Asserts that the current JSON value is of type object. |
 
 ###### `assert type array`
@@ -2208,6 +2229,13 @@ Asserts that the current JSON value is a basic value (not object or array or nul
 If the value is not a basic value, the transformation fails and the program exits.
 Accepts an optional user-defined error message as additional arguments.
 Usage: |assert type value -> {value,<Exception thrown if not value>}
+```
+
+###### `assert type numeric`
+
+```
+Asserts that the current JSON value is numeric
+Usage: |assert type numeric -> {value,<Exception thrown if not numeric>}
 ```
 
 ###### `assert type object`
@@ -2753,9 +2781,11 @@ Available Functions
 |----------|-------------|
 | `empty` | Requires that the current JSON value is empty. |
 | `equals` | Requirement transformations that validate JSON value equality. |
+| `false` | Requires that the current JSON value is false. |
 | `help` | Show available commands and their descriptions |
 | `match` | Requirement transformations that validate JSON string values with patterns. |
 | `nonEmpty` | Requires that the current JSON value is non-empty. |
+| `true` | Requires that the current JSON value is true. |
 | `type` | Requirement transformations that validate JSON value types |
 
 ##### `require empty`
@@ -2793,6 +2823,15 @@ If the value is not equal to the specified string, the transformation fails and 
 Usage: |require equals string <expected> -> {value,<Returns false if not equal>}
 ```
 
+##### `require false`
+
+```
+Requires that the current JSON value is false.
+If the value is not false, the transformation fails.
+Accepts an optional user-defined error message as additional arguments.
+Usage: |require false -> {value,<Returns false if not false>}
+```
+
 ##### `require match`
 
 Available Functions
@@ -2819,6 +2858,15 @@ Accepts an optional user-defined error message as additional arguments.
 Usage: |requireNonEmpty -> {value,<Returns false if empty>}
 ```
 
+##### `require true`
+
+```
+Requires that the current JSON value is true.
+If the value is not true, the transformation fails.
+Accepts an optional user-defined error message as additional arguments.
+Usage: |require true -> {value,<Returns false if not true>}
+```
+
 ##### `require type`
 
 Available Functions
@@ -2828,6 +2876,7 @@ Available Functions
 | `array` | Requires that the current JSON value is of type array. |
 | `basicValue` | Requires that the current JSON value is a basic value (not object or array or null). |
 | `help` | Show available commands and their descriptions |
+| `numeric` | Requires that the current JSON value is numeric. |
 | `object` | Requires that the current JSON value is of type object. |
 
 ###### `require type array`
@@ -2846,6 +2895,15 @@ Requires that the current JSON value is a basic value (not object or array or nu
 If the value is not a basic value, the transformation fails.
 Accepts an optional user-defined error message as additional arguments.
 Usage: |requireTypeValue -> {value,<Returns false if not value>}
+```
+
+###### `require type numeric`
+
+```
+Requires that the current JSON value is numeric.
+If the value is not numeric, the transformation fails.
+Accepts an optional user-defined error message as additional arguments.
+Usage: |requireTypeNumeric -> {value,<Returns false if not numeric>}
 ```
 
 ###### `require type object`
@@ -3242,10 +3300,10 @@ Available Functions
 | `nor` | Returns 1 if both a and b are logically false, otherwise returns 0. |
 | `not` | Returns 1 if a is logically false (close to zero), otherwise returns 0. |
 | `or` | Returns 1 if either a or b is logically true, otherwise returns 0. |
-| `rng2arg` | Returns a pseudo-random number between 0 and 1, deterministically seeded from the input values a and b. |
-| `rng2argInt16` | Returns a pseudo-random integer between 0 and 32767, deterministically seeded from the input values a and b. |
-| `rng3arg` | Returns a pseudo-random number between 0 and 1, deterministically seeded from the input values a, b, and c. |
-| `rng3argInt16` | Returns a pseudo-random integer between 0 and 32767, deterministically seeded from the input values a, b, and c. |
+| `rng2Arg` | Returns a pseudo-random number between 0 and 1, deterministically seeded from the input values a and b. |
+| `rng2ArgInt16` | Returns a pseudo-random integer between 0 and 32767, deterministically seeded from the input values a and b. |
+| `rng3Arg` | Returns a pseudo-random number between 0 and 1, deterministically seeded from the input values a, b, and c. |
+| `rng3ArgInt16` | Returns a pseudo-random integer between 0 and 32767, deterministically seeded from the input values a, b, and c. |
 | `round` | Rounds the first argument to the amount of decimal places specified by the second argument. |
 | `roundDown` | Rounds the first argument down to the amount of decimal places specified by the second argument. |
 | `roundUp` | Rounds the first argument up to the amount of decimal places specified by the second argument. |
@@ -3313,7 +3371,7 @@ Usage: lt(a, b)
 
 ```
 Linearly maps a value from one range to another.
-Usage: map(value, in_min, in_max, out_min, out_max)
+Usage: map(value, inMin, inMax, outMin, outMax)
 ```
 
 #### `max`
@@ -3370,36 +3428,36 @@ A value is considered true when its absolute value is greater than epsilon.
 Usage: or(a, b)
 ```
 
-#### `rng2arg`
+#### `rng2Arg`
 
 ```
 Returns a pseudo-random number between 0 and 1, deterministically seeded from the input values a and b.
 The same input values will always produce the same output, making it suitable for deterministic procedural generation.
-Usage: rng2arg(a, b)
+Usage: rng2Arg(a, b)
 ```
 
-#### `rng2argInt16`
+#### `rng2ArgInt16`
 
 ```
 Returns a pseudo-random integer between 0 and 32767, deterministically seeded from the input values a and b.
 The same input values will always produce the same output, making it suitable for deterministic procedural generation.
-Usage: rng2argInt16(a, b)
+Usage: rng2ArgInt16(a, b)
 ```
 
-#### `rng3arg`
+#### `rng3Arg`
 
 ```
 Returns a pseudo-random number between 0 and 1, deterministically seeded from the input values a, b, and c.
 The same input values will always produce the same output, making it suitable for deterministic procedural generation.
-Usage: rng3arg(a, b, c)
+Usage: rng3Arg(a, b, c)
 ```
 
-#### `rng3argInt16`
+#### `rng3ArgInt16`
 
 ```
 Returns a pseudo-random integer between 0 and 32767, deterministically seeded from the input values a, b, and c.
 The same input values will always produce the same output, making it suitable for deterministic procedural generation.
-Usage: rng3argInt16(a, b, c)
+Usage: rng3ArgInt16(a, b, c)
 ```
 
 #### `round`
