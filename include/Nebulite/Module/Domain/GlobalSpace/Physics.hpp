@@ -76,8 +76,8 @@ public:
             static auto constexpr aY = makeScoped("aY"); // acceleration Y
             static auto constexpr vX = makeScoped("vX"); // velocity X
             static auto constexpr vY = makeScoped("vY"); // velocity Y
-            static auto constexpr FX = makeScoped("FX"); // force X
-            static auto constexpr FY = makeScoped("FY"); // force Y
+            static auto constexpr forceX = makeScoped("FX"); // force X
+            static auto constexpr forceY = makeScoped("FY"); // force Y
 
             // Correction values
             struct Correction : KeyGroup<"physics.correction."> {

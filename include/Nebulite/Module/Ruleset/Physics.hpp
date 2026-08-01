@@ -83,8 +83,8 @@ public:
         Domain::GlobalSpace::Physics::Key::Local::vX,
         Domain::GlobalSpace::Physics::Key::Local::vY,
         Domain::GlobalSpace::Physics::Key::Local::m,
-        Domain::GlobalSpace::Physics::Key::Local::FX,
-        Domain::GlobalSpace::Physics::Key::Local::FY,
+        Domain::GlobalSpace::Physics::Key::Local::forceX,
+        Domain::GlobalSpace::Physics::Key::Local::forceY,
         // Correction values
         Domain::GlobalSpace::Physics::Key::Local::Correction::posX,
         Domain::GlobalSpace::Physics::Key::Local::Correction::posY,

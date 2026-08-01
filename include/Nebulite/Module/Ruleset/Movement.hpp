@@ -68,8 +68,8 @@ public:
         Domain::GlobalSpace::Physics::Key::Local::vX,
         Domain::GlobalSpace::Physics::Key::Local::vY,
         Domain::GlobalSpace::Physics::Key::Local::m,
-        Domain::GlobalSpace::Physics::Key::Local::FX,
-        Domain::GlobalSpace::Physics::Key::Local::FY,
+        Domain::GlobalSpace::Physics::Key::Local::forceX,
+        Domain::GlobalSpace::Physics::Key::Local::forceY,
         // Closest X/Y
         Data::ScopedKeyView("movement.clip.closest.N"),
         Data::ScopedKeyView("movement.clip.closest.E"),
