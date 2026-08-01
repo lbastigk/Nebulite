@@ -154,7 +154,7 @@ std::vector<std::string> Domain::stringToDeserializeTokens(std::string_view cons
     //------------------------------------------
     // Split the input into tokens
     std::vector<std::string> tokens;
-    if (Data::JSON::isJsonOrJsonc(serialOrLinkWithCommands)) {
+    if (Data::Json::isJsonOrJsonc(serialOrLinkWithCommands)) {
         // Direct JSON string, no splitting
         tokens.emplace_back(serialOrLinkWithCommands);
     } else {
@@ -173,7 +173,7 @@ void Domain::baseDeserialization(std::string const& serialOrLinkWithCommands) {
     // Check if the input is of type {variable|t1|t2|...}|c1|c2|...
 
     // Meaning the first char is '{', but the string is not a valid JSON object
-    if (!serialOrLinkWithCommands.empty() && serialOrLinkWithCommands.front() == '{' && !Data::JSON::isJsonOrJsonc(serialOrLinkWithCommands)) {
+    if (!serialOrLinkWithCommands.empty() && serialOrLinkWithCommands.front() == '{' && !Data::Json::isJsonOrJsonc(serialOrLinkWithCommands)) {
         // Split on same depth of '{' and '}' to isolate the variable part
         auto parts = Utility::StringHandler::splitOnSameDepthOf(serialOrLinkWithCommands, Utility::StringHandler::Delimiter::brace);
 
@@ -184,7 +184,7 @@ void Domain::baseDeserialization(std::string const& serialOrLinkWithCommands) {
         ContextScope const ctxBase{domainScope, domainScope, Global::instance().domainScope};
 
         // Parse into expression
-        Data::JSON const result = Logic::Expression::evalAsJson(variableWithTransformations, ctxBase);
+        Data::Json const result = Logic::Expression::evalAsJson(variableWithTransformations, ctxBase);
 
         // Deserialize the resulting JSON into the domain scope
         domainScope.deserialize(result.serialize());

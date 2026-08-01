@@ -216,7 +216,7 @@ Example for restricted key access:
 
 inline void exampleUsage() {
     // Our Data document
-    Nebulite::Data::JSON doc;
+    Nebulite::Data::Json doc;
     
     // We use two different scopes to demonstrate the access restictions:
     // - physics

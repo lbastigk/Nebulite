@@ -13,7 +13,7 @@
 
 // Nebulite
 #include "Nebulite/Constants/Event.hpp"
-#include "Nebulite/Data/Document/JSON.hpp"
+#include "Nebulite/Data/Document/Json.hpp"
 #include "Nebulite/Data/Document/KeyGroup.hpp"
 #include "Nebulite/Module/Base/DomainModule.hpp"
 

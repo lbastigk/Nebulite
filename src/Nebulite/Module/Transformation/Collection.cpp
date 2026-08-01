@@ -59,7 +59,7 @@ bool Collection::get(std::span<std::string_view const> const& args, Data::JsonSc
         return false;
     }
     auto const& key = rootKey.addMember(args[1]);
-    Data::JSON const subDoc = jsonDoc.getSubDoc(key);
+    Data::Json const subDoc = jsonDoc.getSubDoc(key);
     jsonDoc.setSubDoc(rootKey, subDoc);
     return true;
 }
@@ -83,12 +83,12 @@ bool Collection::listMembers(Data::JsonScope& jsonDoc){
 bool Collection::listMembersAndValues(Data::JsonScope& jsonDoc){
     // Copy values
     auto const membersAndKeys = jsonDoc.listAvailableMembersAndKeys(rootKey);
-    std::vector<Data::JSON> values;
+    std::vector<Data::Json> values;
     std::ranges::for_each(
         membersAndKeys,
         [&](auto const& memberAndKey) {
             auto const& [member, key] = memberAndKey;
-            Data::JSON newObject;
+            Data::Json newObject;
             newObject.deserialize(jsonDoc.serialize(key));
             values.push_back(std::move(newObject));
         }
@@ -115,7 +115,7 @@ bool Collection::bundleToArray(std::span<std::string_view const> const& args, Da
     if (args.size() < 2) {
         return false;
     }
-    Data::JSON tmp;
+    Data::Json tmp;
     for (auto [idx, key] : args.subspan(1) | std::views::enumerate) {
         tmp.setSubDoc("[" + std::to_string(idx) + "]", jsonDoc.getSubDoc(rootKey.addMember(key)));
     }

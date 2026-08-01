@@ -101,10 +101,10 @@ void addJsonCompletions(std::string_view const input, std::vector<std::string>& 
     auto const split = Nebulite::Utility::StringHandler::split(input, ' ');
     if (split.empty()) return;
     auto const& potentialKey = split.back();
-    auto const search = std::string(1, Nebulite::Data::JSON::SpecialCharacter::dot) + Nebulite::Data::JSON::SpecialCharacter::arrayClose;
+    auto const search = std::string(1, Nebulite::Data::Json::SpecialCharacter::dot) + Nebulite::Data::Json::SpecialCharacter::arrayClose;
     auto const parentMemberPos = potentialKey.find_last_of(search);
     auto parentMember = parentMemberPos == std::string::npos ? "" : potentialKey.substr(0, parentMemberPos+1);
-    if (parentMember.ends_with(Nebulite::Data::JSON::SpecialCharacter::dot)) parentMember = parentMember.substr(0, parentMemberPos);
+    if (parentMember.ends_with(Nebulite::Data::Json::SpecialCharacter::dot)) parentMember = parentMember.substr(0, parentMemberPos);
     for (auto const& [member, key] : scope.listAvailableMembersAndKeys(scope.getRootScope().addMember(parentMember))) {
         auto const entry = Nebulite::Data::ScopedKey(parentMember).addMember(member).toString();
         if (!entry.starts_with(potentialKey)) continue;
@@ -232,8 +232,8 @@ void completionCallback(ImGuiInputTextCallbackData* data, ConsoleState const* st
         // Insert additional whitespace under certain conditions:
         static auto endCharsToIgnore = {
             Nebulite::Utility::Io::FileManagement::preferredSeparator(), // Directory Path
-            Nebulite::Data::JSON::SpecialCharacter::dot, // JSON indexing
-            Nebulite::Data::JSON::SpecialCharacter::arrayClose, // JSON array indexing
+            Nebulite::Data::Json::SpecialCharacter::dot, // JSON indexing
+            Nebulite::Data::Json::SpecialCharacter::arrayClose, // JSON array indexing
         };
         if (!commonPrefixFound && !toInsert.empty() && !std::ranges::any_of(endCharsToIgnore, [&](char const& c) { return toInsert.back() == c; })) {
             data->InsertChars(data->CursorPos, " ");
@@ -393,7 +393,7 @@ void ImguiHelper::renderJsonTreeNode(Data::JsonScope const& s, Data::ScopedKeyVi
         std::string const fullPath = key.view().toString();
         std::string keyPath = fullPath;
         if (rootPath != fullPath) keyPath = fullPath.substr(rootPath.length());
-        if (!keyPath.empty() && keyPath.front() == Data::JSON::SpecialCharacter::dot) keyPath.erase(0, 1);
+        if (!keyPath.empty() && keyPath.front() == Data::Json::SpecialCharacter::dot) keyPath.erase(0, 1);
         if (auto const type = s.memberType(key); type == Data::KeyType::object || type == Data::KeyType::array) {
             // use fullPath as the ID (first arg) and keyPath as the visible text (format)
             if (ImGui::TreeNode(fullPath.c_str(), "%s", keyPath.c_str())) {

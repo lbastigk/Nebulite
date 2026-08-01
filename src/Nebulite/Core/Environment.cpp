@@ -14,7 +14,7 @@
 #include "Nebulite/Constants/Event.hpp"
 #include "Nebulite/Core/Environment.hpp"
 #include "Nebulite/Core/RenderObject.hpp"
-#include "Nebulite/Data/Document/JSON.hpp"
+#include "Nebulite/Data/Document/Json.hpp"
 #include "Nebulite/Data/Document/KeyType.hpp"
 #include "Nebulite/Data/RenderObjectContainer.hpp"
 #include "Nebulite/Data/RendererProcessor.hpp"
@@ -50,7 +50,7 @@ Constants::Event Environment::update() {
 // Marshalling
 
 std::string Environment::serialize() {
-    Data::JSON doc;
+    Data::Json doc;
 
     // Serialize each container and add to the document
     for (unsigned int i = 0; i < allLayers.size(); i++) {
@@ -58,7 +58,7 @@ std::string Environment::serialize() {
         std::string const serializedContainer = roc[i].serialize();
 
         // Add the container JSON object to the main document
-        Data::JSON layer;
+        Data::Json layer;
         layer.deserialize(serializedContainer);
         doc.setSubDoc(key, layer);
     }
@@ -66,7 +66,7 @@ std::string Environment::serialize() {
 }
 
 void Environment::deserialize(std::string const& serialOrLink, Data::TilingInformation const& tilingInformation) {
-    Data::JSON file;
+    Data::Json file;
     file.deserialize(serialOrLink);
 
     // Getting all layers
@@ -74,7 +74,7 @@ void Environment::deserialize(std::string const& serialOrLink, Data::TilingInfor
         // Check if the key exists in the document
         if (std::string const key = "containerLayer" + std::to_string(i); file.memberType(key) != Data::KeyType::null) {
             // Extract the value corresponding to the key
-            Data::JSON const layer = file.getSubDoc(key);
+            Data::Json const layer = file.getSubDoc(key);
 
             // Convert the JSON object to a pretty-printed string
             std::string const str = layer.serialize();

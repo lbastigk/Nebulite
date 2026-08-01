@@ -210,11 +210,11 @@ std::string Expression::eval(ContextScope const& context, std::size_t const recu
     );
 }
 
-Data::JSON Expression::evalAsJson(ContextScope const& context, std::size_t const recursionDepth) const {
+Data::Json Expression::evalAsJson(ContextScope const& context, std::size_t const recursionDepth) const {
     if (components.size() == 1) {
         return components[0].evalAsJson(context, recursionDepth, [&]{updateCaches(context);});
     }
-    Data::JSON jsonResult;
+    Data::Json jsonResult;
     jsonResult.set<std::string>("", eval(context, recursionDepth));
     return jsonResult;
 }
@@ -247,7 +247,7 @@ std::string Expression::eval(std::string_view const input, ContextScope const& c
     return expr.eval(context);
 }
 
-Data::JSON Expression::evalAsJson(std::string_view const input, ContextScope const& context) {
+Data::Json Expression::evalAsJson(std::string_view const input, ContextScope const& context) {
     Expression const expr(input);
     return expr.evalAsJson(context);
 }

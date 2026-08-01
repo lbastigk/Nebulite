@@ -43,23 +43,23 @@ std::string DocumentCache::serialize(std::string const& docAndKey) const {
         if (key.empty()) {
             return docPtr->serial;
         }
-        JSON const subDoc = docPtr->document.getSubDoc(key);
+        Json const subDoc = docPtr->document.getSubDoc(key);
         return subDoc.serialize();
     });
 }
 
 // Document serialization
 
-JSON DocumentCache::getSubDoc(std::string const& docAndKey) const {
+Json DocumentCache::getSubDoc(std::string const& docAndKey) const {
     auto [doc, key] = splitDocKey(docAndKey);
 
     ReadOnlyDoc const* docPtr = readOnlyDocs.getDocument(doc);
     if (!docPtr) {
-        return JSON{};
+        return Json{};
     }
 
     // Check if the document exists in the cache
-    JSON data = docPtr->document.getSubDoc(key);
+    Json data = docPtr->document.getSubDoc(key);
 
     // Update the cache (unload old documents) and return the size
     readOnlyDocs.update();
@@ -71,7 +71,7 @@ std::string DocumentCache::getDocString(std::string_view const link) const {
 
     // Check if the document exists in the cache
     if (docPtr == nullptr) {
-        return JSON().serialize(); // Return empty JSON if document loading fails
+        return Json().serialize(); // Return empty JSON if document loading fails
     }
 
     // Return string of document:
@@ -87,7 +87,7 @@ std::pair<std::string, std::string> DocumentCache::splitDocKey(std::string const
     std::string_view docAndKeyView(docAndKey);
     Utility::StringHandler::strip(docAndKeyView, ' '); // Remove whitespace for more forgiving input handling
 
-    auto const barPos = docAndKeyView.find(JSON::SpecialCharacter::transformationPipe);
+    auto const barPos = docAndKeyView.find(Json::SpecialCharacter::transformationPipe);
     auto const colonPos = docAndKeyView.find(Interaction::ContextDeriver::contextKeySeparator);
 
     // Choose the first occurring separator
@@ -102,7 +102,7 @@ std::pair<std::string, std::string> DocumentCache::splitDocKey(std::string const
 
     // Add back the transform part if needed
     if (pos == barPos) {
-        return {std::string(doc), JSON::SpecialCharacter::transformationPipe + std::string(key)};
+        return {std::string(doc), Json::SpecialCharacter::transformationPipe + std::string(key)};
     }
     return {std::string(doc), std::string(key)};
 }

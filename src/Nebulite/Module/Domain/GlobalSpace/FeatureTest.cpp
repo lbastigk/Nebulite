@@ -12,7 +12,7 @@
 #include "Nebulite/Constants/Event.hpp"
 #include "Nebulite/Constants/StandardCapture.hpp"
 #include "Nebulite/Core/GlobalSpace.hpp"
-#include "Nebulite/Data/Document/JSON.hpp"
+#include "Nebulite/Data/Document/Json.hpp"
 #include "Nebulite/Data/Document/ScopedKey.hpp"
 #include "Nebulite/Interaction/Logic/Expression.hpp"
 #include "Nebulite/Module/Domain/GlobalSpace/FeatureTest.hpp"
@@ -48,7 +48,7 @@ public:
 } // namespace
 
 Constants::Event FeatureTest::testFuncTree() const {
-    // Build a FuncTree with extra argument JSON&
+    // Build a FuncTree
     Utility::Args::FuncTree<double, double> testTree("TestFuncTree", 0.0, std::numeric_limits<double>::quiet_NaN(), domain.capture);
 
     std::string_view constexpr addName = "add";
@@ -81,7 +81,7 @@ Constants::Event FeatureTest::selfOtherGlobalEvaluation() const {
 
     // Test 2: share managed scopeBase
     {
-        Data::JSON selfAndOther;
+        Data::Json selfAndOther;
         auto& self2 = selfAndOther.shareManagedScope("self.");
         auto& other2 = selfAndOther.shareManagedScope("other.");
         self2.set(key, 5);
@@ -110,7 +110,7 @@ Constants::Event FeatureTest::keyCombination(std::span<std::string_view const> c
 
 Constants::Event FeatureTest::findParentKey(std::span<std::string_view const> const& args) const {
     auto const key = args.size() > 1 ? Utility::StringHandler::recombineArgs(args.subspan(1)) : "";
-    domain.capture.log.println(Data::JSON::findParentKey(key));
+    domain.capture.log.println(Data::Json::findParentKey(key));
     return Constants::Event::success;
 }
 

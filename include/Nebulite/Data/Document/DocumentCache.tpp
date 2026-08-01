@@ -12,7 +12,7 @@
 #include <utility>
 
 // Nebulite
-#include "Nebulite/Data/Document/JSON.hpp"
+#include "Nebulite/Data/Document/Json.hpp"
 #include "Nebulite/Data/Document/ReadOnlyDocs.hpp"
 #include "Nebulite/Data/Document/SimpleValueError.hpp"
 
@@ -28,7 +28,7 @@ namespace Nebulite::Data {
 
 template <typename ValueType>
 ValueType DocumentCache::getValueFromCache(std::string const& docAndKey, ValueType const& defaultValue, std::function<ValueType(ReadOnlyDoc const* doc, std::string_view key)> const& retrievalFunction) const {
-    static_assert(!std::is_same_v<ValueType, JSON>, "JSON values cannot be used here. Please re-implement the retrieval logic in a custom way instead of using this helper function.");
+    static_assert(!std::is_same_v<ValueType, Json>, "JSON values cannot be used here. Please re-implement the retrieval logic in a custom way instead of using this helper function.");
 
     auto [doc, key] = splitDocKey(docAndKey);
 
@@ -55,7 +55,7 @@ std::expected<T, SimpleValueRetrievalError> DocumentCache::get(std::string const
     if (docPtr == nullptr) {
         // Use get on an empty JSON so we can still apply transformations
         // This way, important transformation commands like assert aren't overlooked just because the document is missing, which would make debugging very difficult
-        thread_local JSON const emptyJson;
+        thread_local Json const emptyJson;
         return emptyJson.get<T>(key);
     }
 

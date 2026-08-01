@@ -19,7 +19,7 @@
 #include <tinyexpr.h>
 
 // Nebulite
-#include "Nebulite/Data/Document/JSON.hpp"
+#include "Nebulite/Data/Document/Json.hpp"
 #include "Nebulite/Interaction/Context.hpp"
 #include "Nebulite/Interaction/Logic/ExpressionComponent.hpp"
 #include "Nebulite/Interaction/Logic/LinkedNumericValue.hpp"
@@ -133,7 +133,7 @@ public:
      * @param recursionDepth The maximum recursion depth for nested evaluations. Defaults to standardRecursionDepth.
      * @return The result of the evaluation as a JSON document.
      */
-    [[nodiscard]] Data::JSON evalAsJson(ContextScope const& context, std::size_t recursionDepth = standardRecursionDepth) const ;
+    [[nodiscard]] Data::Json evalAsJson(ContextScope const& context, std::size_t recursionDepth = standardRecursionDepth) const ;
 
     /**
      * @brief Evaluates the expression and returns the result as a double.
@@ -170,7 +170,7 @@ public:
 
     static std::string eval(std::string_view input, ContextScope const& context);
 
-    static Data::JSON evalAsJson(std::string_view input, ContextScope const& context);
+    static Data::Json evalAsJson(std::string_view input, ContextScope const& context);
 
     //------------------------------------------
     // Getter

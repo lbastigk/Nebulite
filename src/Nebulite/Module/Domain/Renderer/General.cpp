@@ -28,7 +28,7 @@
 #include "Nebulite/Constants/StandardCapture.hpp"
 #include "Nebulite/Core/RenderObject.hpp"
 #include "Nebulite/Core/Renderer.hpp"
-#include "Nebulite/Data/Document/JSON.hpp"
+#include "Nebulite/Data/Document/Json.hpp"
 #include "Nebulite/Data/Document/RjDirectAccess.hpp"
 #include "Nebulite/Module/Base/DomainModule.hpp"
 #include "Nebulite/Module/Domain/Renderer/General.hpp"
@@ -296,7 +296,7 @@ void writeJpegCallback(void* context, void* data, int const size) {
 // TODO: black bars on the top and right in headless mode!
 Constants::Event General::dumpView() const {
     domain.addPostRenderCallback([&] -> void {
-        Data::JSON view;
+        Data::Json view;
 
         // Get current window/render target size
         auto* const window = domain.getSdlWindow();

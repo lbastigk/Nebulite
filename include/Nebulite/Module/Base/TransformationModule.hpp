@@ -22,7 +22,7 @@
 // Forward declarations
 
 namespace Nebulite::Data {
-class JSON;
+class Json;
 class JsonScope;
 } // namespace Nebulite::Data
 

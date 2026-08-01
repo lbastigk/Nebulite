@@ -36,7 +36,7 @@ class JsonScope;
 //------------------------------------------
 namespace Nebulite::Data {
 /**
- * @class JSON
+ * @class Json
  * @brief A wrapper around rapidjson to simplify JSON manipulation in Nebulite.
  * @details Features:
  *          - caching for fast access to frequently used values,
@@ -49,7 +49,7 @@ namespace Nebulite::Data {
  *          - optimized for performance using ordered double pointers and quick cache for unique IDs,
  *            allowing fast access to numeric values in a sorted manner.
  */
-class JSON {
+class Json {
 public:
     //------------------------------------------
     // Basic public constants
@@ -240,7 +240,7 @@ private:
      * @return True on success, false on failure.
      * @note We use an external outDoc to avoid copying the entire document on return/on optional::getValue().
      */
-    bool getSubDocWithTransformations(std::string_view key, JSON& outDoc) const ;
+    bool getSubDocWithTransformations(std::string_view key, Json& outDoc) const ;
 
     //------------------------------------------
     // Scope sharing system
@@ -279,20 +279,20 @@ public:
     /**
      * @brief Constructs a new JSON document.
      */
-    JSON();
+    Json();
 
-    ~JSON();
+    ~Json();
 
     //------------------------------------------
     // Overload of assign operators
 
     // No copy
-    JSON(JSON const&) = delete;
-    JSON& operator=(JSON const&) = delete;
+    Json(Json const&) = delete;
+    Json& operator=(Json const&) = delete;
 
     // Allow move
-    JSON(JSON&& other) noexcept;
-    JSON& operator=(JSON&& other) noexcept;
+    Json(Json&& other) noexcept;
+    Json& operator=(Json&& other) noexcept;
 
     //------------------------------------------
     // Scope sharing
@@ -322,7 +322,7 @@ public:
      * @brief Copies the entire content from another JSON document into this one.
      * @param other The other JSON document to copy from.
      */
-    void copyFrom(JSON const& other);
+    void copyFrom(Json const& other);
 
     //------------------------------------------
     // Validity check
@@ -368,7 +368,7 @@ public:
      * @param child The sub-document to set.
      * @param childKey The key in the child document to set as the root of the sub-document. If empty, the entire child document is used.
      */
-    void setSubDoc(std::string_view key, JSON const& child, std::string_view childKey = "") ;
+    void setSubDoc(std::string_view key, Json const& child, std::string_view childKey = "") ;
 
     /**
      * @brief Sets an empty array in the JSON document.
@@ -433,7 +433,7 @@ public:
      * @param key The key of the sub-document to retrieve.
      * @return The sub-document associated with the key, or an empty JSON object if the key does not exist.
      */
-    JSON getSubDoc(std::string_view key) const ;
+    Json getSubDoc(std::string_view key) const ;
 
     /**
      * @brief Gets a pointer to a double value pointer in the JSON document.
@@ -559,5 +559,5 @@ public:
     std::expected<RjDirectAccess::SimpleValue, SimpleValueRetrievalError> getSimpleValueFromDocument(std::string_view key) const ;
 };
 } // namespace Nebulite::Data
-#include "Nebulite/Data/Document/JSON.tpp" // NOLINT(misc-include-cleaner)
+#include "Nebulite/Data/Document/Json.tpp" // NOLINT(misc-include-cleaner)
 #endif // NEBULITE_DATA_DOCUMENT_JSON_HPP

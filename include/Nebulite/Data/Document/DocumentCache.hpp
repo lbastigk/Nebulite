@@ -13,7 +13,7 @@
 #include <utility>
 
 // Nebulite
-#include "Nebulite/Data/Document/JSON.hpp"
+#include "Nebulite/Data/Document/Json.hpp"
 #include "Nebulite/Data/Document/KeyType.hpp"
 #include "Nebulite/Data/Document/ReadOnlyDocs.hpp"
 #include "Nebulite/Data/Document/SimpleValueError.hpp"
@@ -88,7 +88,7 @@ public:
      * @param docAndKey The link and key of the sub-document to retrieve.
      * @return The sub-document associated with the key, or an empty JSON object if the key does not exist.
      */
-    JSON getSubDoc(std::string const& docAndKey) const ;
+    Json getSubDoc(std::string const& docAndKey) const ;
 
     /**
      * @brief Retrieves the entire document as a serialized string.

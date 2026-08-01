@@ -25,7 +25,7 @@ class ContextScope;
 namespace Nebulite::Module::Domain::Common {
 /**
  * @class Nebulite::Module::Domain::Common::ComplexData
- * @brief DomainModule for complex data operations on domain class Nebulite::Data::JSON
+ * @brief DomainModule for complex data operations on domain class Nebulite::Data::Json
  */
 class ComplexData final : public Base::DomainModule<Interaction::Execution::Domain> {
 public:

@@ -54,7 +54,7 @@ public:
     void OnElementDestroy(Rml::Element* element) override ;
 
     void OnDocumentLoad(Rml::ElementDocument* document) override {
-        reflectionResults.emplace(document, absl::flat_hash_map<Rml::Element*, std::unique_ptr<Data::JSON>>{});
+        reflectionResults.emplace(document, absl::flat_hash_map<Rml::Element*, std::unique_ptr<Data::Json>>{});
     }
 
     void OnDocumentUnload(Rml::ElementDocument* document) override {
@@ -101,7 +101,7 @@ private:
         Rml::ElementDocument*,
         absl::flat_hash_map<
             Rml::Element*,
-            std::unique_ptr<Data::JSON>
+            std::unique_ptr<Data::Json>
         >
     >
     reflectionResults;
@@ -131,7 +131,7 @@ private:
      * @param scope The scope of the element
      * @return The result of the expression
      */
-    Data::JSON& evaluateReflectionList(std::unique_ptr<ReflectionEntry> const& entry, Rml::Element* element, Interaction::ContextScope const& scope);
+    Data::Json& evaluateReflectionList(std::unique_ptr<ReflectionEntry> const& entry, Rml::Element* element, Interaction::ContextScope const& scope);
 
     /**
      * @brief Sets the scopes for all parts of a reflection entry
@@ -140,7 +140,7 @@ private:
      * @param element The rml element associated with the reflection
      * @param contextAndScope The context and scope of the element
      */
-    void setReflectionScopes(Data::JSON& reflectionList, std::unique_ptr<ReflectionEntry> const& entry, Rml::Element const* element, Graphics::RmlInterface::ContextAndScope const& contextAndScope) const ;
+    void setReflectionScopes(Data::Json& reflectionList, std::unique_ptr<ReflectionEntry> const& entry, Rml::Element const* element, Graphics::RmlInterface::ContextAndScope const& contextAndScope) const ;
 
     /**
      * @brief Reflects a single element based on the provided entry

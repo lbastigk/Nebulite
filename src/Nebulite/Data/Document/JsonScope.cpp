@@ -16,7 +16,7 @@
 #include <vector>
 
 // Nebulite
-#include "Nebulite/Data/Document/JSON.hpp"
+#include "Nebulite/Data/Document/Json.hpp"
 #include "Nebulite/Data/Document/JsonScope.hpp"
 #include "Nebulite/Data/Document/KeyType.hpp"
 #include "Nebulite/Data/Document/RjDirectAccess.hpp"
@@ -30,9 +30,9 @@
 namespace Nebulite::Data {
 
 // Constructing a JsonScope from a JSON document and a prefix
-JsonScope::JsonScope(JSON& doc, std::optional<std::string> const& prefix)
+JsonScope::JsonScope(Json& doc, std::optional<std::string> const& prefix)
     // create a non-owning shared_ptr to the provided JSON (no delete on destruction)
-    : baseDocument(std::shared_ptr<JSON>(&doc, [](JSON*){}))
+    : baseDocument(std::shared_ptr<Json>(&doc, [](Json*){}))
     , scopePrefix(generateScopePrefix(doc, prefix))
     , odpCache(Utility::Generate::array<MappedOrderedCacheList, cacheLookupThreadCount>([this](std::size_t) {return MappedOrderedCacheList(*this);}))
 {}
@@ -46,7 +46,7 @@ JsonScope::JsonScope(JsonScope const& other, std::optional<std::string> const& p
 
 // Default constructor, we create a self-owned empty JSON document
 JsonScope::JsonScope()
-    : baseDocument(std::make_shared<JSON>())
+    : baseDocument(std::make_shared<Json>())
     , scopePrefix("")
     , odpCache(Utility::Generate::array<MappedOrderedCacheList, cacheLookupThreadCount>([this](std::size_t) {return MappedOrderedCacheList(*this);}))
 {}
@@ -117,10 +117,10 @@ std::expected<RjDirectAccess::SimpleValue, SimpleValueRetrievalError> JsonScope:
     return getVariant(key.view());
 }
 
-JSON JsonScope::getSubDoc(ScopedKeyView const& key) const {
+Json JsonScope::getSubDoc(ScopedKeyView const& key) const {
     return baseDocument->getSubDoc(key.full(*this));
 }
-JSON JsonScope::getSubDoc(ScopedKey const& key) const {
+Json JsonScope::getSubDoc(ScopedKey const& key) const {
     return getSubDoc(key.view());
 }
 
@@ -154,18 +154,18 @@ void JsonScope::setVariant(ScopedKey const& key, RjDirectAccess::SimpleValue con
     setVariant(key.view(), value);
 }
 
-void JsonScope::setSubDoc(ScopedKeyView const& key, JSON const& subDoc){
+void JsonScope::setSubDoc(ScopedKeyView const& key, Json const& subDoc){
     doc().setSubDoc(key.full(*this), subDoc);
 }
 
-void JsonScope::setSubDoc(ScopedKey const& key, JSON const& subDoc) {
+void JsonScope::setSubDoc(ScopedKey const& key, Json const& subDoc) {
     setSubDoc(key.view(), subDoc);
 }
 
 void JsonScope::setSubDoc(ScopedKeyView const& key, JsonScope const& subDoc){
     // Slightly more complicated: If we wish to set the sub-document from another JsonScope,
     // we need to extract the underlying JSON document from it in the correct scope.
-    JSON const subDocScope = subDoc.getSubDoc(ScopedKey(""));
+    Json const subDocScope = subDoc.getSubDoc(ScopedKey(""));
     doc().setSubDoc(key.full(*this), subDocScope);
 }
 
@@ -375,7 +375,7 @@ std::string JsonScope::serialize(ScopedKey const& key) const {
 }
 
 void JsonScope::deserialize(std::string_view const serialOrLink) {
-    JSON tempDoc;
+    Json tempDoc;
     tempDoc.deserialize(serialOrLink);
     static ScopedKeyView constexpr key("");
     std::string const fullKey = key.full(*this);

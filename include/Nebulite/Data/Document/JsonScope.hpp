@@ -35,7 +35,7 @@
 // Forward declarations
 
 namespace Nebulite::Data {
-class JSON;
+class Json;
 } // namespace Nebulite::Data
 
 //------------------------------------------
@@ -53,10 +53,10 @@ public:
     static auto constexpr cacheLookupThreadCount = Constants::ThreadSettings::Maximum::totalThreadCount + 4; // A bit extra, just in case
 
 private:
-    std::shared_ptr<JSON> baseDocument;
+    std::shared_ptr<Json> baseDocument;
 
     // For non-const-access, carrying over the non-const-attribute of baseDocument
-    JSON& doc() { // NOLINT
+    Json& doc() { // NOLINT
         return *baseDocument;
     }
 
@@ -119,7 +119,7 @@ public:
     // Constructors
 
     // Constructing a JsonScope from a JSON document and a prefix
-    explicit JsonScope(JSON& doc, std::optional<std::string> const& prefix);
+    explicit JsonScope(Json& doc, std::optional<std::string> const& prefix);
 
     // Constructing a JsonScope from another JsonScope and a sub-prefix
     explicit JsonScope(JsonScope const& other, std::optional<std::string> const& prefix);
@@ -184,8 +184,8 @@ public:
     [[nodiscard]] std::expected<RjDirectAccess::SimpleValue, SimpleValueRetrievalError> getVariant(ScopedKeyView const& key) const ;
     [[nodiscard]] std::expected<RjDirectAccess::SimpleValue, SimpleValueRetrievalError> getVariant(ScopedKey const& key) const ;
 
-    [[nodiscard]] JSON getSubDoc(ScopedKeyView const& key) const ;
-    [[nodiscard]] JSON getSubDoc(ScopedKey const& key) const ;
+    [[nodiscard]] Json getSubDoc(ScopedKeyView const& key) const ;
+    [[nodiscard]] Json getSubDoc(ScopedKey const& key) const ;
 
     [[nodiscard]] double* getStableDoublePointer(ScopedKeyView const& key) const ;
     [[nodiscard]] double* getStableDoublePointer(ScopedKey const& key) const ;
@@ -203,8 +203,8 @@ public:
     void setVariant(ScopedKeyView const& key, RjDirectAccess::SimpleValue const& value);
     void setVariant(ScopedKey const& key, RjDirectAccess::SimpleValue const& value);
 
-    void setSubDoc(ScopedKeyView const& key, JSON const& subDoc);
-    void setSubDoc(ScopedKey const& key, JSON const& subDoc);
+    void setSubDoc(ScopedKeyView const& key, Json const& subDoc);
+    void setSubDoc(ScopedKey const& key, Json const& subDoc);
 
     void setSubDoc(ScopedKeyView const& key, JsonScope const& subDoc);
     void setSubDoc(ScopedKey const& key, JsonScope const& subDoc);

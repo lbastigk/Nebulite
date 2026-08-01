@@ -18,7 +18,7 @@ class GlobalSpace;
 } // namespace Nebulite::Core
 
 namespace Nebulite::Data {
-class JSON;
+class Json;
 class JsonScope;
 } // namespace Nebulite::Data
 
@@ -73,7 +73,7 @@ private:
      * @brief Provides access to the global JSON document.
      * @return Reference to the global JSON document.
      */
-    static Data::JSON& globalDoc();
+    static Data::Json& globalDoc();
 };
 
 } // namespace Nebulite

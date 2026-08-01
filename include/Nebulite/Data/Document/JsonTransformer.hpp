@@ -17,7 +17,7 @@
 // Forward declarations
 
 namespace Nebulite::Data {
-class JSON;
+class Json;
 class JsonScope;
 } // namespace Nebulite::Data
 
@@ -76,7 +76,7 @@ public:
      * @return true if the transformations were successfully applied, false otherwise.
      */
     bool parse(std::span<std::string_view const> const& transformationList, JsonScope& jsonDoc) const ;
-    bool parse(std::span<std::string_view const> const& transformationList, JSON& jsonDoc) const ;
+    bool parse(std::span<std::string_view const> const& transformationList, Json& jsonDoc) const ;
 
 
     /**

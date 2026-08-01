@@ -49,7 +49,7 @@ bool Array::at(std::span<std::string_view const> const& args, Data::JsonScope& j
         if (index >= jsonDoc.memberSize(rootKey)) {
             return false; // Index out of bounds
         }
-        Data::JSON const temp = jsonDoc.getSubDoc(rootKey.addIndex(index));
+        Data::Json const temp = jsonDoc.getSubDoc(rootKey.addIndex(index));
         jsonDoc.setSubDoc(rootKey, temp);
         return true;
     } catch (...) {
@@ -74,7 +74,7 @@ bool Array::first(Data::JsonScope& jsonDoc) {
     if (jsonDoc.memberSize(rootKey) == 0) {
         return false; // Empty array
     }
-    Data::JSON const firstElement = jsonDoc.getSubDoc(rootKey.addIndex(0));
+    Data::Json const firstElement = jsonDoc.getSubDoc(rootKey.addIndex(0));
     jsonDoc.setSubDoc(rootKey, firstElement);
     return true;
 }
@@ -87,7 +87,7 @@ bool Array::last(Data::JsonScope& jsonDoc) {
     if (arraySize == 0) {
         return false; // Empty array
     }
-    Data::JSON const lastElement = jsonDoc.getSubDoc(rootKey.addIndex(arraySize - 1));
+    Data::Json const lastElement = jsonDoc.getSubDoc(rootKey.addIndex(arraySize - 1));
     jsonDoc.setSubDoc(rootKey, lastElement);
     return true;
 }
@@ -136,11 +136,11 @@ bool Array::reverse(Data::JsonScope& jsonDoc) {
         return false;
     }
     auto const arraySize = jsonDoc.memberSize(rootKey);
-    Data::JSON const tmp = jsonDoc.getSubDoc(rootKey);
+    Data::Json const tmp = jsonDoc.getSubDoc(rootKey);
     for (std::size_t i = 0; i < arraySize; ++i) {
         auto const key = rootKey.addIndex(i);
         auto const elementKey = rootKey.addIndex(arraySize - 1 - i).toString();
-        Data::JSON const element = tmp.getSubDoc(elementKey);
+        Data::Json const element = tmp.getSubDoc(elementKey);
         jsonDoc.setSubDoc(key, element);
     }
     return true;

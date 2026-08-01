@@ -71,10 +71,10 @@ bool Types::serialize(Data::JsonScope& jsonDoc) {
 
 bool Types::deserialize(Data::JsonScope& jsonDoc) {
     auto const serialized = jsonDoc.get<std::string>(rootKey).value_or("");
-    if (!Data::JSON::isJsonOrJsonc(serialized)) {
+    if (!Data::Json::isJsonOrJsonc(serialized)) {
         return false;
     }
-    Data::JSON tempDoc;
+    Data::Json tempDoc;
     tempDoc.deserialize(serialized);
     jsonDoc.setSubDoc(rootKey, tempDoc);
     return true;

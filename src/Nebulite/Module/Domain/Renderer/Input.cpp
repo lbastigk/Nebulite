@@ -18,7 +18,7 @@
 // Nebulite
 #include "Nebulite/Constants/Event.hpp"
 #include "Nebulite/Core/Renderer.hpp"
-#include "Nebulite/Data/Document/JSON.hpp"
+#include "Nebulite/Data/Document/Json.hpp"
 #include "Nebulite/Data/Document/JsonScope.hpp"
 #include "Nebulite/Module/Base/DomainModule.hpp"
 #include "Nebulite/Module/Domain/Renderer/Input.hpp"
@@ -82,7 +82,7 @@ void Input::mapKeyNames() {
 
             // Don't add if there are special chars in Nebulite::Constants::keyName
             if (!Utility::StringHandler::containsAnyOf(
-                keyName, Data::JSON::reservedCharacters)) {
+                keyName, Data::Json::reservedCharacters)) {
                 keyboardState.keyNames[scancode] = keyName;
 
                 // Paths

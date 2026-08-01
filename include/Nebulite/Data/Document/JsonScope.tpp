@@ -8,7 +8,7 @@
 #include <expected>
 
 // Nebulite
-#include "Nebulite/Data/Document/JSON.hpp"
+#include "Nebulite/Data/Document/Json.hpp"
 #include "Nebulite/Data/Document/ScopedKeyView.hpp"
 #include "Nebulite/Data/Document/SimpleValueError.hpp"
 #include "Nebulite/Utility/Ranges.hpp"
@@ -25,7 +25,7 @@ namespace Nebulite::Data {
 
 template<typename DocType>
 std::optional<std::string> JsonScope::generateScopePrefix(DocType const& doc, std::optional<std::string> const& prefix) {
-    if constexpr (std::is_same_v<DocType, JSON>) {
+    if constexpr (std::is_same_v<DocType, Json>) {
         if (prefix.has_value()) {
             return {generatePrefix(prefix.value())};
         }
@@ -34,7 +34,7 @@ std::optional<std::string> JsonScope::generateScopePrefix(DocType const& doc, st
             return {ScopedKeyView(generatePrefix(prefix.value())).full(doc)};
         }
     } else {
-        static_assert(std::is_same_v<DocType, JSON> || std::is_same_v<DocType, JsonScope>, "Unsupported document type for generateScopePrefix");
+        static_assert(std::is_same_v<DocType, Json> || std::is_same_v<DocType, JsonScope>, "Unsupported document type for generateScopePrefix");
     }
     // No prefix provided
     return std::nullopt;
@@ -64,7 +64,7 @@ void JsonScope::setArray(ScopedKeyView const& key, R const& range) {
         if constexpr (std::is_same_v<typename R::value_type, std::complex<double>>) {
             setComplex(indexKey, range[index]);
         }
-        else if constexpr (std::is_same_v<typename R::value_type, JSON> || std::is_same_v<typename R::value_type, JsonScope>) {
+        else if constexpr (std::is_same_v<typename R::value_type, Json> || std::is_same_v<typename R::value_type, JsonScope>) {
             setSubDoc(indexKey, range[index]);
         }
         else {

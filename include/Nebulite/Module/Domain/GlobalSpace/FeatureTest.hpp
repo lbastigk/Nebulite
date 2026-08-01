@@ -56,7 +56,7 @@ public:
 
     [[nodiscard]] Constants::Event findParentKey(std::span<std::string_view const> const& args) const ;
     static auto constexpr findParentKeyName = "feature-test find-parent-key";
-    static auto constexpr findParentKeyDesc = "Finds the parent key of a given key using the JSON::findParentKey method.\n"
+    static auto constexpr findParentKeyDesc = "Finds the parent key of a given key using the Json::findParentKey method.\n"
         "Usage: feature-test find-parent-key <key>\n"
         "Using no argument will treated as an empty key.\n";
 

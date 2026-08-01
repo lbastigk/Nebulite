@@ -19,7 +19,7 @@
 #include <tinyexpr.h>
 
 // Nebulite
-#include "Nebulite/Data/Document/JSON.hpp"
+#include "Nebulite/Data/Document/Json.hpp"
 #include "Nebulite/Interaction/Context.hpp"
 #include "Nebulite/Interaction/Logic/Formatter.hpp"
 
@@ -158,7 +158,7 @@ public:
      * @return The evaluation result as a JSON object.
      */
     template<typename F>
-    [[nodiscard]] Data::JSON evalAsJson(ContextScope const& context, std::size_t const recursionDepth, F cacheUpdater) const {
+    [[nodiscard]] Data::Json evalAsJson(ContextScope const& context, std::size_t const recursionDepth, F cacheUpdater) const {
         cacheUpdater();
         return evalAsJsonImpl(context, recursionDepth);
     }
@@ -236,7 +236,7 @@ private:
      * @param recursionDepth The current recursion depth for nested evaluations.
      * @return True if the evaluation was successful, false otherwise.
      */
-    bool evalComponentTypeVariable(Data::JSON& token, ContextScope const& context, std::size_t recursionDepth) const ;
+    bool evalComponentTypeVariable(Data::Json& token, ContextScope const& context, std::size_t recursionDepth) const ;
 
     /**
      * @brief Handles the evaluation of an eval component.
@@ -249,7 +249,7 @@ private:
 
     [[nodiscard]] double evalAsDoubleImpl() const ;
 
-    [[nodiscard]] Data::JSON evalAsJsonImpl(ContextScope const& context, std::size_t recursionDepth) const ;
+    [[nodiscard]] Data::Json evalAsJsonImpl(ContextScope const& context, std::size_t recursionDepth) const ;
 };
 
 } // namespace Nebulite::Interaction::Logic

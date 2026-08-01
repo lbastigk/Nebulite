@@ -16,7 +16,7 @@
 #include "Nebulite/Constants/ThreadSettings.hpp"
 #include "Nebulite/Core/RenderObject.hpp"
 #include "Nebulite/Data/Batch.hpp"
-#include "Nebulite/Data/Document/JSON.hpp"
+#include "Nebulite/Data/Document/Json.hpp"
 #include "Nebulite/Data/Document/KeyType.hpp"
 #include "Nebulite/Data/RenderObjectContainer.hpp"
 #include "Nebulite/Data/RendererProcessor.hpp"
@@ -43,7 +43,7 @@ std::string RenderObjectContainer::serialize() {
     for (auto& tile : std::views::values(ObjectContainer)) {
         for (auto const& objects : tile.getBatchedObjects()) {
             for (auto const& obj : objects) {
-                JSON objSerial;
+                Json objSerial;
                 objSerial.deserialize(obj->serialize());
 
                 // insert into doc
@@ -70,7 +70,7 @@ void RenderObjectContainer::deserialize(std::string const& serialOrLink, TilingI
             auto roSerial = doc.get<std::string>(objectKey);
             std::string str;
             if (!roSerial.has_value()) {
-                JSON tmp;
+                Json tmp;
                 tmp = doc.getSubDoc(objectKey);
                 str = tmp.serialize();
             }

@@ -13,7 +13,7 @@
 #include <absl/container/flat_hash_map.h>
 
 // Nebulite
-#include "Nebulite/Data/Document/JSON.hpp"
+#include "Nebulite/Data/Document/Json.hpp"
 #include "Nebulite/Utility/Coordination/SharedMutex.hpp"
 #include "Nebulite/Utility/Time.hpp"
 #include "Nebulite/Utility/TimeKeeper.hpp"
@@ -26,7 +26,7 @@ namespace Nebulite::Data {
  * @brief Represents a read-only document with its associated metadata.
  */
 struct ReadOnlyDoc {
-    JSON document;          // The actual JSON document
+    Json document;          // The actual Json document
     Utility::TimeKeeper lastUsed; // TimeKeeper to track last access time
     std::string serial;
     ReadOnlyDoc() = default;

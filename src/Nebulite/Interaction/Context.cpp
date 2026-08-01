@@ -39,7 +39,7 @@ ContextDeriver::TargetType ContextDeriver::getTypeFromString(std::string_view co
 }
 
 std::pair<ContextDeriver::TargetType, std::string_view> ContextDeriver::getTypeAndPrefixFromString(std::string_view const str){
-    auto const positionPipingOperator = str.find(Data::JSON::SpecialCharacter::transformationPipe);
+    auto const positionPipingOperator = str.find(Data::Json::SpecialCharacter::transformationPipe);
     auto const positionContextKeySeparator = str.find(contextKeySeparator);
 
     // Find context string

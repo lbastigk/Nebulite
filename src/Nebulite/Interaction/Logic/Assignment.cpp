@@ -92,7 +92,7 @@ void Assignment::optimize(ContextScope const& contextScope){
      };
 
     // Keys with transformations cannot be optimized to use a stable double pointer
-    if (key->getFullExpression().contains(Data::JSON::SpecialCharacter::transformationPipe)) {
+    if (key->getFullExpression().contains(Data::Json::SpecialCharacter::transformationPipe)) {
         return;
     }
 

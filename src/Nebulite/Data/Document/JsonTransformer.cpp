@@ -9,7 +9,7 @@
 #include <vector>
 
 // Nebulite
-#include "Nebulite/Data/Document/JSON.hpp"
+#include "Nebulite/Data/Document/Json.hpp"
 #include "Nebulite/Data/Document/JsonScope.hpp"
 #include "Nebulite/Data/Document/JsonTransformer.hpp"
 #include "Nebulite/Nebulite.hpp"
@@ -93,7 +93,7 @@ bool JsonTransformer::parse(std::span<std::string_view const> const& transformat
     });
 }
 
-bool JsonTransformer::parse(std::span<std::string_view const> const& transformationList, JSON& jsonDoc) const {
+bool JsonTransformer::parse(std::span<std::string_view const> const& transformationList, Json& jsonDoc) const {
     auto& scope = jsonDoc.fullScope();
     return parse(transformationList, scope);
 }

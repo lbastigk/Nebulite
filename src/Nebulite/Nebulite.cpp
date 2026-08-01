@@ -6,7 +6,7 @@
 
 // Nebulite
 #include "Nebulite/Core/GlobalSpace.hpp"
-#include "Nebulite/Data/Document/JSON.hpp"
+#include "Nebulite/Data/Document/Json.hpp"
 #include "Nebulite/Nebulite.hpp"
 #include "Nebulite/ScopeAccessor.hpp"
 #include "Nebulite/Utility/Io/Capture.hpp"
@@ -35,8 +35,8 @@ Utility::Io::Capture& Global::capture() {
 //------------------------------------------
 // Private methods
 
-Data::JSON& Global::globalDoc() {
-    static Data::JSON instance;
+Data::Json& Global::globalDoc() {
+    static Data::Json instance;
     return instance;
 }
 

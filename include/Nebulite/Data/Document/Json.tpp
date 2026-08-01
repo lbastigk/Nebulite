@@ -31,14 +31,14 @@
 // Conditional includes
 
 #ifndef NEBULITE_DATA_DOCUMENT_JSON_HPP
-    #include "Nebulite/Data/Document/JSON.hpp"
+    #include "Nebulite/Data/Document/Json.hpp"
 #endif // NEBULITE_DATA_DOCUMENT_JSON_HPP
 
 //------------------------------------------
 namespace Nebulite::Data {
 
 template<typename T>
-void JSON::set(std::string_view const key, T const& val){
+void Json::set(std::string_view const key, T const& val){
     // Check if T is an optional/expected type, and if so, throw an assertion error
     static_assert(!Utility::TypeCheck::is_std_optional_v<T>,
         "Setting optional types directly is not allowed. "
@@ -61,7 +61,7 @@ void JSON::set(std::string_view const key, T const& val){
 }
 
 template<typename T>
-std::expected<T, SimpleValueRetrievalError> JSON::get(std::string_view const key) const {
+std::expected<T, SimpleValueRetrievalError> Json::get(std::string_view const key) const {
     std::scoped_lock const lockGuard(mtx);
 
     // Check if a transformation is present
@@ -85,7 +85,7 @@ std::expected<T, SimpleValueRetrievalError> JSON::get(std::string_view const key
 }
 
 template<typename T>
-std::expected<T, SimpleValueRetrievalError> JSON::getWithTransformations(std::string_view const key) const {
+std::expected<T, SimpleValueRetrievalError> Json::getWithTransformations(std::string_view const key) const {
     auto args = splitKeyWithTransformations(key);
     assert(!args.empty());
 
@@ -95,7 +95,7 @@ std::expected<T, SimpleValueRetrievalError> JSON::getWithTransformations(std::st
     // which we use as the starting point for transformations.
     // This approach ensures a temporary document with the same value as this JSON object,
     // but without the overhead of creating and destroying a new JSON object on each call.
-    thread_local JSON tempDoc;
+    thread_local Json tempDoc;
     {
         // Simply overwriting with setSubDoc isn't enough, as this may leave behind stale entries for stable double pointers, which we don't need here.
         // So we manually clear the entire cache.
@@ -113,7 +113,7 @@ std::expected<T, SimpleValueRetrievalError> JSON::getWithTransformations(std::st
 }
 
 template<typename T>
-std::optional<T> JSON::jsonValueToCache(std::string_view const key, rapidjson::Value const* val) const {
+std::optional<T> Json::jsonValueToCache(std::string_view const key, rapidjson::Value const* val) const {
     // Create a new cache entry
     auto newEntry = std::make_unique<CacheEntry>(*cacheLine, cachelineIndex);
 
@@ -141,7 +141,7 @@ std::optional<T> JSON::jsonValueToCache(std::string_view const key, rapidjson::V
 
 // Using NOLINTNEXTLINE to silence "Arguments passed in possible wrong order" warnings
 template<typename NewType>
-std::optional<NewType> JSON::convertVariant(RjDirectAccess::SimpleValue const& var){
+std::optional<NewType> Json::convertVariant(RjDirectAccess::SimpleValue const& var){
     return std::visit([&]<typename T>(T const& value){
         // Removing all qualifiers (const, volatile, references, etc.)
         using ValueT = std::decay_t<decltype(value)>;

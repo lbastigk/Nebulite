@@ -16,7 +16,7 @@
 #include <RmlUi/Core/Element.h>
 
 // Nebulite
-#include "Nebulite/Data/Document/JSON.hpp"
+#include "Nebulite/Data/Document/Json.hpp"
 #include "Nebulite/Data/Document/KeyType.hpp"
 #include "Nebulite/Graphics/RmlInterface.hpp"
 #include "Nebulite/Interaction/Context.hpp"
@@ -106,10 +106,10 @@ void Reflection::reflect(){
     reflectOnce.clear();
 }
 
-Data::JSON& Reflection::evaluateReflectionList(std::unique_ptr<ReflectionEntry> const& entry, Rml::Element* element, Interaction::ContextScope const& scope){
+Data::Json& Reflection::evaluateReflectionList(std::unique_ptr<ReflectionEntry> const& entry, Rml::Element* element, Interaction::ContextScope const& scope){
     auto* const elementDocument = element->GetOwnerDocument();
     if (reflectionResults[elementDocument].find(element) == reflectionResults[elementDocument].end()) {
-        reflectionResults[elementDocument][element] = std::make_unique<Data::JSON>();
+        reflectionResults[elementDocument][element] = std::make_unique<Data::Json>();
     }
     auto const& reflectionList = reflectionResults[elementDocument][element];
     *reflectionList = entry->reflectionListExpression.evalAsJson(scope);
@@ -123,7 +123,7 @@ void Reflection::setIdentifiers(Rml::Element* element, Graphics::RmlInterface::R
     }
 }
 
-void Reflection::setReflectionScopes(Data::JSON& reflectionList, std::unique_ptr<ReflectionEntry> const& entry, Rml::Element const* element, Graphics::RmlInterface::ContextAndScope const& contextAndScope) const {
+void Reflection::setReflectionScopes(Data::Json& reflectionList, std::unique_ptr<ReflectionEntry> const& entry, Rml::Element const* element, Graphics::RmlInterface::ContextAndScope const& contextAndScope) const {
     auto const childrenCount = static_cast<size_t>(element->GetNumChildren());
     std::size_t idsIndex = 0;
 

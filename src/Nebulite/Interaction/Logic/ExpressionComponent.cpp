@@ -174,7 +174,7 @@ void setToken(std::string& token, std::string const& evaluatedKey, ContextScope 
     }
 }
 
-void setToken(Data::JSON& token, std::string const& evaluatedKey, ContextScope const& context, ContextDeriver::TargetType const source) {
+void setToken(Data::Json& token, std::string const& evaluatedKey, ContextScope const& context, ContextDeriver::TargetType const source) {
     auto const scopedKey = Data::ScopedKey(evaluatedKey);
     switch (source) {
     case ContextDeriver::TargetType::self: // {self:<key><transformations>}
@@ -289,8 +289,8 @@ double ExpressionComponent::evalAsDoubleImpl() const {
     return te_eval(expression);
 }
 
-Data::JSON ExpressionComponent::evalAsJsonImpl(ContextScope const& context, std::size_t const recursionDepth) const {
-    Data::JSON jsonResult;
+Data::Json ExpressionComponent::evalAsJsonImpl(ContextScope const& context, std::size_t const recursionDepth) const {
+    Data::Json jsonResult;
     if (type == Type::eval) {
         if (formatter.cast == Formatter::CastType::none) {
             jsonResult.set<double>("", te_eval(expression));
@@ -333,7 +333,7 @@ bool ExpressionComponent::evalComponentTypeVariable(std::string& token, ContextS
     return true;
 }
 
-bool ExpressionComponent::evalComponentTypeVariable(Data::JSON& token, ContextScope const& context, std::size_t const recursionDepth) const {
+bool ExpressionComponent::evalComponentTypeVariable(Data::Json& token, ContextScope const& context, std::size_t const recursionDepth) const {
     // Do not evaluate if wait is active
     if (evaluationWait > 1) {
         token.set<std::string>("", "{" + std::to_string(evaluationWait - 1) + "!" + stringRepresentation + "}");

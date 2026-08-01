@@ -30,24 +30,24 @@ std::string ScopedKeyView::combineKeys(std::string_view const key1, std::string_
 
     // start with the given scope + a dot, if it doesn't have one.
     fullKey = key1;
-    if (!key1.empty() && !key1.ends_with(JSON::SpecialCharacter::dot)) {
-        fullKey += JSON::SpecialCharacter::dot;
+    if (!key1.empty() && !key1.ends_with(Json::SpecialCharacter::dot)) {
+        fullKey += Json::SpecialCharacter::dot;
     }
 
     // remove trailing dot from key2
-    if (key2.starts_with(JSON::SpecialCharacter::dot)) {
+    if (key2.starts_with(Json::SpecialCharacter::dot)) {
         key2.remove_prefix(1);
     }
 
     // remove trailing dot from key1
     if (!fullKey.empty()) {
-        if (key2.empty() || key2.front() == JSON::SpecialCharacter::arrayOpen) {
+        if (key2.empty() || key2.front() == Json::SpecialCharacter::arrayOpen) {
             fullKey.pop_back();
         }
     }
 
     // Remove dot at the beginning
-    if (fullKey.starts_with(JSON::SpecialCharacter::dot)) {
+    if (fullKey.starts_with(Json::SpecialCharacter::dot)) {
         fullKey.erase(0, 1);
     }
 

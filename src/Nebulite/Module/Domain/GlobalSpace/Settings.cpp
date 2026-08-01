@@ -10,7 +10,7 @@
 #include "Nebulite/Constants/Event.hpp"
 #include "Nebulite/Constants/StandardCapture.hpp"
 #include "Nebulite/Core/GlobalSpace.hpp"
-#include "Nebulite/Data/Document/JSON.hpp"
+#include "Nebulite/Data/Document/Json.hpp"
 #include "Nebulite/Data/Document/KeyType.hpp"
 #include "Nebulite/Module/Domain/GlobalSpace/InputMapping.hpp"
 #include "Nebulite/Module/Domain/GlobalSpace/Settings.hpp"
@@ -85,7 +85,7 @@ Constants::Event Settings::setSettingInt(std::span<std::string_view const> const
 
 Constants::Event Settings::loadSettings(std::string const& filename) const {
     // Load settings file and only set known settings
-    Data::JSON settings;
+    Data::Json settings;
 
     // Load defaults if no filename was provided
     if (!filename.empty()) settings.deserialize(filename);
