@@ -160,8 +160,6 @@ public:
 
     /**
      * @brief Skips updating the next frame.
-     * @details This can be useful to avoid rendering a frame when the application is not in focus,
-     *          or when the rendering load is too high.
      */
     void skipUpdateNextFrame() { status.skipUpdate = true; }
 
@@ -174,8 +172,7 @@ public:
     [[nodiscard]] bool isSkippingUpdate() const noexcept { return status.skipUpdate; }
 
     /**
-     * @brief Checks if the last frame update was skipped.
-     *        Keeps the value from the last renderer tick.
+     * @brief Checks if the last frame update was skipped last frame.
      * @return True if the last frame update was skipped, false otherwise.
      */
     [[nodiscard]] bool hasSkippedUpdate() const { return status.skippedUpdateLastFrame; }
