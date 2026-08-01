@@ -106,6 +106,11 @@ public:
         "Accepts an optional user-defined error message as additional arguments.\n"
         "Usage: |assert type value -> {value,<Exception thrown if not value>}\n";
 
+    static bool assertTypeNumeric(std::span<std::string_view const> const& args, Data::JsonScope const& jsonDoc);
+    static auto constexpr assertTypeNumericName = "assert type numeric";
+    static auto constexpr assertTypeNumericDesc = "Asserts that the current JSON value is numeric\n"
+        "Usage: |assert type numeric -> {value,<Exception thrown if not numeric>}\n";
+
     // [MATCH]
 
     static bool assertMatchRegex(std::span<std::string_view const> const& args, Data::JsonScope const& jsonDoc);

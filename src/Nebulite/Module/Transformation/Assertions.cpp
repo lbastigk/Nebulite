@@ -30,6 +30,7 @@ void Assertions::bindTransformations() {
     bindTransformation(&Assertions::assertTypeObject, assertTypeObjectName, assertTypeObjectDesc);
     bindTransformation(&Assertions::assertTypeArray, assertTypeArrayName, assertTypeArrayDesc);
     bindTransformation(&Assertions::assertTypeBasicValue, assertTypeBasicValueName, assertTypeBasicValueDesc);
+    bindTransformation(&Assertions::assertTypeNumeric, assertTypeNumericName, assertTypeNumericDesc);
 
     bindCategory(assertMatchName, assertMatchDesc);
     bindTransformation(&Assertions::assertMatchRegex, assertMatchesRegexName, assertMatchesRegexDesc);
@@ -135,6 +136,24 @@ bool Assertions::assertTypeBasicValue(std::span<std::string_view const> const& a
         throw std::runtime_error(errorMessage);
     }
     return true;
+}
+
+namespace {
+template <typename Value>
+bool isNumeric(Value const& v){
+    return std::visit([]<typename T>(T const&) {
+        return std::is_arithmetic_v<T>;
+    }, v);
+}
+} // namespace
+
+
+bool Assertions::assertTypeNumeric(std::span<std::string_view const> const& args, Data::JsonScope const& jsonDoc){
+    if (auto const variant = jsonDoc.getVariant(rootKey); variant.has_value() && isNumeric(variant.value())) {
+        return true;
+    }
+    printUserDefinedMessage(args);
+    throw std::runtime_error(std::string(assertTypeNumericName) + ": JSON value is not a number");
 }
 
 // NOLINTNEXTLINE
