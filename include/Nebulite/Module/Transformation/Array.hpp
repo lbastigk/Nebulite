@@ -94,6 +94,7 @@ public:
         "If the current value is not an array, it is first wrapped into a single-element array.\n"
         "Usage: |pushNumber <value> -> {array}\n";
 
+    // TODO: no index name passing. Instead: turn into object with index and value
     static bool enumerate(std::span<std::string_view const> const& args, Data::JsonScope& jsonDoc);
     static auto constexpr enumerateName = "enumerate";
     static auto constexpr enumerateDesc = "Enumerates the array in the current JSON value.\n"
