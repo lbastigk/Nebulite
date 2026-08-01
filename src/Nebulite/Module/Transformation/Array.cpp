@@ -161,8 +161,7 @@ bool Array::ensureArray(Data::JsonScope& jsonDoc) {
     jsonDoc.moveMember(rootKey, key); // Move the original value to the new array index
 
     // Return whether wrapping succeeded
-    auto const NewType = jsonDoc.memberType(rootKey);
-    return NewType == Data::KeyType::array;
+    return jsonDoc.memberType(rootKey) == Data::KeyType::array;
 }
 
 bool Array::push(std::span<std::string_view const> const& args, Data::JsonScope& jsonDoc) {
