@@ -46,7 +46,7 @@ struct BitReversalPermutation {
 
     auto operator()(std::size_t const n) const {
         return Closure{
-            {},
+            {}, // NOLINT
             n,
         };
     }
@@ -91,15 +91,15 @@ struct ApplyStages {
 
     auto operator()(std::size_t const n) const {
         return Closure{
-            {},
+            {}, // NOLINT
             n,
             fullAngle,
         };
     }
 };
 
-inline constexpr ApplyStages applyStagesFFT{ -2.0 * std::numbers::pi };
-inline constexpr ApplyStages applyStagesIFFT{ 2.0 * std::numbers::pi };
+inline constexpr ApplyStages applyStagesForward{ -2.0 * std::numbers::pi };
+inline constexpr ApplyStages applyStagesInverse{ 2.0 * std::numbers::pi };
 
 } // namespace
 
@@ -110,7 +110,7 @@ std::vector<std::complex<double>> FFT::fft(std::vector<double> const& data) {
     std::copy_n(data.begin(), data.size(), a.begin());
     return a
         | bitReversalPermutation(n)
-        | applyStagesFFT(n)
+        | applyStagesForward(n)
         | std::ranges::to<std::vector<std::complex<double>>>();
 }
 
@@ -121,7 +121,7 @@ std::vector<std::complex<double>> FFT::fftInverse(std::vector<std::complex<doubl
     a.resize(n);
     return a
         | bitReversalPermutation(n)
-        | applyStagesIFFT(n)
+        | applyStagesInverse(n)
         | Utility::Ranges::normalize(n)
         | std::ranges::to<std::vector<std::complex<double>>>();
 }
