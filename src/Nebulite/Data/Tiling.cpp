@@ -57,10 +57,11 @@ bool Tile::insertIfCostGoalMatches(Core::RenderObject* toAppend) {
         batches.end(),
         // NOLINTNEXTLINE
         [&](Batch const& b) {
-            if constexpr (batchCostGoal == 0) { // NOLINT
-                // NOLINTNEXTLINE
+            // NOLINTBEGIN
+            if constexpr (batchCostGoal == 0) {
                 return true; // No cost goal, accept all batches
             }
+            // NOLINTEND
             else {
                 // NOLINTNEXTLINE
                 return b.estimatedCost <= batchCostGoal;
