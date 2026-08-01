@@ -21,7 +21,7 @@ echo Adding background
 for-progress i -40 39 for j -40 39 spawn ./Resources/Renderobjects/Plants/Grass/grass.jsonc \
     |eval set posX $({i}*16) \
     |eval set posY $({j}*16) \
-    |eval set draw.core.rect.src.x $(16*(rng2argInt16({i}*16,{j}*16)%3))
+    |eval set draw.core.rect.src.x $(16*(rng2ArgInt16({i}*16,{j}*16)%3))
 
 # Border Trees
 echo Adding Trees: Border

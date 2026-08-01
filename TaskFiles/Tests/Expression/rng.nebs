@@ -1,0 +1,25 @@
+# Tests rng2Arg/rng3Arg capabilities
+
+# 1.) Verify result is numeric
+capture result[0] eval echo $(rng2Arg(1,1))
+capture result[1] eval echo $(rng3Arg(1,1,1))
+
+eval nop $({self:result[0]|length|assert equals int 1})
+eval nop $({self:result[0][0]|assert type basicValue})
+eval nop $({self:result[0][0]|toDouble|assert type numeric})
+eval nop $({self:result[1]|length|assert equals int 1})
+eval nop $({self:result[1][0]|assert type basicValue})
+eval nop $({self:result[1][0]|toDouble|assert type numeric})
+
+# 2.) Verify result differs
+capture result[2] eval echo $(neq(rng2Arg(1,1),rng2Arg(1,2)))
+capture result[3] eval echo $(neq(rng3Arg(1,1,1),rng3Arg(1,1,2)))
+
+eval nop $({self:result[2]|length|assert equals int 1})
+eval nop $({self:result[2][0]|assert type basicValue})
+eval nop $({self:result[2][0]|assert equals int 1})
+eval nop $({self:result[3]|length|assert equals int 1})
+eval nop $({self:result[3][0]|assert type basicValue})
+eval nop $({self:result[3][0]|assert equals int 1})
+
+exit

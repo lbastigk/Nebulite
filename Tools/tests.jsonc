@@ -36,6 +36,7 @@
         "Tools/Tests/Expression/math.json",
         "Tools/Tests/Expression/nestedEvaluation.json",
         "Tools/Tests/Expression/types.json",
+        "Tools/Tests/Expression/rng.json",
         //---------------------------------------
         // Assignment tests
         "Tools/Tests/Assignment/basics.json",

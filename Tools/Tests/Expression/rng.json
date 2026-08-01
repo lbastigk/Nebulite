@@ -1,0 +1,6 @@
+[
+    {
+        "command": "task TaskFiles/Tests/Expression/rng.nebs",
+        "expected": { "cout": [], "cerr": [] }
+    }
+]

@@ -153,7 +153,9 @@ double ExpressionPrimitives::sgn(double const a) {
 //----------------------------------
 // Pseudo-random functions
 
-double ExpressionPrimitives::rng2Arg(double a, double b) {
+namespace {
+
+std::uint64_t seed2(double a, double b) {
     if (a<0) a = abs(a) * 125.5;
     if (b<0) b = abs(b) * 125.5;
 
@@ -161,10 +163,10 @@ double ExpressionPrimitives::rng2Arg(double a, double b) {
     seed = (seed ^ seed >> 30u) * 0xbf58476d1ce4e5b9;
     seed = (seed ^ seed >> 27u) * 0x94d049bb133111eb;
     seed = seed ^ seed >> 31u;
-    return static_cast<double>(seed % 10000) / 10000.0; // Return a value between 0 and 1
+    return seed;
 }
 
-double ExpressionPrimitives::rng3Arg(double a, double b, double c) {
+std::uint64_t seed3(double a, double b, double c) {
     if (a<0) a = abs(a) * 125.5;
     if (b<0) b = abs(b) * 125.5;
     if (c<0) c = abs(c) * 125.5;
@@ -173,30 +175,25 @@ double ExpressionPrimitives::rng3Arg(double a, double b, double c) {
     seed = (seed ^ seed >> 30u) * 0xbf58476d1ce4e5b9;
     seed = (seed ^ seed >> 27u) * 0x94d049bb133111eb;
     seed = seed ^ seed >> 31u;
-    return static_cast<double>(seed % 10000) / 10000.0; // Return a value between 0 and 1
+    return  seed;
 }
 
-double ExpressionPrimitives::rng2ArgInt16(double a, double b) {
-    if (a<0) a = abs(a) * 125.5;
-    if (b<0) b = abs(b) * 125.5;
+} // namespace
 
-    std::uint64_t seed = static_cast<uint64_t>(a * 73856093) ^ static_cast<uint64_t>(b * 19349663);
-    seed = (seed ^ seed >> 30u) * 0xbf58476d1ce4e5b9;
-    seed = (seed ^ seed >> 27u) * 0x94d049bb133111eb;
-    seed = seed ^ seed >> 31u;
-    return static_cast<double>(seed % 32768); // Return a value between 0 and 32767
+double ExpressionPrimitives::rng2Arg(double const a, double const b) {
+    return static_cast<double>(seed2(a,b) % 10000) / 10000.0; // Return a value between 0 and 1
 }
 
-double ExpressionPrimitives::rng3ArgInt16(double a, double b, double c) {
-    if (a<0) a = abs(a) * 125.5;
-    if (b<0) b = abs(b) * 125.5;
-    if (c<0) c = abs(c) * 125.5;
+double ExpressionPrimitives::rng3Arg(double const a, double const b, double const c) {
+    return static_cast<double>(seed3(a,b,c) % 10000) / 10000.0; // Return a value between 0 and 1
+}
 
-    std::uint64_t seed = static_cast<uint64_t>(a * 73856093) ^ static_cast<uint64_t>(b * 19349663) ^ static_cast<uint64_t>(c * 83492791);
-    seed = (seed ^ seed >> 30u) * 0xbf58476d1ce4e5b9;
-    seed = (seed ^ seed >> 27u) * 0x94d049bb133111eb;
-    seed = seed ^ seed >> 31u;
-    return static_cast<double>(seed % 32768); // Return a value between 0 and 32767
+double ExpressionPrimitives::rng2ArgInt16(double const a, double const b) {
+    return static_cast<double>(seed2(a,b) % 32768); // Return a value between 0 and 32767
+}
+
+double ExpressionPrimitives::rng3ArgInt16(double const a, double const b, double const c) {
+    return static_cast<double>(seed3(a,b,c) % 32768); // Return a value between 0 and 32767
 }
 
 //------------------------------------------
