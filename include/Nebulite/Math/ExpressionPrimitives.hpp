@@ -156,6 +156,21 @@ public:
         "Usage: roundDown(a, b)";
 
     //----------------------------------
+    // Frequency-related
+
+    static double triangle(double x);
+    static auto constexpr triangleName = "triangle";
+    static auto constexpr triangleDesc = "Triangular wave function, oscillating between -1 and 1.\n"
+        "Starting at 0, rising."
+        "Usage: triangle(x)";
+
+    static double square(double x);
+    static auto constexpr squareName = "square";
+    static auto constexpr squareDesc = "Square wave function, oscillating between -1 and 1.\n"
+        "1 at 0 degrees, -1 at 180 degrees.\n"
+        "Usage: square(x)";
+
+    //----------------------------------
     // More mathematical functions
 
     static double sgn(double a);

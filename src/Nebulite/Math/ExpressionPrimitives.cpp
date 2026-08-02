@@ -7,6 +7,7 @@
 #include <cstdint> // NOLINT
 #include <cstdlib>
 #include <limits>
+#include <numbers>
 #include <span>
 #include <string>
 #include <string_view>
@@ -144,6 +145,17 @@ double ExpressionPrimitives::roundDown(double const a, double const b) {
 }
 
 //----------------------------------
+// Frequency-related
+
+double ExpressionPrimitives::triangle(double x){
+    return 4.0 * fabs(fmod((x / (2.0 * std::numbers::pi)) - 0.25, 1.0) - 0.5) - 1.0;
+}
+
+double ExpressionPrimitives::square(double x){
+    return sin(x) >= 0.0 ? 1.0 : -1.0;
+}
+
+//----------------------------------
 // More mathematical functions
 
 double ExpressionPrimitives::sgn(double const a) {
@@ -273,6 +285,10 @@ std::vector<ExpressionPrimitives::FunctionInfo> const& ExpressionPrimitives::ava
         {.name=roundName, .description=roundDesc, .pointer=reinterpret_cast<void*>(round), .type=TE_FUNCTION2, .context=nullptr},
         {.name=roundUpName, .description=roundUpDesc, .pointer=reinterpret_cast<void*>(roundUp), .type=TE_FUNCTION2, .context=nullptr},
         {.name=roundDownName, .description=roundDownDesc, .pointer=reinterpret_cast<void*>(roundDown), .type=TE_FUNCTION2, .context=nullptr},
+
+        // Frequency
+        {.name=triangleName, .description=triangleDesc, .pointer=reinterpret_cast<void*>(triangle), .type=TE_FUNCTION1, .context=nullptr},
+        {.name=squareName, .description=squareDesc, .pointer=reinterpret_cast<void*>(square), .type=TE_FUNCTION1, .context=nullptr},
 
         // More mathematical functions
         {.name=sgnName, .description=sgnDesc, .pointer=reinterpret_cast<void*>(sgn), .type=TE_FUNCTION1, .context=nullptr},
