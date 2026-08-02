@@ -23,6 +23,7 @@
 #include "Nebulite/Constants/Event.hpp"
 #include "Nebulite/Constants/StandardCapture.hpp"
 #include "Nebulite/Core/Renderer.hpp"
+#include "Nebulite/Math/ExpressionPrimitives.hpp"
 #include "Nebulite/Module/Base/DomainModule.hpp"
 #include "Nebulite/Module/Domain/Renderer/Audio.hpp"
 #include "Nebulite/Utility/Generate.hpp"
@@ -135,27 +136,23 @@ void Audio::initAudio(){
 void Audio::initWaveforms() {
     static_assert(!std::is_unsigned_v<Settings::SampleType>, "SampleType must be a signed type");
     static double constexpr amplitudeScale = 0.3 * static_cast<double>(Settings::SampleMax); // Scale down the amplitude to prevent clipping
+    static auto constexpr omega = 2.0 * std::numbers::pi * BasicAudioWaveforms::Settings::frequency;
 
-    using SampleType = Settings::SampleType;
-    static auto constexpr SampleCount = BasicAudioWaveforms::Settings::samples;
-    static auto constexpr frequency = static_cast<double>(BasicAudioWaveforms::Settings::frequency);
-
-    // NOLINTNEXTLINE
-    auto constexpr time = [](std::size_t const i) {
-        return static_cast<double>(i) / Settings::sampleRate;
-    };
-
-    basicAudioWaveforms.sineBuffer = Utility::Generate::array<SampleType, SampleCount>([&time](std::size_t const i) {
-        return static_cast<Settings::SampleType>(amplitudeScale * sin(2.0 * std::numbers::pi * frequency * time(i)));
-    });
-    basicAudioWaveforms.triangleBuffer = Utility::Generate::array<SampleType, SampleCount>([&time](std::size_t const i) {
-        double const value = 2.0 * (time(i) * frequency - floor(time(i) * frequency + 0.5));
-        return static_cast<Settings::SampleType>(amplitudeScale * value);
-    });
-    basicAudioWaveforms.squareBuffer = Utility::Generate::array<SampleType, SampleCount>([&time](std::size_t const i) {
-        double const value = sin(2.0 * std::numbers::pi * frequency * time(i)) >= 0.0 ? 1.0 : -1.0;
-        return static_cast<Settings::SampleType>(amplitudeScale * value);
-    });
+    basicAudioWaveforms.sineBuffer = Utility::Generate::array<Settings::SampleType, BasicAudioWaveforms::Settings::samples>(
+        [](std::size_t const i) {
+            return static_cast<Settings::SampleType>(amplitudeScale * sin(omega * Settings::timeAtSample(i)));
+        }
+    );
+    basicAudioWaveforms.triangleBuffer = Utility::Generate::array<Settings::SampleType, BasicAudioWaveforms::Settings::samples>(
+        [](std::size_t const i) {
+            return static_cast<Settings::SampleType>(amplitudeScale * Math::ExpressionPrimitives::triangle(omega * Settings::timeAtSample(i)));
+        }
+    );
+    basicAudioWaveforms.squareBuffer = Utility::Generate::array<Settings::SampleType, BasicAudioWaveforms::Settings::samples>(
+        [](std::size_t const i) {
+            return static_cast<Settings::SampleType>(amplitudeScale * Math::ExpressionPrimitives::square(omega * Settings::timeAtSample(i)));
+        }
+    );
 }
 
 std::optional<std::shared_ptr<Audio::Sound>> Audio::loadSound(std::string const& path){

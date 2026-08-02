@@ -82,6 +82,10 @@ private:
         static SampleType constexpr SampleMin = std::is_floating_point_v<SampleType> ? static_cast<SampleType>(-1.0) : std::numeric_limits<SampleType>::min();
 
         static double constexpr sampleRate = 44100.0;
+
+        static double timeAtSample(std::size_t const sampleIndex) {
+            return static_cast<double>(sampleIndex) / sampleRate;
+        }
     };
 
     struct BasicAudioWaveforms {
