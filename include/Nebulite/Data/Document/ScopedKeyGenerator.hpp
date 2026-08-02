@@ -17,7 +17,10 @@
 namespace Nebulite::Data {
 
 // Operation type discriminator
-enum class OpType : bool { Member, Index };
+enum class OpType : bool {
+    Member,
+    Index,
+};
 
 // Union-like struct to hold either operation
 struct OpData {
@@ -55,6 +58,8 @@ public:
 
     constexpr ScopedKeyGenerator(std::string_view const base, const std::array<OpData, MaxOps>& ops, std::size_t const count)
         : base_(base), ops_(ops), count_(count) {}
+
+    // TODO: Use template parameter for index and member (OptionalFixedString), could make it possible to determine final length
 
     // Chain operations at compile-time
     constexpr ScopedKeyGenerator addMember(std::string_view const member) const {
