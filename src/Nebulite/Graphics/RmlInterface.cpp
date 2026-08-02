@@ -47,10 +47,11 @@
 //------------------------------------------
 // Due to lifetime issues, we need to keep track of the interface
 // with an outside variable.
+// An outside destructor might try to remove references to itself after the RmlInterface was already destroyed
 
 namespace {
 struct StatusTracker {
-    bool rmlInterfaceInitialized = false;
+    bool volatile rmlInterfaceInitialized = false;
 } statusTracker;
 } // namespace
 
