@@ -93,7 +93,7 @@ private:
         struct Settings {
             static double constexpr frequency = 440.0; // 440 Hz beep
             static double constexpr duration = 200.0; // 200ms
-            static std::size_t constexpr samples = static_cast<std::size_t>(Audio::Settings::sampleRate * duration / 1000.0); // Number of samples
+            static auto constexpr samples = static_cast<std::size_t>(Audio::Settings::sampleRate * duration / 1000.0); // Number of samples
         };
 
         std::array<Audio::Settings::SampleType, Settings::samples> sineBuffer{};
