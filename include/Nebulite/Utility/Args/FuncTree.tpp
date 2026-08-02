@@ -56,11 +56,11 @@ FuncTree<ReturnValue, AdditionalArgs...>::FuncTree(std::string_view const name, 
     bindingContainer.functions.emplace(
         helpName,
         FunctionInfo{
-            {
-                makeFunctionPtr(this, &FuncTree::help),
-                FunctionIdentity{this, &FuncTree::help}
+            .function={
+                .function=makeFunctionPtr(this, &FuncTree::help),
+                .identity=FunctionIdentity{this, &FuncTree::help}
             },
-        helpDesc
+            .description=helpDesc
         }
     );
 
@@ -68,11 +68,11 @@ FuncTree<ReturnValue, AdditionalArgs...>::FuncTree(std::string_view const name, 
     bindingContainer.functions.emplace(
         "__complete__",
         FunctionInfo{
-            {
-                makeFunctionPtr(this, &FuncTree::complete),
-                FunctionIdentity{this, &FuncTree::complete}
+            .function={
+                .function=makeFunctionPtr(this, &FuncTree::complete),
+                .identity=FunctionIdentity{this, &FuncTree::complete}
             },
-        completeDesc
+            .description=completeDesc
         }
     );
 } // NOLINT(clang-analyzer-cplusplus.NewDeleteLeaks)
@@ -187,8 +187,8 @@ void FuncTree<ReturnValue, AdditionalArgs...>::bindFunction(WrappedFunction cons
     bindingContainer.functions.emplace(
         std::string(name),
         FunctionInfo{
-            func,
-            std::string(helpDescription)
+            .function=func,
+            .description=std::string(helpDescription)
         }
     );
 }
@@ -251,7 +251,13 @@ void FuncTree<ReturnValue, AdditionalArgs...>::bindVariable(bool* varPtr, std::s
     }
 
     // Bind the variable
-    bindingContainer.variables.emplace(name, VariableInfo{varPtr, std::string(helpDescription)});
+    bindingContainer.variables.emplace(
+        name,
+        VariableInfo{
+            .pointer=varPtr,
+            .description=std::string(helpDescription)
+        }
+    );
 
     // Use the variable pointer once to silence "can be made const" warnings
     bool const val = *varPtr;
