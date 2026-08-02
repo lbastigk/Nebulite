@@ -6,7 +6,7 @@
 
 // Nebulite
 #include "Nebulite/Constants/Event.hpp"
-#include "Nebulite/Core/GlobalSpace.hpp" // NOLINT
+#include "Nebulite/Core/GlobalSpace.hpp" // NOLINT(misc-include-cleaner)
 #include "Nebulite/Core/Renderer.hpp"
 #include "Nebulite/Graphics/ImguiHelper.hpp"
 #include "Nebulite/Module/Base/DomainModule.hpp"
@@ -35,10 +35,10 @@ Constants::Event Console::updateHook() {
         };
 
         // Set context/scope
-        Interaction::Execution::Domain& global = Global::instance();
+        auto& globalDomain = static_cast<Interaction::Execution::Domain&>(Global::instance());
         static auto const accessToken = ScopeAccessor::Full();
         auto& globalScope = Global::shareScope(accessToken);
-        Interaction::Context ctx = {global, global, global};
+        Interaction::Context ctx = {globalDomain, globalDomain, globalDomain};
         Interaction::ContextScope ctxScope = {globalScope, globalScope, globalScope};
 
         // Render
