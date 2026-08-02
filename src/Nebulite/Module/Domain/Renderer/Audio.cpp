@@ -140,17 +140,17 @@ void Audio::initWaveforms() {
 
     basicAudioWaveforms.sineBuffer = Utility::Generate::array<Settings::SampleType, BasicAudioWaveforms::Settings::samples>(
         [](std::size_t const i) {
-            return static_cast<Settings::SampleType>(amplitudeScale * sin(omega * Settings::timeAtSample(i)));
+            return static_cast<Settings::SampleType>(amplitudeScale * sin(omega * timeAtSample(i)));
         }
     );
     basicAudioWaveforms.triangleBuffer = Utility::Generate::array<Settings::SampleType, BasicAudioWaveforms::Settings::samples>(
         [](std::size_t const i) {
-            return static_cast<Settings::SampleType>(amplitudeScale * Math::ExpressionPrimitives::triangle(omega * Settings::timeAtSample(i)));
+            return static_cast<Settings::SampleType>(amplitudeScale * Math::ExpressionPrimitives::triangle(omega * timeAtSample(i)));
         }
     );
     basicAudioWaveforms.squareBuffer = Utility::Generate::array<Settings::SampleType, BasicAudioWaveforms::Settings::samples>(
         [](std::size_t const i) {
-            return static_cast<Settings::SampleType>(amplitudeScale * Math::ExpressionPrimitives::square(omega * Settings::timeAtSample(i)));
+            return static_cast<Settings::SampleType>(amplitudeScale * Math::ExpressionPrimitives::square(omega * timeAtSample(i)));
         }
     );
 }
@@ -160,7 +160,7 @@ std::optional<std::shared_ptr<Audio::Sound>> Audio::loadSound(std::string const&
         return it->second;
     }
 
-    Uint8* data = nullptr;
+    Settings::SdlAudioByte* data = nullptr;
     std::uint32_t length = 0;
     SDL_AudioSpec wavSpec = {};
     SDL_LoadWAV(path.c_str(), &wavSpec, &data, &length);
@@ -221,7 +221,7 @@ std::optional<Audio::ConverterAndSampleSize> Audio::loadConverterFunction(SDL_Au
     switch (format) {
     case SDL_AUDIO_F32:
         return std::make_pair(
-            [](Uint8 const* byteData) {
+            [](Settings::SdlAudioByte const* byteData) {
                 std::array<float,4> buffer{};
                 std::memcpy(buffer.data(), byteData, sizeof(float));
                 return *buffer.data();
@@ -230,7 +230,7 @@ std::optional<Audio::ConverterAndSampleSize> Audio::loadConverterFunction(SDL_Au
         );
     case SDL_AUDIO_S16:
         return std::make_pair(
-            [](Uint8 const* byteData) {
+            [](Settings::SdlAudioByte const* byteData) {
                 std::array<int16_t,4> buffer{};
                 std::memcpy(buffer.data(), byteData, sizeof(std::int16_t));
                 return static_cast<Settings::SampleType>(*buffer.data()) / static_cast<Settings::SampleType>(std::numeric_limits<int16_t>::max());
@@ -239,7 +239,7 @@ std::optional<Audio::ConverterAndSampleSize> Audio::loadConverterFunction(SDL_Au
         );
     case SDL_AUDIO_U8:
         return std::make_pair(
-            [](Uint8 const* byteData) {
+            [](Settings::SdlAudioByte const* byteData) {
                 std::array<uint8_t,4> buffer{};
                 std::memcpy(buffer.data(), byteData, sizeof(std::uint8_t));
                 Settings::SampleType const valueShifted = static_cast<Settings::SampleType>(*buffer.data()) - static_cast<Settings::SampleType>(128);

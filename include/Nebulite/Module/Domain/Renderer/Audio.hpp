@@ -75,17 +75,18 @@ private:
     SDL_AudioStream* stream = nullptr;
     SDL_AudioSpec spec = {};
 
+    // Basic Audio settings
     struct Settings {
+        // Sadly, SDL does not use std::byte, so we are forced to use Uint8
+        using SdlAudioByte = Uint8;
+        static_assert(sizeof(SdlAudioByte) == 1, "SdlAudioByte must be 1 byte in size");
+
         using SampleType = float;
 
         static SampleType constexpr SampleMax = std::is_floating_point_v<SampleType> ? static_cast<SampleType>( 1.0) : std::numeric_limits<SampleType>::max();
         static SampleType constexpr SampleMin = std::is_floating_point_v<SampleType> ? static_cast<SampleType>(-1.0) : std::numeric_limits<SampleType>::min();
 
         static double constexpr sampleRate = 44100.0;
-
-        static double timeAtSample(std::size_t const sampleIndex) {
-            return static_cast<double>(sampleIndex) / sampleRate;
-        }
     };
 
     struct BasicAudioWaveforms {
@@ -126,7 +127,7 @@ private:
      */
     static std::string sdlAudioFormatToString(SDL_AudioFormat format);
 
-    using ConverterAndSampleSize = std::pair<std::function<Settings::SampleType(Uint8* data)>, std::size_t>;
+    using ConverterAndSampleSize = std::pair<std::function<Settings::SampleType(Settings::SdlAudioByte* data)>, std::size_t>;
 
     /**
      * @brief Loads a converter function for the given SDL_AudioFormat. The converter function takes a pointer to raw audio data and returns a normalized sample of type Settings::SampleType.
@@ -134,6 +135,16 @@ private:
      * @return An optional function that converts raw audio data to a normalized sample, or std::nullopt if the format is not supported.
      */
     static std::optional<ConverterAndSampleSize> loadConverterFunction(SDL_AudioFormat format);
+
+    /**
+     * @brief Calculates the time at which a sample occurs.
+     * @param sampleIndex The index of the sample.
+     * @return The time at which the sample occurs.
+     */
+    static auto constexpr timeAtSample(std::size_t const sampleIndex) {
+        static_assert(Settings::sampleRate > 0.0, "Sample rate must be greater than 0");
+        return static_cast<double>(sampleIndex) / Settings::sampleRate;
+    }
 };
 } // namespace Nebulite::Module::Domain::Renderer
 #endif // NEBULITE_MODULE_DOMAIN_RENDERER_AUDIO_HPP
