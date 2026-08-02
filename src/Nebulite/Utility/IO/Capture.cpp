@@ -44,9 +44,8 @@ void Capture::appendToHistory(std::string const& str, HistoryLine::Type const li
 // Capture History
 
 bool Capture::History::appendableToLastLine(HistoryLine::Type const lineType) const {
-    if (lines.empty()) {
-        return false;
-    }
+    if (lines.empty()) return false;
+    if (lineType == HistoryLine::Type::Input) return false; // Input lines are always new lines
     return !startNewLine && lines.back().type == lineType;
 }
 
