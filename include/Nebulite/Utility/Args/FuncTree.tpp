@@ -277,10 +277,12 @@ FuncTree<ReturnValue, AdditionalArgs...>::makeFunctionPtr(Func functionPtr) {
 
     // Helpful compile-time error for pointer-to-member functions passed without an object
     if constexpr (std::is_member_function_pointer_v<DecayF>) {
-        static_assert(CompileTimeEvaluate::alwaysFalse(),
-                      "makeFunctionPtr(func) received a pointer-to-member-function. "
-                      "Pass an object + member pointer using makeFunctionPtr(objPtr, &Class::mem) "
-                      "or provide a free/static function or callable (lambda/std::function).");
+        static_assert(
+            CompileTimeEvaluate::alwaysFalse(),
+            "makeFunctionPtr(func) received a pointer-to-member-function. "
+            "Pass an object + member pointer using makeFunctionPtr(objPtr, &Class::mem) "
+            "or provide a free/static function or callable (lambda/std::function)."
+        );
     }
 
     // If already a FunctionPtr, forward
