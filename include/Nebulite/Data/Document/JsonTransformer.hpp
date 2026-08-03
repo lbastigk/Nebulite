@@ -58,6 +58,7 @@ class JsonTransformer {
     template<typename ModuleType>
     void initModule();
 
+    // Is singleton, no public construction is allowed.
     JsonTransformer();
 
 public:
@@ -66,16 +67,20 @@ public:
 
     /**
      * @brief Parses and applies JSON transformations from the given arguments.
-     * @details Example: get<int>("MyKey|add 5|multiply 2")
-     *          Calls: parse(["add 5", "multiply 2"], inputDocument)
-     *          Input document: {"value": 10}
-     *          After applying the transformation, the document will be: {"value": 30}
      * @param transformationList A list of strings representing the transformations to apply.
-     * @param jsonDoc The JSON document to modify. Should hold the value from the get-operation
-     *                in a specified key. On success, the modified value will be stored back in the same key.
+     * @param jsonDoc The JSON scoped document to modify.
      * @return true if the transformations were successfully applied, false otherwise.
+     *         If the value is false, the document should still be considered modified, but in an unknown state.
      */
     bool parse(std::span<std::string_view const> const& transformationList, JsonScope& jsonDoc) const ;
+
+    /**
+     * @brief Parses and applies JSON transformations from the given arguments.
+     * @param transformationList A list of strings representing the transformations to apply.
+     * @param jsonDoc The JSON document to modify.
+     * @return true if the transformations were successfully applied, false otherwise.
+     *         If the value is false, the document should still be considered modified, but in an unknown state.
+     */
     bool parse(std::span<std::string_view const> const& transformationList, Json& jsonDoc) const ;
 
 
