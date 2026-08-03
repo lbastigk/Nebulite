@@ -22,7 +22,13 @@
 // Nebulite
 #include "Nebulite/Utility/Args/CmdArgs.hpp"
 #include "Nebulite/Utility/FunctionIdentity.hpp"
-#include "Nebulite/Utility/Io/Capture.hpp"
+
+//------------------------------------------
+// Forward declarations
+
+namespace Nebulite::Utility::Io {
+class Capture;
+} // namespace Nebulite::Utility::Io
 
 //------------------------------------------
 namespace Nebulite::Utility::Args {
@@ -275,7 +281,7 @@ private:
      * @brief Contains information about a bound variable, including its pointer and description.
      */
     struct VariableInfo {
-        bool* pointer = nullptr;
+        bool* pointer = nullptr; // TODO: use a shared_ptr instead
         std::string description;
     };
 
