@@ -26,9 +26,10 @@
 #include "Nebulite/Interaction/Execution/Tasks.hpp"
 #include "Nebulite/Module/Base/DomainModule.hpp"
 #include "Nebulite/Module/Base/DomainModuleBase.hpp"
+#include "Nebulite/Utility/Io/Capture.hpp"
 
 //------------------------------------------
-// Forward declarations: Domains
+// Forward declarations
 
 namespace Nebulite::Core {
 class Environment;
@@ -37,9 +38,6 @@ class Renderer;
 class RenderObject;
 class Texture;
 } // namespace Nebulite::Core
-
-//------------------------------------------
-// Forward declarations: Other classes
 
 namespace Nebulite::Data {
 class MappedOrderedCacheList;
