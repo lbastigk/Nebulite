@@ -138,10 +138,10 @@ public:
     // Management Flags for Renderer-Interaction
 
     /**
-     * @struct flag
+     * @struct Flag
      * @brief Flags for managing RenderObject behavior
      */
-    struct flag {
+    struct Flag {
         bool deleteFromScene = false; // If true, delete this object from scene on next update
     } flag;
 
