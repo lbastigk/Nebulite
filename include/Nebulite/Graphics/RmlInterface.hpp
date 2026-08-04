@@ -192,7 +192,7 @@ public:
         }
 
         template <typename H>
-        friend H AbslHashValue(H h, RmlElementIdentifier const& toHash) {
+        friend H AbslHashValue(H h, RmlElementIdentifier const& toHash) { // NOLINT
             return H::combine(std::move(h), toHash.id);
         }
     };
