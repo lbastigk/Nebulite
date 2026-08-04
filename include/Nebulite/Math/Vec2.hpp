@@ -64,7 +64,7 @@ struct Vec2<T,CoordinateType::xy> {
     }
 
     template <typename H>
-    friend H AbslHashValue(H hv, Vec2 const& coord) {
+    friend H AbslHashValue(H hv, Vec2 const& coord) { // NOLINT
         return H::combine(std::move(hv), coord.x, coord.y);
     }
 
@@ -153,7 +153,7 @@ struct Vec2<T, CoordinateType::wh> {
     }
 
     template <typename H>
-    friend H AbslHashValue(H hv, Vec2 const& coord) {
+    friend H AbslHashValue(H hv, Vec2 const& coord) { // NOLINT
         return H::combine(std::move(hv), coord.w, coord.h);
     }
 
