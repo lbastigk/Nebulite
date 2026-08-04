@@ -45,66 +45,61 @@ public:
     };
 
     // Extract return, class and parameter list from member-function pointer types
-    template <typename T> struct mfp_traits; // primary
+    template <typename T> struct MemberFunctionPointerTraits; // primary
 
     template <typename R, typename C, typename... Ps>
-    struct mfp_traits<R(C::*)(Ps...)> {
-        using return_t = R;
-        using class_t = C;
-        using params  = std::tuple<Ps...>;
-        static constexpr bool is_const = false;
+    struct MemberFunctionPointerTraits<R(C::*)(Ps...)> {
+        using ReturnType = R;
+        using ClassType = C;
+        using Params  = std::tuple<Ps...>;
+        static constexpr bool isConst = false;
     };
 
     template <typename R, typename C, typename... Ps>
-    struct mfp_traits<R(C::*)(Ps...) const> {
-        using return_t = R;
-        using class_t = C;
-        using params  = std::tuple<Ps...>;
-        static constexpr bool is_const = true;
+    struct MemberFunctionPointerTraits<R(C::*)(Ps...) const> {
+        using ReturnType = R;
+        using ClassType = C;
+        using Params  = std::tuple<Ps...>;
+        static constexpr bool isConst = true;
     };
+
+    // Helper to shorten the if-constexpr chain if both C& and C const& are checked
+    template<typename ReturnValue, typename M, typename C, typename ... Args>
+    static bool constexpr isInvocableWithArgs = std::is_invocable_r_v<ReturnValue, M, C&, Args...> || std::is_invocable_r_v<ReturnValue, M, C const&, Args...>;
+
+    // Helper to shorten the if-constexpr chain if both C& and C const& are checked
+    template<typename ReturnValue, typename M, typename C>
+    static bool constexpr isInvocableWithoutArgs = std::is_invocable_r_v<ReturnValue, M, C&> || std::is_invocable_r_v<ReturnValue, M, C const&>;
 
     // Classify function pointers
     template <typename FunctionPointer, typename ReturnValue, typename... AdditionalArgs>
     static constexpr FunctionShape classifyFunctionPtr() {
         using M = std::decay_t<FunctionPointer>;
-        using Traits = mfp_traits<M>;
-        using C = Traits::class_t;
-
+        using Traits = MemberFunctionPointerTraits<M>;
+        using C = Traits::ClassType;
         using Span = CmdArgs::Span;
         using SpanConstRef = CmdArgs::SpanConstRef;
 
-        // We test with both const and non-const object to support both member types
-        using Obj = C&;
-        using ConstObj = C const&;
-
-        //------------------------------------------
-
-        if constexpr (std::is_invocable_r_v<ReturnValue, M, Obj, int, char const**> ||
-                      std::is_invocable_r_v<ReturnValue, M, ConstObj, int, char const**>) {
+        // Determine type
+        if constexpr (isInvocableWithArgs<ReturnValue, M, C, int, char const**>) {
             return FunctionShape::memberLegacyIntConstChar;
         }
-        else if constexpr (std::is_invocable_r_v<ReturnValue, M, Obj, SpanConstRef, AdditionalArgs...> ||
-                           std::is_invocable_r_v<ReturnValue, M, ConstObj, SpanConstRef, AdditionalArgs...>) {
+        else if constexpr (isInvocableWithArgs<ReturnValue, M, C, SpanConstRef, AdditionalArgs...>) {
             return FunctionShape::memberModernFullConstRef;
         }
-        else if constexpr (std::is_invocable_r_v<ReturnValue, M, Obj, Span, AdditionalArgs...> ||
-                           std::is_invocable_r_v<ReturnValue, M, ConstObj, Span, AdditionalArgs...>) {
+        else if constexpr (isInvocableWithArgs<ReturnValue, M, C, Span, AdditionalArgs...>) {
             return FunctionShape::memberModernFull;
         }
-        else if constexpr (std::is_invocable_r_v<ReturnValue, M, Obj, SpanConstRef> ||
-                           std::is_invocable_r_v<ReturnValue, M, ConstObj, SpanConstRef>) {
+        else if constexpr (isInvocableWithArgs<ReturnValue, M, C, SpanConstRef>) {
             return FunctionShape::memberModernNoAddArgsConstRef;
         }
-        else if constexpr (std::is_invocable_r_v<ReturnValue, M, Obj, Span> ||
-                           std::is_invocable_r_v<ReturnValue, M, ConstObj, Span>) {
+        else if constexpr (isInvocableWithArgs<ReturnValue, M, C, Span>) {
             return FunctionShape::memberModernNoAddArgs;
         }
-        else if constexpr (std::is_invocable_r_v<ReturnValue, M, Obj, AdditionalArgs...> ||
-                           std::is_invocable_r_v<ReturnValue, M, ConstObj, AdditionalArgs...>) {
+        else if constexpr (isInvocableWithArgs<ReturnValue, M, C, AdditionalArgs...>) {
             return FunctionShape::memberNoCmdArgs;
         }
-        else if constexpr (std::is_invocable_r_v<ReturnValue, M, Obj> ||
-                           std::is_invocable_r_v<ReturnValue, M, ConstObj>) {
+        else if constexpr (isInvocableWithoutArgs<ReturnValue, M, C>) {
             return FunctionShape::memberNoArgs;
         }
         else {
@@ -119,6 +114,7 @@ public:
         using Span = CmdArgs::Span;
         using SpanConstRef = CmdArgs::SpanConstRef;
 
+        // Determine type
         if constexpr (std::is_invocable_r_v<ReturnValue, F, int, char**>) {
             return FunctionShape::freeLegacyIntChar;
         }
