@@ -99,7 +99,7 @@ private:
         .type=StaticRuleset::Type::invalid,
         .topic="",
         .description="",
-        .function=nullptr
+        .function=nullptr,
     };
 
     // List available rulesets
