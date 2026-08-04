@@ -78,7 +78,7 @@ protected:
 
     /**
      * @brief helper function to add a static ruleset to this module
-     * @tparam topic The topic/name of the ruleset
+     * @tparam Topic The topic/name of the ruleset
      * @tparam DerivedRulesetModule The derived RulesetModule type
      * @param type The type of the ruleset (Local/Global)
      * @param func The function implementing the ruleset
@@ -88,7 +88,7 @@ protected:
      *       ::Controls::PT1 path.to.pt1.object
      *       topic must reduce to the first arg, and we must add the args to the static ruleset object
      */
-    template<std::string_view const& topic, typename DerivedRulesetModule>
+    template<std::string_view const& Topic, typename DerivedRulesetModule>
     void bind(
         void (DerivedRulesetModule::*func)(Interaction::Context const&, double**, double**) const,
         Interaction::Rules::StaticRuleset::BaseListFunction const& baseListFunc,
@@ -96,18 +96,18 @@ protected:
         std::string_view const description
     ){
         assert(func != nullptr);
-        static_assert(isValidTopic(topic), "RulesetModule::bind(): The topic name is not valid. It must start with '::' and contain no spaces.");
-        static_assert(topic.starts_with(DerivedRulesetModule::moduleName), "RulesetModule::bind(): The topic name must start with the module's name as prefix.");
+        static_assert(isValidTopic(Topic), "RulesetModule::bind(): The topic name is not valid. It must start with '::' and contain no spaces.");
+        static_assert(Topic.starts_with(DerivedRulesetModule::moduleName), "RulesetModule::bind(): The topic name must start with the module's name as prefix.");
         static_assert(std::is_base_of_v<RulesetModule, DerivedRulesetModule>, "RulesetModule::bind(): T must derive from RulesetModule");
         static_assert(std::is_same_v<decltype(DerivedRulesetModule::moduleName), std::string_view const>, "RulesetModule::bind(): DerivedRulesetModule must have a static member 'moduleName' of type std::string_view");
         moduleRulesets.push_back({
             type,
-            topic,
+            Topic,
             description,
             [this, func](Interaction::Context const& ctx, double** slf, double** otr) {
                 (static_cast<DerivedRulesetModule const*>(this)->*func)(ctx, slf, otr);
             },
-            baseListFunc
+            baseListFunc,
         });
     }
 

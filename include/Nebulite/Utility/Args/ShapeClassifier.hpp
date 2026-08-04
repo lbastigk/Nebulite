@@ -22,32 +22,26 @@ namespace Nebulite::Utility::Args {
 class ShapeClassifier {
 public:
     enum class FunctionShape : std::uint8_t {
-        Unknown,
+        unknown,
 
         // Member shapes
-        Member_Legacy_IntConstChar,
-
-        Member_Modern_NoAddArgs,
-        Member_Modern_NoAddArgsConstRef,
-
-        Member_Modern_Full,
-        Member_Modern_FullConstRef,
-
-        Member_NoArgs,
-        Member_NoCmdArgs,
+        memberLegacyIntConstChar,
+        memberModernNoAddArgs,
+        memberModernNoAddArgsConstRef,
+        memberModernFull,
+        memberModernFullConstRef,
+        memberNoArgs,
+        memberNoCmdArgs,
 
         // Free / static shapes
-        Free_Legacy_IntChar,
-        Free_Legacy_IntConstChar,
-
-        Free_Modern_NoAddArgs,
-        Free_Modern_NoAddArgsConstRef,
-
-        Free_Modern_Full,
-        Free_Modern_FullConstRef,
-
-        Free_NoArgs,
-        Free_NoCmdArgs,
+        freeLegacyIntChar,
+        freeLegacyIntConstChar,
+        freeModernNoAddArgs,
+        freeModernNoAddArgsConstRef,
+        freeModernFull,
+        freeModernFullConstRef,
+        freeNoArgs,
+        freeNoCmdArgs,
     };
 
     // Extract return, class and parameter list from member-function pointer types
@@ -87,34 +81,34 @@ public:
 
         if constexpr (std::is_invocable_r_v<ReturnValue, M, Obj, int, char const**> ||
                       std::is_invocable_r_v<ReturnValue, M, ConstObj, int, char const**>) {
-            return FunctionShape::Member_Legacy_IntConstChar;
+            return FunctionShape::memberLegacyIntConstChar;
         }
         else if constexpr (std::is_invocable_r_v<ReturnValue, M, Obj, SpanConstRef, AdditionalArgs...> ||
                            std::is_invocable_r_v<ReturnValue, M, ConstObj, SpanConstRef, AdditionalArgs...>) {
-            return FunctionShape::Member_Modern_FullConstRef;
+            return FunctionShape::memberModernFullConstRef;
         }
         else if constexpr (std::is_invocable_r_v<ReturnValue, M, Obj, Span, AdditionalArgs...> ||
                            std::is_invocable_r_v<ReturnValue, M, ConstObj, Span, AdditionalArgs...>) {
-            return FunctionShape::Member_Modern_Full;
+            return FunctionShape::memberModernFull;
         }
         else if constexpr (std::is_invocable_r_v<ReturnValue, M, Obj, SpanConstRef> ||
                            std::is_invocable_r_v<ReturnValue, M, ConstObj, SpanConstRef>) {
-            return FunctionShape::Member_Modern_NoAddArgsConstRef;
+            return FunctionShape::memberModernNoAddArgsConstRef;
         }
         else if constexpr (std::is_invocable_r_v<ReturnValue, M, Obj, Span> ||
                            std::is_invocable_r_v<ReturnValue, M, ConstObj, Span>) {
-            return FunctionShape::Member_Modern_NoAddArgs;
+            return FunctionShape::memberModernNoAddArgs;
         }
         else if constexpr (std::is_invocable_r_v<ReturnValue, M, Obj, AdditionalArgs...> ||
                            std::is_invocable_r_v<ReturnValue, M, ConstObj, AdditionalArgs...>) {
-            return FunctionShape::Member_NoCmdArgs;
+            return FunctionShape::memberNoCmdArgs;
         }
         else if constexpr (std::is_invocable_r_v<ReturnValue, M, Obj> ||
                            std::is_invocable_r_v<ReturnValue, M, ConstObj>) {
-            return FunctionShape::Member_NoArgs;
+            return FunctionShape::memberNoArgs;
         }
         else {
-            return FunctionShape::Unknown;
+            return FunctionShape::unknown;
         }
     }
 
@@ -126,31 +120,31 @@ public:
         using SpanConstRef = CmdArgs::SpanConstRef;
 
         if constexpr (std::is_invocable_r_v<ReturnValue, F, int, char**>) {
-            return FunctionShape::Free_Legacy_IntChar;
+            return FunctionShape::freeLegacyIntChar;
         }
         else if constexpr (std::is_invocable_r_v<ReturnValue, F, int, char const**>) {
-            return FunctionShape::Free_Legacy_IntConstChar;
+            return FunctionShape::freeLegacyIntConstChar;
         }
         else if constexpr (std::is_invocable_r_v<ReturnValue, F, SpanConstRef, AdditionalArgs...>) {
-            return FunctionShape::Free_Modern_FullConstRef;
+            return FunctionShape::freeModernFullConstRef;
         }
         else if constexpr (std::is_invocable_r_v<ReturnValue, F, Span, AdditionalArgs...>) {
-            return FunctionShape::Free_Modern_Full;
+            return FunctionShape::freeModernFull;
         }
         else if constexpr (std::is_invocable_r_v<ReturnValue, F, SpanConstRef>) {
-            return FunctionShape::Free_Modern_NoAddArgsConstRef;
+            return FunctionShape::freeModernNoAddArgsConstRef;
         }
         else if constexpr (std::is_invocable_r_v<ReturnValue, F, Span>) {
-            return FunctionShape::Free_Modern_NoAddArgs;
+            return FunctionShape::freeModernNoAddArgs;
         }
         else if constexpr (std::is_invocable_r_v<ReturnValue, F, AdditionalArgs...>) {
-            return FunctionShape::Free_NoCmdArgs;
+            return FunctionShape::freeNoCmdArgs;
         }
         else if constexpr (std::is_invocable_r_v<ReturnValue, F>) {
-            return FunctionShape::Free_NoArgs;
+            return FunctionShape::freeNoArgs;
         }
         else {
-            return FunctionShape::Unknown;
+            return FunctionShape::unknown;
         }
     }
 
@@ -164,7 +158,7 @@ public:
             return classifyFreeFunction<FunctionPointer, ReturnValue, AdditionalArgs...>();
         } else {
             static_assert(CompileTimeEvaluate::alwaysFalse(), "classifyFunction received an unsupported function pointer type.");
-            return FunctionShape::Unknown;
+            return FunctionShape::unknown;
         }
     }
 };

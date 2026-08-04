@@ -15,17 +15,17 @@ namespace Nebulite::Data {
 /**
  * @brief A template-parameter-friendly string, with nullopt-like capability
  * @tparam N Size of the string
- * @tparam forceOutsideDefinition Useful if you want to force the definition of the string outside the struct.
+ * @tparam ForceOutsideDefinition Useful if you want to force the definition of the string outside the struct.
  *                                The idea is that, sometimes, we don't know the exact value at compile time,
  *                                so outer processes shall deduct the value based on what they know.
  */
-template <std::size_t N, bool forceOutsideDefinition = false>
+template <std::size_t N, bool ForceOutsideDefinition = false>
 struct OptionalFixedString {
     std::array<char, std::max(std::size_t{1}, N)> value{};
 
     consteval OptionalFixedString(char const (&str)[std::max(std::size_t{1}, N)]) { // NOLINT
         static_assert(N > 0, "Use the default constructor for empty strings");
-        static_assert(!forceOutsideDefinition, "Cannot initialize string from literal when forceOutsideDefinition is true");
+        static_assert(!ForceOutsideDefinition, "Cannot initialize string from literal when ForceOutsideDefinition is true");
         for (std::size_t i = 0; i < N; ++i) value[i] = str[i];
     }
 
@@ -33,20 +33,20 @@ struct OptionalFixedString {
         static_assert(N == 0, "Default constructor can only be used for empty strings");
     }
 
-    static constexpr std::size_t length() requires(N > 0 && !forceOutsideDefinition) {
+    static constexpr std::size_t length() requires(N > 0 && !ForceOutsideDefinition) {
         return N-1;
     }
 
     static constexpr bool hasValue() {
-        return N > 0 && !forceOutsideDefinition;
+        return N > 0 && !ForceOutsideDefinition;
     }
 
     [[nodiscard]] static constexpr bool hasOutsideDefinition() {
-        return forceOutsideDefinition;
+        return ForceOutsideDefinition;
     }
 
     // Returns the last character of the string, or '\0' if the string is empty
-    [[nodiscard]] constexpr char back() const requires(N > 0 && !forceOutsideDefinition) {
+    [[nodiscard]] constexpr char back() const requires(N > 0 && !ForceOutsideDefinition) {
         if constexpr (N == 1) { // Empty string, return string terminator
             return '\0';
         } else {
@@ -54,7 +54,7 @@ struct OptionalFixedString {
         }
     }
 
-    [[nodiscard]] constexpr std::string_view view() const requires(N > 0 && !forceOutsideDefinition) {
+    [[nodiscard]] constexpr std::string_view view() const requires(N > 0 && !ForceOutsideDefinition) {
         return {value.data(), N - 1};
     }
 };
