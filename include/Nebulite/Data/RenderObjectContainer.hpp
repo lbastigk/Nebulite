@@ -22,7 +22,13 @@
 #include "Nebulite/Core/RenderObject.hpp"
 #include "Nebulite/Data/RendererProcessor.hpp"
 #include "Nebulite/Data/Tiling.hpp"
-#include "Nebulite/Utility/Io/Capture.hpp"
+
+//------------------------------------------
+// Forward declarations
+
+namespace Nebulite::Utility::Io {
+class Capture;
+} // namespace Nebulite::Utility::Io
 
 //------------------------------------------
 namespace Nebulite::Data {
@@ -119,7 +125,7 @@ public:
      * @return A reference to the Tile
      */
     Tile& getContainerAt(TileCoordinate const& position) [[clang::lifetimebound]] {
-        return ObjectContainer[position];
+        return objectContainer[position];
     }
 
     /**
@@ -173,7 +179,7 @@ public:
      */
     template<typename MetaInfo>
     void containerIteration(IteratorFunction<MetaInfo> const& function, MetaInfo const& metaInfo) {
-        for (auto const& [tileCoordinate, tile] : ObjectContainer) {
+        for (auto const& [tileCoordinate, tile] : objectContainer) {
             function(tileCoordinate, metaInfo, tile);
         }
     }
@@ -188,7 +194,7 @@ private:
      *       such as outside manipulation with a "selected-object parse" call, etc.
      *       Perhaps this isn't worth it
      */
-    absl::flat_hash_map<TileCoordinate, Tile> ObjectContainer;
+    absl::flat_hash_map<TileCoordinate, Tile> objectContainer;
 };
 } // namespace Nebulite::Data
 #endif // NEBULITE_DATA_RENDEROBJECTCONTAINER_HPP

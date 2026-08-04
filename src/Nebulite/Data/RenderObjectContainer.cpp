@@ -22,7 +22,6 @@
 #include "Nebulite/Data/RendererProcessor.hpp"
 #include "Nebulite/Data/Tiling.hpp"
 #include "Nebulite/Utility/Coordination/WorkDispatcher.hpp"
-#include "Nebulite/Utility/Io/Capture.hpp"
 
 //------------------------------------------
 namespace Nebulite::Data {
@@ -40,7 +39,7 @@ std::string RenderObjectContainer::serialize() {
     //------------------------------------------
     // Get all objects in container
     std::size_t i = 0;
-    for (auto& tile : std::views::values(ObjectContainer)) {
+    for (auto& tile : std::views::values(objectContainer)) {
         for (auto const& objects : tile.getBatchedObjects()) {
             for (auto const& obj : objects) {
                 Json objSerial;
@@ -92,14 +91,14 @@ void RenderObjectContainer::append(Core::RenderObject* toAppend, TilingInformati
     auto const pos = getTilePos(toAppend->getPosition(), tilingInformation);
 
     // Try to insert into an existing batch
-    if (ObjectContainer[pos].insertIfCostGoalMatches(toAppend)) {
+    if (objectContainer[pos].insertIfCostGoalMatches(toAppend)) {
         return; // Successfully inserted into an existing batch
     }
 
     // No existing batch could accept the object, so create a new one
     Batch newBatch;
     newBatch.push(toAppend);
-    ObjectContainer[pos].appendBatch(std::move(newBatch));
+    objectContainer[pos].appendBatch(std::move(newBatch));
 }
 
 void RenderObjectContainer::update(std::vector<TileCoordinate> const& viewport, TilingInformation const& tilingInformation, RendererProcessor& rendererProcessor) {
@@ -126,8 +125,8 @@ void RenderObjectContainer::update(std::vector<TileCoordinate> const& viewport, 
     std::size_t workerIdx = 0;
     for (auto tilePosition : viewport) {
         // Check if container has tile at position, if not, skip
-        auto const it = ObjectContainer.find(tilePosition);
-        if (it == ObjectContainer.end()) {
+        auto const it = objectContainer.find(tilePosition);
+        if (it == objectContainer.end()) {
             continue;
         }
 
@@ -165,7 +164,7 @@ void RenderObjectContainer::update(std::vector<TileCoordinate> const& viewport, 
 
 Core::RenderObject* RenderObjectContainer::getObjectFromId(std::size_t const domainId) {
     // Go through all batches
-    for (auto& tile : std::views::values(ObjectContainer)) {
+    for (auto& tile : std::views::values(objectContainer)) {
         for (auto const& objects : tile.getBatchedObjects()) {
             for (auto const& object : objects) {
                 if (object->getId() == domainId) {
@@ -180,7 +179,7 @@ Core::RenderObject* RenderObjectContainer::getObjectFromId(std::size_t const dom
 void RenderObjectContainer::reinsertAllObjects(TilingInformation const& tilingInformation) {
     // Collect all objects
     std::vector<Core::RenderObject*> toReinsert;
-    for (auto& tile : std::views::values(ObjectContainer)) {
+    for (auto& tile : std::views::values(objectContainer)) {
         for (auto const& objects : tile.getBatchedObjects()) {
             // Collect all objects from the batch
             std::ranges::copy(objects.begin(), objects.end(), std::back_inserter(toReinsert));
@@ -188,7 +187,7 @@ void RenderObjectContainer::reinsertAllObjects(TilingInformation const& tilingIn
     }
 
     // Fully reset container
-    ObjectContainer.clear();
+    objectContainer.clear();
 
     // Reinsert
     for (auto const& ptr : toReinsert) {
@@ -198,21 +197,21 @@ void RenderObjectContainer::reinsertAllObjects(TilingInformation const& tilingIn
 
 bool RenderObjectContainer::isValidPosition(TileCoordinate const& position) const {
     // Check if ObjectContainer is not empty
-    auto const it = ObjectContainer.find(position);
-    return it != ObjectContainer.end();
+    auto const it = objectContainer.find(position);
+    return it != objectContainer.end();
 }
 
 void RenderObjectContainer::purgeObjects() {
-    for (auto& tile : std::views::values(ObjectContainer)) {
+    for (auto& tile : std::views::values(objectContainer)) {
         tile.moveObjects(deletionProcess.trash);
     }
-    ObjectContainer.clear();
+    objectContainer.clear();
 }
 
 size_t RenderObjectContainer::getObjectCount() const {
     // Calculate the total item count
     std::size_t totalCount = 0;
-    for (auto const it = ObjectContainer.begin(); it != ObjectContainer.end();) {
+    for (auto const it = objectContainer.begin(); it != objectContainer.end();) {
         totalCount += it->second.getBatches().size();
     }
     return totalCount;
@@ -222,9 +221,9 @@ RenderObjectContainer::ContainerInfo RenderObjectContainer::getContainerInfo() c
     ContainerInfo info;
 
     // Container stats
-    info.containerTotalTiles = ObjectContainer.size();
+    info.containerTotalTiles = objectContainer.size();
     info.containerTotalCost = 0;
-    for (auto const& tile : std::views::values(ObjectContainer)) {
+    for (auto const& tile : std::views::values(objectContainer)) {
         for (auto const& [_, cost] : tile.getBatches()) {
             info.containerTotalCost += cost;
         }
