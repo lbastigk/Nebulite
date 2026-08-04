@@ -98,7 +98,7 @@ public:
         set,        // '='
         add,        // '+='
         multiply,   // '*='
-        concat      // '|='
+        concat,     // '|='
     };
 
 private:

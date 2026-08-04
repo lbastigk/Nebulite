@@ -23,7 +23,7 @@ enum class SimpleValueRetrievalError : std::uint8_t {
     malformedKey,          // The provided key is malformed
     isArray,               // The specified key corresponds to an array, not a simple value.
     isObject,              // The specified key corresponds to an object, not a simple value.
-    isNull                 // The specified key is not a member of the JSON document (null).
+    isNull,                // The specified key is not a member of the JSON document (null).
 };
 } // namespace Nebulite::Data
 #endif // NEBULITE_DATA_DOCUMENT_SIMPLEVALUEERROR_HPP
