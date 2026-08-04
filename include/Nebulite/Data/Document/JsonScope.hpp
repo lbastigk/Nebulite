@@ -9,7 +9,7 @@
 #include <complex>
 #include <concepts>
 #include <cstddef>
-#include <cstdint>
+#include <cstdint> // NOLINT
 #include <expected>
 #include <memory>
 #include <mutex>
