@@ -18,7 +18,6 @@
 #include "Nebulite/Interaction/Context.hpp"
 #include "Nebulite/Module/Base/RmlUiModule.hpp"
 #include "Nebulite/Utility/Coordination/TimedRoutine.hpp"
-#include "Nebulite/Utility/Io/Capture.hpp"
 
 //------------------------------------------
 // Forward declarations
