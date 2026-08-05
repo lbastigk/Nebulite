@@ -280,7 +280,7 @@ FuncTree<ReturnValue, AdditionalArgs...>* FuncTree<ReturnValue, AdditionalArgs..
         return inheritedTree && inheritedTree->bindingContainer.categories.contains(categoryName);
     });
     if (it != ftree->inheritedTrees.end()) {
-        return (*it)->bindingContainer.categories.find(categoryName)->second.tree.get();
+        return it->get()->bindingContainer.categories.find(categoryName)->second.tree.get();
     }
 
     // No category found
