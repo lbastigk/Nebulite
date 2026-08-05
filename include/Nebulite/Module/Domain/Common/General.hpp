@@ -177,8 +177,8 @@ public:
     static auto constexpr imguiViewDesc = "Creates an ImGui view of the domain.\n"
        "\n"
        "Usage: imgui-view <on/off>\n";
-    static auto constexpr imguiView_Enable = "imgui-view on";
-    static auto constexpr imguiView_Disable = "imgui-view off";
+    static auto constexpr imguiViewEnable = "imgui-view on";
+    static auto constexpr imguiViewDisable = "imgui-view off";
 
     //------------------------------------------
     // Categories

@@ -375,7 +375,7 @@ void Debug::setupDebugInfo() const {
     if (moduleScope.get<std::string>(Key::buildType).value_or("") == "debug") {
         Interaction::Context ctx{domain, domain, domain};
         Interaction::ContextScope ctxScope{moduleScope, moduleScope, moduleScope};
-        if (auto const event = domain.parseStr(__FUNCTION__ + std::string(" ") + Common::General::imguiView_Enable, ctx, ctxScope); event != Constants::Event::success) {
+        if (auto const event = domain.parseStr(__FUNCTION__ + std::string(" ") + Common::General::imguiViewEnable, ctx, ctxScope); event != Constants::Event::success) {
             domain.capture.error.println("Error enabling ImGui view for GlobalSpace");
         }
     }
