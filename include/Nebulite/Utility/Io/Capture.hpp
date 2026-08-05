@@ -37,10 +37,10 @@ namespace Nebulite::Utility::Io {
 struct HistoryLine{
     std::string content;
     enum class Type : std::uint8_t {
-        Input,
-        Info,
-        Warning,
-        Error,
+        input,
+        info,
+        warning,
+        error,
     } type;
 };
 
@@ -130,9 +130,9 @@ public:
 
     explicit Capture(Capture* parent);
 
-    HierarchicalStream<&std::cout, HistoryLine::Type::Info> log;
-    HierarchicalStream<&std::cerr, HistoryLine::Type::Warning> warning;
-    HierarchicalStream<&std::cerr, HistoryLine::Type::Error> error;
+    HierarchicalStream<&std::cout, HistoryLine::Type::info> log;
+    HierarchicalStream<&std::cerr, HistoryLine::Type::warning> warning;
+    HierarchicalStream<&std::cerr, HistoryLine::Type::error> error;
 
     /**
      * @brief Retrieves a pointer to the history.
@@ -154,15 +154,12 @@ public:
      */
     void appendToHistory(std::string const& str, HistoryLine::Type lineType);
 
-    // TODO: instead of enable/disable output, we should redirect:
-    // auto str = capture.redirect(lambda) // string
-    // auto history = capture.redirectHistory(lambda) // Vector of historylines
-    // This would automatically enable/disable output, and send to the proper stream
-    // We can add a vector of redirectors, and push/pop new redirectors
-    // + threadsafety by only adding if thread matches?
-    // map[threadid]->vector<redirects>
-    // Could get complicated ...
-
+    /**
+     * @brief Redirects any captured history during a called function to a string
+     * @tparam F The function type to call
+     * @param f The function to call
+     * @return The string containing all contained
+     */
     template<typename F>
     std::string redirect(F f) {
         std::scoped_lock const lock(historyMutex);
@@ -177,6 +174,12 @@ public:
         return history;
     }
 
+    /**
+     * @brief Redirects any captured history during a called function to a deque of history lines
+     * @tparam F The function type to call
+     * @param f The function to call
+     * @return The deque containing all captured history lines
+     */
     template<typename F>
     std::deque<HistoryLine> redirectHistory(F f) {
         std::scoped_lock const lock(historyMutex);
