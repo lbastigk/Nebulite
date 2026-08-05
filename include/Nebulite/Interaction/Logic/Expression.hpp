@@ -287,27 +287,27 @@ private:
      * @brief Holds lists of LinkedNumericValue entries for different contexts.
      */
     mutable struct LinkedNumericValueLists {
-        using lnvList = std::vector<std::unique_ptr<LinkedNumericValue>>;
+        using LnvList = std::vector<std::unique_ptr<LinkedNumericValue>>;
 
         // Linkable as external cache, no multi-resolve or transformations
         // This works by Caching the first context used. If the new context address matches the first,
         // we can use the stable vd_list and simply copy double values.
         // Otherwise, we need to retrieve them from a document first, which is expensive
         struct Stable {
-            lnvList self; // Variables from context self
-            lnvList other; // Variables from context other
-            lnvList global; // Variables from context global
+            LnvList self; // Variables from context self
+            LnvList other; // Variables from context other
+            LnvList global; // Variables from context global
         } stable;
 
         // With multi-resolve or transformations, key needs to be resolved each time
         struct Unstable {
-            lnvList self; // Variables from context self with transformations or multi-resolve
-            lnvList other; // Variables from context other with transformations or multi-resolve
-            lnvList local; // Variables from context marrying: self and other
-            lnvList global; // Variables from context global with transformations or multi-resolve
-            lnvList full; // Variables from context marrying: self, other and global
-            lnvList resource; // Variables from context resource with transformations or multi-resolve
-            lnvList none; // Variables with no context with transformations or multi-resolve
+            LnvList self; // Variables from context self with transformations or multi-resolve
+            LnvList other; // Variables from context other with transformations or multi-resolve
+            LnvList local; // Variables from context marrying: self and other
+            LnvList global; // Variables from context global with transformations or multi-resolve
+            LnvList full; // Variables from context marrying: self, other and global
+            LnvList resource; // Variables from context resource with transformations or multi-resolve
+            LnvList none; // Variables with no context with transformations or multi-resolve
         } unstable;
 
         /**
