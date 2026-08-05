@@ -18,7 +18,13 @@
 // Nebulite
 #include "Nebulite/Data/OptionalFixedString.hpp"
 #include "Nebulite/Graphics/RmlInterface.hpp"
-#include "Nebulite/Utility/Io/Capture.hpp"
+
+//------------------------------------------
+// Forward declarations
+
+namespace Nebulite::Utility::Io {
+class Capture;
+} // namespace Nebulite::Utility::Io
 
 //------------------------------------------
 namespace Nebulite::Interaction {

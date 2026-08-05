@@ -14,7 +14,6 @@
 // Nebulite
 #include "Nebulite/Interaction/AttributeCommand.hpp"
 #include "Nebulite/Module/Base/RmlUiModule.hpp"
-#include "Nebulite/Utility/Io/Capture.hpp"
 
 //------------------------------------------
 // Forward declarations
