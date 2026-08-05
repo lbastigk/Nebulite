@@ -314,7 +314,7 @@ void Debug::addRoutines() {
                 moduleScope.set<double>(Key::memoryResidentMegaBytes, residentMemMegaBytes);
             },
             1000 /*ms*/, // Call every second
-            Utility::Coordination::TimedRoutine::ConstructionMode::START_IMMEDIATELY
+            Utility::Coordination::TimedRoutine::ConstructionMode::startImmediately
         )
     );
 
@@ -335,7 +335,7 @@ void Debug::addRoutines() {
                 moduleScope.set<size_t>(Key::workerTotalMax, Constants::ThreadSettings::Maximum::totalThreadCount);
             },
             5000 /*ms*/, // Call every 5 seconds
-            Utility::Coordination::TimedRoutine::ConstructionMode::START_IMMEDIATELY
+            Utility::Coordination::TimedRoutine::ConstructionMode::startImmediately
         )
     );
 }

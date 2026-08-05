@@ -20,12 +20,12 @@ namespace Nebulite::Utility::Coordination {
 class TimedRoutine {
 public:
     enum class ConstructionMode : std::uint8_t {
-        START_IMMEDIATELY = 0,
-        WAIT_FOR_START,
-        START_IMMEDIATELY_AND_EXECUTE_ONCE
+        startImmediately = 0,
+        waitForStart,
+        startImmediatelyAndExecuteOnce,
     };
 
-    TimedRoutine(std::function<void()> const& routine, std::uint64_t intervalMillis, ConstructionMode mode = ConstructionMode::WAIT_FOR_START);
+    TimedRoutine(std::function<void()> const& routine, std::uint64_t intervalMillis, ConstructionMode mode = ConstructionMode::waitForStart);
 
     /**
      * @brief Start the timer for the scheduled routine.

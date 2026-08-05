@@ -76,7 +76,7 @@ private:
         // So we update Expressions instantly with each new render pass.
         // Getting rid of the TimedRoutine is also an option, but we leave it here atm.
         0,
-        Utility::Coordination::TimedRoutine::ConstructionMode::START_IMMEDIATELY
+        Utility::Coordination::TimedRoutine::ConstructionMode::startImmediately
     };
 };
 } // namespace Nebulite::Module::RmlUi

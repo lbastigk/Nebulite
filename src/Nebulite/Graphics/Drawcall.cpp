@@ -60,7 +60,7 @@ Drawcall::Drawcall(Data::JsonScope& workspace, Utility::Io::Capture& parentCaptu
             updateDrawcallData();
         },
         updateDrawcallDataIntervalMs + rollingJitter<updateDrawcallDataIntervalJitterMs>(),
-        Utility::Coordination::TimedRoutine::ConstructionMode::START_IMMEDIATELY
+        Utility::Coordination::TimedRoutine::ConstructionMode::startImmediately
     }
     , reInitializeRequested(true)
 {
@@ -87,10 +87,10 @@ void Drawcall::Refs::initialize(Data::JsonScope const& scope){
     rotationCenterY = scope.getStableDoublePointer(Key::rotationCenterY);
 
     // Color
-    colorR = scope.getStableDoublePointer(Key::Color::R);
-    colorG = scope.getStableDoublePointer(Key::Color::G);
-    colorB = scope.getStableDoublePointer(Key::Color::B);
-    colorA = scope.getStableDoublePointer(Key::Color::A);
+    colorR = scope.getStableDoublePointer(Key::Color::r);
+    colorG = scope.getStableDoublePointer(Key::Color::g);
+    colorB = scope.getStableDoublePointer(Key::Color::b);
+    colorA = scope.getStableDoublePointer(Key::Color::a);
 
     // Text-specific
     textFontsize = scope.getStableDoublePointer(Key::TextSpecific::fontsize);
@@ -176,16 +176,16 @@ void Drawcall::renderPolygon(Core::Renderer const& nebuliteRenderer, float const
 void Drawcall::draw(Core::Renderer const& nebuliteRenderer, float const& offsetX, float const& offsetY) {
     switch (type) {
         // Sprite and text draw calls simply render their texture
-        case Type::TEXT:
+        case Type::text:
             renderText(nebuliteRenderer, offsetX, offsetY);
             break;
-        case Type::SPRITE:
+        case Type::sprite:
             renderSprite(nebuliteRenderer, offsetX, offsetY);
             break;
-        case Type::CIRCLE:
+        case Type::circle:
             renderCircle(nebuliteRenderer, offsetX, offsetY);
             break;
-        case Type::POLYGON:
+        case Type::polygon:
             renderPolygon(nebuliteRenderer, offsetX, offsetY);
             break;
         default:
@@ -204,32 +204,32 @@ void Drawcall::update() {
 void Drawcall::updateDrawcallData() {
     // Setup new type and check if reinit of texture is required
     if (auto const t = drawcallScope.get<std::string>(Key::type).value_or("sprite"); t == "sprite") {
-        if (type != Type::SPRITE || diffSprite()) {
+        if (type != Type::sprite || diffSprite()) {
             reInitializeRequested = true;
         }
-        type = Type::SPRITE;
+        type = Type::sprite;
     }
     else if (t == "text") {
-        if (type == Type::TEXT || diffText()) {
+        if (type == Type::text || diffText()) {
             reInitializeRequested = true;
         }
-        type = Type::TEXT;
+        type = Type::text;
     }
     else if (t == "circle") {
-        if (type == Type::CIRCLE || diffCircle()) {
+        if (type == Type::circle || diffCircle()) {
             reInitializeRequested = true;
         }
-        type = Type::CIRCLE;
+        type = Type::circle;
     }
     else if (t == "polygon") {
-        if (type == Type::POLYGON || diffPolygon()) {
+        if (type == Type::polygon || diffPolygon()) {
             reInitializeRequested = true;
         }
-        type = Type::POLYGON;
+        type = Type::polygon;
     }
     else {
         texture.capture.error.println("Unknown drawcall type: ", t, ". Defaulting to sprite.");
-        type = Type::SPRITE;
+        type = Type::sprite;
     }
 
     // Setup rotation center
@@ -277,10 +277,10 @@ void Drawcall::ApplyDefault::text(Data::JsonScope& scope) {
     scope.set<std::string>(Key::type, "text");
     scope.set<std::string>(Key::TextSpecific::str, "Hello, Nebulite!");
     scope.set<double>(Key::TextSpecific::fontsize, 24.0);
-    scope.set<double>(Key::Color::R, 255.0);
-    scope.set<double>(Key::Color::G, 255.0);
-    scope.set<double>(Key::Color::B, 255.0);
-    scope.set<double>(Key::Color::A, 255.0);
+    scope.set<double>(Key::Color::r, 255.0);
+    scope.set<double>(Key::Color::g, 255.0);
+    scope.set<double>(Key::Color::b, 255.0);
+    scope.set<double>(Key::Color::a, 255.0);
 
     // Default Rects will be set during initialization based on text size
 }

@@ -108,7 +108,7 @@ void Input::addRoutines(){
                 }
             },
             10 /* ms */,
-            Utility::Coordination::TimedRoutine::ConstructionMode::START_IMMEDIATELY
+            Utility::Coordination::TimedRoutine::ConstructionMode::startImmediately
         )
     );
 }

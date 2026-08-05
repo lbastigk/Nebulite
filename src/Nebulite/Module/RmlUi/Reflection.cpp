@@ -35,7 +35,7 @@ Reflection::Reflection(Utility::Io::Capture& c, Graphics::RmlInterface& i) : Rml
             reflect();
         },
         static_cast<size_t>(1000.0 / 144.0), // ms
-        Utility::Coordination::TimedRoutine::ConstructionMode::START_IMMEDIATELY
+        Utility::Coordination::TimedRoutine::ConstructionMode::startImmediately
     );
 }
 

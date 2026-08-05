@@ -32,7 +32,7 @@ DataReference::DataReference(Utility::Io::Capture& c, Graphics::RmlInterface& i)
             updateDataValues();
         },
         10, // ms
-        Utility::Coordination::TimedRoutine::ConstructionMode::START_IMMEDIATELY
+        Utility::Coordination::TimedRoutine::ConstructionMode::startImmediately
     );
 }
 

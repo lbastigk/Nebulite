@@ -51,7 +51,7 @@ namespace Nebulite::Module::Domain::Renderer {
                 }
             },
             2000,
-            Utility::Coordination::TimedRoutine::ConstructionMode::START_IMMEDIATELY
+            Utility::Coordination::TimedRoutine::ConstructionMode::startImmediately
         );
     }
     tileInfoRoutine->update();
