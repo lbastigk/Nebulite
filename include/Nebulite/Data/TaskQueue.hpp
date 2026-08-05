@@ -101,12 +101,10 @@ public:
     [[nodiscard]] bool isWaiting() const ;
 
 private:
-    struct threadsafeTasks {
+    struct ThreadsafeTasks {
         std::deque<std::string> list; // List of tasks.
         std::mutex mutex;  // Mutex for thread-safe access to the task queue
-    };
-
-    threadsafeTasks tasks; // Thread-safe task queue
+    } tasks; // Task queue with thread-safe access
 
     struct Settings {
         std::string const callbackName; // Name used as arg[0] when parsing tasks from this queue

@@ -162,7 +162,7 @@ void historyScrollingCallback(ImGuiInputTextCallbackData* data, ConsoleState* st
 
         while (newIndex < state->capture->getHistory().size() - 1) {
             newIndex++;
-            if (state->capture->getHistory().at(historySize - newIndex).type == Nebulite::Utility::Io::HistoryLine::Type::Input) {
+            if (state->capture->getHistory().at(historySize - newIndex).type == Nebulite::Utility::Io::HistoryLine::Type::input) {
                 state->historyIndex = newIndex;
                 state->command = state->capture->getHistory().at(historySize-state->historyIndex).content; // Load command from history
                 data->DeleteChars(0, data->BufTextLen);
@@ -177,7 +177,7 @@ void historyScrollingCallback(ImGuiInputTextCallbackData* data, ConsoleState* st
         }
         std::size_t newIndex = state->historyIndex - 1;
         while (newIndex > 0) {
-            if (state->capture->getHistory().at(historySize - newIndex).type == Nebulite::Utility::Io::HistoryLine::Type::Input) {
+            if (state->capture->getHistory().at(historySize - newIndex).type == Nebulite::Utility::Io::HistoryLine::Type::input) {
                 state->historyIndex = newIndex;
                 break;
             }
@@ -423,16 +423,16 @@ void ImguiHelper::renderDomainConsole(Interaction::Context& ctx, Interaction::Co
     for (auto const& [content, type] : capture.getHistory()){
         std::string contentFull;
         switch (type) {
-            case Utility::Io::HistoryLine::Type::Info:
+            case Utility::Io::HistoryLine::Type::info:
                 ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1.0f, 1.0f, 1.0f, 1.0f)); // white
                 break;
-            case Utility::Io::HistoryLine::Type::Warning:
+            case Utility::Io::HistoryLine::Type::warning:
                 ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1.0f, 165.0f / 265.0f, 0.0f, 1.0f)); // orange
                 break;
-            case Utility::Io::HistoryLine::Type::Error:
+            case Utility::Io::HistoryLine::Type::error:
                 ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1.0f, 0.0f, 0.0f, 1.0f)); // red
                 break;
-            case Utility::Io::HistoryLine::Type::Input:
+            case Utility::Io::HistoryLine::Type::input:
                 contentFull = "> ";
                 ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.9f, 0.9f, 0.9f, 1.0f)); // grey
                 break;
@@ -470,7 +470,7 @@ void ImguiHelper::renderDomainConsole(Interaction::Context& ctx, Interaction::Co
     static auto constexpr flags = ImGuiInputTextFlags_EnterReturnsTrue | ImGuiInputTextFlags_CallbackHistory | ImGuiInputTextFlags_CallbackCompletion; // NOLINT
     if (ImGui::InputText("##ConsoleInput", &command, flags, consoleInputCallback, &state)) {
         if (!command.empty()){
-            capture.appendToHistory(command, Utility::Io::HistoryLine::Type::Input);
+            capture.appendToHistory(command, Utility::Io::HistoryLine::Type::input);
             Global::instance().notifyEvent(domain.parseStr(__FUNCTION__ + std::string(" ") + command, ctx, ctxScope));
             command.clear();
             state.historyIndex = 0; // Reset history index after executing a command

@@ -26,14 +26,14 @@ template<typename V>
  */
 class StringMap {
 public:
-    static auto constexpr BucketCount = static_cast<std::size_t>(std::numeric_limits<unsigned char>::max()) + 1;
+    static auto constexpr bucketCount = static_cast<std::size_t>(std::numeric_limits<unsigned char>::max()) + 1;
 
 private:
     using MapType = absl::flat_hash_map<std::string, V>;
 
     // Array of HotKeyMaps, one per possible first-character value.
-    std::array<MapType, BucketCount> map;
-    static_assert(BucketCount == 256, "Expected 256 buckets for StringMap");
+    std::array<MapType, bucketCount> map;
+    static_assert(bucketCount == 256, "Expected 256 buckets for StringMap");
 
     static std::size_t getIndex(std::string_view const key) {
         if (key.empty()) {
