@@ -114,10 +114,10 @@ public:
         };
 
         struct Color {
-            static auto constexpr R = Data::ScopedKeyView("textureData.color.r");
-            static auto constexpr G = Data::ScopedKeyView("textureData.color.g");
-            static auto constexpr B = Data::ScopedKeyView("textureData.color.b");
-            static auto constexpr A = Data::ScopedKeyView("textureData.color.a");
+            static auto constexpr r = Data::ScopedKeyView("textureData.color.r");
+            static auto constexpr g = Data::ScopedKeyView("textureData.color.g");
+            static auto constexpr b = Data::ScopedKeyView("textureData.color.b");
+            static auto constexpr a = Data::ScopedKeyView("textureData.color.a");
         };
 
         struct SpriteSpecific {
@@ -209,10 +209,10 @@ private:
     // TODO: requestOverride, allowing us to redraw the texture every frame if needed
 
     enum class Type : std::uint8_t {
-        SPRITE,
-        TEXT,
-        CIRCLE,
-        POLYGON,
+        sprite,
+        text,
+        circle,
+        polygon,
         // More ideas:
         // - tiledSprite (set fixed size of each tile, or a min/max size, and tile the texture accordingly) Helpful for GUI elements
         //   > dstRect determines the overall area to fill
@@ -225,7 +225,7 @@ private:
         //         scale tiles to 6.66x6.66 so that 3x3 tiles fit perfectly
         //         scale tiles to 10x10 so that 2x2 tiles fit perfectly
         //   > perhaps we should determine if we create a new texture for this or render directly from the original texture?
-    }type = Type::SPRITE; // Default to sprite
+    } type = Type::sprite; // Default to sprite
 
     //------------------------------------------
     // Updater
