@@ -40,11 +40,11 @@ namespace Nebulite::Data {
 template<typename T>
 void Json::set(std::string_view const key, T const& val){
     // Check if T is an optional/expected type, and if so, throw an assertion error
-    static_assert(!Utility::TypeCheck::is_std_optional_v<T>,
+    static_assert(!Utility::TypeCheck::isOptional<T>,
         "Setting optional types directly is not allowed. "
         "Please use the value inside the optional instead."
     );
-    static_assert(!Utility::TypeCheck::is_std_expected_v<T>,
+    static_assert(!Utility::TypeCheck::isExpected<T>,
         "Setting expected types directly is not allowed. "
         "Please use the value inside the expected instead."
     );

@@ -697,7 +697,7 @@ void Renderer::changeWindowSize(int const w, int const h, std::uint8_t  const sc
     // We assume that the tiling information is based on renderer states such as resolution,
     // if it's not static. If that is the case, we must reinsert all objects to redistribute
     // on resolution change
-    if constexpr (!Utility::TypeCheck::is_static_member_function_v<decltype(&Renderer::tilingInformation)>) {
+    if constexpr (!Utility::TypeCheck::isStaticMemberFunction<decltype(&Renderer::tilingInformation)>) {
         // Unreachable code if it's static, so we use a NOLINTNEXTLINE to suppress the warning
         reinsertAllObjects();
     }

@@ -13,28 +13,28 @@
 namespace Nebulite::Utility::TypeCheck {
 
 template <typename T>
-struct is_static_member_function : std::bool_constant<std::is_function_v<std::remove_pointer_t<T>>> {};
+struct IsStaticMemberFunction : std::bool_constant<std::is_function_v<std::remove_pointer_t<T>>> {};
 
 template <typename T>
-inline constexpr bool is_static_member_function_v = is_static_member_function<T>::value;
+inline constexpr bool isStaticMemberFunction = IsStaticMemberFunction<T>::value;
 
 template<typename>
-struct is_std_optional : std::false_type {};
+struct IsOptional : std::false_type {};
 
 template<typename U>
-struct is_std_optional<std::optional<U>> : std::true_type {};
+struct IsOptional<std::optional<U>> : std::true_type {};
 
 template<typename T>
-inline constexpr bool is_std_optional_v = is_std_optional<std::remove_cvref_t<T>>::value;
+inline constexpr bool isOptional = IsOptional<std::remove_cvref_t<T>>::value;
 
 template<typename>
-struct is_std_expected : std::false_type {};
+struct IsExpected : std::false_type {};
 
 template<typename T, typename E>
-struct is_std_expected<std::expected<T, E>> : std::true_type {};
+struct IsExpected<std::expected<T, E>> : std::true_type {};
 
 template<typename T>
-inline constexpr bool is_std_expected_v = is_std_expected<std::remove_cvref_t<T>>::value;
+inline constexpr bool isExpected = IsExpected<std::remove_cvref_t<T>>::value;
 
 } // namespace Nebulite::Utility::TypeCheck
 #endif // NEBULITE_UTILITY_TYPECHECK_HPP
