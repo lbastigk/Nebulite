@@ -74,6 +74,7 @@ public:
      * @tparam F The type of the function to use the resource. Function signature: UsageReturn(T&)
      * @param prepare The function to prepare the resource before use.
      * @param f The function to use the resource
+     * @todo F should be VoidFunctionOfT<T>
      */
     template<VoidFunctionOfT<T> PrepareF, FunctionOfTWithReturn<T, UsageReturn> F>
     void use(PrepareF&& prepare, F&& f) requires (std::is_void_v<UsageReturn>);
