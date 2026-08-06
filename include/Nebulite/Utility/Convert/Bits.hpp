@@ -29,6 +29,12 @@ std::size_t constexpr reverse(std::size_t input, std::size_t const bitCount) {
     return result;
 }
 
+/**
+ * @brief Turns an unsigned integral type into its bitwise string-representation
+ * @tparam T The type to convert
+ * @param input The value to convert
+ * @return The bitwise string-representation
+ */
 template<typename T>
 std::string constexpr toString(T input) {
     // T must be unsigned
@@ -42,5 +48,6 @@ std::string constexpr toString(T input) {
     }
     return result;
 }
+
 } // namespace Nebulite::Utility::Convert::Bits
 #endif // NEBULITE_UTILITY_CONVERT_BITS_HPP
