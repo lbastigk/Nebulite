@@ -26,6 +26,7 @@ void Requirements::bindTransformations() {
     bindTransformation(&Requirements::requireTypeArray, requireTypeArrayName, requireTypeArrayDesc);
     bindTransformation(&Requirements::requireTypeBasicValue, requireTypeBasicValueName, requireTypeBasicValueDesc);
     bindTransformation(&Requirements::requireTypeNumeric, requireTypeNumericName, requireTypeNumericDesc);
+    bindTransformation(&Requirements::requireTypeNumericOrNumericString, requireTypeNumericOrNumericStringName, requireTypeNumericOrNumericStringDesc);
 
     bindCategory(requireMatchName, requireMatchDesc);
     bindTransformation(&Requirements::requireMatchRegex, requireMatchRegexName, requireMatchRegexDesc);
@@ -115,6 +116,16 @@ bool Requirements::requireTypeBasicValue(std::span<std::string_view const> const
 bool Requirements::requireTypeNumeric(std::span<std::string_view const> const& args, Data::JsonScope const& jsonDoc){
     try {
         Assertions::assertTypeNumeric(args, jsonDoc);
+    }
+    catch (...) {
+        return false;
+    }
+    return true;
+}
+
+bool Requirements::requireTypeNumericOrNumericString(std::span<std::string_view const> const& args, Data::JsonScope const& jsonDoc){
+    try {
+        Assertions::assertTypeNumericOrNumericString(args, jsonDoc);
     }
     catch (...) {
         return false;

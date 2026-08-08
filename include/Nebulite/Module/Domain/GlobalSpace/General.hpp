@@ -4,13 +4,8 @@
 //------------------------------------------
 // Includes
 
-// Standard library
-#include <span>
-#include <string_view>
-
 // Nebulite
 #include "Nebulite/Constants/Event.hpp"
-#include "Nebulite/Interaction/Context.hpp"
 #include "Nebulite/Module/Base/DomainModule.hpp"
 
 //------------------------------------------
@@ -43,66 +38,6 @@ public:
         "Closes the program\n"
         "Any queued tasks will be discarded.\n";
 
-    [[nodiscard]] Constants::Event wait(int argc, char const** argv) const ;
-    static auto constexpr waitName = "wait";
-    static auto constexpr waitDesc = "Sets the waitCounter to the given value to halt all script tasks for a given amount of frames.\n"
-        "\n"
-        "Usage: wait <frames>\n"
-        "\n"
-        "This command pauses the execution of all script tasks for the specified number of frames.\n"
-        "This does not halt any tasks coming from objects within the environment and cannot be used by them.\n"
-        "\n"
-        "This is useful for:"
-        "- Creating pauses in scripts to wait for certain conditions to be met.\n"
-        "- Timing events in a sequence.\n"
-        "- Tool assisted speedruns (TAS)\n";
-
-    [[nodiscard]] Constants::Event task(int argc, char const** argv) const ;
-    static auto constexpr taskName = "task";
-    static auto constexpr taskDesc = "Loads tasks from a file into the taskQueue, but does not execute them immediately.\n"
-        "\n"
-        "Usage: task <filename>\n"
-        "\n"
-        "This command loads a list of tasks from the specified file into the task queue.\n"
-        "Each line in the file is treated as a separate task.\n"
-        "\n"
-        "Task files are not appended at the end, but right after the current task.\n"
-        "This ensures that tasks can be loaded within task files themselves and being executed immediately.\n"
-        "\n"
-        "This example shows how tasks are loaded and executed:\n"
-        "\n"
-        "Main task:\n"
-        "    mainCommand1\n"
-        "    mainCommand2\n"
-        "    task subTaskFile.txt:\n"
-        "        subCommand1\n"
-        "        subCommand2\n"
-        "    mainCommand4\n";
-
-    [[nodiscard]] Constants::Event taskExec(std::span<std::string_view const> args, Interaction::Context ctx, Interaction::ContextScope ctxScope) const ;
-    static auto constexpr taskExecName = "task-exec";
-    static auto constexpr taskExecDesc = "Same as 'task', but with instant execution.";
-
-    [[nodiscard]] Constants::Event always(int argc, char const** argv) const ;
-    static auto constexpr alwaysName = "always";
-    static auto constexpr alwaysDesc = "Attach a command to the always-taskqueue that is executed on each tick.\n"
-        "\n"
-        "Usage: always <command>\n"
-        "\n"
-        "Example:\n"
-        "always echo This command runs every frame!\n"
-        "This will output \"This command runs every frame!\" on every frame.\n";
-
-    [[nodiscard]] Constants::Event alwaysClear() const ;
-    static auto constexpr alwaysClearName = "always-clear";
-    static auto constexpr alwaysClearDesc = "Clears the entire always-taskqueue.\n"
-        "\n"
-        "Usage: always-clear\n"
-        "\n"
-        "Example:\n"
-        "always-clear\n"
-        "This will remove all commands from the always-taskqueue.\n";
-
     //------------------------------------------
     // Categories
 
@@ -117,11 +52,6 @@ public:
      */
     explicit General(ConstructorParams const& params) : DomainModule(params) {
         bindFunction(&General::exit, exitName, exitDesc);
-        bindFunction(&General::wait, waitName, waitDesc);
-        bindFunction(&General::task, taskName, taskDesc);
-        bindFunction(&General::taskExec, taskExecName, taskExecDesc);
-        bindFunction(&General::always, alwaysName, alwaysDesc);
-        bindFunction(&General::alwaysClear, alwaysClearName, alwaysClearDesc);
     }
 };
 } // namespace Nebulite::Module::Domain::GlobalSpace

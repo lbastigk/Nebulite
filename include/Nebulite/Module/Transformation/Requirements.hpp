@@ -115,6 +115,13 @@ public:
         "Accepts an optional user-defined error message as additional arguments.\n"
         "Usage: |requireTypeNumeric -> {value,<Returns false if not numeric>}\n";
 
+    static bool requireTypeNumericOrNumericString(std::span<std::string_view const> const& args, Data::JsonScope const& jsonDoc);
+    static auto constexpr requireTypeNumericOrNumericStringName = "require type numericOrNumericString";
+    static auto constexpr requireTypeNumericOrNumericStringDesc = "Requires that the current JSON value is numeric, or a string of a numeric.\n"
+        "If the value is not numeric or a string of a numeric, the transformation fails.\n"
+        "Accepts an optional user-defined error message as additional arguments.\n"
+        "Usage: |requireTypeNumericOrNumericString -> {value,<Returns false if not numeric or numeric string>}\n";
+
     // [MATCH]
 
     static bool requireMatchRegex(std::span<std::string_view const> const& args, Data::JsonScope const& jsonDoc);
