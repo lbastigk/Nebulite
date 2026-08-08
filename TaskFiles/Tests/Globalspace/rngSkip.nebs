@@ -1,0 +1,25 @@
+# Check if calling "task" (and some other functions) do not update the rng state
+
+# Instead of copying the current random state we use a combination of capture+print
+# As these functions are rng-update-blacklisted and do not affect the rng state
+# The fear is that blacklisting "set" calls would make rng update too sparse
+# But capture and print serve more of a wrapper for other functions, so that seems like a better choice
+
+capture result[0] print random.A
+wait 1
+capture result[1] print random.A
+task # No file specified, we're only interested in the call
+capture result[2] print random.A
+
+# Verify: Is number
+eval nop {global:result[0][0]|assert type numericOrNumericString}
+eval nop {global:result[1][0]|assert type numericOrNumericString}
+eval nop {global:result[2][0]|assert type numericOrNumericString}
+
+# Verify: rng-update
+assert $(neq({global:result[0][0]},{global:result[1][0]}))
+
+# Verify: rng-update skip
+assert $(eq({global:result[1][0]},{global:result[2][0]}))
+
+exit

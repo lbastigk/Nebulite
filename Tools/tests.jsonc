@@ -73,6 +73,7 @@
         "Tools/Tests/Ruleset/selfOtherGlobalInteraction.json",
         //---------------------------------------
         // GlobalSpace tests
+        "Tools/Tests/GlobalSpace/rng.json",
         "Tools/Tests/GlobalSpace/time.json",
         "Tools/Tests/GlobalSpace/mirror_draft_selection.json",
         //---------------------------------------
