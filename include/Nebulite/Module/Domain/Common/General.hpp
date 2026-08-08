@@ -99,7 +99,7 @@ public:
         "assert '$(eq(1+1,3))'    // Critical Error: A custom assertion failed.\n"
         "Assertion failed: $(eq(1+1,3)) is not true.\n";
 
-    [[nodiscard]] static Constants::Event nop(std::span<std::string_view const> const& args);
+    [[nodiscard]] static Constants::Event nop();
     static auto constexpr nopName = "nop";
     static auto constexpr nopDesc = "No operation. Does nothing.\n"
         "\n"

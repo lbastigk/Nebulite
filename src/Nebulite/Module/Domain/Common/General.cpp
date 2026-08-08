@@ -205,7 +205,7 @@ Constants::Event General::assertFunc(std::span<std::string_view const> const& ar
     return Constants::Event::success;
 }
 
-Constants::Event General::nop(std::span<std::string_view const> const& /*args*/) {
+Constants::Event General::nop() {
     // Do nothing
     return Constants::Event::success;
 }
