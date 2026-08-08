@@ -7,9 +7,11 @@
 #include <cstdint> // NOLINT
 #include <memory>
 #include <optional>
+#include <span>
 #include <sstream>
 #include <stdexcept>
 #include <string>
+#include <string_view>
 #include <utility>
 
 // External
@@ -287,12 +289,15 @@ void GlobalSpace::rngRollback() const {
 //------------------------------------------
 // Pre-parse
 
-Constants::Event GlobalSpace::preParse() {
+Constants::Event GlobalSpace::preParse(std::span<std::string_view const> const /*args*/) {
     // NOTE: This function is only called once there is a parse-command
     // Meaning its timing is consistent and not dependent on framerate, frame time variations, etc.
     // Meaning everything we do here is, timing wise, deterministic!
-    (void)floatingDomainModule.rng->update();
-    return Constants::Event::success;
+
+    // TODO: add blacklist of commands where we do not wish to update rng
+    //       Best if we add this to funcTree itself: registerPreParseBlacklist(name), so we can control this inside each module!
+    //       Even better: per-function override: either in addition to the general pre-parse or a direct override
+    return floatingDomainModule.rng->update();
 }
 
 } // namespace Nebulite::Core

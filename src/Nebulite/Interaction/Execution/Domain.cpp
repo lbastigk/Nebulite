@@ -60,7 +60,9 @@ Domain::Domain(std::string const& name, Data::JsonScope& documentReference, Util
         Constants::Event::warning,
         capture
     );
-    funcTree->setPreParse([this] { return preParse(); });
+    funcTree->setPreParse([this](std::span<std::string_view const> const args) {
+        return preParse(args);
+    });
 
     // Initialize modules
     Module::Domain::Initializer::initCommon(this);
@@ -77,7 +79,9 @@ Domain::Domain(std::string const& name, Utility::Io::Capture& parentCapture)
         Constants::Event::warning,
         capture
     );
-    funcTree->setPreParse([this] { return preParse(); });
+    funcTree->setPreParse([this](std::span<std::string_view const> const args) {
+        return preParse(args);
+    });
 
     // Initialize modules
     Module::Domain::Initializer::initCommon(this);
@@ -95,7 +99,9 @@ Domain::Domain(std::string const& name, Data::JsonScope& documentReference)
         Constants::Event::warning,
         capture
     );
-    funcTree->setPreParse([this] { return preParse(); });
+    funcTree->setPreParse([this](std::span<std::string_view const> const args) {
+        return preParse(args);
+    });
 
     // Initialize modules
     Module::Domain::Initializer::initCommon(this);
@@ -112,7 +118,9 @@ Domain::Domain(std::string const& name)
         Constants::Event::warning,
         capture
     );
-    funcTree->setPreParse([this] { return preParse(); });
+    funcTree->setPreParse([this](std::span<std::string_view const> const args) {
+        return preParse(args);
+    });
 
     // Initialize modules
     Module::Domain::Initializer::initCommon(this);

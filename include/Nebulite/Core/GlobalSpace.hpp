@@ -9,7 +9,9 @@
 #include <cstdint> // NOLINT
 #include <memory>
 #include <optional>
+#include <span>
 #include <string>
+#include <string_view>
 
 // External
 #include <SDL3/SDL_render.h>
@@ -236,10 +238,11 @@ private:
     /**
      * @brief Called before any command parsing.
      * @details Updates RNGs before parsing commands.
+     * @param args The arguments of the parse
      * @return Error code `Constants::ErrorTable::NONE()` if there was no critical stop,
      *         an error code otherwise.
      */
-    [[nodiscard]] Constants::Event preParse() override ;
+    [[nodiscard]] Constants::Event preParse(std::span<std::string_view const> args) override ;
 
     /**
      * @brief Updates all inner domains.

@@ -9,7 +9,9 @@
 #include <cstdint> // NOLINT
 #include <functional>
 #include <optional>
+#include <span>
 #include <string>
+#include <string_view>
 #include <utility>
 #include <vector>
 
@@ -449,7 +451,7 @@ private:
     /**
      * @brief Called before parsing any commands.
      */
-    [[nodiscard]] Constants::Event preParse() override;
+    [[nodiscard]] Constants::Event preParse(std::span<std::string_view const> args) override;
 
     //------------------------------------------
     // Boolean Status Variables

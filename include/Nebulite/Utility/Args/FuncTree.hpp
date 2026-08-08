@@ -140,7 +140,7 @@ public:
      * @brief Links a function to call before parsing (e.g., for setting up variables or locking resources)
      * @param func Function to call before parsing
      */
-    void setPreParse(std::function<ReturnValue()> func) {
+    void setPreParse(SupportedFunctions::Modern::NoAddArgs func) {
         preParse = std::move(func);
     }
 
@@ -249,7 +249,7 @@ private:
     std::string treeName;
 
     // Function to call before parsing (e.g., for setting up variables or locking resources)
-    std::function<ReturnValue()> preParse = nullptr;
+    SupportedFunctions::Modern::NoAddArgs preParse = nullptr;
 
     // Capture instance for logging
     Io::Capture& capture;

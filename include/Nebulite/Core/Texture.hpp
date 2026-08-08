@@ -5,7 +5,9 @@
 // Includes
 
 // Standard library
+#include <span>
 #include <string>
+#include <string_view>
 
 // External
 #include <SDL3/SDL_render.h>
@@ -116,7 +118,7 @@ private:
     /**
      * @brief Necessary operations before parsing commands.
      */
-    [[nodiscard]] Constants::Event preParse() override;
+    [[nodiscard]] Constants::Event preParse(std::span<std::string_view const> args) override;
 
     /**
      * @brief The SDL texture managed by this class.

@@ -2,7 +2,9 @@
 // Includes
 
 // Standard library
+#include <span>
 #include <string>
+#include <string_view>
 
 // External
 #include <SDL3/SDL_error.h>
@@ -110,7 +112,7 @@ void Texture::loadTextureFromFile(std::string const& filePath) {
     }
 }
 
-Constants::Event Texture::preParse() {
+Constants::Event Texture::preParse(std::span<std::string_view const> const /*args*/) {
     if (!textureStoredLocally) {
         generateLocallyManagedTexture();
     }
