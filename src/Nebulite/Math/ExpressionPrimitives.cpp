@@ -147,11 +147,11 @@ double ExpressionPrimitives::roundDown(double const a, double const b) {
 //----------------------------------
 // Frequency-related
 
-double ExpressionPrimitives::triangle(double x){
-    return 4.0 * fabs(fmod((x / (2.0 * std::numbers::pi)) - 0.25, 1.0) - 0.5) - 1.0;
+double ExpressionPrimitives::triangle(double const x){
+    return 4.0 * fabs(fmod(x / (2.0 * std::numbers::pi) - 0.25, 1.0) - 0.5) - 1.0;
 }
 
-double ExpressionPrimitives::square(double x){
+double ExpressionPrimitives::square(double const x){
     return sin(x) >= 0.0 ? 1.0 : -1.0;
 }
 
