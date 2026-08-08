@@ -22,10 +22,6 @@ void RmlUiModule::update() {}
 
 void RmlUiModule::postRenderUpdate() {}
 
-void RmlUiModule::processRmlUiEvent(SDL_Event const& event, int const keyModifiers, Rml::Element* focusElement) {
-    (void) event;
-    (void) keyModifiers;
-    (void) focusElement;
-}
+void RmlUiModule::processRmlUiEvent(SDL_Event const& /*event*/, int const /*keyModifiers*/, Rml::Element* /*focusElement*/) {}
 
 } // namespace Nebulite::Module::Base
