@@ -22,7 +22,7 @@ Event StandardCapture::Warning::Functional::functionCallInvalid(Utility::Io::Cap
 }
 
 Event StandardCapture::Warning::Functional::invalidArgcArgvParsing(Utility::Io::Capture& cap) {
-    cap.warning.println("argc/argv parsing error.");
+    cap.warning.println("Invalid argc/argv parsing.");
     return Event::warning;
 }
 
@@ -37,7 +37,12 @@ Event StandardCapture::Warning::Functional::tooFewArgs(Utility::Io::Capture& cap
 }
 
 Event StandardCapture::Warning::Functional::unknownArg(Utility::Io::Capture& cap) {
-    cap.warning.println("Unknown Argument Error");
+    cap.warning.println("Unknown Argument");
+    return Event::warning;
+}
+
+Event StandardCapture::Warning::Functional::invalidArgument(Utility::Io::Capture& cap) {
+    cap.warning.println("Invalid Argument");
     return Event::warning;
 }
 
