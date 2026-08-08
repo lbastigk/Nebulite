@@ -572,7 +572,7 @@ ReturnValue FuncTree<ReturnValue, AdditionalArgs...>::executeFunction(std::strin
 
     // Call preParse function if set
     if (preParse != nullptr) {
-        if (ReturnValue err = preParse(name, args); !Math::isEqual(err, standardReturn.valDefault)) {
+        if (ReturnValue err = preParse(function, args); !Math::isEqual(err, standardReturn.valDefault)) {
             return err; // Return error if preParse failed
         }
     }
