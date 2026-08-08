@@ -118,7 +118,7 @@ private:
     /**
      * @brief Necessary operations before parsing commands.
      * @param functionName The name of the called function.
-     * @param args The arguments of the pars
+     * @param args The arguments of the parse
      */
     [[nodiscard]] Constants::Event preParse(std::string_view functionName, std::span<std::string_view const> args) override;
 
