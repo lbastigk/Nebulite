@@ -78,6 +78,9 @@ Constants::Event Tasks::always(std::span<std::string_view const> const args) con
     while (std::getline(ss, command, ';')) {
         // Trim whitespace from each command
         command.erase(0, command.find_first_not_of(" \t"));
+        if (command.empty()) {
+            continue;
+        }
         command.erase(command.find_last_not_of(" \t") + 1);
         if (!command.empty()) {
             domain.tasks.addTask(command, Interaction::Execution::Tasks::StandardTasks::always);
