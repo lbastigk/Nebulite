@@ -8,6 +8,7 @@
 #include <ranges>
 #include <span>
 #include <string>
+#include <utility>
 
 // Nebulite
 #include "Nebulite/Data/Document/JsonScope.hpp"
@@ -19,7 +20,7 @@
 namespace Nebulite::Module::Transformation {
 
 void Array::bindTransformations() {
-    // Ranges
+    // Pick
     bindTransformation(&Array::at, atName, atDesc);
     bindTransformation(&Array::length, lengthName, lengthDesc);
     bindTransformation(&Array::first, firstName, firstDesc);
@@ -27,11 +28,14 @@ void Array::bindTransformations() {
     bindTransformation(&Array::subspan, subspanName, subspanDesc);
 
     // Modify
+    bindTransformation(&Array::flatten, flattenName, flattenDesc);
     bindTransformation(&Array::reverse, reverseName, reverseDesc);
     bindTransformation(&Array::ensureArray, ensureArrayName, ensureArrayDesc);
     bindTransformation(&Array::push, pushName, pushDesc);
     bindTransformation(&Array::pushNumber, pushNumberName, pushNumberDesc);
     bindTransformation(&Array::enumerate, enumerateName, enumerateDesc);
+
+    // Generate
     bindTransformation(&Array::iota, iotaName, iotaDesc);
 }
 
@@ -130,6 +134,38 @@ bool Array::subspan(std::span<std::string_view const> const& args, Data::JsonSco
 }
 
 // Modify
+
+bool Array::flatten(Data::JsonScope& jsonDoc){
+    Data::Json tmp;
+    std::size_t tmpIndex = 0;
+    for (auto const key : jsonDoc.arrayKeys(rootKey)) {
+        switch (jsonDoc.memberType(key)) {
+            case Data::KeyType::array: {
+                for (auto const subKey : jsonDoc.arrayKeys(key)) {
+                    tmp.setSubDoc(rootKey.addIndex(tmpIndex++).toString(), jsonDoc.getSubDoc(subKey));
+                }
+                break;
+            }
+            case Data::KeyType::object:
+                tmp.setSubDoc(rootKey.addIndex(tmpIndex++).toString(), jsonDoc.getSubDoc(key));
+                break;
+            case Data::KeyType::value: {
+                auto variant = jsonDoc.getVariant(key);
+                if (!variant.has_value()) {
+                    return false;
+                }
+                tmp.setVariant(rootKey.addIndex(tmpIndex++).toString(), variant.value());
+                break;
+            }
+            case Data::KeyType::null:
+                return false;
+            default:
+                std::unreachable();
+        }
+    }
+    jsonDoc.setSubDoc(rootKey, tmp);
+    return true;
+}
 
 bool Array::reverse(Data::JsonScope& jsonDoc) {
     if (!ensureArray(jsonDoc)) {
