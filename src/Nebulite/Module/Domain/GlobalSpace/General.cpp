@@ -63,7 +63,6 @@ Constants::Event General::task(std::span<std::string_view const> args) const {
     }
     auto const fileName = Utility::StringHandler::recombineArgs(args.subspan(1));
     domain.capture.log.println("Loading task list from file: ", fileName);
-    domain.rngRollback(); // Rollback RNG, loading a task file should not change the RNG state
     domain.tasks.addScript(fileName, domain.capture);
     return Constants::Event::success;
 }
@@ -74,7 +73,6 @@ Constants::Event General::taskExec(std::span<std::string_view const> const args,
     }
     auto const fileName = Utility::StringHandler::recombineArgs(args.subspan(1));
     domain.capture.log.println("Loading task list from file and executing immediately: ", fileName);
-    domain.rngRollback(); // Rollback RNG, loading a task file should not change the RNG state
     Data::TaskQueue tq("LocalTaskQueue", false);
     tq.addScript(fileName, domain.capture);
     return tq.resolve(ctx, ctxScope, true).worstEvent();

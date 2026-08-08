@@ -188,11 +188,6 @@ public:
 
     void notifyEvent(Constants::Event event);
 
-    //------------------------------------------
-    // Special Functions
-
-    void rngRollback() const ;
-
 private:
     //------------------------------------------
     // General Variables

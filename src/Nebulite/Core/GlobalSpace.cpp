@@ -27,6 +27,7 @@
 #include "Nebulite/Interaction/Rules/Listener.hpp"
 #include "Nebulite/Interaction/Rules/Ruleset.hpp"
 #include "Nebulite/Module/Domain/GlobalSpace/Floating/Random.hpp"
+#include "Nebulite/Module/Domain/GlobalSpace/General.hpp"
 #include "Nebulite/Module/Domain/GlobalSpace/Settings.hpp"
 #include "Nebulite/Module/Domain/Initializer.hpp"
 #include "Nebulite/Nebulite.hpp"
@@ -279,15 +280,6 @@ void GlobalSpace::notifyEvent(Constants::Event const event) {
 }
 
 //------------------------------------------
-// Special Functions
-
-void GlobalSpace::rngRollback() const {
-    if (floatingDomainModule.rng) {
-        floatingDomainModule.rng->rngRollback();
-    }
-}
-
-//------------------------------------------
 // Pre-parse
 
 Constants::Event GlobalSpace::preParse(std::string_view const functionName, std::span<std::string_view const> const /*args*/) {
@@ -298,7 +290,10 @@ Constants::Event GlobalSpace::preParse(std::string_view const functionName, std:
     // Adding the blacklist of commands at domainmodule-level would be best, but this is difficult as we need to escalate this info to the highest tree.
     // And even then, the function is blacklisted for every tree. Do we want that? So instead, we do the blacklist check inside the pre-parse.
     // This is a bit annoying as we need to include the modules and always update this function if new functions need to skip the rng update, but it is what it is...
-    static auto constexpr blacklist = {""};
+    static auto constexpr blacklist = {
+        Module::Domain::GlobalSpace::General::taskName, // Rollback RNG, loading a task file should not change the RNG state
+        Module::Domain::GlobalSpace::General::taskExecName,
+    };
     if (std::ranges::any_of(blacklist, [functionName](std::string_view const& blacklisted) {
         return functionName == blacklisted;
     })) {
