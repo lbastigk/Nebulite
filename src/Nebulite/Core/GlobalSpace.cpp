@@ -26,8 +26,8 @@
 #include "Nebulite/Data/Document/ScopedKey.hpp"
 #include "Nebulite/Interaction/Rules/Listener.hpp"
 #include "Nebulite/Interaction/Rules/Ruleset.hpp"
+#include "Nebulite/Module/Domain/Common/Tasks.hpp"
 #include "Nebulite/Module/Domain/GlobalSpace/Floating/Random.hpp"
-#include "Nebulite/Module/Domain/GlobalSpace/General.hpp"
 #include "Nebulite/Module/Domain/GlobalSpace/Settings.hpp"
 #include "Nebulite/Module/Domain/Initializer.hpp"
 #include "Nebulite/Nebulite.hpp"
@@ -291,8 +291,8 @@ Constants::Event GlobalSpace::preParse(std::string_view const functionName, std:
     // And even then, the function is blacklisted for every tree. Do we want that? So instead, we do the blacklist check inside the pre-parse.
     // This is a bit annoying as we need to include the modules and always update this function if new functions need to skip the rng update, but it is what it is...
     static auto constexpr blacklist = {
-        Module::Domain::GlobalSpace::General::taskName, // Rollback RNG, loading a task file should not change the RNG state
-        Module::Domain::GlobalSpace::General::taskExecName,
+        Module::Domain::Common::Tasks::taskName, // Rollback RNG, loading a task file should not change the RNG state
+        Module::Domain::Common::Tasks::taskExecName,
     };
     if (std::ranges::any_of(blacklist, [functionName](std::string_view const& blacklisted) {
         return functionName == blacklisted;

@@ -20,6 +20,7 @@
 #include "Nebulite/Module/Domain/Common/RmlUi.hpp"
 #include "Nebulite/Module/Domain/Common/Ruleset.hpp"
 #include "Nebulite/Module/Domain/Common/SimpleData.hpp"
+#include "Nebulite/Module/Domain/Common/Tasks.hpp"
 
 // Environment
 #include "Nebulite/Module/Domain/Environment/Debug.hpp"
@@ -92,6 +93,11 @@ void Initializer::initCommon(Interaction::Execution::Domain* target) {
     );
     target->initModule<Interaction::Execution::Domain, Common::SimpleData>(
         "Common Simple Data Functions",
+        Global::settings(),
+        *target
+    );
+    target->initModule<Interaction::Execution::Domain, Common::Tasks>(
+        "Common Task Functions",
         Global::settings(),
         *target
     );
