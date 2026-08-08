@@ -450,8 +450,10 @@ public:
 private:
     /**
      * @brief Called before parsing any commands.
+     * @param functionName The name of the called function.
+     * @param args The arguments of the parse
      */
-    [[nodiscard]] Constants::Event preParse(std::span<std::string_view const> args) override;
+    [[nodiscard]] Constants::Event preParse(std::string_view functionName, std::span<std::string_view const> args) override;
 
     //------------------------------------------
     // Boolean Status Variables

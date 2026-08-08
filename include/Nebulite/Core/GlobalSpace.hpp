@@ -238,11 +238,12 @@ private:
     /**
      * @brief Called before any command parsing.
      * @details Updates RNGs before parsing commands.
+     * @param functionName The name of the called function.
      * @param args The arguments of the parse
      * @return Error code `Constants::ErrorTable::NONE()` if there was no critical stop,
      *         an error code otherwise.
      */
-    [[nodiscard]] Constants::Event preParse(std::span<std::string_view const> args) override ;
+    [[nodiscard]] Constants::Event preParse(std::string_view functionName, std::span<std::string_view const> args) override ;
 
     /**
      * @brief Updates all inner domains.

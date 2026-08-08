@@ -568,7 +568,7 @@ template <typename ReturnValue, typename... AdditionalArgs>
 ReturnValue FuncTree<ReturnValue, AdditionalArgs...>::executeFunction(std::string_view const name, std::span<std::string_view const> const& args, AdditionalArgs... addArgs) {
     // Call preParse function if set
     if (preParse != nullptr) {
-        if (ReturnValue err = preParse(args); !Math::isEqual(err, standardReturn.valDefault)) {
+        if (ReturnValue err = preParse(name, args); !Math::isEqual(err, standardReturn.valDefault)) {
             return err; // Return error if preParse failed
         }
     }

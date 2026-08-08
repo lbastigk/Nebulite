@@ -2,6 +2,7 @@
 // Includes
 
 // Standard library
+#include <algorithm>
 #include <cassert>
 #include <cstddef>
 #include <cstdint> // NOLINT
@@ -289,14 +290,20 @@ void GlobalSpace::rngRollback() const {
 //------------------------------------------
 // Pre-parse
 
-Constants::Event GlobalSpace::preParse(std::span<std::string_view const> const /*args*/) {
+Constants::Event GlobalSpace::preParse(std::string_view const functionName, std::span<std::string_view const> const /*args*/) {
     // NOTE: This function is only called once there is a parse-command
     // Meaning its timing is consistent and not dependent on framerate, frame time variations, etc.
     // Meaning everything we do here is, timing wise, deterministic!
 
-    // TODO: add blacklist of commands where we do not wish to update rng
-    //       Best if we add this to funcTree itself: registerPreParseBlacklist(name), so we can control this inside each module!
-    //       Even better: per-function override: either in addition to the general pre-parse or a direct override
+    // Adding the blacklist of commands at domainmodule-level would be best, but this is difficult as we need to escalate this info to the highest tree.
+    // And even then, the function is blacklisted for every tree. Do we want that? So instead, we do the blacklist check inside the pre-parse.
+    // This is a bit annoying as we need to include the modules and always update this function if new functions need to skip the rng update, but it is what it is...
+    static auto constexpr blacklist = {""};
+    if (std::ranges::any_of(blacklist, [functionName](std::string_view const& blacklisted) {
+        return functionName == blacklisted;
+    })) {
+        return Constants::Event::success; // Skip rng update for blacklisted functions
+    }
     return floatingDomainModule.rng->update();
 }
 

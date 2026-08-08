@@ -112,7 +112,7 @@ void Texture::loadTextureFromFile(std::string const& filePath) {
     }
 }
 
-Constants::Event Texture::preParse(std::span<std::string_view const> const /*args*/) {
+Constants::Event Texture::preParse(std::string_view const /*functionName*/, std::span<std::string_view const> const /*args*/) {
     if (!textureStoredLocally) {
         generateLocallyManagedTexture();
     }

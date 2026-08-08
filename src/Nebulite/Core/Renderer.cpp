@@ -119,7 +119,7 @@ void Renderer::setupDisplayValues() {
     domainScope.set<unsigned int>(Constants::KeyNames::Renderer::positionY, 0);
 }
 
-Constants::Event Renderer::preParse(std::span<std::string_view const> const /*args*/) {
+Constants::Event Renderer::preParse(std::string_view const /*functionName*/, std::span<std::string_view const> const /*args*/) {
     initSdl();
     return Constants::Event::success;
 }

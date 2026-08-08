@@ -251,7 +251,7 @@ class Domain : public DocumentAccessor {
      * @return Error code `Constants::ErrorTable::NONE()` if there was no critical stop,
      *         an error code otherwise.
      */
-    [[nodiscard]] virtual Constants::Event preParse(std::span<std::string_view const> const /*args*/) {
+    [[nodiscard]] virtual Constants::Event preParse(std::string_view const /*functionName*/, std::span<std::string_view const> const /*args*/) {
         return Constants::Event::success;
     }
 
