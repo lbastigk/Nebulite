@@ -79,7 +79,8 @@ public:
             typename SupportedFunctions::Modern::FullConstRef,
             typename SupportedFunctions::Modern::NoAddArgs,
             typename SupportedFunctions::Modern::NoAddArgsConstRef,
-            typename SupportedFunctions::Modern::NoCmdArgs
+            typename SupportedFunctions::Modern::NoCmdArgs,
+            typename SupportedFunctions::Modern::NoArgs
         >
     >;
 
