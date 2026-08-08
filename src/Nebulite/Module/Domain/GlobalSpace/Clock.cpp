@@ -109,13 +109,13 @@ void Clock::readClocksFromDocument() {
         // No clocks found, nothing to do
         return;
     }
-    for (std::uint64_t const size = moduleScope.memberSize(Key::activeClocks); auto key : Key::activeClocks.getArrayKeys(size)) {
+    for (auto const size = moduleScope.memberSize(Key::activeClocks); auto const key : Key::activeClocks.getArrayKeys(size)) {
         if (auto const intervalType = moduleScope.memberType(key); intervalType != Data::KeyType::value) {
             // Invalid entry, skip
             continue;
         }
 
-        auto intervalMilliSeconds = moduleScope.get<uint64_t>(key).value_or(0);
+        auto const intervalMilliSeconds = moduleScope.get<uint64_t>(key).value_or(0);
         if (intervalMilliSeconds < 1) {
             // Invalid interval, skip
             continue;
