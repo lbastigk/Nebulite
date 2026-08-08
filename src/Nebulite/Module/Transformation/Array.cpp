@@ -142,6 +142,7 @@ bool Array::flatten(Data::JsonScope& jsonDoc){
         switch (jsonDoc.memberType(key)) {
             case Data::KeyType::array: {
                 for (auto const subKey : jsonDoc.arrayKeys(key)) {
+                    // TODO: recursive call to an array-insert helper: inner subdoc might be an array!
                     tmp.setSubDoc(rootKey.addIndex(tmpIndex++).toString(), jsonDoc.getSubDoc(subKey));
                 }
                 break;
