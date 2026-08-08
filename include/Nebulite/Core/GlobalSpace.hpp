@@ -219,7 +219,6 @@ private:
         std::string binary; // Name of the binary, used for parsing arguments
     } names;
 
-
     //------------------------------------------
     // Floating DomainModules
 
