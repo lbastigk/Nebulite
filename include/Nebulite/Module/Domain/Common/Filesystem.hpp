@@ -6,11 +6,7 @@
 
 // Standard library
 #include <span>
-#include <string>
 #include <string_view>
-
-// External
-#include <absl/container/flat_hash_map.h>
 
 // Nebulite
 #include "Nebulite/Constants/Event.hpp"
@@ -60,9 +56,6 @@ public:
         bindFunction(&Filesystem::cat, catName, catDesc);
         bindFunction(&Filesystem::ls, lsName, lsDesc);
     }
-
-private:
-    absl::flat_hash_map<std::string, std::string> forced_global_values; // Key-Value pairs to set in global JSON
 };
 } // namespace Nebulite::Module::Domain::Common
 #endif // NEBULITE_MODULE_DOMAIN_COMMON_FILESYSTEM_HPP
