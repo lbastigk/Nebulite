@@ -47,6 +47,8 @@ public:
     //------------------------------------------
     // Important types
 
+    using PreParseFunction = std::function<ReturnValue(std::string_view, CmdArgs::Span)>;
+
     // Supported function signatures
     struct SupportedFunctions {
         struct Legacy {
@@ -79,7 +81,8 @@ public:
             typename SupportedFunctions::Modern::FullConstRef,
             typename SupportedFunctions::Modern::NoAddArgs,
             typename SupportedFunctions::Modern::NoAddArgsConstRef,
-            typename SupportedFunctions::Modern::NoCmdArgs
+            typename SupportedFunctions::Modern::NoCmdArgs,
+            typename SupportedFunctions::Modern::NoArgs
         >
     >;
 
@@ -139,7 +142,7 @@ public:
      * @brief Links a function to call before parsing (e.g., for setting up variables or locking resources)
      * @param func Function to call before parsing
      */
-    void setPreParse(std::function<ReturnValue()> func) {
+    void setPreParse(PreParseFunction func) {
         preParse = std::move(func);
     }
 
@@ -248,7 +251,7 @@ private:
     std::string treeName;
 
     // Function to call before parsing (e.g., for setting up variables or locking resources)
-    std::function<ReturnValue()> preParse = nullptr;
+    PreParseFunction preParse = nullptr;
 
     // Capture instance for logging
     Io::Capture& capture;

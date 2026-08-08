@@ -14,6 +14,7 @@
 #include "Nebulite/Data/Document/KeyType.hpp"
 #include "Nebulite/Module/Transformation/Assertions.hpp"
 #include "Nebulite/Nebulite.hpp"
+#include "Nebulite/Utility/Convert/Cast.hpp"
 #include "Nebulite/Utility/StringHandler.hpp"
 
 //------------------------------------------
@@ -31,6 +32,7 @@ void Assertions::bindTransformations() {
     bindTransformation(&Assertions::assertTypeArray, assertTypeArrayName, assertTypeArrayDesc);
     bindTransformation(&Assertions::assertTypeBasicValue, assertTypeBasicValueName, assertTypeBasicValueDesc);
     bindTransformation(&Assertions::assertTypeNumeric, assertTypeNumericName, assertTypeNumericDesc);
+    bindTransformation(&Assertions::assertTypeNumericOrNumericString, assertTypeNumericOrNumericStringName, assertTypeNumericOrNumericStringDesc);
 
     bindCategory(assertMatchName, assertMatchDesc);
     bindTransformation(&Assertions::assertMatchRegex, assertMatchesRegexName, assertMatchesRegexDesc);
@@ -145,6 +147,17 @@ bool isNumeric(Value const& v){
         return std::is_arithmetic_v<T>;
     }, v);
 }
+template <typename Value>
+bool isNumericOrNumericString(Value const& v){
+    return std::visit([]<typename T>(T const& t) {
+        if constexpr (std::is_same_v<T, std::string>) {
+            return Utility::Convert::Cast::String::to<double>(t).has_value();
+        }
+        else {
+            return std::is_arithmetic_v<T>;
+        }
+    }, v);
+}
 } // namespace
 
 
@@ -154,6 +167,14 @@ bool Assertions::assertTypeNumeric(std::span<std::string_view const> const& args
     }
     printUserDefinedMessage(args);
     throw std::runtime_error(std::string(assertTypeNumericName) + ": JSON value is not a number");
+}
+
+bool Assertions::assertTypeNumericOrNumericString(std::span<std::string_view const> const& args, Data::JsonScope const& jsonDoc){
+    if (auto const variant = jsonDoc.getVariant(rootKey); variant.has_value() && isNumericOrNumericString(variant.value())) {
+        return true;
+    }
+    printUserDefinedMessage(args);
+    throw std::runtime_error(std::string(assertTypeNumericOrNumericStringName) + ": JSON value is not a number");
 }
 
 // NOLINTNEXTLINE

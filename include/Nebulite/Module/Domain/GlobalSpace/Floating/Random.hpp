@@ -39,6 +39,8 @@ public:
     // Available Functions
 
     // None for now
+    // We keep this as a GlobalSpace DomainModule instead of a normal class,
+    // in case we wish to add bound functions like setting a specific rng or forcing a rollback
 
     //------------------------------------------
     // Other public functions

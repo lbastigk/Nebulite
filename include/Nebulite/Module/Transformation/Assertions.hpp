@@ -111,6 +111,11 @@ public:
     static auto constexpr assertTypeNumericDesc = "Asserts that the current JSON value is numeric\n"
         "Usage: |assert type numeric -> {value,<Exception thrown if not numeric>}\n";
 
+    static bool assertTypeNumericOrNumericString(std::span<std::string_view const> const& args, Data::JsonScope const& jsonDoc);
+    static auto constexpr assertTypeNumericOrNumericStringName = "assert type numericOrNumericString";
+    static auto constexpr assertTypeNumericOrNumericStringDesc = "Asserts that the current JSON value is numeric, or a string of a numeric\n"
+        "Usage: |assert type numericOrNumericString -> {value,<Exception thrown if not numeric or numeric string>}\n";
+
     // [MATCH]
 
     static bool assertMatchRegex(std::span<std::string_view const> const& args, Data::JsonScope const& jsonDoc);

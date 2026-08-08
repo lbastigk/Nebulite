@@ -566,16 +566,16 @@ ReturnValue FuncTree<ReturnValue, AdditionalArgs...>::parseWithPrefix(std::vecto
 
 template <typename ReturnValue, typename... AdditionalArgs>
 ReturnValue FuncTree<ReturnValue, AdditionalArgs...>::executeFunction(std::string_view const name, std::span<std::string_view const> const& args, AdditionalArgs... addArgs) {
-    // Call preParse function if set
-    if (preParse != nullptr) {
-        if (ReturnValue err = preParse(); !Math::isEqual(err, standardReturn.valDefault)) {
-            return err; // Return error if preParse failed
-        }
-    }
-
     // Strip whitespaces of name
     std::string_view function = name;
     StringHandler::strip(function);
+
+    // Call preParse function if set
+    if (preParse != nullptr) {
+        if (ReturnValue err = preParse(function, args); !Math::isEqual(err, standardReturn.valDefault)) {
+            return err; // Return error if preParse failed
+        }
+    }
 
     // Find and execute the function
     auto functionPosition = bindingContainer.functions.find(function);

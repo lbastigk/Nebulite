@@ -39,6 +39,8 @@ struct StandardCapture {
 
             static Event unknownArg(Utility::Io::Capture& cap);
 
+            static Event invalidArgument(Utility::Io::Capture& cap);
+
             static Event featureNotImplemented(Utility::Io::Capture& cap);
 
             static Event bindingCollision(Utility::Io::Capture& cap);

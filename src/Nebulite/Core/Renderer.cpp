@@ -11,6 +11,8 @@
 #include <optional>
 #include <random>
 #include <ranges>
+#include <span>
+#include <string_view>
 #include <utility>
 #include <vector>
 
@@ -117,7 +119,7 @@ void Renderer::setupDisplayValues() {
     domainScope.set<unsigned int>(Constants::KeyNames::Renderer::positionY, 0);
 }
 
-Constants::Event Renderer::preParse() {
+Constants::Event Renderer::preParse(std::string_view const /*functionName*/, std::span<std::string_view const> const /*args*/) {
     initSdl();
     return Constants::Event::success;
 }

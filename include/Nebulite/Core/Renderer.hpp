@@ -9,7 +9,9 @@
 #include <cstdint> // NOLINT
 #include <functional>
 #include <optional>
+#include <span>
 #include <string>
+#include <string_view>
 #include <utility>
 #include <vector>
 
@@ -448,8 +450,10 @@ public:
 private:
     /**
      * @brief Called before parsing any commands.
+     * @param functionName The name of the called function.
+     * @param args The arguments of the parse
      */
-    [[nodiscard]] Constants::Event preParse() override;
+    [[nodiscard]] Constants::Event preParse(std::string_view functionName, std::span<std::string_view const> args) override;
 
     //------------------------------------------
     // Boolean Status Variables

@@ -1,0 +1,6 @@
+[
+    {
+        "command": "task TaskFiles/Tests/Globalspace/rngSkip.nebs",
+        "expected": { "cout": [], "cerr": ["Too Few Arguments in function call"] }
+    }
+]
