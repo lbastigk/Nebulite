@@ -93,14 +93,14 @@ void Physics::elasticCollision(Interaction::Context const& context, double** slf
             bool const conditionX = p1Y + size1Y - 2 >= p2Y && p2Y + size2Y - 2 >= p1Y;
             bool const conditionY = p1X + size1X - 2 >= p2X && p2X + size2X - 2 >= p1X;
 
-            // m1*v1 + m2*v2 = m1*v1new + m2*v2new
-            // Split into v1new and v2new equations
+            // m1*v1 + m2*v2 = m1*v1new + m2*v2New
+            // Split into v1new and v2New equations
             // v1new = ( (m1 - m2)*v1 + 2*m2*v2 ) / m
-            // v2new = ( (m2 - m1)*v2 + 2*m1*v1 ) / m
+            // v2New = ( (m2 - m1)*v2 + 2*m1*v1 ) / m
             // Work backwards to get Forces:
             // F = m * dv / dt
             // F1 = m1 * (v1new - v1) / dt
-            // F2 = m2 * (v2new - v2) / dt
+            // F2 = m2 * (v2New - v2) / dt
 
             // Lock and write forces to other entity
             // For self to be affected, other needs to broadcast this ruleset as well
@@ -113,12 +113,12 @@ void Physics::elasticCollision(Interaction::Context const& context, double** slf
                 double const v2X = baseVal(otr, Key::physics_vX);
 
                 // Calculate new velocities after collision
-                double const v2newX = ((m2 - m1) * v2X + 2 * m1 * v1X) / (m1 + m2);
+                double const v2NewX = ((m2 - m1) * v2X + 2 * m1 * v1X) / (m1 + m2);
 
                 // Lock and write
                 auto slfLock = context.other.lockDocument();
                 if (baseVal(otr, Key::physics_lastCollisionX) < *globalVal.t) {
-                    baseVal(otr, Key::physics_correction_vX) += v2newX - v2X;
+                    baseVal(otr, Key::physics_correction_vX) += v2NewX - v2X;
                     baseVal(otr, Key::physics_lastCollisionX) = *globalVal.t;
                 }
             }
@@ -128,12 +128,12 @@ void Physics::elasticCollision(Interaction::Context const& context, double** slf
                 double const v2Y = baseVal(otr, Key::physics_vY);
 
                 // Calculate new velocity after collision
-                double const v2newY = ((m2 - m1) * v2Y + 2 * m1 * v1Y) / (m1 + m2);
+                double const v2NewY = ((m2 - m1) * v2Y + 2 * m1 * v1Y) / (m1 + m2);
 
                 // Lock and write
                 auto slfLock = context.other.lockDocument();
                 if (baseVal(otr, Key::physics_lastCollisionY) < *globalVal.t) {
-                    baseVal(otr, Key::physics_correction_vY) += v2newY - v2Y;
+                    baseVal(otr, Key::physics_correction_vY) += v2NewY - v2Y;
                     baseVal(otr, Key::physics_lastCollisionY) = *globalVal.t;
                 }
             }
@@ -147,19 +147,12 @@ void Physics::gravity(Interaction::Context const& context, double** slf, double*
 
     double const dx = baseVal(slf, Key::posX) - baseVal(otr, Key::posX);
     double const dy = baseVal(slf, Key::posY) - baseVal(otr, Key::posY);
-
     double const r2 = dx*dx + dy*dy + 1.0;   // softening
     double const invR = 1.0 / std::sqrt(r2);
     double const invR3 = invR * invR * invR;
-
-    double const G  = *globalVal.G;
-    double const m1 = baseVal(slf, Key::physics_mass);
-    double const m2 = baseVal(otr, Key::physics_mass);
-
-    double const coeff = G * m1 * m2 * invR3;
+    double const coeff = *globalVal.G * baseVal(slf, Key::physics_mass) * baseVal(otr, Key::physics_mass) * invR3;
 
     auto otrLock = context.other.lockDocument();
-
     baseVal(otr, Key::physics_FX) += dx * coeff;
     baseVal(otr, Key::physics_FY) += dy * coeff;
 }
