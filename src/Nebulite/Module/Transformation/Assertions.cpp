@@ -174,7 +174,7 @@ bool Assertions::assertTypeNumericOrNumericString(std::span<std::string_view con
         return true;
     }
     printUserDefinedMessage(args);
-    throw std::runtime_error(std::string(assertTypeNumericName) + ": JSON value is not a number");
+    throw std::runtime_error(std::string(assertTypeNumericOrNumericStringName) + ": JSON value is not a number");
 }
 
 // NOLINTNEXTLINE
