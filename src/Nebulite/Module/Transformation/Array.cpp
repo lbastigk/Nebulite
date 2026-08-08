@@ -135,34 +135,42 @@ bool Array::subspan(std::span<std::string_view const> const& args, Data::JsonSco
 
 // Modify
 
+namespace {
+bool insertIntoArray(Data::Json& tmp, std::size_t& index, Data::JsonScope const& jsonDoc, Data::ScopedKeyView const& key, Data::ScopedKeyView const& root) {
+    switch (jsonDoc.memberType(key)) {
+    case Data::KeyType::array: {
+        for (auto const subKey : jsonDoc.arrayKeys(key)) {
+            if (!insertIntoArray(tmp, index, jsonDoc, subKey.view(), root)) {
+                return false;
+            }
+        }
+        break;
+    }
+    case Data::KeyType::object:
+        tmp.setSubDoc(root.addIndex(index++).toString(), jsonDoc.getSubDoc(key));
+        break;
+    case Data::KeyType::value: {
+        auto const variant = jsonDoc.getVariant(key);
+        if (!variant.has_value()) {
+            return false;
+        }
+        tmp.setVariant(root.addIndex(index++).toString(), variant.value());
+        break;
+    }
+    case Data::KeyType::null:
+        return false;
+    default:
+        std::unreachable();
+    }
+    return true;
+}
+} // namespace
+
 bool Array::flatten(Data::JsonScope& jsonDoc){
     Data::Json tmp;
-    std::size_t tmpIndex = 0;
-    for (auto const key : jsonDoc.arrayKeys(rootKey)) {
-        switch (jsonDoc.memberType(key)) {
-            case Data::KeyType::array: {
-                for (auto const subKey : jsonDoc.arrayKeys(key)) {
-                    // TODO: recursive call to an array-insert helper: inner subdoc might be an array!
-                    tmp.setSubDoc(rootKey.addIndex(tmpIndex++).toString(), jsonDoc.getSubDoc(subKey));
-                }
-                break;
-            }
-            case Data::KeyType::object:
-                tmp.setSubDoc(rootKey.addIndex(tmpIndex++).toString(), jsonDoc.getSubDoc(key));
-                break;
-            case Data::KeyType::value: {
-                auto variant = jsonDoc.getVariant(key);
-                if (!variant.has_value()) {
-                    return false;
-                }
-                tmp.setVariant(rootKey.addIndex(tmpIndex++).toString(), variant.value());
-                break;
-            }
-            case Data::KeyType::null:
-                return false;
-            default:
-                std::unreachable();
-        }
+    if (std::size_t tmpIndex = 0; !insertIntoArray(tmp, tmpIndex, jsonDoc, rootKey, rootKey)) {
+        jsonDoc.setEmptyArray(rootKey);
+        return false;
     }
     jsonDoc.setSubDoc(rootKey, tmp);
     return true;
