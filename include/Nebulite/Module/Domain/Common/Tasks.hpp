@@ -96,18 +96,6 @@ public:
         "This will remove all commands from the always-taskqueue.\n";
 
     //------------------------------------------
-    // Other public functions
-
-    /**
-     * @brief Rolls back all RNGs to their previous state.
-     *        Can be called by any domainModule function
-     *        if you don't want this functioncall to modify RNG state.
-     *        Example: calling a script should not modify RNG, so that we can
-     *                 always load scripts for TAS without RNG state changes.
-     */
-    void rngRollback();
-
-    //------------------------------------------
     // Setup
 
     /**
