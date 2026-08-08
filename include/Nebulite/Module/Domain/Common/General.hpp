@@ -32,55 +32,32 @@ public:
     //------------------------------------------
     // Available Functions
 
-    [[nodiscard]] static Constants::Event capture(std::span<std::string_view const> const& args, Interaction::Context& ctx, Interaction::ContextScope& ctxScope);
-    static auto constexpr captureName = "capture";
-    static auto constexpr captureDesc = "Stores all capture output from a command into a given variable"
-        "\n"
-        "Usage: capture <variable> <command...>\n"
-        "\n"
-        "Any output is not printed to the console, but instead stored in the given variable.\n"
-        "Note that any warnings or errors will no longer be printed to the console, but instead stored in the variable as well!\n";
+    // [BASIC]
 
-    [[nodiscard]] static Constants::Event eval(std::span<std::string_view const> const& args, Interaction::Context& ctx, Interaction::ContextScope& ctxScope);
-    static auto constexpr evalName = "eval";
-    static auto constexpr evalDesc = "Evaluates an expression string and executes it.\n"
-        "Every argument after eval is concatenated with a whitespace to form the expression to be evaluated and then reparsed.\n"
+    [[nodiscard]] Constants::Event echo(std::span<std::string_view const> const& args) const ;
+    static auto constexpr echoName = "echo";
+    static auto constexpr echoDesc = "Echoes all arguments as string to the standard output.\n"
         "\n"
-        "Usage: eval <expression>\n"
+        "Usage: echo <string>\n"
         "\n"
-        "Examples:\n"
-        "\n"
-        "eval echo $(1+1)\n"
-        "outputs: 2.000000\n"
-        "First, eval evaluates every argument, then concatenates them with a whitespace,\n"
-        "and finally executes the resulting string as a command.\n"
-        "The string 'echo $(1+1)' is evaluated to \"echo 2.000000\", which is then executed.\n"
-        "\n"
-        "eval spawn ./Resources/RenderObjects/{global:ToSpawn}.json\n"
-        "This evaluates to 'spawn ./Resources/RenderObjects/NAME.json',\n"
-        "where NAME is the current value of the global variable ToSpawn\n";
+        "This command concatenates all arguments with a whitespace and outputs them to the standard output (cout).\n"
+        "Example:\n"
+        "./bin/Nebulite echo Hello World!\n"
+        "Outputs:\n"
+        "Hello World!\n";
 
-    [[nodiscard]] static Constants::Event nop(std::span<std::string_view const> const& args);
-    static auto constexpr nopName = "nop";
-    static auto constexpr nopDesc = "No operation. Does nothing.\n"
+    [[nodiscard]] static Constants::Event ifFunc(std::span<std::string_view const> const& args, Interaction::Context& ctx, Interaction::ContextScope& ctxScope);
+    static auto constexpr ifFuncName = "if";
+    static auto constexpr ifFuncDesc = "Executes a block of code if a condition is true.\n"
         "\n"
-        "Usage: nop <blind arguments>\n"
+        "Usage: if <condition> <functioncall>\n"
         "\n"
-        "Useful for testing or as a placeholder in scripts where no action is required,\n"
-        "but a command is syntactically necessary.\n";
-
-    [[nodiscard]] static Constants::Event assertFunc(std::span<std::string_view const> const& args, Interaction::Context const& ctx, Interaction::ContextScope const& ctxScope);
-    static auto constexpr assertName = "assert";
-    static auto constexpr assertDesc = "Asserts a condition and throws a custom error if false.\n"
+        "It is recommended to use the if-then syntax to avoid whitespace issues:\n"
         "\n"
-        "Usage: assert <condition>\n"
-        "\n"
-        "It is recommended to wrap the condition in quotes to prevent parsing issues.\n"
+        "Usage: if <condition> then <functioncall>\n"
         "\n"
         "Example:\n"
-        "assert '$(eq(1+1,2))'    // No error\n"
-        "assert '$(eq(1+1,3))'    // Critical Error: A custom assertion failed.\n"
-        "Assertion failed: $(eq(1+1,3)) is not true.\n";
+        "if $({global:settings.someFile|strCompare equals ./Resources/myFile.txt}) then echo Condition is true!\n";
 
     [[nodiscard]] static Constants::Event forFunc(std::span<std::string_view const> const& args, Interaction::Context& ctx, Interaction::ContextScope& ctxScope);
     static auto constexpr forFuncName = "for";
@@ -109,30 +86,27 @@ public:
         "\n"
         "Usage: for-progress <var> <start> <end> <functioncall>\n";
 
-    [[nodiscard]] static Constants::Event ifFunc(std::span<std::string_view const> const& args, Interaction::Context& ctx, Interaction::ContextScope& ctxScope);
-    static auto constexpr ifFuncName = "if";
-    static auto constexpr ifFuncDesc = "Executes a block of code if a condition is true.\n"
+    [[nodiscard]] static Constants::Event assertFunc(std::span<std::string_view const> const& args, Interaction::Context const& ctx, Interaction::ContextScope const& ctxScope);
+    static auto constexpr assertName = "assert";
+    static auto constexpr assertDesc = "Asserts a condition and throws a custom error if false.\n"
         "\n"
-        "Usage: if <condition> <functioncall>\n"
+        "Usage: assert <condition>\n"
         "\n"
-        "It is recommended to use the if-then syntax to avoid whitespace issues:\n"
-        "\n"
-        "Usage: if <condition> then <functioncall>\n"
+        "It is recommended to wrap the condition in quotes to prevent parsing issues.\n"
         "\n"
         "Example:\n"
-        "if $({global:settings.someFile|strCompare equals ./Resources/myFile.txt}) then echo Condition is true!\n";
+        "assert '$(eq(1+1,2))'    // No error\n"
+        "assert '$(eq(1+1,3))'    // Critical Error: A custom assertion failed.\n"
+        "Assertion failed: $(eq(1+1,3)) is not true.\n";
 
-    [[nodiscard]] Constants::Event echo(std::span<std::string_view const> const& args) const ;
-    static auto constexpr echoName = "echo";
-    static auto constexpr echoDesc = "Echoes all arguments as string to the standard output.\n"
+    [[nodiscard]] static Constants::Event nop(std::span<std::string_view const> const& args);
+    static auto constexpr nopName = "nop";
+    static auto constexpr nopDesc = "No operation. Does nothing.\n"
         "\n"
-        "Usage: echo <string>\n"
+        "Usage: nop <blind arguments>\n"
         "\n"
-        "This command concatenates all arguments with a whitespace and outputs them to the standard output (cout).\n"
-        "Example:\n"
-        "./bin/Nebulite echo Hello World!\n"
-        "Outputs:\n"
-        "Hello World!\n";
+        "Useful for testing or as a placeholder in scripts where no action is required,\n"
+        "but a command is syntactically necessary.\n";
 
     // [FORWARD/REPARSE]
 
@@ -180,6 +154,36 @@ public:
     static auto constexpr imguiViewEnable = "imgui-view on";
     static auto constexpr imguiViewDisable = "imgui-view off";
 
+    // [OTHER]
+
+    [[nodiscard]] static Constants::Event capture(std::span<std::string_view const> const& args, Interaction::Context& ctx, Interaction::ContextScope& ctxScope);
+    static auto constexpr captureName = "capture";
+    static auto constexpr captureDesc = "Stores all capture output from a command into a given variable"
+        "\n"
+        "Usage: capture <variable> <command...>\n"
+        "\n"
+        "Any output is not printed to the console, but instead stored in the given variable.\n"
+        "Note that any warnings or errors will no longer be printed to the console, but instead stored in the variable as well!\n";
+
+    [[nodiscard]] static Constants::Event eval(std::span<std::string_view const> const& args, Interaction::Context& ctx, Interaction::ContextScope& ctxScope);
+    static auto constexpr evalName = "eval";
+    static auto constexpr evalDesc = "Evaluates an expression string and executes it.\n"
+        "Every argument after eval is concatenated with a whitespace to form the expression to be evaluated and then reparsed.\n"
+        "\n"
+        "Usage: eval <expression>\n"
+        "\n"
+        "Examples:\n"
+        "\n"
+        "eval echo $(1+1)\n"
+        "outputs: 2.000000\n"
+        "First, eval evaluates every argument, then concatenates them with a whitespace,\n"
+        "and finally executes the resulting string as a command.\n"
+        "The string 'echo $(1+1)' is evaluated to \"echo 2.000000\", which is then executed.\n"
+        "\n"
+        "eval spawn ./Resources/RenderObjects/{global:ToSpawn}.json\n"
+        "This evaluates to 'spawn ./Resources/RenderObjects/NAME.json',\n"
+        "where NAME is the current value of the global variable ToSpawn\n";
+
     //------------------------------------------
     // Categories
 
@@ -196,11 +200,7 @@ public:
      * @brief Initializes the module, binding functions and variables. 
      */
     explicit General(ConstructorParams const& params) : DomainModule(params) {
-        // Binding
-
-        // Base functions
-        bindFunction(&General::capture, captureName, captureDesc);
-        bindFunction(&General::eval, evalName, evalDesc);
+        // BASIC
         bindFunction(&General::forFunc, forFuncName, forFuncDesc);
         bindFunction(&General::forFuncProgress, forFuncProgressName, forFuncProgressDesc);
         bindFunction(&General::ifFunc, ifFuncName, ifFuncDesc);
@@ -208,7 +208,7 @@ public:
         bindFunction(&General::assertFunc, assertName, assertDesc);
         bindFunction(&General::nop, nopName, nopDesc);
 
-        // Forwarding
+        // FORWARD/REPARSE
         bindCategory(forwardName, forwardDesc);
         bindFunction(&General::forwardToOther, forwardToOtherName, forwardToOtherDesc);
         bindFunction(&General::forwardToGlobal, forwardToGlobalName, forwardToGlobalDesc);
@@ -216,8 +216,12 @@ public:
         bindFunction(&General::reparseInOther, reparseInOtherName, reparseInOtherDesc);
         bindFunction(&General::reparseInGlobal, reparseInGlobalName, reparseInGlobalDesc);
 
-        // Imgui view
+        // IMGUI view
         bindFunction(&General::imguiView, imguiViewName, imguiViewDesc);
+
+        // OTHER
+        bindFunction(&General::capture, captureName, captureDesc);
+        bindFunction(&General::eval, evalName, evalDesc);
     }
 
 private:

@@ -43,6 +43,8 @@ public:
         "Closes the program\n"
         "Any queued tasks will be discarded.\n";
 
+    // TODO: modernize with span and move to Tasks General module
+
     [[nodiscard]] Constants::Event wait(int argc, char const** argv) const ;
     static auto constexpr waitName = "wait";
     static auto constexpr waitDesc = "Sets the waitCounter to the given value to halt all script tasks for a given amount of frames.\n"
@@ -82,6 +84,8 @@ public:
     [[nodiscard]] Constants::Event taskExec(std::span<std::string_view const> args, Interaction::Context ctx, Interaction::ContextScope ctxScope) const ;
     static auto constexpr taskExecName = "task-exec";
     static auto constexpr taskExecDesc = "Same as 'task', but with instant execution.";
+
+
 
     [[nodiscard]] Constants::Event always(int argc, char const** argv) const ;
     static auto constexpr alwaysName = "always";
