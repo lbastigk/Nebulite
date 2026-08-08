@@ -44,8 +44,10 @@ public:
         "Any queued tasks will be discarded.\n";
 
     // TODO: modernize with span and move to Tasks General module
+    //       requires rework of rng rollback, as this is GlobalSpace-only!
+    //       an idea would be to have the GlobalSpace pre-parse detect a task-call automatically using a blacklist?
 
-    [[nodiscard]] Constants::Event wait(int argc, char const** argv) const ;
+    [[nodiscard]] Constants::Event wait(std::span<std::string_view const> args) const ;
     static auto constexpr waitName = "wait";
     static auto constexpr waitDesc = "Sets the waitCounter to the given value to halt all script tasks for a given amount of frames.\n"
         "\n"
@@ -59,7 +61,7 @@ public:
         "- Timing events in a sequence.\n"
         "- Tool assisted speedruns (TAS)\n";
 
-    [[nodiscard]] Constants::Event task(int argc, char const** argv) const ;
+    [[nodiscard]] Constants::Event task(std::span<std::string_view const> args) const ;
     static auto constexpr taskName = "task";
     static auto constexpr taskDesc = "Loads tasks from a file into the taskQueue, but does not execute them immediately.\n"
         "\n"
@@ -85,9 +87,7 @@ public:
     static auto constexpr taskExecName = "task-exec";
     static auto constexpr taskExecDesc = "Same as 'task', but with instant execution.";
 
-
-
-    [[nodiscard]] Constants::Event always(int argc, char const** argv) const ;
+    [[nodiscard]] Constants::Event always(std::span<std::string_view const> args) const ;
     static auto constexpr alwaysName = "always";
     static auto constexpr alwaysDesc = "Attach a command to the always-taskqueue that is executed on each tick.\n"
         "\n"
