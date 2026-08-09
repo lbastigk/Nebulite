@@ -3,6 +3,7 @@
 
 // External
 #include <algorithm>
+#include <array>
 #include <cstddef>
 #include <functional>
 #include <iterator>
@@ -384,7 +385,6 @@ void ImguiHelper::renderDomain(Interaction::Context& ctx, Interaction::ContextSc
     // Viewer layout
     static std::unordered_map<std::string, ViewerLayout> layouts;
     ViewerLayout& layout = layouts[identifier];
-    int columnId = 0;
 
     // Create window
     domainWindowSetup(flags);
@@ -398,7 +398,20 @@ void ImguiHelper::renderDomain(Interaction::Context& ctx, Interaction::ContextSc
         (layout.json    == ViewerState::Visible ? 1 : 0) +
         (layout.plot    == ViewerState::Visible ? 1 : 0);
 
+    struct Data {
+        std::string title;
+        ViewerState& state;
+        std::function<void()> renderFunction;
+    };
+
+    std::array fields = {
+        Data{.title="Console", .state=layout.console, .renderFunction=[&]{renderDomainConsole(ctx, ctxScope, capture, name);}},
+        Data{.title="JSON", .state=layout.json, .renderFunction=[&]{renderJsonTreeNode(scope, scope.getRootScope());}},
+        Data{.title="Plot", .state=layout.plot, .renderFunction=[&]{renderPlotViewer(ctx, ctxScope, capture, name);}}
+    };
+
     if (visibleCount > 0) {
+        int columnId = 0;
         ImGui::BeginTable(
             "Viewers",
             visibleCount,
@@ -406,55 +419,12 @@ void ImguiHelper::renderDomain(Interaction::Context& ctx, Interaction::ContextSc
             ImGuiTableFlags_Borders
         );
 
-        if (layout.console == ViewerState::Visible){
-            ImGui::TableNextColumn();
-            renderViewerTile(
-                columnId,
-                "Console",
-                layout.console,
-                [&]{
-                    renderDomainConsole(
-                        ctx,
-                        ctxScope,
-                        capture,
-                        name
-                    );
-                }
-            );
+        for (auto& field : fields) {
+            if (field.state == ViewerState::Visible) {
+                ImGui::TableNextColumn();
+                renderViewerTile(columnId, field.title, field.state, field.renderFunction);
+            }
         }
-
-        if (layout.json == ViewerState::Visible){
-            ImGui::TableNextColumn();
-            renderViewerTile(
-                columnId,
-                "JSON",
-                layout.json,
-                [&]{
-                    renderJsonTreeNode(
-                        scope,
-                        scope.getRootScope()
-                    );
-                }
-            );
-        }
-
-        if (layout.plot == ViewerState::Visible){
-            ImGui::TableNextColumn();
-            renderViewerTile(
-                columnId,
-                "Plot",
-                layout.plot,
-                [&]{
-                    renderPlotViewer(
-                        ctx,
-                        ctxScope,
-                        capture,
-                        name
-                    );
-                }
-            );
-        }
-
         ImGui::EndTable();
     }
     ImGui::End();
@@ -494,7 +464,7 @@ void ImguiHelper::renderMinimizeTray(ViewerLayout& layout) {
     }
 }
 
-void ImguiHelper::renderViewerTile(int& id, std::string const& title, ViewerState& state, std::function<void()>&& content) {
+void ImguiHelper::renderViewerTile(int& id, std::string const& title, ViewerState& state, std::function<void()> const& content) {
     // Begin Child
     ImGui::PushID(id++);
     ImGui::BeginChild(
@@ -507,15 +477,15 @@ void ImguiHelper::renderViewerTile(int& id, std::string const& title, ViewerStat
     ImGui::TextUnformatted(title.c_str());
     ImGui::SameLine();
     const float buttonWidth = ImGui::CalcTextSize("Minimize").x + ImGui::GetStyle().FramePadding.x * 2.0f;
-    float const scrollbarWidth = ImGui::GetStyle().ScrollbarSize > 0.0f ? ImGui::GetStyle().ScrollbarSize : 0.0f;
-    ImGui::SetCursorPosX(ImGui::GetWindowWidth() -ImGui::GetStyle().WindowPadding.x - buttonWidth - scrollbarWidth);
+    float const scrollbarWidth = ImGui::GetScrollMaxY() > 0.0f ? ImGui::GetStyle().ScrollbarSize : 0.0f;
+    ImGui::SetCursorPosX(ImGui::GetWindowWidth() - ImGui::GetStyle().WindowPadding.x - buttonWidth - scrollbarWidth);
     if (ImGui::Button("Minimize")) {
         state = ViewerState::Minimized;
     }
 
     // Content
     ImGui::Separator();
-    std::invoke(std::move(content));
+    content();
 
     // Done
     ImGui::EndChild();

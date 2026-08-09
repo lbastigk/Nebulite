@@ -117,7 +117,7 @@ private:
 
     static void renderMinimizeTray(ViewerLayout& layout);
 
-    static void renderViewerTile(int& id, std::string const& title, ViewerState& state, std::function<void()>&& content);
+    static void renderViewerTile(int& id, std::string const& title, ViewerState& state, std::function<void()> const& content);
 
     /**
      * @brief Renders a JSON tree node in an ImGui window.
