@@ -4,6 +4,7 @@
 // External
 #include <algorithm>
 #include <array>
+#include <cfloat>
 #include <cstddef>
 #include <cstdint> // NOLINT
 #include <cstring> // NOLINT
@@ -35,6 +36,7 @@
 #include "Nebulite/Nebulite.hpp"
 #include "Nebulite/Utility/Io/Capture.hpp"
 #include "Nebulite/Utility/Io/FileManagement.hpp"
+#include "Nebulite/Utility/Promise.hpp"
 #include "Nebulite/Utility/Ranges.hpp"
 #include "Nebulite/Utility/Sort.hpp"
 #include "Nebulite/Utility/StringHandler.hpp"
@@ -585,41 +587,106 @@ ImVec4 colorFromIndex(std::size_t i, std::size_t n) {
     color.w = 1.0f;
     return color;
 }
+
+struct Labels {
+    std::string nameX;
+    std::string nameY;
+    std::string nameColour;
+    std::string remove;
+
+    explicit Labels(std::uint16_t const id) {
+        nameX = "##PlotX_" + std::to_string(id);
+        nameY = "##PlotY_" + std::to_string(id);
+        nameColour = "##PlotColor_" + std::to_string(id);
+        remove = "Remove##PlotRemove_" + std::to_string(id);
+    }
+};
+
+struct PlotData {
+    std::array<char, 256> bufX;
+    std::array<char, 256> bufY;
+    Interaction::Logic::Expression expressionX;
+    Interaction::Logic::Expression expressionY;
+    std::vector<std::pair<double, double>> points;
+    ImVec4 color;
+    Labels labels;
+};
+
+struct Plots {
+    std::uint16_t idCounter = 0;
+    std::list<PlotData> plots;
+
+    std::array<char, 256> bufXMin = {};
+    std::array<char, 256> bufXMax = {};
+    std::array<char, 256> bufYMin = {};
+    std::array<char, 256> bufYMax = {};
+
+    Interaction::Logic::Expression expressionXMin;
+    Interaction::Logic::Expression expressionXMax;
+
+    Interaction::Logic::Expression expressionYMin;
+    Interaction::Logic::Expression expressionYMax;
+
+    Plots() : expressionXMin("$({global:time.t} - 50)"), expressionXMax("$({global:time.t})"), expressionYMin("$(-2)"), expressionYMax("$(2)") {
+        std::strncpy(bufXMin.data(), expressionXMin.getFullExpression().c_str(), 256);
+        std::strncpy(bufXMax.data(), expressionXMax.getFullExpression().c_str(), 256);
+        std::strncpy(bufYMin.data(), expressionYMin.getFullExpression().c_str(), 256);
+        std::strncpy(bufYMax.data(), expressionYMax.getFullExpression().c_str(), 256);
+    }
+
+    bool validLimits() const {
+        return expressionXMin.isReturnableAsDouble()
+            && expressionXMax.isReturnableAsDouble()
+            && expressionYMin.isReturnableAsDouble()
+            && expressionYMax.isReturnableAsDouble();
+    }
+};
+
+template<std::size_t N = 256>
+void imguiLinkedInput(std::array<char, N>& buf, Interaction::Logic::Expression& expr, char const* label) {
+    static auto constexpr yellow = ImVec4(1.0f, 1.0f, 0.0f, 1.0f);
+    static auto constexpr red = ImVec4(1.0f, 0.0f, 0.0f, 1.0f);
+
+    bool const pushedColour = [&] {
+        if (!expr.isReturnableAsDouble()) { // TODO: does not work for malformed expressions such as "$("
+            ImGui::PushStyleColor(ImGuiCol_Text, red);
+            return true;
+        }
+        if (buf.data() != expr.getFullExpression()) {
+            ImGui::PushStyleColor(ImGuiCol_Text, yellow);
+            return true;
+        }
+        return false;
+    }();
+    ImGui::SetNextItemWidth(-FLT_MIN);
+    if (ImGui::InputText(label, buf.data(), buf.size(), ImGuiInputTextFlags_EnterReturnsTrue)) {
+        expr = Interaction::Logic::Expression{buf.data()};
+    }
+    if (pushedColour) {
+        ImGui::PopStyleColor();
+    }
+}
+
+template<std::size_t N, typename F>
+void imguiTable(char const* label, std::array<char const*, N> c, F&& f) {
+    auto constexpr columns = c.size();
+    ImGui::BeginTable(label, columns, ImGuiTableFlags_Resizable | ImGuiTableFlags_Borders);
+    ImGui::TableNextRow();
+    for (auto const& desc : c) {
+        ImGui::TableNextColumn();
+        ImGui::Text("%s", desc);
+    }
+    std::invoke(std::forward<F>(f));
+    ImGui::EndTable();
+}
+
 } // namespace
 
-void ImguiHelper::renderPlotViewer(Interaction::Context& /*ctx*/, Interaction::ContextScope& /*ctxScope*/, Utility::Io::Capture& /*capture*/, std::string const& identifier){
-    struct Labels {
-        std::string nameX;
-        std::string nameY;
-        std::string nameColour;
-        std::string remove;
-
-        explicit Labels(std::uint16_t const id) {
-            nameX = "##PlotX_" + std::to_string(id);
-            nameY = "##PlotY_" + std::to_string(id);
-            nameColour = "##PlotColor_" + std::to_string(id);
-            remove = "Remove##PlotRemove_" + std::to_string(id);
-        }
-    };
-
-    struct PlotData {
-        std::array<char, 256> bufX;
-        std::array<char, 256> bufY;
-        Interaction::Logic::Expression expressionX;
-        Interaction::Logic::Expression expressionY;
-        std::vector<std::pair<double, double>> points;
-        ImVec4 color;
-        Labels labels;
-    };
-
-    struct Plots {
-        std::uint16_t idCounter = 0;
-        std::list<PlotData> plots;
-    };
-
+void ImguiHelper::renderPlotViewer(Interaction::Context& /*ctx*/, Interaction::ContextScope& ctxScope, Utility::Io::Capture& /*capture*/, std::string const& identifier){
     static std::unordered_map<std::string, Plots> plots;
-    auto& idCounter = plots[identifier].idCounter;
-    auto& availablePlots = plots[identifier].plots;
+    auto& plotMetaData = plots[identifier];
+    auto& idCounter = plotMetaData.idCounter;
+    auto& availablePlots = plotMetaData.plots;
 
     // Window
     ImGui::BeginChild("PlotViewer", ImVec2(0, 0), true);
@@ -631,80 +698,79 @@ void ImguiHelper::renderPlotViewer(Interaction::Context& /*ctx*/, Interaction::C
     static auto constexpr addPlotText = " + Add Plot";
     ImGui::SetCursorPosX(ImGui::GetWindowWidth() - ImGui::GetStyle().WindowPadding.x - ImGui::CalcTextSize(addPlotText).x - ImGui::GetStyle().FramePadding.x * 2.0f);
     if (ImGui::Button(addPlotText)) {
-        static auto constexpr exprX = "$({global:time.t})";
-        static auto constexpr exprY = "$(sin({global:time.t}))";
-
         auto& plot = availablePlots.emplace_back(PlotData{
             .bufX = {""},
             .bufY = {""},
-            .expressionX = Interaction::Logic::Expression{exprX},
-            .expressionY = Interaction::Logic::Expression{exprY},
+            .expressionX = Interaction::Logic::Expression{"$({global:time.t})"},
+            .expressionY = Interaction::Logic::Expression{"$(sin({global:time.t}))"},
             .points = std::vector<std::pair<double, double>>{},
             .color = colorFromIndex(availablePlots.size(), 10),
             .labels = Labels{idCounter++},
         });
-        std::strncpy(plot.bufX.data(), exprX, plot.bufX.size() - 1);
-        std::strncpy(plot.bufY.data(), exprY, plot.bufY.size() - 1);
+        std::strncpy(plot.bufX.data(), plot.expressionX.getFullExpression().c_str(), plot.bufX.size() - 1);
+        std::strncpy(plot.bufY.data(), plot.expressionY.getFullExpression().c_str(), plot.bufY.size() - 1);
     }
 
     // Table of available plots
-    ImGui::BeginTable("AvailablePlotsTable", 4, ImGuiTableFlags_Resizable | ImGuiTableFlags_Borders);
+    imguiTable("AvailablePlotsTable", std::array{"X Expression", "Y Expression", "Colour", "Remove"}, [&] {
+        for (auto it = availablePlots.begin(); it != availablePlots.end();) {
+            auto& [bufX, bufY, x, y, points, colour, labels] = *it;
+            ImGui::TableNextRow();
+
+            // [X input]
+            ImGui::TableNextColumn();
+            imguiLinkedInput(bufX, x, labels.nameX.data());
+
+            // [Y input]
+            ImGui::TableNextColumn();
+            imguiLinkedInput(bufY, y, labels.nameY.data());
+
+            // [Colour input]
+            ImGui::TableNextColumn();
+            ImGui::ColorEdit4(labels.nameColour.c_str(), reinterpret_cast<float*>(&colour), ImGuiColorEditFlags_NoInputs | ImGuiColorEditFlags_NoLabel);
+
+            // [Remove button]
+            ImGui::TableNextColumn();
+            if (ImGui::Button(labels.remove.c_str())) {
+                it = availablePlots.erase(it);
+            } else {
+                it++;
+            }
+        }
+    });
+
+    //------------------------------------------
+    // Axis limits
+    ImGui::Separator();
+    ImGui::BeginTable("LimitsTable", 4, ImGuiTableFlags_Resizable | ImGuiTableFlags_Borders);
     ImGui::TableNextRow();
-    ImGui::TableNextColumn();
-    ImGui::Text("X Expression");
-    ImGui::TableNextColumn();
-    ImGui::Text("Y Expression");
-    ImGui::TableNextColumn();
-    ImGui::Text("Colour");
-    ImGui::TableNextColumn();
-    ImGui::Text("Remove");
-    for (auto it = availablePlots.begin(); it != availablePlots.end();) {
-        auto& [bufX, bufY, x, y, points, colour, labels] = *it;
-        static auto constexpr dirtyInputColour = ImVec4(1.0f, 0.0f, 0.0f, 1.0f); // red
-        ImGui::TableNextRow();
 
-        // [X input]
-        ImGui::TableNextColumn();
-        bool const dirtyX = bufX.data() != x.getFullExpression();
-        if (dirtyX) {
-            ImGui::PushStyleColor(ImGuiCol_Text, dirtyInputColour);
-        }
-        if (ImGui::InputText(labels.nameX.c_str(), bufX.data(), bufX.size(), ImGuiInputTextFlags_EnterReturnsTrue)) {
-            x = Interaction::Logic::Expression{bufX.data()};
-        }
-        if (dirtyX) {
-            ImGui::PopStyleColor();
-        }
-
-        // [Y input]
-        ImGui::TableNextColumn();
-        bool const dirtyY = bufY.data() != y.getFullExpression();
-        if (dirtyY) {
-            ImGui::PushStyleColor(ImGuiCol_Text, dirtyInputColour);
-        }
-        if (ImGui::InputText(labels.nameY.c_str(), bufY.data(), bufY.size(), ImGuiInputTextFlags_EnterReturnsTrue)) {
-            y = Interaction::Logic::Expression{bufY.data()};
-        }
-        if (dirtyY) {
-            ImGui::PopStyleColor();
-        }
-
-        // [Colour input]
-        ImGui::TableNextColumn();
-        ImGui::ColorEdit4(labels.nameColour.c_str(), reinterpret_cast<float*>(&colour), ImGuiColorEditFlags_NoInputs | ImGuiColorEditFlags_NoLabel);
-
-        // [Remove button]
-        ImGui::TableNextColumn();
-        if (ImGui::Button(labels.remove.c_str())) {
-            it = availablePlots.erase(it);
-        } else {
-            it++;
-        }
-    }
+    // Min/Max for x and y
+    ImGui::TableNextColumn();
+    imguiLinkedInput(plotMetaData.bufXMin, plotMetaData.expressionXMin, "xMin");
+    ImGui::TableNextColumn();
+    imguiLinkedInput(plotMetaData.bufXMax, plotMetaData.expressionXMax, "xMax");
+    ImGui::TableNextColumn();
+    imguiLinkedInput(plotMetaData.bufYMin, plotMetaData.expressionYMin, "yMin");
+    ImGui::TableNextColumn();
+    imguiLinkedInput(plotMetaData.bufYMax, plotMetaData.expressionYMax, "yMax");
     ImGui::EndTable();
 
+    // Plots ...
     ImGui::Separator();
-    // TODO: show plots
+
+    if (plotMetaData.validLimits()) {
+        double const xMin = plotMetaData.expressionXMin.evalAsDouble(ctxScope, Utility::Promise<&Interaction::Logic::Expression::isReturnableAsDouble>());
+        double const xMax = plotMetaData.expressionXMax.evalAsDouble(ctxScope, Utility::Promise<&Interaction::Logic::Expression::isReturnableAsDouble>());
+        double const yMin = plotMetaData.expressionYMin.evalAsDouble(ctxScope, Utility::Promise<&Interaction::Logic::Expression::isReturnableAsDouble>());
+        double const yMax = plotMetaData.expressionYMax.evalAsDouble(ctxScope, Utility::Promise<&Interaction::Logic::Expression::isReturnableAsDouble>());
+
+        // Render limits for now
+        ImGui::Text("Limits: xMin=%.2f, xMax=%.2f, yMin=%.2f, yMax=%.2f", xMin, xMax, yMin, yMax);
+    } else {
+        ImGui::Text("Invalid plot limits.");
+    }
+
 
     ImGui::EndChild();
 }
