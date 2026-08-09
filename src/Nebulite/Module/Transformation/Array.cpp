@@ -70,7 +70,6 @@ bool Array::length(Data::JsonScope& jsonDoc) {
     return true;
 }
 
-
 bool Array::first(Data::JsonScope& jsonDoc) {
     if (!ensureArray(jsonDoc)) {
         return false;
@@ -95,7 +94,6 @@ bool Array::last(Data::JsonScope& jsonDoc) {
     jsonDoc.setSubDoc(rootKey, lastElement);
     return true;
 }
-
 
 bool Array::subspan(std::span<std::string_view const> const& args, Data::JsonScope& jsonDoc) {
     if (args.size() > 3) {
@@ -136,16 +134,26 @@ bool Array::subspan(std::span<std::string_view const> const& args, Data::JsonSco
 // Modify
 
 namespace {
+/**
+ * @brief Inserts elements from a JSON document into a temporary JSON object as a flat array
+ * @param tmp The temporary JSON object to insert elements into.
+ * @param index The index to use when inserting elements.
+ * @param jsonDoc The JSON document to read elements from.
+ * @param key The key of the element to read.
+ * @param root The root key for the temporary JSON object.
+ * @return True if the insertion was successful, false otherwise.
+ *         On failure, tmp may contain a partially populated result and
+ *         must not be used as a complete output.
+ */
 bool insertIntoArray(Data::Json& tmp, std::size_t& index, Data::JsonScope const& jsonDoc, Data::ScopedKeyView const& key, Data::ScopedKeyView const& root) {
     switch (jsonDoc.memberType(key)) {
-    case Data::KeyType::array: {
+    case Data::KeyType::array:
         for (auto const subKey : jsonDoc.arrayKeys(key)) {
             if (!insertIntoArray(tmp, index, jsonDoc, subKey.view(), root)) {
                 return false;
             }
         }
         break;
-    }
     case Data::KeyType::object:
         tmp.setSubDoc(root.addIndex(index++).toString(), jsonDoc.getSubDoc(key));
         break;
@@ -240,7 +248,6 @@ bool Array::pushNumber(std::span<std::string_view const> const& args, Data::Json
     }
 }
 
-
 bool Array::enumerate(std::span<std::string_view const> const& args, Data::JsonScope& jsonDoc){
     if (args.size() < 2) return false;
     if (jsonDoc.memberType(rootKey) != Data::KeyType::array) return false;
@@ -254,6 +261,8 @@ bool Array::enumerate(std::span<std::string_view const> const& args, Data::JsonS
     );
     return true;
 }
+
+// Generate
 
 bool Array::iota(std::span<std::string_view const> const& args, Data::JsonScope& jsonDoc){
     if (args.size() < 3) return false;
