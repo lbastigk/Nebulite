@@ -2,7 +2,7 @@
 
 This documentation is automatically generated.
 
-Generated on: Sat Aug  1 17:04:03 CEST 2026
+Generated on: Sun Aug  9 11:12:47 CEST 2026
 
 ## Table of Contents
 
@@ -1322,6 +1322,8 @@ Available Functions
 
 | Function | Description |
 |----------|-------------|
+| `always` | Attach a command to the always-taskqueue that is executed on each tick. |
+| `always-clear` | Clears the entire always-taskqueue. |
 | `assert` | Asserts a condition and throws a custom error if false. |
 | `assign` | Assign a key to a value in the JSON document (self) or the global context (global) |
 | `capture` | Stores all capture output from a command into a given variable |
@@ -1359,8 +1361,35 @@ Available Functions
 | `reparse` | Commands for forwarding function calls to other contexts (other or global) while switching context. |
 | `ruleset` | Functions for managing rulesets. |
 | `set` | Set a key to a string value in the JSON document. |
+| `task` | Loads tasks from a file into the taskQueue, but does not execute them immediately. |
+| `task-exec` | Same as 'task', but with instant execution. |
 | `throw` | Throws a runtime error with the provided message. |
+| `wait` | Sets the waitCounter to the given value to halt all script tasks for a given amount of frames. |
 | `warn` | Sends a warning to the capture. |
+
+#### `always`
+
+```
+Attach a command to the always-taskqueue that is executed on each tick.
+
+Usage: always <command>
+
+Example:
+always echo This command runs every frame!
+This will output "This command runs every frame!" on every frame.
+```
+
+#### `always-clear`
+
+```
+Clears the entire always-taskqueue.
+
+Usage: always-clear
+
+Example:
+always-clear
+This will remove all commands from the always-taskqueue.
+```
 
 #### `assert`
 
@@ -1955,6 +1984,36 @@ Usage: set <key> [value]
 If no value is provided, the value will be set to an empty string.
 ```
 
+#### `task`
+
+```
+Loads tasks from a file into the taskQueue, but does not execute them immediately.
+
+Usage: task <filename>
+
+This command loads a list of tasks from the specified file into the task queue.
+Each line in the file is treated as a separate task.
+
+Task files are not appended at the end, but right after the current task.
+This ensures that tasks can be loaded within task files themselves and being executed immediately.
+
+This example shows how tasks are loaded and executed:
+
+Main task:
+    mainCommand1
+    mainCommand2
+    task subTaskFile.txt:
+        subCommand1
+        subCommand2
+    mainCommand4
+```
+
+#### `task-exec`
+
+```
+Same as 'task', but with instant execution.
+```
+
 #### `throw`
 
 ```
@@ -1962,6 +2021,21 @@ Throws a runtime error with the provided message.
 Usage: throw <string>
 
 - <string>: The error message for the thrown exception.
+```
+
+#### `wait`
+
+```
+Sets the waitCounter to the given value to halt all script tasks for a given amount of frames.
+
+Usage: wait <frames>
+
+This command pauses the execution of all script tasks for the specified number of frames.
+This does not halt any tasks coming from objects within the environment and cannot be used by them.
+
+This is useful for:- Creating pauses in scripts to wait for certain conditions to be met.
+- Timing events in a sequence.
+- Tool assisted speedruns (TAS)
 ```
 
 #### `warn`
@@ -2013,6 +2087,7 @@ Available Functions
 | `filterRegex` | Filters members in the current JSON array/object based on a regular expression pattern. |
 | `filterRegexValue` | Filters values in the current JSON array based on a regular expression pattern. |
 | `first` | Gets the first element of the array in the current JSON value. |
+| `flatten` | Gets the flattened array of values. |
 | `floor` | Rounds the current JSON numeric value down to the nearest integer. |
 | `formatComplexNumberString` | Formats the contained complex number string to another string |
 | `formatNumber` | If the stored value is a number, it is formatted with a given format specifier |
@@ -2211,6 +2286,7 @@ Available Functions
 | `basicValue` | Asserts that the current JSON value is a basic value (not object or array or null). |
 | `help` | Show available commands and their descriptions |
 | `numeric` | Asserts that the current JSON value is numeric |
+| `numericOrNumericString` | Asserts that the current JSON value is numeric, or a string of a numeric |
 | `object` | Asserts that the current JSON value is of type object. |
 
 ###### `assert type array`
@@ -2236,6 +2312,13 @@ Usage: |assert type value -> {value,<Exception thrown if not value>}
 ```
 Asserts that the current JSON value is numeric
 Usage: |assert type numeric -> {value,<Exception thrown if not numeric>}
+```
+
+###### `assert type numericOrNumericString`
+
+```
+Asserts that the current JSON value is numeric, or a string of a numeric
+Usage: |assert type numericOrNumericString -> {value,<Exception thrown if not numeric or numeric string>}
 ```
 
 ###### `assert type object`
@@ -2449,6 +2532,12 @@ Usage: |filterRegexValue {!<pattern>} -> {filtered array}
 Gets the first element of the array in the current JSON value.
 If the current value is not an array, it is first wrapped into a single-element array.
 Usage: |first -> {value}
+```
+
+#### `flatten`
+
+```
+Gets the flattened array of values.
 ```
 
 #### `floor`
@@ -2877,6 +2966,7 @@ Available Functions
 | `basicValue` | Requires that the current JSON value is a basic value (not object or array or null). |
 | `help` | Show available commands and their descriptions |
 | `numeric` | Requires that the current JSON value is numeric. |
+| `numericOrNumericString` | Requires that the current JSON value is numeric, or a string of a numeric. |
 | `object` | Requires that the current JSON value is of type object. |
 
 ###### `require type array`
@@ -2904,6 +2994,15 @@ Requires that the current JSON value is numeric.
 If the value is not numeric, the transformation fails.
 Accepts an optional user-defined error message as additional arguments.
 Usage: |requireTypeNumeric -> {value,<Returns false if not numeric>}
+```
+
+###### `require type numericOrNumericString`
+
+```
+Requires that the current JSON value is numeric, or a string of a numeric.
+If the value is not numeric or a string of a numeric, the transformation fails.
+Accepts an optional user-defined error message as additional arguments.
+Usage: |requireTypeNumericOrNumericString -> {value,<Returns false if not numeric or numeric string>}
 ```
 
 ###### `require type object`
@@ -3308,7 +3407,9 @@ Available Functions
 | `roundDown` | Rounds the first argument down to the amount of decimal places specified by the second argument. |
 | `roundUp` | Rounds the first argument up to the amount of decimal places specified by the second argument. |
 | `sgn` | Returns the sign of a. |
+| `square` | Square wave function, oscillating between -1 and 1. |
 | `toBipolar` | Converts a numeric value to bipolar form. |
+| `triangle` | Triangular wave function, oscillating between -1 and 1. |
 | `xnor` | Returns 1 if a and b are both logically true or both logically false, otherwise returns 0. |
 | `xor` | Returns 1 if exactly one of a or b is logically true, otherwise returns 0. |
 
@@ -3489,6 +3590,14 @@ Returns 1 if a is positive, -1 if a is negative, and 0 if a is zero.
 Usage: sgn(a)
 ```
 
+#### `square`
+
+```
+Square wave function, oscillating between -1 and 1.
+1 at 0 degrees, -1 at 180 degrees.
+Usage: square(x)
+```
+
 #### `toBipolar`
 
 ```
@@ -3496,6 +3605,13 @@ Converts a numeric value to bipolar form.
 output is 1 or -1
 Returns 1 if a is logically true (absolute value > epsilon), otherwise returns -1.
 Usage: toBipolar(a)
+```
+
+#### `triangle`
+
+```
+Triangular wave function, oscillating between -1 and 1.
+Starting at 0, rising.Usage: triangle(x)
 ```
 
 #### `xnor`

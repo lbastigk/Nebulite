@@ -36,7 +36,7 @@ public:
     //------------------------------------------
     // Available Transformations
 
-    // Ranges
+    // Pick
 
     static bool at(std::span<std::string_view const> const& args, Data::JsonScope& jsonDoc);
     static auto constexpr atName = "at";
@@ -70,6 +70,10 @@ public:
 
     // Modify
 
+    static bool flatten(Data::JsonScope& jsonDoc);
+    static auto constexpr flattenName = "flatten";
+    static auto constexpr flattenDesc = "Gets the flattened array of values.\n";
+
     static bool reverse(Data::JsonScope& jsonDoc);
     static auto constexpr reverseName = "reverse";
     static auto constexpr reverseDesc = "Reverses the array in the current JSON value.\n"
@@ -95,11 +99,14 @@ public:
         "Usage: |pushNumber <value> -> {array}\n";
 
     // TODO: no index name passing. Instead: turn into object with index and value
+    //       even better: a canonical representation of tuples for the Json/JsonScope class
     static bool enumerate(std::span<std::string_view const> const& args, Data::JsonScope& jsonDoc);
     static auto constexpr enumerateName = "enumerate";
     static auto constexpr enumerateDesc = "Enumerates the array in the current JSON value.\n"
         "Usage: |enumerate <indexKey> -> {array}\n"
         "Where indexKey is the key of each array element to populate with the index of the element in the array.\n";
+
+    // Generate
 
     static bool iota(std::span<std::string_view const> const& args, Data::JsonScope& jsonDoc);
     static auto constexpr iotaName = "iota";

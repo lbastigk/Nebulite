@@ -80,6 +80,7 @@ filterRegex
 filterRegexValue
 find-parent-key
 first
+flatten
 floor
 for
 for-progress
@@ -145,6 +146,7 @@ nor
 not
 numberToComplex
 numeric
+numericOrNumericString
 numerically
 object
 off
@@ -212,6 +214,7 @@ sort
 spawn
 split
 sqrt
+square
 standard-file
 startsWith
 state
@@ -238,6 +241,7 @@ toInt
 toLower
 toString
 toUpper
+triangle
 true
 type
 typeAsNumber

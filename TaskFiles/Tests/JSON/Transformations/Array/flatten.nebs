@@ -1,0 +1,27 @@
+# Tests if the flatten transformation works
+
+# Setup workspace: a,[array],c,[nested-array],{object},
+set obj.val1 1
+set obj.val2 2
+set result[0] a
+set result[1][0] b
+set result[2] c
+set result[3][0][0][0] d
+set result[3][0][0][1] e
+set result[3][0][0][2] f
+assign self:result[4] = {self:obj}
+
+# Flatten
+assign self:flattened = {self:result|flatten}
+
+# Verify
+eval nop {self:flattened|length|assert equals int 7}
+eval nop {self:flattened[0]|assert equals string a}
+eval nop {self:flattened[1]|assert equals string b}
+eval nop {self:flattened[2]|assert equals string c}
+eval nop {self:flattened[3]|assert equals string d}
+eval nop {self:flattened[4]|assert equals string e}
+eval nop {self:flattened[5]|assert equals string f}
+eval nop {self:flattened[6]|assert type object}
+
+exit
