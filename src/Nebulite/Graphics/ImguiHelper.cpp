@@ -5,8 +5,11 @@
 #include <algorithm>
 #include <array>
 #include <cstddef>
+#include <cstdint> // NOLINT
+#include <cstring> // NOLINT
 #include <functional>
 #include <iterator>
+#include <list>
 #include <numeric>
 #include <optional>
 #include <ranges>
@@ -27,6 +30,7 @@
 #include "Nebulite/Data/Document/KeyType.hpp"
 #include "Nebulite/Graphics/ImguiHelper.hpp"
 #include "Nebulite/Interaction/Execution/Domain.hpp"
+#include "Nebulite/Interaction/Logic/Expression.hpp"
 #include "Nebulite/Module/Domain/Common/General.hpp"
 #include "Nebulite/Nebulite.hpp"
 #include "Nebulite/Utility/Io/Capture.hpp"
@@ -564,8 +568,145 @@ void ImguiHelper::renderDomainConsole(Interaction::Context& ctx, Interaction::Co
     }
 }
 
-void ImguiHelper::renderPlotViewer(Interaction::Context& /*ctx*/, Interaction::ContextScope& /*ctxScope*/, Utility::Io::Capture& /*capture*/, std::string const& /*name*/){
-    // Nothing for now
+namespace {
+ImVec4 colorFromIndex(std::size_t i, std::size_t n) {
+    float const hue = static_cast<float>(i % n) / static_cast<float>(n);
+
+    ImVec4 color;
+    ImGui::ColorConvertHSVtoRGB(
+        hue,
+        0.8f, // saturation
+        0.9f, // value
+        color.x,
+        color.y,
+        color.z
+    );
+
+    color.w = 1.0f;
+    return color;
+}
+} // namespace
+
+void ImguiHelper::renderPlotViewer(Interaction::Context& /*ctx*/, Interaction::ContextScope& /*ctxScope*/, Utility::Io::Capture& /*capture*/, std::string const& identifier){
+    struct Labels {
+        std::string nameX;
+        std::string nameY;
+        std::string nameColour;
+        std::string remove;
+
+        explicit Labels(std::uint16_t const id) {
+            nameX = "##PlotX_" + std::to_string(id);
+            nameY = "##PlotY_" + std::to_string(id);
+            nameColour = "##PlotColor_" + std::to_string(id);
+            remove = "Remove##PlotRemove_" + std::to_string(id);
+        }
+    };
+
+    struct PlotData {
+        std::array<char, 256> bufX;
+        std::array<char, 256> bufY;
+        Interaction::Logic::Expression expressionX;
+        Interaction::Logic::Expression expressionY;
+        std::vector<std::pair<double, double>> points;
+        ImVec4 color;
+        Labels labels;
+    };
+
+    struct Plots {
+        std::uint16_t idCounter = 0;
+        std::list<PlotData> plots;
+    };
+
+    static std::unordered_map<std::string, Plots> plots;
+    auto& idCounter = plots[identifier].idCounter;
+    auto& availablePlots = plots[identifier].plots;
+
+    // Window
+    ImGui::BeginChild("PlotViewer", ImVec2(0, 0), true);
+    ImGui::Separator();
+
+    // Add Plot
+    ImGui::TextUnformatted("Available Plots:");
+    ImGui::SameLine();
+    static auto constexpr addPlotText = " + Add Plot";
+    ImGui::SetCursorPosX(ImGui::GetWindowWidth() - ImGui::GetStyle().WindowPadding.x - ImGui::CalcTextSize(addPlotText).x - ImGui::GetStyle().FramePadding.x * 2.0f);
+    if (ImGui::Button(addPlotText)) {
+        static auto constexpr exprX = "$({global:time.t})";
+        static auto constexpr exprY = "$(sin({global:time.t}))";
+
+        auto& plot = availablePlots.emplace_back(PlotData{
+            .bufX = {""},
+            .bufY = {""},
+            .expressionX = Interaction::Logic::Expression{exprX},
+            .expressionY = Interaction::Logic::Expression{exprY},
+            .points = std::vector<std::pair<double, double>>{},
+            .color = colorFromIndex(availablePlots.size(), 10),
+            .labels = Labels{idCounter++},
+        });
+        std::strncpy(plot.bufX.data(), exprX, plot.bufX.size() - 1);
+        std::strncpy(plot.bufY.data(), exprY, plot.bufY.size() - 1);
+    }
+
+    // Table of available plots
+    ImGui::BeginTable("AvailablePlotsTable", 4, ImGuiTableFlags_Resizable | ImGuiTableFlags_Borders);
+    ImGui::TableNextRow();
+    ImGui::TableNextColumn();
+    ImGui::Text("X Expression");
+    ImGui::TableNextColumn();
+    ImGui::Text("Y Expression");
+    ImGui::TableNextColumn();
+    ImGui::Text("Colour");
+    ImGui::TableNextColumn();
+    ImGui::Text("Remove");
+    for (auto it = availablePlots.begin(); it != availablePlots.end();) {
+        auto& [bufX, bufY, x, y, points, colour, labels] = *it;
+        static auto constexpr dirtyInputColour = ImVec4(1.0f, 0.0f, 0.0f, 1.0f); // red
+        ImGui::TableNextRow();
+
+        // [X input]
+        ImGui::TableNextColumn();
+        bool const dirtyX = bufX.data() != x.getFullExpression();
+        if (dirtyX) {
+            ImGui::PushStyleColor(ImGuiCol_Text, dirtyInputColour);
+        }
+        if (ImGui::InputText(labels.nameX.c_str(), bufX.data(), bufX.size(), ImGuiInputTextFlags_EnterReturnsTrue)) {
+            x = Interaction::Logic::Expression{bufX.data()};
+        }
+        if (dirtyX) {
+            ImGui::PopStyleColor();
+        }
+
+        // [Y input]
+        ImGui::TableNextColumn();
+        bool const dirtyY = bufY.data() != y.getFullExpression();
+        if (dirtyY) {
+            ImGui::PushStyleColor(ImGuiCol_Text, dirtyInputColour);
+        }
+        if (ImGui::InputText(labels.nameY.c_str(), bufY.data(), bufY.size(), ImGuiInputTextFlags_EnterReturnsTrue)) {
+            y = Interaction::Logic::Expression{bufY.data()};
+        }
+        if (dirtyY) {
+            ImGui::PopStyleColor();
+        }
+
+        // [Colour input]
+        ImGui::TableNextColumn();
+        ImGui::ColorEdit4(labels.nameColour.c_str(), reinterpret_cast<float*>(&colour), ImGuiColorEditFlags_NoInputs | ImGuiColorEditFlags_NoLabel);
+
+        // [Remove button]
+        ImGui::TableNextColumn();
+        if (ImGui::Button(labels.remove.c_str())) {
+            it = availablePlots.erase(it);
+        } else {
+            it++;
+        }
+    }
+    ImGui::EndTable();
+
+    ImGui::Separator();
+    // TODO: show plots
+
+    ImGui::EndChild();
 }
 
 } // namespace Nebulite::Graphics
