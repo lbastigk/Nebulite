@@ -150,9 +150,9 @@ private:
      * @param ctx The context of the caller.
      * @param ctxScope The scope of the caller.
      * @param capture The capture to render.
-     * @param name The name of the ImGui window.
+     * @param identifier The identifier for the plot viewer.
      */
-    static void renderPlotViewer(Interaction::Context& ctx, Interaction::ContextScope& ctxScope, Utility::Io::Capture& capture, std::string const& name);
+    static void renderPlotViewer(Interaction::Context& ctx, Interaction::ContextScope& ctxScope, Utility::Io::Capture& capture, std::string const& identifier);
 };
 
 } // namespace Nebulite::Graphics
