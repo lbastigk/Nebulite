@@ -6,6 +6,7 @@
 
 // Standard Library
 #include <cstdint>
+#include <functional>
 #include <optional>
 #include <string>
 
@@ -99,6 +100,19 @@ private:
      */
     static void align(DomainRenderingFlags::Alignment const& alignment);
 
+    enum class ViewerState : bool {
+        Visible,
+        Minimized,
+    };
+
+    struct ViewerLayout {
+        ViewerState console = ViewerState::Visible;
+        ViewerState json = ViewerState::Visible;
+        ViewerState plot = ViewerState::Visible;
+    };
+
+    static void renderViewerTile(int& id, std::string const& title, ViewerState& state, std::function<void()>&& content);
+
     /**
      * @brief Renders a JSON tree node in an ImGui window.
      * @param s The JSON scope to render.
@@ -114,6 +128,15 @@ private:
      * @param name The name of the ImGui window.
      */
     static void renderDomainConsole(Interaction::Context& ctx, Interaction::ContextScope& ctxScope, Utility::Io::Capture& capture, std::string const& name);
+
+    /**
+     * @brief Renders the domain plotting interface
+     * @param ctx The context of the caller.
+     * @param ctxScope The scope of the caller.
+     * @param capture The capture to render.
+     * @param name The name of the ImGui window.
+     */
+    static void renderPlotViewer(Interaction::Context& ctx, Interaction::ContextScope& ctxScope, Utility::Io::Capture& capture, std::string const& name);
 };
 
 } // namespace Nebulite::Graphics

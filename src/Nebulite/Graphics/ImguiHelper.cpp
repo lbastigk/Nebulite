@@ -4,6 +4,7 @@
 // External
 #include <algorithm>
 #include <cstddef>
+#include <functional>
 #include <iterator>
 #include <optional>
 #include <ranges>
@@ -337,7 +338,8 @@ void ImguiHelper::renderDomain(Interaction::Context& ctx, Interaction::ContextSc
     auto const& domain = ctx.self;
     auto const& scope = ctxScope.self;
     std::string const additionalIdentifier = !domain.capture.hasParent() ? "GLOBAL" : "";
-    std::string const windowName = "Nebulite Domain Interface - " + name + "###DomainViewer_" + name + "_" + std::to_string(domain.getId()) + "_" + additionalIdentifier;
+    std::string const identifier = name + "_" + std::to_string(domain.getId()) + "_" + additionalIdentifier;
+    std::string const windowName = "Nebulite Domain Interface - " + name + "###DomainViewer_" + identifier;
 
     // Sizing and alignment
     if (flags.windowPos.has_value()) {
@@ -374,17 +376,115 @@ void ImguiHelper::renderDomain(Interaction::Context& ctx, Interaction::ContextSc
         }
     }
 
-    // Console + JSON viewer in two columns
-    ImGui::Columns(2, nullptr, true);
-    ImGui::BeginChild("DomainConsole", ImVec2(0, 0), true, ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse);
-    renderDomainConsole(ctx, ctxScope, capture, name);
-    ImGui::EndChild();
-    ImGui::NextColumn();
-    ImGui::BeginChild("JsonScopeViewer", ImVec2(0, 0), true);
-    renderJsonTreeNode(scope, scope.getRootScope());
-    ImGui::EndChild();
-    ImGui::Columns(1); // Restore single column
+    // Store visibility state for each plot
+    static std::unordered_map<std::string, ViewerLayout> layouts;
+    ViewerLayout& layout = layouts[identifier];
+    int columnId = 0;
+
+    ImGui::BeginTable(
+        "Viewers",
+        3,
+        ImGuiTableFlags_Resizable |
+        ImGuiTableFlags_Borders
+    );
+
+    ImGui::TableSetupColumn(
+        "Console",
+        layout.console == ViewerState::Minimized
+            ? ImGuiTableColumnFlags_WidthFixed
+            : ImGuiTableColumnFlags_WidthStretch,
+        layout.console == ViewerState::Minimized ? 80.0f : 0.0f
+    );
+
+    ImGui::TableSetupColumn(
+        "JSON",
+        layout.json == ViewerState::Minimized
+            ? ImGuiTableColumnFlags_WidthFixed
+            : ImGuiTableColumnFlags_WidthStretch,
+        layout.json == ViewerState::Minimized ? 80.0f : 0.0f
+    );
+
+    ImGui::TableSetupColumn(
+        "Plot",
+        layout.plot == ViewerState::Minimized
+            ? ImGuiTableColumnFlags_WidthFixed
+            : ImGuiTableColumnFlags_WidthStretch,
+        layout.plot == ViewerState::Minimized ? 80.0f : 0.0f
+    );
+
+    // TODO: instead, we need a minimize tray at the top that stores all minimized columns. The current implementation does not work
+
+    ImGui::TableNextColumn();
+    renderViewerTile(
+        columnId,
+        "Console",
+        layout.console,
+        [&]
+        {
+            renderDomainConsole(ctx, ctxScope, capture, name);
+        }
+    );
+
+    ImGui::TableNextColumn();
+    renderViewerTile(
+        columnId,
+        "JSON",
+        layout.json,
+        [&]
+        {
+            renderJsonTreeNode(scope, scope.getRootScope());
+        }
+    );
+
+    ImGui::TableNextColumn();
+    renderViewerTile(
+        columnId,
+        "Plot",
+        layout.plot,
+        [&]
+        {
+            renderPlotViewer(ctx, ctxScope, capture, name);
+        }
+    );
+
+    ImGui::EndTable();
+
     ImGui::End();
+}
+
+void ImguiHelper::renderViewerTile(int& id, std::string const& title, ViewerState& state, std::function<void()>&& content) {
+    ImGui::PushID(id);
+
+    if (state == ViewerState::Visible) {
+        ImGui::BeginChild(title.c_str(), ImVec2(0, 0), true);
+
+        // Tile header
+        ImGui::TextUnformatted(title.c_str());
+        ImGui::SameLine();
+
+        const float buttonWidth = ImGui::CalcTextSize("Minimize").x + ImGui::GetStyle().FramePadding.x * 2.0f;
+        ImGui::SetCursorPosX(ImGui::GetWindowWidth() - ImGui::GetStyle().WindowPadding.x - buttonWidth);
+        if (ImGui::Button("Minimize")) {
+            state = ViewerState::Minimized;
+        }
+
+        ImGui::Separator();
+        std::invoke(std::move(content));
+        ImGui::EndChild();
+    }
+    else {
+        // Keep the minimized state compact so the table cell does not reserve empty space.
+        ImGui::TextUnformatted(title.c_str());
+        ImGui::SameLine();
+
+        const float buttonWidth = ImGui::CalcTextSize("Restore").x + ImGui::GetStyle().FramePadding.x * 2.0f;
+        ImGui::SetCursorPosX(ImGui::GetWindowWidth() - ImGui::GetStyle().WindowPadding.x - buttonWidth);
+        if (ImGui::Button("Restore")) {
+            state = ViewerState::Visible;
+        }
+    }
+    ImGui::PopID();
+    id++;
 }
 
 void ImguiHelper::renderJsonTreeNode(Data::JsonScope const& s, Data::ScopedKeyView const& root) {
@@ -454,11 +554,13 @@ void ImguiHelper::renderDomainConsole(Interaction::Context& ctx, Interaction::Co
     // Command input
     ImGui::Separator();
 
-    static std::unordered_map<std::string, ConsoleState> states; // Store state for each console by name
+    // Store state for each console by name
+    static std::unordered_map<std::string, ConsoleState> states;
     if (auto const it = states.find(name); it == states.end()) {
         // Initialize state for this console if it doesn't exist
         states[name] = ConsoleState();
     }
+
     auto& state = states.find(name)->second; // Get iterator again after potential insertion
     state.capture = &capture; // Set for history scrolling
     state.ctx = &ctx;
@@ -477,6 +579,10 @@ void ImguiHelper::renderDomainConsole(Interaction::Context& ctx, Interaction::Co
         }
         ImGui::SetKeyboardFocusHere(-1);    // focus again
     }
+}
+
+void ImguiHelper::renderPlotViewer(Interaction::Context& /*ctx*/, Interaction::ContextScope& /*ctxScope*/, Utility::Io::Capture& /*capture*/, std::string const& /*name*/){
+    // Nothing for now
 }
 
 } // namespace Nebulite::Graphics
