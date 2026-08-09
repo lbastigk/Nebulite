@@ -161,7 +161,7 @@ public:
     static double triangle(double x);
     static auto constexpr triangleName = "triangle";
     static auto constexpr triangleDesc = "Triangular wave function, oscillating between -1 and 1.\n"
-        "Starting at 0, rising."
+        "Starting at 0, rising.\n"
         "Usage: triangle(x)";
 
     static double square(double x);

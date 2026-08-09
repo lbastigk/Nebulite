@@ -2,7 +2,7 @@
 
 This documentation is automatically generated.
 
-Generated on: Sun Aug  9 11:12:47 CEST 2026
+Generated on: Sun Aug  9 11:46:19 CEST 2026
 
 ## Table of Contents
 
@@ -1298,7 +1298,8 @@ Usage: wait <frames>
 This command pauses the execution of all script tasks for the specified number of frames.
 This does not halt any tasks coming from objects within the environment and cannot be used by them.
 
-This is useful for:- Creating pauses in scripts to wait for certain conditions to be met.
+This is useful for:
+- Creating pauses in scripts to wait for certain conditions to be met.
 - Timing events in a sequence.
 - Tool assisted speedruns (TAS)
 ```
@@ -2033,7 +2034,8 @@ Usage: wait <frames>
 This command pauses the execution of all script tasks for the specified number of frames.
 This does not halt any tasks coming from objects within the environment and cannot be used by them.
 
-This is useful for:- Creating pauses in scripts to wait for certain conditions to be met.
+This is useful for:
+- Creating pauses in scripts to wait for certain conditions to be met.
 - Timing events in a sequence.
 - Tool assisted speedruns (TAS)
 ```
@@ -3611,7 +3613,8 @@ Usage: toBipolar(a)
 
 ```
 Triangular wave function, oscillating between -1 and 1.
-Starting at 0, rising.Usage: triangle(x)
+Starting at 0, rising.
+Usage: triangle(x)
 ```
 
 #### `xnor`

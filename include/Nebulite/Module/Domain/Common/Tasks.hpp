@@ -44,7 +44,7 @@ public:
         "This command pauses the execution of all script tasks for the specified number of frames.\n"
         "This does not halt any tasks coming from objects within the environment and cannot be used by them.\n"
         "\n"
-        "This is useful for:"
+        "This is useful for:\n"
         "- Creating pauses in scripts to wait for certain conditions to be met.\n"
         "- Timing events in a sequence.\n"
         "- Tool assisted speedruns (TAS)\n";
