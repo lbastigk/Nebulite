@@ -7,6 +7,7 @@
 #include <cstddef>
 #include <functional>
 #include <iterator>
+#include <numeric>
 #include <optional>
 #include <ranges>
 #include <string>
@@ -348,13 +349,10 @@ void ImguiHelper::domainWindowSetup(DomainRenderingFlags const& flags) {
     }
 }
 
-void ImguiHelper::createDomainWindowHeader(DomainRenderingFlags const& flags, ViewerLayout& layout, std::string const& windowName, Interaction::Context& ctx, Interaction::ContextScope& ctxScope, Utility::Io::Capture& capture){
-    // Header row
-    //ImGui::TextUnformatted(windowName.c_str());
+void ImguiHelper::createDomainWindowHeader(DomainRenderingFlags const& flags, std::array<FieldData, ViewerLayout::count>& fields, std::string const& windowName, Interaction::Context& ctx, Interaction::ContextScope& ctxScope, Utility::Io::Capture& capture){
+    // Header row: Minimized fields, close button (optional)
     ImGui::SameLine();
-    renderMinimizeTray(layout);
-
-    // Optional close button
+    renderMinimizeTray(fields);
     if (flags.showCloseButton) {
         ImGui::SameLine();
         // Right-align close button in the available content region
@@ -372,7 +370,6 @@ void ImguiHelper::createDomainWindowHeader(DomainRenderingFlags const& flags, Vi
             }
         }
     }
-
 }
 
 void ImguiHelper::renderDomain(Interaction::Context& ctx, Interaction::ContextScope& ctxScope, Utility::Io::Capture& capture, std::string const& name, DomainRenderingFlags const& flags) {
@@ -386,30 +383,24 @@ void ImguiHelper::renderDomain(Interaction::Context& ctx, Interaction::ContextSc
     static std::unordered_map<std::string, ViewerLayout> layouts;
     ViewerLayout& layout = layouts[identifier];
 
+    // Available fields
+    std::array fields = {
+        FieldData{.title="Console", .state=layout.console, .renderFunction=[&]{renderDomainConsole(ctx, ctxScope, capture, name);}},
+        FieldData{.title="JSON", .state=layout.json, .renderFunction=[&]{renderJsonTreeNode(scope, scope.getRootScope());}},
+        FieldData{.title="Plot", .state=layout.plot, .renderFunction=[&]{renderPlotViewer(ctx, ctxScope, capture, name);}}
+    };
+    static_assert(fields.size() == ViewerLayout::count, "Please update the field render logic to reflect the changes in ViewerLayout.");
+
     // Create window
     domainWindowSetup(flags);
     ImGui::Begin(windowIdentifier.c_str());
-    createDomainWindowHeader(flags, layout, windowName, ctx, ctxScope, capture);
+    createDomainWindowHeader(flags, fields, windowName, ctx, ctxScope, capture);
     ImGui::Separator();
 
-    // Visible viewers
-    const int visibleCount =
-        (layout.console == ViewerState::Visible ? 1 : 0) +
-        (layout.json    == ViewerState::Visible ? 1 : 0) +
-        (layout.plot    == ViewerState::Visible ? 1 : 0);
-
-    struct Data {
-        std::string title;
-        ViewerState& state;
-        std::function<void()> renderFunction;
-    };
-
-    std::array fields = {
-        Data{.title="Console", .state=layout.console, .renderFunction=[&]{renderDomainConsole(ctx, ctxScope, capture, name);}},
-        Data{.title="JSON", .state=layout.json, .renderFunction=[&]{renderJsonTreeNode(scope, scope.getRootScope());}},
-        Data{.title="Plot", .state=layout.plot, .renderFunction=[&]{renderPlotViewer(ctx, ctxScope, capture, name);}}
-    };
-
+    // Render visible fields
+    int const visibleCount = std::accumulate(fields.begin(), fields.end(), 0, [](int count, FieldData const& field) {
+        return count + (field.state == ViewerState::Visible ? 1 : 0);
+    });
     if (visibleCount > 0) {
         int columnId = 0;
         ImGui::BeginTable(
@@ -430,36 +421,20 @@ void ImguiHelper::renderDomain(Interaction::Context& ctx, Interaction::ContextSc
     ImGui::End();
 }
 
-void ImguiHelper::renderMinimizeTray(ViewerLayout& layout) {
-    const bool hasMinimized =
-        layout.console == ViewerState::Minimized ||
-        layout.json    == ViewerState::Minimized ||
-        layout.plot    == ViewerState::Minimized;
-
-    if (!hasMinimized) {
+void ImguiHelper::renderMinimizeTray(std::array<FieldData, ViewerLayout::count>& fields) {
+    // Only show info if at least one field is minimized
+    if (!std::ranges::any_of(fields, [](FieldData const& field) { return field.state == ViewerState::Minimized; })) {
         return;
     }
 
+    // Show minimized fields
     ImGui::TextUnformatted("Minimized:");
-    ImGui::SameLine();
-
-    if (layout.console == ViewerState::Minimized){
-        if (ImGui::Button("Console")) {
-            layout.console = ViewerState::Visible;
-        }
-        ImGui::SameLine();
-    }
-
-    if (layout.json == ViewerState::Minimized){
-        if (ImGui::Button("JSON")) {
-            layout.json = ViewerState::Visible;
-        }
-        ImGui::SameLine();
-    }
-
-    if (layout.plot == ViewerState::Minimized){
-        if (ImGui::Button("Plot")) {
-            layout.plot = ViewerState::Visible;
+    for (auto& field : fields) {
+        if (field.state == ViewerState::Minimized) {
+            ImGui::SameLine();
+            if (ImGui::Button(field.title.c_str())) {
+                field.state = ViewerState::Visible;
+            }
         }
     }
 }

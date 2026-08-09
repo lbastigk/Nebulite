@@ -5,6 +5,7 @@
 // Includes
 
 // Standard Library
+#include <array>
 #include <cstdint>
 #include <functional>
 #include <optional>
@@ -111,11 +112,20 @@ private:
         ViewerState console = ViewerState::Visible;
         ViewerState json = ViewerState::Visible;
         ViewerState plot = ViewerState::Visible;
+        
+        static auto constexpr count = 3;
+    };
+    static_assert(sizeof(ViewerLayout) / sizeof(ViewerState) == ViewerLayout::count, "Please update the count of ViewerLayout");
+
+    struct FieldData {
+        std::string title;
+        ViewerState& state;
+        std::function<void()> renderFunction;
     };
 
-    static void createDomainWindowHeader(DomainRenderingFlags const& flags, ViewerLayout& layout, std::string const& windowName, Interaction::Context& ctx, Interaction::ContextScope& ctxScope, Utility::Io::Capture& capture);
+    static void createDomainWindowHeader(DomainRenderingFlags const& flags, std::array<FieldData, ViewerLayout::count>& fields, std::string const& windowName, Interaction::Context& ctx, Interaction::ContextScope& ctxScope, Utility::Io::Capture& capture);
 
-    static void renderMinimizeTray(ViewerLayout& layout);
+    static void renderMinimizeTray(std::array<FieldData, ViewerLayout::count>& fields);
 
     static void renderViewerTile(int& id, std::string const& title, ViewerState& state, std::function<void()> const& content);
 
