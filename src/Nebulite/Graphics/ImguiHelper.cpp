@@ -603,13 +603,22 @@ struct Labels {
 };
 
 struct PlotData {
-    std::array<char, 256> bufX;
-    std::array<char, 256> bufY;
+    std::array<char, 256> bufX{};
+    std::array<char, 256> bufY{};
     Interaction::Logic::Expression expressionX;
     Interaction::Logic::Expression expressionY;
-    std::vector<std::pair<double, double>> points;
-    ImVec4 color;
+    std::list<std::pair<double, double>> points;
+    ImVec4 colour;
     Labels labels;
+
+    PlotData(std::uint16_t const id, ImVec4 const& plotColour)
+        : expressionX{"$({global:time.t})"}
+        , expressionY{"$(sin({global:time.t}))"}
+        , colour{plotColour}
+        , labels{id}{
+        std::strncpy(bufX.data(), expressionX.getFullExpression().c_str(), bufX.size() - 1);
+        std::strncpy(bufY.data(), expressionY.getFullExpression().c_str(), bufY.size() - 1);
+    }
 };
 
 struct Plots {
@@ -643,7 +652,7 @@ struct Plots {
 };
 
 template<std::size_t N = 256>
-void imguiLinkedInput(std::array<char, N>& buf, Interaction::Logic::Expression& expr, char const* label) {
+bool imguiLinkedInput(std::array<char, N>& buf, Interaction::Logic::Expression& expr, char const* label) {
     static auto constexpr yellow = ImVec4(1.0f, 1.0f, 0.0f, 1.0f);
     static auto constexpr red = ImVec4(1.0f, 0.0f, 0.0f, 1.0f);
 
@@ -661,10 +670,15 @@ void imguiLinkedInput(std::array<char, N>& buf, Interaction::Logic::Expression& 
     ImGui::SetNextItemWidth(-FLT_MIN);
     if (ImGui::InputText(label, buf.data(), buf.size(), ImGuiInputTextFlags_EnterReturnsTrue)) {
         expr = Interaction::Logic::Expression{buf.data()};
+        if (pushedColour) {
+            ImGui::PopStyleColor();
+        }
+        return true;
     }
     if (pushedColour) {
         ImGui::PopStyleColor();
     }
+    return false;
 }
 
 template<std::size_t N, typename F>
@@ -678,6 +692,37 @@ void imguiTable(char const* label, std::array<char const*, N> c, F&& f) {
     }
     std::invoke(std::forward<F>(f));
     ImGui::EndTable();
+}
+
+void renderPlotTable(int columns, std::list<PlotData>& availablePlots) {
+    for (auto [i, plot] : availablePlots | std::views::enumerate) {
+
+        ImGui::Text("Plot %i:", static_cast<int>(i));
+
+        ImGui::BeginTable("PlotPointsTable", columns+1, ImGuiTableFlags_Resizable | ImGuiTableFlags_Borders);
+
+        // --- ROW 1 (X Data) ---
+        ImGui::TableNextRow();
+        ImGui::TableNextColumn();
+        ImGui::TableSetBgColor(ImGuiTableBgTarget_CellBg, ImGui::GetColorU32(plot.colour));
+        ImGui::Text("x");
+        for (auto x : plot.points | std::views::transform([](auto p) { return p.first; })) {
+            ImGui::TableNextColumn();
+            ImGui::Text("%.2f", x);
+        }
+
+        // --- ROW 2 (Y Data) ---
+        ImGui::TableNextRow();
+        ImGui::TableNextColumn();
+        ImGui::TableSetBgColor(ImGuiTableBgTarget_CellBg, ImGui::GetColorU32(plot.colour));
+        ImGui::Text("y");
+        for (auto y : plot.points | std::views::transform([](auto p) { return p.second; })) {
+            ImGui::TableNextColumn();
+            ImGui::Text("%.2f", y);
+        }
+
+        ImGui::EndTable();
+    }
 }
 
 } // namespace
@@ -698,17 +743,7 @@ void ImguiHelper::renderPlotViewer(Interaction::Context& /*ctx*/, Interaction::C
     static auto constexpr addPlotText = " + Add Plot";
     ImGui::SetCursorPosX(ImGui::GetWindowWidth() - ImGui::GetStyle().WindowPadding.x - ImGui::CalcTextSize(addPlotText).x - ImGui::GetStyle().FramePadding.x * 2.0f);
     if (ImGui::Button(addPlotText)) {
-        auto& plot = availablePlots.emplace_back(PlotData{
-            .bufX = {""},
-            .bufY = {""},
-            .expressionX = Interaction::Logic::Expression{"$({global:time.t})"},
-            .expressionY = Interaction::Logic::Expression{"$(sin({global:time.t}))"},
-            .points = std::vector<std::pair<double, double>>{},
-            .color = colorFromIndex(availablePlots.size(), 10),
-            .labels = Labels{idCounter++},
-        });
-        std::strncpy(plot.bufX.data(), plot.expressionX.getFullExpression().c_str(), plot.bufX.size() - 1);
-        std::strncpy(plot.bufY.data(), plot.expressionY.getFullExpression().c_str(), plot.bufY.size() - 1);
+        availablePlots.emplace_back(idCounter++, colorFromIndex(availablePlots.size(), 10));
     }
 
     // Table of available plots
@@ -719,11 +754,15 @@ void ImguiHelper::renderPlotViewer(Interaction::Context& /*ctx*/, Interaction::C
 
             // [X input]
             ImGui::TableNextColumn();
-            imguiLinkedInput(bufX, x, labels.nameX.data());
+            if (imguiLinkedInput(bufX, x, labels.nameX.data())) {
+                points.clear(); // Clear points if expression changes
+            }
 
             // [Y input]
             ImGui::TableNextColumn();
-            imguiLinkedInput(bufY, y, labels.nameY.data());
+            if (imguiLinkedInput(bufY, y, labels.nameY.data())) {
+                points.clear(); // Clear points if expression changes
+            }
 
             // [Colour input]
             ImGui::TableNextColumn();
@@ -770,6 +809,21 @@ void ImguiHelper::renderPlotViewer(Interaction::Context& /*ctx*/, Interaction::C
     } else {
         ImGui::Text("Invalid plot limits.");
     }
+
+    static auto constexpr pointsToKeep = 10;
+    for (auto& plot : availablePlots) {
+        if (plot.expressionX.isReturnableAsDouble() && plot.expressionY.isReturnableAsDouble()) {
+            double const x = plot.expressionX.evalAsDouble(ctxScope, Utility::Promise<&Interaction::Logic::Expression::isReturnableAsDouble>());
+            double const y = plot.expressionY.evalAsDouble(ctxScope, Utility::Promise<&Interaction::Logic::Expression::isReturnableAsDouble>());
+            plot.points.emplace_back(x, y);
+            if (plot.points.size() > pointsToKeep) {
+                plot.points.pop_front();
+            }
+        }
+    }
+
+    // Show list
+    renderPlotTable(pointsToKeep, availablePlots);
 
 
     ImGui::EndChild();
