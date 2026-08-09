@@ -334,13 +334,7 @@ void ImguiHelper::align(DomainRenderingFlags::Alignment const& alignment) {
     }
 }
 
-void ImguiHelper::renderDomain(Interaction::Context& ctx, Interaction::ContextScope& ctxScope, Utility::Io::Capture& capture, std::string const& name, DomainRenderingFlags const& flags) {
-    auto const& domain = ctx.self;
-    auto const& scope = ctxScope.self;
-    std::string const additionalIdentifier = !domain.capture.hasParent() ? "GLOBAL" : "";
-    std::string const identifier = name + "_" + std::to_string(domain.getId()) + "_" + additionalIdentifier;
-    std::string const windowName = "Nebulite Domain Interface - " + name + "###DomainViewer_" + identifier;
-
+void ImguiHelper::domainWindowSetup(DomainRenderingFlags const& flags) {
     // Sizing and alignment
     if (flags.windowPos.has_value()) {
         ImGui::SetNextWindowPos(flags.windowPos.value(), ImGuiCond_Always);
@@ -351,15 +345,17 @@ void ImguiHelper::renderDomain(Interaction::Context& ctx, Interaction::ContextSc
     if (flags.windowAlignment.has_value()) {
         align(flags.windowAlignment.value());
     }
+}
 
-    ImGui::Begin(windowName.c_str());
-
+void ImguiHelper::createDomainWindowHeader(DomainRenderingFlags const& flags, ViewerLayout& layout, std::string const& windowName, Interaction::Context& ctx, Interaction::ContextScope& ctxScope, Utility::Io::Capture& capture){
     // Header row
-    ImGui::TextUnformatted(name.c_str());
+    //ImGui::TextUnformatted(windowName.c_str());
     ImGui::SameLine();
+    renderMinimizeTray(layout);
 
     // Optional close button
     if (flags.showCloseButton) {
+        ImGui::SameLine();
         // Right-align close button in the available content region
         float const buttonWidth = ImGui::CalcTextSize("Close").x + ImGui::GetStyle().FramePadding.x * 2.0f;
         float const cursorX = ImGui::GetCursorPosX();
@@ -367,124 +363,163 @@ void ImguiHelper::renderDomain(Interaction::Context& ctx, Interaction::ContextSc
         ImGui::SetCursorPosX(cursorX + availX - buttonWidth);
 
         // Unique ID per console to avoid collisions
-        std::string const closeId = "Close##DomainConsoleClose_" + name;
-        if (ImGui::Button(closeId.c_str())) {
+        std::string const closeId = "Close##DomainConsoleClose_" + windowName;
+        if (auto const& domain = ctx.self; ImGui::Button(closeId.c_str())) {
             // Instead of closing the window, we disable the ImGui view for this domain, allowing us to reopen it later without losing the capture and scope state
             if (auto const event = domain.parseStr(__FUNCTION__ + std::string(" ") + Module::Domain::Common::General::imguiViewDisable, ctx, ctxScope); event != Constants::Event::success) {
-                capture.warning.println("Error disabling ImGui view for domain " + name);
+                capture.warning.println("Error disabling ImGui view for domain " + windowName);
             }
         }
     }
 
-    // Store visibility state for each plot
+}
+
+void ImguiHelper::renderDomain(Interaction::Context& ctx, Interaction::ContextScope& ctxScope, Utility::Io::Capture& capture, std::string const& name, DomainRenderingFlags const& flags) {
+    auto const& scope = ctxScope.self;
+    std::string const additionalIdentifier = !ctx.self.capture.hasParent() ? "GLOBAL" : "";
+    std::string const identifier = name + "_" + std::to_string(ctx.self.getId()) + "_" + additionalIdentifier;
+    std::string const windowName = "Nebulite Domain Interface - " + name;
+    std::string const windowIdentifier = windowName + "###DomainViewer_" + identifier;
+
+    // Viewer layout
     static std::unordered_map<std::string, ViewerLayout> layouts;
     ViewerLayout& layout = layouts[identifier];
     int columnId = 0;
 
-    ImGui::BeginTable(
-        "Viewers",
-        3,
-        ImGuiTableFlags_Resizable |
-        ImGuiTableFlags_Borders
-    );
+    // Create window
+    domainWindowSetup(flags);
+    ImGui::Begin(windowIdentifier.c_str());
+    createDomainWindowHeader(flags, layout, windowName, ctx, ctxScope, capture);
+    ImGui::Separator();
 
-    ImGui::TableSetupColumn(
-        "Console",
-        layout.console == ViewerState::Minimized
-            ? ImGuiTableColumnFlags_WidthFixed
-            : ImGuiTableColumnFlags_WidthStretch,
-        layout.console == ViewerState::Minimized ? 80.0f : 0.0f
-    );
+    // Visible viewers
+    const int visibleCount =
+        (layout.console == ViewerState::Visible ? 1 : 0) +
+        (layout.json    == ViewerState::Visible ? 1 : 0) +
+        (layout.plot    == ViewerState::Visible ? 1 : 0);
 
-    ImGui::TableSetupColumn(
-        "JSON",
-        layout.json == ViewerState::Minimized
-            ? ImGuiTableColumnFlags_WidthFixed
-            : ImGuiTableColumnFlags_WidthStretch,
-        layout.json == ViewerState::Minimized ? 80.0f : 0.0f
-    );
+    if (visibleCount > 0) {
+        ImGui::BeginTable(
+            "Viewers",
+            visibleCount,
+            ImGuiTableFlags_Resizable |
+            ImGuiTableFlags_Borders
+        );
 
-    ImGui::TableSetupColumn(
-        "Plot",
-        layout.plot == ViewerState::Minimized
-            ? ImGuiTableColumnFlags_WidthFixed
-            : ImGuiTableColumnFlags_WidthStretch,
-        layout.plot == ViewerState::Minimized ? 80.0f : 0.0f
-    );
-
-    // TODO: instead, we need a minimize tray at the top that stores all minimized columns. The current implementation does not work
-
-    ImGui::TableNextColumn();
-    renderViewerTile(
-        columnId,
-        "Console",
-        layout.console,
-        [&]
-        {
-            renderDomainConsole(ctx, ctxScope, capture, name);
+        if (layout.console == ViewerState::Visible){
+            ImGui::TableNextColumn();
+            renderViewerTile(
+                columnId,
+                "Console",
+                layout.console,
+                [&]{
+                    renderDomainConsole(
+                        ctx,
+                        ctxScope,
+                        capture,
+                        name
+                    );
+                }
+            );
         }
-    );
 
-    ImGui::TableNextColumn();
-    renderViewerTile(
-        columnId,
-        "JSON",
-        layout.json,
-        [&]
-        {
-            renderJsonTreeNode(scope, scope.getRootScope());
+        if (layout.json == ViewerState::Visible){
+            ImGui::TableNextColumn();
+            renderViewerTile(
+                columnId,
+                "JSON",
+                layout.json,
+                [&]{
+                    renderJsonTreeNode(
+                        scope,
+                        scope.getRootScope()
+                    );
+                }
+            );
         }
-    );
 
-    ImGui::TableNextColumn();
-    renderViewerTile(
-        columnId,
-        "Plot",
-        layout.plot,
-        [&]
-        {
-            renderPlotViewer(ctx, ctxScope, capture, name);
+        if (layout.plot == ViewerState::Visible){
+            ImGui::TableNextColumn();
+            renderViewerTile(
+                columnId,
+                "Plot",
+                layout.plot,
+                [&]{
+                    renderPlotViewer(
+                        ctx,
+                        ctxScope,
+                        capture,
+                        name
+                    );
+                }
+            );
         }
-    );
 
-    ImGui::EndTable();
-
+        ImGui::EndTable();
+    }
     ImGui::End();
 }
 
+void ImguiHelper::renderMinimizeTray(ViewerLayout& layout) {
+    const bool hasMinimized =
+        layout.console == ViewerState::Minimized ||
+        layout.json    == ViewerState::Minimized ||
+        layout.plot    == ViewerState::Minimized;
+
+    if (!hasMinimized) {
+        return;
+    }
+
+    ImGui::TextUnformatted("Minimized:");
+    ImGui::SameLine();
+
+    if (layout.console == ViewerState::Minimized){
+        if (ImGui::Button("Console")) {
+            layout.console = ViewerState::Visible;
+        }
+        ImGui::SameLine();
+    }
+
+    if (layout.json == ViewerState::Minimized){
+        if (ImGui::Button("JSON")) {
+            layout.json = ViewerState::Visible;
+        }
+        ImGui::SameLine();
+    }
+
+    if (layout.plot == ViewerState::Minimized){
+        if (ImGui::Button("Plot")) {
+            layout.plot = ViewerState::Visible;
+        }
+    }
+}
+
 void ImguiHelper::renderViewerTile(int& id, std::string const& title, ViewerState& state, std::function<void()>&& content) {
-    ImGui::PushID(id);
+    // Begin Child
+    ImGui::PushID(id++);
+    ImGui::BeginChild(
+        title.c_str(),
+        ImVec2(0, 0),
+        true
+    );
 
-    if (state == ViewerState::Visible) {
-        ImGui::BeginChild(title.c_str(), ImVec2(0, 0), true);
-
-        // Tile header
-        ImGui::TextUnformatted(title.c_str());
-        ImGui::SameLine();
-
-        const float buttonWidth = ImGui::CalcTextSize("Minimize").x + ImGui::GetStyle().FramePadding.x * 2.0f;
-        ImGui::SetCursorPosX(ImGui::GetWindowWidth() - ImGui::GetStyle().WindowPadding.x - buttonWidth);
-        if (ImGui::Button("Minimize")) {
-            state = ViewerState::Minimized;
-        }
-
-        ImGui::Separator();
-        std::invoke(std::move(content));
-        ImGui::EndChild();
+    // Header
+    ImGui::TextUnformatted(title.c_str());
+    ImGui::SameLine();
+    const float buttonWidth = ImGui::CalcTextSize("Minimize").x + ImGui::GetStyle().FramePadding.x * 2.0f;
+    float const scrollbarWidth = ImGui::GetStyle().ScrollbarSize > 0.0f ? ImGui::GetStyle().ScrollbarSize : 0.0f;
+    ImGui::SetCursorPosX(ImGui::GetWindowWidth() -ImGui::GetStyle().WindowPadding.x - buttonWidth - scrollbarWidth);
+    if (ImGui::Button("Minimize")) {
+        state = ViewerState::Minimized;
     }
-    else {
-        // Keep the minimized state compact so the table cell does not reserve empty space.
-        ImGui::TextUnformatted(title.c_str());
-        ImGui::SameLine();
 
-        const float buttonWidth = ImGui::CalcTextSize("Restore").x + ImGui::GetStyle().FramePadding.x * 2.0f;
-        ImGui::SetCursorPosX(ImGui::GetWindowWidth() - ImGui::GetStyle().WindowPadding.x - buttonWidth);
-        if (ImGui::Button("Restore")) {
-            state = ViewerState::Visible;
-        }
-    }
+    // Content
+    ImGui::Separator();
+    std::invoke(std::move(content));
+
+    // Done
+    ImGui::EndChild();
     ImGui::PopID();
-    id++;
 }
 
 void ImguiHelper::renderJsonTreeNode(Data::JsonScope const& s, Data::ScopedKeyView const& root) {
@@ -514,11 +549,10 @@ void ImguiHelper::renderJsonTreeNode(Data::JsonScope const& s, Data::ScopedKeyVi
 }
 
 void ImguiHelper::renderDomainConsole(Interaction::Context& ctx, Interaction::ContextScope& ctxScope, Utility::Io::Capture& capture, std::string const& name) {
-    auto const& domain = ctx.self;
-
+    //------------------------------------------
     // Console output area
-    ImGui::BeginChild("ConsoleOutput", ImVec2(0, -ImGui::GetFrameHeightWithSpacing()), true);
 
+    ImGui::BeginChild("ConsoleOutput", ImVec2(0, -ImGui::GetFrameHeightWithSpacing()), true);
     ImGui::PushTextWrapPos(0.0f); // wrap at window/child width
     for (auto const& [content, type] : capture.getHistory()){
         std::string contentFull;
@@ -546,12 +580,15 @@ void ImguiHelper::renderDomainConsole(Interaction::Context& ctx, Interaction::Co
     ImGui::PopTextWrapPos();
 
     // Auto-scroll
-    if (ImGui::GetScrollY() >= ImGui::GetScrollMaxY())
+    if (ImGui::GetScrollY() >= ImGui::GetScrollMaxY()) {
         ImGui::SetScrollHereY(1.0f);
+    }
 
     ImGui::EndChild();
 
-    // Command input
+    //------------------------------------------
+    // Console input area
+
     ImGui::Separator();
 
     // Store state for each console by name
@@ -561,6 +598,7 @@ void ImguiHelper::renderDomainConsole(Interaction::Context& ctx, Interaction::Co
         states[name] = ConsoleState();
     }
 
+    // Set state
     auto& state = states.find(name)->second; // Get iterator again after potential insertion
     state.capture = &capture; // Set for history scrolling
     state.ctx = &ctx;
@@ -573,7 +611,7 @@ void ImguiHelper::renderDomainConsole(Interaction::Context& ctx, Interaction::Co
     if (ImGui::InputText("##ConsoleInput", &command, flags, consoleInputCallback, &state)) {
         if (!command.empty()){
             capture.appendToHistory(command, Utility::Io::HistoryLine::Type::input);
-            Global::instance().notifyEvent(domain.parseStr(__FUNCTION__ + std::string(" ") + command, ctx, ctxScope));
+            Global::instance().notifyEvent(ctx.self.parseStr(__FUNCTION__ + std::string(" ") + command, ctx, ctxScope));
             command.clear();
             state.historyIndex = 0; // Reset history index after executing a command
         }

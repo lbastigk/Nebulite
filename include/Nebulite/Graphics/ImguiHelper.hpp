@@ -100,6 +100,8 @@ private:
      */
     static void align(DomainRenderingFlags::Alignment const& alignment);
 
+    static void domainWindowSetup(DomainRenderingFlags const& flags);
+
     enum class ViewerState : bool {
         Visible,
         Minimized,
@@ -110,6 +112,10 @@ private:
         ViewerState json = ViewerState::Visible;
         ViewerState plot = ViewerState::Visible;
     };
+
+    static void createDomainWindowHeader(DomainRenderingFlags const& flags, ViewerLayout& layout, std::string const& windowName, Interaction::Context& ctx, Interaction::ContextScope& ctxScope, Utility::Io::Capture& capture);
+
+    static void renderMinimizeTray(ViewerLayout& layout);
 
     static void renderViewerTile(int& id, std::string const& title, ViewerState& state, std::function<void()>&& content);
 
