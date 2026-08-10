@@ -103,6 +103,7 @@ public:
      * @brief Checks if the expression can be returned as a double without loss of information.
      * @details Only true for simple expressions without any formatting, e.g. $(...) would be a double, but $03.2f(...) would be a string.
      * @return True if the expression can be returned as a double, false otherwise.
+     * @todo does not work for malformed expressions such as "$("
      */
     bool isReturnableAsDouble() const noexcept { return evaluationInfo.simpleExpression; }
 
