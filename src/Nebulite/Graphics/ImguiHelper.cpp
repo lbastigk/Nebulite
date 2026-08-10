@@ -408,21 +408,16 @@ void ImguiHelper::renderDomain(Interaction::Context& ctx, Interaction::ContextSc
         return count + (field.state == ViewerState::Visible ? 1 : 0);
     });
     if (visibleCount > 0) {
-        int columnId = 0;
-        ImGui::BeginTable(
-            "Viewers",
-            visibleCount,
-            ImGuiTableFlags_Resizable |
-            ImGuiTableFlags_Borders
-        );
-
-        for (auto& field : fields) {
-            if (field.state == ViewerState::Visible) {
-                ImGui::TableNextColumn();
-                renderViewerTile(columnId, field.title, field.state, field.renderFunction);
+        if (ImGui::BeginTable("Viewers", visibleCount, ImGuiTableFlags_Resizable | ImGuiTableFlags_Borders)) {
+            int columnId = 0;
+            for (auto& field : fields) {
+                if (field.state == ViewerState::Visible) {
+                    ImGui::TableNextColumn();
+                    renderViewerTile(columnId, field.title, field.state, field.renderFunction);
+                }
             }
+            ImGui::EndTable();
         }
-        ImGui::EndTable();
     }
     ImGui::End();
 }
