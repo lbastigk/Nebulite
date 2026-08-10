@@ -86,7 +86,7 @@ public:
      * @param name The name of the ImGui window.
      * @param flags Optional rendering flags to control the appearance and behavior of the ImGui window.
      */
-    static void renderDomain(
+    static void renderDomainViewer(
         Interaction::Context& ctx,
         Interaction::ContextScope& ctxScope,
         Utility::Io::Capture& capture,
@@ -101,33 +101,61 @@ private:
      */
     static void align(DomainRenderingFlags::Alignment const& alignment);
 
-    static void domainWindowSetup(DomainRenderingFlags const& flags);
+    /**
+     * @brief Setup ImGui for the next window based on the provided flags
+     * @param flags The flags to consider
+     */
+    static void domainViewerSetup(DomainRenderingFlags const& flags);
 
-    enum class ViewerState : bool {
+    /**
+     * @enum FieldState
+     * @brief State of each Field
+     */
+    enum class FieldState : bool {
         Visible,
         Minimized,
     };
 
+    /**
+     * @brief Layout state of the domain viewer
+     */
     struct ViewerLayout {
-        ViewerState console = ViewerState::Visible;
-        ViewerState json = ViewerState::Visible;
-        ViewerState plot = ViewerState::Visible;
+        FieldState console = FieldState::Visible;
+        FieldState json = FieldState::Visible;
+        FieldState plot = FieldState::Visible;
         
         static auto constexpr count = 3;
     };
-    static_assert(sizeof(ViewerLayout) / sizeof(ViewerState) == ViewerLayout::count, "Please update the count of ViewerLayout");
+    static_assert(sizeof(ViewerLayout) / sizeof(FieldState) == ViewerLayout::count, "Please update the count of ViewerLayout");
 
+    /**
+     * @brief We map each Field in ViewerLayout to its title and content to render.
+     */
     struct FieldData {
         std::string title;
-        ViewerState& state;
+        FieldState& state;
         std::function<void()> renderFunction;
     };
 
-    static void createDomainWindowHeader(DomainRenderingFlags const& flags, std::array<FieldData, ViewerLayout::count>& fields, std::string const& windowName, Interaction::Context& ctx, Interaction::ContextScope& ctxScope, Utility::Io::Capture& capture);
+    /**
+     * @brief Renders the header of the domain viewer. With minimize tray and optional close button
+     * @param flags The flags to consider
+     * @param fields All available fields
+     * @param windowName The name of the window
+     * @param ctx The context of the window
+     * @param ctxScope The context scope of the window
+     * @param capture A capture instance to direct logging/warnings/errors to
+     */
+    static void renderDomainViewerHeader(DomainRenderingFlags const& flags, std::array<FieldData, ViewerLayout::count>& fields, std::string const& windowName, Interaction::Context& ctx, Interaction::ContextScope& ctxScope, Utility::Io::Capture& capture);
 
-    static void renderMinimizeTray(std::array<FieldData, ViewerLayout::count>& fields);
-
-    static void renderViewerTile(int& id, std::string const& title, ViewerState& state, std::function<void()> const& content);
+    /**
+     * @brief Renders a given field of a domain viewer
+     * @param id The id (is incremented per call)
+     * @param title The title of the tile
+     * @param state The State of the tile
+     * @param content The content to render
+     */
+    static void renderViewerField(int& id, std::string const& title, FieldState& state, std::function<void()> const& content);
 
     /**
      * @brief Renders a JSON tree node in an ImGui window.
@@ -143,7 +171,7 @@ private:
      * @param capture The capture to render.
      * @param name The name of the ImGui window.
      */
-    static void renderDomainConsole(Interaction::Context& ctx, Interaction::ContextScope& ctxScope, Utility::Io::Capture& capture, std::string const& name);
+    static void renderDomainViewerConsole(Interaction::Context& ctx, Interaction::ContextScope& ctxScope, Utility::Io::Capture& capture, std::string const& name);
 
     /**
      * @brief Renders the domain plotting interface
