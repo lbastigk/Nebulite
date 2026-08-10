@@ -657,7 +657,7 @@ bool imguiLinkedInput(std::array<char, N>& buf, Interaction::Logic::Expression& 
     static auto constexpr red = ImVec4(1.0f, 0.0f, 0.0f, 1.0f);
 
     bool const pushedColour = [&] {
-        if (!expr.isReturnableAsDouble()) { // TODO: does not work for malformed expressions such as "$("
+        if (!expr.isReturnableAsDouble()) {
             ImGui::PushStyleColor(ImGuiCol_Text, red);
             return true;
         }
@@ -669,7 +669,12 @@ bool imguiLinkedInput(std::array<char, N>& buf, Interaction::Logic::Expression& 
     }();
     ImGui::SetNextItemWidth(-FLT_MIN);
     if (ImGui::InputText(label, buf.data(), buf.size(), ImGuiInputTextFlags_EnterReturnsTrue)) {
-        expr = Interaction::Logic::Expression{buf.data()};
+        std::string exprStr = buf.data();
+        if (!exprStr.starts_with("$(")) {
+            exprStr = "$(" + exprStr + ")";
+            std::strncpy(buf.data(), exprStr.c_str(), buf.size() - 1);
+        }
+        expr = Interaction::Logic::Expression{exprStr};
         if (pushedColour) {
             ImGui::PopStyleColor();
         }
@@ -684,44 +689,43 @@ bool imguiLinkedInput(std::array<char, N>& buf, Interaction::Logic::Expression& 
 template<std::size_t N, typename F>
 void imguiTable(char const* label, std::array<char const*, N> c, F&& f) {
     auto constexpr columns = c.size();
-    ImGui::BeginTable(label, columns, ImGuiTableFlags_Resizable | ImGuiTableFlags_Borders);
-    ImGui::TableNextRow();
-    for (auto const& desc : c) {
-        ImGui::TableNextColumn();
-        ImGui::Text("%s", desc);
+    if (ImGui::BeginTable(label, columns, ImGuiTableFlags_Resizable | ImGuiTableFlags_Borders)) {
+        ImGui::TableNextRow();
+        for (auto const& desc : c) {
+            ImGui::TableNextColumn();
+            ImGui::Text("%s", desc);
+        }
+        std::invoke(std::forward<F>(f));
+        ImGui::EndTable();
     }
-    std::invoke(std::forward<F>(f));
-    ImGui::EndTable();
 }
 
 void renderPlotTable(int columns, std::list<PlotData>& availablePlots) {
     for (auto [i, plot] : availablePlots | std::views::enumerate) {
-
         ImGui::Text("Plot %i:", static_cast<int>(i));
-
-        ImGui::BeginTable("PlotPointsTable", columns+1, ImGuiTableFlags_Resizable | ImGuiTableFlags_Borders);
-
-        // --- ROW 1 (X Data) ---
-        ImGui::TableNextRow();
-        ImGui::TableNextColumn();
-        ImGui::TableSetBgColor(ImGuiTableBgTarget_CellBg, ImGui::GetColorU32(plot.colour));
-        ImGui::Text("x");
-        for (auto x : plot.points | std::views::transform([](auto p) { return p.first; })) {
+        if (ImGui::BeginTable("PlotPointsTable", columns+1, ImGuiTableFlags_Resizable | ImGuiTableFlags_Borders)) {
+            // --- ROW 1 (X Data) ---
+            ImGui::TableNextRow();
             ImGui::TableNextColumn();
-            ImGui::Text("%.2f", x);
-        }
+            ImGui::TableSetBgColor(ImGuiTableBgTarget_CellBg, ImGui::GetColorU32(plot.colour));
+            ImGui::Text("x");
+            for (auto x : plot.points | std::views::transform([](auto p) { return p.first; })) {
+                ImGui::TableNextColumn();
+                ImGui::Text("%.2f", x);
+            }
 
-        // --- ROW 2 (Y Data) ---
-        ImGui::TableNextRow();
-        ImGui::TableNextColumn();
-        ImGui::TableSetBgColor(ImGuiTableBgTarget_CellBg, ImGui::GetColorU32(plot.colour));
-        ImGui::Text("y");
-        for (auto y : plot.points | std::views::transform([](auto p) { return p.second; })) {
+            // --- ROW 2 (Y Data) ---
+            ImGui::TableNextRow();
             ImGui::TableNextColumn();
-            ImGui::Text("%.2f", y);
-        }
+            ImGui::TableSetBgColor(ImGuiTableBgTarget_CellBg, ImGui::GetColorU32(plot.colour));
+            ImGui::Text("y");
+            for (auto y : plot.points | std::views::transform([](auto p) { return p.second; })) {
+                ImGui::TableNextColumn();
+                ImGui::Text("%.2f", y);
+            }
 
-        ImGui::EndTable();
+            ImGui::EndTable();
+        }
     }
 }
 
@@ -779,36 +783,7 @@ void ImguiHelper::renderPlotViewer(Interaction::Context& /*ctx*/, Interaction::C
     });
 
     //------------------------------------------
-    // Axis limits
-    ImGui::Separator();
-    ImGui::BeginTable("LimitsTable", 4, ImGuiTableFlags_Resizable | ImGuiTableFlags_Borders);
-    ImGui::TableNextRow();
-
-    // Min/Max for x and y
-    ImGui::TableNextColumn();
-    imguiLinkedInput(plotMetaData.bufXMin, plotMetaData.expressionXMin, "xMin");
-    ImGui::TableNextColumn();
-    imguiLinkedInput(plotMetaData.bufXMax, plotMetaData.expressionXMax, "xMax");
-    ImGui::TableNextColumn();
-    imguiLinkedInput(plotMetaData.bufYMin, plotMetaData.expressionYMin, "yMin");
-    ImGui::TableNextColumn();
-    imguiLinkedInput(plotMetaData.bufYMax, plotMetaData.expressionYMax, "yMax");
-    ImGui::EndTable();
-
-    // Plots ...
-    ImGui::Separator();
-
-    if (plotMetaData.validLimits()) {
-        double const xMin = plotMetaData.expressionXMin.evalAsDouble(ctxScope, Utility::Promise<&Interaction::Logic::Expression::isReturnableAsDouble>());
-        double const xMax = plotMetaData.expressionXMax.evalAsDouble(ctxScope, Utility::Promise<&Interaction::Logic::Expression::isReturnableAsDouble>());
-        double const yMin = plotMetaData.expressionYMin.evalAsDouble(ctxScope, Utility::Promise<&Interaction::Logic::Expression::isReturnableAsDouble>());
-        double const yMax = plotMetaData.expressionYMax.evalAsDouble(ctxScope, Utility::Promise<&Interaction::Logic::Expression::isReturnableAsDouble>());
-
-        // Render limits for now
-        ImGui::Text("Limits: xMin=%.2f, xMax=%.2f, yMin=%.2f, yMax=%.2f", xMin, xMax, yMin, yMax);
-    } else {
-        ImGui::Text("Invalid plot limits.");
-    }
+    // Update Values
 
     static auto constexpr pointsToKeep = 10;
     for (auto& plot : availablePlots) {
@@ -822,7 +797,40 @@ void ImguiHelper::renderPlotViewer(Interaction::Context& /*ctx*/, Interaction::C
         }
     }
 
-    // Show list
+    //------------------------------------------
+    // Axis limits input
+
+    ImGui::Separator();
+    imguiTable("LimitsTable", std::array{"xMin", "xMax", "yMin", "yMax"}, [&] {
+        ImGui::TableNextRow();
+        ImGui::TableNextColumn();
+        imguiLinkedInput(plotMetaData.bufXMin, plotMetaData.expressionXMin, "#xMin");
+        ImGui::TableNextColumn();
+        imguiLinkedInput(plotMetaData.bufXMax, plotMetaData.expressionXMax, "#xMax");
+        ImGui::TableNextColumn();
+        imguiLinkedInput(plotMetaData.bufYMin, plotMetaData.expressionYMin, "#yMin");
+        ImGui::TableNextColumn();
+        imguiLinkedInput(plotMetaData.bufYMax, plotMetaData.expressionYMax, "#yMax");
+    });
+
+    //------------------------------------------
+    // Plot
+
+    // TODO: use limits to plot
+    ImGui::Separator();
+    if (plotMetaData.validLimits()) {
+        double const xMin = plotMetaData.expressionXMin.evalAsDouble(ctxScope, Utility::Promise<&Interaction::Logic::Expression::isReturnableAsDouble>());
+        double const xMax = plotMetaData.expressionXMax.evalAsDouble(ctxScope, Utility::Promise<&Interaction::Logic::Expression::isReturnableAsDouble>());
+        double const yMin = plotMetaData.expressionYMin.evalAsDouble(ctxScope, Utility::Promise<&Interaction::Logic::Expression::isReturnableAsDouble>());
+        double const yMax = plotMetaData.expressionYMax.evalAsDouble(ctxScope, Utility::Promise<&Interaction::Logic::Expression::isReturnableAsDouble>());
+
+        // Render limits for now
+        ImGui::Text("Limits: xMin=%.2f, xMax=%.2f, yMin=%.2f, yMax=%.2f", xMin, xMax, yMin, yMax);
+    } else {
+        ImGui::Text("Invalid plot limits.");
+    }
+
+    // For now, we render a table
     renderPlotTable(pointsToKeep, availablePlots);
 
 
