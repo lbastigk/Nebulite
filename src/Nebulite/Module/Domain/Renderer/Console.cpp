@@ -42,7 +42,7 @@ Constants::Event Console::updateHook() {
         Interaction::ContextScope ctxScope = {globalScope, globalScope, globalScope};
 
         // Render
-        Graphics::ImguiHelper::renderDomain(ctx, ctxScope, Global::capture(), "Console", flags);
+        Graphics::ImguiHelper::renderDomainViewer(ctx, ctxScope, Global::capture(), "Console", flags);
     }
     return Constants::Event::success;
 }

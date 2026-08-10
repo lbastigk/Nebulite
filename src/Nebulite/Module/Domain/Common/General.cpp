@@ -51,7 +51,7 @@ Constants::Event General::updateHook() {
                     .global = *lastContext.globalScope,
                 },
             };
-            Graphics::ImguiHelper::renderDomain(ctx, ctxScope, domain.capture, domain.getName());
+            Graphics::ImguiHelper::renderDomainViewer(ctx, ctxScope, domain.capture, domain.getName());
         });
     }
     return Constants::Event::success;

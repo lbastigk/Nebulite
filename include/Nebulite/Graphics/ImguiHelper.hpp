@@ -5,9 +5,12 @@
 // Includes
 
 // Standard Library
+#include <array>
 #include <cstdint>
+#include <functional>
 #include <optional>
 #include <string>
+#include <utility>
 
 // External
 #include <imgui.h>
@@ -84,7 +87,7 @@ public:
      * @param name The name of the ImGui window.
      * @param flags Optional rendering flags to control the appearance and behavior of the ImGui window.
      */
-    static void renderDomain(
+    static void renderDomainViewer(
         Interaction::Context& ctx,
         Interaction::ContextScope& ctxScope,
         Utility::Io::Capture& capture,
@@ -93,11 +96,74 @@ public:
     );
 
 private:
+    template<typename F>
+    static void imguiChild(char const* name, F&& f, ImVec2 const size = ImVec2(0, 0), ImGuiChildFlags const flags = ImGuiChildFlags_None) {
+        if (ImGui::BeginChild(name, size, flags)) {
+            std::invoke(std::forward<F>(f));
+        }
+        ImGui::EndChild();
+    }
+
     /**
      * @brief Imgui alignment helper, call before Imgui::Begin().
      * @param alignment The flags for the window alignment.
      */
     static void align(DomainRenderingFlags::Alignment const& alignment);
+
+    /**
+     * @brief Setup ImGui for the next window based on the provided flags
+     * @param flags The flags to consider
+     */
+    static void domainViewerSetup(DomainRenderingFlags const& flags);
+
+    /**
+     * @enum FieldState
+     * @brief State of each Field
+     */
+    enum class FieldState : bool {
+        visible,
+        minimized,
+    };
+
+    /**
+     * @brief Layout state of the domain viewer
+     */
+    struct ViewerLayout {
+        FieldState console = FieldState::visible;
+        FieldState json = FieldState::visible;
+        FieldState plot = FieldState::visible;
+        static auto constexpr count = 3;
+    };
+    static_assert(sizeof(ViewerLayout) / sizeof(FieldState) == ViewerLayout::count, "Please update the count of ViewerLayout");
+
+    /**
+     * @brief We map each Field in ViewerLayout to its title and content to render.
+     */
+    struct FieldData {
+        std::string title;
+        FieldState& state;
+        std::function<void()> renderFunction;
+    };
+
+    /**
+     * @brief Renders the header of the domain viewer. With minimize tray and optional close button
+     * @param flags The flags to consider
+     * @param fields All available fields
+     * @param windowName The name of the window
+     * @param ctx The context of the window
+     * @param ctxScope The context scope of the window
+     * @param capture A capture instance to direct logging/warnings/errors to
+     */
+    static void renderDomainViewerHeader(DomainRenderingFlags const& flags, std::array<FieldData, ViewerLayout::count>& fields, std::string const& windowName, Interaction::Context& ctx, Interaction::ContextScope& ctxScope, Utility::Io::Capture& capture);
+
+    /**
+     * @brief Renders a given field of a domain viewer
+     * @param id The id (is incremented per call)
+     * @param title The title of the tile
+     * @param state The State of the tile
+     * @param content The content to render
+     */
+    static void renderViewerField(int& id, std::string const& title, FieldState& state, std::function<void()> const& content);
 
     /**
      * @brief Renders a JSON tree node in an ImGui window.
@@ -113,7 +179,14 @@ private:
      * @param capture The capture to render.
      * @param name The name of the ImGui window.
      */
-    static void renderDomainConsole(Interaction::Context& ctx, Interaction::ContextScope& ctxScope, Utility::Io::Capture& capture, std::string const& name);
+    static void renderDomainViewerConsole(Interaction::Context& ctx, Interaction::ContextScope& ctxScope, Utility::Io::Capture& capture, std::string const& name);
+
+    /**
+     * @brief Renders the domain plotting interface
+     * @param ctxScope The scope of the caller.
+     * @param identifier The identifier for the plot viewer.
+     */
+    static void renderPlotViewer(Interaction::ContextScope const& ctxScope, std::string const& identifier);
 };
 
 } // namespace Nebulite::Graphics
