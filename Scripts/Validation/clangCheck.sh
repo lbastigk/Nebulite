@@ -26,6 +26,7 @@ external_include_list=(
     "./external/absl-src/"
     "./external/imgui-src/"
     "./external/imgui-src/backends"
+    "./external/implot-src/"
     "./external/rapidjson-src/include"
     "./external/rmlui-src/Backends"
     "./external/rmlui-src/Include"
