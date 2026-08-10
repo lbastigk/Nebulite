@@ -32,6 +32,7 @@
 #include <imgui.h>
 #include <imgui_impl_sdl3.h>
 #include <imgui_impl_sdlrenderer3.h>
+#include <implot.h>
 
 // Nebulite
 #include "Nebulite/Constants/Event.hpp"
@@ -127,6 +128,7 @@ Constants::Event Renderer::preParse(std::string_view const /*functionName*/, std
 void Renderer::initImgui() {
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
+    ImPlot::CreateContext();
 
     // Pixel-friendly ImGui style for retro RPGs
     ImGuiStyle &style = ImGui::GetStyle();
