@@ -117,7 +117,6 @@ struct Plots {
         if (lastUpdated + updateInterval < ImGui::GetTime()) {
             lastUpdated = ImGui::GetTime();
             for (auto& plot : plots) {
-
                 if (plot.expressionX.isReturnableAsDouble() && plot.expressionY.isReturnableAsDouble()) {
                     double const x = plot.expressionX.evalAsDouble(ctxScope, Nebulite::Utility::Promise<&Nebulite::Interaction::Logic::Expression::isReturnableAsDouble>());
                     double const y = plot.expressionY.evalAsDouble(ctxScope, Nebulite::Utility::Promise<&Nebulite::Interaction::Logic::Expression::isReturnableAsDouble>());
