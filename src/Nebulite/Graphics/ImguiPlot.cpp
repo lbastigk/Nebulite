@@ -87,6 +87,7 @@ struct Plots {
 
     double lastUpdated = 0; // seconds
     static double constexpr updateInterval = 0.01; // seconds
+    static double constexpr removeInterval = 120; // seconds
 
     std::array<char, 256> bufXMin = {};
     std::array<char, 256> bufXMax = {};
@@ -268,8 +269,14 @@ namespace Nebulite::Graphics {
 
 void ImguiHelper::renderPlotViewer(Interaction::ContextScope const& ctxScope, std::string const& identifier){
     static std::unordered_map<std::string, Plots> plots;
+
+    // Cleanup old plots
+    std::erase_if(plots, [](auto const& pair) {
+        return pair.second.lastUpdated + Plots::removeInterval < ImGui::GetTime();
+    });
+
+    // Get plots for the given identifier
     auto& plotMetaData = plots[identifier];
-    auto& idCounter = plotMetaData.idCounter;
     auto& availablePlots = plotMetaData.plots;
 
     // Window
@@ -282,7 +289,7 @@ void ImguiHelper::renderPlotViewer(Interaction::ContextScope const& ctxScope, st
         static auto constexpr addPlotText = " + Add Plot";
         ImGui::SetCursorPosX(ImGui::GetWindowWidth() - ImGui::GetStyle().WindowPadding.x - ImGui::CalcTextSize(addPlotText).x - ImGui::GetStyle().FramePadding.x * 2.0f);
         if (ImGui::Button(addPlotText)) {
-            availablePlots.emplace_back(idCounter++, colorFromIndex(availablePlots.size(), 10));
+            availablePlots.emplace_back(plotMetaData.idCounter++, colorFromIndex(availablePlots.size(), 10));
         }
 
         // Table of available plots
