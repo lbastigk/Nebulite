@@ -107,13 +107,13 @@ void ImguiHelper::renderDomainViewerHeader(DomainRenderingFlags const& flags, st
 
     // Show minimized fields
     // Only show info if at least one field is minimized
-    if (std::ranges::any_of(fields, [](FieldData const& field) { return field.state == FieldState::Minimized; })) {
+    if (std::ranges::any_of(fields, [](FieldData const& field) { return field.state == FieldState::minimized; })) {
         ImGui::TextUnformatted("Minimized:");
         for (auto& field : fields) {
-            if (field.state == FieldState::Minimized) {
+            if (field.state == FieldState::minimized) {
                 ImGui::SameLine();
                 if (ImGui::Button(field.title.c_str())) {
-                    field.state = FieldState::Visible;
+                    field.state = FieldState::visible;
                 }
             }
         }
@@ -152,9 +152,15 @@ void ImguiHelper::renderDomainViewer(Interaction::Context& ctx, Interaction::Con
 
     // Available fields
     std::array fields = {
-        FieldData{.title="Console", .state=layout.console, .renderFunction=[&]{renderDomainViewerConsole(ctx, ctxScope, capture, name);}},
-        FieldData{.title="JSON", .state=layout.json, .renderFunction=[&]{renderJsonTreeNode(scope, scope.getRootScope());}},
-        FieldData{.title="Plot", .state=layout.plot, .renderFunction=[&]{renderPlotViewer(ctx, ctxScope, capture, name);}}
+        FieldData{.title="Console", .state=layout.console, .renderFunction=[&] {
+            renderDomainViewerConsole(ctx, ctxScope, capture, name);
+        }},
+        FieldData{.title="JSON", .state=layout.json, .renderFunction=[&] {
+            renderJsonTreeNode(scope, scope.getRootScope());
+        }},
+        FieldData{.title="Plot", .state=layout.plot, .renderFunction=[&] {
+            renderPlotViewer(ctxScope, name);
+        }}
     };
     static_assert(fields.size() == ViewerLayout::count, "Please update the field render logic to reflect the changes in ViewerLayout.");
 
@@ -165,14 +171,14 @@ void ImguiHelper::renderDomainViewer(Interaction::Context& ctx, Interaction::Con
     ImGui::Separator();
 
     // Render visible fields
-    int const visibleCount = std::accumulate(fields.begin(), fields.end(), 0, [](int count, FieldData const& field) {
-        return count + (field.state == FieldState::Visible ? 1 : 0);
+    int const visibleCount = std::accumulate(fields.begin(), fields.end(), 0, [](int const count, FieldData const& field) {
+        return count + (field.state == FieldState::visible ? 1 : 0);
     });
     if (visibleCount > 0) {
         if (ImGui::BeginTable("Viewers", visibleCount, ImGuiTableFlags_Resizable | ImGuiTableFlags_Borders)) {
             int columnId = 0;
             for (auto& field : fields) {
-                if (field.state == FieldState::Visible) {
+                if (field.state == FieldState::visible) {
                     ImGui::TableNextColumn();
                     renderViewerField(columnId, field.title, field.state, field.renderFunction);
                 }
@@ -186,28 +192,21 @@ void ImguiHelper::renderDomainViewer(Interaction::Context& ctx, Interaction::Con
 void ImguiHelper::renderViewerField(int& id, std::string const& title, FieldState& state, std::function<void()> const& content) {
     // Begin Child
     ImGui::PushID(id++);
-    ImGui::BeginChild(
-        title.c_str(),
-        ImVec2(0, 0),
-        true
-    );
+    imguiChild(title.c_str(), [&] {
+        // Header
+        ImGui::TextUnformatted(title.c_str());
+        ImGui::SameLine();
+        float const buttonWidth = ImGui::CalcTextSize("Minimize").x + ImGui::GetStyle().FramePadding.x * 2.0f;
+        float const scrollbarWidth = ImGui::GetScrollMaxY() > 0.0f ? ImGui::GetStyle().ScrollbarSize : 0.0f;
+        ImGui::SetCursorPosX(ImGui::GetWindowWidth() - ImGui::GetStyle().WindowPadding.x - buttonWidth - scrollbarWidth);
+        if (ImGui::Button("Minimize")) {
+            state = FieldState::minimized;
+        }
 
-    // Header
-    ImGui::TextUnformatted(title.c_str());
-    ImGui::SameLine();
-    const float buttonWidth = ImGui::CalcTextSize("Minimize").x + ImGui::GetStyle().FramePadding.x * 2.0f;
-    float const scrollbarWidth = ImGui::GetScrollMaxY() > 0.0f ? ImGui::GetStyle().ScrollbarSize : 0.0f;
-    ImGui::SetCursorPosX(ImGui::GetWindowWidth() - ImGui::GetStyle().WindowPadding.x - buttonWidth - scrollbarWidth);
-    if (ImGui::Button("Minimize")) {
-        state = FieldState::Minimized;
-    }
-
-    // Content
-    ImGui::Separator();
-    content();
-
-    // Done
-    ImGui::EndChild();
+        // Content
+        ImGui::Separator();
+        content();
+    });
     ImGui::PopID();
 }
 

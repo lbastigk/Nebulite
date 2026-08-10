@@ -273,74 +273,80 @@ int consoleInputCallback(ImGuiInputTextCallbackData* data) {
 namespace Nebulite::Graphics {
 
 void ImguiHelper::renderDomainViewerConsole(Interaction::Context& ctx, Interaction::ContextScope& ctxScope, Utility::Io::Capture& capture, std::string const& name) {
-    //------------------------------------------
-    // Console output area
-
-    ImGui::BeginChild("ConsoleOutput", ImVec2(0, -ImGui::GetFrameHeightWithSpacing()), true);
-    ImGui::PushTextWrapPos(0.0f); // wrap at window/child width
-    for (auto const& [content, type] : capture.getHistory()){
-        std::string contentFull;
-        switch (type) {
-            case Utility::Io::HistoryLine::Type::info:
-                ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1.0f, 1.0f, 1.0f, 1.0f)); // white
-                break;
-            case Utility::Io::HistoryLine::Type::warning:
-                ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1.0f, 165.0f / 265.0f, 0.0f, 1.0f)); // orange
-                break;
-            case Utility::Io::HistoryLine::Type::error:
-                ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1.0f, 0.0f, 0.0f, 1.0f)); // red
-                break;
-            case Utility::Io::HistoryLine::Type::input:
-                contentFull = "> ";
-                ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.9f, 0.9f, 0.9f, 1.0f)); // grey
-                break;
-            default:
-                std::unreachable();
-        }
-        contentFull += content;
-        ImGui::TextUnformatted(contentFull.c_str());
-        ImGui::PopStyleColor();
-    }
-    ImGui::PopTextWrapPos();
-
-    // Auto-scroll
-    if (ImGui::GetScrollY() >= ImGui::GetScrollMaxY()) {
-        ImGui::SetScrollHereY(1.0f);
-    }
-
-    ImGui::EndChild();
+    static auto constexpr function = __FUNCTION__;
 
     //------------------------------------------
-    // Console input area
+    // Console output area:
 
-    ImGui::Separator();
+    imguiChild("#Console", [&] {
+        //------------------------------------------
+        // Console output area
 
-    // Store state for each console by name
-    static std::unordered_map<std::string, ConsoleState> states;
-    if (auto const it = states.find(name); it == states.end()) {
-        // Initialize state for this console if it doesn't exist
-        states[name] = ConsoleState();
-    }
+        imguiChild("ConsoleOutput", [&] {
+            ImGui::PushTextWrapPos(0.0f); // wrap at window/child width
+            for (auto const& [content, type] : capture.getHistory()){
+                std::string contentFull;
+                switch (type) {
+                case Utility::Io::HistoryLine::Type::info:
+                    ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1.0f, 1.0f, 1.0f, 1.0f)); // white
+                    break;
+                case Utility::Io::HistoryLine::Type::warning:
+                    ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1.0f, 165.0f / 265.0f, 0.0f, 1.0f)); // orange
+                    break;
+                case Utility::Io::HistoryLine::Type::error:
+                    ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1.0f, 0.0f, 0.0f, 1.0f)); // red
+                    break;
+                case Utility::Io::HistoryLine::Type::input:
+                    contentFull = "> ";
+                    ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.9f, 0.9f, 0.9f, 1.0f)); // grey
+                    break;
+                default:
+                    std::unreachable();
+                }
+                contentFull += content;
+                ImGui::TextUnformatted(contentFull.c_str());
+                ImGui::PopStyleColor();
+            }
+            ImGui::PopTextWrapPos();
 
-    // Set state
-    auto& state = states.find(name)->second; // Get iterator again after potential insertion
-    state.capture = &capture; // Set for history scrolling
-    state.ctx = &ctx;
-    state.ctxScope = &ctxScope;
-    std::string& command = state.command; // Get command buffer for this console
-    command.reserve(256); // Pre-allocate to avoid reallocations during typing
+            // Auto-scroll
+            if (ImGui::GetScrollY() >= ImGui::GetScrollMaxY()) {
+                ImGui::SetScrollHereY(1.0f);
+            }
+        }, ImVec2(0, -ImGui::GetFrameHeightWithSpacing()), true);
 
-    // Flags are seen as unsigned but guaranteed to be >= 0, so we can or them together
-    static auto constexpr flags = ImGuiInputTextFlags_EnterReturnsTrue | ImGuiInputTextFlags_CallbackHistory | ImGuiInputTextFlags_CallbackCompletion; // NOLINT
-    if (ImGui::InputText("##ConsoleInput", &command, flags, consoleInputCallback, &state)) {
-        if (!command.empty()){
-            capture.appendToHistory(command, Utility::Io::HistoryLine::Type::input);
-            Global::instance().notifyEvent(ctx.self.parseStr(__FUNCTION__ + std::string(" ") + command, ctx, ctxScope));
-            command.clear();
-            state.historyIndex = 0; // Reset history index after executing a command
-        }
-        ImGui::SetKeyboardFocusHere(-1);    // focus again
-    }
+        //------------------------------------------
+        // Console input area
+
+        imguiChild("ConsoleInput", [&] {
+            // Store state for each console by name
+            static std::unordered_map<std::string, ConsoleState> states;
+            if (auto const it = states.find(name); it == states.end()) {
+                // Initialize state for this console if it doesn't exist
+                states[name] = ConsoleState();
+            }
+
+            // Set state
+            auto& state = states.find(name)->second; // Get iterator again after potential insertion
+            state.capture = &capture; // Set for history scrolling
+            state.ctx = &ctx;
+            state.ctxScope = &ctxScope;
+            std::string& command = state.command; // Get command buffer for this console
+            command.reserve(256); // Pre-allocate to avoid reallocations during typing
+
+            // Flags are seen as unsigned but guaranteed to be >= 0, so we can or them together
+            static auto constexpr flags = ImGuiInputTextFlags_EnterReturnsTrue | ImGuiInputTextFlags_CallbackHistory | ImGuiInputTextFlags_CallbackCompletion; // NOLINT
+            if (ImGui::InputText("##ConsoleInput", &command, flags, consoleInputCallback, &state)) {
+                if (!command.empty()){
+                    capture.appendToHistory(command, Utility::Io::HistoryLine::Type::input);
+                    Global::instance().notifyEvent(ctx.self.parseStr(function + std::string(" ") + command, ctx, ctxScope));
+                    command.clear();
+                    state.historyIndex = 0; // Reset history index after executing a command
+                }
+                ImGui::SetKeyboardFocusHere(-1);    // focus again
+            }
+        }, ImVec2(0, 0), false);
+    }, ImVec2(0, -ImGui::GetFrameHeightWithSpacing()), false);
 }
 
 } // namespace Nebulite::Graphics
