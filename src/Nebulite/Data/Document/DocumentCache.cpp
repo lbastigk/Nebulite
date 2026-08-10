@@ -20,25 +20,25 @@ namespace Nebulite::Data {
 
 // Basic value retrieval: type,size,serial, etc.
 
-double const* DocumentCache::getStableDoublePointer(std::string const& docAndKey) const {
+double const* DocumentCache::getStableDoublePointer(std::string_view const docAndKey) const {
     return getValueFromCache<double const*>(docAndKey, &zero, [](ReadOnlyDoc const* docPtr, std::string_view const key) {
         return docPtr->document.getStableDoublePointer(key);
     });
 }
 
-KeyType DocumentCache::memberType(std::string const& docAndKey) const {
+KeyType DocumentCache::memberType(std::string_view const docAndKey) const {
     return getValueFromCache<KeyType>(docAndKey, KeyType::null, [](ReadOnlyDoc const* docPtr, std::string_view const key) {
         return docPtr->document.memberType(key);
     });
 }
 
-size_t DocumentCache::memberSize(std::string const& docAndKey) const {
+size_t DocumentCache::memberSize(std::string_view const docAndKey) const {
     return getValueFromCache<size_t>(docAndKey, 0, [](ReadOnlyDoc const* docPtr, std::string_view const key) {
         return docPtr->document.memberSize(key);
     });
 }
 
-std::string DocumentCache::serialize(std::string const& docAndKey) const {
+std::string DocumentCache::serialize(std::string_view const docAndKey) const {
     return getValueFromCache<std::string>(docAndKey, "{}", [](ReadOnlyDoc const* docPtr, std::string_view const key) {
         if (key.empty()) {
             return docPtr->serial;
@@ -50,7 +50,7 @@ std::string DocumentCache::serialize(std::string const& docAndKey) const {
 
 // Document serialization
 
-Json DocumentCache::getSubDoc(std::string const& docAndKey) const {
+Json DocumentCache::getSubDoc(std::string_view const docAndKey) const {
     auto [doc, key] = splitDocKey(docAndKey);
 
     ReadOnlyDoc const* docPtr = readOnlyDocs.getDocument(doc);
@@ -83,28 +83,37 @@ std::string DocumentCache::getDocString(std::string_view const link) const {
     return serial;
 }
 
-std::pair<std::string, std::string> DocumentCache::splitDocKey(std::string const& docAndKey) {
-    std::string_view docAndKeyView(docAndKey);
-    Utility::StringHandler::strip(docAndKeyView, ' '); // Remove whitespace for more forgiving input handling
+std::pair<std::string_view, std::string_view> DocumentCache::splitDocKey(std::string_view docAndKey) {
+    Utility::StringHandler::strip(docAndKey, ' '); // Remove whitespace for more forgiving input handling
 
-    auto const barPos = docAndKeyView.find(Json::SpecialCharacter::transformationPipe);
-    auto const colonPos = docAndKeyView.find(Interaction::ContextDeriver::contextKeySeparator);
+    auto const barPos = docAndKey.find(Json::SpecialCharacter::transformationPipe);
+    auto const colonPos = docAndKey.find(Interaction::ContextDeriver::contextKeySeparator);
 
     // Choose the first occurring separator
     auto const pos = std::min(colonPos, barPos);
 
     if (pos == std::string::npos) {
         // No colon found, meaning the entire string is document name/link
-        return {std::string(docAndKeyView), ""};
+        return {std::string(docAndKey), ""};
     }
-    auto const doc = docAndKeyView.substr(0, pos);
-    auto const key = docAndKeyView.substr(pos + 1);
 
-    // Add back the transform part if needed
     if (pos == barPos) {
-        return {std::string(doc), Json::SpecialCharacter::transformationPipe + std::string(key)};
+        // Return with transformation bar
+        // path/to/doc|transform
+        // or
+        // |transform
+        return {
+            docAndKey.substr(0, pos),
+            docAndKey.substr(pos)
+        };
     }
-    return {std::string(doc), std::string(key)};
+    return {
+        // path/to/doc:key
+        // or
+        // path/to/doc:key|transform
+        docAndKey.substr(0, pos), // Doc
+        docAndKey.substr(pos + 1) // Key
+    };
 }
 
 } // namespace Nebulite::Data

@@ -44,7 +44,7 @@ public:
      * @return The retrieved data or an error.
      */
     template <typename T>
-    std::expected<T, SimpleValueRetrievalError> get(std::string const& docAndKey) const ;
+    std::expected<T, SimpleValueRetrievalError> get(std::string_view docAndKey) const ;
 
     /**
      * @brief Retrieves a pointer to a double value from a cached document.
@@ -54,7 +54,7 @@ public:
      *         Guaranteed to be valid even if the key does not exist within the document,
      *         or if the document itself is not found!
      */
-    double const* getStableDoublePointer(std::string const& docAndKey) const ;
+    double const* getStableDoublePointer(std::string_view docAndKey) const ;
 
     /**
      * @brief Checks the type of any key in the JSON document.
@@ -62,7 +62,7 @@ public:
      * @param docAndKey The document and its key to check.
      * @return The type of the key.
      */
-    KeyType memberType(std::string const& docAndKey) const ;
+    KeyType memberType(std::string_view docAndKey) const ;
 
     /**
      * @brief Checks the size of a key in the JSON document.
@@ -71,14 +71,14 @@ public:
      * @param docAndKey The key to check.
      * @return The size of the key.
      */
-    std::size_t memberSize(std::string const& docAndKey) const ;
+    std::size_t memberSize(std::string_view docAndKey) const ;
 
     /**
      * @brief Serializes the entire document or a portion of the document
      * @param docAndKey The document and key to serialize.
      * @return The serialized JSON string.
      */
-    std::string serialize(std::string const& docAndKey) const ;
+    std::string serialize(std::string_view docAndKey) const ;
 
     /**
      * @brief Gets a sub-document from the JSON document.
@@ -88,7 +88,7 @@ public:
      * @param docAndKey The link and key of the sub-document to retrieve.
      * @return The sub-document associated with the key, or an empty JSON object if the key does not exist.
      */
-    Json getSubDoc(std::string const& docAndKey) const ;
+    Json getSubDoc(std::string_view docAndKey) const ;
 
     /**
      * @brief Retrieves the entire document as a serialized string.
@@ -110,15 +110,14 @@ private:
 
     /**
      * @brief Splits a doc:key string into its components, also works for doc|transform or doc:key|transform
-     * @todo Returning a pair of string_views should be possible?
      */
-    static std::pair<std::string, std::string> splitDocKey(std::string const& docAndKey);
+    static std::pair<std::string_view, std::string_view> splitDocKey(std::string_view docAndKey);
 
     /**
      * @brief Templated helper function to retrieve a value from the read only cache
      */
     template <typename ValueType>
-    ValueType getValueFromCache(std::string const& docAndKey, ValueType const& defaultValue, std::function<ValueType(ReadOnlyDoc const* doc, std::string_view key)> const& retrievalFunction) const ;
+    ValueType getValueFromCache(std::string_view docAndKey, ValueType const& defaultValue, std::function<ValueType(ReadOnlyDoc const* doc, std::string_view key)> const& retrievalFunction) const ;
 };
 } // namespace Nebulite::Data
 #include "Nebulite/Data/Document/DocumentCache.tpp" // NOLINT(misc-include-cleaner)
