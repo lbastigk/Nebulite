@@ -7,7 +7,6 @@
 // Standard library
 #include <cstddef>
 #include <expected>
-#include <functional>
 #include <string>
 #include <string_view>
 #include <utility>
@@ -116,8 +115,8 @@ private:
     /**
      * @brief Templated helper function to retrieve a value from the read only cache
      */
-    template <typename ValueType>
-    ValueType getValueFromCache(std::string_view docAndKey, ValueType const& defaultValue, std::function<ValueType(ReadOnlyDoc const* doc, std::string_view key)> const& retrievalFunction) const ;
+    template <typename ValueType, typename F>
+    ValueType getValueFromCache(std::string_view docAndKey, ValueType const& defaultValue, F&& retrievalFunction) const ;
 };
 } // namespace Nebulite::Data
 #include "Nebulite/Data/Document/DocumentCache.tpp" // NOLINT(misc-include-cleaner)

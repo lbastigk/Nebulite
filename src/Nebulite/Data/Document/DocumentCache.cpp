@@ -22,7 +22,7 @@ namespace Nebulite::Data {
 
 double const* DocumentCache::getStableDoublePointer(std::string_view const docAndKey) const {
     return getValueFromCache<double const*>(docAndKey, &zero, [](ReadOnlyDoc const* docPtr, std::string_view const key) {
-        return docPtr->document.getStableDoublePointer(key);
+        return static_cast<double const*>(docPtr->document.getStableDoublePointer(key));
     });
 }
 

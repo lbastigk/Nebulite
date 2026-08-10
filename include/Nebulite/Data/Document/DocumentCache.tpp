@@ -6,9 +6,8 @@
 
 // Standard library
 #include <expected>
-#include <functional>
-#include <string>
 #include <string_view>
+#include <type_traits>
 #include <utility>
 
 // Nebulite
@@ -26,9 +25,11 @@
 //------------------------------------------
 namespace Nebulite::Data {
 
-template <typename ValueType>
-ValueType DocumentCache::getValueFromCache(std::string_view const docAndKey, ValueType const& defaultValue, std::function<ValueType(ReadOnlyDoc const* doc, std::string_view key)> const& retrievalFunction) const {
+template <typename ValueType, typename F>
+ValueType DocumentCache::getValueFromCache(std::string_view const docAndKey, ValueType const& defaultValue, F&& retrievalFunction) const {
     static_assert(!std::is_same_v<ValueType, Json>, "JSON values cannot be used here. Please re-implement the retrieval logic in a custom way instead of using this helper function.");
+    static_assert(std::is_invocable_v<F, ReadOnlyDoc const*, std::string_view>, "The retrieval function must be invocable with parameters: ReadOnlyDoc const*, std::string_view");
+    static_assert(std::is_same_v<std::invoke_result_t<F, ReadOnlyDoc const*, std::string_view>, ValueType>, "The retrieval function must return a value of the same type as ValueType.");
 
     auto [doc, key] = splitDocKey(docAndKey);
 
@@ -38,7 +39,7 @@ ValueType DocumentCache::getValueFromCache(std::string_view const docAndKey, Val
     }
 
     // Check if the document exists in the cache
-    ValueType const data = retrievalFunction(docPtr, key);
+    ValueType const data = std::invoke(std::forward<F>(retrievalFunction), docPtr, key);
 
     // Update the cache (unload old documents) and return the size
     readOnlyDocs.update();
