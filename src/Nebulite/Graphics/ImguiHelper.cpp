@@ -159,7 +159,7 @@ void ImguiHelper::renderDomainViewer(Interaction::Context& ctx, Interaction::Con
             renderJsonTreeNode(scope, scope.getRootScope());
         }},
         FieldData{.title="Plot", .state=layout.plot, .renderFunction=[&] {
-            renderPlotViewer(ctxScope, name);
+            renderPlotViewer(ctxScope, identifier);
         }}
     };
     static_assert(fields.size() == ViewerLayout::count, "Please update the field render logic to reflect the changes in ViewerLayout.");
