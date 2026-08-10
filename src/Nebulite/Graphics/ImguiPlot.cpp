@@ -104,6 +104,12 @@ struct Plots {
         std::strncpy(bufXMax.data(), expressionXMax.getFullExpression().c_str(), 256);
         std::strncpy(bufYMin.data(), expressionYMin.getFullExpression().c_str(), 256);
         std::strncpy(bufYMax.data(), expressionYMax.getFullExpression().c_str(), 256);
+
+        // Ensure null-termination
+        bufXMin.back() = '\0';
+        bufXMax.back() = '\0';
+        bufYMin.back() = '\0';
+        bufYMax.back() = '\0';
     }
 
     bool validLimits() const {
@@ -181,10 +187,12 @@ bool imguiLinkedInput(std::array<char, N>& buf, Nebulite::Interaction::Logic::Ex
     static auto constexpr red = ImVec4(1.0f, 0.0f, 0.0f, 1.0f);
 
     bool const pushedColour = [&] {
-        if (!expr.isReturnableAsDouble()) {
+        // Faulty expression
+        if (!expr.isReturnableAsDouble() || expr.getFullExpression().size() > buf.size()) {
             ImGui::PushStyleColor(ImGuiCol_Text, red);
             return true;
         }
+        // Unsaved expression
         if (buf.data() != expr.getFullExpression()) {
             ImGui::PushStyleColor(ImGuiCol_Text, yellow);
             return true;
@@ -197,6 +205,7 @@ bool imguiLinkedInput(std::array<char, N>& buf, Nebulite::Interaction::Logic::Ex
         if (!exprStr.starts_with("$(")) {
             exprStr = "$(" + exprStr + ")";
             std::strncpy(buf.data(), exprStr.c_str(), buf.size() - 1);
+            buf.back() = '\0'; // Ensure buf is null-terminated
         }
         expr = Nebulite::Interaction::Logic::Expression{exprStr};
         if (pushedColour) {
