@@ -5,7 +5,6 @@
 #include <algorithm>
 #include <array>
 #include <functional>
-#include <numeric>
 #include <optional>
 #include <string>
 #include <unordered_map>
@@ -146,21 +145,33 @@ void ImguiHelper::renderDomainViewer(Interaction::Context& ctx, Interaction::Con
     std::string const windowName = "Nebulite Domain Interface - " + name;
     std::string const windowIdentifier = windowName + "###DomainViewer_" + identifier;
 
-    // Viewer layout
+    // Viewer layout storage
     static std::unordered_map<std::string, ViewerLayout> layouts;
-    ViewerLayout& layout = layouts[identifier];
 
-    // Available fields
+    // Available fields, their name and their function
+    auto& [console, json, plot] = layouts[identifier];
     std::array fields = {
-        FieldData{.title="Console", .state=layout.console, .renderFunction=[&] {
-            renderDomainViewerConsole(ctx, ctxScope, capture, name);
-        }},
-        FieldData{.title="JSON", .state=layout.json, .renderFunction=[&] {
-            renderJsonTreeNode(scope, scope.getRootScope());
-        }},
-        FieldData{.title="Plot", .state=layout.plot, .renderFunction=[&] {
-            renderPlotViewer(ctxScope, identifier);
-        }}
+        FieldData{
+            .title="Console",
+            .state=console,
+            .renderFunction=[&] {
+                renderDomainViewerConsole(ctx, ctxScope, capture, name);
+            },
+        },
+        FieldData{
+            .title="JSON",
+            .state=json,
+            .renderFunction=[&] {
+                renderJsonTreeNode(scope, scope.getRootScope());
+            },
+        },
+        FieldData{
+            .title="Plot",
+            .state=plot,
+            .renderFunction=[&] {
+                renderPlotViewer(ctxScope, identifier);
+            },
+        },
     };
     static_assert(fields.size() == ViewerLayout::count, "Please update the field render logic to reflect the changes in ViewerLayout.");
 
@@ -171,16 +182,16 @@ void ImguiHelper::renderDomainViewer(Interaction::Context& ctx, Interaction::Con
     ImGui::Separator();
 
     // Render visible fields
-    int const visibleCount = std::accumulate(fields.begin(), fields.end(), 0, [](int const count, FieldData const& field) {
+    int const visibleCount = std::ranges::fold_left(fields, 0, [](int const count, FieldData const& field) {
         return count + (field.state == FieldState::visible ? 1 : 0);
     });
     if (visibleCount > 0) {
         if (ImGui::BeginTable("Viewers", visibleCount, ImGuiTableFlags_Resizable | ImGuiTableFlags_Borders)) {
             int columnId = 0;
-            for (auto& field : fields) {
-                if (field.state == FieldState::visible) {
+            for (auto& [title, state, renderFunction] : fields) {
+                if (state == FieldState::visible) {
                     ImGui::TableNextColumn();
-                    renderViewerField(columnId, field.title, field.state, field.renderFunction);
+                    renderViewerField(columnId, title, state, renderFunction);
                 }
             }
             ImGui::EndTable();
