@@ -131,7 +131,7 @@ private:
     struct ViewerLayout {
         FieldState console = FieldState::visible;
         FieldState json = FieldState::visible;
-        FieldState plot = FieldState::visible;
+        FieldState plot = FieldState::minimized; // Default to minimized
         static auto constexpr count = 3;
     };
     static_assert(sizeof(ViewerLayout) / sizeof(FieldState) == ViewerLayout::count, "Please update the count of ViewerLayout");
