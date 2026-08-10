@@ -313,7 +313,7 @@ void ImguiHelper::renderDomainViewerConsole(Interaction::Context& ctx, Interacti
             if (ImGui::GetScrollY() >= ImGui::GetScrollMaxY()) {
                 ImGui::SetScrollHereY(1.0f);
             }
-        }, ImVec2(0, -ImGui::GetFrameHeightWithSpacing()), true);
+        }, ImVec2(0, -ImGui::GetFrameHeightWithSpacing()), ImGuiChildFlags_Borders);
 
         //------------------------------------------
         // Console input area
@@ -345,8 +345,8 @@ void ImguiHelper::renderDomainViewerConsole(Interaction::Context& ctx, Interacti
                 }
                 ImGui::SetKeyboardFocusHere(-1);    // focus again
             }
-        }, ImVec2(0, 0), false);
-    }, ImVec2(0, -ImGui::GetFrameHeightWithSpacing()), false);
+        }, ImVec2(0, 0), ImGuiChildFlags_None);
+    }, ImVec2(0, -ImGui::GetFrameHeightWithSpacing()), ImGuiChildFlags_None);
 }
 
 } // namespace Nebulite::Graphics
