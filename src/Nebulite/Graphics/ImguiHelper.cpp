@@ -40,6 +40,12 @@ void ImguiHelper::renderJsonScope(Data::JsonScope const& scope, std::string cons
     ImGui::End();
 }
 
+void ImguiHelper::setCursorPosXForRightAlignedButton(char const* buttonLabel) {
+    float const buttonWidth = ImGui::CalcTextSize(buttonLabel).x + ImGui::GetStyle().FramePadding.x * 2.0f;
+    float const scrollbarWidth = ImGui::GetScrollMaxY() > 0.0f ? ImGui::GetStyle().ScrollbarSize : 0.0f;
+    ImGui::SetCursorPosX(ImGui::GetWindowWidth() - ImGui::GetStyle().WindowPadding.x - buttonWidth - scrollbarWidth);
+}
+
 void ImguiHelper::align(DomainRenderingFlags::Alignment const& alignment) {
     ImGuiViewport const* const vp = ImGui::GetMainViewport();
 
@@ -207,9 +213,7 @@ void ImguiHelper::renderViewerField(int& id, std::string const& title, FieldStat
         // Header
         ImGui::TextUnformatted(title.c_str());
         ImGui::SameLine();
-        float const buttonWidth = ImGui::CalcTextSize("Minimize").x + ImGui::GetStyle().FramePadding.x * 2.0f;
-        float const scrollbarWidth = ImGui::GetScrollMaxY() > 0.0f ? ImGui::GetStyle().ScrollbarSize : 0.0f;
-        ImGui::SetCursorPosX(ImGui::GetWindowWidth() - ImGui::GetStyle().WindowPadding.x - buttonWidth - scrollbarWidth);
+        setCursorPosXForRightAlignedButton("Minimize");
         if (ImGui::Button("Minimize")) {
             state = FieldState::minimized;
         }

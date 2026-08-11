@@ -287,7 +287,7 @@ void ImguiHelper::renderPlotViewer(Interaction::ContextScope const& ctxScope, st
         ImGui::TextUnformatted("Available Plots:");
         ImGui::SameLine();
         static auto constexpr addPlotText = " + Add Plot";
-        ImGui::SetCursorPosX(ImGui::GetWindowWidth() - ImGui::GetStyle().WindowPadding.x - ImGui::CalcTextSize(addPlotText).x - ImGui::GetStyle().FramePadding.x * 2.0f);
+        setCursorPosXForRightAlignedButton(addPlotText);
         if (ImGui::Button(addPlotText)) {
             availablePlots.emplace_back(plotMetaData.idCounter++, colorFromIndex(availablePlots.size(), 10));
         }

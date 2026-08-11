@@ -104,6 +104,8 @@ private:
         ImGui::EndChild();
     }
 
+    static void setCursorPosXForRightAlignedButton(char const* buttonLabel);
+
     /**
      * @brief Imgui alignment helper, call before Imgui::Begin().
      * @param alignment The flags for the window alignment.
