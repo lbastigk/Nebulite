@@ -33,14 +33,6 @@
 #include "Nebulite/Utility/Io/Capture.hpp"
 
 //------------------------------------------
-// Forward declarations
-
-namespace Nebulite::Interaction {
-class Context;
-class ContextScope;
-} // namespace Nebulite::Interaction
-
-//------------------------------------------
 namespace {
 template<uint32_t Size>
 uint64_t rollingJitter() {
