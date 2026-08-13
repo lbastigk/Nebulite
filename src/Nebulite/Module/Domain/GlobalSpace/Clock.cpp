@@ -15,6 +15,24 @@
 #include "Nebulite/Module/Domain/GlobalSpace/Time.hpp"
 
 //------------------------------------------
+namespace {
+/**
+ * @brief Converts a clock interval in milliseconds to a key string.
+ * @details Takes a clock interval in milliseconds and converts it into a key string with zero-padding
+ *          that can be used to access the corresponding clock entry in the global document.
+ *          While up to std::uint64_t is supported, practical clock intervals should be much lower, so we don't pad for the full length.
+ *          This makes the keys more manageable while still being properly sorted for typical use cases.
+ *          Example: An interval of 100ms becomes "ms000100".
+ * @param intervalMilliSeconds The clock interval in milliseconds.
+ * @return The key string for the clock entry.
+ */
+std::string intervalToKey(std::uint64_t const intervalMilliSeconds) {
+    static std::uint16_t constexpr padding = 6; // Not enough for std::uint64_t max value, but reasonable for practical clock intervals
+    return "ms" + std::to_string(intervalMilliSeconds).insert(0, padding - std::to_string(intervalMilliSeconds).length(), '0');
+}
+} // namespace
+
+//------------------------------------------
 namespace Nebulite::Module::Domain::GlobalSpace {
 
 Constants::Event Clock::updateHook() {
@@ -124,11 +142,6 @@ void Clock::readClocksFromDocument() {
         // Create new ClockEntry
         clockEntries.emplace(intervalMilliSeconds, ClockEntry(intervalMilliSeconds, moduleScope, currentTimeMilliSeconds));
     }
-}
-
-std::string Clock::intervalToKey(std::uint64_t const intervalMilliSeconds) {
-    static std::uint16_t constexpr padding = 6; // Not enough for std::uint64_t max value, but reasonable for practical clock intervals
-    return "ms" + std::to_string(intervalMilliSeconds).insert(0, padding - std::to_string(intervalMilliSeconds).length(), '0');
 }
 
 } // namespace Nebulite::Module::Domain::GlobalSpace

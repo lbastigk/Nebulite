@@ -6,14 +6,12 @@
 
 // Standard library
 #include <cstdint>
-#include <string>
 
 // External
 #include <absl/container/flat_hash_map.h>
 
 // Nebulite
 #include "Nebulite/Constants/Event.hpp"
-#include "Nebulite/Data/Document/Json.hpp"
 #include "Nebulite/Data/Document/KeyGroup.hpp"
 #include "Nebulite/Module/Base/DomainModule.hpp"
 
@@ -69,7 +67,6 @@ public:
         static auto constexpr clockStatus = makeScoped("clocks.status");
     };
 
-
     //------------------------------------------
     // Setup
 
@@ -123,18 +120,6 @@ private:
      *          This ensures that any pre-configured clocks are loaded and ready for use.
      */
     void readClocksFromDocument();
-
-    /**
-     * @brief Converts a clock interval in milliseconds to a key string.
-     * @details Takes a clock interval in milliseconds and converts it into a key string with zero-padding
-     *          that can be used to access the corresponding clock entry in the global document.
-     *          While up to std::uint64_t is supported, practical clock intervals should be much lower, so we don't pad for the full length.
-     *          This makes the keys more manageable while still being properly sorted for typical use cases.
-     *          Example: An interval of 100ms becomes "ms000100".
-     * @param intervalMilliSeconds The clock interval in milliseconds.
-     * @return The key string for the clock entry.
-     */
-    static std::string intervalToKey(std::uint64_t intervalMilliSeconds);
 };
 } // namespace Nebulite::Module::Domain::GlobalSpace
 #endif // NEBULITE_MODULE_DOMAIN_GLOBALSPACE_CLOCK_HPP
