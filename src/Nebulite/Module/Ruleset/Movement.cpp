@@ -63,25 +63,25 @@ void Movement::detectClipping(Interaction::Context const& context, double** slf,
             if (isNorth) {
                 double const dist = p2Y - p1Y - size1Y;
                 auto lock = context.other.lockDocument();
-                double& closestCurrent = baseVal(otr, Key::clip_closest_N);
+                double& closestCurrent = baseVal(otr, Key::clipClosestN);
                 closestCurrent = std::min(closestCurrent, dist);
             }
             if (isEast) {
                 double const dist = p1X - p2X - size2X;
                 auto lock = context.other.lockDocument();
-                double& closestCurrent = baseVal(otr, Key::clip_closest_E);
+                double& closestCurrent = baseVal(otr, Key::clipClosestE);
                 closestCurrent = std::min(closestCurrent, dist);
             }
             if (isSouth) {
                 double const dist = p1Y - p2Y - size2Y;
                 auto lock = context.other.lockDocument();
-                double& closestCurrent = baseVal(otr, Key::clip_closest_S);
+                double& closestCurrent = baseVal(otr, Key::clipClosestS);
                 closestCurrent = std::min(closestCurrent, dist);
             }
             if (isWest) {
                 double const dist = p2X - p1X - size1X;
                 auto lock = context.other.lockDocument();
-                double& closestCurrent = baseVal(otr, Key::clip_closest_W);
+                double& closestCurrent = baseVal(otr, Key::clipClosestW);
                 closestCurrent = std::min(closestCurrent, dist);
             }
         }
@@ -91,17 +91,17 @@ void Movement::detectClipping(Interaction::Context const& context, double** slf,
 // NOLINTNEXTLINE
 void Movement::processClipping(Interaction::Context const& /*context*/, double** slf, double** /*otr*/) const {
     // Nearest corners
-    double& directionN = baseVal(slf, Key::clip_closest_N);
-    double& directionE = baseVal(slf, Key::clip_closest_E);
-    double& directionS = baseVal(slf, Key::clip_closest_S);
-    double& directionW = baseVal(slf, Key::clip_closest_W);
+    double& directionN = baseVal(slf, Key::clipClosestN);
+    double& directionE = baseVal(slf, Key::clipClosestE);
+    double& directionS = baseVal(slf, Key::clipClosestS);
+    double& directionW = baseVal(slf, Key::clipClosestW);
 
     double& posX = baseVal(slf, Key::posX);
     double& posY = baseVal(slf, Key::posY);
 
     auto const [dX, dY] = std::make_pair(
-        posX - baseVal(slf, Key::position_last_X),
-        posY - baseVal(slf, Key::position_last_Y)
+        posX - baseVal(slf, Key::lastPositionX),
+        posY - baseVal(slf, Key::lastPositionY)
     );
 
     // Reposition checks

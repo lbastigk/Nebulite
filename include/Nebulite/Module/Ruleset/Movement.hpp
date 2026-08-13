@@ -77,7 +77,7 @@ public:
         Data::ScopedKeyView("movement.clip.closest.W"),
         // X/Y last pos
         Domain::GlobalSpace::Physics::Key::Local::lastPositionX,
-        Domain::GlobalSpace::Physics::Key::Local::lastPositionY
+        Domain::GlobalSpace::Physics::Key::Local::lastPositionY,
     };
 
     /**
@@ -99,13 +99,13 @@ public:
         physicsForceX,
         physicsForceY,
         // Closest X/Y
-        clip_closest_N,
-        clip_closest_E,
-        clip_closest_S,
-        clip_closest_W,
+        clipClosestN,
+        clipClosestE,
+        clipClosestS,
+        clipClosestW,
         // X/Y last
-        position_last_X,
-        position_last_Y
+        lastPositionX,
+        lastPositionY,
     };
 
 private:
