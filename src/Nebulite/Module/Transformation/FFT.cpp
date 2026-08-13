@@ -100,10 +100,9 @@ bool Fft::applyTransferFunctionFrequencyDomain(std::span<std::string_view const>
         auto const numIndex = static_cast<std::size_t>(std::distance(args.begin(), numPos));
         auto const denIndex = static_cast<std::size_t>(std::distance(args.begin(), denPos));
 
-        auto const tryDoubleConvert = [](std::string_view const arg) -> std::optional<double> {
+        auto constexpr tryDoubleConvert = [](std::string_view const arg) -> std::optional<double> {
             return Utility::Convert::Cast::String::to<double>(arg);
         };
-
 
         auto const numV = args.subspan(numIndex + 1, denIndex - numIndex - 1)
             | Utility::Ranges::tryTransform(tryDoubleConvert);
