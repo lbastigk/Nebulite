@@ -131,6 +131,7 @@ eval echo Benchmark took $6.4f({global:benchmark.estimation.time}) seconds
 eval echo Average time per iteration:      $06.4f(1e6 * {global:benchmark.estimation.timePerIteration}) µs
 eval echo Average time per transformation: $06.4f(1e6 * {global:benchmark.estimation.timePerTransformation}) µs
 echo
+eval echo $.2f(1 / {global:benchmark.estimation.timePerTransformation} / 1e6) million transformations per second
 eval echo Possible transformations at 144fps: $05i((1.0/144.0) / {global:benchmark.estimation.timePerTransformation}) transformations per frame
 eval echo Possible transformations at  60fps: $05i((1.0/60.0) / {global:benchmark.estimation.timePerTransformation}) transformations per frame
 echo
