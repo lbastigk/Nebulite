@@ -47,8 +47,8 @@ void Movement::detectClipping(Interaction::Context const& context, double** slf,
         double const& size1Y = baseVal(slf, Key::sizeY);
         double const& size2X = baseVal(otr, Key::sizeX);
         double const& size2Y = baseVal(otr, Key::sizeY);
-        double const& m1 = baseVal(slf, Key::physics_mass);
-        double const& m2 = baseVal(otr, Key::physics_mass);
+        double const& m1 = baseVal(slf, Key::physicsMass);
+        double const& m2 = baseVal(otr, Key::physicsMass);
 
         if (bool const baseCondition = m1 > 0.0 && m2 > 0.0; baseCondition) {
             // Determine if they align along an axis

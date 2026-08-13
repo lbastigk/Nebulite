@@ -93,11 +93,11 @@ public:
         sizeY,
         sizeR,
         // Physics
-        physics_vX,
-        physics_vY,
-        physics_mass,
-        physics_FX,
-        physics_FY,
+        physicsVelocityX,
+        physicsVelocityY,
+        physicsMass,
+        physicsForceX,
+        physicsForceY,
         // Closest X/Y
         clip_closest_N,
         clip_closest_E,

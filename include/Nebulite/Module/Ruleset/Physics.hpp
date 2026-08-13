@@ -110,23 +110,23 @@ public:
         sizeY,
         sizeR,
         // Base Physics values
-        physics_aX,
-        physics_aY,
-        physics_vX,
-        physics_vY,
-        physics_mass,
-        physics_FX,
-        physics_FY,
+        physicsAccelerationX,
+        physicsAccelerationY,
+        physicsVelocityX,
+        physicsVelocityY,
+        physicsMass,
+        physicsForceX,
+        physicsForceY,
         // Correction values
-        physics_correction_X,
-        physics_correction_Y,
-        physics_correction_vX,
-        physics_correction_vY,
+        physicsCorrectionX,
+        physicsCorrectionY,
+        physicsCorrectionVelocityX,
+        physicsCorrectionVelocityY,
         // More specialized keys
-        physics_lastCollisionX,
-        physics_lastCollisionY,
-        physics_lastPositionX,
-        physics_lastPositionY,
+        physicsLastCollisionX,
+        physicsLastCollisionY,
+        physicsLastPositionX,
+        physicsLastPositionY,
     };
 
 private:

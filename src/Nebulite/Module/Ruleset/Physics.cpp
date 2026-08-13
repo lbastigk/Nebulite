@@ -63,8 +63,8 @@ void Physics::elasticCollision(Interaction::Context const& context, double** slf
     double const size1Y = baseVal(slf, Key::sizeY);
     double const size2X = baseVal(otr, Key::sizeX);
     double const size2Y = baseVal(otr, Key::sizeY);
-    double const m1 = baseVal(slf, Key::physics_mass);
-    double const m2 = baseVal(otr, Key::physics_mass);
+    double const m1 = baseVal(slf, Key::physicsMass);
+    double const m2 = baseVal(otr, Key::physicsMass);
 
     // Prioritize circle collision if radius is set (> 0)
     if (radius1 > 0.0 && radius2 > 0.0) {
@@ -109,32 +109,32 @@ void Physics::elasticCollision(Interaction::Context const& context, double** slf
             // We can only check collision time after locking, otherwise it may be overwritten by another thread
             if (conditionX) {
                 // Start Velocities
-                double const v1X = baseVal(slf, Key::physics_vX);
-                double const v2X = baseVal(otr, Key::physics_vX);
+                double const v1X = baseVal(slf, Key::physicsVelocityX);
+                double const v2X = baseVal(otr, Key::physicsVelocityX);
 
                 // Calculate new velocities after collision
                 double const v2NewX = ((m2 - m1) * v2X + 2 * m1 * v1X) / (m1 + m2);
 
                 // Lock and write
                 auto slfLock = context.other.lockDocument();
-                if (baseVal(otr, Key::physics_lastCollisionX) < *globalVal.t) {
-                    baseVal(otr, Key::physics_correction_vX) += v2NewX - v2X;
-                    baseVal(otr, Key::physics_lastCollisionX) = *globalVal.t;
+                if (baseVal(otr, Key::physicsLastCollisionX) < *globalVal.t) {
+                    baseVal(otr, Key::physicsCorrectionVelocityX) += v2NewX - v2X;
+                    baseVal(otr, Key::physicsLastCollisionX) = *globalVal.t;
                 }
             }
             if (conditionY) {
                 // Start Velocities
-                double const v1Y = baseVal(slf, Key::physics_vY);
-                double const v2Y = baseVal(otr, Key::physics_vY);
+                double const v1Y = baseVal(slf, Key::physicsVelocityY);
+                double const v2Y = baseVal(otr, Key::physicsVelocityY);
 
                 // Calculate new velocity after collision
                 double const v2NewY = ((m2 - m1) * v2Y + 2 * m1 * v1Y) / (m1 + m2);
 
                 // Lock and write
                 auto slfLock = context.other.lockDocument();
-                if (baseVal(otr, Key::physics_lastCollisionY) < *globalVal.t) {
-                    baseVal(otr, Key::physics_correction_vY) += v2NewY - v2Y;
-                    baseVal(otr, Key::physics_lastCollisionY) = *globalVal.t;
+                if (baseVal(otr, Key::physicsLastCollisionY) < *globalVal.t) {
+                    baseVal(otr, Key::physicsCorrectionVelocityY) += v2NewY - v2Y;
+                    baseVal(otr, Key::physicsLastCollisionY) = *globalVal.t;
                 }
             }
         }
@@ -150,19 +150,19 @@ void Physics::gravity(Interaction::Context const& context, double** slf, double*
     double const r2 = dx*dx + dy*dy + 1.0;   // softening
     double const invR = 1.0 / std::sqrt(r2);
     double const invR3 = invR * invR * invR;
-    double const coeff = *globalVal.G * baseVal(slf, Key::physics_mass) * baseVal(otr, Key::physics_mass) * invR3;
+    double const coeff = *globalVal.G * baseVal(slf, Key::physicsMass) * baseVal(otr, Key::physicsMass) * invR3;
 
     auto otrLock = context.other.lockDocument();
-    baseVal(otr, Key::physics_FX) += dx * coeff;
-    baseVal(otr, Key::physics_FY) += dy * coeff;
+    baseVal(otr, Key::physicsForceX) += dx * coeff;
+    baseVal(otr, Key::physicsForceY) += dy * coeff;
 }
 
 // Local rulesets
 
 // NOLINTNEXTLINE
 void Physics::storeLastPosition(Interaction::Context const& /*context*/, double** slf, double** /*otr*/) const {
-    baseVal(slf, Key::physics_lastPositionX) = baseVal(slf, Key::posX);
-    baseVal(slf, Key::physics_lastPositionY) = baseVal(slf, Key::posY);
+    baseVal(slf, Key::physicsLastPositionX) = baseVal(slf, Key::posX);
+    baseVal(slf, Key::physicsLastPositionY) = baseVal(slf, Key::posY);
 }
 
 void Physics::applyForce([[maybe_unused]] Interaction::Context const& context, double** slf, double** /*otr*/) const {
@@ -170,9 +170,9 @@ void Physics::applyForce([[maybe_unused]] Interaction::Context const& context, d
 
     // Pre-calculate values before locking
     double const dt = *globalVal.dt;
-    double const invMass = 1.0 / baseVal(slf, Key::physics_mass);
-    double const aX = baseVal(slf, Key::physics_FX) * invMass;
-    double const aY = baseVal(slf, Key::physics_FY) * invMass;
+    double const invMass = 1.0 / baseVal(slf, Key::physicsMass);
+    double const aX = baseVal(slf, Key::physicsForceX) * invMass;
+    double const aY = baseVal(slf, Key::physicsForceY) * invMass;
     double const dvX = aX * dt;
     double const dvY = aY * dt;
 
@@ -181,37 +181,37 @@ void Physics::applyForce([[maybe_unused]] Interaction::Context const& context, d
     //auto slfLock = context.self.lockDocument();
 
     // Acceleration is based on F
-    baseVal(slf, Key::physics_aX) = aX;
-    baseVal(slf, Key::physics_aY) = aY;
+    baseVal(slf, Key::physicsAccelerationX) = aX;
+    baseVal(slf, Key::physicsAccelerationY) = aY;
 
     // Velocity and Position is based on integration of Acceleration over dt
-    baseVal(slf, Key::physics_vX) += dvX;
-    baseVal(slf, Key::physics_vY) += dvY;
-    baseVal(slf, Key::posX) += baseVal(slf, Key::physics_vX) * dt;
-    baseVal(slf, Key::posY) += baseVal(slf, Key::physics_vY) * dt;
+    baseVal(slf, Key::physicsVelocityX) += dvX;
+    baseVal(slf, Key::physicsVelocityY) += dvY;
+    baseVal(slf, Key::posX) += baseVal(slf, Key::physicsVelocityX) * dt;
+    baseVal(slf, Key::posY) += baseVal(slf, Key::physicsVelocityY) * dt;
 
     // Force reset after application
-    baseVal(slf, Key::physics_FX) = 0.0;
-    baseVal(slf, Key::physics_FY) = 0.0;
+    baseVal(slf, Key::physicsForceX) = 0.0;
+    baseVal(slf, Key::physicsForceY) = 0.0;
 }
 
 // NOLINTNEXTLINE
 void Physics::applyCorrection(Interaction::Context const& context, double** slf, double** /*otr*/) const {
     // Check if any corrections are significant enough to apply (greater than a small epsilon)
-    if (!Math::isZero(baseVal(slf, Key::physics_correction_X))  || !Math::isZero(baseVal(slf, Key::physics_correction_Y))
-     || !Math::isZero(baseVal(slf, Key::physics_correction_vX)) || !Math::isZero(baseVal(slf, Key::physics_correction_vY))) {
+    if (!Math::isZero(baseVal(slf, Key::physicsCorrectionX))  || !Math::isZero(baseVal(slf, Key::physicsCorrectionY))
+     || !Math::isZero(baseVal(slf, Key::physicsCorrectionVelocityX)) || !Math::isZero(baseVal(slf, Key::physicsCorrectionVelocityY))) {
         // Lock and apply corrections
         auto slfLock = context.self.lockDocument();
-        baseVal(slf, Key::posX) += baseVal(slf, Key::physics_correction_X);
-        baseVal(slf, Key::posY) += baseVal(slf, Key::physics_correction_Y);
-        baseVal(slf, Key::physics_vX) += baseVal(slf, Key::physics_correction_vX);
-        baseVal(slf, Key::physics_vY) += baseVal(slf, Key::physics_correction_vY);
+        baseVal(slf, Key::posX) += baseVal(slf, Key::physicsCorrectionX);
+        baseVal(slf, Key::posY) += baseVal(slf, Key::physicsCorrectionY);
+        baseVal(slf, Key::physicsVelocityX) += baseVal(slf, Key::physicsCorrectionVelocityX);
+        baseVal(slf, Key::physicsVelocityY) += baseVal(slf, Key::physicsCorrectionVelocityY);
 
         // Reset corrections after application
-        baseVal(slf, Key::physics_correction_X) = 0.0;
-        baseVal(slf, Key::physics_correction_Y) = 0.0;
-        baseVal(slf, Key::physics_correction_vX) = 0.0;
-        baseVal(slf, Key::physics_correction_vY) = 0.0;
+        baseVal(slf, Key::physicsCorrectionX) = 0.0;
+        baseVal(slf, Key::physicsCorrectionY) = 0.0;
+        baseVal(slf, Key::physicsCorrectionVelocityX) = 0.0;
+        baseVal(slf, Key::physicsCorrectionVelocityY) = 0.0;
     }
 }
 
@@ -221,15 +221,15 @@ void Physics::drag(Interaction::Context const& context, double** slf, double** /
     static constexpr double dragCoefficient = 0.1;
 
     // Pre-calculate drag forces before locking
-    double const vX = baseVal(slf, Key::physics_vX);
-    double const vY = baseVal(slf, Key::physics_vY);
+    double const vX = baseVal(slf, Key::physicsVelocityX);
+    double const vY = baseVal(slf, Key::physicsVelocityY);
     double const dragForceX = -dragCoefficient * vX;
     double const dragForceY = -dragCoefficient * vY;
 
     // Lock and apply drag forces
     auto slfLock = context.self.lockDocument();
-    baseVal(slf, Key::physics_FX) += dragForceX;
-    baseVal(slf, Key::physics_FY) += dragForceY;
+    baseVal(slf, Key::physicsForceX) += dragForceX;
+    baseVal(slf, Key::physicsForceY) += dragForceY;
 }
 
 } // namespace Nebulite::Module::Ruleset
