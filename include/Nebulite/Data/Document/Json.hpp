@@ -512,7 +512,7 @@ public:
      * @details Note that the current implementation is more of a copy+delete! Using just copyMember is faster if you don't need the original deleted.
      * @param fromKey The key of the member to move.
      * @param toKey The key to move the member to.
-     * @todo Optimize to a real move if possible.
+     * @note If the value in fromKey does not exist, toKey will be set to null.
      */
     void moveMember(std::string_view fromKey, std::string_view toKey);
 
