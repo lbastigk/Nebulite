@@ -28,6 +28,10 @@
         "expected": { "cout": [], "cerr": [] }
     },
     {
+        "command": "task TaskFiles/Tests/JSON/Transformations/Array/batch.nebs",
+        "expected": { "cout": [], "cerr": [] }
+    },
+    {
         "command": "task TaskFiles/Tests/JSON/Transformations/Array/bundle.nebs",
         "expected": { "cout": [], "cerr": [] }
     },
