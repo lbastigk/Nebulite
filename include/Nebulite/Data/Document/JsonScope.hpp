@@ -219,6 +219,9 @@ public:
     void setComplex(ScopedKeyView const& key, std::complex<double> const& value);
     void setComplex(ScopedKey const& key, std::complex<double> const& value);
 
+    void setEmptyObject(ScopedKeyView const& key);
+    void setEmptyObject(ScopedKey const& key);
+
     //------------------------------------------
     // Special sets for threadsafe maths operations
 
