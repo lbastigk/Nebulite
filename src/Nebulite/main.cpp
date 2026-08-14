@@ -41,14 +41,12 @@
 //------------------------------------------
 // Constants
 
-namespace {
-struct MainReturnValues {
-    static constexpr int success = 0;
-    static constexpr int criticalError = 1;
-    static constexpr int logCloseError = 2;
-    static constexpr int logCloseException = 3;
-};
-} // namespace
+namespace MainReturnValue {
+    static int constexpr success = 0;
+    static int constexpr criticalError = 1;
+    static int constexpr logCloseError = 2;
+    static int constexpr logCloseException = 3;
+} // namespace MainReturnValue
 
 //------------------------------------------
 // NEBULITE main
@@ -88,16 +86,16 @@ int main(int const argc, char const** argv) {
         auto const command = binaryName + " " + std::string(Nebulite::Module::Domain::GlobalSpace::Debug::errorLogName) + " off";
         if (auto const event = global.parseStr(command, ctx, dummyCtxScope); event != Nebulite::Constants::Event::success) {
             capture.error.println("Could not close log properly!");
-            return MainReturnValues::logCloseError; // Closing log failed without exceptions
+            return MainReturnValue::logCloseError; // Closing log failed without exceptions
         }
     } catch (std::exception const& e) {
         capture.error.println("Exception during error log closure: ", e.what());
-        return MainReturnValues::logCloseException; // Return a different error code for log closing failure with exceptions
+        return MainReturnValue::logCloseException; // Return a different error code for log closing failure with exceptions
     }
 
     // Return 1 on critical stop, 0 otherwise
     if (global.criticalErrorOccurred()) {
-        return MainReturnValues::criticalError;
+        return MainReturnValue::criticalError;
     }
-    return MainReturnValues::success;
+    return MainReturnValue::success;
 }
