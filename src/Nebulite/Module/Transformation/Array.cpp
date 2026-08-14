@@ -3,6 +3,7 @@
 
 // Standard library
 #include <algorithm>
+#include <cassert>
 #include <cstddef>
 #include <cstdint> // NOLINT
 #include <ranges>
@@ -14,6 +15,7 @@
 #include "Nebulite/Data/Document/JsonScope.hpp"
 #include "Nebulite/Data/Document/KeyType.hpp"
 #include "Nebulite/Module/Transformation/Array.hpp"
+#include "Nebulite/Utility/Convert/Cast.hpp"
 #include "Nebulite/Utility/StringHandler.hpp"
 
 //------------------------------------------
@@ -34,6 +36,8 @@ void Array::bindTransformations() {
     bindTransformation(&Array::push, pushName, pushDesc);
     bindTransformation(&Array::pushNumber, pushNumberName, pushNumberDesc);
     bindTransformation(&Array::enumerate, enumerateName, enumerateDesc);
+    bindTransformation(&Array::batch, batchName, batchDesc);
+    bindTransformation(&Array::batchPadded, batchPaddedName, batchPaddedDesc);
 
     // Generate
     bindTransformation(&Array::iota, iotaName, iotaDesc);
@@ -259,6 +263,79 @@ bool Array::enumerate(std::span<std::string_view const> const& args, Data::JsonS
             jsonDoc.set(key, i);
         }
     );
+    return true;
+}
+
+namespace {
+
+std::size_t calculateRequiredBatchSize(std::size_t arraySize, std::size_t batchSize) {
+    if (arraySize % batchSize == 0) {
+        return arraySize / batchSize;
+    }
+    return arraySize / batchSize + 1;
+}
+
+bool allArraysEqualInSize(Data::JsonScope const& jsonDoc, Data::ScopedKeyView const& rootKey, std::size_t expectedSize) {
+    if (jsonDoc.memberType(rootKey) != Data::KeyType::array) {
+        return false;
+    }
+    return std::ranges::all_of(
+        jsonDoc.arrayKeys(rootKey),
+        [&](Data::ScopedKey const& key) {
+            return jsonDoc.memberType(key) == Data::KeyType::array && jsonDoc.memberSize(key) == expectedSize;
+        }
+    );
+}
+
+} // namespace
+
+bool Array::batch(std::span<std::string_view const> const& args, Data::JsonScope& jsonDoc){
+    // Validate arguments and input
+    if (args.size() < 2) return false;
+    auto const size = Utility::Convert::Cast::String::to<std::size_t>(args.at(1));
+    if (!size.has_value()) return false;
+    if (size.value() == 0) return false;
+    if (jsonDoc.memberType(rootKey) != Data::KeyType::array) return false;
+
+    // Edge case: if the array is empty, we still want to create a single empty batch
+    auto arraySize = jsonDoc.memberSize(rootKey);
+    if (arraySize == 0) {
+        jsonDoc.setEmptyArray(rootKey.addIndex(0));
+        return true;
+    }
+
+    // Batch the array into subarrays of the specified size, moving members to their new locations
+    // JsonScope::moveMember modifies the array size, so we need to keep track of the batch index separately
+    std::size_t oldIndex = 0;
+    for (auto const index : std::views::iota(std::size_t{0}, arraySize)) {
+        auto const newBatchIndex = index / size.value();
+        auto const batchArrayIndex = index % size.value();
+
+        auto const oldKey = rootKey.addIndex(oldIndex);
+        auto const newKey = rootKey.addIndex(newBatchIndex).addIndex(batchArrayIndex);
+        jsonDoc.moveMember(oldKey, newKey);
+
+        // See if we modified the array size during the move
+        if (oldIndex == newBatchIndex) {
+            ++oldIndex;
+        }
+    }
+
+    assert(jsonDoc.memberSize(rootKey) == calculateRequiredBatchSize(arraySize, size.value()));
+    return true;
+}
+
+bool Array::batchPadded(std::span<std::string_view const> const& args, Data::JsonScope& jsonDoc){
+    if (!batch(args, jsonDoc)) return false;
+    auto const size = Utility::Convert::Cast::String::to<std::size_t>(args.at(1));
+    if (!size.has_value()) return false;
+    auto const lastBatch = rootKey.addIndex(jsonDoc.memberSize(rootKey) - 1);
+    while (jsonDoc.memberSize(lastBatch) < size.value()) {
+        auto const newIndex = jsonDoc.memberSize(lastBatch);
+        auto const newKey = lastBatch.addIndex(newIndex);
+        jsonDoc.setEmptyObject(newKey);
+    }
+    assert(allArraysEqualInSize(jsonDoc, rootKey, size.value()));
     return true;
 }
 

@@ -106,6 +106,16 @@ public:
         "Usage: |enumerate <indexKey> -> {array}\n"
         "Where indexKey is the key of each array element to populate with the index of the element in the array.\n";
 
+    static bool batch(std::span<std::string_view const> const& args, Data::JsonScope& jsonDoc);
+    static auto constexpr batchName = "batch";
+    static auto constexpr batchDesc = "Batches the array in the current JSON value into subarrays of the specified size.\n"
+        "Usage: |batch <size> -> {array}\n";
+
+    static bool batchPadded(std::span<std::string_view const> const& args, Data::JsonScope& jsonDoc);
+    static auto constexpr batchPaddedName = "batchPadded";
+    static auto constexpr batchPaddedDesc = "Batches the array in the current JSON value into subarrays of the specified size, padding the last batch with empty objects if necessary.\n"
+            "Usage: |batchPadded <size> -> {array}\n";
+
     // Generate
 
     static bool iota(std::span<std::string_view const> const& args, Data::JsonScope& jsonDoc);
