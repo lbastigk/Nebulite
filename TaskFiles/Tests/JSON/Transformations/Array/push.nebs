@@ -4,23 +4,24 @@ set arr[1] 2
 set arr[2] 3
 
 # Calculate
-assign global:result.a = {global:arr|push text|push 1234|pushNumber 1234}
-assign global:result.b = {|push first|push second|push third}
+assign global:result.startFilled = {global:arr|push text|push 1234|pushNumber 1234}
+assign global:result.startEmpty = {|push first|push second|push third}
 
-# Verify
-eval nop {global:result.a|assert type array}
-eval nop {global:result.a|length|assert equals int 6}
-eval nop {global:result.a|at 0|assert equals int 1}
-eval nop {global:result.a|at 1|assert equals int 2}
-eval nop {global:result.a|at 2|assert equals int 3}
-eval nop {global:result.a|at 3|assert equals string text}
-eval nop {global:result.a|at 4|assert equals string 1234}
-eval nop {global:result.a|at 5|assert equals int 1234}
+# Verify: a
+eval nop {global:result.startFilled|assert type array}
+eval nop {global:result.startFilled|length|assert equals int 6}
+eval nop {global:result.startFilled|at 0|assert equals int 1}
+eval nop {global:result.startFilled|at 1|assert equals int 2}
+eval nop {global:result.startFilled|at 2|assert equals int 3}
+eval nop {global:result.startFilled|at 3|assert equals string text}
+eval nop {global:result.startFilled|at 4|assert equals string 1234}
+eval nop {global:result.startFilled|at 5|assert equals int 1234}
 
-eval nop {global:result.b|assert type array}
-eval nop {global:result.b|length|assert equals int 3}
-eval nop {global:result.b|at 0|assert equals string first}
-eval nop {global:result.b|at 1|assert equals string second}
-eval nop {global:result.b|at 2|assert equals string third}
+# Verify: b
+eval nop {global:result.startEmpty|assert type array}
+eval nop {global:result.startEmpty|length|assert equals int 3}
+eval nop {global:result.startEmpty|at 0|assert equals string first}
+eval nop {global:result.startEmpty|at 1|assert equals string second}
+eval nop {global:result.startEmpty|at 2|assert equals string third}
 
 exit
