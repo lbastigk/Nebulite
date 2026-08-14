@@ -3,6 +3,7 @@
 
 // Standard library
 #include <string>
+#include <type_traits>
 
 // Nebulite
 #include "Nebulite/Core/GlobalSpace.hpp"
@@ -11,11 +12,12 @@
 #include "Nebulite/ScopeAccessor.hpp"
 
 //------------------------------------------
-// Forward declarations
-
-namespace Nebulite::Utility::Io {
-class Capture;
-} // namespace Nebulite::Utility::Io
+namespace {
+Nebulite::Data::Json& globalDoc() noexcept(std::is_nothrow_constructible_v<Nebulite::Data::Json>) {
+    static Nebulite::Data::Json instance;
+    return instance;
+}
+} // namespace
 
 //------------------------------------------
 namespace Nebulite {
@@ -36,14 +38,6 @@ Data::JsonScope& Global::shareScope(ScopeAccessor::BaseAccessToken const& at, st
 
 Utility::Io::Capture& Global::capture() {
     return instance().capture;
-}
-
-//------------------------------------------
-// Private methods
-
-Data::Json& Global::globalDoc() {
-    static Data::Json instance;
-    return instance;
 }
 
 } // namespace Nebulite

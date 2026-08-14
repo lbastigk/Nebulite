@@ -67,14 +67,6 @@ public:
      * @return Reference to the global capture instance.
      */
     static Utility::Io::Capture& capture();
-
-private:
-    /**
-     * @brief Provides access to the global JSON document.
-     * @return Reference to the global JSON document.
-     */
-    static Data::Json& globalDoc();
 };
-
 } // namespace Nebulite
 #endif // NEBULITE_NEBULITE_HPP
