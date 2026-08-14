@@ -203,13 +203,17 @@ bool Array::reverse(Data::JsonScope& jsonDoc) {
     return true;
 }
 
-// Clang marks this function as having an unreachable branch,
-// because it thinks the first branch always returns true?
-// Disable the warning for this function.
-// NOLINTNEXTLINE
 bool Array::ensureArray(Data::JsonScope& jsonDoc) {
-    // Cache the original member type to avoid the analyzer thinking the second branch is unreachable
-    if (jsonDoc.memberType(rootKey) == Data::KeyType::array) {
+    auto type = jsonDoc.memberType(rootKey);
+
+    // Already array, nothing to do
+    if (type == Data::KeyType::array) {
+        return true;
+    }
+
+    // No value stored, set to empty array
+    if (type == Data::KeyType::null) {
+        jsonDoc.setEmptyArray(rootKey);
         return true;
     }
 
@@ -296,13 +300,10 @@ bool Array::batch(std::span<std::string_view const> const& args, Data::JsonScope
     if (!size.has_value()) return false;
     if (size.value() == 0) return false;
     if (jsonDoc.memberType(rootKey) != Data::KeyType::array) return false;
-
-    // Edge case: if the array is empty, we still want to create a single empty batch
     auto arraySize = jsonDoc.memberSize(rootKey);
-    if (arraySize == 0) {
-        jsonDoc.setEmptyArray(rootKey.addIndex(0));
-        return true;
-    }
+
+    // Edge case: do not modify empty arrays
+    if (arraySize == 0) return true;
 
     // Batch the array into subarrays of the specified size, moving members to their new locations
     // JsonScope::moveMember modifies the array size, so we need to keep track of the batch index separately
@@ -316,6 +317,7 @@ bool Array::batch(std::span<std::string_view const> const& args, Data::JsonScope
         jsonDoc.moveMember(oldKey, newKey);
 
         // See if we modified the array size during the move
+        // If not, we need to increment the oldIndex to keep up with the next element to move
         if (oldIndex == newBatchIndex) {
             ++oldIndex;
         }
