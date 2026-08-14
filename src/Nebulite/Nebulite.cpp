@@ -20,24 +20,24 @@ Nebulite::Data::Json& globalDoc() noexcept(std::is_nothrow_constructible_v<Nebul
 } // namespace
 
 //------------------------------------------
-namespace Nebulite {
+namespace Nebulite::Global {
 
-Core::GlobalSpace& Global::instance(){
+Core::GlobalSpace& instance(){
     static Core::GlobalSpace instance{"Nebulite"};
     return instance;
 }
 
-Data::JsonScope const& Global::settings() {
+Data::JsonScope const& settings() {
     static auto const& settingsScopeConst = globalDoc().shareManagedScope("settings");
     return settingsScopeConst;
 }
 
-Data::JsonScope& Global::shareScope(ScopeAccessor::BaseAccessToken const& at, std::string const& prefix) {
+Data::JsonScope& shareScope(ScopeAccessor::BaseAccessToken const& at, std::string const& prefix) {
     return globalDoc().shareManagedScope(at.getPrefix() + prefix);
 }
 
-Utility::Io::Capture& Global::capture() {
+Utility::Io::Capture& capture() {
     return instance().capture;
 }
 
-} // namespace Nebulite
+} // namespace Nebulite::Global

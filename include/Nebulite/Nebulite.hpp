@@ -29,23 +29,18 @@ class Capture;
 //------------------------------------------
 // Global class for singleton access
 
-namespace Nebulite {
-/**
- * @brief Static class to provide access to the global GlobalSpace singleton, its document and selected global JSON document scopes.
- */
-class Global final {
-public:
+namespace Nebulite::Global {
     /**
      * @brief Provides access to the global GlobalSpace singleton.
      * @return Reference to the global GlobalSpace instance.
      */
-    static Core::GlobalSpace& instance();
+    Core::GlobalSpace& instance();
 
     /**
      * @brief Provides access to the global settings scope in the global JSON document.
      * @return Constant reference to the settings JsonScope.
      */
-    [[nodiscard]] static Data::JsonScope const& settings();
+    [[nodiscard]] Data::JsonScope const& settings();
 
     //------------------------------------------
     // Provide access based on access token and its prefix
@@ -56,7 +51,7 @@ public:
      * @param prefix Prefix to append to the access token's prefix for scope retrieval.
      * @return Reference to the shared JsonScope.
      */
-    [[nodiscard]] static Data::JsonScope& shareScope(ScopeAccessor::BaseAccessToken const& at, std::string const& prefix = "");
+    [[nodiscard]] Data::JsonScope& shareScope(ScopeAccessor::BaseAccessToken const& at, std::string const& prefix = "");
 
     //------------------------------------------
     // Capture access
@@ -66,7 +61,6 @@ public:
      * @details Whenever possible, use the local capture provided by the Domain (or DomainModule) instead of this global capture, to ensure proper hierarchical capture behavior.
      * @return Reference to the global capture instance.
      */
-    static Utility::Io::Capture& capture();
-};
-} // namespace Nebulite
+    Utility::Io::Capture& capture();
+} // namespace Nebulite::Global
 #endif // NEBULITE_NEBULITE_HPP
