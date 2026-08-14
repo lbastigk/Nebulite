@@ -458,6 +458,14 @@ void Json::setEmptyArray(std::string_view const key) {
     val->SetArray();
 }
 
+void Json::setEmptyObject(std::string_view const key) {
+    std::scoped_lock const lockGuard(mtx);
+    helperNonConstVar++; // Signal non-const operation
+    flush(key);
+    rapidjson::Value* val = RjDirectAccess::ensurePath(key, doc, doc.GetAllocator());
+    val->SetObject();
+}
+
 //------------------------------------------
 // Serialize/Deserialize
 
@@ -652,14 +660,27 @@ void Json::moveMember(std::string_view const fromKey, std::string_view const toK
             for (auto const keys = listAvailableMembers(); auto const& key : keys) {
                 if (key != toKeyStr) removeMember(key);
             }
-
-            return;
         }
+        // Edge case 3: if fromKey starts with an array, the temporary key must be inside the array to avoid collisions
+        else if (fromKey.starts_with(SpecialCharacter::arrayOpen)) {
+            auto const arraySize = memberSize("");
+            std::string tempKey = std::string("[") + std::to_string(arraySize) + "]"; // Unlikely to collide with existing keys
 
-        std::string const tempKey = std::string("__temp_move_") + fromKey; // Unlikely to collide with existing keys
-        setSubDoc(tempKey, *this, fromKey);
-        setSubDoc(toKey, *this, tempKey);
-        removeMember(tempKey);
+            // Edge case 4: If the new temp key collides with toKey, we need to find a new temp key
+            if (toKey.starts_with(tempKey)) {
+                tempKey = std::string("[") + std::to_string(arraySize + 1) + "]"; // Unlikely to collide with existing keys
+            }
+
+            setSubDoc(tempKey, *this, fromKey);
+            setSubDoc(toKey, *this, tempKey);
+            removeMember(tempKey);
+        }
+        else {
+            std::string const tempKey = std::string("__temp_move_") + fromKey; // Unlikely to collide with existing keys
+            setSubDoc(tempKey, *this, fromKey);
+            setSubDoc(toKey, *this, tempKey);
+            removeMember(tempKey);
+        }
     }
     else {
         // Direct move without temporary key
