@@ -124,7 +124,7 @@ public:
     static bool slide(std::span<std::string_view const> const& args, Data::JsonScope& jsonDoc);
     static auto constexpr slideName = "slide";
     static auto constexpr slideDesc = "Slides the array in the current JSON value by the specified size, generating overlapping windows.\n"
-        "Usage: |slide <size> -> {array of arrays}\n";
+        "Usage: |slide <size> -> {array}\n";
 
     // Generate
 
