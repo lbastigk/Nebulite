@@ -184,14 +184,14 @@ bool insertIntoArray(Data::Json& tmp, std::size_t& index, Data::JsonScope const&
     return true;
 }
 
-[[maybe_unused]] std::size_t calculateRequiredBatchSize(std::size_t arraySize, std::size_t batchSize) {
+[[maybe_unused]] std::size_t calculateRequiredBatchSize(std::size_t const arraySize, std::size_t const batchSize) {
     if (arraySize % batchSize == 0) {
         return arraySize / batchSize;
     }
     return arraySize / batchSize + 1;
 }
 
-[[maybe_unused]] bool allArraysEqualInSize(Data::JsonScope const& jsonDoc, Data::ScopedKeyView const& rootKey, std::size_t expectedSize) {
+[[maybe_unused]] bool allArraysEqualInSize(Data::JsonScope const& jsonDoc, Data::ScopedKeyView const& rootKey, std::size_t const expectedSize) {
     if (jsonDoc.memberType(rootKey) != Data::KeyType::array) {
         return false;
     }
@@ -350,7 +350,7 @@ bool Array::iota(std::span<std::string_view const> const& args, Data::JsonScope&
 // Other
 
 bool Array::ensureArray(Data::JsonScope& jsonDoc) {
-    auto type = jsonDoc.memberType(rootKey);
+    auto const type = jsonDoc.memberType(rootKey);
 
     // Already array, nothing to do
     if (type == Data::KeyType::array) {
