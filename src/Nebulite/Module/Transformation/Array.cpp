@@ -331,11 +331,13 @@ bool Array::batch(std::span<std::string_view const> const& args, Data::JsonScope
 }
 
 bool Array::batchPadded(std::span<std::string_view const> const& args, Data::JsonScope& jsonDoc){
-    if (!batch(args, jsonDoc)) return false;
-    auto const size = Utility::Convert::Cast::String::to<std::size_t>(args.at(1));
-    if (!size.has_value()) return false;
-    auto const lastBatch = rootKey.addIndex(jsonDoc.memberSize(rootKey) - 1);
-    while (jsonDoc.memberSize(lastBatch) < size.value()) {
+if (!batch(args, jsonDoc)) return false;
+auto const size = Utility::Convert::Cast::String::to<std::size_t>(args.at(1));
+if (!size.has_value()) return false;
+auto const batchCount = jsonDoc.memberSize(rootKey);
+if (batchCount == 0) return true;
+auto const lastBatch = rootKey.addIndex(batchCount - 1);
+while (jsonDoc.memberSize(lastBatch) < size.value()) {
         auto const newIndex = jsonDoc.memberSize(lastBatch);
         auto const newKey = lastBatch.addIndex(newIndex);
         jsonDoc.setEmptyObject(newKey);
