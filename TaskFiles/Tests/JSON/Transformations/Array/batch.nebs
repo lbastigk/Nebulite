@@ -9,8 +9,8 @@ assign self:result.batch = {self:data.arr|batch 5}
 assign self:result.batchPadded = {self:data.arr|batchPadded 5}
 
 # Verify result: emptyBatch
+eval nop {self:result.emptyBatch|assert type array}
 eval nop {self:result.emptyBatch|length|assert equals int 0}
-eval nop {self:result.emptyBatch[0]|length|assert equals int 0}
 
 # Verify result: batch
 eval nop {self:result.batch|length|assert equals int 5}
