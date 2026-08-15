@@ -1,0 +1,17 @@
+# Check the stride transformation
+
+# Setup data
+for i 0 22 set data.arr[{i}] {i}
+
+# Calculate
+assign self:result.emptyStride = {|ensureArray|stride 5}
+assign self:result.stride = {self:data.arr|stride 5}
+
+# Verify: Empty stride
+eval nop {self:result.emptyStride|assert type array}
+eval nop {self:result.emptyStride|length|assert equals int 0}
+
+# Verify: Stride
+eval nop {self:result.stride|assert type array}
+eval nop {self:result.stride|length|assert equals int 5}
+for arrIdx 0 4 eval nop {self:result.stride[{arrIdx}]|assert equals int $({arrIdx}*5)}

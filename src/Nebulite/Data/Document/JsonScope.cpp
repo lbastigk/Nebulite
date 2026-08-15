@@ -191,6 +191,14 @@ void JsonScope::setComplex(ScopedKey const& key, std::complex<double> const& val
     setComplex(key.view(), value);
 }
 
+void JsonScope::setEmptyObject(ScopedKeyView const& key){
+    doc().setEmptyObject(key.full(*this));
+}
+
+void JsonScope::setEmptyObject(ScopedKey const& key) {
+    setEmptyObject(key.view());
+}
+
 //------------------------------------------
 // Special sets for threadsafe maths operations
 

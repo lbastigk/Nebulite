@@ -311,7 +311,7 @@ public:
      *               If empty, shares the entire document.
      * @return A JsonScope reference representing a part of the JSON document.
      */
-    JsonScope& shareManagedScope(std::string_view prefix) ;
+    JsonScope& shareManagedScope(std::string_view prefix);
 
     JsonScope& getDummyScope();
 
@@ -350,7 +350,7 @@ public:
      * @param key The key of the value to set.
      * @param val The value to set.
      */
-    template <typename T> void set(std::string_view key, T const& val) ;
+    template <typename T> void set(std::string_view key, T const& val);
 
     /**
      * @brief Sets a variant value of supported simple values in the JSON document.
@@ -368,7 +368,7 @@ public:
      * @param child The sub-document to set.
      * @param childKey The key in the child document to set as the root of the sub-document. If empty, the entire child document is used.
      */
-    void setSubDoc(std::string_view key, Json const& child, std::string_view childKey = "") ;
+    void setSubDoc(std::string_view key, Json const& child, std::string_view childKey = "");
 
     /**
      * @brief Sets an empty array in the JSON document.
@@ -377,7 +377,16 @@ public:
      *          Note that the document is flushed before setting.
      * @param key The key of the array to set.
      */
-    void setEmptyArray(std::string_view key) ;
+    void setEmptyArray(std::string_view key);
+
+    /**
+     * @brief Sets an empty object in the JSON document.
+     * @details This function sets an empty object in the JSON document.
+     *          If the key already exists, the object is updated.
+     *          Note that the document is flushed before setting.
+     * @param key The key of the object to set.
+     */
+    void setEmptyObject(std::string_view key);
 
     //------------------------------------------
     // Special sets for threadsafe maths operations
@@ -503,7 +512,7 @@ public:
      * @details Note that the current implementation is more of a copy+delete! Using just copyMember is faster if you don't need the original deleted.
      * @param fromKey The key of the member to move.
      * @param toKey The key to move the member to.
-     * @todo Optimize to a real move if possible.
+     * @note If the value in fromKey does not exist, toKey will be set to null.
      */
     void moveMember(std::string_view fromKey, std::string_view toKey);
 
