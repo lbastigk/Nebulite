@@ -16,6 +16,7 @@
 #include "Nebulite/Data/Document/KeyType.hpp"
 #include "Nebulite/Module/Transformation/Array.hpp"
 #include "Nebulite/Utility/Convert/Cast.hpp"
+#include "Nebulite/Utility/Ranges.hpp"
 #include "Nebulite/Utility/StringHandler.hpp"
 
 //------------------------------------------
@@ -38,6 +39,8 @@ void Array::bindTransformations() {
     bindTransformation(&Array::enumerate, enumerateName, enumerateDesc);
     bindTransformation(&Array::batch, batchName, batchDesc);
     bindTransformation(&Array::batchPadded, batchPaddedName, batchPaddedDesc);
+    bindTransformation(&Array::stride, strideName, strideDesc);
+    bindTransformation(&Array::slide, slideName, slideDesc);
 
     // Generate
     bindTransformation(&Array::iota, iotaName, iotaDesc);
@@ -272,14 +275,14 @@ bool Array::enumerate(std::span<std::string_view const> const& args, Data::JsonS
 
 namespace {
 
-std::size_t calculateRequiredBatchSize(std::size_t arraySize, std::size_t batchSize) {
+[[maybe_unused]] std::size_t calculateRequiredBatchSize(std::size_t arraySize, std::size_t batchSize) {
     if (arraySize % batchSize == 0) {
         return arraySize / batchSize;
     }
     return arraySize / batchSize + 1;
 }
 
-bool allArraysEqualInSize(Data::JsonScope const& jsonDoc, Data::ScopedKeyView const& rootKey, std::size_t expectedSize) {
+[[maybe_unused]] bool allArraysEqualInSize(Data::JsonScope const& jsonDoc, Data::ScopedKeyView const& rootKey, std::size_t expectedSize) {
     if (jsonDoc.memberType(rootKey) != Data::KeyType::array) {
         return false;
     }
@@ -338,6 +341,38 @@ bool Array::batchPadded(std::span<std::string_view const> const& args, Data::Jso
         jsonDoc.setEmptyObject(newKey);
     }
     assert(allArraysEqualInSize(jsonDoc, rootKey, size.value()));
+    return true;
+}
+
+bool Array::stride(std::span<std::string_view const> const& args, Data::JsonScope& jsonDoc){
+    if (args.size() < 2) return false;
+    auto const size = Utility::Convert::Cast::String::to<std::size_t>(args.at(1));
+    if (!size.has_value()) return false;
+    if (size.value() == 0) return false;
+    if (jsonDoc.memberType(rootKey) != Data::KeyType::array) return false;
+    Data::JsonScope tmp;
+    tmp.setEmptyArray(rootKey);
+    for (auto const [index, key] : jsonDoc.arrayKeys(rootKey) | std::views::stride(size.value()) | Utility::Ranges::enumerate) {
+        tmp.setSubDoc(rootKey.addIndex(index), jsonDoc.getSubDoc(key));
+    }
+    jsonDoc.setSubDoc(rootKey, tmp);
+    return true;
+}
+
+bool Array::slide(std::span<std::string_view const> const& args, Data::JsonScope& jsonDoc){
+    if (args.size() < 2) return false;
+    auto const size = Utility::Convert::Cast::String::to<std::size_t>(args.at(1));
+    if (!size.has_value()) return false;
+    if (size.value() == 0) return false;
+    if (jsonDoc.memberType(rootKey) != Data::KeyType::array) return false;
+    Data::JsonScope tmp;
+    tmp.setEmptyArray(rootKey);
+    for (auto const [index, keys] : jsonDoc.arrayKeys(rootKey) | std::views::slide(size.value()) | Utility::Ranges::enumerate) {
+        for (auto const [subIndex, key] : keys | Utility::Ranges::enumerate) {
+            tmp.setSubDoc(rootKey.addIndex(index).addIndex(subIndex), jsonDoc.getSubDoc(key));
+        }
+    }
+    jsonDoc.setSubDoc(rootKey, tmp);
     return true;
 }
 

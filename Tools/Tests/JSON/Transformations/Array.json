@@ -36,6 +36,14 @@
         "expected": { "cout": [], "cerr": [] }
     },
     {
+        "command": "task TaskFiles/Tests/JSON/Transformations/Array/stride.nebs",
+        "expected": { "cout": [], "cerr": [] }
+    },
+    {
+        "command": "task TaskFiles/Tests/JSON/Transformations/Array/slide.nebs",
+        "expected": { "cout": [], "cerr": [] }
+    },
+    {
         "command": "task TaskFiles/Tests/JSON/Transformations/Array/iota.nebs",
         "expected": { "cout": [], "cerr": [] }
     }
