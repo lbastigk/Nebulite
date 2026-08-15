@@ -3,6 +3,7 @@
 
 // Standard library
 #include <algorithm>
+#include <cassert>
 #include <cstddef>
 #include <cstdint> // NOLINT
 #include <ranges>
@@ -14,6 +15,8 @@
 #include "Nebulite/Data/Document/JsonScope.hpp"
 #include "Nebulite/Data/Document/KeyType.hpp"
 #include "Nebulite/Module/Transformation/Array.hpp"
+#include "Nebulite/Utility/Convert/Cast.hpp"
+#include "Nebulite/Utility/Ranges.hpp"
 #include "Nebulite/Utility/StringHandler.hpp"
 
 //------------------------------------------
@@ -34,6 +37,10 @@ void Array::bindTransformations() {
     bindTransformation(&Array::push, pushName, pushDesc);
     bindTransformation(&Array::pushNumber, pushNumberName, pushNumberDesc);
     bindTransformation(&Array::enumerate, enumerateName, enumerateDesc);
+    bindTransformation(&Array::batch, batchName, batchDesc);
+    bindTransformation(&Array::batchPadded, batchPaddedName, batchPaddedDesc);
+    bindTransformation(&Array::stride, strideName, strideDesc);
+    bindTransformation(&Array::slide, slideName, slideDesc);
 
     // Generate
     bindTransformation(&Array::iota, iotaName, iotaDesc);
@@ -199,13 +206,17 @@ bool Array::reverse(Data::JsonScope& jsonDoc) {
     return true;
 }
 
-// Clang marks this function as having an unreachable branch,
-// because it thinks the first branch always returns true?
-// Disable the warning for this function.
-// NOLINTNEXTLINE
 bool Array::ensureArray(Data::JsonScope& jsonDoc) {
-    // Cache the original member type to avoid the analyzer thinking the second branch is unreachable
-    if (jsonDoc.memberType(rootKey) == Data::KeyType::array) {
+    auto type = jsonDoc.memberType(rootKey);
+
+    // Already array, nothing to do
+    if (type == Data::KeyType::array) {
+        return true;
+    }
+
+    // No value stored, set to empty array
+    if (type == Data::KeyType::null) {
+        jsonDoc.setEmptyArray(rootKey);
         return true;
     }
 
@@ -259,6 +270,111 @@ bool Array::enumerate(std::span<std::string_view const> const& args, Data::JsonS
             jsonDoc.set(key, i);
         }
     );
+    return true;
+}
+
+namespace {
+
+[[maybe_unused]] std::size_t calculateRequiredBatchSize(std::size_t arraySize, std::size_t batchSize) {
+    if (arraySize % batchSize == 0) {
+        return arraySize / batchSize;
+    }
+    return arraySize / batchSize + 1;
+}
+
+[[maybe_unused]] bool allArraysEqualInSize(Data::JsonScope const& jsonDoc, Data::ScopedKeyView const& rootKey, std::size_t expectedSize) {
+    if (jsonDoc.memberType(rootKey) != Data::KeyType::array) {
+        return false;
+    }
+    return std::ranges::all_of(
+        jsonDoc.arrayKeys(rootKey),
+        [&](Data::ScopedKey const& key) {
+            return jsonDoc.memberType(key) == Data::KeyType::array && jsonDoc.memberSize(key) == expectedSize;
+        }
+    );
+}
+
+} // namespace
+
+bool Array::batch(std::span<std::string_view const> const& args, Data::JsonScope& jsonDoc){
+    // Validate arguments and input
+    if (args.size() < 2) return false;
+    auto const size = Utility::Convert::Cast::String::to<std::size_t>(args.at(1));
+    if (!size.has_value()) return false;
+    if (size.value() == 0) return false;
+    if (jsonDoc.memberType(rootKey) != Data::KeyType::array) return false;
+    auto arraySize = jsonDoc.memberSize(rootKey);
+
+    // Edge case: do not modify empty arrays
+    if (arraySize == 0) return true;
+
+    // Batch the array into subarrays of the specified size, moving members to their new locations
+    // JsonScope::moveMember modifies the array size, so we need to keep track of the batch index separately
+    std::size_t oldIndex = 0;
+    for (auto const index : std::views::iota(std::size_t{0}, arraySize)) {
+        auto const newBatchIndex = index / size.value();
+        auto const batchArrayIndex = index % size.value();
+
+        auto const oldKey = rootKey.addIndex(oldIndex);
+        auto const newKey = rootKey.addIndex(newBatchIndex).addIndex(batchArrayIndex);
+        jsonDoc.moveMember(oldKey, newKey);
+
+        // See if we modified the array size during the move
+        // If not, we need to increment the oldIndex to keep up with the next element to move
+        if (oldIndex == newBatchIndex) {
+            ++oldIndex;
+        }
+    }
+
+    assert(jsonDoc.memberSize(rootKey) == calculateRequiredBatchSize(arraySize, size.value()));
+    return true;
+}
+
+bool Array::batchPadded(std::span<std::string_view const> const& args, Data::JsonScope& jsonDoc){
+if (!batch(args, jsonDoc)) return false;
+auto const size = Utility::Convert::Cast::String::to<std::size_t>(args.at(1));
+if (!size.has_value()) return false;
+auto const batchCount = jsonDoc.memberSize(rootKey);
+if (batchCount == 0) return true;
+auto const lastBatch = rootKey.addIndex(batchCount - 1);
+while (jsonDoc.memberSize(lastBatch) < size.value()) {
+        auto const newIndex = jsonDoc.memberSize(lastBatch);
+        auto const newKey = lastBatch.addIndex(newIndex);
+        jsonDoc.setEmptyObject(newKey);
+    }
+    assert(allArraysEqualInSize(jsonDoc, rootKey, size.value()));
+    return true;
+}
+
+bool Array::stride(std::span<std::string_view const> const& args, Data::JsonScope& jsonDoc){
+    if (args.size() < 2) return false;
+    auto const size = Utility::Convert::Cast::String::to<std::size_t>(args.at(1));
+    if (!size.has_value()) return false;
+    if (size.value() == 0) return false;
+    if (jsonDoc.memberType(rootKey) != Data::KeyType::array) return false;
+    Data::JsonScope tmp;
+    tmp.setEmptyArray(rootKey);
+    for (auto const [index, key] : jsonDoc.arrayKeys(rootKey) | std::views::stride(size.value()) | Utility::Ranges::enumerate) {
+        tmp.setSubDoc(rootKey.addIndex(index), jsonDoc.getSubDoc(key));
+    }
+    jsonDoc.setSubDoc(rootKey, tmp);
+    return true;
+}
+
+bool Array::slide(std::span<std::string_view const> const& args, Data::JsonScope& jsonDoc){
+    if (args.size() < 2) return false;
+    auto const size = Utility::Convert::Cast::String::to<std::size_t>(args.at(1));
+    if (!size.has_value()) return false;
+    if (size.value() == 0) return false;
+    if (jsonDoc.memberType(rootKey) != Data::KeyType::array) return false;
+    Data::JsonScope tmp;
+    tmp.setEmptyArray(rootKey);
+    for (auto const [index, keys] : jsonDoc.arrayKeys(rootKey) | std::views::slide(size.value()) | Utility::Ranges::enumerate) {
+        for (auto const [subIndex, key] : keys | Utility::Ranges::enumerate) {
+            tmp.setSubDoc(rootKey.addIndex(index).addIndex(subIndex), jsonDoc.getSubDoc(key));
+        }
+    }
+    jsonDoc.setSubDoc(rootKey, tmp);
     return true;
 }
 

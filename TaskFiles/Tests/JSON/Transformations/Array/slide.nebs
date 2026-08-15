@@ -1,0 +1,18 @@
+# Check the slide transformation
+
+# Setup data
+for i 0 22 set data.arr[{i}] {i} # 23 data points
+
+# Calculate
+assign self:result.emptySlide = {|ensureArray|slide 5}
+assign self:result.slide = {self:data.arr|slide 5}
+
+# Verify: Empty slide
+eval nop {self:result.emptySlide|assert type array}
+eval nop {self:result.emptySlide|length|assert equals int 0}
+
+# Verify: Slide
+eval nop {self:result.slide|assert type array}
+eval nop {self:result.slide|length|assert equals int 19} # 23-5+1=19
+eval nop {self:result.slide|map length|map assert equals int 5}
+for arrIdx 0 18 for strideIdx 0 4 eval nop {self:result.slide[{arrIdx}][{strideIdx}]|assert equals int $({arrIdx}+{strideIdx})}

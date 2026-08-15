@@ -1,0 +1,31 @@
+# Check the batch and batchPadded transformations
+
+# Setup data
+for i 0 22 set data.arr[{i}] {i}
+
+# Calculate
+assign self:result.emptyBatch = {|ensureArray|batch 5}
+assign self:result.batch = {self:data.arr|batch 5}
+assign self:result.batchPadded = {self:data.arr|batchPadded 5}
+
+# Verify result: emptyBatch
+eval nop {self:result.emptyBatch|assert type array}
+eval nop {self:result.emptyBatch|length|assert equals int 0}
+
+# Verify result: batch
+eval nop {self:result.batch|length|assert equals int 5}
+eval nop {self:result.batch[0]|length|assert equals int 5}
+eval nop {self:result.batch[1]|length|assert equals int 5}
+eval nop {self:result.batch[2]|length|assert equals int 5}
+eval nop {self:result.batch[3]|length|assert equals int 5}
+eval nop {self:result.batch[4]|length|assert equals int 3}
+
+# Verify result: batchPadded
+eval nop {self:result.batchPadded|length|assert equals int 5}
+eval nop {self:result.batchPadded[0]|length|assert equals int 5}
+eval nop {self:result.batchPadded[1]|length|assert equals int 5}
+eval nop {self:result.batchPadded[2]|length|assert equals int 5}
+eval nop {self:result.batchPadded[3]|length|assert equals int 5}
+eval nop {self:result.batchPadded[4]|length|assert equals int 5}
+
+exit

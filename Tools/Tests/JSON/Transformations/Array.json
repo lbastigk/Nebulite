@@ -28,7 +28,19 @@
         "expected": { "cout": [], "cerr": [] }
     },
     {
+        "command": "task TaskFiles/Tests/JSON/Transformations/Array/batch.nebs",
+        "expected": { "cout": [], "cerr": [] }
+    },
+    {
         "command": "task TaskFiles/Tests/JSON/Transformations/Array/bundle.nebs",
+        "expected": { "cout": [], "cerr": [] }
+    },
+    {
+        "command": "task TaskFiles/Tests/JSON/Transformations/Array/stride.nebs",
+        "expected": { "cout": [], "cerr": [] }
+    },
+    {
+        "command": "task TaskFiles/Tests/JSON/Transformations/Array/slide.nebs",
         "expected": { "cout": [], "cerr": [] }
     },
     {
