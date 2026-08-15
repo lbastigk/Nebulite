@@ -8,7 +8,7 @@
         "expected": { "cout": [], "cerr": [] }
     },
     {
-        "command": "task TaskFiles/Tests/JSON/Transformations/Array/ensureArray.nebs",
+        "command": "task TaskFiles/Tests/JSON/Transformations/Array/subspan.nebs",
         "expected": { "cout": [], "cerr": [] }
     },
     {
@@ -20,19 +20,7 @@
         "expected": { "cout": [], "cerr": [] }
     },
     {
-        "command": "task TaskFiles/Tests/JSON/Transformations/Array/push.nebs",
-        "expected": { "cout": [], "cerr": [] }
-    },
-    {
-        "command": "task TaskFiles/Tests/JSON/Transformations/Array/subspan.nebs",
-        "expected": { "cout": [], "cerr": [] }
-    },
-    {
         "command": "task TaskFiles/Tests/JSON/Transformations/Array/batch.nebs",
-        "expected": { "cout": [], "cerr": [] }
-    },
-    {
-        "command": "task TaskFiles/Tests/JSON/Transformations/Array/bundle.nebs",
         "expected": { "cout": [], "cerr": [] }
     },
     {
@@ -45,6 +33,18 @@
     },
     {
         "command": "task TaskFiles/Tests/JSON/Transformations/Array/iota.nebs",
+        "expected": { "cout": [], "cerr": [] }
+    },
+    {
+        "command": "task TaskFiles/Tests/JSON/Transformations/Array/ensureArray.nebs",
+        "expected": { "cout": [], "cerr": [] }
+    },
+    {
+        "command": "task TaskFiles/Tests/JSON/Transformations/Array/push.nebs",
+        "expected": { "cout": [], "cerr": [] }
+    },
+    {
+        "command": "task TaskFiles/Tests/JSON/Transformations/Array/pad.nebs",
         "expected": { "cout": [], "cerr": [] }
     }
 ]

@@ -1,0 +1,18 @@
+# Check the pad transformation
+
+# Setup data
+for i 0 22 set data.arr[{i}] {i}
+
+# Test
+assign self:result.emptyPad = {|ensureArray|pad 25}
+assign self:result.pad = {self:data.arr|pad 25}
+
+# Verify: Empty pad
+eval nop {self:result.emptyPad|assert type array}
+eval nop {self:result.emptyPad|length|assert equals int 25}
+
+# Verify: Pad
+eval nop {self:result.pad|assert type array}
+eval nop {self:result.pad|length|assert equals int 25}
+
+exit

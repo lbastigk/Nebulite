@@ -25,17 +25,14 @@ namespace Nebulite::Module::Transformation {
 void Array::bindTransformations() {
     // Pick
     bindTransformation(&Array::at, atName, atDesc);
-    bindTransformation(&Array::length, lengthName, lengthDesc);
     bindTransformation(&Array::first, firstName, firstDesc);
     bindTransformation(&Array::last, lastName, lastDesc);
+    bindTransformation(&Array::length, lengthName, lengthDesc);
     bindTransformation(&Array::subspan, subspanName, subspanDesc);
 
-    // Modify
+    // Metadata
     bindTransformation(&Array::flatten, flattenName, flattenDesc);
     bindTransformation(&Array::reverse, reverseName, reverseDesc);
-    bindTransformation(&Array::ensureArray, ensureArrayName, ensureArrayDesc);
-    bindTransformation(&Array::push, pushName, pushDesc);
-    bindTransformation(&Array::pushNumber, pushNumberName, pushNumberDesc);
     bindTransformation(&Array::enumerate, enumerateName, enumerateDesc);
     bindTransformation(&Array::batch, batchName, batchDesc);
     bindTransformation(&Array::batchPadded, batchPaddedName, batchPaddedDesc);
@@ -44,9 +41,15 @@ void Array::bindTransformations() {
 
     // Generate
     bindTransformation(&Array::iota, iotaName, iotaDesc);
+
+    // Other
+    bindTransformation(&Array::ensureArray, ensureArrayName, ensureArrayDesc);
+    bindTransformation(&Array::push, pushName, pushDesc);
+    bindTransformation(&Array::pushNumber, pushNumberName, pushNumberDesc);
+    bindTransformation(&Array::pad, padName, padDesc);
 }
 
-// Ranges
+// Pick
 
 bool Array::at(std::span<std::string_view const> const& args, Data::JsonScope& jsonDoc) {
     if (args.size() != 2) {
@@ -66,15 +69,6 @@ bool Array::at(std::span<std::string_view const> const& args, Data::JsonScope& j
     } catch (...) {
         return false;
     }
-}
-
-bool Array::length(Data::JsonScope& jsonDoc) {
-    if (!ensureArray(jsonDoc)) {
-        return false;
-    }
-    auto const len = jsonDoc.memberSize(rootKey);
-    jsonDoc.set(rootKey, static_cast<uint64_t>(len));
-    return true;
 }
 
 bool Array::first(Data::JsonScope& jsonDoc) {
@@ -99,6 +93,15 @@ bool Array::last(Data::JsonScope& jsonDoc) {
     }
     Data::Json const lastElement = jsonDoc.getSubDoc(rootKey.addIndex(arraySize - 1));
     jsonDoc.setSubDoc(rootKey, lastElement);
+    return true;
+}
+
+bool Array::length(Data::JsonScope& jsonDoc) {
+    if (!ensureArray(jsonDoc)) {
+        return false;
+    }
+    auto const len = jsonDoc.memberSize(rootKey);
+    jsonDoc.set(rootKey, static_cast<uint64_t>(len));
     return true;
 }
 
@@ -138,9 +141,10 @@ bool Array::subspan(std::span<std::string_view const> const& args, Data::JsonSco
     return true;
 }
 
-// Modify
+// Metadata
 
 namespace {
+
 /**
  * @brief Inserts elements from a JSON document into a temporary JSON object as a flat array
  * @param tmp The temporary JSON object to insert elements into.
@@ -179,6 +183,26 @@ bool insertIntoArray(Data::Json& tmp, std::size_t& index, Data::JsonScope const&
     }
     return true;
 }
+
+[[maybe_unused]] std::size_t calculateRequiredBatchSize(std::size_t arraySize, std::size_t batchSize) {
+    if (arraySize % batchSize == 0) {
+        return arraySize / batchSize;
+    }
+    return arraySize / batchSize + 1;
+}
+
+[[maybe_unused]] bool allArraysEqualInSize(Data::JsonScope const& jsonDoc, Data::ScopedKeyView const& rootKey, std::size_t expectedSize) {
+    if (jsonDoc.memberType(rootKey) != Data::KeyType::array) {
+        return false;
+    }
+    return std::ranges::all_of(
+        jsonDoc.arrayKeys(rootKey),
+        [&](Data::ScopedKey const& key) {
+            return jsonDoc.memberType(key) == Data::KeyType::array && jsonDoc.memberSize(key) == expectedSize;
+        }
+    );
+}
+
 } // namespace
 
 bool Array::flatten(Data::JsonScope& jsonDoc){
@@ -206,59 +230,6 @@ bool Array::reverse(Data::JsonScope& jsonDoc) {
     return true;
 }
 
-bool Array::ensureArray(Data::JsonScope& jsonDoc) {
-    auto type = jsonDoc.memberType(rootKey);
-
-    // Already array, nothing to do
-    if (type == Data::KeyType::array) {
-        return true;
-    }
-
-    // No value stored, set to empty array
-    if (type == Data::KeyType::null) {
-        jsonDoc.setEmptyArray(rootKey);
-        return true;
-    }
-
-    // Single value, wrap into an array
-    auto const key = rootKey.addIndex(0);
-    jsonDoc.moveMember(rootKey, key); // Move the original value to the new array index
-
-    // Return whether wrapping succeeded
-    return jsonDoc.memberType(rootKey) == Data::KeyType::array;
-}
-
-bool Array::push(std::span<std::string_view const> const& args, Data::JsonScope& jsonDoc) {
-    if (args.size() < 2) {
-        return false;
-    }
-    if (!ensureArray(jsonDoc)) {
-        return false;
-    }
-    auto const arraySize = jsonDoc.memberSize(rootKey);
-    auto const key = rootKey.addIndex(arraySize);
-    jsonDoc.set(key, Utility::StringHandler::recombineArgs(args.subspan(1)));
-    return true;
-}
-
-bool Array::pushNumber(std::span<std::string_view const> const& args, Data::JsonScope& jsonDoc) {
-    if (args.size() != 2) {
-        return false;
-    }
-    try {
-        double const number = std::stod(std::string(args.at(1)));
-        if (!ensureArray(jsonDoc)) {
-            return false;
-        }
-        auto const arraySize = jsonDoc.memberSize(rootKey);
-        auto const key = rootKey.addIndex(arraySize);
-        jsonDoc.set(key, number);
-        return true;
-    } catch (...) {
-        return false;
-    }
-}
-
 bool Array::enumerate(std::span<std::string_view const> const& args, Data::JsonScope& jsonDoc){
     if (args.size() < 2) return false;
     if (jsonDoc.memberType(rootKey) != Data::KeyType::array) return false;
@@ -272,29 +243,6 @@ bool Array::enumerate(std::span<std::string_view const> const& args, Data::JsonS
     );
     return true;
 }
-
-namespace {
-
-[[maybe_unused]] std::size_t calculateRequiredBatchSize(std::size_t arraySize, std::size_t batchSize) {
-    if (arraySize % batchSize == 0) {
-        return arraySize / batchSize;
-    }
-    return arraySize / batchSize + 1;
-}
-
-[[maybe_unused]] bool allArraysEqualInSize(Data::JsonScope const& jsonDoc, Data::ScopedKeyView const& rootKey, std::size_t expectedSize) {
-    if (jsonDoc.memberType(rootKey) != Data::KeyType::array) {
-        return false;
-    }
-    return std::ranges::all_of(
-        jsonDoc.arrayKeys(rootKey),
-        [&](Data::ScopedKey const& key) {
-            return jsonDoc.memberType(key) == Data::KeyType::array && jsonDoc.memberSize(key) == expectedSize;
-        }
-    );
-}
-
-} // namespace
 
 bool Array::batch(std::span<std::string_view const> const& args, Data::JsonScope& jsonDoc){
     // Validate arguments and input
@@ -396,6 +344,74 @@ bool Array::iota(std::span<std::string_view const> const& args, Data::JsonScope&
             jsonDoc.set(key, i);
         }
     );
+    return true;
+}
+
+// Other
+
+bool Array::ensureArray(Data::JsonScope& jsonDoc) {
+    auto type = jsonDoc.memberType(rootKey);
+
+    // Already array, nothing to do
+    if (type == Data::KeyType::array) {
+        return true;
+    }
+
+    // No value stored, set to empty array
+    if (type == Data::KeyType::null) {
+        jsonDoc.setEmptyArray(rootKey);
+        return true;
+    }
+
+    // Single value, wrap into an array
+    auto const key = rootKey.addIndex(0);
+    jsonDoc.moveMember(rootKey, key); // Move the original value to the new array index
+
+    // Return whether wrapping succeeded
+    return jsonDoc.memberType(rootKey) == Data::KeyType::array;
+}
+
+bool Array::push(std::span<std::string_view const> const& args, Data::JsonScope& jsonDoc) {
+    if (args.size() < 2) {
+        return false;
+    }
+    if (!ensureArray(jsonDoc)) {
+        return false;
+    }
+    auto const arraySize = jsonDoc.memberSize(rootKey);
+    auto const key = rootKey.addIndex(arraySize);
+    jsonDoc.set(key, Utility::StringHandler::recombineArgs(args.subspan(1)));
+    return true;
+}
+
+bool Array::pushNumber(std::span<std::string_view const> const& args, Data::JsonScope& jsonDoc) {
+    if (args.size() != 2) {
+        return false;
+    }
+    try {
+        double const number = std::stod(std::string(args.at(1)));
+        if (!ensureArray(jsonDoc)) {
+            return false;
+        }
+        auto const arraySize = jsonDoc.memberSize(rootKey);
+        auto const key = rootKey.addIndex(arraySize);
+        jsonDoc.set(key, number);
+        return true;
+    } catch (...) {
+        return false;
+    }
+}
+
+bool Array::pad(std::span<std::string_view const> const& args, Data::JsonScope& jsonDoc){
+    if (args.size() < 2) return false;
+    auto const size = Utility::Convert::Cast::String::to<std::size_t>(args.at(1));
+    if (!size.has_value()) return false;
+    if (!ensureArray(jsonDoc)) return false;
+    while (jsonDoc.memberSize(rootKey) < size.value()) {
+        auto const newIndex = jsonDoc.memberSize(rootKey);
+        auto const newKey = rootKey.addIndex(newIndex);
+        jsonDoc.setEmptyObject(newKey);
+    }
     return true;
 }
 
