@@ -1,4 +1,4 @@
-# Check the batch and batchPadded transformations
+# Check the slide transformation
 
 # Setup data
 for i 0 22 set data.arr[{i}] {i} # 23 data points
