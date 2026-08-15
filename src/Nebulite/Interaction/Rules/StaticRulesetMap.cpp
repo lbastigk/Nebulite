@@ -12,6 +12,7 @@
 // Nebulite
 #include "Nebulite/Interaction/Context.hpp"
 #include "Nebulite/Interaction/Execution/Domain.hpp"
+#include "Nebulite/Interaction/GlobalValue.hpp"
 #include "Nebulite/Interaction/Rules/Construction/Initializer.hpp"
 #include "Nebulite/Interaction/Rules/StaticRulesetMap.hpp"
 #include "Nebulite/Nebulite.hpp"
@@ -35,7 +36,9 @@ StaticRulesetMap::StaticRulesetMap(){
         .type=StaticRuleset::Type::local,
         .topic=helpName,
         .description=helpDesc,
-        .function=[this](Context const& context, double** slf, double** otr) { help(context, slf, otr); },
+        .function=[this](Context const& context, double** slf, double** otr, GlobalValueCopy const& global) {
+            help(context, slf, otr, global);
+        },
         .baseListFunc=helpBaseListFunc,
     });
 }
@@ -91,7 +94,7 @@ void StaticRulesetMap::bindStaticRuleset(StaticRulesetWithMetadata const& func) 
 }
 
 // NOLINTNEXTLINE
-void StaticRulesetMap::help(Interaction::Context const& context, double** /*slf*/, double** /*otr*/) const {
+void StaticRulesetMap::help(Interaction::Context const& context, double** /*slf*/, double** /*otr*/, Interaction::GlobalValueCopy const& /*global*/) const {
     Global::capture().log.println("[Available static rulesets:");
     auto list = getList();
     std::ranges::sort(list, [](auto const& metadata1, auto const& metadata2) { return metadata1.topic < metadata2.topic; });

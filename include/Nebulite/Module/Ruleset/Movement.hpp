@@ -12,6 +12,7 @@
 // Nebulite
 #include "Nebulite/Constants/KeyNames.hpp"
 #include "Nebulite/Data/Document/ScopedKeyView.hpp"
+#include "Nebulite/Interaction/GlobalValue.hpp"
 #include "Nebulite/Module/Base/RulesetModule.hpp"
 #include "Nebulite/Module/Domain/GlobalSpace/Physics.hpp"
 
@@ -34,13 +35,13 @@ public:
 
     // Global rulesets
 
-    void detectClipping(Interaction::Context const& context, double** slf, double** otr) const ;
+    static void detectClipping(Interaction::Context const& context, double** slf, double** otr, Interaction::GlobalValueCopy const& global);
     static std::string_view constexpr detectClippingName = "::movement::detectClipping";
     static std::string_view constexpr detectClippingDesc = "Global ruleset to detect the closest object in each direction. The listeners distance is set.";
 
     // Local rulesets
 
-    void processClipping(Interaction::Context const& context, double** slf, double** otr) const ;
+    static void processClipping(Interaction::Context const& context, double** slf, double** otr, Interaction::GlobalValueCopy const& global);
     static std::string_view constexpr processClippingName = "::movement::processClipping";
     static std::string_view constexpr processClippingDesc = "Local ruleset to process collision clipping for the self entry based on position delta and closest objects.\n"
         "Call this ruleset after ::physics::applyForce. Requires ::physics::storeLastPosition to be called before ::physics::applyForce.";

@@ -11,6 +11,8 @@
 #include "Nebulite/Constants/ThreadSettings.hpp"
 #include "Nebulite/Interaction/Invoke.hpp"
 #include "Nebulite/Interaction/Rules/Ruleset.hpp"
+#include "Nebulite/Nebulite.hpp"
+#include "Nebulite/ScopeAccessor.hpp"
 #include "Nebulite/Utility/Generate.hpp"
 
 //------------------------------------------
@@ -21,7 +23,7 @@ namespace Nebulite::Interaction {
 
 Invoke::Invoke()
     : worker(Utility::Generate::array<ContainerType, Constants::ThreadSettings::Maximum::invokeWorkerCount>([&](std::size_t const threadIndex) {
-        return ContainerType(stopFlag, threadIndex, activeWorkerCount);
+        return ContainerType(stopFlag, threadIndex, activeWorkerCount, Global::shareScope(ScopeAccessor::Full()));
     }))
     , activeWorkers(worker | std::views::take(activeWorkerCount))
     , stopFlag(false)
@@ -58,6 +60,11 @@ void Invoke::listen(std::shared_ptr<Rules::Listener> const& listener) {
 void Invoke::update() {
     activeWorkers = worker | std::views::take(activeWorkerCount);
 
+    // Prepare work for the next frame
+    for (auto& w : activeWorkers) {
+        w.prepare();
+    }
+
     // Signal all worker threads to start processing
     for (auto& w : activeWorkers) {
         w.startWork();
@@ -66,11 +73,6 @@ void Invoke::update() {
     // Wait for all threads to finish processing
     for (auto& w : activeWorkers) {
         w.waitForWorkFinished();
-    }
-
-    // Prepare work for the next frame
-    for (auto& w : activeWorkers) {
-        w.prepare();
     }
 }
 

@@ -17,6 +17,7 @@
 #include "Nebulite/Constants/ThreadSettings.hpp"
 #include "Nebulite/Data/BroadcastListenContainer/BaseContainer.hpp"
 #include "Nebulite/Data/BroadcastListenContainer/MapType.hpp"
+#include "Nebulite/Interaction/GlobalValue.hpp"
 
 //------------------------------------------
 // Forward declarations
@@ -61,12 +62,12 @@ public:
     /**
      * @brief Uses the provided offsets to process all broadcasted rulesets.
      */
-    void processWithOffset();
+    void processWithOffset(Interaction::GlobalValueCopy const& global);
 
     /**
      * @brief Ignores settings and processes all broadcasted rulesets without any rotation or offset.
      */
-    void processNoOffset();
+    void processNoOffset(Interaction::GlobalValueCopy const& global);
 
     explicit FlatContainerBase([[clang::lifetimebound]] Settings const& s) : settings(s) {}
 };
@@ -81,8 +82,8 @@ public:
 template <FlatContainerType Type>
 class FlatContainer final : public BaseContainer<FlatContainer<Type>*> {
 public:
-    explicit FlatContainer(std::atomic<bool>& stopFlag, std::size_t workerIndex, std::size_t workerCount)
-        : BaseContainer<FlatContainer*>(stopFlag, workerIndex, workerCount, this) {
+    explicit FlatContainer(std::atomic<bool>& stopFlag, std::size_t workerIndex, std::size_t workerCount, JsonScope const& global)
+        : BaseContainer<FlatContainer*>(stopFlag, workerIndex, workerCount, this, global) {
         FlatContainerBase::Settings settings{};
 
         if constexpr (Type == FlatContainerType::applyOffset) { // Set offsets based on worker index
@@ -131,25 +132,15 @@ public:
     }
 
     /**
-     * @brief Empty, no preparation needed for this container type
-     */
-    void prepare() override {}
-
-    /**
-     * @brief Empty, no initialization needed for this container type
-     */
-    void init() override {}
-
-    /**
      * @brief Processes all broadcasted rulesets,
      *        matching them with listeners and executing the appropriate actions.
      */
-    void process() override {
+    void process(Interaction::GlobalValueCopy const& global) override {
         if constexpr (Type == FlatContainerType::noOffset) {
-            base->processNoOffset(); // NOLINT
+            base->processNoOffset(global); // NOLINT
         }
         else {
-            base->processWithOffset(); // NOLINT
+            base->processWithOffset(global); // NOLINT
         }
     }
 

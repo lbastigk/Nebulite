@@ -10,6 +10,7 @@
 #include <memory>
 
 // Nebulite
+#include "Nebulite/Interaction/GlobalValue.hpp"
 #include "Nebulite/Utility/Coordination/WorkDispatcher.hpp"
 
 //------------------------------------------
@@ -30,7 +31,7 @@ namespace Nebulite::Data::BroadcastListenContainer {
 template<typename DerivedContainer>
 class BaseContainer {
 public:
-    explicit BaseContainer(std::atomic<bool>& stopFlag, std::size_t workerIndex, std::size_t workerCount, DerivedContainer container);
+    explicit BaseContainer(std::atomic<bool>& stopFlag, std::size_t workerIndex, std::size_t workerCount, DerivedContainer container, JsonScope const& global);
 
     virtual ~BaseContainer();
 
@@ -64,11 +65,11 @@ public:
     /**
      * @brief Prepare container for next processing round.
      */
-    virtual void prepare();
+    void prepare();
 
     // non-static hooks for derived classes to implement
     virtual void init();
-    virtual void process();
+    virtual void process(Interaction::GlobalValueCopy const& global);
 
 protected:
     struct WorkerInfo {
@@ -77,6 +78,9 @@ protected:
     } workerInfo;
 
 private:
+    Interaction::GlobalValue globalValues;
+    Interaction::GlobalValueCopy globalValuesCopy;
+
     // static wrappers for WorkDispatcher
     static void initImpl(DerivedContainer container);
     static void processImpl(DerivedContainer container);

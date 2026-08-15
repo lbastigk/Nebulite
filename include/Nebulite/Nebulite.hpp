@@ -8,6 +8,7 @@
 #include <string>
 
 // Nebulite
+#include "Nebulite/Interaction/GlobalValue.hpp"
 #include "Nebulite/ScopeAccessor.hpp"
 
 //------------------------------------------
@@ -30,37 +31,44 @@ class Capture;
 // Global class for singleton access
 
 namespace Nebulite::Global {
-    /**
-     * @brief Provides access to the global GlobalSpace singleton.
-     * @return Reference to the global GlobalSpace instance.
-     */
-    Core::GlobalSpace& instance();
+/**
+ * @brief Provides access to the global GlobalSpace singleton.
+ * @return Reference to the global GlobalSpace instance.
+ */
+Core::GlobalSpace& instance();
 
-    /**
-     * @brief Provides access to the global settings scope in the global JSON document.
-     * @return Constant reference to the settings JsonScope.
-     */
-    [[nodiscard]] Data::JsonScope const& settings();
+/**
+ * @brief Provides access to the global settings scope in the global JSON document.
+ * @return Constant reference to the settings JsonScope.
+ */
+[[nodiscard]] Data::JsonScope const& settings();
 
-    //------------------------------------------
-    // Provide access based on access token and its prefix
+//------------------------------------------
+// Provide access based on access token and its prefix
 
-    /**
-     * @brief Provides access to a shared JsonScope based on the provided access token and prefix.
-     * @param at Access token providing the necessary permissions.
-     * @param prefix Prefix to append to the access token's prefix for scope retrieval.
-     * @return Reference to the shared JsonScope.
-     */
-    [[nodiscard]] Data::JsonScope& shareScope(ScopeAccessor::BaseAccessToken const& at, std::string const& prefix = "");
+/**
+ * @brief Provides access to a shared JsonScope based on the provided access token and prefix.
+ * @param at Access token providing the necessary permissions.
+ * @param prefix Prefix to append to the access token's prefix for scope retrieval.
+ * @return Reference to the shared JsonScope.
+ */
+[[nodiscard]] Data::JsonScope& shareScope(ScopeAccessor::BaseAccessToken const& at, std::string const& prefix = "");
 
-    //------------------------------------------
-    // Capture access
+//------------------------------------------
+// Capture access
 
-    /**
-     * @brief Provides access to the global capture instance.
-     * @details Whenever possible, use the local capture provided by the Domain (or DomainModule) instead of this global capture, to ensure proper hierarchical capture behavior.
-     * @return Reference to the global capture instance.
-     */
-    Utility::Io::Capture& capture();
+/**
+ * @brief Provides access to the global capture instance.
+ * @details Whenever possible, use the local capture provided by the Domain (or DomainModule) instead of this global capture, to ensure proper hierarchical capture behavior.
+ * @return Reference to the global capture instance.
+ */
+Utility::Io::Capture& capture();
+
+//------------------------------------------
+// Global value access without access token
+// Temporary solution until GlobalValue propagation is properly implemented.
+
+[[deprecated("Use shareScope with an access token instead.")]]
+[[nodiscard]] Interaction::GlobalValueCopy globalValues();
 } // namespace Nebulite::Global
 #endif // NEBULITE_NEBULITE_HPP

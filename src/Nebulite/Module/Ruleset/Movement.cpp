@@ -19,14 +19,14 @@ Movement::Movement() : RulesetModule(moduleName, this) {
     auto const baseListFunc = generateBaseListFunction(baseKeys);
 
     // Global rulesets
-    bind<detectClippingName>(&Movement::detectClipping, baseListFunc, Interaction::Rules::StaticRuleset::Type::global, detectClippingDesc);
+    bindStaticFunction<detectClippingName, Movement>(&Movement::detectClipping, baseListFunc, Interaction::Rules::StaticRuleset::Type::global, detectClippingDesc);
 
     // Local rulesets
-    bind<processClippingName>(&Movement::processClipping, baseListFunc, Interaction::Rules::StaticRuleset::Type::local, processClippingDesc);
+    bindStaticFunction<processClippingName, Movement>(&Movement::processClipping, baseListFunc, Interaction::Rules::StaticRuleset::Type::local, processClippingDesc);
 }
 
 // NOLINTNEXTLINE
-void Movement::detectClipping(Interaction::Context const& context, double** slf, double** otr) const {
+void Movement::detectClipping(Interaction::Context const& context, double** slf, double** otr, Interaction::GlobalValueCopy const& /*global*/) {
     // TODO: Add missing clipping detections
     // Assume context part is circle if radius is set (> 0)
     if (auto const& radius = Radius(slf, otr); radius.slf > 0.0 && radius.otr > 0.0) {
@@ -89,7 +89,7 @@ void Movement::detectClipping(Interaction::Context const& context, double** slf,
 }
 
 // NOLINTNEXTLINE
-void Movement::processClipping(Interaction::Context const& /*context*/, double** slf, double** /*otr*/) const {
+void Movement::processClipping(Interaction::Context const& /*context*/, double** slf, double** /*otr*/, Interaction::GlobalValueCopy const& /*global*/) {
     // Nearest corners
     double& directionN = baseVal(slf, Key::clipClosestN);
     double& directionE = baseVal(slf, Key::clipClosestE);

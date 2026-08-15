@@ -340,7 +340,7 @@ Define object interactions via JSON rulesets:
 or via static rulesets in C++ code:
 ```cpp
 // Called with keyword "::physics:gravity" (both broadcast and listen)
-void Physics::gravity(Interaction::Context const& context, double** slf, double** otr) const {
+void Physics::gravity(Interaction::Context const& context, double** slf, double** otr, Interaction::GlobalValueCopy const& global) const {
     double const dx = baseVal(slf, Key::posX) - baseVal(otr, Key::posX);
     double const dy = baseVal(slf, Key::posY) - baseVal(otr, Key::posY);
 
@@ -348,7 +348,7 @@ void Physics::gravity(Interaction::Context const& context, double** slf, double*
     double const invR = 1.0 / std::sqrt(r2);
     double const invR3 = invR * invR * invR;
 
-    double const G  = *globalVal.G;
+    double const G  = global.G;
     double const m1 = baseVal(slf, Key::physics_mass);
     double const m2 = baseVal(otr, Key::physics_mass);
     double const coeff = G * m1 * m2 * invR3;

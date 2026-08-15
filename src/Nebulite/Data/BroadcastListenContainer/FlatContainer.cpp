@@ -15,6 +15,7 @@
 #include "Nebulite/Constants/ThreadSettings.hpp"
 #include "Nebulite/Core/GlobalSpace.hpp"
 #include "Nebulite/Data/BroadcastListenContainer/FlatContainer.hpp"
+#include "Nebulite/Interaction/GlobalValue.hpp"
 #include "Nebulite/Interaction/Rules/Listener.hpp"
 #include "Nebulite/Interaction/Rules/Ruleset.hpp"
 #include "Nebulite/Nebulite.hpp"
@@ -120,7 +121,7 @@ auto rotate(R&& r, double percent) {
 }
 } // namespace
 
-void FlatContainerBase::processWithOffset() {
+void FlatContainerBase::processWithOffset(Interaction::GlobalValueCopy const& global) {
     for (auto& listenerMap : rotate(listeners, settings.listenerOffset)) {
         listenerMap.forall([&](std::string const& topic, auto& lv) {
             // Build a flattened view of all rulesets for this topic
@@ -138,7 +139,7 @@ void FlatContainerBase::processWithOffset() {
                 for (auto const& ruleset : rulesets) {
                     if (ruleset->getId() == listener->domain.getId()) continue;
                     if (ruleset->evaluateConditionGlobally(listener->domain, Global::instance())) {
-                        ruleset->applyListener(listener, Global::instance());
+                        ruleset->applyListener(listener, Global::instance(), global);
                     }
                 }
             }
@@ -154,7 +155,7 @@ void FlatContainerBase::processWithOffset() {
     }
 }
 
-void FlatContainerBase::processNoOffset(){
+void FlatContainerBase::processNoOffset(Interaction::GlobalValueCopy const& global){
     for (auto& listenerMap : listeners) {
         listenerMap.forall([&](std::string const& topic, auto& lv) {
             // Build a flattened view of all rulesets for this topic
@@ -167,7 +168,7 @@ void FlatContainerBase::processNoOffset(){
                 for (auto const& ruleset : rulesets) {
                     if (ruleset->getId() == listener->domain.getId()) continue;
                     if (ruleset->evaluateConditionGlobally(listener->domain, Global::instance())) {
-                        ruleset->applyListener(listener, Global::instance());
+                        ruleset->applyListener(listener, Global::instance(), global);
                     }
                 }
             }
