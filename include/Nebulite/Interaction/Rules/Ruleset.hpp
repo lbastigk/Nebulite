@@ -132,7 +132,7 @@ public:
      * @param global The global context.
      * @param globalValueCopy The global value copy to be used for the ruleset application.
      */
-    virtual void applyListener(std::shared_ptr<Listener> const& listener, Execution::Domain& global, GlobalValueCopy const& globalValueCopy);
+    virtual void applyListener(Listener& listener, Execution::Domain& global, GlobalValueCopy const& globalValueCopy);
 
     /**
      * @brief Applies the ruleset to its own Domain as context other.
@@ -236,7 +236,7 @@ public:
      * @param global The global context.
      * @param globalValueCopy The global value copy to be used for the ruleset application.
      */
-    void applyListener(std::shared_ptr<Listener> const& listener, Execution::Domain& global, GlobalValueCopy const& globalValueCopy) override ;
+    void applyListener(Listener& listener, Execution::Domain& global, GlobalValueCopy const& globalValueCopy) override ;
 
     /**
      * @brief Applies the ruleset to its own Domain as contextOther.
@@ -308,7 +308,7 @@ public:
      * @param global The global context.
      * @param globalValueCopy The global value copy to be used for the ruleset application.
      */
-    void applyListener(std::shared_ptr<Listener> const& listener, Execution::Domain& global, GlobalValueCopy const& globalValueCopy) override;
+    void applyListener(Listener& listener, Execution::Domain& global, GlobalValueCopy const& globalValueCopy) override;
 
     /**
      * @brief Applies the ruleset to its own Domain as contextOther.

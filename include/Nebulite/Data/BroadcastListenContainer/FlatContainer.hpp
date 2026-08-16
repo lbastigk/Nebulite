@@ -17,10 +17,13 @@
 #include "Nebulite/Constants/ThreadSettings.hpp"
 #include "Nebulite/Data/BroadcastListenContainer/BaseContainer.hpp"
 #include "Nebulite/Data/BroadcastListenContainer/MapType.hpp"
-#include "Nebulite/Interaction/GlobalValue.hpp"
 
 //------------------------------------------
 // Forward declarations
+
+namespace Nebulite::Core {
+class GlobalSpace;
+} // namespace Nebulite::Core
 
 namespace Nebulite::Interaction::Rules {
 class Ruleset;
@@ -62,14 +65,14 @@ public:
     /**
      * @brief Uses the provided offsets to process all broadcasted rulesets.
      */
-    void processWithOffset(Interaction::GlobalValueCopy const& global);
+    void processWithOffset();
 
     /**
      * @brief Ignores settings and processes all broadcasted rulesets without any rotation or offset.
      */
-    void processNoOffset(Interaction::GlobalValueCopy const& global);
+    void processNoOffset();
 
-    explicit FlatContainerBase([[clang::lifetimebound]] Settings const& s) : settings(s) {}
+    explicit FlatContainerBase([[clang::lifetimebound]] Settings const& s);
 };
 
 /**
@@ -82,8 +85,8 @@ public:
 template <FlatContainerType Type>
 class FlatContainer final : public BaseContainer<FlatContainer<Type>*> {
 public:
-    explicit FlatContainer(std::atomic<bool>& stopFlag, std::size_t workerIndex, std::size_t workerCount, JsonScope const& global)
-        : BaseContainer<FlatContainer*>(stopFlag, workerIndex, workerCount, this, global) {
+    explicit FlatContainer(std::atomic<bool>& stopFlag, std::size_t workerIndex, std::size_t workerCount)
+        : BaseContainer<FlatContainer*>(stopFlag, workerIndex, workerCount, this) {
         FlatContainerBase::Settings settings{};
 
         if constexpr (Type == FlatContainerType::applyOffset) { // Set offsets based on worker index
@@ -135,12 +138,12 @@ public:
      * @brief Processes all broadcasted rulesets,
      *        matching them with listeners and executing the appropriate actions.
      */
-    void process(Interaction::GlobalValueCopy const& global) override {
+    void process() override {
         if constexpr (Type == FlatContainerType::noOffset) {
-            base->processNoOffset(global); // NOLINT
+            base->processNoOffset(); // NOLINT
         }
         else {
-            base->processWithOffset(global); // NOLINT
+            base->processWithOffset(); // NOLINT
         }
     }
 

@@ -36,7 +36,7 @@ void Ruleset::applyContext(Context& /*context*/, ContextScope& /*contextScope*/,
     // default no-op
 }
 
-void Ruleset::applyListener(std::shared_ptr<Listener> const& /*listener*/, Execution::Domain& /*global*/, GlobalValueCopy const& /*globalValueCopy*/) {
+void Ruleset::applyListener(Listener& /*listener*/, Execution::Domain& /*global*/, GlobalValueCopy const& /*globalValueCopy*/) {
     // default no-op
 }
 
@@ -61,9 +61,9 @@ void StaticRuleset::applyContext(Context& context, ContextScope& /*contextScope*
     staticFunction(context, slfFromProvidedContext, otrFromProvidedContext, globalValueCopy);
 }
 
-void StaticRuleset::applyListener(std::shared_ptr<Listener> const& listener, Execution::Domain& global, GlobalValueCopy const& globalValueCopy) {
-    Context const context{self, listener->domain, global};
-    staticFunction(context, slf, listener->otr, globalValueCopy);
+void StaticRuleset::applyListener(Listener& listener, Execution::Domain& global, GlobalValueCopy const& globalValueCopy) {
+    Context const context{self, listener.domain, global};
+    staticFunction(context, slf, listener.otr, globalValueCopy);
 }
 
 void StaticRuleset::applyDomain(Execution::Domain& global, GlobalValueCopy const& globalValueCopy) {
@@ -112,9 +112,9 @@ void JsonRuleset::applyContext(Context& context, ContextScope& contextScope, Glo
     }
 }
 
-void JsonRuleset::applyListener(std::shared_ptr<Listener> const& listener, Execution::Domain& global, GlobalValueCopy const& globalValueCopy) {
-    Context ctx{self, listener->domain, global};
-    ContextScope contextScope{self.domainScope, listener->domain.domainScope, global.domainScope};
+void JsonRuleset::applyListener(Listener& listener, Execution::Domain& global, GlobalValueCopy const& globalValueCopy) {
+    Context ctx{self, listener.domain, global};
+    ContextScope contextScope{self.domainScope, listener.domain.domainScope, global.domainScope};
     applyContext(ctx, contextScope, globalValueCopy);
 }
 

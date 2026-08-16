@@ -24,10 +24,8 @@
 namespace Nebulite::Data::BroadcastListenContainer {
 
 template<typename DerivedContainer>
-BaseContainer<DerivedContainer>::BaseContainer(std::atomic<bool>& stopFlag, std::size_t const workerIndex, std::size_t const workerCount, DerivedContainer container, JsonScope const& global)
+BaseContainer<DerivedContainer>::BaseContainer(std::atomic<bool>& stopFlag, std::size_t const workerIndex, std::size_t const workerCount, DerivedContainer container)
     : workerInfo{.index=workerIndex, .count=workerCount}
-    , globalValues(global)
-    , globalValuesCopy(globalValues.copy())
     , dispatcher(stopFlag, processImpl, initImpl)
 {
     dispatcher.workspace = container;
@@ -74,15 +72,13 @@ void BaseContainer<DerivedContainer>::listen(std::shared_ptr<Interaction::Rules:
 }
 
 template<typename DerivedContainer>
-void BaseContainer<DerivedContainer>::prepare() {
-    globalValuesCopy = globalValues.copy();
-}
+void BaseContainer<DerivedContainer>::prepare() {}
 
 template<typename DerivedContainer>
 void BaseContainer<DerivedContainer>::init() {}
 
 template<typename DerivedContainer>
-void BaseContainer<DerivedContainer>::process(Interaction::GlobalValueCopy const& /*global*/) {}
+void BaseContainer<DerivedContainer>::process() {}
 
 template<typename DerivedContainer>
 void BaseContainer<DerivedContainer>::initImpl(DerivedContainer container) {
@@ -91,7 +87,7 @@ void BaseContainer<DerivedContainer>::initImpl(DerivedContainer container) {
 
 template<typename DerivedContainer>
 void BaseContainer<DerivedContainer>::processImpl(DerivedContainer container) {
-    container->process(container->globalValuesCopy);
+    container->process();
 }
 
 template<typename DerivedContainer>

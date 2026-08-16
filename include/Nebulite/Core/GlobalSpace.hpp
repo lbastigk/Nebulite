@@ -132,6 +132,11 @@ public:
      */
     void applyRuleset(Interaction::Rules::Ruleset& ruleset);
 
+    /**
+     * @brief Apply a ruleset to a given listener
+     */
+    void applyRulesetToListener(Interaction::Rules::Ruleset& ruleset, Interaction::Rules::Listener& listener);
+
     //------------------------------------------
     // Getters
 

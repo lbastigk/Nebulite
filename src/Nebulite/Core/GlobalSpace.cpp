@@ -229,6 +229,10 @@ void GlobalSpace::applyRuleset(Interaction::Rules::Ruleset& ruleset){
     ruleset.applyDomain(*this, globalValuesCopy);
 }
 
+void GlobalSpace::applyRulesetToListener(Interaction::Rules::Ruleset& ruleset, Interaction::Rules::Listener& listener){
+    ruleset.applyListener(listener, *this, globalValuesCopy);
+}
+
 //------------------------------------------
 // Getters
 

@@ -8,7 +8,6 @@
 #include <string>
 
 // Nebulite
-#include "Nebulite/Interaction/GlobalValue.hpp"
 #include "Nebulite/ScopeAccessor.hpp"
 
 //------------------------------------------

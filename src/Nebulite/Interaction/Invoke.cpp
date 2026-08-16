@@ -11,8 +11,6 @@
 #include "Nebulite/Constants/ThreadSettings.hpp"
 #include "Nebulite/Interaction/Invoke.hpp"
 #include "Nebulite/Interaction/Rules/Ruleset.hpp"
-#include "Nebulite/Nebulite.hpp"
-#include "Nebulite/ScopeAccessor.hpp"
 #include "Nebulite/Utility/Generate.hpp"
 
 //------------------------------------------
@@ -23,7 +21,7 @@ namespace Nebulite::Interaction {
 
 Invoke::Invoke()
     : worker(Utility::Generate::array<ContainerType, Constants::ThreadSettings::Maximum::invokeWorkerCount>([&](std::size_t const threadIndex) {
-        return ContainerType(stopFlag, threadIndex, activeWorkerCount, Global::shareScope(ScopeAccessor::Full()));
+        return ContainerType(stopFlag, threadIndex, activeWorkerCount);
     }))
     , activeWorkers(worker | std::views::take(activeWorkerCount))
     , stopFlag(false)
