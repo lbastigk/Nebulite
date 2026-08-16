@@ -49,82 +49,43 @@ DocumentAccessor::DocumentAccessor() : ScopeOwnershipManager(ScopeOwnership::own
 
 DocumentAccessor::~DocumentAccessor() = default;
 
-Domain::Domain(std::string const& name, Data::JsonScope& documentReference, Utility::Io::Capture& parentCapture)
+void Domain::init(std::string_view const name) {
+    // FuncTree initialization
+    funcTree = std::make_shared<DomainTree>(
+        name,
+        Constants::Event::success,
+        Constants::Event::warning,
+        capture
+    );
+    funcTree->setPreParse([this](std::string_view const functionName, std::span<std::string_view const> const args) {
+        return preParse(functionName, args);
+    });
+
+    // Initialize modules
+    Module::Domain::Initializer::initCommon(this);
+}
+
+Domain::Domain(std::string_view const name, Data::JsonScope& documentReference, Utility::Io::Capture& parentCapture)
     : DocumentAccessor(documentReference)
     , domainName(name)
     , capture(&parentCapture)
-    , cost(domainScope){
-    // FuncTree initialization
-    funcTree = std::make_shared<DomainTree>(
-        name,
-        Constants::Event::success,
-        Constants::Event::warning,
-        capture
-    );
-    funcTree->setPreParse([this](std::string_view const functionName, std::span<std::string_view const> const args) {
-        return preParse(functionName, args);
-    });
-
-    // Initialize modules
-    Module::Domain::Initializer::initCommon(this);
+    , cost(domainScope) {
+    init(name);
 }
 
-Domain::Domain(std::string const& name, Utility::Io::Capture& parentCapture)
+Domain::Domain(std::string_view const name, Utility::Io::Capture& parentCapture)
     : domainName(name)
     , capture(&parentCapture)
     , cost(domainScope) {
-    // FuncTree initialization
-    funcTree = std::make_shared<DomainTree>(
-        name,
-        Constants::Event::success,
-        Constants::Event::warning,
-        capture
-    );
-    funcTree->setPreParse([this](std::string_view const functionName, std::span<std::string_view const> const args) {
-        return preParse(functionName, args);
-    });
-
-    // Initialize modules
-    Module::Domain::Initializer::initCommon(this);
+    init(name);
 }
 
-Domain::Domain(std::string const& name, Data::JsonScope& documentReference)
+Domain::Domain(std::string_view const name, Data::JsonScope& documentReference)
     : DocumentAccessor(documentReference)
     , domainName(name)
     , capture(nullptr)
     , cost(domainScope) {
-    // FuncTree initialization
-    funcTree = std::make_shared<DomainTree>(
-        name,
-        Constants::Event::success,
-        Constants::Event::warning,
-        capture
-    );
-    funcTree->setPreParse([this](std::string_view const functionName, std::span<std::string_view const> const args) {
-        return preParse(functionName, args);
-    });
-
-    // Initialize modules
-    Module::Domain::Initializer::initCommon(this);
-}
-
-Domain::Domain(std::string const& name)
-    : domainName(name)
-    , capture(nullptr)
-    , cost(domainScope){
-    // FuncTree initialization
-    funcTree = std::make_shared<DomainTree>(
-        name,
-        Constants::Event::success,
-        Constants::Event::warning,
-        capture
-    );
-    funcTree->setPreParse([this](std::string_view const functionName, std::span<std::string_view const> const args) {
-        return preParse(functionName, args);
-    });
-
-    // Initialize modules
-    Module::Domain::Initializer::initCommon(this);
+    init(name);
 }
 
 Domain::~Domain() {

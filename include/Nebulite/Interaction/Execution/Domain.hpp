@@ -254,13 +254,14 @@ class Domain : public DocumentAccessor {
     }
 
 public:
-    Domain(std::string const& name, Data::JsonScope& documentReference, Utility::Io::Capture& parentCapture);
+    // External document + parent capture
+    Domain(std::string_view name, Data::JsonScope& documentReference, Utility::Io::Capture& parentCapture);
 
-    explicit Domain(std::string const& name, Utility::Io::Capture& parentCapture);
+    // Parent capture only, creates a new document
+    explicit Domain(std::string_view name, Utility::Io::Capture& parentCapture);
 
-    Domain(std::string const& name, Data::JsonScope& documentReference);
-
-    explicit Domain(std::string const& name);
+    // External document only, no parent capture
+    Domain(std::string_view name, Data::JsonScope& documentReference);
 
     ~Domain() override ;
 
@@ -551,6 +552,8 @@ protected:
     void baseDeserialization(std::string const& serialOrLinkWithCommands);
 
 private:
+    void init(std::string_view name);
+
     static void updateModule(Module::Base::DomainModuleBase& module);
 };
 } // namespace Nebulite::Interaction::Execution
