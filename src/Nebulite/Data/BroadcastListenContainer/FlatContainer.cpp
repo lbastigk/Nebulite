@@ -120,31 +120,45 @@ auto rotate(R&& r, double percent) {
         view | std::views::take(offset)
     );
 }
+
+/**
+ * @brief Applies rulesets to listeners based on their domains and the global space.
+ * @tparam R The type of the rulesets range. Must be a viewable range.
+ * @tparam L The type of the listeners range. Must be a viewable range.
+ * @param rulesets The range of rulesets to apply.
+ * @param listeners The range of listeners to apply the rulesets to.
+ * @param globalSpace The global space to use for evaluation.
+ */
+template <typename R, typename L>
+void apply(R&& rulesets, L&& listeners, Core::GlobalSpace& globalSpace) {
+    for (auto& listener : std::forward<L>(listeners)) {
+        for (auto const& ruleset : std::forward<R>(rulesets)) {
+            if (ruleset->getId() == listener->domain.getId()) continue;
+            if (ruleset->evaluateConditionGlobally(listener->domain, globalSpace)) {
+                globalSpace.applyRulesetToListener(*ruleset, *listener);
+            }
+        }
+    }
+}
+
 } // namespace
 
 void FlatContainerBase::processWithOffset() {
     auto& globalSpace = Global::instance();
     for (auto& listenerMap : rotate(listeners, settings.listenerOffset)) {
         listenerMap.forall([&](std::string const& topic, auto& lv) {
-            // Build a flattened view of all rulesets for this topic
-            auto rulesets = rotate(broadcasters, settings.broadcasterOffset)
-                | std::views::transform([&](auto& broadcasterMap) -> auto& {
-                      return broadcasterMap[topic];
-                  })
-                | std::views::transform([&](auto& bv) {
-                      return rotate(bv, settings.bvOffset);
-                  })
-                | std::views::join;
-
-            // Apply all valid rulesets and clear listeners
-            for (auto& listener : rotate(lv, settings.lvOffset)) {
-                for (auto const& ruleset : rulesets) {
-                    if (ruleset->getId() == listener->domain.getId()) continue;
-                    if (ruleset->evaluateConditionGlobally(listener->domain, globalSpace)) {
-                        globalSpace.applyRulesetToListener(*ruleset, *listener);
-                    }
-                }
-            }
+            apply(
+                rotate(broadcasters, settings.broadcasterOffset)
+                    | std::views::transform([&](auto& broadcasterMap) -> auto& {
+                          return broadcasterMap[topic];
+                      })
+                    | std::views::transform([&](auto& bv) {
+                          return rotate(bv, settings.bvOffset);
+                      })
+                    | std::views::join,
+                rotate(lv, settings.lvOffset),
+                globalSpace
+            );
             lv.clear();
         });
     }
@@ -161,20 +175,16 @@ void FlatContainerBase::processNoOffset(){
     auto& globalSpace = Global::instance();
     for (auto& listenerMap : listeners) {
         listenerMap.forall([&](std::string const& topic, auto& lv) {
-            // Build a flattened view of all rulesets for this topic
-            auto rulesets = broadcasters
-                | std::views::transform([&](auto& broadcasterMap) -> auto& {return broadcasterMap[topic];})
-                | std::views::join;
-
-            // Apply all valid rulesets and clear listeners
-            for (auto& listener : lv) {
-                for (auto const& ruleset : rulesets) {
-                    if (ruleset->getId() == listener->domain.getId()) continue;
-                    if (ruleset->evaluateConditionGlobally(listener->domain, globalSpace)) {
-                        globalSpace.applyRulesetToListener(*ruleset, *listener);
-                    }
-                }
-            }
+            apply(
+                broadcasters
+                    | std::views::transform(
+                        [&](auto& broadcasterMap) -> auto& {
+                            return broadcasterMap[topic];
+                        })
+                    | std::views::join,
+                lv,
+                globalSpace
+            );
             lv.clear();
         });
     }
