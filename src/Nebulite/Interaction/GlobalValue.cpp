@@ -11,14 +11,14 @@
 namespace Nebulite::Interaction {
 
 GlobalValue::GlobalValue(Data::JsonScope const& doc) : GlobalValueList{
-    .G = *doc.getStableDoublePointer(Module::Domain::GlobalSpace::Physics::Key::Global::G), // Gravitational constant
-    .dt = *doc.getStableDoublePointer(Module::Domain::GlobalSpace::Time::Key::deltaTime), // Simulation delta time
-    .t = *doc.getStableDoublePointer(Module::Domain::GlobalSpace::Time::Key::time), // Simulation time
+    .gravitationalConstant = *doc.getStableDoublePointer(Module::Domain::GlobalSpace::Physics::Key::Global::G),
+    .dt = *doc.getStableDoublePointer(Module::Domain::GlobalSpace::Time::Key::deltaTime),
+    .t = *doc.getStableDoublePointer(Module::Domain::GlobalSpace::Time::Key::time),
 } {}
 
 GlobalValueCopy GlobalValue::copy() const {
     return GlobalValueCopy{
-        .G = G,
+        .gravitationalConstant = gravitationalConstant,
         .dt = dt,
         .t = t
     };

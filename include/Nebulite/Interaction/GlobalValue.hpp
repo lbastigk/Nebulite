@@ -5,7 +5,7 @@
 // Forward declarations
 
 namespace Nebulite::Data {
-    class JsonScope;
+class JsonScope;
 } // namespace Nebulite::Data
 
 //------------------------------------------
@@ -21,16 +21,16 @@ namespace Nebulite::Interaction {
  */
 template<typename T>
 struct GlobalValueList {
-    T G; // Gravitational constant
-    T dt; // Simulation delta time
-    T t; // Simulation time
+    T gravitationalConstant; // [G] = m^3gk^-1s^-2
+    T dt; // Simulation delta time. [dt] = s
+    T t; // Simulation time. [t] = s
     /* Add more global variables here as needed */
 };
 
 using GlobalValueCopy = GlobalValueList<double>;
 
 struct GlobalValue : GlobalValueList<double&> {
-    GlobalValue(Data::JsonScope const& doc);
+    explicit GlobalValue(Data::JsonScope const& doc);
 
     [[nodiscard]] GlobalValueCopy copy() const ;
 };

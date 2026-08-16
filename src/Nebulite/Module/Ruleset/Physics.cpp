@@ -132,7 +132,7 @@ void Physics::gravity(Interaction::Context const& context, double** slf, double*
     double const r2 = dx*dx + dy*dy + 1.0;   // softening
     double const invR = 1.0 / std::sqrt(r2);
     double const invR3 = invR * invR * invR;
-    double const coeff = global.G * baseVal(slf, Key::physicsMass) * baseVal(otr, Key::physicsMass) * invR3;
+    double const coeff = global.gravitationalConstant * baseVal(slf, Key::physicsMass) * baseVal(otr, Key::physicsMass) * invR3;
 
     auto otrLock = context.other.lockDocument();
     baseVal(otr, Key::physicsForceX) += dx * coeff;
