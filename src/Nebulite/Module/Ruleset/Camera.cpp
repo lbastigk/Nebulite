@@ -38,27 +38,27 @@ Camera::Camera() : RulesetModule(moduleName, this) {
 // TODO: Add another namespace for camera following rulesets using a PT1 controller for smooth movement
 
 void Camera::alignCenter([[maybe_unused]] Interaction::Context const& context, double** slf, double** /*otr*/, Interaction::GlobalValueCopy const& /*globalValues*/) const {
-    assert(isGlobalContextCorrect(context));
+    assert(isGlobalContextCorrect(context)); // We assume that the global domain is the one we used to cache the global values.
     setCameraPosition(getAdjustedObjectPosition(slf, Align::center), Align::center);
 }
 
 void Camera::alignTop([[maybe_unused]] Interaction::Context const& context, double** slf, double** /*otr*/, Interaction::GlobalValueCopy const& /*globalValues*/) const {
-    assert(isGlobalContextCorrect(context));
+    assert(isGlobalContextCorrect(context)); // We assume that the global domain is the one we used to cache the global values.
     setCameraPosition(getAdjustedObjectPosition(slf, Align::center), Align::top);
 }
 
 void Camera::alignBottom([[maybe_unused]] Interaction::Context const& context, double** slf, double** /*otr*/, Interaction::GlobalValueCopy const& /*globalValues*/) const {
-    assert(isGlobalContextCorrect(context));
+    assert(isGlobalContextCorrect(context)); // We assume that the global domain is the one we used to cache the global values.
     setCameraPosition(getAdjustedObjectPosition(slf, Align::center), Align::bottom);
 }
 
 void Camera::alignLeft([[maybe_unused]] Interaction::Context const& context, double** slf, double** /*otr*/, Interaction::GlobalValueCopy const& /*globalValues*/) const {
-    assert(isGlobalContextCorrect(context));
+    assert(isGlobalContextCorrect(context)); // We assume that the global domain is the one we used to cache the global values.
     setCameraPosition(getAdjustedObjectPosition(slf, Align::center), Align::left);
 }
 
 void Camera::alignRight([[maybe_unused]] Interaction::Context const& context, double** slf, double** /*otr*/, Interaction::GlobalValueCopy const& /*globalValues*/) const {
-    assert(isGlobalContextCorrect(context));
+    assert(isGlobalContextCorrect(context)); // We assume that the global domain is the one we used to cache the global values.
     setCameraPosition(getAdjustedObjectPosition(slf, Align::center), Align::right);
 }
 

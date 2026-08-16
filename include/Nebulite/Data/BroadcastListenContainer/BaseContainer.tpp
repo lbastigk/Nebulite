@@ -85,10 +85,14 @@ template<typename DerivedContainer>
 void BaseContainer<DerivedContainer>::process(Interaction::GlobalValueCopy const& /*global*/) {}
 
 template<typename DerivedContainer>
-void BaseContainer<DerivedContainer>::initImpl(DerivedContainer container) { container->init(); }
+void BaseContainer<DerivedContainer>::initImpl(DerivedContainer container) {
+    container->init();
+}
 
 template<typename DerivedContainer>
-void BaseContainer<DerivedContainer>::processImpl(DerivedContainer container) { container->process(container->globalValuesCopy); }
+void BaseContainer<DerivedContainer>::processImpl(DerivedContainer container) {
+    container->process(container->globalValuesCopy);
+}
 
 template<typename DerivedContainer>
 void BaseContainer<DerivedContainer>::verifyCacheLookupIndex() {

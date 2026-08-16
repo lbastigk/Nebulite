@@ -8,7 +8,6 @@
 // Nebulite
 #include "Nebulite/Core/GlobalSpace.hpp"
 #include "Nebulite/Data/Document/Json.hpp"
-#include "Nebulite/Interaction/GlobalValue.hpp"
 #include "Nebulite/Nebulite.hpp"
 #include "Nebulite/ScopeAccessor.hpp"
 
@@ -17,11 +16,6 @@ namespace {
 
 Nebulite::Data::Json& globalDoc() noexcept(std::is_nothrow_constructible_v<Nebulite::Data::Json>) {
     static Nebulite::Data::Json instance;
-    return instance;
-}
-
-Nebulite::Data::JsonScope& globalScope() noexcept(std::is_nothrow_constructible_v<Nebulite::Data::JsonScope>) {
-    static Nebulite::Data::JsonScope instance{globalDoc(), ""};
     return instance;
 }
 
@@ -46,10 +40,6 @@ Data::JsonScope& shareScope(ScopeAccessor::BaseAccessToken const& at, std::strin
 
 Utility::Io::Capture& capture() {
     return instance().capture;
-}
-
-Interaction::GlobalValueCopy globalValues(){
-    return Interaction::GlobalValue(globalScope()).copy();
 }
 
 } // namespace Nebulite::Global

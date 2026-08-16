@@ -63,12 +63,5 @@ Core::GlobalSpace& instance();
  * @return Reference to the global capture instance.
  */
 Utility::Io::Capture& capture();
-
-//------------------------------------------
-// Global value access without access token
-// Temporary solution until GlobalValue propagation is properly implemented.
-
-[[deprecated("Use shareScope with an access token instead.")]]
-[[nodiscard]] Interaction::GlobalValueCopy globalValues();
 } // namespace Nebulite::Global
 #endif // NEBULITE_NEBULITE_HPP

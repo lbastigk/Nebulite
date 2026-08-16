@@ -75,7 +75,7 @@ Constants::Event Ruleset::updateHook() {
         // Directly apply local rulesets
         for (auto const& entry : rulesetsLocal) {
             if (entry->evaluateConditionLocally(Global::instance())) {
-                entry->applyDomain(Global::instance(), Global::globalValues());
+                Global::instance().applyRuleset(*entry);
             }
         }
 
@@ -120,7 +120,7 @@ Constants::Event Ruleset::invokeOnce(std::span<std::string_view const> const& ar
                 Global::instance().broadcast(rs.value());
             }
             else {
-                rs.value()->applyDomain(Global::instance(), Global::globalValues());
+                Global::instance().applyRuleset(*rs.value());
             }
             return Constants::Event::success;
         }

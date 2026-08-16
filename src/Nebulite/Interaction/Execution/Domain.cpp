@@ -22,6 +22,7 @@
 #include "Nebulite/Interaction/Execution/Domain.hpp"
 #include "Nebulite/Interaction/Execution/DomainTree.hpp"
 #include "Nebulite/Interaction/Logic/Expression.hpp"
+#include "Nebulite/Module/Base/DomainModuleBase.hpp"
 #include "Nebulite/Module/Domain/Common/Ruleset.hpp"
 #include "Nebulite/Module/Domain/Initializer.hpp"
 #include "Nebulite/Nebulite.hpp"
@@ -251,10 +252,8 @@ void Domain::baseDeserialization(std::string const& serialOrLinkWithCommands) {
     }
 }
 
-void Domain::updateModules() const {
-    for (auto const& module : modules) {
-        Global::instance().notifyEvent(module->update());
-    }
+void Domain::updateModule(Module::Base::DomainModuleBase& module){
+    Global::instance().notifyEvent(module.update());
 }
 
 void Domain::parseTaskQueues(bool const recover){

@@ -129,6 +129,9 @@ public:
         physicsLastPositionX,
         physicsLastPositionY,
     };
+
+private:
+    static bool anyCorrectionValueNonZero(double** slf);
 };
 } // namespace Nebulite::Module::Ruleset
 #endif // NEBULITE_MODULE_RULESET_PHYSICS_HPP
