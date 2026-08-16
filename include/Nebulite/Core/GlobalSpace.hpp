@@ -21,6 +21,7 @@
 #include "Nebulite/Core/Renderer.hpp"
 #include "Nebulite/Data/Document/DocumentCache.hpp"
 #include "Nebulite/Interaction/Execution/Domain.hpp"
+#include "Nebulite/Interaction/GlobalValue.hpp"
 #include "Nebulite/Interaction/Invoke.hpp"
 
 //------------------------------------------
@@ -125,6 +126,17 @@ public:
      */
     void listen(std::shared_ptr<Interaction::Rules::Listener> const& listener);
 
+    /**
+     * @brief Applies a ruleset, using the global space for the global values
+     * @param ruleset The ruleset to apply
+     */
+    void applyRuleset(Interaction::Rules::Ruleset& ruleset);
+
+    /**
+     * @brief Apply a ruleset to a given listener
+     */
+    void applyRulesetToListener(Interaction::Rules::Ruleset& ruleset, Interaction::Rules::Listener& listener);
+
     //------------------------------------------
     // Getters
 
@@ -198,6 +210,9 @@ private:
     // Flag to indicate if a critical error has occurred
     bool errorOccurred = false;
 
+    // Indicates if the task queue has been parsed on this frame render
+    bool queueParsed = false;
+
     // DocumentCache for read-only documents
     Data::DocumentCache docCache;
 
@@ -206,6 +221,10 @@ private:
 
     // Invoke Object for managing broadcasted rulesets
     Interaction::Invoke invoke;
+
+    // Global value linkage
+    Interaction::GlobalValue globalValues;
+    Interaction::GlobalValueCopy globalValuesCopy;
 
     //------------------------------------------
     // Structs

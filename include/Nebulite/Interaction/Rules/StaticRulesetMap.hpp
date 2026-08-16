@@ -13,6 +13,7 @@
 #include <absl/container/flat_hash_map.h>
 
 // Nebulite
+#include "Nebulite/Interaction/GlobalValue.hpp"
 #include "Nebulite/Interaction/Rules/Ruleset.hpp"
 
 //------------------------------------------
@@ -103,7 +104,7 @@ private:
     };
 
     // List available rulesets
-    void help(Context const& context, double** slf, double** otr) const ;
+    void help(Context const& context, double** slf, double** otr, GlobalValueCopy const& global) const ;
     static std::string_view constexpr helpName = "::help";
     static std::string_view constexpr helpDesc = "Lists all available static rulesets with their descriptions.";
     StaticRuleset::BaseListFunction const helpBaseListFunc = [](Execution::Domain const&) -> double** {return nullptr;};

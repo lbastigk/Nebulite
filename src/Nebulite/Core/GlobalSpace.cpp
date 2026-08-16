@@ -47,7 +47,10 @@ GlobalSpace::GlobalSpace(std::string const& name) :
         Global::shareScope(ScopeAccessor::Full(), "renderer"),
         &commandLineVariables.headless,
         capture
-    ){
+    ),
+    globalValues(Global::shareScope(ScopeAccessor::Full(), "")),
+    globalValuesCopy(globalValues.copy())
+{
     //------------------------------------------
     // Ensure GlobalSpace id is zero
     if (getId() != 0) {
@@ -118,24 +121,27 @@ Constants::Event GlobalSpace::updateInnerDomains() {
 }
 
 Constants::Event GlobalSpace::update() {
-    static bool queueParsed = false; // Indicates if the task queue has been parsed on this frame render
-
     //------------------------------------------
     // TaskQueue parsing
+
     if (!queueParsed) {
         parseTaskQueues(commandLineVariables.recover);
         queueParsed = true;
     }
 
     //------------------------------------------
+    // Update & render
+
     // Compared to all other domains,
     // we cannot simply update inner domains all the time.
     // This is because the GlobalSpace is the uppermost Domain
     // And is responsible for the proper update timing.
     // We do this by checking if enough time has passed since the last renderer to reach the target FPS.
     if (continueLoop && renderer.isSdlInitialized() && renderer.timeToRender()) {
-        // Update modules first
-        updateModules();
+        // Update modules first, keeping the globalValuesCopy in sync with the current globalValues
+        updateModules([&] {
+            globalValuesCopy = globalValues.copy();
+        });
 
         // Then, update inner domains
         notifyEvent(updateInnerDomains());
@@ -149,14 +155,13 @@ Constants::Event GlobalSpace::update() {
 
     //------------------------------------------
     // Check if we need to continue the loop
-    continueLoop = continueLoop && renderer.isSdlInitialized() && !renderer.shouldQuit();
+
+    continueLoop &= renderer.isSdlInitialized() && !renderer.shouldQuit();
     if (tasks.scriptIsWaiting() && !renderer.isSdlInitialized()) {
-        /**
-         * @brief Overwrite: If there is a wait operation and no renderer exists,
-         *        we need to continue the loop and decrease scriptWaitCounter
-         * @note It might be tempting to add the condition that all tasks are done,
-         *       but this could cause issues if the user wishes to quit while a task is still running.
-         */
+        // Overwrite: If there is a wait operation and no renderer exists,
+        // we need to continue the loop and decrease scriptWaitCounter
+        // It might be tempting to add the condition that all tasks are done,
+        // but this could cause issues if the user wishes to quit while a task is still running.
         continueLoop = true;
         tasks.decrementScriptWaitCounter();
         queueParsed = false;
@@ -218,6 +223,14 @@ void GlobalSpace::broadcast(std::shared_ptr<Interaction::Rules::Ruleset> entry) 
 
 void GlobalSpace::listen(std::shared_ptr<Interaction::Rules::Listener> const& listener) {
     invoke.listen(listener);
+}
+
+void GlobalSpace::applyRuleset(Interaction::Rules::Ruleset& ruleset){
+    ruleset.applyDomain(*this, globalValuesCopy);
+}
+
+void GlobalSpace::applyRulesetToListener(Interaction::Rules::Ruleset& ruleset, Interaction::Rules::Listener& listener){
+    ruleset.applyListener(listener, *this, globalValuesCopy);
 }
 
 //------------------------------------------

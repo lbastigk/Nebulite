@@ -340,22 +340,17 @@ Define object interactions via JSON rulesets:
 or via static rulesets in C++ code:
 ```cpp
 // Called with keyword "::physics:gravity" (both broadcast and listen)
-void Physics::gravity(Interaction::Context const& context, double** slf, double** otr) const {
+void Physics::gravity(Interaction::Context const& context, double** slf, double** otr, Interaction::GlobalValueCopy const& global) {
     double const dx = baseVal(slf, Key::posX) - baseVal(otr, Key::posX);
     double const dy = baseVal(slf, Key::posY) - baseVal(otr, Key::posY);
-
     double const r2 = dx*dx + dy*dy + 1.0;   // softening
     double const invR = 1.0 / std::sqrt(r2);
     double const invR3 = invR * invR * invR;
-
-    double const G  = *globalVal.G;
-    double const m1 = baseVal(slf, Key::physics_mass);
-    double const m2 = baseVal(otr, Key::physics_mass);
-    double const coeff = G * m1 * m2 * invR3;
+    double const coeff = global.gravitationalConstant * baseVal(slf, Key::physicsMass) * baseVal(otr, Key::physicsMass) * invR3;
 
     auto otrLock = context.other.lockDocument();
-    baseVal(otr, Key::physics_FX) += dx * coeff;
-    baseVal(otr, Key::physics_FY) += dy * coeff;
+    baseVal(otr, Key::physicsForceX) += dx * coeff;
+    baseVal(otr, Key::physicsForceY) += dy * coeff;
 }
 ```
 

@@ -11,6 +11,7 @@
 
 // Nebulite
 #include "Nebulite/Constants/KeyNames.hpp"
+#include "Nebulite/Interaction/GlobalValue.hpp"
 #include "Nebulite/Math/Vec2.hpp"
 #include "Nebulite/Module/Base/RulesetModule.hpp"
 
@@ -30,28 +31,29 @@ public:
 
     // Align camera
 
-    void alignCenter(Interaction::Context const& context, double** slf, double** otr) const ;
+    void alignCenter(Interaction::Context const& context, double** slf, double** otr, Interaction::GlobalValueCopy const& globalValues) const ;
     static std::string_view constexpr alignCenterName = "::camera::align::center";
     static std::string_view constexpr alignCenterDesc = "Aligns the camera view center to the center of the render object.";
 
-    void alignTop(Interaction::Context const& context, double** slf, double** otr) const ;
+    void alignTop(Interaction::Context const& context, double** slf, double** otr, Interaction::GlobalValueCopy const& globalValues) const ;
     static std::string_view constexpr alignTopName = "::camera::align::top";
     static std::string_view constexpr alignTopDesc = "Aligns the camera view top edge to the center of the render object.";
 
-    void alignBottom(Interaction::Context const& context, double** slf, double** otr) const ;
+    void alignBottom(Interaction::Context const& context, double** slf, double** otr, Interaction::GlobalValueCopy const& globalValues) const ;
     static std::string_view constexpr alignBottomName = "::camera::align::bottom";
     static std::string_view constexpr alignBottomDesc = "Aligns the camera view bottom edge to the center of the render object.";
 
-    void alignLeft(Interaction::Context const& context, double** slf, double** otr) const ;
+    void alignLeft(Interaction::Context const& context, double** slf, double** otr, Interaction::GlobalValueCopy const& globalValues) const ;
     static std::string_view constexpr alignLeftName = "::camera::align::left";
     static std::string_view constexpr alignLeftDesc = "Aligns the camera view left edge to the center of the render object.";
 
-    void alignRight(Interaction::Context const& context, double** slf, double** otr) const ;
+    void alignRight(Interaction::Context const& context, double** slf, double** otr, Interaction::GlobalValueCopy const& globalValues) const ;
     static std::string_view constexpr alignRightName = "::camera::align::right";
     static std::string_view constexpr alignRightDesc = "Aligns the camera view right edge to the center of the render object.";
 
     //------------------------------------------
     // Constructor
+
     Camera();
 
     static std::string_view constexpr moduleName = "::camera";
@@ -77,12 +79,13 @@ private:
     //------------------------------------------
     // Global values
 
-    struct GlobalVal {
+    // Required global values for camera alignment
+    struct GlobalCameraValues {
         double* camPosX;
         double* camPosY;
         double* dispResX;
         double* dispResY;
-    } globalVal = {};
+    } globalCameraValues = {};
 
     //------------------------------------------
     // Position

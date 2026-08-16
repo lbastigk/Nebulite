@@ -14,6 +14,7 @@
 #include "Nebulite/Graphics/RmlInterface.hpp"
 #include "Nebulite/Interaction/AttributeCommand.hpp"
 #include "Nebulite/Interaction/Execution/Domain.hpp"
+#include "Nebulite/Interaction/GlobalValue.hpp"
 #include "Nebulite/Interaction/Rules/Construction/RulesetCompiler.hpp"
 #include "Nebulite/Interaction/Rules/Ruleset.hpp"
 #include "Nebulite/Utility/Io/Capture.hpp"
@@ -27,7 +28,8 @@ static_assert(AttributeCommand<"">::specializationCount == 3, "If you added a ne
 void ActionsImpl::applyRuleset(std::string_view const ruleset, Utility::Io::Capture& cap, Graphics::RmlInterface::ContextAndScope& ctxAndScope) {
     auto& [ctx, scope] = ctxAndScope;
     if (auto const rs = Rules::Construction::RulesetCompiler::parseSingle(ruleset, ctx.self); rs) {
-        rs.value()->applyContext(ctx, scope);
+        auto global = GlobalValue(scope.global).copy();
+        rs.value()->applyContext(ctx, scope, global);
     }
     else {
         cap.warning.println("Could not find ruleset with identifier '", ruleset, "'. Skipping ruleset invocation.");

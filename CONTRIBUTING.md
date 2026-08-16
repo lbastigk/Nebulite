@@ -160,7 +160,7 @@ bind<alignCenterName>(&Camera::alignCenter, baseListFunc, Interaction::Rules::St
 ```
 On invocation, both slf and otr have the same list of variables. Use `baseVal(<enum>)` to access the variables in the ruleset function:
 ```cpp
-void Camera::myCameraFunction(Interaction::Context const& /*context*/, double** slf, double** /*otr*/) {
+void Camera::myCameraFunction(Interaction::Context const& /*context*/, double** slf, double** /*otr*/, Interaction::GlobalValueCopy const& global) {
     // Access the variables using the baseVal function and the enum
     double& posX = baseVal(Key::posX);
     double& posY = baseVal(Key::posY);

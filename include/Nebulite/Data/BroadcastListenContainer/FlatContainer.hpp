@@ -21,6 +21,10 @@
 //------------------------------------------
 // Forward declarations
 
+namespace Nebulite::Core {
+class GlobalSpace;
+} // namespace Nebulite::Core
+
 namespace Nebulite::Interaction::Rules {
 class Ruleset;
 struct Listener;
@@ -68,7 +72,7 @@ public:
      */
     void processNoOffset();
 
-    explicit FlatContainerBase([[clang::lifetimebound]] Settings const& s) : settings(s) {}
+    explicit FlatContainerBase([[clang::lifetimebound]] Settings const& s);
 };
 
 /**
@@ -129,16 +133,6 @@ public:
     void listen(std::shared_ptr<Interaction::Rules::Listener>&& listener) override {
         base->listen(std::move(listener)); // NOLINT
     }
-
-    /**
-     * @brief Empty, no preparation needed for this container type
-     */
-    void prepare() override {}
-
-    /**
-     * @brief Empty, no initialization needed for this container type
-     */
-    void init() override {}
 
     /**
      * @brief Processes all broadcasted rulesets,

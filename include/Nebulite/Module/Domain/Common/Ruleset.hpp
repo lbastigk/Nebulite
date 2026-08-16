@@ -112,20 +112,11 @@ public:
     };
 
 private:
-    // Check if the module is initialized and ready to use
-    bool initialized = false;
-
     // Mutex for threadsafe initialization
     std::mutex initializeMutex;
 
     // Size of subscriptions
     std::size_t subscriptionSize = 0;
-
-    // Check if rulesets need to be reloaded
-    bool reloadRulesets = true;
-
-    // Check if no rulesets are present
-    bool noRulesets = false;
 
     // Global rulesets, intended for self-other-global interaction
     std::vector<std::shared_ptr<Interaction::Rules::Ruleset>> rulesetsGlobal;
@@ -135,6 +126,15 @@ private:
 
     // Topic subscriptions
     std::vector<std::shared_ptr<Interaction::Rules::Listener>> listeners;
+
+    // Check if the module is initialized and ready to use
+    bool initialized = false;
+
+    // Check if rulesets need to be reloaded
+    bool reloadRulesets = true;
+
+    // Check if no rulesets are present
+    bool noRulesets = false;
 };
 } // namespace Nebulite::Module::Domain::Common
 #endif // NEBULITE_MODULE_DOMAIN_COMMON_RULESET_HPP
