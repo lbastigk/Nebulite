@@ -243,8 +243,6 @@ class Domain : public DocumentAccessor {
         std::size_t getIdHashed();
     } mutable identifier;
 
-
-
     /**
      * @brief Necessary operations before parsing commands.
      * @details Override this function to implement domain-specific pre-parse logic.
@@ -256,13 +254,14 @@ class Domain : public DocumentAccessor {
     }
 
 public:
-    Domain(std::string const& name, Data::JsonScope& documentReference, Utility::Io::Capture& parentCapture);
+    // External document + parent capture
+    Domain(std::string_view name, Data::JsonScope& documentReference, Utility::Io::Capture& parentCapture);
 
-    explicit Domain(std::string const& name, Utility::Io::Capture& parentCapture);
+    // Parent capture only, creates a new document
+    explicit Domain(std::string_view name, Utility::Io::Capture& parentCapture);
 
-    Domain(std::string const& name, Data::JsonScope& documentReference);
-
-    explicit Domain(std::string const& name);
+    // External document only, no parent capture
+    Domain(std::string_view name, Data::JsonScope& documentReference);
 
     ~Domain() override ;
 
@@ -408,10 +407,22 @@ public:
         modules.push_back(createModule<DomainType, DomainModuleType>(moduleName, settings, domainReference, funcTree));
     }
 
+    struct NoFunction {
+        void constexpr operator()() const noexcept {}
+    };
+
     /**
      * @brief Updates all DomainModules and parses the TaskQueues
+     * @tparam F A callable type that will be invoked after each module update. Defaults to NoFunction, which does nothing.
+     * @param f An optional callable that will be invoked after each module update.
      */
-    void updateModules() const ;
+    template <typename F = NoFunction>
+    void updateModules(F&& f = {}) const { // NOLINT
+        for (auto const& module : modules) {
+            updateModule(*module);
+            std::invoke(f);
+        }
+    }
 
     void parseTaskQueues(bool recover);
 
@@ -539,6 +550,11 @@ protected:
      * @param serialOrLinkWithCommands The serialization string or link with commands to deserialize.
      */
     void baseDeserialization(std::string const& serialOrLinkWithCommands);
+
+private:
+    void init(std::string_view name);
+
+    static void updateModule(Module::Base::DomainModuleBase& module);
 };
 } // namespace Nebulite::Interaction::Execution
 #endif // NEBULITE_INTERACTION_EXECUTION_DOMAIN_HPP

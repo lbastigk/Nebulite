@@ -58,6 +58,11 @@ void Invoke::listen(std::shared_ptr<Rules::Listener> const& listener) {
 void Invoke::update() {
     activeWorkers = worker | std::views::take(activeWorkerCount);
 
+    // Prepare work for the next frame
+    for (auto& w : activeWorkers) {
+        w.prepare();
+    }
+
     // Signal all worker threads to start processing
     for (auto& w : activeWorkers) {
         w.startWork();
@@ -66,11 +71,6 @@ void Invoke::update() {
     // Wait for all threads to finish processing
     for (auto& w : activeWorkers) {
         w.waitForWorkFinished();
-    }
-
-    // Prepare work for the next frame
-    for (auto& w : activeWorkers) {
-        w.prepare();
     }
 }
 

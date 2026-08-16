@@ -71,9 +71,6 @@ void BaseContainer<DerivedContainer>::listen(std::shared_ptr<Interaction::Rules:
     auto local = std::move(listener); // NOLINT
 }
 
-/**
- * @brief Prepare container for next processing round.
- */
 template<typename DerivedContainer>
 void BaseContainer<DerivedContainer>::prepare() {}
 
@@ -84,10 +81,14 @@ template<typename DerivedContainer>
 void BaseContainer<DerivedContainer>::process() {}
 
 template<typename DerivedContainer>
-void BaseContainer<DerivedContainer>::initImpl(DerivedContainer container) { container->init(); }
+void BaseContainer<DerivedContainer>::initImpl(DerivedContainer container) {
+    container->init();
+}
 
 template<typename DerivedContainer>
-void BaseContainer<DerivedContainer>::processImpl(DerivedContainer container) { container->process(); }
+void BaseContainer<DerivedContainer>::processImpl(DerivedContainer container) {
+    container->process();
+}
 
 template<typename DerivedContainer>
 void BaseContainer<DerivedContainer>::verifyCacheLookupIndex() {

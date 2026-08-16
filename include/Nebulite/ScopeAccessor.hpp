@@ -15,6 +15,10 @@ class GlobalSpace;
 class RenderObject;
 } // namespace Nebulite::Core
 
+namespace Nebulite::Interaction {
+class Invoke;
+} // namespace Nebulite::Interaction
+
 namespace Nebulite::Module::Domain::Renderer {
 class Console;
 } // namespace Nebulite::Module::Domain::Renderer
@@ -62,6 +66,7 @@ public:
         // Allowed accessors:
         friend class Core::GlobalSpace; // GlobalSpace needs to create the token and manage access to its Subdomains and itself
         friend class Module::Domain::Renderer::Console; // Console needs full access to display entire scope.
+        friend class Interaction::Invoke;
     };
 
     // Provide scoped GlobalSpace access to DomainModules

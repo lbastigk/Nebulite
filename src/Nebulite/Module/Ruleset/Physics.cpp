@@ -4,19 +4,14 @@
 // Standard Library
 #include <cassert>
 #include <cmath>
-#include <stdexcept>
 
 // Nebulite
-#include "Nebulite/Core/GlobalSpace.hpp"
 #include "Nebulite/Interaction/Context.hpp"
+#include "Nebulite/Interaction/GlobalValue.hpp"
 #include "Nebulite/Interaction/Rules/Ruleset.hpp"
-#include "Nebulite/Interaction/Rules/StaticRulesetMap.hpp"
 #include "Nebulite/Math/Equality.hpp"
-#include "Nebulite/Module/Domain/GlobalSpace/Physics.hpp"
-#include "Nebulite/Module/Domain/GlobalSpace/Time.hpp"
 #include "Nebulite/Module/Ruleset/Physics.hpp"
 #include "Nebulite/Nebulite.hpp"
-#include "Nebulite/ScopeAccessor.hpp"
 
 //------------------------------------------
 namespace Nebulite::Module::Ruleset {
@@ -25,30 +20,20 @@ Physics::Physics() : RulesetModule(moduleName, this) {
     auto const baseListFunc = generateBaseListFunction(baseKeys);
 
     // Global rulesets
-    bind<elasticCollisionName>(&Physics::elasticCollision, baseListFunc, Interaction::Rules::StaticRuleset::Type::global, elasticCollisionDesc);
-    bind<gravityName>(&Physics::gravity, baseListFunc, Interaction::Rules::StaticRuleset::Type::global, gravityDesc);
+    bindStaticFunction<elasticCollisionName, Physics>(&Physics::elasticCollision, baseListFunc, Interaction::Rules::StaticRuleset::Type::global, elasticCollisionDesc);
+    bindStaticFunction<gravityName, Physics>(&Physics::gravity, baseListFunc, Interaction::Rules::StaticRuleset::Type::global, gravityDesc);
 
     // Local rulesets
-    bind<storeLastPositionName>(&Physics::storeLastPosition, baseListFunc, Interaction::Rules::StaticRuleset::Type::local, storeLastPositionDesc);
-    bind<applyForceName>(&Physics::applyForce, baseListFunc, Interaction::Rules::StaticRuleset::Type::local, applyForceDesc);
-    bind<applyCorrectionName>(&Physics::applyCorrection, baseListFunc, Interaction::Rules::StaticRuleset::Type::local, applyCorrectionDesc);
-    bind<dragName>(&Physics::drag, baseListFunc, Interaction::Rules::StaticRuleset::Type::local, dragDesc);
-
-    // Global Variables
-    auto const token = getRulesetModuleAccessToken(*this);
-    globalVal.G = Global::shareScope(token).getStableDoublePointer(Domain::GlobalSpace::Physics::Key::Global::G); // Gravitational constant
-    globalVal.dt = Global::shareScope(token).getStableDoublePointer(Domain::GlobalSpace::Time::Key::deltaTime); // Simulation delta time
-    globalVal.t = Global::shareScope(token).getStableDoublePointer(Domain::GlobalSpace::Time::Key::time); // Simulation time
+    bindStaticFunction<storeLastPositionName, Physics>(&Physics::storeLastPosition, baseListFunc, Interaction::Rules::StaticRuleset::Type::local, storeLastPositionDesc);
+    bindStaticFunction<applyForceName, Physics>(&Physics::applyForce, baseListFunc, Interaction::Rules::StaticRuleset::Type::local, applyForceDesc);
+    bindStaticFunction<applyCorrectionName, Physics>(&Physics::applyCorrection, baseListFunc, Interaction::Rules::StaticRuleset::Type::local, applyCorrectionDesc);
+    bindStaticFunction<dragName, Physics>(&Physics::drag, baseListFunc, Interaction::Rules::StaticRuleset::Type::local, dragDesc);
 }
 
 // Global rulesets
 
 // TODO: add collision for circle-box and circle-circle
-void Physics::elasticCollision(Interaction::Context const& context, double** slf, double** otr) const {
-    if (context.global.getId() != Global::instance().getId()) {
-        throw std::runtime_error("The global context must be the actual GlobalSpace, as this Ruleset relies on global variables!");
-    }
-
+void Physics::elasticCollision(Interaction::Context const& context, double** slf, double** otr, Interaction::GlobalValueCopy const& global) {
     //------------------------------------------
     // Base condition check
 
@@ -117,9 +102,9 @@ void Physics::elasticCollision(Interaction::Context const& context, double** slf
 
                 // Lock and write
                 auto slfLock = context.other.lockDocument();
-                if (baseVal(otr, Key::physicsLastCollisionX) < *globalVal.t) {
+                if (baseVal(otr, Key::physicsLastCollisionX) < global.t) {
                     baseVal(otr, Key::physicsCorrectionVelocityX) += v2NewX - v2X;
-                    baseVal(otr, Key::physicsLastCollisionX) = *globalVal.t;
+                    baseVal(otr, Key::physicsLastCollisionX) = global.t;
                 }
             }
             if (conditionY) {
@@ -132,25 +117,22 @@ void Physics::elasticCollision(Interaction::Context const& context, double** slf
 
                 // Lock and write
                 auto slfLock = context.other.lockDocument();
-                if (baseVal(otr, Key::physicsLastCollisionY) < *globalVal.t) {
+                if (baseVal(otr, Key::physicsLastCollisionY) < global.t) {
                     baseVal(otr, Key::physicsCorrectionVelocityY) += v2NewY - v2Y;
-                    baseVal(otr, Key::physicsLastCollisionY) = *globalVal.t;
+                    baseVal(otr, Key::physicsLastCollisionY) = global.t;
                 }
             }
         }
     }
 }
 
-
-void Physics::gravity(Interaction::Context const& context, double** slf, double** otr) const {
-    assert(isGlobalContextCorrect(context));
-
+void Physics::gravity(Interaction::Context const& context, double** slf, double** otr, Interaction::GlobalValueCopy const& global) {
     double const dx = baseVal(slf, Key::posX) - baseVal(otr, Key::posX);
     double const dy = baseVal(slf, Key::posY) - baseVal(otr, Key::posY);
     double const r2 = dx*dx + dy*dy + 1.0;   // softening
     double const invR = 1.0 / std::sqrt(r2);
     double const invR3 = invR * invR * invR;
-    double const coeff = *globalVal.G * baseVal(slf, Key::physicsMass) * baseVal(otr, Key::physicsMass) * invR3;
+    double const coeff = global.gravitationalConstant * baseVal(slf, Key::physicsMass) * baseVal(otr, Key::physicsMass) * invR3;
 
     auto otrLock = context.other.lockDocument();
     baseVal(otr, Key::physicsForceX) += dx * coeff;
@@ -159,47 +141,35 @@ void Physics::gravity(Interaction::Context const& context, double** slf, double*
 
 // Local rulesets
 
-// NOLINTNEXTLINE
-void Physics::storeLastPosition(Interaction::Context const& /*context*/, double** slf, double** /*otr*/) const {
+void Physics::storeLastPosition(Interaction::Context const& /*context*/, double** slf, double** /*otr*/, Interaction::GlobalValueCopy const& /*global*/) {
     baseVal(slf, Key::physicsLastPositionX) = baseVal(slf, Key::posX);
     baseVal(slf, Key::physicsLastPositionY) = baseVal(slf, Key::posY);
 }
 
-void Physics::applyForce([[maybe_unused]] Interaction::Context const& context, double** slf, double** /*otr*/) const {
-    assert(isGlobalContextCorrect(context));
-
-    // Pre-calculate values before locking
-    double const dt = *globalVal.dt;
+void Physics::applyForce([[maybe_unused]] Interaction::Context const& context, double** slf, double** /*otr*/, Interaction::GlobalValueCopy const& global) {
+    // Acceleration
     double const invMass = 1.0 / baseVal(slf, Key::physicsMass);
     double const aX = baseVal(slf, Key::physicsForceX) * invMass;
     double const aY = baseVal(slf, Key::physicsForceY) * invMass;
-    double const dvX = aX * dt;
-    double const dvY = aY * dt;
-
-    // Lock and apply all physics calculations
-    // Local ruleset, no locking needed
-    //auto slfLock = context.self.lockDocument();
-
-    // Acceleration is based on F
     baseVal(slf, Key::physicsAccelerationX) = aX;
     baseVal(slf, Key::physicsAccelerationY) = aY;
 
-    // Velocity and Position is based on integration of Acceleration over dt
+    // Velocity and Position
+    double const dvX = aX * global.dt;
+    double const dvY = aY * global.dt;
     baseVal(slf, Key::physicsVelocityX) += dvX;
     baseVal(slf, Key::physicsVelocityY) += dvY;
-    baseVal(slf, Key::posX) += baseVal(slf, Key::physicsVelocityX) * dt;
-    baseVal(slf, Key::posY) += baseVal(slf, Key::physicsVelocityY) * dt;
+    baseVal(slf, Key::posX) += baseVal(slf, Key::physicsVelocityX) * global.dt;
+    baseVal(slf, Key::posY) += baseVal(slf, Key::physicsVelocityY) * global.dt;
 
     // Force reset after application
     baseVal(slf, Key::physicsForceX) = 0.0;
     baseVal(slf, Key::physicsForceY) = 0.0;
 }
 
-// NOLINTNEXTLINE
-void Physics::applyCorrection(Interaction::Context const& context, double** slf, double** /*otr*/) const {
+void Physics::applyCorrection(Interaction::Context const& context, double** slf, double** /*otr*/, Interaction::GlobalValueCopy const& /*global*/) {
     // Check if any corrections are significant enough to apply (greater than a small epsilon)
-    if (!Math::isZero(baseVal(slf, Key::physicsCorrectionX))  || !Math::isZero(baseVal(slf, Key::physicsCorrectionY))
-     || !Math::isZero(baseVal(slf, Key::physicsCorrectionVelocityX)) || !Math::isZero(baseVal(slf, Key::physicsCorrectionVelocityY))) {
+    if (anyCorrectionValueNonZero(slf)) {
         // Lock and apply corrections
         auto slfLock = context.self.lockDocument();
         baseVal(slf, Key::posX) += baseVal(slf, Key::physicsCorrectionX);
@@ -215,8 +185,7 @@ void Physics::applyCorrection(Interaction::Context const& context, double** slf,
     }
 }
 
-// NOLINTNEXTLINE
-void Physics::drag(Interaction::Context const& context, double** slf, double** /*otr*/) const {
+void Physics::drag(Interaction::Context const& context, double** slf, double** /*otr*/, Interaction::GlobalValueCopy const& /*global*/) {
     // Drag coefficient (tunable parameter)
     static constexpr double dragCoefficient = 0.1;
 
@@ -230,6 +199,13 @@ void Physics::drag(Interaction::Context const& context, double** slf, double** /
     auto slfLock = context.self.lockDocument();
     baseVal(slf, Key::physicsForceX) += dragForceX;
     baseVal(slf, Key::physicsForceY) += dragForceY;
+}
+
+bool Physics::anyCorrectionValueNonZero(double** slf) {
+    return !Math::isZero(baseVal(slf, Key::physicsCorrectionX))
+        || !Math::isZero(baseVal(slf, Key::physicsCorrectionY))
+        || !Math::isZero(baseVal(slf, Key::physicsCorrectionVelocityX))
+        || !Math::isZero(baseVal(slf, Key::physicsCorrectionVelocityY));
 }
 
 } // namespace Nebulite::Module::Ruleset

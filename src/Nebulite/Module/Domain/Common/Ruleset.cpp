@@ -68,26 +68,31 @@ Constants::Event Ruleset::updateHook() {
             moduleScope.set(scopedKey.costTotal, costLocal + costGlobal);
             noRulesets = rulesetsLocal.empty() && rulesetsGlobal.empty();
         }
+
+        // Early exit if no rulesets are present
         if (noRulesets) {
             return Constants::Event::success;
         }
 
+        // Apply rulesets, using the global space as manager
+        auto& globalSpace = Global::instance();
+
         // Directly apply local rulesets
         for (auto const& entry : rulesetsLocal) {
-            if (entry->evaluateConditionLocally(Global::instance())) {
-                entry->applyDomain(Global::instance());
+            if (entry->evaluateConditionLocally(globalSpace)) {
+                globalSpace.applyRuleset(*entry);
             }
         }
 
         // Listen to broadcasts from subscribed topics
         for (auto const& listener : listeners) {
-            Global::instance().listen(listener);
+            globalSpace.listen(listener);
         }
 
         // Broadcast global rulesets
         for (auto const& entry : rulesetsGlobal) {
             // add pointer to invoke command to global
-            Global::instance().broadcast(entry);
+            globalSpace.broadcast(entry);
         }
     }
     else {
@@ -120,7 +125,7 @@ Constants::Event Ruleset::invokeOnce(std::span<std::string_view const> const& ar
                 Global::instance().broadcast(rs.value());
             }
             else {
-                rs.value()->applyDomain(Global::instance());
+                Global::instance().applyRuleset(*rs.value());
             }
             return Constants::Event::success;
         }

@@ -14,6 +14,7 @@
 #include <vector>
 
 // Nebulite
+#include "Nebulite/Interaction/GlobalValue.hpp"
 #include "Nebulite/Interaction/Logic/Assignment.hpp"
 #include "Nebulite/Interaction/Logic/Expression.hpp"
 
@@ -119,21 +120,26 @@ public:
 
     /**
      * @brief Applies the ruleset with a full context given
+     * @param context The context containing self, other, and global domains.
+     * @param contextScope The context scope.
+     * @param globalValueCopy The global value copy to be used for the ruleset application.
      */
-    virtual void applyContext(Context& context, ContextScope& contextScope);
+    virtual void applyContext(Context& context, ContextScope& contextScope, GlobalValueCopy const& globalValueCopy);
 
     /**
      * @brief Applies the ruleset
      * @param listener The listener domain.
      * @param global The global context.
+     * @param globalValueCopy The global value copy to be used for the ruleset application.
      */
-    virtual void applyListener(std::shared_ptr<Listener> const& listener, Execution::Domain& global);
+    virtual void applyListener(Listener& listener, Execution::Domain& global, GlobalValueCopy const& globalValueCopy);
 
     /**
      * @brief Applies the ruleset to its own Domain as context other.
      * @param global The global context.
+     * @param globalValueCopy The global value copy to be used for the ruleset application.
      */
-    virtual void applyDomain(Execution::Domain& global);
+    virtual void applyDomain(Execution::Domain& global, GlobalValueCopy const& globalValueCopy);
 
 protected:
     /**
@@ -193,7 +199,7 @@ public:
         invalid,
     };
 
-    using Function = std::function<void(Context const&, double** slf, double** otr)>;
+    using Function = std::function<void(Context const&, double** slf, double** otr, GlobalValueCopy const&)>;
     using BaseListFunction = std::function<double**(Execution::Domain const&)>;
 
     //------------------------------------------
@@ -222,20 +228,22 @@ public:
     /**
      * @brief Applies the ruleset with a full context given
      */
-    void applyContext(Context& context, ContextScope& contextScope) override ;
+    void applyContext(Context& context, ContextScope& contextScope, GlobalValueCopy const& globalValueCopy) override ;
 
     /**
      * @brief Applies the ruleset
      * @param listener The listener domain.
      * @param global The global context.
+     * @param globalValueCopy The global value copy to be used for the ruleset application.
      */
-    void applyListener(std::shared_ptr<Listener> const& listener, Execution::Domain& global) override ;
+    void applyListener(Listener& listener, Execution::Domain& global, GlobalValueCopy const& globalValueCopy) override ;
 
     /**
      * @brief Applies the ruleset to its own Domain as contextOther.
      * @param global The global context.
+     * @param globalValueCopy The global value copy to be used for the ruleset application.
      */
-    void applyDomain(Execution::Domain& global) override ;
+    void applyDomain(Execution::Domain& global, GlobalValueCopy const& globalValueCopy) override ;
 
 private:
     Function staticFunction = nullptr;
@@ -288,21 +296,26 @@ public:
 
     /**
      * @brief Applies the ruleset with a full context given
+     * @param context The context containing self, other, and global domains.
+     * @param contextScope The scope for the context.
+     * @param globalValueCopy The global value copy to be used for the ruleset application.
      */
-    void applyContext(Context& context, ContextScope& contextScope) override ;
+    void applyContext(Context& context, ContextScope& contextScope, GlobalValueCopy const& globalValueCopy) override ;
 
     /**
      * @brief Applies the ruleset
      * @param listener The listener domain.
      * @param global The global context.
+     * @param globalValueCopy The global value copy to be used for the ruleset application.
      */
-    void applyListener(std::shared_ptr<Listener> const& listener, Execution::Domain& global) override;
+    void applyListener(Listener& listener, Execution::Domain& global, GlobalValueCopy const& globalValueCopy) override;
 
     /**
      * @brief Applies the ruleset to its own Domain as contextOther.
      * @param global The global context.
+     * @param globalValueCopy The global value copy to be used for the ruleset application.
      */
-    void applyDomain(Execution::Domain& global) override ;
+    void applyDomain(Execution::Domain& global, GlobalValueCopy const& globalValueCopy) override ;
 
 private:
     //------------------------------------------

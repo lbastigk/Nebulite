@@ -30,6 +30,8 @@ class Domain;
 //------------------------------------------
 namespace Nebulite::Data::BroadcastListenContainer {
 
+FlatContainerBase::FlatContainerBase(Settings const& s) : settings(s) {}
+
 namespace {
 class ThreadIdGenerator {
 
@@ -121,6 +123,7 @@ auto rotate(R&& r, double percent) {
 } // namespace
 
 void FlatContainerBase::processWithOffset() {
+    auto& globalSpace = Global::instance();
     for (auto& listenerMap : rotate(listeners, settings.listenerOffset)) {
         listenerMap.forall([&](std::string const& topic, auto& lv) {
             // Build a flattened view of all rulesets for this topic
@@ -137,8 +140,8 @@ void FlatContainerBase::processWithOffset() {
             for (auto& listener : rotate(lv, settings.lvOffset)) {
                 for (auto const& ruleset : rulesets) {
                     if (ruleset->getId() == listener->domain.getId()) continue;
-                    if (ruleset->evaluateConditionGlobally(listener->domain, Global::instance())) {
-                        ruleset->applyListener(listener, Global::instance());
+                    if (ruleset->evaluateConditionGlobally(listener->domain, globalSpace)) {
+                        globalSpace.applyRulesetToListener(*ruleset, *listener);
                     }
                 }
             }
@@ -155,6 +158,7 @@ void FlatContainerBase::processWithOffset() {
 }
 
 void FlatContainerBase::processNoOffset(){
+    auto& globalSpace = Global::instance();
     for (auto& listenerMap : listeners) {
         listenerMap.forall([&](std::string const& topic, auto& lv) {
             // Build a flattened view of all rulesets for this topic
@@ -166,8 +170,8 @@ void FlatContainerBase::processNoOffset(){
             for (auto& listener : lv) {
                 for (auto const& ruleset : rulesets) {
                     if (ruleset->getId() == listener->domain.getId()) continue;
-                    if (ruleset->evaluateConditionGlobally(listener->domain, Global::instance())) {
-                        ruleset->applyListener(listener, Global::instance());
+                    if (ruleset->evaluateConditionGlobally(listener->domain, globalSpace)) {
+                        globalSpace.applyRulesetToListener(*ruleset, *listener);
                     }
                 }
             }

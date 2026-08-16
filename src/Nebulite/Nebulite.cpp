@@ -13,10 +13,12 @@
 
 //------------------------------------------
 namespace {
+
 Nebulite::Data::Json& globalDoc() noexcept(std::is_nothrow_constructible_v<Nebulite::Data::Json>) {
     static Nebulite::Data::Json instance;
     return instance;
 }
+
 } // namespace
 
 //------------------------------------------
