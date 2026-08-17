@@ -48,13 +48,13 @@ public:
         "\n"
         "Usage: settings save-standards\n";
 
-    [[nodiscard]] Constants::Event setSettingStr(std::span<std::string_view const> const& args) const ;
+    [[nodiscard]] Constants::Event setSettingStr(std::span<std::string_view const> args) const ;
     static auto constexpr setSettingName = "settings set-string";
     static auto constexpr setSettingDesc = "Sets a global setting to a specified value.\n"
         "\n"
         "Usage: settings set-string <key> <value>\n";
 
-    [[nodiscard]] Constants::Event setSettingInt(std::span<std::string_view const> const& args) const ;
+    [[nodiscard]] Constants::Event setSettingInt(std::span<std::string_view const> args) const ;
     static auto constexpr setSettingIntName = "settings set-integer";
     static auto constexpr setSettingIntDesc = "Sets a global setting to a specified integer value.\n"
         "\n"

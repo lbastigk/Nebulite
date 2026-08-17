@@ -25,7 +25,7 @@ void Types::bindTransformations() {
     bindTransformation(&Types::exists, existsName, existsDesc);
 }
 
-bool Types::defaultToString(std::span<std::string_view const> const& args, Data::JsonScope& jsonDoc){
+bool Types::defaultToString(std::span<std::string_view const> const args, Data::JsonScope& jsonDoc){
     if (jsonDoc.memberType(rootKey) == Data::KeyType::null) {
         jsonDoc.set<std::string>(rootKey, Utility::StringHandler::recombineArgs(args.subspan(1)));
     }
@@ -80,7 +80,7 @@ bool Types::deserialize(Data::JsonScope& jsonDoc) {
     return true;
 }
 
-bool Types::exists(std::span<std::string_view const> const& args, Data::JsonScope& jsonDoc) {
+bool Types::exists(std::span<std::string_view const> const args, Data::JsonScope& jsonDoc) {
     if (args.size() > 2) {
         return false;
     }

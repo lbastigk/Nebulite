@@ -53,14 +53,14 @@ public:
 
     // [True/False]
 
-    static bool assertTrue(std::span<std::string_view const> const& args, Data::JsonScope const& jsonDoc);
+    static bool assertTrue(std::span<std::string_view const> args, Data::JsonScope const& jsonDoc);
     static auto constexpr assertTrueName = "assert true";
     static auto constexpr assertTrueDesc = "Asserts that the current JSON value is true.\n"
         "If the value is not true, the transformation fails and the program exits.\n"
         "Accepts an optional user-defined error message as additional arguments.\n"
         "Usage: |assert true -> {value,<Exception thrown if not true>}\n";
 
-    static bool assertFalse(std::span<std::string_view const> const& args, Data::JsonScope const& jsonDoc);
+    static bool assertFalse(std::span<std::string_view const> args, Data::JsonScope const& jsonDoc);
     static auto constexpr assertFalseName = "assert false";
     static auto constexpr assertFalseDesc = "Asserts that the current JSON value is false.\n"
         "If the value is not false, the transformation fails and the program exits.\n"
@@ -69,14 +69,14 @@ public:
 
     // [Existence]
 
-    static bool assertNonEmpty(std::span<std::string_view const> const& args, Data::JsonScope const& jsonDoc);
+    static bool assertNonEmpty(std::span<std::string_view const> args, Data::JsonScope const& jsonDoc);
     static auto constexpr assertNonEmptyName = "assert nonEmpty";
     static auto constexpr assertNonEmptyDesc = "Asserts that the current JSON value is non-empty.\n"
         "If the value is empty, the transformation fails and the program exits.\n"
         "Accepts an optional user-defined error message as additional arguments.\n"
         "Usage: |assert nonEmpty -> {value,<Exception thrown if empty>}\n";
 
-    static bool assertEmpty(std::span<std::string_view const> const& args, Data::JsonScope const& jsonDoc);
+    static bool assertEmpty(std::span<std::string_view const> args, Data::JsonScope const& jsonDoc);
     static auto constexpr assertEmptyName = "assert empty";
     static auto constexpr assertEmptyDesc = "Asserts that the current JSON value is empty.\n"
         "If the value is not empty, the transformation fails and the program exits.\n"
@@ -85,40 +85,40 @@ public:
 
     // [TYPE]
 
-    static bool assertTypeObject(std::span<std::string_view const> const& args, Data::JsonScope const& jsonDoc);
+    static bool assertTypeObject(std::span<std::string_view const> args, Data::JsonScope const& jsonDoc);
     static auto constexpr assertTypeObjectName = "assert type object";
     static auto constexpr assertTypeObjectDesc = "Asserts that the current JSON value is of type object.\n"
         "If the value is not an object, the transformation fails and the program exits.\n"
         "Accepts an optional user-defined error message as additional arguments.\n"
         "Usage: |assert type object -> {value,<Exception thrown if not object>}\n";
 
-    static bool assertTypeArray(std::span<std::string_view const> const& args, Data::JsonScope const& jsonDoc);
+    static bool assertTypeArray(std::span<std::string_view const> args, Data::JsonScope const& jsonDoc);
     static auto constexpr assertTypeArrayName = "assert type array";
     static auto constexpr assertTypeArrayDesc = "Asserts that the current JSON value is of type array.\n"
         "If the value is not an array, the transformation fails and the program exits.\n"
         "Accepts an optional user-defined error message as additional arguments.\n"
         "Usage: |assert type array -> {value,<Exception thrown if not array>}\n";
 
-    static bool assertTypeBasicValue(std::span<std::string_view const> const& args, Data::JsonScope const& jsonDoc);
+    static bool assertTypeBasicValue(std::span<std::string_view const> args, Data::JsonScope const& jsonDoc);
     static auto constexpr assertTypeBasicValueName = "assert type basicValue";
     static auto constexpr assertTypeBasicValueDesc = "Asserts that the current JSON value is a basic value (not object or array or null).\n"
         "If the value is not a basic value, the transformation fails and the program exits.\n"
         "Accepts an optional user-defined error message as additional arguments.\n"
         "Usage: |assert type value -> {value,<Exception thrown if not value>}\n";
 
-    static bool assertTypeNumeric(std::span<std::string_view const> const& args, Data::JsonScope const& jsonDoc);
+    static bool assertTypeNumeric(std::span<std::string_view const> args, Data::JsonScope const& jsonDoc);
     static auto constexpr assertTypeNumericName = "assert type numeric";
     static auto constexpr assertTypeNumericDesc = "Asserts that the current JSON value is numeric\n"
         "Usage: |assert type numeric -> {value,<Exception thrown if not numeric>}\n";
 
-    static bool assertTypeNumericOrNumericString(std::span<std::string_view const> const& args, Data::JsonScope const& jsonDoc);
+    static bool assertTypeNumericOrNumericString(std::span<std::string_view const> args, Data::JsonScope const& jsonDoc);
     static auto constexpr assertTypeNumericOrNumericStringName = "assert type numericOrNumericString";
     static auto constexpr assertTypeNumericOrNumericStringDesc = "Asserts that the current JSON value is numeric, or a string of a numeric\n"
         "Usage: |assert type numericOrNumericString -> {value,<Exception thrown if not numeric or numeric string>}\n";
 
     // [MATCH]
 
-    static bool assertMatchRegex(std::span<std::string_view const> const& args, Data::JsonScope const& jsonDoc);
+    static bool assertMatchRegex(std::span<std::string_view const> args, Data::JsonScope const& jsonDoc);
     static auto constexpr assertMatchesRegexName = "assert match regex";
     static auto constexpr assertMatchesRegexDesc = "Asserts that the current JSON string value matches a provided regular expression.\n"
         "If the value does not match the regular expression, the transformation fails and the program exits.\n"
@@ -126,13 +126,13 @@ public:
 
     // [EQUALS]
 
-    static bool assertEqualsString(std::span<std::string_view const> const& args, Data::JsonScope const& jsonDoc);
+    static bool assertEqualsString(std::span<std::string_view const> args, Data::JsonScope const& jsonDoc);
     static auto constexpr assertEqualsStringName = "assert equals string";
     static auto constexpr assertEqualsStringDesc = "Asserts that the current JSON value is equal to the specified string.\n"
         "If the value is not equal to the specified string, the transformation fails and the program exits.\n"
         "Usage: |assert equals string <expected> -> {value,<Exception thrown if not equal>}\n";
 
-    static bool assertEqualsInt(std::span<std::string_view const> const& args, Data::JsonScope const& jsonDoc);
+    static bool assertEqualsInt(std::span<std::string_view const> args, Data::JsonScope const& jsonDoc);
     static auto constexpr assertEqualsIntName = "assert equals int";
     static auto constexpr assertEqualsIntDesc = "Asserts that the current JSON value is an integer.\n"
         "If the value is not an integer, the transformation fails and the program exits.\n"
@@ -144,7 +144,7 @@ private:
      * @details Assumes the first arg is the caller function name.
      * @param args Arguments containing the message parts.
      */
-    static void printUserDefinedMessage(std::span<std::string_view const> const& args);
+    static void printUserDefinedMessage(std::span<std::string_view const> args);
 };
 } // namespace Nebulite::Module::Transformation
 #endif // NEBULITE_MODULE_TRANSFORMATION_ASSERTIONS_HPP

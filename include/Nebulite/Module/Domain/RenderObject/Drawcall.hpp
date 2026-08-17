@@ -39,7 +39,7 @@ public:
     //------------------------------------------
     // Available Functions
 
-    [[nodiscard]] Constants::Event drawcallParse(std::span<std::string_view const> const& args, Interaction::Context& ctx, Interaction::ContextScope& ctxScope) const ;
+    [[nodiscard]] Constants::Event drawcallParse(std::span<std::string_view const> args, Interaction::Context& ctx, Interaction::ContextScope& ctxScope) const ;
     static auto constexpr drawcallParseName = "drawcall parse";
     static auto constexpr drawcallParseDesc = "Parses a string command into a given drawcall name\n"
         "\n"

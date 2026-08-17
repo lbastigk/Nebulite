@@ -60,7 +60,7 @@ Constants::Event SelectedObject::selectedObjectGet(int const argc, char const** 
     return Constants::Event::warning;
 }
 
-Constants::Event SelectedObject::selectedObjectParse(std::span<std::string_view const> const& args, Interaction::Context const& ctx, Interaction::ContextScope const& ctxScope) const {
+Constants::Event SelectedObject::selectedObjectParse(std::span<std::string_view const> const args, Interaction::Context const& ctx, Interaction::ContextScope const& ctxScope) const {
     if (args.size() < 2) {
         return Constants::StandardCapture::Warning::Functional::tooFewArgs(domain.capture);
     }

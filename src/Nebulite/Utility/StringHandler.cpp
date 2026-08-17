@@ -214,7 +214,7 @@ bool StringHandler::parseQuotedArguments(std::vector<std::string>& existingArgs,
     return state.inAnyQuote();
 }
 
-std::string StringHandler::recombineArgs(std::span<std::string_view const> const& args) {
+std::string StringHandler::recombineArgs(std::span<std::string_view const> const args) {
     std::string result;
     for (std::size_t i = 0; i < args.size(); ++i) {
         result += args[i];

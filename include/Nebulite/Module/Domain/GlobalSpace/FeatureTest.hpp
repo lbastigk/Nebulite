@@ -48,13 +48,13 @@ public:
 
     // Keys
 
-    [[nodiscard]] Constants::Event keyCombination(std::span<std::string_view const> const& args) const ;
+    [[nodiscard]] Constants::Event keyCombination(std::span<std::string_view const> args) const ;
     static auto constexpr keyCombinationName = "feature-test key-combination";
     static auto constexpr keyCombinationDesc = "Tests key-combinations for the ScopedKey class.\n"
         "Usage: feature-test key-combination <key1> <key2>\n"
         "Using <empty> as argument will treated as an empty key.\n";
 
-    [[nodiscard]] Constants::Event findParentKey(std::span<std::string_view const> const& args) const ;
+    [[nodiscard]] Constants::Event findParentKey(std::span<std::string_view const> args) const ;
     static auto constexpr findParentKeyName = "feature-test find-parent-key";
     static auto constexpr findParentKeyDesc = "Finds the parent key of a given key using the Json::findParentKey method.\n"
         "Usage: feature-test find-parent-key <key>\n"

@@ -64,7 +64,7 @@ bool FuncTree<ReturnValue, AdditionalArgs...>::hasFunction(std::string_view cons
 }
 
 template <typename ReturnValue, typename... AdditionalArgs>
-ReturnValue FuncTree<ReturnValue, AdditionalArgs...>::help(std::span<std::string_view const> const& args) {
+ReturnValue FuncTree<ReturnValue, AdditionalArgs...>::help(std::span<std::string_view const> args) {
     //------------------------------------------
     // Case 1: Detailed help for a specific function, category or variable
     if (args.size() > 1) {
@@ -217,7 +217,7 @@ FuncTree<ReturnValue, AdditionalArgs...>::find(std::string_view name) {
 }
 
 template <typename ReturnValue, typename ... AdditionalArgs>
-ReturnValue FuncTree<ReturnValue, AdditionalArgs...>::complete(std::span<std::string_view const> const& args){
+ReturnValue FuncTree<ReturnValue, AdditionalArgs...>::complete(std::span<std::string_view const> args){
     // Traverse into categories based on args, get pattern to complete
     auto const [pattern, ftree] = [&] -> std::pair<std::string_view, FuncTree*> {
         auto argsSpan = args.subspan(1); // Skip binary name or last function name

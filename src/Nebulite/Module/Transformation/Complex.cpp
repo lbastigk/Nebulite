@@ -94,7 +94,7 @@ bool Complex::complexArg(Data::JsonScope& jsonDoc){
     return true;
 }
 
-bool Complex::complexToString(std::span<std::string_view const> const& args, Data::JsonScope& jsonDoc){
+bool Complex::complexToString(std::span<std::string_view const> const args, Data::JsonScope& jsonDoc){
     auto const num = jsonDoc.getComplex(rootKey);
     if (!num) return true;
     try {
@@ -106,7 +106,7 @@ bool Complex::complexToString(std::span<std::string_view const> const& args, Dat
     return true;
 }
 
-bool Complex::formatComplexNumberString(std::span<std::string_view const> const& args, Data::JsonScope& jsonDoc){
+bool Complex::formatComplexNumberString(std::span<std::string_view const> const args, Data::JsonScope& jsonDoc){
     if (args.size() != 2) return false; // No formatter provided
     auto const value = jsonDoc.get<std::string>(rootKey);
     if (!value.has_value()) return false; // Not convertible to string

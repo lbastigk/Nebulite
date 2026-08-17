@@ -36,7 +36,7 @@ public:
     //------------------------------------------
     // Available Transformations
 
-    static bool injectScript(std::span<std::string_view const> const& args, Data::JsonScope& jsonDoc);
+    static bool injectScript(std::span<std::string_view const> args, Data::JsonScope& jsonDoc);
     static auto constexpr injectScriptName = "injectScript";
     static auto constexpr injectScriptDesc = "Injects a nebulite script to modify the json doc.\n"
         "Usage: |injectScript <path/to/script.nebs> -> {modified-json}\n";

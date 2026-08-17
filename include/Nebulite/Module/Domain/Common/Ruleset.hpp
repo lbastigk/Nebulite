@@ -44,7 +44,7 @@ public:
     //------------------------------------------
     // Available Functions
 
-    [[nodiscard]] Constants::Event invokeOnce(std::span<std::string_view const> const& args) const ;
+    [[nodiscard]] Constants::Event invokeOnce(std::span<std::string_view const> args) const ;
     static auto constexpr invokeOnceName = "ruleset invoke";
     static auto constexpr invokeOnceDesc = "Applies the given ruleset on the next update\n"
         "\n"
@@ -52,14 +52,14 @@ public:
         "\n"
         "Use invoke ::help to list all available static rulesets.";
 
-    [[nodiscard]] Constants::Event broadcast(std::span<std::string_view const> const& args) const ;
+    [[nodiscard]] Constants::Event broadcast(std::span<std::string_view const> args) const ;
     static auto constexpr broadcastName = "ruleset broadcast";
     static auto constexpr broadcastDesc = "Broadcasts a ruleset to its specified topic.\n"
         "Usage: broadcast <ruleset>\n"
         "\n"
         "- ruleset: The ruleset content to be broadcasted.";
 
-    [[nodiscard]] Constants::Event listen(std::span<std::string_view const> const& args) const ;
+    [[nodiscard]] Constants::Event listen(std::span<std::string_view const> args) const ;
     static auto constexpr listenName = "ruleset listen";
     static auto constexpr listenDesc = "Listens for rulesets on a specified topic.\n"
         "Usage: listen <topic>\n"

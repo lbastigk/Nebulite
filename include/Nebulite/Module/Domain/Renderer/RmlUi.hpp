@@ -39,17 +39,17 @@ public:
     //------------------------------------------
     // Available Functions
 
-    [[nodiscard]] Constants::Event listDocuments(std::span<std::string_view const> const& args, Interaction::Context const& ctx, Interaction::ContextScope const& ctxScope) const ;
+    [[nodiscard]] Constants::Event listDocuments(std::span<std::string_view const> args, Interaction::Context const& ctx, Interaction::ContextScope const& ctxScope) const ;
     static auto constexpr listDocumentsName = "rmlui document list";
     static auto constexpr listDocumentsDesc = "Lists all currently loaded RmlUI documents in the renderer's context.\n"
         "Usage: rmlui document list\n";
 
-    [[nodiscard]] Constants::Event loadDocument(std::span<std::string_view const> const& args, Interaction::Context const& ctx, Interaction::ContextScope const& ctxScope) const ;
+    [[nodiscard]] Constants::Event loadDocument(std::span<std::string_view const> args, Interaction::Context const& ctx, Interaction::ContextScope const& ctxScope) const ;
     static auto constexpr loadDocumentName = "rmlui document load";
     static auto constexpr loadDocumentDesc = "Loads an RmlUI document from a specified file path and adds it to the renderer's context.\n"
         "Usage: rmlui document load <name> <file_path>\n";
 
-    [[nodiscard]] Constants::Event removeDocument(std::span<std::string_view const> const& args, Interaction::Context const& ctx, Interaction::ContextScope& ctxScope) const ;
+    [[nodiscard]] Constants::Event removeDocument(std::span<std::string_view const> args, Interaction::Context const& ctx, Interaction::ContextScope& ctxScope) const ;
     static auto constexpr removeDocumentName = "rmlui document remove";
     static auto constexpr removeDocumentDesc = "Removes a loaded RmlUI document from the renderer's context by its name.\n"
         "Usage: rmlui document remove <name>\n";
