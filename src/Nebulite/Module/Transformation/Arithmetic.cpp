@@ -2,11 +2,8 @@
 // Includes
 
 // Standard library
-#include <algorithm>
 #include <cmath>
-#include <functional>
 #include <limits>
-#include <ranges>
 #include <span>
 #include <string>
 
@@ -14,7 +11,6 @@
 #include "Nebulite/Data/Document/JsonScope.hpp"
 #include "Nebulite/Data/Document/ScopedKeyView.hpp"
 #include "Nebulite/Module/Transformation/Arithmetic.hpp"
-#include "Nebulite/Utility/Ranges.hpp"
 
 //------------------------------------------
 namespace Nebulite::Module::Transformation {
@@ -28,26 +24,6 @@ void Arithmetic::bindTransformations() {
     bindTransformation(&Arithmetic::divide, divideName, divideDesc);
     bindTransformation(&Arithmetic::sqrt, sqrtName, sqrtDesc);
     bindTransformation(&Arithmetic::root, rootName, rootDesc);
-}
-
-bool Arithmetic::forall(std::span<std::string_view const> const& args, std::function<bool(std::string_view, Data::ScopedKeyView const& key)> const& func){
-    if (args.size() < 2) {
-        return false;
-    }
-    try {
-        if (args.size() == 2) {
-            return func(args[1], rootKey);
-        }
-        return std::ranges::all_of(args | std::views::drop(1) | Utility::Ranges::enumerate,
-            [&](auto const& item) {
-                auto const& [index, arg] = item;
-                auto const key = rootKey.addIndex(index);
-                return func(arg, key.view());
-            }
-        );
-    } catch (...) {
-        return false;
-    }
 }
 
 bool Arithmetic::add(std::span<std::string_view const> const& args, Data::JsonScope& jsonDoc) {

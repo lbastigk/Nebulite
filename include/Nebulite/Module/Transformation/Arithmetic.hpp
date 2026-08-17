@@ -5,8 +5,10 @@
 // Includes
 
 // Standard library
+#include <algorithm>
 #include <functional>
 #include <memory>
+#include <ranges>
 #include <span>
 #include <string_view>
 
@@ -14,6 +16,7 @@
 #include "Nebulite/Data/Document/ScopedKeyView.hpp"
 #include "Nebulite/Module/Base/TransformationModule.hpp"
 #include "Nebulite/Utility/Args/FuncTree.hpp"
+#include "Nebulite/Utility/Ranges.hpp"
 
 //------------------------------------------
 // Forward declarations
@@ -90,7 +93,28 @@ public:
         "Usage: |sqrt -> {number}\n";
 
 private:
-    static bool forall(std::span<std::string_view const> const& args, std::function<bool(std::string_view, Data::ScopedKeyView const& key)> const& func);
+    template<typename F>
+    static bool forall(std::span<std::string_view const> const& args, F&& f) {
+        static_assert(std::is_invocable_v<F, std::string_view, Data::ScopedKeyView>, "f must be a function F invokable with f(std::string_view, Data::ScopedKeyView)");
+
+        if (args.size() < 2) {
+            return false;
+        }
+        try {
+            if (args.size() == 2) {
+                return std::invoke(std::forward<F>(f), args[1], rootKey);
+            }
+            return std::ranges::all_of(args | std::views::drop(1) | Utility::Ranges::enumerate,
+                [&](auto const& item) {
+                    auto const& [index, arg] = item;
+                    auto const key = rootKey.addIndex(index);
+                    return std::invoke(std::forward<F>(f), arg, key.view());
+                }
+            );
+        } catch (...) {
+            return false;
+        }
+    }
 };
 } // namespace Nebulite::Module::Transformation
 #endif // NEBULITE_MODULE_TRANSFORMATION_ARITHMETIC_HPP
