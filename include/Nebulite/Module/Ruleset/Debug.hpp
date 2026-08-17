@@ -12,7 +12,6 @@
 // Nebulite
 #include "Nebulite/Data/Document/ScopedKeyView.hpp"
 #include "Nebulite/Interaction/GlobalValue.hpp"
-#include "Nebulite/Interaction/Rules/Ruleset.hpp"
 #include "Nebulite/Module/Base/RulesetModule.hpp"
 
 //------------------------------------------
