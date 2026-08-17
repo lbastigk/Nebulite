@@ -28,7 +28,7 @@ static_assert(AttributeCommand<"">::specializationCount == 3, "If you added a ne
 void ActionsImpl::applyRuleset(std::string_view const ruleset, Utility::Io::Capture& cap, Graphics::RmlInterface::ContextAndScope& ctxAndScope) {
     auto& [ctx, scope] = ctxAndScope;
     if (auto const rs = Rules::Construction::RulesetCompiler::parseSingle(ruleset, ctx.self); rs) {
-        auto global = GlobalValue(scope.global).copy();
+        auto const global = GlobalValue(scope.global).copy();
         rs.value()->applyContext(ctx, scope, global);
     }
     else {
