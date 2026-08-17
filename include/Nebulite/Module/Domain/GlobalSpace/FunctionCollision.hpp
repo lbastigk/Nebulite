@@ -70,14 +70,14 @@ public:
     static auto constexpr debugName = "debug";
     static auto constexpr debugDesc = "DomainModule for special debugging capabilities within the GlobalSpace.";
 
-    static auto constexpr debug_collisionDetectName = "debug collision-detect";
-    static auto constexpr debug_collisionDetectDesc = "Utilities for testing collision detection functionalities.";
+    static auto constexpr debugCollisionDetectName = "debug collision-detect";
+    static auto constexpr debugCollisionDetectDesc = "Utilities for testing collision detection functionalities.";
 
-    static auto constexpr debug_categoryTest1Name = "debug categoryLevel1";
-    static auto constexpr debug_categoryTest1Desc = "Test category for debugging purposes.";
+    static auto constexpr debugCategoryTest1Name = "debug categoryLevel1";
+    static auto constexpr debugCategoryTest1Desc = "Test category for debugging purposes.";
 
-    static auto constexpr debug_categoryTest2Name = "debug categoryLevel1 categoryLevel2";
-    static auto constexpr debug_categoryTest2Desc = "Nested test category for debugging purposes.";
+    static auto constexpr debugCategoryTest2Name = "debug categoryLevel1 categoryLevel2";
+    static auto constexpr debugCategoryTest2Desc = "Nested test category for debugging purposes.";
 
     //------------------------------------------
     // Setup
@@ -89,9 +89,9 @@ public:
         //------------------------------------------
         // Test categories for nested category binding
         bindCategory(debugName, debugDesc);
-        bindCategory(debug_collisionDetectName,  debug_collisionDetectDesc);
-        bindCategory(debug_categoryTest1Name, debug_categoryTest1Desc);
-        bindCategory(debug_categoryTest2Name, debug_categoryTest2Desc);
+        bindCategory(debugCollisionDetectName,  debugCollisionDetectDesc);
+        bindCategory(debugCategoryTest1Name, debugCategoryTest1Desc);
+        bindCategory(debugCategoryTest2Name, debugCategoryTest2Desc);
 
         //------------------------------------------
         // Function bindings
