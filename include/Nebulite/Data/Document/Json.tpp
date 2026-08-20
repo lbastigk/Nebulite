@@ -20,11 +20,11 @@
 #include <rapidjson/document.h>
 
 // Nebulite
+#include "Nebulite/Data/Document/JsonCache.hpp"
 #include "Nebulite/Data/Document/JsonTransformer.hpp"
 #include "Nebulite/Data/Document/RjDirectAccess.hpp"
 #include "Nebulite/Data/Document/SimpleValueError.hpp"
 #include "Nebulite/Module/Base/TransformationModule.hpp"
-#include "Nebulite/Utility/Convert/Cast.hpp"
 #include "Nebulite/Utility/TypeCheck.hpp"
 
 //------------------------------------------
@@ -76,7 +76,7 @@ std::expected<T, SimpleValueRetrievalError> Json::get(std::string_view const key
     // Get variant and convert to requested type
     auto const var = getVariant(key);
     if(var.has_value()){
-        if (auto const converted = convertVariant<T>(var.value()); converted.has_value()) {
+        if (auto const converted = RjDirectAccess::convertSimpleValue<T>(var.value()); converted.has_value()) {
             return converted.value();
         }
         return std::unexpected(SimpleValueRetrievalError::conversionFailure);
@@ -114,86 +114,19 @@ std::expected<T, SimpleValueRetrievalError> Json::getWithTransformations(std::st
 
 template<typename T>
 std::optional<T> Json::jsonValueToCache(std::string_view const key, rapidjson::Value const* val) const {
-    // Create a new cache entry
-    auto newEntry = std::make_unique<CacheEntry>(*cacheLine, cachelineIndex);
-
     // Get supported types
     auto const& v = RjDirectAccess::getSimpleValue(val);
     if(!v.has_value()) {
         return std::nullopt; // Unsupported type, do not cache
     }
-    newEntry->value = v.value();
 
-    // Mark as clean
-    newEntry->state = CacheEntry::EntryState::clean;
-
-    // Set stable double pointer
-    *newEntry->stableDoublePointer = convertVariant<double>(newEntry->value).value_or(standardNumericValue); // Default to NAN if conversion fails
-    newEntry->lastDoubleValue = *newEntry->stableDoublePointer;
-
-    // Insert into cache
-    auto const value = convertVariant<T>(newEntry->value);
+    // Insert into cache and return value
+    auto newEntry = std::make_unique<CacheEntry>(*cacheLine, cachelineIndex);
+    newEntry->setValueClean(v.value());
+    auto const value = newEntry->convertTo<T>();
     cache[key] = std::move(newEntry);
-
-    // Return converted value
     return value;
 }
 
-// Using NOLINTNEXTLINE to silence "Arguments passed in possible wrong order" warnings
-template<typename NewType>
-std::optional<NewType> Json::convertVariant(RjDirectAccess::SimpleValue const& var){
-    return std::visit([&]<typename T>(T const& value){
-        // Removing all qualifiers (const, volatile, references, etc.)
-        using ValueT = std::decay_t<decltype(value)>;
-
-        //------------------------------------------
-        // To float is seen as special case, as we do not store floats.
-        // If NewType is float, get double first and convert to float
-        if constexpr(std::is_same_v<NewType, float>) {
-            if (auto const val = convertVariant<double>(var); val.has_value()) {
-                return std::optional<NewType>(static_cast<float>(val.value()));
-            }
-            return std::optional<NewType>(std::nullopt);
-        }
-
-        //------------------------------------------
-        // Try some special conversions first
-
-        // [BOOL] -> [STRING]
-        else if constexpr(std::is_same_v<ValueT, bool> && std::is_same_v<NewType, std::string>) {
-            return Utility::Convert::Cast::Bool::to<std::string>(value);
-        }
-
-        // [DOUBLE] -> [BOOL]
-        // First, as the static_cast from a direct conversion doesn't work well here
-        else if constexpr (std::is_same_v<ValueT, double> && std::is_same_v<NewType, bool>){
-            return Utility::Convert::Cast::Double::to<bool>(value);
-        }
-
-        // [STRING] -> [ANY]
-        else if constexpr (std::is_same_v<ValueT, std::string>) {
-            return Utility::Convert::Cast::String::to<NewType>(value);
-        }
-
-        //------------------------------------------
-        // Try basic direct conversions
-
-        // [ANY] -> [ANY] via static_cast
-        else if constexpr (std::is_convertible_v<ValueT, NewType>){
-            return std::optional<NewType>{static_cast<NewType>(value)};
-        }
-        // [ARITHMETIC] -> [STRING]
-        else if constexpr (std::is_arithmetic_v<ValueT> && std::is_same_v<NewType, std::string>){
-            return std::optional<NewType>{std::to_string(value)};
-        }
-
-        //------------------------------------------
-        // [ERROR] Unsupported conversion
-        else {
-            std::unreachable();
-        }
-    },
-    var);
-}
 } // namespace Nebulite::Data
 #endif // NEBULITE_DATA_DOCUMENT_JSON_TPP

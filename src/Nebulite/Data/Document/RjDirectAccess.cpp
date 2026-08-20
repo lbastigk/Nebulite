@@ -31,6 +31,8 @@ namespace Nebulite::Data {
 //------------------------------------------
 // Static Public Helper Functions
 
+
+
 std::optional<RjDirectAccess::SimpleValue> RjDirectAccess::getSimpleValue(rapidjson::Value const* val) {
     // Integers
     if (val->IsInt())    return val->GetInt();

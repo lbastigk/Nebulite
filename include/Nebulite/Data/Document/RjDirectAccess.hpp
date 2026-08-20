@@ -37,6 +37,9 @@ public:
         bool
     >;
 
+    template <typename NewType>
+    static std::optional<NewType> convertSimpleValue(SimpleValue const& simpleValue);
+
     /**
      * @brief Getting a simple value from a rapidjson value, using the right type stored in the document.
      * @param val Pointer to the rapidjson value to get the value from.
@@ -52,21 +55,7 @@ public:
      * @return An optional SimpleValue containing the value if successful, or std::nullopt if the type is unsupported.
      */
     template<typename RjValType>
-    static std::optional<SimpleValue> getSimpleValue(std::string_view key, RjValType& doc) {
-        // The given RjValType should be a Document.
-        // If we pass a rapidjson value, we risk not starting at the top of the document, where we should apply the key traversal.
-        // This fixes implicit conversion worries.
-        static_assert(
-            std::is_same_v<RjValType, rapidjson::Document>,
-            "The given Rapidjson Value type should be a document to ensure the key traversal happens at the top! "
-            "Passing, for example, a rapidjson::Value would risk starting the traversal at the wrong point in the document, which could lead to incorrect retrieval or failure to find the value."
-        );
-
-        if (auto const rjVal = traversePath(key, doc); rjVal != nullptr) {
-            return getSimpleValue(rjVal);
-        }
-        return std::nullopt;
-    }
+    static std::optional<SimpleValue> getSimpleValue(std::string_view key, RjValType& doc);
 
     //------------------------------------------
     // Templated Getter, Setter

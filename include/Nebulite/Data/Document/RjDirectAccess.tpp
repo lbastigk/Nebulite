@@ -5,10 +5,21 @@
 // Includes
 
 // Standard library
+#include <cstdint> // NOLINT
+#include <optional>
 #include <sstream>
+#include <string>
+#include <string_view>
+#include <type_traits>
+#include <utility>
+#include <variant>
+
+// External
+#include <rapidjson/document.h>
+#include <rapidjson/rapidjson.h>
 
 // Nebulite
-#include "Nebulite/Utility/StringHandler.hpp"
+#include "Nebulite/Utility/Convert/Cast.hpp"
 
 //------------------------------------------
 // Conditional includes
@@ -19,6 +30,80 @@
 
 //------------------------------------------
 namespace Nebulite::Data {
+
+template <typename NewType>
+std::optional<NewType> RjDirectAccess::convertSimpleValue(SimpleValue const& simpleValue) {
+    return std::visit([&]<typename T>(T const& visitValue){
+        // Removing all qualifiers (const, volatile, references, etc.)
+        using ValueT = std::decay_t<decltype(visitValue)>;
+
+        //------------------------------------------
+        // To float is seen as special case, as we do not store floats.
+        // If NewType is float, get double first and convert to float
+        if constexpr(std::is_same_v<NewType, float>) {
+            if (auto const val = convertSimpleValue<double>(visitValue); val.has_value()) {
+                return std::optional<NewType>(static_cast<float>(val.value()));
+            }
+            return std::optional<NewType>(std::nullopt);
+        }
+
+        //------------------------------------------
+        // Try some special conversions first
+
+        // [BOOL] -> [STRING]
+        else if constexpr(std::is_same_v<ValueT, bool> && std::is_same_v<NewType, std::string>) {
+            return Utility::Convert::Cast::Bool::to<std::string>(visitValue);
+        }
+
+        // [DOUBLE] -> [BOOL]
+        // First, as the static_cast from a direct conversion doesn't work well here
+        else if constexpr (std::is_same_v<ValueT, double> && std::is_same_v<NewType, bool>){
+            return Utility::Convert::Cast::Double::to<bool>(visitValue);
+        }
+
+        // [STRING] -> [ANY]
+        else if constexpr (std::is_same_v<ValueT, std::string>) {
+            return Utility::Convert::Cast::String::to<NewType>(visitValue);
+        }
+
+        //------------------------------------------
+        // Try basic direct conversions
+
+        // [ANY] -> [ANY] via static_cast
+        else if constexpr (std::is_convertible_v<ValueT, NewType>){
+            return std::optional<NewType>{static_cast<NewType>(visitValue)};
+        }
+
+        // [ARITHMETIC] -> [STRING]
+        else if constexpr (std::is_arithmetic_v<ValueT> && std::is_same_v<NewType, std::string>){
+            return std::optional<NewType>{std::to_string(visitValue)};
+        }
+
+        //------------------------------------------
+        // [ERROR] Unsupported conversion
+        else {
+            std::unreachable();
+        }
+    },
+    simpleValue);
+}
+
+template<typename RjValType>
+std::optional<RjDirectAccess::SimpleValue> RjDirectAccess::getSimpleValue(std::string_view key, RjValType& doc) {
+  // The given RjValType should be a Document.
+  // If we pass a rapidjson value, we risk not starting at the top of the document, where we should apply the key traversal.
+  // This fixes implicit conversion worries.
+  static_assert(
+      std::is_same_v<RjValType, rapidjson::Document>,
+      "The given Rapidjson Value type should be a document to ensure the key traversal happens at the top! "
+      "Passing, for example, a rapidjson::Value would risk starting the traversal at the wrong point in the document, which could lead to incorrect retrieval or failure to find the value."
+  );
+
+  if (auto const rjVal = traversePath(key, doc); rjVal != nullptr) {
+    return getSimpleValue(rjVal);
+  }
+  return std::nullopt;
+}
 
 //------------------------------------------
 // Direct access get/set
@@ -182,8 +267,9 @@ template <> inline void RjDirectAccess::convertFromJsonValue(rapidjson::Value co
     if (jsonValue.IsNumber()) {
         result = jsonValue.GetDouble();
     } else if (jsonValue.IsString()) {
-        if (Utility::StringHandler::isNumber(jsonValue.GetString())) {
-            result = std::stod(jsonValue.GetString());
+        auto const converted = Utility::Convert::Cast::String::to<double>(jsonValue.GetString());
+        if (converted.has_value()) {
+            result = converted.value();
         } else {
             result = defaultValue;
         }
