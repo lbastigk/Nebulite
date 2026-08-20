@@ -33,8 +33,25 @@ void Random::rngRollback() {
 }
 
 Random::Random(ConstructorParams const& params) : DomainModule(params) {
+    bindCategory(rngName, rngDesc);
+    bindFunction(&Random::rngOff, rngOffName, rngOffDesc);
+    bindFunction(&Random::rngOn, rngOnName, rngOnDesc);
+
     initRng();
     updateRng();
+}
+
+//------------------------------------------
+// Bound Functions
+
+Constants::Event Random::rngOff() {
+    rngEnabled = false;
+    return Constants::Event::success;
+}
+
+Constants::Event Random::rngOn() {
+    rngEnabled = true;
+    return Constants::Event::success;
 }
 
 //------------------------------------------
@@ -48,6 +65,10 @@ void Random::initRng(){
 }
 
 void Random::updateRng() {
+    if (!rngEnabled) {
+        return;
+    }
+
     // Set Min and Max values for RNGs in document
     // Always set, so overwrites don't stick around
     moduleScope.set<RngSize>(Key::min, std::numeric_limits<RngSize>::min());
