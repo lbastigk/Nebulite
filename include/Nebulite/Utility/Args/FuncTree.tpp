@@ -304,17 +304,9 @@ FuncTree<ReturnValue, AdditionalArgs...>::makeFunctionPtr(Func functionPtr) {
             return FunctionPtrT(std::in_place_type<typename SupportedFunctions::Modern::NoAddArgs>,
                                 std::function<ReturnValue(CmdArgs::Span)>(functionPtr));
         }
-        else if constexpr (shape == ShapeClassifier::FunctionShape::freeModernNoAddArgsConstRef) {
-            return FunctionPtrT(std::in_place_type<typename SupportedFunctions::Modern::NoAddArgsConstRef>,
-                                std::function<ReturnValue(CmdArgs::SpanConstRef)>(functionPtr));
-        }
         else if constexpr (shape == ShapeClassifier::FunctionShape::freeModernFull) {
             return FunctionPtrT(std::in_place_type<typename SupportedFunctions::Modern::Full>,
                                 std::function<ReturnValue(CmdArgs::Span, AdditionalArgs...)>(functionPtr));
-        }
-        else if constexpr (shape == ShapeClassifier::FunctionShape::freeModernFullConstRef) {
-            return FunctionPtrT(std::in_place_type<typename SupportedFunctions::Modern::FullConstRef>,
-                                std::function<ReturnValue(CmdArgs::SpanConstRef, AdditionalArgs...)>(functionPtr));
         }
         else if constexpr (shape == ShapeClassifier::FunctionShape::freeNoArgs) {
             return FunctionPtrT(std::in_place_type<typename SupportedFunctions::Modern::NoArgs>,
@@ -334,17 +326,9 @@ FuncTree<ReturnValue, AdditionalArgs...>::makeFunctionPtr(Func functionPtr) {
         return FunctionPtrT(std::in_place_type<typename SupportedFunctions::Modern::Full>,
                             std::function<ReturnValue(CmdArgs::Span, AdditionalArgs...)>(functionPtr));
     }
-    else if constexpr (std::is_invocable_v<Func, CmdArgs::SpanConstRef, AdditionalArgs...>) {
-        return FunctionPtrT(std::in_place_type<typename SupportedFunctions::Modern::FullConstRef>,
-                            std::function<ReturnValue(CmdArgs::SpanConstRef, AdditionalArgs...)>(functionPtr));
-    }
     else if constexpr (std::is_invocable_v<Func, CmdArgs::Span>) {
         return FunctionPtrT(std::in_place_type<typename SupportedFunctions::Modern::NoAddArgs>,
                             std::function<ReturnValue(CmdArgs::Span)>(functionPtr));
-    }
-    else if constexpr (std::is_invocable_v<Func, CmdArgs::SpanConstRef>) {
-        return FunctionPtrT(std::in_place_type<typename SupportedFunctions::Modern::NoAddArgsConstRef>,
-                            std::function<ReturnValue(CmdArgs::SpanConstRef)>(functionPtr));
     }
     else if constexpr (std::is_invocable_v<Func>) {
         return FunctionPtrT(std::in_place_type<typename SupportedFunctions::Modern::NoArgs>,
@@ -385,26 +369,10 @@ FuncTree<ReturnValue, AdditionalArgs...>::makeFunctionPtr(Obj* objectPtr, MemFun
             }
         );
     }
-    else if constexpr (shape == ShapeClassifier::FunctionShape::memberModernNoAddArgsConstRef) {
-        return FunctionPtrT(
-            std::in_place_type<typename SupportedFunctions::Modern::NoAddArgsConstRef>,
-            [objectPtr, memberFunctionPtr](CmdArgs::SpanConstRef args) { // NOLINT(readability-redundant-typename)
-                return std::invoke(memberFunctionPtr, objectPtr, args);
-            }
-        );
-    }
     else if constexpr (shape == ShapeClassifier::FunctionShape::memberModernFull) {
         return FunctionPtrT(
             std::in_place_type<typename SupportedFunctions::Modern::Full>,
             [objectPtr, memberFunctionPtr](CmdArgs::Span args, AdditionalArgs... rest) { // NOLINT(readability-redundant-typename)
-                return std::invoke(memberFunctionPtr, objectPtr, args, std::forward<AdditionalArgs>(rest)...);
-            }
-        );
-    }
-    else if constexpr (shape == ShapeClassifier::FunctionShape::memberModernFullConstRef) {
-        return FunctionPtrT(
-            std::in_place_type<typename SupportedFunctions::Modern::FullConstRef>,
-            [objectPtr, memberFunctionPtr](CmdArgs::SpanConstRef args, AdditionalArgs... rest) { // NOLINT(readability-redundant-typename)
                 return std::invoke(memberFunctionPtr, objectPtr, args, std::forward<AdditionalArgs>(rest)...);
             }
         );
@@ -512,7 +480,7 @@ ReturnValue FuncTree<ReturnValue, AdditionalArgs...>::parseStr(std::string_view 
 }
 
 template <typename ReturnValue, typename... AdditionalArgs>
-ReturnValue FuncTree<ReturnValue, AdditionalArgs...>::parse(std::span<std::string_view const> const& args, AdditionalArgs... addArgs) {
+ReturnValue FuncTree<ReturnValue, AdditionalArgs...>::parse(std::span<std::string_view const> args, AdditionalArgs... addArgs) {
     auto actualArgs = args.subspan(1); // First arg is caller, remove
     processVariableArguments(actualArgs);
     if (actualArgs.empty()) {
@@ -565,7 +533,7 @@ ReturnValue FuncTree<ReturnValue, AdditionalArgs...>::parseWithPrefix(std::vecto
 }
 
 template <typename ReturnValue, typename... AdditionalArgs>
-ReturnValue FuncTree<ReturnValue, AdditionalArgs...>::executeFunction(std::string_view const name, std::span<std::string_view const> const& args, AdditionalArgs... addArgs) {
+ReturnValue FuncTree<ReturnValue, AdditionalArgs...>::executeFunction(std::string_view const name, std::span<std::string_view const> args, AdditionalArgs... addArgs) {
     // Strip whitespaces of name
     std::string_view function = name;
     StringHandler::strip(function);
@@ -607,13 +575,13 @@ ReturnValue FuncTree<ReturnValue, AdditionalArgs...>::executeFunction(std::strin
                 return func(static_cast<int>(argc), argvVec.data());
             }
             // Modern function types
-            else if constexpr (std::is_same_v<T, typename SupportedFunctions::Modern::Full> || std::is_same_v<T, typename SupportedFunctions::Modern::FullConstRef>) {
+            else if constexpr (std::is_same_v<T, typename SupportedFunctions::Modern::Full>) {
                 return func(args, addArgs...);
             }
             else if constexpr (std::is_same_v<T, typename SupportedFunctions::Modern::NoCmdArgs>) {
                 return func(addArgs...);
             }
-            else if constexpr (std::is_same_v<T, typename SupportedFunctions::Modern::NoAddArgs> || std::is_same_v<T, typename SupportedFunctions::Modern::NoAddArgsConstRef>) {
+            else if constexpr (std::is_same_v<T, typename SupportedFunctions::Modern::NoAddArgs>) {
                 return func(args);
             }
             else if constexpr (std::is_same_v<T, typename SupportedFunctions::Modern::NoArgs>) {

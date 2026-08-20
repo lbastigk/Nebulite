@@ -30,7 +30,7 @@ Constants::Event Drawcall::updateHook() {
 //------------------------------------------
 // Domain-Bound Functions
 
-Constants::Event Drawcall::drawcallParse(std::span<std::string_view const> const& args, Interaction::Context& ctx, Interaction::ContextScope& ctxScope) const {
+Constants::Event Drawcall::drawcallParse(std::span<std::string_view const> const args, Interaction::Context& ctx, Interaction::ContextScope& ctxScope) const {
     if (args.size() < 3) {
         return Constants::StandardCapture::Warning::Functional::tooFewArgs(ctx.self.capture);
     }

@@ -38,9 +38,23 @@ public:
     //------------------------------------------
     // Available Functions
 
+    Constants::Event rngOff();
+    static auto constexpr rngOffName = "rng off";
+    static auto constexpr rngOffDesc = "Disables RNG updates. Useful for TAS scripts to avoid RNG state changes, or benchmarking to avoid RNG state changes.";
+
+    Constants::Event rngOn();
+    static auto constexpr rngOnName = "rng on";
+    static auto constexpr rngOnDesc = "Re-enables RNG updates.";
+
     // None for now
     // We keep this as a GlobalSpace DomainModule instead of a normal class,
     // in case we wish to add bound functions like setting a specific rng or forcing a rollback
+
+    //------------------------------------------
+    // Categories
+
+    static auto constexpr rngName = "rng";
+    static auto constexpr rngDesc = "Random number generation functions.";
 
     //------------------------------------------
     // Other public functions
@@ -74,6 +88,8 @@ private:
     using RngSize = std::uint16_t; // Modify this to change the size of the RNGs
 
     absl::flat_hash_map<std::string, Utility::Random<RngSize>> rngMap; // Future-proofing for more RNGs
+
+    bool rngEnabled = true; // Whether RNG updates are enabled. Can be toggled by rngOff and rngOn functions.
 
     /**
      * @brief Initializes standard RNGs

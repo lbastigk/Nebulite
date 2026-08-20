@@ -40,7 +40,7 @@ Constants::Event Audio::updateHook() {
 //------------------------------------------
 // Available Functions
 
-Constants::Event Audio::beep(std::span<std::string_view const> const& args) const {
+Constants::Event Audio::beep(std::span<std::string_view const> const args) const {
     if (args.size() < 2) {
         domain.capture.log.println("No waveform type specified. Defaulting to sine.");
         SDL_PutAudioStreamData(
@@ -78,7 +78,7 @@ Constants::Event Audio::beep(std::span<std::string_view const> const& args) cons
     return Constants::Event::success;
 }
 
-Constants::Event Audio::playSound(std::span<std::string_view const> const& args) {
+Constants::Event Audio::playSound(std::span<std::string_view const> const args) {
     if (args.size() < 2) {
         return Constants::StandardCapture::Warning::Functional::tooFewArgs(domain.capture);
     }

@@ -337,7 +337,7 @@ public:
      * @param args The arguments to parse
      * @return True if the transformation was successful, false otherwise.
      */
-    bool transform(std::span<std::string_view const> const& args);
+    bool transform(std::span<std::string_view const> args);
 
     //------------------------------------------
     // Access test

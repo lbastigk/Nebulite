@@ -59,7 +59,7 @@ public:
         "Usage: |complexArg -> {argument}\n"
         "The transformation fails if the current JSON value is not a complex number.\n";
 
-    static bool complexToString(std::span<std::string_view const> const& args, Data::JsonScope& jsonDoc);
+    static bool complexToString(std::span<std::string_view const> args, Data::JsonScope& jsonDoc);
     static auto constexpr complexToStringName = "complexToString";
     static auto constexpr complexToStringDesc = "Formats the contained complex number object to a string.\n"
         "If the stored value is not a complex number, the value is not modified.\n"
@@ -67,7 +67,7 @@ public:
         "Example formatters: 04.2f, 5i, 06i\n"
         "Usage: |complexToString [formatter] -> {string}\n";
 
-    static bool formatComplexNumberString(std::span<std::string_view const> const& args, Data::JsonScope& jsonDoc);
+    static bool formatComplexNumberString(std::span<std::string_view const> args, Data::JsonScope& jsonDoc);
     static auto constexpr formatComplexNumberStringName = "formatComplexNumberString";
     static auto constexpr formatComplexNumberStringDesc = "Formats the contained complex number string to another string\n"
         "If the stored value is not a simple value, the transformation fails.\n"

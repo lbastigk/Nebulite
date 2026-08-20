@@ -36,7 +36,7 @@ InputMapping::InputMapping(ConstructorParams const& params)
     bindFunction(&InputMapping::unlock, unlockName, unlockDesc);
 }
 
-Constants::Event InputMapping::lockOnce(std::span<std::string_view const> const& args) {
+Constants::Event InputMapping::lockOnce(std::span<std::string_view const> const args) {
     if (args.size() > 2) {
         return Constants::StandardCapture::Warning::Functional::tooManyArgs(domain.capture);
     }
@@ -58,7 +58,7 @@ Constants::Event InputMapping::lockOnce(std::span<std::string_view const> const&
     return Constants::Event::success;
 }
 
-Constants::Event InputMapping::lockOn(std::span<std::string_view const> const& args) {
+Constants::Event InputMapping::lockOn(std::span<std::string_view const> const args) {
     if (args.size() > 2) {
         return Constants::StandardCapture::Warning::Functional::tooManyArgs(domain.capture);
     }
@@ -80,7 +80,7 @@ Constants::Event InputMapping::lockOn(std::span<std::string_view const> const& a
     return Constants::Event::success;
 }
 
-Constants::Event InputMapping::unlock(std::span<std::string_view const> const& args) {
+Constants::Event InputMapping::unlock(std::span<std::string_view const> const args) {
     if (args.size() > 2) {
         return Constants::StandardCapture::Warning::Functional::tooManyArgs(domain.capture);
     }

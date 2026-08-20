@@ -34,7 +34,7 @@ public:
 
     // [BASIC]
 
-    [[nodiscard]] Constants::Event echo(std::span<std::string_view const> const& args) const ;
+    [[nodiscard]] Constants::Event echo(std::span<std::string_view const> args) const ;
     static auto constexpr echoName = "echo";
     static auto constexpr echoDesc = "Echoes all arguments as string to the standard output.\n"
         "\n"
@@ -46,7 +46,7 @@ public:
         "Outputs:\n"
         "Hello World!\n";
 
-    [[nodiscard]] static Constants::Event ifFunc(std::span<std::string_view const> const& args, Interaction::Context& ctx, Interaction::ContextScope& ctxScope);
+    [[nodiscard]] static Constants::Event ifFunc(std::span<std::string_view const> args, Interaction::Context& ctx, Interaction::ContextScope& ctxScope);
     static auto constexpr ifFuncName = "if";
     static auto constexpr ifFuncDesc = "Executes a block of code if a condition is true.\n"
         "\n"
@@ -59,7 +59,7 @@ public:
         "Example:\n"
         "if $({global:settings.someFile|strCompare equals ./Resources/myFile.txt}) then echo Condition is true!\n";
 
-    [[nodiscard]] static Constants::Event forFunc(std::span<std::string_view const> const& args, Interaction::Context& ctx, Interaction::ContextScope& ctxScope);
+    [[nodiscard]] static Constants::Event forFunc(std::span<std::string_view const> args, Interaction::Context& ctx, Interaction::ContextScope& ctxScope);
     static auto constexpr forFuncName = "for";
     static auto constexpr forFuncDesc = "Executes a for-loop with a function call.\n"
         "\n"
@@ -80,13 +80,13 @@ public:
         "- Creating complex control flows in scripts.\n";
 
     // TODO: Add a capture progress tracker: capture.setProgress(<name>, <percentage>), + a capture.removeProgress(<name>)
-    [[nodiscard]] static Constants::Event forFuncProgress(std::span<std::string_view const> const& args, Interaction::Context& ctx, Interaction::ContextScope& ctxScope);
+    [[nodiscard]] static Constants::Event forFuncProgress(std::span<std::string_view const> args, Interaction::Context& ctx, Interaction::ContextScope& ctxScope);
     static auto constexpr forFuncProgressName = "for-progress";
     static auto constexpr forFuncProgressDesc = "Executes a for-loop with a function call, while providing a progress bar\n"
         "\n"
         "Usage: for-progress <var> <start> <end> <functioncall>\n";
 
-    [[nodiscard]] static Constants::Event assertFunc(std::span<std::string_view const> const& args, Interaction::Context const& ctx, Interaction::ContextScope const& ctxScope);
+    [[nodiscard]] static Constants::Event assertFunc(std::span<std::string_view const> args, Interaction::Context const& ctx, Interaction::ContextScope const& ctxScope);
     static auto constexpr assertName = "assert";
     static auto constexpr assertDesc = "Asserts a condition and throws a custom error if false.\n"
         "\n"
@@ -110,7 +110,7 @@ public:
 
     // [FORWARD/REPARSE]
 
-    [[nodiscard]] static Constants::Event forwardToOther(std::span<std::string_view const> const& args, Interaction::Context& ctx, Interaction::ContextScope& ctxScope);
+    [[nodiscard]] static Constants::Event forwardToOther(std::span<std::string_view const> args, Interaction::Context& ctx, Interaction::ContextScope& ctxScope);
     static auto constexpr forwardToOtherName = "forward other";
     static auto constexpr forwardToOtherDesc = "Forwards the arguments to the other context without modifying context.\n"
         "Same as a json ruleset functioncall in the other context.\n"
@@ -119,7 +119,7 @@ public:
         "This command takes the arguments after 'forward other' and executes them as a command in the other context.\n"
         "This is useful for executing commands that are only available in the other context.\n";
 
-    [[nodiscard]] static Constants::Event forwardToGlobal(std::span<std::string_view const> const& args, Interaction::Context& ctx, Interaction::ContextScope& ctxScope);
+    [[nodiscard]] static Constants::Event forwardToGlobal(std::span<std::string_view const> args, Interaction::Context& ctx, Interaction::ContextScope& ctxScope);
     static auto constexpr forwardToGlobalName = "forward global";
     static auto constexpr forwardToGlobalDesc = "Forwards the arguments to the global context without modifying context.\n"
         "Same as a json ruleset functioncall in the global context.\n"
@@ -128,7 +128,7 @@ public:
         "This command takes the arguments after 'forward global' and executes them as a command in the global context.\n"
         "This is useful for executing commands that are only available in the global context or for modifying global variables.\n";
 
-    [[nodiscard]] static Constants::Event reparseInOther(std::span<std::string_view const> const& args, Interaction::Context const& ctx, Interaction::ContextScope const& ctxScope);
+    [[nodiscard]] static Constants::Event reparseInOther(std::span<std::string_view const> args, Interaction::Context const& ctx, Interaction::ContextScope const& ctxScope);
     static auto constexpr reparseInOtherName = "reparse other";
     static auto constexpr reparseInOtherDesc = "Forwards the arguments to the other context, switching the contexts self and other.\n"
         "Usage: forward other <functioncall>\n"
@@ -136,7 +136,7 @@ public:
         "This command takes the arguments after 'forward other' and executes them as a command in the other context.\n"
         "This is useful for modifying variables in the other context.\n";
 
-    [[nodiscard]] static Constants::Event reparseInGlobal(std::span<std::string_view const> const& args, Interaction::Context const& ctx, Interaction::ContextScope const& ctxScope);
+    [[nodiscard]] static Constants::Event reparseInGlobal(std::span<std::string_view const> args, Interaction::Context const& ctx, Interaction::ContextScope const& ctxScope);
     static auto constexpr reparseInGlobalName = "reparse global";
     static auto constexpr reparseInGlobalDesc = "Forwards the arguments to the global context, replacing all context with global.\n"
         "Usage: forward global <functioncall>\n"
@@ -146,7 +146,7 @@ public:
 
     // [IMGUI]
 
-    [[nodiscard]] Constants::Event imguiView(std::span<std::string_view const> const& args, Interaction::Context const& ctx, Interaction::ContextScope const& ctxScope);
+    [[nodiscard]] Constants::Event imguiView(std::span<std::string_view const> args, Interaction::Context const& ctx, Interaction::ContextScope const& ctxScope);
     static auto constexpr imguiViewName = "imgui-view";
     static auto constexpr imguiViewDesc = "Creates an ImGui view of the domain.\n"
        "\n"
@@ -156,7 +156,7 @@ public:
 
     // [OTHER]
 
-    [[nodiscard]] static Constants::Event capture(std::span<std::string_view const> const& args, Interaction::Context& ctx, Interaction::ContextScope& ctxScope);
+    [[nodiscard]] static Constants::Event capture(std::span<std::string_view const> args, Interaction::Context& ctx, Interaction::ContextScope& ctxScope);
     static auto constexpr captureName = "capture";
     static auto constexpr captureDesc = "Stores all capture output from a command into a given variable"
         "\n"
@@ -165,7 +165,7 @@ public:
         "Any output is not printed to the console, but instead stored in the given variable.\n"
         "Note that any warnings or errors will no longer be printed to the console, but instead stored in the variable as well!\n";
 
-    [[nodiscard]] static Constants::Event eval(std::span<std::string_view const> const& args, Interaction::Context& ctx, Interaction::ContextScope& ctxScope);
+    [[nodiscard]] static Constants::Event eval(std::span<std::string_view const> args, Interaction::Context& ctx, Interaction::ContextScope& ctxScope);
     static auto constexpr evalName = "eval";
     static auto constexpr evalDesc = "Evaluates an expression string and executes it.\n"
         "Every argument after eval is concatenated with a whitespace to form the expression to be evaluated and then reparsed.\n"

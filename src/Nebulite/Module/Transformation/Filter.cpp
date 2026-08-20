@@ -35,7 +35,7 @@ void Filter::bindTransformations(){
     bindTransformation(&Filter::filterCustom, filterCustomName, filterCustomDesc);
 }
 
-bool Filter::filterRegex(std::span<std::string_view const> const& args, Data::JsonScope& jsonDoc) {
+bool Filter::filterRegex(std::span<std::string_view const> const args, Data::JsonScope& jsonDoc) {
     if (args.size() != 2) {
         return false;
     }
@@ -59,7 +59,7 @@ bool Filter::filterRegex(std::span<std::string_view const> const& args, Data::Js
     return true;
 }
 
-bool Filter::filterGlob(std::span<std::string_view const> const& args, Data::JsonScope& jsonDoc) {
+bool Filter::filterGlob(std::span<std::string_view const> const args, Data::JsonScope& jsonDoc) {
     if (args.size() != 2) {
         return false;
     }
@@ -75,7 +75,7 @@ bool Filter::filterGlob(std::span<std::string_view const> const& args, Data::Jso
     return true;
 }
 
-bool Filter::filterRegexValue(std::span<std::string_view const> const& args, Data::JsonScope& jsonDoc){
+bool Filter::filterRegexValue(std::span<std::string_view const> const args, Data::JsonScope& jsonDoc){
     if (args.size() != 2) {
         return false;
     }
@@ -112,7 +112,7 @@ bool Filter::filterRegexValue(std::span<std::string_view const> const& args, Dat
     return true;
 }
 
-bool Filter::filterGlobValue(std::span<std::string_view const> const& args, Data::JsonScope& jsonDoc){
+bool Filter::filterGlobValue(std::span<std::string_view const> const args, Data::JsonScope& jsonDoc){
     if (args.size() != 2) {
         return false;
     }
@@ -180,7 +180,7 @@ bool Filter::filterNulls(Data::JsonScope& jsonDoc) {
     return true;
 }
 
-bool Filter::filterCustom(std::span<std::string_view const> const& args, Data::JsonScope& jsonDoc){
+bool Filter::filterCustom(std::span<std::string_view const> const args, Data::JsonScope& jsonDoc){
     if (jsonDoc.memberType(rootKey) != Data::KeyType::array) return false; // Not an array, cannot sort
     if (args.size() < 2) return false;
     Interaction::Logic::Expression const expression('$' + Utility::StringHandler::recombineArgs(args.subspan(1)));

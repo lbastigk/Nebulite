@@ -171,14 +171,14 @@ Constants::Event Debug::logState(int const argc, char const** argv) const {
     return Constants::Event::success;
 }
 
-Constants::Event Debug::standardFileRenderObject(std::span<std::string_view const> const& /*args*/) const {
+Constants::Event Debug::standardFileRenderObject(std::span<std::string_view const> const /*args*/) const {
     if (Core::RenderObject const ro(domain.capture); !Utility::Io::FileManagement::writeFile("./Resources/Renderobjects/standard.jsonc", ro.serialize())) {
         return Constants::StandardCapture::Error::File::couldNotWriteFile(domain.capture);
     }
     return Constants::Event::success;
 }
 
-Constants::Event Debug::errorLog(std::span<std::string_view const> const& args, Interaction::Context const& ctx, Interaction::ContextScope& /*ctxScope*/) {
+Constants::Event Debug::errorLog(std::span<std::string_view const> const args, Interaction::Context const& ctx, Interaction::ContextScope& /*ctxScope*/) {
     // Initialize the error logging buffer
     if (!originalCerrBuf) {
         originalCerrBuf = std::cerr.rdbuf();
@@ -245,13 +245,13 @@ void clearScreen() {
 } // namespace
 
 
-Constants::Event Debug::clearConsole(std::span<std::string_view const> const& /*args*/){
+Constants::Event Debug::clearConsole(std::span<std::string_view const> const /*args*/){
     clearScreen();
     Global::capture().clear();
     return Constants::Event::success;
 }
 
-Constants::Event Debug::crash(std::span<std::string_view const> const& args, Interaction::Context const& ctx, Interaction::ContextScope& /*ctxScope*/) {
+Constants::Event Debug::crash(std::span<std::string_view const> const args, Interaction::Context const& ctx, Interaction::ContextScope& /*ctxScope*/) {
     // If an argument is provided, use it to select crash type
     if (args.size() > 1) {
         if (auto const& crashType = args[1]; crashType == "segfault") {
@@ -278,7 +278,7 @@ Constants::Event Debug::crash(std::span<std::string_view const> const& args, Int
     return Constants::Event::success;
 }
 
-Constants::Event Debug::waitForInput(std::span<std::string_view const> const& args, Interaction::Context const& ctx, Interaction::ContextScope& /*ctxScope*/) {
+Constants::Event Debug::waitForInput(std::span<std::string_view const> const args, Interaction::Context const& ctx, Interaction::ContextScope& /*ctxScope*/) {
     if (args.size() > 2) {
         return Constants::StandardCapture::Warning::Functional::tooManyArgs(ctx.self.capture);
     }
@@ -292,7 +292,7 @@ Constants::Event Debug::waitForInput(std::span<std::string_view const> const& ar
     return Constants::Event::success;
 }
 
-Constants::Event Debug::listExpressionFunctions(std::span<std::string_view const> const& args) {
+Constants::Event Debug::listExpressionFunctions(std::span<std::string_view const> const args) {
     // Forward to ExpressionPrimitives::help
     Math::ExpressionPrimitives::help(args);
     return Constants::Event::success;

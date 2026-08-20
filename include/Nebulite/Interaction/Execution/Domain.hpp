@@ -459,7 +459,7 @@ public:
      */
     [[nodiscard]] Constants::Event parseWithPrefix(std::vector<std::string_view>& existingArgs, std::string_view cmd, Context& ctx, ContextScope& ctxScope) const ;
 
-    [[nodiscard]] Constants::Event parse(std::span<std::string_view> args, Context& ctx, ContextScope& ctxScope) const ;
+    [[nodiscard]] Constants::Event parse(std::span<std::string_view const> args, Context& ctx, ContextScope& ctxScope) const ;
     [[nodiscard]] Constants::Event parse(std::vector<std::string_view> const& args, Context& ctx, ContextScope& ctxScope) const ;
     [[nodiscard]] Constants::Event parse(std::vector<std::string> const& args, Context& ctx, ContextScope& ctxScope) const ;
 

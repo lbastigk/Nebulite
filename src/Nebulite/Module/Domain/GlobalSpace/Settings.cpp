@@ -50,7 +50,7 @@ Constants::Event Settings::overWriteSettingsFile() const {
     return saveSettings();
 }
 
-Constants::Event Settings::setSettingStr(std::span<std::string_view const> const& args) const {
+Constants::Event Settings::setSettingStr(std::span<std::string_view const> const args) const {
     if (args.size() < 2) {
         return Constants::StandardCapture::Warning::Functional::tooFewArgs(domain.capture);
     }
@@ -65,7 +65,7 @@ Constants::Event Settings::setSettingStr(std::span<std::string_view const> const
     return Constants::Event::success;
 }
 
-Constants::Event Settings::setSettingInt(std::span<std::string_view const> const& args) const {
+Constants::Event Settings::setSettingInt(std::span<std::string_view const> const args) const {
     if (args.size() < 2) {
         return Constants::StandardCapture::Warning::Functional::tooFewArgs(domain.capture);
     }

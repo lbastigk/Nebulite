@@ -170,6 +170,7 @@ private:
      * @brief The Caching system used for fast access to frequently used values.
      * @details Is mutable, as caching itself is used in get-calls, which are const.
      * @note Optionals would be better, but this requires a large refactor
+     * @todo Wrap this in another class that contains a list of all entries for faster iteration
      */
     mutable absl::flat_hash_map<std::string, std::unique_ptr<CacheEntry>> cache;
 

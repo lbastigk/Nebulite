@@ -78,20 +78,13 @@ public:
         using Traits = MemberFunctionPointerTraits<M>;
         using C = Traits::ClassType;
         using Span = CmdArgs::Span;
-        using SpanConstRef = CmdArgs::SpanConstRef;
 
         // Determine type
         if constexpr (isInvocableWithArgs<ReturnValue, M, C, int, char const**>) {
             return FunctionShape::memberLegacyIntConstChar;
         }
-        else if constexpr (isInvocableWithArgs<ReturnValue, M, C, SpanConstRef, AdditionalArgs...>) {
-            return FunctionShape::memberModernFullConstRef;
-        }
         else if constexpr (isInvocableWithArgs<ReturnValue, M, C, Span, AdditionalArgs...>) {
             return FunctionShape::memberModernFull;
-        }
-        else if constexpr (isInvocableWithArgs<ReturnValue, M, C, SpanConstRef>) {
-            return FunctionShape::memberModernNoAddArgsConstRef;
         }
         else if constexpr (isInvocableWithArgs<ReturnValue, M, C, Span>) {
             return FunctionShape::memberModernNoAddArgs;
@@ -112,7 +105,6 @@ public:
     static constexpr FunctionShape classifyFreeFunction() {
         using F = std::decay_t<FunctionPointer>;
         using Span = CmdArgs::Span;
-        using SpanConstRef = CmdArgs::SpanConstRef;
 
         // Determine type
         if constexpr (std::is_invocable_r_v<ReturnValue, F, int, char**>) {
@@ -121,14 +113,8 @@ public:
         else if constexpr (std::is_invocable_r_v<ReturnValue, F, int, char const**>) {
             return FunctionShape::freeLegacyIntConstChar;
         }
-        else if constexpr (std::is_invocable_r_v<ReturnValue, F, SpanConstRef, AdditionalArgs...>) {
-            return FunctionShape::freeModernFullConstRef;
-        }
         else if constexpr (std::is_invocable_r_v<ReturnValue, F, Span, AdditionalArgs...>) {
             return FunctionShape::freeModernFull;
-        }
-        else if constexpr (std::is_invocable_r_v<ReturnValue, F, SpanConstRef>) {
-            return FunctionShape::freeModernNoAddArgsConstRef;
         }
         else if constexpr (std::is_invocable_r_v<ReturnValue, F, Span>) {
             return FunctionShape::freeModernNoAddArgs;

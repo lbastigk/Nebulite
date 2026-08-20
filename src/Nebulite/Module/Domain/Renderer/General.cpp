@@ -51,7 +51,7 @@ Constants::Event General::updateHook() {
 //------------------------------------------
 // Domain-Bound Functions
 
-Constants::Event General::envLoad(std::span<std::string_view const> const& args) const {
+Constants::Event General::envLoad(std::span<std::string_view const> const args) const {
     if (args.size() < 2) {
         // no name provided, load empty env
         domain.deserialize("{}");
@@ -73,7 +73,7 @@ Constants::Event General::envDeload() const {
     return Constants::Event::success;
 }
 
-Constants::Event General::spawn(std::span<std::string_view const> const& args) const {
+Constants::Event General::spawn(std::span<std::string_view const> const args) const {
     if (args.size() > 1) {
         // Using all args, allowing for whitespaces in the link and in the following functioncalls:
         // e.g.: spawn Planets/sun.jsonc|set text.str This is a sun
