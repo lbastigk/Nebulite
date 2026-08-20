@@ -70,7 +70,7 @@ bool Fft::applyIfft(Data::JsonScope& jsonDoc) {
     return true;
 }
 
-bool Fft::applyTransferFunctionFrequencyDomain(std::span<std::string_view const> const& args, Data::JsonScope& jsonDoc) {
+bool Fft::applyTransferFunctionFrequencyDomain(std::span<std::string_view const> const args, Data::JsonScope& jsonDoc) {
     auto const samples = jsonDoc.arrayKeys(rootKey)
         | std::views::transform([&jsonDoc](auto const& key) -> std::optional<double> {
             // Try to retrieve value as real value first (simplest to handle), if not, try to retrieve as complex value

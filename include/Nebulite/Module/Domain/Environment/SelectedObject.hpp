@@ -51,7 +51,7 @@ public:
         "\n"
         "Usage: selected-object get <idx>\n";
 
-    [[nodiscard]] Constants::Event selectedObjectParse(std::span<std::string_view const> const& args, Interaction::Context const& ctx, Interaction::ContextScope const& ctxScope) const ;
+    [[nodiscard]] Constants::Event selectedObjectParse(std::span<std::string_view const> args, Interaction::Context const& ctx, Interaction::ContextScope const& ctxScope) const ;
     static auto constexpr selectedObjectParseName = "selected-object parse";
     static auto constexpr selectedObjectParseDesc = "Parse a command on the selected RenderObject.\n"
         "\n"

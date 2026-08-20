@@ -117,7 +117,7 @@ Constants::Event Ruleset::reload() {
     return Constants::Event::success;
 }
 
-Constants::Event Ruleset::invokeOnce(std::span<std::string_view const> const& args) const {
+Constants::Event Ruleset::invokeOnce(std::span<std::string_view const> const args) const {
     if (args.size() > 1) {
         std::string const arg = Utility::StringHandler::recombineArgs(args.subspan(1));
         if (auto const rs = Interaction::Rules::Construction::RulesetCompiler::parseSingle(arg, domain); rs.has_value()) {
@@ -135,7 +135,7 @@ Constants::Event Ruleset::invokeOnce(std::span<std::string_view const> const& ar
     return Constants::StandardCapture::Warning::Functional::tooFewArgs(domain.capture);
 }
 
-Constants::Event Ruleset::broadcast(std::span<std::string_view const> const& args) const {
+Constants::Event Ruleset::broadcast(std::span<std::string_view const> const args) const {
     if (args.size() < 2) {
         return Constants::StandardCapture::Warning::Functional::tooFewArgs(domain.capture);
     }
@@ -150,7 +150,7 @@ Constants::Event Ruleset::broadcast(std::span<std::string_view const> const& arg
     return Constants::StandardCapture::Error::Ruleset::parsingFailed(domain.capture);
 }
 
-Constants::Event Ruleset::listen(std::span<std::string_view const> const& args) const {
+Constants::Event Ruleset::listen(std::span<std::string_view const> const args) const {
     if (args.size() < 2) {
         return Constants::StandardCapture::Warning::Functional::tooFewArgs(domain.capture);
     }

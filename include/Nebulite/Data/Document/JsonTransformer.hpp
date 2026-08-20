@@ -72,7 +72,7 @@ public:
      * @return true if the transformations were successfully applied, false otherwise.
      *         If the value is false, the document should still be considered modified, but in an unknown state.
      */
-    bool parse(std::span<std::string_view const> const& transformationList, JsonScope& jsonDoc) const ;
+    bool parse(std::span<std::string_view const> transformationList, JsonScope& jsonDoc) const ;
 
     /**
      * @brief Parses and applies JSON transformations from the given arguments.
@@ -81,7 +81,7 @@ public:
      * @return true if the transformations were successfully applied, false otherwise.
      *         If the value is false, the document should still be considered modified, but in an unknown state.
      */
-    bool parse(std::span<std::string_view const> const& transformationList, Json& jsonDoc) const ;
+    bool parse(std::span<std::string_view const> transformationList, Json& jsonDoc) const ;
 
 
     /**
@@ -90,7 +90,7 @@ public:
      * @param jsonDoc The document to manipulate
      * @return true if the transformations were successfully applied, false otherwise.
      */
-    bool parseSingleTransformation(std::span<std::string_view const> const& args, JsonScope& jsonDoc) const ;
+    bool parseSingleTransformation(std::span<std::string_view const> args, JsonScope& jsonDoc) const ;
 };
 } // namespace Nebulite::Data
 #include "Nebulite/Data/Document/JsonTransformer.tpp" // NOLINT(misc-include-cleaner)

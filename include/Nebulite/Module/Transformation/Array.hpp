@@ -38,7 +38,7 @@ public:
 
     // Pick
 
-    static bool at(std::span<std::string_view const> const& args, Data::JsonScope& jsonDoc);
+    static bool at(std::span<std::string_view const> args, Data::JsonScope& jsonDoc);
     static auto constexpr atName = "at";
     static auto constexpr atDesc = "Gets the element at the specified index from the array in the current JSON value.\n"
         "If the index is out of bounds, the transformation fails.\n"
@@ -61,7 +61,7 @@ public:
     static auto constexpr lengthDesc = "Gets the length of the array in the current JSON value.\n"
         "Usage: |length -> {number}\n";
 
-    static bool subspan(std::span<std::string_view const> const& args, Data::JsonScope& jsonDoc);
+    static bool subspan(std::span<std::string_view const> args, Data::JsonScope& jsonDoc);
     static auto constexpr subspanName = "subspan";
     static auto constexpr subspanDesc = "Gets a subarray from the array in the current JSON value.\n"
         "Usage: |subspan <start> [<length>] -> {array}\n";
@@ -82,35 +82,35 @@ public:
 
     // TODO: no index name passing. Instead: turn into object with index and value
     //       even better: a canonical representation of tuples for the Json/JsonScope class
-    static bool enumerate(std::span<std::string_view const> const& args, Data::JsonScope& jsonDoc);
+    static bool enumerate(std::span<std::string_view const> args, Data::JsonScope& jsonDoc);
     static auto constexpr enumerateName = "enumerate";
     static auto constexpr enumerateDesc = "Enumerates the array in the current JSON value.\n"
         "Usage: |enumerate <indexKey> -> {array}\n"
         "Where indexKey is the key of each array element to populate with the index of the element in the array.\n";
 
-    static bool batch(std::span<std::string_view const> const& args, Data::JsonScope& jsonDoc);
+    static bool batch(std::span<std::string_view const> args, Data::JsonScope& jsonDoc);
     static auto constexpr batchName = "batch";
     static auto constexpr batchDesc = "Batches the array in the current JSON value into subarrays of the specified size.\n"
         "Usage: |batch <size> -> {array}\n";
 
-    static bool batchPadded(std::span<std::string_view const> const& args, Data::JsonScope& jsonDoc);
+    static bool batchPadded(std::span<std::string_view const> args, Data::JsonScope& jsonDoc);
     static auto constexpr batchPaddedName = "batchPadded";
     static auto constexpr batchPaddedDesc = "Batches the array in the current JSON value into subarrays of the specified size, padding the last batch with empty objects if necessary.\n"
             "Usage: |batchPadded <size> -> {array}\n";
 
-    static bool stride(std::span<std::string_view const> const& args, Data::JsonScope& jsonDoc);
+    static bool stride(std::span<std::string_view const> args, Data::JsonScope& jsonDoc);
     static auto constexpr strideName = "stride";
     static auto constexpr strideDesc = "Strides the array in the current JSON value by the specified size.\n"
         "Usage: |stride <size> -> {array}\n";
 
-    static bool slide(std::span<std::string_view const> const& args, Data::JsonScope& jsonDoc);
+    static bool slide(std::span<std::string_view const> args, Data::JsonScope& jsonDoc);
     static auto constexpr slideName = "slide";
     static auto constexpr slideDesc = "Slides the array in the current JSON value by the specified size, generating overlapping windows.\n"
         "Usage: |slide <size> -> {array}\n";
 
     // Generate
 
-    static bool iota(std::span<std::string_view const> const& args, Data::JsonScope& jsonDoc);
+    static bool iota(std::span<std::string_view const> args, Data::JsonScope& jsonDoc);
     static auto constexpr iotaName = "iota";
     static auto constexpr iotaDesc = "Generates an array of values.\n"
         "Usage: |iota <start> <end> -> {array}\n"
@@ -125,19 +125,19 @@ public:
         "If the current value is not an array, it is wrapped into a single-element array.\n"
         "Usage: |ensureArray -> {array}\n";
 
-    static bool push(std::span<std::string_view const> const& args, Data::JsonScope& jsonDoc);
+    static bool push(std::span<std::string_view const> args, Data::JsonScope& jsonDoc);
     static auto constexpr pushName = "push";
     static auto constexpr pushDesc = "Pushes a string value to the end of the array in the current JSON value.\n"
         "If the current value is not an array, it is first wrapped into a single-element array.\n"
         "Usage: |push <value> -> {array}\n";
 
-    static bool pushNumber(std::span<std::string_view const> const& args, Data::JsonScope& jsonDoc);
+    static bool pushNumber(std::span<std::string_view const> args, Data::JsonScope& jsonDoc);
     static auto constexpr pushNumberName = "pushNumber";
     static auto constexpr pushNumberDesc = "Pushes a numeric value to the end of the array in the current JSON value.\n"
         "If the current value is not an array, it is first wrapped into a single-element array.\n"
         "Usage: |pushNumber <value> -> {array}\n";
 
-    static bool pad(std::span<std::string_view const> const& args, Data::JsonScope& jsonDoc);
+    static bool pad(std::span<std::string_view const> args, Data::JsonScope& jsonDoc);
     static auto constexpr padName = "pad";
     static auto constexpr padDesc = "Pads the array in the current JSON value to the specified length with empty objects.\n"
         "If the current value is larger than the specified length, it is not modified.\n"

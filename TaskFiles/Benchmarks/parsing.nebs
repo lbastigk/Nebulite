@@ -1,0 +1,24 @@
+# Simple call of the parser multiple times to test performance of splitting and passing the span of string_views
+
+#############################################
+# Start renderer for time measurement
+rng off
+set-fps 5000
+wait 1
+
+#############################################
+# Benchmark
+
+eval set benchmark.startTime {global:time.runtime.t}
+for i 0 10000000 nop {i}
+wait 1 # Sub-optimal, we need a mechanism to cause an update without potentially waiting
+eval set benchmark.time $({global:time.runtime.t} - {self:benchmark.startTime})
+
+#############################################
+# Output
+
+eval set benchmark.timePerIteration $({self:benchmark.time} / 10000000)
+eval echo Benchmark took $6.4f({self:benchmark.time}) seconds
+eval echo Average time per iteration:      $06.4f(1e6 * {self:benchmark.timePerIteration}) µs
+
+exit

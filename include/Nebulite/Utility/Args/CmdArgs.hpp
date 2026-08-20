@@ -14,7 +14,6 @@ namespace Nebulite::Utility::Args {
 // Command argument span types
 struct CmdArgs {
     using Span = std::span<std::string_view const>;
-    using SpanConstRef = std::span<std::string_view const> const&; // TODO: might be unnecessary
 };
 
 } // namespace Nebulite::Utility::Args

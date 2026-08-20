@@ -39,7 +39,7 @@ public:
     //------------------------------------------
     // Available Functions
 
-    [[nodiscard]] Constants::Event logAll(std::span<std::string_view const> const& args, Interaction::Context const& ctx, Interaction::ContextScope const& ctxScope) const ;
+    [[nodiscard]] Constants::Event logAll(std::span<std::string_view const> args, Interaction::Context const& ctx, Interaction::ContextScope const& ctxScope) const ;
     static auto constexpr logAllName = "log all";
     static auto constexpr logAllDesc = "Logs the entire RenderObject to a file.\n"
         "\n"
@@ -47,7 +47,7 @@ public:
         "\n"
         "Logs to `RenderObject_id<id>.log.jsonc` if no filename is provided.\n";
 
-    [[nodiscard]] Constants::Event logKey(std::span<std::string_view const> const& args, Interaction::Context const& ctx, Interaction::ContextScope const& ctxScope) const ;
+    [[nodiscard]] Constants::Event logKey(std::span<std::string_view const> args, Interaction::Context const& ctx, Interaction::ContextScope const& ctxScope) const ;
     static auto constexpr logKeyName = "log key";
     static auto constexpr logKeyDesc = "Logs a specific key's value to a file.\n"
         "\n"

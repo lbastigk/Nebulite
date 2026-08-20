@@ -230,7 +230,7 @@ bool pseudoBind() {
 }
 } // namespace
 
-void ExpressionPrimitives::help(std::span<std::string_view const> const& args) {
+void ExpressionPrimitives::help(std::span<std::string_view const> const args) {
     // Create a temporary funcTree to utilize its printFunctionList method for formatted output
 
     Utility::Args::FuncTree tempFuncTree("Nebulite Expressions", true, true, Global::capture()); // Pass to main capture

@@ -29,6 +29,26 @@
 #endif // NEBULITE_UTILITY_ARGS_FUNCTREE_HPP
 
 //------------------------------------------
+namespace Filter {
+/**
+ * @brief Returns only unique values
+ * @details Requires the given range to be sorted!
+ */
+struct Unique : std::ranges::range_adaptor_closure<Unique> {
+    template <std::ranges::input_range R>
+    auto operator()(R&& r) const {
+        return std::forward<R>(r)
+            | std::views::chunk_by([](auto const& a, auto const& b) {
+                return a == b;
+            })
+            | std::views::transform([](auto chunk) {
+                return *chunk.begin();
+            });
+  }
+} constexpr unique;
+} // namespace Filter
+
+//------------------------------------------
 namespace Nebulite::Utility::Args {
 
 template <typename ReturnValue, typename... AdditionalArgs>
@@ -64,7 +84,7 @@ bool FuncTree<ReturnValue, AdditionalArgs...>::hasFunction(std::string_view cons
 }
 
 template <typename ReturnValue, typename... AdditionalArgs>
-ReturnValue FuncTree<ReturnValue, AdditionalArgs...>::help(std::span<std::string_view const> const& args) {
+ReturnValue FuncTree<ReturnValue, AdditionalArgs...>::help(std::span<std::string_view const> const args) {
     //------------------------------------------
     // Case 1: Detailed help for a specific function, category or variable
     if (args.size() > 1) {
@@ -130,35 +150,21 @@ void FuncTree<ReturnValue, AdditionalArgs...>::generalHelp() {
     auto allFunctions = getAllFunctions(); // includes categories
     auto allVariables = getAllVariables();
 
-    // Filter duplicates
+    // Sort
     std::ranges::sort(allFunctions, {}, &std::pair<std::string, std::string_view>::first);
-    std::erase_if(allFunctions, [previous = std::string{}](auto const& item) mutable {
-        if (item.first == previous) {
-            return true;
-        }
-        previous = item.first;
-        return false;
-    });
     std::ranges::sort(allVariables, {}, &std::pair<std::string, std::string_view>::first);
-    std::erase_if(allVariables, [previous = std::string{}](auto const& item) mutable {
-        if (item.first == previous) {
-            return true;
-        }
-        previous = item.first;
-        return false;
-    });
 
     // Display:
     capture.log.println();
     capture.log.println("Help for ", treeName);
     capture.log.println("Add the entries name to the command for more details: ", treeName, " help <foo>");
     capture.log.println("Available functions:");
-    std::ranges::for_each(allFunctions, [&](auto const& funcInfo) {
+    std::ranges::for_each(allFunctions | Filter::unique, [&](auto const& funcInfo) {
         auto const& [name, description] = funcInfo;
         displayMember(name, description);
     });
     capture.log.println("Available variables:");
-    std::ranges::for_each(allVariables, [&](auto const& varInfo) {
+    std::ranges::for_each(allVariables | Filter::unique, [&](auto const& varInfo) {
         auto const& [name, description] = varInfo;
         displayMember(name, description);
     });
@@ -217,7 +223,7 @@ FuncTree<ReturnValue, AdditionalArgs...>::find(std::string_view name) {
 }
 
 template <typename ReturnValue, typename ... AdditionalArgs>
-ReturnValue FuncTree<ReturnValue, AdditionalArgs...>::complete(std::span<std::string_view const> const& args){
+ReturnValue FuncTree<ReturnValue, AdditionalArgs...>::complete(std::span<std::string_view const> const args){
     // Traverse into categories based on args, get pattern to complete
     auto const [pattern, ftree] = [&] -> std::pair<std::string_view, FuncTree*> {
         auto argsSpan = args.subspan(1); // Skip binary name or last function name
@@ -371,13 +377,7 @@ std::vector<std::string> FuncTree<ReturnValue, AdditionalArgs...>::findCompletio
     });
 
     std::ranges::sort(completions);
-    std::erase_if(completions, [lastItem = std::string{}](auto const& currentItem) mutable {
-        bool const duplicate = currentItem == lastItem;
-        lastItem = currentItem;
-        return duplicate;
-    });
-
-    return completions;
+    return completions | Filter::unique | std::ranges::to<std::vector<std::string>>();
 }
 
 } // namespace Nebulite::Utility::Args

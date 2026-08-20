@@ -1,18 +1,6 @@
 function(setup_binary_settings)
     message(STATUS "Setting up binary output settings...")
 
-    # Only add debug info in Debug builds
-    if(CMAKE_BUILD_TYPE STREQUAL "Debug")
-        add_compile_options(-g)
-    endif()
-
-    # Coverage build configuration
-    if(CMAKE_BUILD_TYPE STREQUAL "Coverage")
-        add_compile_options(-g --coverage -fprofile-arcs -ftest-coverage)
-        add_link_options(--coverage)
-        message(STATUS "Coverage build enabled")
-    endif()
-
     add_executable(Nebulite
         ${CMAKE_SOURCE_DIR}/src/Nebulite/main.cpp
         ${COMMON_SOURCES}
@@ -27,15 +15,50 @@ function(setup_binary_settings)
         RUNTIME_OUTPUT_DIRECTORY_RELEASE ${CMAKE_SOURCE_DIR}/bin
     )
 
-    # Set output name based on build type
-    if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+    # Set output name and settings based on build type
+    if(CMAKE_BUILD_TYPE STREQUAL "Release")
+        set_target_properties(Nebulite PROPERTIES OUTPUT_NAME "Nebulite")
+        add_compile_options(
+                -O3
+                -DNDEBUG
+                -march=native
+                -mtune=native
+                -flto=auto
+                -fno-semantic-interposition
+                -fomit-frame-pointer
+                -fuse-linker-plugin
+                -fvisibility=hidden
+                -fvisibility-inlines-hidden
+                -finline-functions
+                -fpredictive-commoning
+        )
+    elseif(CMAKE_BUILD_TYPE STREQUAL "Debug")
         set_target_properties(Nebulite PROPERTIES OUTPUT_NAME "Nebulite_Debug")
+        add_compile_options(
+                -g
+                -ftime-trace=${sourceDir}/tmp/trace_${presetName}.json
+        )
     elseif(CMAKE_BUILD_TYPE STREQUAL "Coverage")
         set_target_properties(Nebulite PROPERTIES OUTPUT_NAME "Nebulite_Coverage")
+        add_compile_options(
+                -g
+                --coverage
+                -fprofile-arcs
+                -ftest-coverage
+        )
+        add_link_options(--coverage)
+        message(STATUS "Coverage build enabled")
     elseif(CMAKE_BUILD_TYPE STREQUAL "Profiling")
         set_target_properties(Nebulite PROPERTIES OUTPUT_NAME "Nebulite_Profiling")
+        add_compile_options(
+                -O3
+                -g
+                -DNDEBUG
+                -fno-omit-frame-pointer
+                -march=native
+        )
     else()
-        set_target_properties(Nebulite PROPERTIES OUTPUT_NAME "Nebulite")
+        error("Unknown build type: ${CMAKE_BUILD_TYPE}. Supported types are: Release, Debug, Coverage, Profiling.")
     endif()
 endfunction()
 

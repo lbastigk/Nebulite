@@ -34,7 +34,7 @@ Constants::Event Debug::updateHook() {
 
 // Fetch
 
-Constants::Event Debug::fetchId(std::span<std::string_view const> const& args, Interaction::Context const& ctx, Interaction::ContextScope const& ctxScope) {
+Constants::Event Debug::fetchId(std::span<std::string_view const> const args, Interaction::Context const& ctx, Interaction::ContextScope const& ctxScope) {
     if (args.size() < 2) {
         return Constants::StandardCapture::Warning::Functional::tooFewArgs(ctx.self.capture);
     }
@@ -43,7 +43,7 @@ Constants::Event Debug::fetchId(std::span<std::string_view const> const& args, I
     return Constants::Event::success;
 }
 
-Constants::Event Debug::fetchName(std::span<std::string_view const> const& args, Interaction::Context const& ctx, Interaction::ContextScope const& ctxScope) {
+Constants::Event Debug::fetchName(std::span<std::string_view const> const args, Interaction::Context const& ctx, Interaction::ContextScope const& ctxScope) {
     if (args.size() < 2) {
         return Constants::StandardCapture::Warning::Functional::tooFewArgs(ctx.self.capture);
     }
@@ -52,7 +52,7 @@ Constants::Event Debug::fetchName(std::span<std::string_view const> const& args,
     return Constants::Event::success;
 }
 
-Constants::Event Debug::print(std::span<std::string_view const> const& args, Interaction::Context const& ctx, Interaction::ContextScope const& ctxScope) {
+Constants::Event Debug::print(std::span<std::string_view const> const args, Interaction::Context const& ctx, Interaction::ContextScope const& ctxScope) {
     if (args.size() > 2) {
         return Constants::StandardCapture::Warning::Functional::tooManyArgs(ctx.self.capture);
     }
@@ -76,7 +76,7 @@ Constants::Event Debug::print(std::span<std::string_view const> const& args, Int
     return Constants::Event::success;
 }
 
-Constants::Event Debug::printId(std::span<std::string_view const> const& /*args*/, Interaction::Context const& ctx, Interaction::ContextScope& /*ctxScope*/) {
+Constants::Event Debug::printId(std::span<std::string_view const> const /*args*/, Interaction::Context const& ctx, Interaction::ContextScope& /*ctxScope*/) {
     ctx.self.capture.log.println(ctx.self.getId());
     return Constants::Event::success;
 }
@@ -85,7 +85,7 @@ Constants::Event Debug::printId(std::span<std::string_view const> const& /*args*
 
 // Ignore lint: Function warn always returns Constants::Event::warning
 // NOLINTNEXTLINE
-Constants::Event Debug::warn(std::span<std::string_view const> const& args) const {
+Constants::Event Debug::warn(std::span<std::string_view const> const args) const {
     if (args.size() < 2) {
         return Constants::StandardCapture::Warning::Functional::tooFewArgs(domain.capture);
     }
@@ -94,13 +94,13 @@ Constants::Event Debug::warn(std::span<std::string_view const> const& args) cons
     return Constants::Event::warning;
 }
 
-Constants::Event Debug::error(std::span<std::string_view const> const& args, Interaction::Context const& ctx, Interaction::ContextScope& /*ctxScope*/) {
+Constants::Event Debug::error(std::span<std::string_view const> const args, Interaction::Context const& ctx, Interaction::ContextScope& /*ctxScope*/) {
     auto const& argStr = Utility::StringHandler::recombineArgs(args.subspan(1));
     ctx.self.capture.error.println(argStr);
     return Constants::Event::error;
 }
 
-Constants::Event Debug::throwFunc(std::span<std::string_view const> const& args) {
+Constants::Event Debug::throwFunc(std::span<std::string_view const> const args) {
     std::string const message = [&] {
         if (args.size() < 2) return std::string("");
         return Utility::StringHandler::recombineArgs(args.subspan(1));
@@ -108,7 +108,7 @@ Constants::Event Debug::throwFunc(std::span<std::string_view const> const& args)
     throw std::runtime_error(message);
 }
 
-Constants::Event Debug::mustThrow(std::span<std::string_view const> const& args, Interaction::Context& ctx, Interaction::ContextScope& ctxScope) {
+Constants::Event Debug::mustThrow(std::span<std::string_view const> const args, Interaction::Context& ctx, Interaction::ContextScope& ctxScope) {
     if (args.size() < 2) {
         return Constants::StandardCapture::Warning::Functional::tooFewArgs(ctx.self.capture);
     }

@@ -81,7 +81,7 @@ JsonTransformer& JsonTransformer::instance() {
 
 // SPAN
 
-bool JsonTransformer::parse(std::span<std::string_view const> const& transformationList, JsonScope& jsonDoc) const {
+bool JsonTransformer::parse(std::span<std::string_view const> const transformationList, JsonScope& jsonDoc) const {
     if (transformationList.empty()) [[unlikely]] {
         return false;
     }
@@ -93,14 +93,14 @@ bool JsonTransformer::parse(std::span<std::string_view const> const& transformat
     });
 }
 
-bool JsonTransformer::parse(std::span<std::string_view const> const& transformationList, Json& jsonDoc) const {
+bool JsonTransformer::parse(std::span<std::string_view const> const transformationList, Json& jsonDoc) const {
     auto& scope = jsonDoc.fullScope();
     return parse(transformationList, scope);
 }
 
 // Single
 
-bool JsonTransformer::parseSingleTransformation(std::span<std::string_view const> const& args, JsonScope& jsonDoc) const {
+bool JsonTransformer::parseSingleTransformation(std::span<std::string_view const> const args, JsonScope& jsonDoc) const {
     return transformationFuncTree->parse(args, jsonDoc);
 }
 

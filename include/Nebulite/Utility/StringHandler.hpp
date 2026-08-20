@@ -141,7 +141,7 @@ public:
      * @param args The span of argument strings.
      * @return The recombined argument string.
      */
-    static std::string recombineArgs(std::span<std::string_view const> const& args);
+    static std::string recombineArgs(std::span<std::string_view const> args);
 
     // [SPLIT]
 

@@ -49,7 +49,7 @@ public:
     //------------------------------------------
     // Available Functions
 
-    [[nodiscard]] Constants::Event beep(std::span<std::string_view const> const& args) const;
+    [[nodiscard]] Constants::Event beep(std::span<std::string_view const> args) const;
     static auto constexpr beepName = "beep";
     static auto constexpr beepDesc = "Make a beep noise.\n"
         "If no waveform type is specified, defaults to sine.\n"
@@ -58,7 +58,7 @@ public:
         "\n"
         "Usage: beep [sine/square/triangle]\n";
 
-    [[nodiscard]] Constants::Event playSound(std::span<std::string_view const> const& args);
+    [[nodiscard]] Constants::Event playSound(std::span<std::string_view const> args);
     static auto constexpr playSoundName = "play-sound";
     static auto constexpr playSoundDesc = "Play a sound from a file.\n"
         "Usage: play-sound <file-path>\n";

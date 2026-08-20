@@ -31,7 +31,7 @@ Constants::Event FeatureTest::updateHook() {
 namespace {
 class MathModifier {
 public:
-    static double add(std::span<std::string_view const> const& args, double const input) {
+    static double add(std::span<std::string_view const> const args, double const input) {
         double sum = input;
         // Add all arguments but the first (which is the function name)
         for (auto const& arg : args.subspan(1)) {
@@ -94,7 +94,7 @@ Constants::Event FeatureTest::selfOtherGlobalEvaluation() const {
 
 // Keys
 
-Constants::Event FeatureTest::keyCombination(std::span<std::string_view const> const& args) const {
+Constants::Event FeatureTest::keyCombination(std::span<std::string_view const> const args) const {
     if (args.size() < 3) {
         return Constants::StandardCapture::Warning::Functional::tooFewArgs(domain.capture);
     }
@@ -108,7 +108,7 @@ Constants::Event FeatureTest::keyCombination(std::span<std::string_view const> c
     return Constants::Event::success;
 }
 
-Constants::Event FeatureTest::findParentKey(std::span<std::string_view const> const& args) const {
+Constants::Event FeatureTest::findParentKey(std::span<std::string_view const> const args) const {
     auto const key = args.size() > 1 ? Utility::StringHandler::recombineArgs(args.subspan(1)) : "";
     domain.capture.log.println(Data::Json::findParentKey(key));
     return Constants::Event::success;

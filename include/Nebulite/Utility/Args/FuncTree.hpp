@@ -57,9 +57,7 @@ public:
 
         struct Modern {
             using Full = std::function<ReturnValue(CmdArgs::Span, AdditionalArgs...)>;
-            using FullConstRef = std::function<ReturnValue(CmdArgs::SpanConstRef, AdditionalArgs...)>;
             using NoAddArgs = std::function<ReturnValue(CmdArgs::Span)>;
-            using NoAddArgsConstRef = std::function<ReturnValue(CmdArgs::SpanConstRef)>;
             using NoCmdArgs = std::function<ReturnValue(AdditionalArgs...)>;
             using NoArgs = std::function<ReturnValue()>;
         };
@@ -71,16 +69,13 @@ public:
         std::variant<
             typename SupportedFunctions::Legacy::IntConstChar,
             typename SupportedFunctions::Modern::NoAddArgs,
-            typename SupportedFunctions::Modern::NoAddArgsConstRef,
             typename SupportedFunctions::Modern::NoArgs
         >,
         // with additional args -> include full set
         std::variant<
             typename SupportedFunctions::Legacy::IntConstChar,
             typename SupportedFunctions::Modern::Full,
-            typename SupportedFunctions::Modern::FullConstRef,
             typename SupportedFunctions::Modern::NoAddArgs,
-            typename SupportedFunctions::Modern::NoAddArgsConstRef,
             typename SupportedFunctions::Modern::NoCmdArgs,
             typename SupportedFunctions::Modern::NoArgs
         >
@@ -157,7 +152,7 @@ public:
      * @return The return value of the executed function, or the standard/error value.
      */
     ReturnValue parseStr(std::string_view cmd, AdditionalArgs... addArgs);
-    ReturnValue parse(std::span<std::string_view const> const& args, AdditionalArgs... addArgs);
+    ReturnValue parse(std::span<std::string_view const> args, AdditionalArgs... addArgs);
     ReturnValue parse(std::vector<std::string_view> const& args, AdditionalArgs... addArgs);
     ReturnValue parse(std::vector<std::string> const& args, AdditionalArgs... addArgs);
 
@@ -316,13 +311,13 @@ private:
      * @param addArgs Additional arguments to pass to the function.
      * @return The return value of the function.
      */
-    ReturnValue executeFunction(std::string_view name, std::span<std::string_view const> const& args, AdditionalArgs... addArgs);
+    ReturnValue executeFunction(std::string_view name, std::span<std::string_view const> args, AdditionalArgs... addArgs);
 
     /**
      * @brief Displays help information to all bound functions. Automatically bound to any FuncTree on construction.
      * @return The standard return value.
      */
-    ReturnValue help(std::span<std::string_view const> const& args);
+    ReturnValue help(std::span<std::string_view const> args);
 
     /**
      * @brief Retrieves a list of all functions and their descriptions.
@@ -410,7 +405,7 @@ private:
      * @param args A list of arguments to complete
      * @return The standard return value.
      */
-    ReturnValue complete(std::span<std::string_view const> const& args);
+    ReturnValue complete(std::span<std::string_view const> args);
 
     /**
      * @brief Finds possible completions for a given pattern and prefix in the current FuncTree.

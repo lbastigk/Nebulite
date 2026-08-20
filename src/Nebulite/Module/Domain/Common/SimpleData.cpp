@@ -33,7 +33,7 @@ Constants::Event SimpleData::updateHook() {
 //------------------------------------------
 // General set/get/remove functions
 
-Constants::Event SimpleData::set(std::span<std::string_view const> const& args, Interaction::Context const& ctx, Interaction::ContextScope const& ctxScope) {
+Constants::Event SimpleData::set(std::span<std::string_view const> const args, Interaction::Context const& ctx, Interaction::ContextScope const& ctxScope) {
     auto lock = ctxScope.self.lock(); // Lock the domain for thread-safe access
     if (args.size() < 2) {
         return Constants::StandardCapture::Warning::Functional::tooFewArgs(ctx.self.capture);
@@ -44,7 +44,7 @@ Constants::Event SimpleData::set(std::span<std::string_view const> const& args, 
     return Constants::Event::success;
 }
 
-Constants::Event SimpleData::assign(std::span<std::string_view const> const& args, Interaction::Context const& ctx, Interaction::ContextScope const& ctxScope){
+Constants::Event SimpleData::assign(std::span<std::string_view const> const args, Interaction::Context const& ctx, Interaction::ContextScope const& ctxScope){
     auto lock = ctxScope.self.lock(); // Lock the domain for thread-safe access
     if (args.size() < 2) {
         return Constants::StandardCapture::Warning::Functional::tooFewArgs(ctx.self.capture);
@@ -59,7 +59,7 @@ Constants::Event SimpleData::assign(std::span<std::string_view const> const& arg
     return Constants::Event::success;
 }
 
-Constants::Event SimpleData::move(std::span<std::string_view const> const& args, Interaction::Context const& ctx, Interaction::ContextScope const& ctxScope) {
+Constants::Event SimpleData::move(std::span<std::string_view const> const args, Interaction::Context const& ctx, Interaction::ContextScope const& ctxScope) {
     auto lock = ctxScope.self.lock(); // Lock the domain for thread-safe access
     if (args.size() < 3) {
         return Constants::StandardCapture::Warning::Functional::tooFewArgs(ctx.self.capture);
@@ -73,7 +73,7 @@ Constants::Event SimpleData::move(std::span<std::string_view const> const& args,
     return Constants::Event::success;
 }
 
-Constants::Event SimpleData::copy(std::span<std::string_view const> const& args, Interaction::Context const& ctx, Interaction::ContextScope const& ctxScope) {
+Constants::Event SimpleData::copy(std::span<std::string_view const> const args, Interaction::Context const& ctx, Interaction::ContextScope const& ctxScope) {
     auto lock = ctxScope.self.lock(); // Lock the domain for thread-safe access
     if (args.size() < 3) {
         return Constants::StandardCapture::Warning::Functional::tooFewArgs(ctx.self.capture);
@@ -87,7 +87,7 @@ Constants::Event SimpleData::copy(std::span<std::string_view const> const& args,
     return Constants::Event::success;
 }
 
-Constants::Event SimpleData::keyDelete(std::span<std::string_view const> const& args, Interaction::Context const& ctx, Interaction::ContextScope const& ctxScope) {
+Constants::Event SimpleData::keyDelete(std::span<std::string_view const> const args, Interaction::Context const& ctx, Interaction::ContextScope const& ctxScope) {
     auto lock = ctxScope.self.lock(); // Lock the domain for thread-safe access
     if (args.size() < 2) {
         return Constants::StandardCapture::Warning::Functional::tooFewArgs(ctx.self.capture);
@@ -103,7 +103,7 @@ Constants::Event SimpleData::keyDelete(std::span<std::string_view const> const& 
 //------------------------------------------
 // Array manipulation functions
 
-Constants::Event SimpleData::ensureArray(std::span<std::string_view const> const& args, Interaction::Context const& ctx, Interaction::ContextScope const& ctxScope) {
+Constants::Event SimpleData::ensureArray(std::span<std::string_view const> const args, Interaction::Context const& ctx, Interaction::ContextScope const& ctxScope) {
     auto lock = ctxScope.self.lock(); // Lock the domain for thread-safe access
     if (args.size() < 2) {
         return Constants::StandardCapture::Warning::Functional::tooFewArgs(ctx.self.capture);
@@ -118,7 +118,7 @@ Constants::Event SimpleData::ensureArray(std::span<std::string_view const> const
     return Constants::Event::success;
 }
 
-Constants::Event SimpleData::pushBack(std::span<std::string_view const> const& args, Interaction::Context& ctx, Interaction::ContextScope& ctxScope){
+Constants::Event SimpleData::pushBack(std::span<std::string_view const> const args, Interaction::Context& ctx, Interaction::ContextScope& ctxScope){
     auto lock = ctxScope.self.lock(); // Lock the domain for thread-safe access
     if (args.size() > 3) {
         return Constants::StandardCapture::Warning::Functional::tooManyArgs(ctx.self.capture);
@@ -149,7 +149,7 @@ Constants::Event SimpleData::pushBack(std::span<std::string_view const> const& a
     return Constants::Event::success;
 }
 
-Constants::Event SimpleData::popBack(std::span<std::string_view const> const& args, Interaction::Context const& ctx, Interaction::ContextScope const& ctxScope) {
+Constants::Event SimpleData::popBack(std::span<std::string_view const> const args, Interaction::Context const& ctx, Interaction::ContextScope const& ctxScope) {
     auto lock = ctxScope.self.lock(); // Lock the domain for thread-safe access
     if (args.size() < 2) {
         return Constants::StandardCapture::Warning::Functional::tooFewArgs(ctx.self.capture);
@@ -178,7 +178,7 @@ Constants::Event SimpleData::popBack(std::span<std::string_view const> const& ar
     return Constants::Event::success;
 }
 
-Constants::Event SimpleData::pushFront(std::span<std::string_view const> const& args, Interaction::Context& ctx, Interaction::ContextScope& ctxScope) {
+Constants::Event SimpleData::pushFront(std::span<std::string_view const> const args, Interaction::Context& ctx, Interaction::ContextScope& ctxScope) {
     auto lock = ctxScope.self.lock(); // Lock the domain for thread-safe access
     if (args.size() > 3) {
         return Constants::StandardCapture::Warning::Functional::tooManyArgs(ctx.self.capture);
@@ -227,7 +227,7 @@ Constants::Event SimpleData::pushFront(std::span<std::string_view const> const& 
     return Constants::Event::success;
 }
 
-Constants::Event SimpleData::popFront(std::span<std::string_view const> const& args, Interaction::Context& ctx, Interaction::ContextScope& ctxScope) {
+Constants::Event SimpleData::popFront(std::span<std::string_view const> const args, Interaction::Context& ctx, Interaction::ContextScope& ctxScope) {
     auto lock = ctxScope.self.lock(); // Lock the domain for thread-safe access
     if (args.size() < 2) {
         return Constants::StandardCapture::Warning::Functional::tooFewArgs(ctx.self.capture);

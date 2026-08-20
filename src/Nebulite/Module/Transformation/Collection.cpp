@@ -29,7 +29,7 @@ void Collection::bindTransformations() {
     bindTransformation(&Collection::bundleToArray, bundleToArrayName, bundleToArrayDesc);
 }
 
-bool Collection::map(std::span<std::string_view const> const& args, Data::JsonScope& jsonDoc) {
+bool Collection::map(std::span<std::string_view const> const args, Data::JsonScope& jsonDoc) {
     if (jsonDoc.memberType(rootKey) != Data::KeyType::array) {
         auto const key = rootKey.addIndex(0);
         jsonDoc.moveMember(rootKey, key);
@@ -54,7 +54,7 @@ bool Collection::map(std::span<std::string_view const> const& args, Data::JsonSc
     return true;
 }
 
-bool Collection::get(std::span<std::string_view const> const& args, Data::JsonScope& jsonDoc) {
+bool Collection::get(std::span<std::string_view const> const args, Data::JsonScope& jsonDoc) {
     if (args.size() != 2) {
         return false;
     }
@@ -111,7 +111,7 @@ bool Collection::listMembersAndValues(Data::JsonScope& jsonDoc){
     return true;
 }
 
-bool Collection::bundleToArray(std::span<std::string_view const> const& args, Data::JsonScope& jsonDoc) {
+bool Collection::bundleToArray(std::span<std::string_view const> const args, Data::JsonScope& jsonDoc) {
     if (args.size() < 2) {
         return false;
     }

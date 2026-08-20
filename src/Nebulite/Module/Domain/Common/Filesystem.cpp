@@ -29,7 +29,7 @@ Constants::Event Filesystem::updateHook() {
 //------------------------------------------
 // Domain-Bound Functions
 
-Constants::Event Filesystem::cat(std::span<std::string_view const> const& args) const{
+Constants::Event Filesystem::cat(std::span<std::string_view const> const args) const{
     if (args.size() < 2) {
         return Constants::StandardCapture::Warning::Functional::tooFewArgs(domain.capture);
     }
@@ -40,7 +40,7 @@ Constants::Event Filesystem::cat(std::span<std::string_view const> const& args) 
     return Constants::Event::success;
 }
 
-Constants::Event Filesystem::ls(std::span<std::string_view const> const& args) const {
+Constants::Event Filesystem::ls(std::span<std::string_view const> const args) const {
     std::string const directoryPath = args.size() >= 2 ? Utility::StringHandler::recombineArgs(args.subspan(1)) : ".";
     auto const entries = Utility::Io::FileManagement::listContentInDirectory(directoryPath);
     domain.capture.log.println(Utility::StringHandler::createPaddedTable(entries, 80));
