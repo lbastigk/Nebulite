@@ -169,11 +169,6 @@ public:
         return cache.find(key);
     }
 
-    // TODO: remove. Use insert/insertAndGet instead.
-    auto& operator[](std::string_view key) [[clang::lifetimebound]] {
-        return cache[key];
-    }
-
     template<typename F>
     void insert(std::string_view key, F&& modifier) {
         static_assert(std::is_invocable_r_v<void, F, CacheEntry&>, "Modifier function must be invocable with CacheEntry& and return void.");

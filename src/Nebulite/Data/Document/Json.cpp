@@ -368,11 +368,9 @@ void Json::setVariant(std::string_view const key, RjDirectAccess::SimpleValue co
         synchronizeChildren(key);
 
         // Create new entry directly in DIRTY state
-        auto newEntry = std::make_unique<CacheEntry>(*cache.cacheLine, cache.cacheLineIndex);
-        newEntry->setValueDirty(val);
-
-        // Insert into cache
-        cache[key] = std::move(newEntry);
+        cache.insert(key, [val](CacheEntry& entry) {
+            entry.setValueDirty(val);
+        });
 
         // Flush to RapidJSON document for structural integrity
         flush(key);
@@ -815,9 +813,9 @@ std::expected<RjDirectAccess::SimpleValue, SimpleValueRetrievalError> Json::getS
         if (auto v = RjDirectAccess::getSimpleValue(val); v.has_value()) {
             // Since we already have a value, load it into the cache/update existing entry
             if (auto it = cache.find(key); it == cache.end()) {
-                auto newEntry = std::make_unique<CacheEntry>(*cache.cacheLine, cache.cacheLineIndex);
-                newEntry->setValueClean(v.value());
-                cache[key] = std::move(newEntry);
+                cache.insert(key, [v](CacheEntry& entry) {
+                    entry.setValueClean(v.value());
+                });
             }
             else {
                 it->second->setValueClean(v.value());
