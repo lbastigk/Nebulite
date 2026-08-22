@@ -153,20 +153,16 @@ class JsonCache {
     }
 
 public:
-    JsonCache() : cacheLine(std::make_unique<CacheLine>()) {}
+    JsonCache();
 
     JsonCache(JsonCache const&) = delete;
     JsonCache& operator=(JsonCache const&) = delete;
 
-    JsonCache(JsonCache&& other) noexcept = default;
-    JsonCache& operator=(JsonCache&& other) noexcept = default;
+    JsonCache(JsonCache&& other) noexcept ;
+    JsonCache& operator=(JsonCache&& other) noexcept ;
 
-    ~JsonCache() {
-        cache.clear();
-        cacheVector.clear();
-    }
+    ~JsonCache();
 
-    // Only call on JSON destruction or if you know there are no assigned stable double pointers in use!
     /**
      * @brief Clears the cache, removing all entries and resetting the cache vector.
      * @details This function should only be called when the JSON document is being destroyed
@@ -174,49 +170,32 @@ public:
      * @todo Using Utility::Promise would be nice, but we cannot reference JSON from here due to circular dependency issues.
      *       This is not a big issue as a promise does nothing and is only a programming convenience, but it would be nice to have.
      */
-    void clear() {
-        cache.clear();
-        cacheVector.clear();
-    }
+    void clear();
 
     /**
      * @brief Deletes a cache entry by its key.
      * @param key The key of the cache entry to delete.
      */
-    void deleteEntry(std::string_view key) {
-        if (auto it = cache.find(key); it != cache.end()) {
-            it->second->markAsDeleted();
-        }
-    }
+    void deleteEntry(std::string_view key);
 
     /**
      * @brief Returns an iterator to the beginning of the cache vector.
      * @return An iterator to the beginning of the cache vector.
      */
-    [[nodiscard]] auto begin() const [[clang::lifetimebound]] {
-        return cacheVector.begin();
-    }
+    [[nodiscard]] auto begin() const [[clang::lifetimebound]] -> decltype(cacheVector.begin());
 
     /**
      * @brief Returns an iterator to the end of the cache vector.
      * @return An iterator to the end of the cache vector.
      */
-    [[nodiscard]] auto end() const [[clang::lifetimebound]] {
-        return cacheVector.end();
-    }
+    [[nodiscard]] auto end() const [[clang::lifetimebound]] -> decltype(cacheVector.end()) ;
 
     /**
      * @brief Finds a cache entry by its key.
      * @param key The key of the cache entry to find.
      * @return An optional reference to the cache entry if found, or std::nullopt if not found.
      */
-    [[nodiscard]] auto find(std::string_view key) const [[clang::lifetimebound]] -> std::optional<CacheEntry&> {
-        auto it = cache.find(key);
-        if (it != cache.end()) {
-            return *it->second;
-        }
-        return std::nullopt;
-    }
+    [[nodiscard]] std::optional<CacheEntry&> find(std::string_view key) const [[clang::lifetimebound]] ;
 
     /**
      * @brief Inserts a new cache entry with the given key and applies a modifier function to it.
