@@ -14,6 +14,7 @@
 #include <string>
 #include <string_view>
 #include <utility>
+#include <vector>
 
 // External
 #include <absl/container/flat_hash_map.h>
@@ -132,10 +133,22 @@ class JsonCache {
      */
     absl::flat_hash_map<std::string, std::shared_ptr<CacheEntry>> cache;
 
+    using KeyAndEntry = std::pair<std::string, std::shared_ptr<CacheEntry>>;
+
+    /**
+     * @brief Iteration-friendly vector of CacheEntries
+     */
+    std::vector<KeyAndEntry> cacheVector;
+
+    /**
+     * @brief Creates a new cache entry for the given key and returns a reference to it.
+     * @param key The key for which to create a new cache entry.
+     * @return A reference to the newly created cache entry.
+     */
     auto& createNewCacheEntry(std::string_view key) {
         auto newEntry = std::make_shared<CacheEntry>(*cacheLine, cacheLineIndex);
         cache[key] = newEntry;
-        // TODO: add a proper iterator-friendy std::vector cache as well and use that in begin/end to speed up iteration.
+        cacheVector.emplace_back(std::string(key), newEntry);
         return *newEntry.get();
     }
 
@@ -150,45 +163,91 @@ public:
 
     ~JsonCache() {
         cache.clear();
+        cacheVector.clear();
     }
 
     // Only call on JSON destruction or if you know there are no assigned stable double pointers in use!
+    /**
+     * @brief Clears the cache, removing all entries and resetting the cache vector.
+     * @details This function should only be called when the JSON document is being destroyed
+     *          or when it is guaranteed that no stable double pointers are in use.
+     * @todo Using Utility::Promise would be nice, but we cannot reference JSON from here due to circular dependency issues.
+     *       This is not a big issue as a promise does nothing and is only a programming convenience, but it would be nice to have.
+     */
     void clear() {
         cache.clear();
+        cacheVector.clear();
     }
 
+    /**
+     * @brief Deletes a cache entry by its key.
+     * @param key The key of the cache entry to delete.
+     */
     void deleteEntry(std::string_view key) {
         if (auto it = cache.find(key); it != cache.end()) {
             it->second->markAsDeleted();
         }
     }
 
+    /**
+     * @brief Returns an iterator to the beginning of the cache vector.
+     * @return An iterator to the beginning of the cache vector.
+     */
     [[nodiscard]] auto begin() const [[clang::lifetimebound]] {
-        return cache.begin();
+        return cacheVector.begin();
     }
 
+    /**
+     * @brief Returns an iterator to the end of the cache vector.
+     * @return An iterator to the end of the cache vector.
+     */
     [[nodiscard]] auto end() const [[clang::lifetimebound]] {
-        return cache.end();
+        return cacheVector.end();
     }
 
-    [[nodiscard]] auto find(std::string_view key) const [[clang::lifetimebound]] {
-        return cache.find(key);
+    /**
+     * @brief Finds a cache entry by its key.
+     * @param key The key of the cache entry to find.
+     * @return An optional reference to the cache entry if found, or std::nullopt if not found.
+     */
+    [[nodiscard]] auto find(std::string_view key) const [[clang::lifetimebound]] -> std::optional<CacheEntry&> {
+        auto it = cache.find(key);
+        if (it != cache.end()) {
+            return *it->second;
+        }
+        return std::nullopt;
     }
 
+    /**
+     * @brief Inserts a new cache entry with the given key and applies a modifier function to it.
+     * @tparam F The type of the modifier function, which must be invocable with a CacheEntry& and return void.
+     * @param key The key of the cache entry to insert.
+     * @param modifier The modifier function to apply to the new cache entry.
+     */
     template<typename F>
     void insert(std::string_view key, F&& modifier) {
         static_assert(std::is_invocable_r_v<void, F, CacheEntry&>, "Modifier function must be invocable with CacheEntry& and return void.");
-        assert(find(key) == cache.end() && "Key already exists in cache.");
+        assert(!find(key).has_value() && "Key already exists in cache.");
 
         auto& newEntry = createNewCacheEntry(key);
         std::invoke(std::forward<F>(modifier), newEntry);
     }
 
+    /**
+     * @brief Inserts a new cache entry with the given key, applies a modifier function to it, and returns a value using a return function.
+     * @tparam R The type of the value to return.
+     * @tparam F The type of the modifier function, which must be invocable with a CacheEntry& and return void.
+     * @tparam RF The type of the return function, which must be invocable with a CacheEntry& and return R.
+     * @param key The key of the cache entry to insert.
+     * @param modifier The modifier function to apply to the new cache entry.
+     * @param returnFunc The return function to use for retrieving the value.
+     * @return The value returned by the return function.
+     */
     template<typename R, typename F, typename RF>
     R insertAndGet(std::string_view key, F&& modifier, RF&& returnFunc) {
         static_assert(std::is_invocable_r_v<void, F, CacheEntry&>, "Modifier function must be invocable with CacheEntry& and return void.");
         static_assert(std::is_invocable_r_v<R, RF, CacheEntry&>, "Result function must be invocable with CacheEntry& and return R.");
-        assert(find(key) == cache.end() && "Key already exists in cache.");
+        assert(!find(key).has_value() && "Key already exists in cache.");
 
         auto& newEntry = createNewCacheEntry(key);
         std::invoke(std::forward<F>(modifier), newEntry);
