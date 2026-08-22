@@ -8,7 +8,12 @@
 #include <array>
 #include <cstddef>
 #include <cstdint> // NOLINT
+#include <memory>
 #include <optional>
+#include <string>
+
+// External
+#include <absl/container/flat_hash_map.h>
 
 // Nebulite
 #include "Nebulite/Data/Document/RjDirectAccess.hpp"
@@ -107,6 +112,35 @@ struct CacheEntry {
 };
 
 class JsonCache {
+public:
+
+    JsonCache() : cacheLine(std::make_unique<CacheLine>()) {}
+
+    JsonCache(JsonCache const&) = delete;
+    JsonCache& operator=(JsonCache const&) = delete;
+
+    JsonCache(JsonCache&& other) noexcept = default;
+    JsonCache& operator=(JsonCache&& other) noexcept = default;
+
+    ~JsonCache() {
+        cache.clear();
+    }
+
+
+    std::unique_ptr<CacheLine> cacheLine;
+
+    /**
+     * @brief Current index in the cacheline for the next double value.
+     */
+    std::size_t cacheLineIndex = 0;
+
+    /**
+     * @brief The Caching system used for fast access to frequently used values.
+     * @details Is mutable, as caching itself is used in get-calls, which are const.
+     * @note Optionals would be better, but this requires a large refactor
+     * @todo Wrap this in another class that contains a list of all entries for faster iteration
+     */
+    absl::flat_hash_map<std::string, std::unique_ptr<CacheEntry>> cache;
 };
 
 } // namespace Nebulite::Data

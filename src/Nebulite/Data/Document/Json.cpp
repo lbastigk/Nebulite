@@ -60,14 +60,11 @@ std::string_view Json::findParentKey(std::string_view const key) {
 //------------------------------------------
 // Construct / Destruct
 
-Json::Json() {
-    cacheLine = std::make_unique<CacheLine>();
-}
+Json::Json() = default;
 
 Json::~Json() {
     std::scoped_lock const lockGuard(mtx);
     doc.SetObject();
-    cache.clear();
 }
 
 //------------------------------------------
@@ -78,14 +75,11 @@ Json& Json::operator=(Json&& other) noexcept {
         std::scoped_lock const lockGuard(mtx, other.mtx);
         doc = std::move(other.doc);
         cache = std::move(other.cache);
-        cacheLine = std::move(other.cacheLine);
     }
     return *this;
 }
 
-Json::Json(Json&& other) noexcept : cacheLine(std::move(other.cacheLine)), cache(std::move(other.cache)), doc(std::move(other.doc)) {
-    std::scoped_lock const lockGuard(mtx, other.mtx); // Locks both, deadlock-free
-}
+Json::Json(Json&& other) noexcept : cache(std::move(other.cache)), doc(std::move(other.doc)) {}
 
 //------------------------------------------
 // Scope sharing
@@ -167,7 +161,7 @@ void Json::synchronizeChildren(std::string_view const parentKey) const {
     std::scoped_lock const lockGuard(mtx);
 
     // Find all child keys and invalidate them
-    for (auto& [key, entry] : cache) {
+    for (auto& [key, entry] : cache.cache) {
         bool const base = key.starts_with(parentKey) && key.length() > parentKey.length();
         bool const startsWithParentKeyPlusDot = base && key[parentKey.length()] == SpecialCharacter::dot;
         bool const startsWithParentKeyPlusArr = base && key[parentKey.length()] == SpecialCharacter::arrayOpen;
@@ -187,7 +181,7 @@ void Json::flush(std::string_view const key) const {
 
     auto const parent = findParentKey(key);
 
-    for (auto& [entryKey, entry] : cache) {
+    for (auto& [entryKey, entry] : cache.cache) {
         if (!entryKey.starts_with(parent)) continue;
 
         // Skip malformed entries
@@ -219,7 +213,7 @@ std::expected<RjDirectAccess::SimpleValue, SimpleValueRetrievalError> Json::getV
     }
 
     // Check cache first
-    if (!std::ranges::any_of(cache, [&key](auto const& pair) {
+    if (!std::ranges::any_of(cache.cache, [&key](auto const& pair) {
         auto& [cachedKey, entry] = pair;
         return cachedKey.starts_with(key)
             && cachedKey != key
@@ -227,14 +221,14 @@ std::expected<RjDirectAccess::SimpleValue, SimpleValueRetrievalError> Json::getV
             && Math::isEqualAllowNan(*entry->stableDoublePointer, entry->lastDoubleValue);
     })) {
         // Checking for malformed shouldn't be necessary, but just in case
-        auto const it = cache.find(key);
-        if (it != cache.end() && it->second->state == CacheEntry::EntryState::malformed) {
+        auto const it = cache.cache.find(key);
+        if (it != cache.cache.end() && it->second->state == CacheEntry::EntryState::malformed) {
             Global::capture().error.println("Warning: Attempted to access malformed key in getVariant(): ", key);
             Global::capture().error.println("This is a serious logic issue, the malformed key check should have happened already. Please report to the developers!");
             return std::unexpected(SimpleValueRetrievalError::malformedKey);
         }
 
-        if (it != cache.end() && it->second->state != CacheEntry::EntryState::deleted) {
+        if (it != cache.cache.end() && it->second->state != CacheEntry::EntryState::deleted) {
             // Entry exists and is not deleted
             it->second->updateNumericValue();
             return it->second->value;
@@ -295,7 +289,7 @@ double* Json::getStableDoublePointer(std::string_view const key) const {
     }
 
     // Check cache first
-    if (auto const it = cache.find(key); it != cache.end()) {
+    if (auto const it = cache.cache.find(key); it != cache.cache.end()) {
         // If the entry is deleted, we need to update its value from the document
         if (it->second->state == CacheEntry::EntryState::deleted) {
             *it->second->stableDoublePointer = get<double>(key).value_or(0.0); // Default to 0.0 if retrieval fails
@@ -309,18 +303,18 @@ double* Json::getStableDoublePointer(std::string_view const key) const {
     if (rapidjson::Value const* val = RjDirectAccess::traversePath(key, doc); val != nullptr) {
         if (jsonValueToCache<double>(key, val).has_value()) {
             // Successfully loaded into cache, return pointer
-            return cache[key]->stableDoublePointer;
+            return cache.cache[key]->stableDoublePointer;
         }
     }
 
     // If loading from document failed, create a new derived entry
-    auto newEntry = std::make_unique<CacheEntry>(*cacheLine, cachelineIndex);
+    auto newEntry = std::make_unique<CacheEntry>(*cache.cacheLine, cache.cacheLineIndex);
     newEntry->value = CacheEntry::standardNumericValue;
     *newEntry->stableDoublePointer = CacheEntry::standardNumericValue;
     newEntry->lastDoubleValue = CacheEntry::standardNumericValue;
     newEntry->state = CacheEntry::EntryState::derived;
     auto* const ptr = newEntry->stableDoublePointer;
-    cache[key] = std::move(newEntry);
+    cache.cache[key] = std::move(newEntry);
     return ptr;
 }
 
@@ -349,7 +343,7 @@ void Json::setVariant(std::string_view const key, RjDirectAccess::SimpleValue co
     }
 
     // Set value in cache
-    if (auto const it = cache.find(key); it != cache.end()) {
+    if (auto const it = cache.cache.find(key); it != cache.cache.end()) {
         // Existing cache value, structure validity guaranteed
         it->second->setValueDirty(val);
     } else {
@@ -360,11 +354,11 @@ void Json::setVariant(std::string_view const key, RjDirectAccess::SimpleValue co
         synchronizeChildren(key);
 
         // Create new entry directly in DIRTY state
-        auto newEntry = std::make_unique<CacheEntry>(*cacheLine, cachelineIndex);
+        auto newEntry = std::make_unique<CacheEntry>(*cache.cacheLine, cache.cacheLineIndex);
         newEntry->setValueDirty(val);
 
         // Insert into cache
-        cache[key] = std::move(newEntry);
+        cache.cache[key] = std::move(newEntry);
 
         // Flush to RapidJSON document for structural integrity
         flush(key);
@@ -457,7 +451,7 @@ void Json::deserialize(std::string_view const serialOrLink) {
     // Reset document and cache
     flush("");
     doc.SetObject();
-    for (auto const& entry : std::views::values(cache)) {
+    for (auto const& entry : std::views::values(cache.cache)) {
         entry->markAsDeleted();
     }
 
@@ -602,7 +596,7 @@ void Json::removeMember(std::string_view const key) {
     flush(key);
 
     // Remove member from cache, synchronize children
-    cache.erase(key);
+    cache.cache.erase(key);
     RjDirectAccess::removeMember(key, doc);
     synchronizeChildren(key);
 }
@@ -696,12 +690,12 @@ void Json::setAdditive(std::string_view const key, double const val) {
     double const newValue = current + val;
 
     // Update double pointer value
-    if (auto it = cache.find(key); it != cache.end()) {
+    if (auto it = cache.cache.find(key); it != cache.cache.end()) {
         *it->second->stableDoublePointer = newValue;
     } else {
         set<double>(key, newValue);
-        it = cache.find(key);
-        if (it != cache.end()) {
+        it = cache.cache.find(key);
+        if (it != cache.cache.end()) {
             *it->second->stableDoublePointer = newValue;
             it->second->lastDoubleValue = newValue;
         }
@@ -739,12 +733,12 @@ void Json::setMultiplicative(std::string_view const key, double const val) {
     double const newValue = current * val;
 
     // Update double pointer value
-    if (auto it = cache.find(key); it != cache.end()) {
+    if (auto it = cache.cache.find(key); it != cache.cache.end()) {
         *it->second->stableDoublePointer = newValue;
     } else {
         set<double>(key, newValue);
-        it = cache.find(key);
-        if (it != cache.end()) {
+        it = cache.cache.find(key);
+        if (it != cache.cache.end()) {
             *it->second->stableDoublePointer = newValue;
             it->second->lastDoubleValue = newValue;
         }
@@ -781,7 +775,7 @@ void Json::setConcatenative(std::string_view const key, std::string_view const v
     set<std::string>(key, current + valStr);
 
     // Update double pointer value to default NAN
-    if (auto const it = cache.find(key); it != cache.end()) {
+    if (auto const it = cache.cache.find(key); it != cache.cache.end()) {
         // Strings Default to 0
         *it->second->stableDoublePointer = CacheEntry::standardNumericValue;
         it->second->lastDoubleValue = CacheEntry::standardNumericValue;
@@ -792,7 +786,7 @@ void Json::setConcatenative(std::string_view const key, std::string_view const v
 // Cache management
 
 void Json::deleteCacheEntry(std::string_view const key) const {
-    if (auto const it = cache.find(key); it != cache.end()) {
+    if (auto const it = cache.cache.find(key); it != cache.cache.end()) {
         auto const& entry = it->second;
         entry->markAsDeleted();
     }
@@ -803,16 +797,16 @@ void Json::deleteCacheEntry(std::string_view const key) const {
 
 std::expected<RjDirectAccess::SimpleValue, SimpleValueRetrievalError> Json::getSimpleValueFromDocument(std::string_view const key) const {
     if (rapidjson::Value const* val = RjDirectAccess::traversePath(key, doc); val != nullptr) {
-        auto it = cache.find(key);
-        if (it == cache.end() && RjDirectAccess::getSimpleValue(val).has_value()) {
+        auto it = cache.cache.find(key);
+        if (it == cache.cache.end() && RjDirectAccess::getSimpleValue(val).has_value()) {
             // Insert only if the value is of a supported type, otherwise complex types might be interpreted as simple values.
             // Create new cache entry and insert into cache
-            auto newEntry = std::make_unique<CacheEntry>(*cacheLine, cachelineIndex);
-            cache[key] = std::move(newEntry);
-            it = cache.find(key);
+            auto newEntry = std::make_unique<CacheEntry>(*cache.cacheLine, cache.cacheLineIndex);
+            cache.cache[key] = std::move(newEntry);
+            it = cache.cache.find(key);
         }
 
-        if (it != cache.end()) {
+        if (it != cache.cache.end()) {
             // Modify existing entry
             if (auto const& v = RjDirectAccess::getSimpleValue(val); v.has_value()) {
                 it->second->setValueClean(v.value());

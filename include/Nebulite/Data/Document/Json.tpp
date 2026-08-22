@@ -100,7 +100,7 @@ std::expected<T, SimpleValueRetrievalError> Json::getWithTransformations(std::st
         // Simply overwriting with setSubDoc isn't enough, as this may leave behind stale entries for stable double pointers, which we don't need here.
         // So we manually clear the entire cache.
         auto const& baseKey = args[0];
-        tempDoc.cache.clear();
+        tempDoc.cache.cache.clear();
         tempDoc.doc.SetObject();
         tempDoc.setSubDoc("", *this, baseKey); // Make a copy of the required member to transform
     }
@@ -121,10 +121,10 @@ std::optional<T> Json::jsonValueToCache(std::string_view const key, rapidjson::V
     }
 
     // Insert into cache and return value
-    auto newEntry = std::make_unique<CacheEntry>(*cacheLine, cachelineIndex);
+    auto newEntry = std::make_unique<CacheEntry>(*cache.cacheLine, cache.cacheLineIndex);
     newEntry->setValueClean(v.value());
     auto const value = newEntry->convertTo<T>();
-    cache[key] = std::move(newEntry);
+    cache.cache[key] = std::move(newEntry);
     return value;
 }
 

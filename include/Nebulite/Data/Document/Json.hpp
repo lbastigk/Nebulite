@@ -82,20 +82,7 @@ public:
 
 private:
 
-    mutable std::unique_ptr<CacheLine> cacheLine;
-
-    /**
-     * @brief Current index in the cacheline for the next double value.
-     */
-    mutable std::size_t cachelineIndex = 0;
-
-    /**
-     * @brief The Caching system used for fast access to frequently used values.
-     * @details Is mutable, as caching itself is used in get-calls, which are const.
-     * @note Optionals would be better, but this requires a large refactor
-     * @todo Wrap this in another class that contains a list of all entries for faster iteration
-     */
-    mutable absl::flat_hash_map<std::string, std::unique_ptr<CacheEntry>> cache;
+    mutable JsonCache cache;
 
     /**
      * @brief A helper variable that is modified to signal certain functions as non-const.
