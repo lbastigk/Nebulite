@@ -44,18 +44,44 @@ set-fps 5000
 wait 1
 
 #############################################
-# Benchmarks
-set benchmark.totalIterationCount 100000
+# Settings
+
+set benchmark.totalIterationCount 300000
 set benchmark.transformationCount 10 # Manually set number of transformations per iteration, see code below
+
+#############################################
+# Baseline for all iterations
+# Iterate without transformations
+
+# Benchmark:
+wait 1
+eval set benchmark.baseline.start {global:time.runtime.t}
+for i 1 {global:benchmark.totalIterationCount} eval nop --- Add operations below: \
+    {global:num} \
+    {global:arr} \
+    {global:time} \
+    {global:arr[0]} \
+    {global:obj} \
+    {global:arr} \
+    {global:arr} \
+    {global:arr} \
+    {global:arr} \
+    {global:var}
+wait 1
+eval set benchmark.baseline.end {global:time.runtime.t}
+eval set benchmark.baseline.delta $({global:benchmark.baseline.end} - {global:benchmark.baseline.start})
+
+#############################################
+# Benchmarks
 
 echo
 eval echo Running transformation benchmark with {global:benchmark.totalIterationCount} iterations...
+wait 10000 # Wait some time to ensure the renderer is fully running
 echo
 
-# Start recording time
-eval set benchmark.startTime {global:time.runtime.t}
-
-# Transformations to benchmark:
+# Benchmark
+wait 1
+eval set benchmark.test.start {global:time.runtime.t}
 for i 1 {global:benchmark.totalIterationCount} eval nop --- Add operations below: \
     {global:num|add 1} \
     {global:arr|subspan 2 2} \
@@ -67,55 +93,19 @@ for i 1 {global:benchmark.totalIterationCount} eval nop --- Add operations below
     {global:arr|sort numerically} \
     {global:arr|average} \
     {global:var|typeAsString}
-
-# DEBUG: verify results, should not show any transformation failure!
-if $(0) then eval echo Results: \
-    {global:num|add 1} \
-    {global:arr|subspan 2 2} \
-    {global:time|get runtime.dt} \
-    {global:arr[0]|toBoolString} \
-    {global:obj|listMembers} \
-    {global:arr|map add 1} \
-    {global:arr|typeAsString} \
-    {global:arr|sort numerically} \
-    {global:arr|average} \
-    {global:var|typeAsString}
-
 wait 1
-eval set benchmark.time $({global:time.runtime.t} - {global:benchmark.startTime})
-
-#############################################
-# Baseline for all iterations
-# Iterate without transformations
-
-# Start recording time
-eval set benchmark.startTime {global:time.runtime.t}
-
-# Baseline expression evaluation without transformations
-for i 1 {global:benchmark.totalIterationCount} eval nop --- ensure the same amount of variables as above: \
-    {global:num} \
-    {global:arr} \
-    {global:time} \
-    {global:arr[0]} \
-    {global:obj} \
-    {global:arr} \
-    {global:arr} \
-    {global:arr} \
-    {global:arr} \
-    {global:var}
-
-wait 1
-eval set benchmark.baselineTime $({global:time.runtime.t} - {global:benchmark.startTime})
+eval set benchmark.test.end {global:time.runtime.t}
+eval set benchmark.test.delta $({global:benchmark.test.end} - {global:benchmark.test.start})
 
 #############################################
 # Results
 
-eval set benchmark.timePerIteration $({global:benchmark.time} / {global:benchmark.totalIterationCount})
-eval set benchmark.timePerTransformation $({global:benchmark.time} / ({global:benchmark.totalIterationCount} * {global:benchmark.transformationCount}))
+eval set benchmark.result.timePerIteration $({global:benchmark.test.delta} / {global:benchmark.totalIterationCount})
+eval set benchmark.result.timePerTransformation $({global:benchmark.test.delta} / ({global:benchmark.totalIterationCount} * {global:benchmark.transformationCount}))
 
-eval set benchmark.estimation.time $(({global:benchmark.time} - {global:benchmark.baselineTime}))
-eval set benchmark.estimation.timePerIteration $(({global:benchmark.time} - {global:benchmark.baselineTime}) / {global:benchmark.totalIterationCount})
-eval set benchmark.estimation.timePerTransformation $(({global:benchmark.time} - {global:benchmark.baselineTime}) / ({global:benchmark.totalIterationCount} * {global:benchmark.transformationCount}))
+eval set benchmark.result.adjusted.time $(({global:benchmark.test.delta} - {global:benchmark.baseline.delta}))
+eval set benchmark.result.adjusted.timePerIteration $({global:benchmark.result.adjusted.time} / {global:benchmark.totalIterationCount})
+eval set benchmark.result.adjusted.timePerTransformation $({global:benchmark.result.adjusted.time} / ({global:benchmark.totalIterationCount} * {global:benchmark.transformationCount}))
 
 echo ---------------------------------------------
 echo Benchmark Results:
@@ -124,17 +114,17 @@ eval echo Total iterations: {global:benchmark.totalIterationCount}
 echo
 echo Overall Benchmark:
 
-eval echo Benchmark took $6.4f({global:benchmark.time}) seconds
-eval echo Average time per iteration:      $06.4f(1e6 * {global:benchmark.timePerIteration}) µs
-eval echo Average time per transformation: $06.4f(1e6 * {global:benchmark.timePerTransformation}) µs
+eval echo Benchmark took $6.4f({global:benchmark.test.delta}) seconds
+eval echo Average time per iteration:      $06.4f(1e6 * {global:benchmark.result.timePerIteration}) µs
+eval echo Average time per transformation: $06.4f(1e6 * {global:benchmark.result.timePerTransformation}) µs
 echo
-eval echo Estimation just for transformations (subtracting baseline time for {global:benchmark.totalIterationCount} eval iterations):
-eval echo Benchmark took $6.4f({global:benchmark.estimation.time}) seconds
-eval echo Average time per iteration:      $06.4f(1e6 * {global:benchmark.estimation.timePerIteration}) µs
-eval echo Average time per transformation: $06.4f(1e6 * {global:benchmark.estimation.timePerTransformation}) µs
+eval echo Estimation just for transformations (subtracting baseline time for {global:benchmark.totalIterationCount} eval iterations: {global:benchmark.baseline.delta} seconds):
+eval echo Benchmark took $6.4f({global:benchmark.result.adjusted.time}) seconds
+eval echo Average time per iteration:      $06.4f(1e6 * {global:benchmark.result.adjusted.timePerIteration}) µs
+eval echo Average time per transformation: $06.4f(1e6 * {global:benchmark.result.adjusted.timePerTransformation}) µs
 echo
-eval echo $.2f(1 / {global:benchmark.estimation.timePerTransformation} / 1e6) million transformations per second
-eval echo Possible transformations at 144fps: $05i((1.0/144.0) / {global:benchmark.estimation.timePerTransformation}) transformations per frame
-eval echo Possible transformations at  60fps: $05i((1.0/60.0) / {global:benchmark.estimation.timePerTransformation}) transformations per frame
+eval echo $.2f(1 / {global:benchmark.result.adjusted.timePerTransformation} / 1e6) million transformations per second
+eval echo Possible transformations at 144fps: $05i((1.0/144.0) / {global:benchmark.result.adjusted.timePerTransformation}) transformations per frame
+eval echo Possible transformations at  60fps: $05i((1.0/60.0) / {global:benchmark.result.adjusted.timePerTransformation}) transformations per frame
 echo
 exit
