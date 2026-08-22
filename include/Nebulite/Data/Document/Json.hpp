@@ -10,7 +10,6 @@
 #include <expected>
 #include <memory>
 #include <mutex>
-#include <optional>
 #include <string>
 #include <string_view>
 #include <vector>
@@ -97,15 +96,6 @@ private:
 
     // Mutex for thread safety
     mutable std::recursive_mutex mtx;
-
-    /**
-     * @brief Inserts a rapidjson value into the cache, converting it to the appropriate C++ type.
-     * @param key The key of the value to cache.
-     * @param val The rapidjson value to cache.
-     * @return The converted value of type T, or nullopt if conversion fails or the value is not cacheable.
-     */
-    template <typename T>
-    std::optional<T> jsonValueToCache(std::string_view key, rapidjson::Value const* val) const ;
 
     /**
      * @brief Synchronizes all children of a given key.

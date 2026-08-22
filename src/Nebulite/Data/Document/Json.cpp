@@ -303,9 +303,14 @@ double* Json::getStableDoublePointer(std::string_view const key) const {
 
     // Try loading from document into cache
     if (rapidjson::Value const* val = RjDirectAccess::traversePath(key, doc); val != nullptr) {
-        if (jsonValueToCache<double>(key, val).has_value()) {
-            // Successfully loaded into cache, return pointer
-            return cache[key]->stableDoublePointer;
+        auto const& v = RjDirectAccess::getSimpleValue(val);
+        if(v.has_value()) {
+            // Insert into cache and return value
+            auto newEntry = std::make_unique<CacheEntry>(*cache.cacheLine, cache.cacheLineIndex);
+            newEntry->setValueClean(v.value());
+            auto* const ptr = newEntry->stableDoublePointer;
+            cache.cache[key] = std::move(newEntry);
+            return ptr;
         }
     }
 

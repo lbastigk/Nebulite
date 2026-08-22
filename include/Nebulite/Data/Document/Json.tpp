@@ -7,14 +7,11 @@
 // Standard library
 #include <cassert>
 #include <expected>
-#include <memory>
 #include <mutex>
-#include <optional>
 #include <span>
 #include <string>
 #include <string_view>
 #include <type_traits>
-#include <utility>
 
 // External
 #include <rapidjson/document.h>
@@ -110,22 +107,6 @@ std::expected<T, SimpleValueRetrievalError> Json::getWithTransformations(std::st
         return std::unexpected(SimpleValueRetrievalError::transformationFailure); // if any transformation fails, return default value
     }
     return tempDoc.get<T>(Module::Base::TransformationModule::rootKeyStr);
-}
-
-template<typename T>
-std::optional<T> Json::jsonValueToCache(std::string_view const key, rapidjson::Value const* val) const {
-    // Get supported types
-    auto const& v = RjDirectAccess::getSimpleValue(val);
-    if(!v.has_value()) {
-        return std::nullopt; // Unsupported type, do not cache
-    }
-
-    // Insert into cache and return value
-    auto newEntry = std::make_unique<CacheEntry>(*cache.cacheLine, cache.cacheLineIndex);
-    newEntry->setValueClean(v.value());
-    auto const value = newEntry->convertTo<T>();
-    cache.cache[key] = std::move(newEntry);
-    return value;
 }
 
 } // namespace Nebulite::Data
