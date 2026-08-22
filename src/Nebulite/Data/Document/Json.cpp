@@ -306,23 +306,30 @@ double* Json::getStableDoublePointer(std::string_view const key) const {
         auto const& v = RjDirectAccess::getSimpleValue(val);
         if(v.has_value()) {
             // Insert into cache and return value
-            auto newEntry = std::make_unique<CacheEntry>(*cache.cacheLine, cache.cacheLineIndex);
-            newEntry->setValueClean(v.value());
-            auto* const ptr = newEntry->stableDoublePointer;
-            cache.cache[key] = std::move(newEntry);
-            return ptr;
+            return cache.insertAndGet<double*>(
+                key,
+                [v](CacheEntry& entry) {
+                    entry.setValueClean(v.value());
+                }, [](CacheEntry& entry) {
+                    return entry.stableDoublePointer;
+                }
+            );
         }
     }
 
     // If loading from document failed, create a new derived entry
-    auto newEntry = std::make_unique<CacheEntry>(*cache.cacheLine, cache.cacheLineIndex);
-    newEntry->value = CacheEntry::standardNumericValue;
-    *newEntry->stableDoublePointer = CacheEntry::standardNumericValue;
-    newEntry->lastDoubleValue = CacheEntry::standardNumericValue;
-    newEntry->state = CacheEntry::EntryState::derived;
-    auto* const ptr = newEntry->stableDoublePointer;
-    cache[key] = std::move(newEntry);
-    return ptr;
+    return cache.insertAndGet<double*>(
+        key,
+        [](CacheEntry& entry) {
+            entry.value = CacheEntry::standardNumericValue;
+            *entry.stableDoublePointer = CacheEntry::standardNumericValue;
+            entry.lastDoubleValue = CacheEntry::standardNumericValue;
+            entry.state = CacheEntry::EntryState::derived;
+        },
+        [](CacheEntry& entry) {
+            return entry.stableDoublePointer;
+        }
+    );
 }
 
 std::unique_lock<std::recursive_mutex> Json::lock() const {

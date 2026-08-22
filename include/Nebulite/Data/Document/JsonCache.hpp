@@ -116,7 +116,6 @@ struct CacheEntry {
 
 class JsonCache {
 
-
 public:
 
     std::unique_ptr<CacheLine> cacheLine;
