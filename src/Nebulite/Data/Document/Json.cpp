@@ -192,7 +192,9 @@ void Json::flush(std::string_view const key) const {
         // Every dirty entry is flushed back to the document and marked clean
         entry->updateNumericValue();
         if (entry->state == CacheEntry::EntryState::dirty) {
-            (void)RjDirectAccess::set(entryKey.c_str(), entry->value, doc, doc.GetAllocator());
+            if (!RjDirectAccess::set(entryKey.c_str(), entry->value, doc, doc.GetAllocator())) {
+                throw std::runtime_error("Failed to flush key to document: " + std::string(entryKey));
+            }
             entry->state = CacheEntry::EntryState::clean;
         }
     }
@@ -596,7 +598,7 @@ void Json::removeMember(std::string_view const key) {
     flush(key);
 
     // Remove member from cache, synchronize children
-    cache.erase(key);
+    cache.deleteEntry(key);
     RjDirectAccess::removeMember(key, doc);
     synchronizeChildren(key);
 }

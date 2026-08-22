@@ -121,6 +121,7 @@ private:
      * @details This ensures that the RapidJSON document is always structurally valid
      *          and up-to-date with the cached values.
      * @param key The key to flush. Finds the parent key and flushes all entries beginning with the parent key.
+     * @throws std::runtime_error if setting a value in the RapidJSON document fails due to structural issues.
      */
     void flush(std::string_view key) const ;
 

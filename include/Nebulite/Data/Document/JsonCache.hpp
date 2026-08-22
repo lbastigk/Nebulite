@@ -152,6 +152,12 @@ public:
         cache.clear();
     }
 
+    void deleteEntry(std::string_view key) {
+        if (auto it = cache.find(key); it != cache.end()) {
+            it->second->markAsDeleted();
+        }
+    }
+
     [[nodiscard]] auto begin() const [[clang::lifetimebound]] {
         return cache.begin();
     }
@@ -164,7 +170,7 @@ public:
         return cache.find(key);
     }
 
-    // TODO: remove.
+    // TODO: remove. Use insert/insertAndGet instead.
     auto& operator[](std::string_view key) [[clang::lifetimebound]] {
         return cache[key];
     }
@@ -190,11 +196,6 @@ public:
         auto r = std::invoke(std::forward<RF>(returnFunc), *newEntry);
         cache[key] = std::move(newEntry);
         return r;
-    }
-
-    // TODO: this shouldn't be done?
-    void erase(std::string_view key) {
-        cache.erase(key);
     }
 };
 
