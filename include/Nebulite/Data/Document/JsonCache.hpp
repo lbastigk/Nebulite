@@ -173,6 +173,7 @@ public:
     void insert(std::string_view key, F&& modifier) {
         static_assert(std::is_invocable_r_v<void, F, CacheEntry&>, "Modifier function must be invocable with CacheEntry& and return void.");
         assert(find(key) == cache.end() && "Key already exists in cache.");
+
         auto newEntry = std::make_unique<CacheEntry>(*cacheLine, cacheLineIndex);
         std::invoke(std::forward<F>(modifier), *newEntry);
         cache[key] = std::move(newEntry);
@@ -183,6 +184,7 @@ public:
         static_assert(std::is_invocable_r_v<void, F, CacheEntry&>, "Modifier function must be invocable with CacheEntry& and return void.");
         static_assert(std::is_invocable_r_v<R, RF, CacheEntry&>, "Result function must be invocable with CacheEntry& and return R.");
         assert(find(key) == cache.end() && "Key already exists in cache.");
+
         auto newEntry = std::make_unique<CacheEntry>(*cacheLine, cacheLineIndex);
         std::invoke(std::forward<F>(modifier), *newEntry);
         auto r = std::invoke(std::forward<RF>(returnFunc), *newEntry);
@@ -194,7 +196,6 @@ public:
     void erase(std::string_view key) {
         cache.erase(key);
     }
-
 };
 
 } // namespace Nebulite::Data
