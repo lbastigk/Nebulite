@@ -797,22 +797,21 @@ void Json::deleteCacheEntry(std::string_view const key) const {
 
 std::expected<RjDirectAccess::SimpleValue, SimpleValueRetrievalError> Json::getSimpleValueFromDocument(std::string_view const key) const {
     if (rapidjson::Value const* val = RjDirectAccess::traversePath(key, doc); val != nullptr) {
-        auto it = cache.cache.find(key);
-        if (it == cache.cache.end() && RjDirectAccess::getSimpleValue(val).has_value()) {
-            // Insert only if the value is of a supported type, otherwise complex types might be interpreted as simple values.
-            // Create new cache entry and insert into cache
-            auto newEntry = std::make_unique<CacheEntry>(*cache.cacheLine, cache.cacheLineIndex);
-            cache.cache[key] = std::move(newEntry);
-            it = cache.cache.find(key);
+        // Check for simple value
+        if (auto v = RjDirectAccess::getSimpleValue(val); v.has_value()) {
+            // Since we already have a value, load it into the cache/update existing entry
+            if (auto it = cache.cache.find(key); it == cache.cache.end()) {
+                auto newEntry = std::make_unique<CacheEntry>(*cache.cacheLine, cache.cacheLineIndex);
+                newEntry->setValueClean(v.value());
+                cache.cache[key] = std::move(newEntry);
+            }
+            else {
+                it->second->setValueClean(v.value());
+            }
+            return v.value();
         }
 
-        if (it != cache.cache.end()) {
-            // Modify existing entry
-            if (auto const& v = RjDirectAccess::getSimpleValue(val); v.has_value()) {
-                it->second->setValueClean(v.value());
-                return v.value();
-            }
-        }
+        // If we reach here, the value is not a simple value, return appropriate error
         if (val->IsNull()) {
             return std::unexpected(SimpleValueRetrievalError::isNull);
         }
