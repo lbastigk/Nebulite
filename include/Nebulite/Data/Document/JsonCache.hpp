@@ -115,9 +115,11 @@ struct CacheEntry {
 };
 
 class JsonCache {
-
-public:
-
+    /**
+     * @brief Pre-allocated cacheline for fast, cache-friendly access to double values.
+     * @details Should stay unique_ptr to ensure the addresses never change.
+     *          With a normal array, the would change on a move, which would invalidate all stable double pointers!
+     */
     std::unique_ptr<CacheLine> cacheLine;
 
     /**
@@ -127,14 +129,17 @@ public:
 
     /**
      * @brief The Caching system used for fast access to frequently used values.
-     * @details Is mutable, as caching itself is used in get-calls, which are const.
-     * @note Optionals would be better, but this requires a large refactor
-     * @todo Wrap this in another class that contains a list of all entries for faster iteration
      */
-    absl::flat_hash_map<std::string, std::unique_ptr<CacheEntry>> cache;
+    absl::flat_hash_map<std::string, std::shared_ptr<CacheEntry>> cache;
 
-    // ^^^ TO PRIVATE LATER ON
+    auto& createNewCacheEntry(std::string_view key) {
+        auto newEntry = std::make_shared<CacheEntry>(*cacheLine, cacheLineIndex);
+        cache[key] = newEntry;
+        // TODO: add a proper iterator-friendy std::vector cache as well and use that in begin/end to speed up iteration.
+        return *newEntry.get();
+    }
 
+public:
     JsonCache() : cacheLine(std::make_unique<CacheLine>()) {}
 
     JsonCache(JsonCache const&) = delete;
@@ -147,6 +152,7 @@ public:
         cache.clear();
     }
 
+    // Only call on JSON destruction or if you know there are no assigned stable double pointers in use!
     void clear() {
         cache.clear();
     }
@@ -174,9 +180,8 @@ public:
         static_assert(std::is_invocable_r_v<void, F, CacheEntry&>, "Modifier function must be invocable with CacheEntry& and return void.");
         assert(find(key) == cache.end() && "Key already exists in cache.");
 
-        auto newEntry = std::make_unique<CacheEntry>(*cacheLine, cacheLineIndex);
-        std::invoke(std::forward<F>(modifier), *newEntry);
-        cache[key] = std::move(newEntry);
+        auto& newEntry = createNewCacheEntry(key);
+        std::invoke(std::forward<F>(modifier), newEntry);
     }
 
     template<typename R, typename F, typename RF>
@@ -185,10 +190,9 @@ public:
         static_assert(std::is_invocable_r_v<R, RF, CacheEntry&>, "Result function must be invocable with CacheEntry& and return R.");
         assert(find(key) == cache.end() && "Key already exists in cache.");
 
-        auto newEntry = std::make_unique<CacheEntry>(*cacheLine, cacheLineIndex);
-        std::invoke(std::forward<F>(modifier), *newEntry);
-        auto r = std::invoke(std::forward<RF>(returnFunc), *newEntry);
-        cache[key] = std::move(newEntry);
+        auto& newEntry = createNewCacheEntry(key);
+        std::invoke(std::forward<F>(modifier), newEntry);
+        auto r = std::invoke(std::forward<RF>(returnFunc), newEntry);
         return r;
     }
 };

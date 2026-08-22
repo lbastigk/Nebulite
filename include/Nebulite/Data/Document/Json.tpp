@@ -97,7 +97,7 @@ std::expected<T, SimpleValueRetrievalError> Json::getWithTransformations(std::st
         // Simply overwriting with setSubDoc isn't enough, as this may leave behind stale entries for stable double pointers, which we don't need here.
         // So we manually clear the entire cache.
         auto const& baseKey = args[0];
-        tempDoc.cache.cache.clear();
+        tempDoc.cache.clear();
         tempDoc.doc.SetObject();
         tempDoc.setSubDoc("", *this, baseKey); // Make a copy of the required member to transform
     }
