@@ -6,11 +6,14 @@
 
 // Standard library
 #include <array>
+#include <cassert>
 #include <cstddef>
 #include <cstdint> // NOLINT
 #include <memory>
 #include <optional>
 #include <string>
+#include <string_view>
+#include <utility>
 
 // External
 #include <absl/container/flat_hash_map.h>
@@ -112,20 +115,9 @@ struct CacheEntry {
 };
 
 class JsonCache {
+
+
 public:
-
-    JsonCache() : cacheLine(std::make_unique<CacheLine>()) {}
-
-    JsonCache(JsonCache const&) = delete;
-    JsonCache& operator=(JsonCache const&) = delete;
-
-    JsonCache(JsonCache&& other) noexcept = default;
-    JsonCache& operator=(JsonCache&& other) noexcept = default;
-
-    ~JsonCache() {
-        cache.clear();
-    }
-
 
     std::unique_ptr<CacheLine> cacheLine;
 
@@ -141,6 +133,68 @@ public:
      * @todo Wrap this in another class that contains a list of all entries for faster iteration
      */
     absl::flat_hash_map<std::string, std::unique_ptr<CacheEntry>> cache;
+
+    // ^^^ TO PRIVATE LATER ON
+
+    JsonCache() : cacheLine(std::make_unique<CacheLine>()) {}
+
+    JsonCache(JsonCache const&) = delete;
+    JsonCache& operator=(JsonCache const&) = delete;
+
+    JsonCache(JsonCache&& other) noexcept = default;
+    JsonCache& operator=(JsonCache&& other) noexcept = default;
+
+    ~JsonCache() {
+        cache.clear();
+    }
+
+    void clear() {
+        cache.clear();
+    }
+
+    [[nodiscard]] auto begin() const [[clang::lifetimebound]] {
+        return cache.begin();
+    }
+
+    [[nodiscard]] auto end() const [[clang::lifetimebound]] {
+        return cache.end();
+    }
+
+    [[nodiscard]] auto find(std::string_view key) const [[clang::lifetimebound]] {
+        return cache.find(key);
+    }
+
+    // TODO: remove.
+    auto& operator[](std::string_view key) [[clang::lifetimebound]] {
+        return cache[key];
+    }
+
+    template<typename F>
+    void insert(std::string_view key, F&& modifier) {
+        static_assert(std::is_invocable_r_v<void, F, CacheEntry&>, "Modifier function must be invocable with CacheEntry& and return void.");
+        assert(find(key) == cache.end() && "Key already exists in cache.");
+        auto newEntry = std::make_unique<CacheEntry>(*cacheLine, cacheLineIndex);
+        std::invoke(std::forward<F>(modifier), *newEntry);
+        cache[key] = std::move(newEntry);
+    }
+
+    template<typename R, typename F, typename RF>
+    R insertAndGet(std::string_view key, F&& modifier, RF&& returnFunc) {
+        static_assert(std::is_invocable_r_v<void, F, CacheEntry&>, "Modifier function must be invocable with CacheEntry& and return void.");
+        static_assert(std::is_invocable_r_v<R, RF, CacheEntry&>, "Result function must be invocable with CacheEntry& and return R.");
+        assert(find(key) == cache.end() && "Key already exists in cache.");
+        auto newEntry = std::make_unique<CacheEntry>(*cacheLine, cacheLineIndex);
+        std::invoke(std::forward<F>(modifier), *newEntry);
+        auto r = std::invoke(std::forward<RF>(returnFunc), *newEntry);
+        cache[key] = std::move(newEntry);
+        return r;
+    }
+
+    // TODO: this shouldn't be done?
+    void erase(std::string_view key) {
+        cache.erase(key);
+    }
+
 };
 
 } // namespace Nebulite::Data
