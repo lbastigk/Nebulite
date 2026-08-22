@@ -227,7 +227,8 @@ void Assignment::apply(ContextScope const& context) const {
 
     // If the expression is returnable as double, we can optimize numeric operations
     if (expression->isReturnableAsDouble() && isNumericOperation(operation)) {
-        double const resolved = expression->evalAsDouble(context, Utility::Promise<&Expression::isReturnableAsDouble>{});
+        auto constexpr promise = Utility::Promise<Utility::PromiseType::FunctionVerified, &Expression::isReturnableAsDouble>{};
+        double const resolved = expression->evalAsDouble(context, promise);
         if (targetValuePtr != nullptr) {
             setValueOfKey(resolved, targetValuePtr);
         } else {
@@ -252,7 +253,8 @@ void Assignment::apply(ContextScope const& context) const {
     // only $i(...) is supported, as any formatting like $05i(...)
     // would make the result a string to respect formatting
     else if (expression->isReturnableAsInt() && isNumericOperation(operation)) {
-        auto const resolved = expression->evalAsInt(context, Utility::Promise<&Expression::isReturnableAsInt>{});
+        auto constexpr promise = Utility::Promise<Utility::PromiseType::FunctionVerified, &Expression::isReturnableAsInt>{};
+        auto const resolved = expression->evalAsInt(context, promise);
         auto const scopedKey = Data::ScopedKey(key->eval(context));
         setValueOfKey(scopedKey.view(), resolved, targetDocument);
     }

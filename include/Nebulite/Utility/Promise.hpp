@@ -9,8 +9,19 @@
 
 //------------------------------------------
 namespace Nebulite::Utility {
-template <auto Check>
+
+namespace PromiseType {
+struct FunctionVerified{};
+struct FunctionNotInUse{};
+} // namespace PromiseType
+
+template <typename VerificationType, auto Check>
 struct Promise {
+    static_assert(
+        std::is_same_v<VerificationType, PromiseType::FunctionVerified> || std::is_same_v<VerificationType, PromiseType::FunctionNotInUse>,
+        "VerificationType must be either PromiseType::FunctionVerified or PromiseType::FunctionNotInUse."
+    );
+
     // The Check template parameter must either be of type bool or a callable that returns a bool
     static_assert(
         std::is_member_function_pointer_v<decltype(Check)> ||
@@ -19,14 +30,20 @@ struct Promise {
     );
 };
 
+namespace PromiseListPolicy {
 struct Any {};
 struct All {};
+} // namespace PromiseListPolicy
 
-template <typename Policy, auto... Checks>
+template <typename VerificationType, typename Policy, auto... Checks>
 struct PromiseList {
     static_assert(
-        std::is_same_v<Policy, Any> || std::is_same_v<Policy, All>,
-        "Policy must be either Any or All."
+        std::is_same_v<VerificationType, PromiseType::FunctionVerified> || std::is_same_v<VerificationType, PromiseType::FunctionNotInUse>,
+        "VerificationType must be either PromiseType::FunctionVerified or PromiseType::FunctionNotInUse."
+    );
+    static_assert(
+        std::is_same_v<Policy, PromiseListPolicy::Any> || std::is_same_v<Policy, PromiseListPolicy::All>,
+        "Policy must be either PromiseListPolicy::Any or PromiseListPolicy::All."
     );
     static_assert(
         (... && (

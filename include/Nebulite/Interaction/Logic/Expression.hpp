@@ -144,7 +144,7 @@ public:
      *                If that promise is not fulfilled, the evaluation can result in undefined behavior.
      * @return The result of the evaluation as a double.
      */
-    [[nodiscard]] double evalAsDouble(ContextScope const& context, Utility::Promise<&Expression::isReturnableAsDouble> promise) const ;
+    [[nodiscard]] double evalAsDouble(ContextScope const& context, Utility::Promise<Utility::PromiseType::FunctionVerified, &Expression::isReturnableAsDouble> promise) const ;
 
     /**
      * @brief Evaluates the expression and returns the result as an integer.
@@ -154,7 +154,7 @@ public:
      *                If that promise is not fulfilled, the evaluation can result in undefined behavior.
      * @return The result of the evaluation as an integer.
      */
-    [[nodiscard]] std::int64_t evalAsInt(ContextScope const& context, Utility::Promise<&Expression::isReturnableAsInt> promise) const ;
+    [[nodiscard]] std::int64_t evalAsInt(ContextScope const& context, Utility::Promise<Utility::PromiseType::FunctionVerified, &Expression::isReturnableAsInt> promise) const ;
 
     /**
      * @brief Evaluates the expression and returns the result as a boolean.
@@ -164,7 +164,7 @@ public:
      *                If that promise is not fulfilled, the evaluation can result in undefined behavior.
      * @return The result of the evaluation as a boolean.
      */
-    [[nodiscard]] bool evalAsBool(ContextScope const& context, Utility::Promise<&Expression::isReturnableAsBool> promise) const ;
+    [[nodiscard]] bool evalAsBool(ContextScope const& context, Utility::Promise<Utility::PromiseType::FunctionVerified, &Expression::isReturnableAsBool> promise) const ;
 
     //------------------------------------------
     // Static functions for one-time evaluation
