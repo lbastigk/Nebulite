@@ -21,6 +21,7 @@
 
 // Nebulite
 #include "Nebulite/Data/Document/RjDirectAccess.hpp"
+#include "Nebulite/Utility/CompileTimeEvaluate.hpp"
 
 //------------------------------------------
 namespace Nebulite::Data {
@@ -36,6 +37,10 @@ static auto constexpr cachelineSize = 1024 / sizeof(double);
  *          This reduces memory fragmentation and improves cache locality.
  */
 using CacheLine = std::array<double, cachelineSize>;
+
+// Make sure cache size is a power of two for optimal performance
+static_assert(Utility::CompileTimeEvaluate::isPowerOfTwo(cachelineSize), "cachelineSize must be a power of two for optimal performance.");
+
 
 /**
  * @struct CacheEntry

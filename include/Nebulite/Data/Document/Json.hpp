@@ -23,7 +23,6 @@
 #include "Nebulite/Data/Document/KeyType.hpp"
 #include "Nebulite/Data/Document/RjDirectAccess.hpp"
 #include "Nebulite/Data/Document/SimpleValueError.hpp"
-#include "Nebulite/Utility/CompileTimeEvaluate.hpp"
 
 //------------------------------------------
 // Forward declarations
@@ -49,38 +48,6 @@ namespace Nebulite::Data {
  *            allowing fast access to numeric values in a sorted manner.
  */
 class Json {
-public:
-    //------------------------------------------
-    // Basic public constants
-
-    /**
-     * @brief A list of reserved characters that cannot be used in key names.
-     * @details - '[]' : Used for array indexing.
-     *          - '{}' : Could cause issues with object traversal and transformations, and just in general a bad idea for keys
-     *          - '()' : Just in general a bad idea for a key
-     *          - '.'  : Used for nested object traversal.
-     *          - '|'  : Used for piping transformations.
-     *          - '"'  : Used for string encapsulation.
-     *          - '''  : Used for string encapsulation
-     *          - ':'  : Used for Read-Only docs to separate link and key.
-     */
-    static auto constexpr reservedCharacters = "[]{}().|\"':";
-
-    /**
-     * @brief Often used special characters for value retrieval
-     */
-    struct SpecialCharacter {
-        static auto constexpr arrayOpen = RjDirectAccess::SpecialCharacter::arrayOpen;
-        static auto constexpr arrayClose = RjDirectAccess::SpecialCharacter::arrayClose;
-        static auto constexpr dot = RjDirectAccess::SpecialCharacter::dot;
-        static auto constexpr transformationPipe = '|';
-        static auto constexpr linkKeySeparator = ':';
-    };
-
-    static std::string_view findParentKey(std::string_view key);
-
-private:
-
     mutable JsonCache cache;
 
     /**
@@ -136,6 +103,8 @@ private:
      */
     bool getSubDocWithTransformations(std::string_view key, Json& outDoc) const ;
 
+    static std::vector<std::string_view> splitKeyWithTransformations(std::string_view key);
+
     //------------------------------------------
     // Scope sharing system
 
@@ -143,18 +112,7 @@ private:
     std::unique_ptr<JsonScope> fullScopeInstance;
     std::unique_ptr<JsonScope> dummyScopeInstance;
 
-    //------------------------------------------
-    // Cache management
-
-    void deleteCacheEntry(std::string_view key) const ;
-
 public:
-    //------------------------------------------
-    // Assertions
-
-    // Make sure cache size is a power of two for optimal performance
-    static_assert(Utility::CompileTimeEvaluate::isPowerOfTwo(cachelineSize), "cachelineSize must be a power of two for optimal performance.");
-
     //------------------------------------------
     // Constructor/Destructor
 
@@ -166,7 +124,7 @@ public:
     ~Json();
 
     //------------------------------------------
-    // Overload of assign operators
+    // Move/Copy
 
     // No copy
     Json(Json const&) = delete;
@@ -175,6 +133,33 @@ public:
     // Allow move
     Json(Json&& other) noexcept;
     Json& operator=(Json&& other) noexcept;
+
+    //------------------------------------------
+    // Basic public constants
+
+    /**
+     * @brief A list of reserved characters that cannot be used in key names.
+     * @details - '[]' : Used for array indexing.
+     *          - '{}' : Could cause issues with object traversal and transformations, and just in general a bad idea for keys
+     *          - '()' : Just in general a bad idea for a key
+     *          - '.'  : Used for nested object traversal.
+     *          - '|'  : Used for piping transformations.
+     *          - '"'  : Used for string encapsulation.
+     *          - '''  : Used for string encapsulation
+     *          - ':'  : Used for Read-Only docs to separate link and key.
+     */
+    static auto constexpr reservedCharacters = "[]{}().|\"':";
+
+    /**
+     * @brief Often used special characters for value retrieval
+     */
+    struct SpecialCharacter {
+        static auto constexpr arrayOpen = RjDirectAccess::SpecialCharacter::arrayOpen;
+        static auto constexpr arrayClose = RjDirectAccess::SpecialCharacter::arrayClose;
+        static auto constexpr dot = RjDirectAccess::SpecialCharacter::dot;
+        static auto constexpr transformationPipe = '|';
+        static auto constexpr linkKeySeparator = ':';
+    };
 
     //------------------------------------------
     // Scope sharing
@@ -207,7 +192,7 @@ public:
     void copyFrom(Json const& other);
 
     //------------------------------------------
-    // Validity check
+    // Static helpers
 
     /**
      * @brief Checks if a string is in JSON or JSONC format.
@@ -216,10 +201,57 @@ public:
      */
     static bool isJsonOrJsonc(std::string_view str);
 
-    //------------------------------------------
-    // Argument splitting for transformations
+    /**
+     * @brief Finds the parent key of a given key in the JSON document.
+     * @param key The key to find the parent of.
+     * @return The parent key as a string_view. If the key is at the root level, returns an empty string_view.
+     */
+    static std::string_view findParentKey(std::string_view key);
 
-    static std::vector<std::string_view> splitKeyWithTransformations(std::string_view key);
+    //------------------------------------------
+    // Get methods
+
+    /**
+     * @brief Gets a value from the JSON document.
+     * @details This function retrieves a value of the specified type from the JSON document.
+     *          If the key does not exist, the default value is returned.
+     * @tparam T The type of the value to retrieve.
+     * @param key The key of the value to retrieve.
+     * @return The value associated with the key, or an error.
+     */
+    template <typename T> std::expected<T, SimpleValueRetrievalError> get(std::string_view key) const ;
+
+    /**
+     * @brief Gets a variant value from the JSON document.
+     * @details This function retrieves a variant value from the JSON document.
+     *          If the key does not exist, void is returned.
+     * @param key The key of the value to retrieve.
+     * @return The variant value associated with the key, or an error if the retrieval failed.
+     */
+    std::expected<RjDirectAccess::SimpleValue, SimpleValueRetrievalError> getVariant(std::string_view key) const ;
+
+    /**
+     * @brief Gets a sub-document from the JSON document.
+     * @details If the key does not exist, an empty JSON object is returned.
+     *          Note that the cache is flushed into the document.
+     *          If the key is a basic type, its value is returned.
+     *          You may use `memberType("")` to check the type stored in the JSON.
+     *          You may use `get<T>("",T())` on the returned sub-document to get the simple value.
+     * @param key The key of the sub-document to retrieve.
+     * @return The sub-document associated with the key, or an empty JSON object if the key does not exist.
+     */
+    Json getSubDoc(std::string_view key) const ;
+
+    /**
+     * @brief Gets a pointer to a double value pointer in the JSON document.
+     * @return A pointer to the double value associated with the key.
+     */
+    double* getStableDoublePointer(std::string_view key) const ;
+
+    /**
+     * @brief Provides access to the internal mutex for thread-safe operations.
+     */
+    std::unique_lock<std::recursive_mutex> lock() const ;
 
     //------------------------------------------
     // Set methods
@@ -291,51 +323,6 @@ public:
      * @brief Performs a concatenation operation on a string value in the JSON document.
      */
     void setConcatenative(std::string_view key, std::string_view valStr);
-
-    //------------------------------------------
-    // Get methods
-
-    /**
-     * @brief Gets a value from the JSON document.
-     * @details This function retrieves a value of the specified type from the JSON document.
-     *          If the key does not exist, the default value is returned.
-     * @tparam T The type of the value to retrieve.
-     * @param key The key of the value to retrieve.
-     * @return The value associated with the key, or an error.
-     */
-    template <typename T> std::expected<T, SimpleValueRetrievalError> get(std::string_view key) const ;
-
-    /**
-     * @brief Gets a variant value from the JSON document.
-     * @details This function retrieves a variant value from the JSON document.
-     *          If the key does not exist, void is returned.
-     * @param key The key of the value to retrieve.
-     * @return The variant value associated with the key, or an error if the retrieval failed.
-     */
-    std::expected<RjDirectAccess::SimpleValue, SimpleValueRetrievalError> getVariant(std::string_view key) const ;
-
-    /**
-     * @brief Gets a sub-document from the JSON document.
-     * @details If the key does not exist, an empty JSON object is returned.
-     *          Note that the cache is flushed into the document.
-     *          If the key is a basic type, its value is returned.
-     *          You may use `memberType("")` to check the type stored in the JSON.
-     *          You may use `get<T>("",T())` on the returned sub-document to get the simple value.
-     * @param key The key of the sub-document to retrieve.
-     * @return The sub-document associated with the key, or an empty JSON object if the key does not exist.
-     */
-    Json getSubDoc(std::string_view key) const ;
-
-    /**
-     * @brief Gets a pointer to a double value pointer in the JSON document.
-     * @return A pointer to the double value associated with the key.
-     */
-    double* getStableDoublePointer(std::string_view key) const ;
-
-    /**
-     * @brief Provides access to the internal mutex for thread-safe operations.
-     */
-    std::unique_lock<std::recursive_mutex> lock() const ;
 
     //------------------------------------------
     // Key Types, Sizes
