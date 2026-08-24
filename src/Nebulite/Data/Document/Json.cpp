@@ -82,13 +82,13 @@ void Json::synchronizeChildren(std::string_view const parentKey) const {
 }
 
 void Json::flush(std::string_view const key) const {
-    auto const parent = findParentKey(key);
+    auto const parentKey = findParentKey(key);
 
     auto cacheToSync = cache
         | std::views::filter([&](auto& pair) {
             auto const& [entryKey, entry] = pair;
             return entry->state != CacheEntry::EntryState::malformed
-                && entryKey.starts_with(parent);
+                && isRelatedToKey(entryKey, parentKey);
         });
 
     for (auto const& [entryKey, entry] : cacheToSync) {
