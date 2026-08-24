@@ -74,7 +74,7 @@ rapidjson::Value* traverseIntoObject(std::string_view const keyPart, [[clang::li
 
 rapidjson::Value* traverseIntoArray(std::string_view& keyView, rapidjson::Value* current) {
     // Find closing character
-    std::size_t const closeBracket = keyView.find(SpecialCharacter::arrayClose);
+    auto const closeBracket = keyView.find(SpecialCharacter::arrayClose);
     if (closeBracket == std::string_view::npos) {
         // Malformed key - missing closing character
         return nullptr;
@@ -107,12 +107,12 @@ rapidjson::Value* traverseIntoArray(std::string_view& keyView, rapidjson::Value*
  * @param keyView View to extract from and modify.
  * @return The extracted key part as a std::string.
  */
-std::string extractKeyPart(std::string_view& keyView) {
+std::string_view extractKeyPart(std::string_view& keyView) {
     // Find dot or array opening char as next separators
-    std::size_t const dotPos = keyView.find(SpecialCharacter::dot);
-    std::size_t const bracketPos = keyView.find(SpecialCharacter::arrayOpen);
+    auto const dotPos = keyView.find(SpecialCharacter::dot);
+    auto const bracketPos = keyView.find(SpecialCharacter::arrayOpen);
 
-    std::size_t const nextSep = [&] {
+    auto const nextSep = [&] {
         if (dotPos == std::string_view::npos && bracketPos == std::string_view::npos) {
             return keyView.size(); // No separator - last key
         }
@@ -125,10 +125,10 @@ std::string extractKeyPart(std::string_view& keyView) {
         return std::min(dotPos, bracketPos);
     }();
 
-    // Build the result string from the current data/length before modifying the input view.
-    auto const result = std::string(keyView.substr(0, nextSep));
+    // Remove the extracted part from keyView and return it
+    auto const extracted = keyView.substr(0, nextSep);
     keyView.remove_prefix(nextSep);
-    return result;
+    return extracted;
 }
 
 } // namespace
@@ -161,25 +161,27 @@ rapidjson::Value* traversePath(std::string_view const key, [[clang::lifetimeboun
 
 namespace {
 
-rapidjson::Value* ensurePathIntoObject(std::string const& keyPart, [[clang::lifetimebound]] rapidjson::Value* current, rapidjson::Document::AllocatorType& allocator) {
+rapidjson::Value* ensurePathIntoObject(std::string_view const keyPart, [[clang::lifetimebound]] rapidjson::Value* current, rapidjson::Document::AllocatorType& allocator) {
     if (!keyPart.empty()) {
         if (!current->IsObject()) {
             current->SetObject();
         }
 
-        if (!current->HasMember(keyPart.c_str())) {
-            rapidjson::Value keyVal(keyPart.c_str(), allocator);
+        auto const keyPartStr = std::string(keyPart); // Convert to std::string for rapidjson compatibility
+
+        if (!current->HasMember(keyPartStr.c_str())) {
+            rapidjson::Value keyVal(keyPartStr.c_str(), allocator);
             rapidjson::Value newObj(rapidjson::kObjectType);
             current->AddMember(keyVal, newObj, allocator);
         }
-        return &(*current)[keyPart.c_str()];
+        return &(*current)[keyPartStr.c_str()];
     }
     return current;
 }
 
 rapidjson::Value* ensurePathIntoArray(std::string_view& keyView, rapidjson::Value* current, rapidjson::Document::AllocatorType& allocator) {
     // Find closing character
-    std::size_t const closeBracket = keyView.find(SpecialCharacter::arrayClose);
+    auto const closeBracket = keyView.find(SpecialCharacter::arrayClose);
     if (closeBracket == std::string_view::npos) {
         // Malformed key - missing closing character
         return nullptr;
@@ -237,13 +239,13 @@ rapidjson::Value* ensurePath(std::string_view const key, [[clang::lifetimebound]
 }
 
 traverseResult traverseToParent(std::string_view keyStr, [[clang::lifetimebound]] rapidjson::Value& root) {
-    std::size_t const lastDot = keyStr.find_last_of(SpecialCharacter::dot);
-    std::size_t const lastBracket = keyStr.find_last_of(SpecialCharacter::arrayOpen);
+    auto const lastDot = keyStr.find_last_of(SpecialCharacter::dot);
+    auto const lastBracket = keyStr.find_last_of(SpecialCharacter::arrayOpen);
 
     if (lastBracket != std::string::npos && (lastDot == std::string::npos || lastBracket > lastDot)) {
         // Last access is array index: var.subVar[2] or var[2]
-        std::size_t const openBracket = keyStr.find_last_of(SpecialCharacter::arrayOpen);
-        if (std::size_t const closeBracket = keyStr.find_last_of(SpecialCharacter::arrayClose); openBracket != std::string::npos && closeBracket != std::string::npos && closeBracket > openBracket) {
+        auto const openBracket = keyStr.find_last_of(SpecialCharacter::arrayOpen);
+        if (auto const closeBracket = keyStr.find_last_of(SpecialCharacter::arrayClose); openBracket != std::string::npos && closeBracket != std::string::npos && closeBracket > openBracket) {
             auto const parentPath = keyStr.substr(0, openBracket);
             auto const indexStr = keyStr.substr(openBracket + 1, closeBracket - openBracket - 1);
 
@@ -555,7 +557,7 @@ bool isValidKey(std::string_view const key) {
         // Now handle zero or more array indices if they appear next
         while (!keyView.empty() && keyView[0] == SpecialCharacter::arrayOpen) {
             // Find closing character
-            std::size_t const closeBracket = keyView.find(SpecialCharacter::arrayClose);
+            auto const closeBracket = keyView.find(SpecialCharacter::arrayClose);
             if (closeBracket == std::string_view::npos) {
                 return false; // Malformed key - missing closing character
             }
@@ -581,7 +583,7 @@ std::vector<std::string> listAvailableMembers(rapidjson::Value const& val){
     std::vector<std::string> keys;
     if (val.IsArray()) {
         // Generate a list of array keys: [0], [1], ...
-        std::size_t const arrSize = val.Size();
+        auto const arrSize = val.Size();
         keys.reserve(arrSize);
         for (std::size_t i = 0; i < arrSize; ++i) {
             keys.emplace_back("[" + std::to_string(i) + "]");
