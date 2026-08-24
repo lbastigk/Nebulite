@@ -3,6 +3,7 @@
 
 // Standard library
 #include <algorithm>
+#include <cassert>
 #include <cstddef>
 #include <optional>
 #include <string>
@@ -28,10 +29,6 @@
 
 //------------------------------------------
 namespace Nebulite::Data::RjDirectAccess {
-
-// NOTE: While RjDirectAccess uses string_view for key traversal, they are converted to std::string when interacting with rapidjson,
-// as rapidjson requires null-terminated strings for keys.
-// Later on we should look for ways to avoid this conversion, perhaps a fork of rapidjson is required to support string_view directly.
 
 //------------------------------------------
 // Static Public Helper Functions
@@ -350,35 +347,23 @@ std::string serialize(rapidjson::Value const& val, SerializationType const type)
 }
 
 void deserialize(rapidjson::Document& doc, std::string_view const serialOrLink) {
-    std::string jsonString;
-
-    // TODO: remove the serialization of a link, should only be part of Data::Json
-
     // Check if the input is already a serialized JSON string
     if (isJsonOrJsonc(serialOrLink)) {
-        jsonString = serialOrLink;
+        deserializeFromJson(doc, serialOrLink);
     }
     // If not, treat it as a file path
     else {
-        //------------------------------------------
-        // Load the JSON file
-        // First token is the path or serialized JSON
-        jsonString = Global::instance().getDocCache().getDocString(serialOrLink);
+        // Better than a manual getDocString, as this would create a temporary string.
+        Global::instance().getDocCache().copy(doc, serialOrLink);
     }
+}
 
-    // Strip JSONC comments before parsing
-    if (Utility::StringHandler::isNullTerminated(jsonString)) {
-        auto const* nullTerminatedData = jsonString.data(); // Safe to use directly since it's null-terminated
-        if (rapidjson::ParseResult const res = doc.Parse<rapidjsonParseFlags>(nullTerminatedData); !res) {
-            Global::capture().error.println("JSON Parse Error at offset ", res.Offset(), ". String is:");
-            Global::capture().error.println(nullTerminatedData);
-        }
-        return;
-    }
-    auto strCopy = std::string(jsonString); // Make a copy to ensure null-termination
-    if (rapidjson::ParseResult const res = doc.Parse<rapidjsonParseFlags>(strCopy.c_str()); !res) {
+void deserializeFromJson(rapidjson::Document& doc, std::string_view json){
+    assert(isJsonOrJsonc(json) && "Input string is not valid JSON or JSONC format.");
+    auto serial = rapidjson::StringRef(json.data(), json.size());
+    if (rapidjson::ParseResult const res = doc.Parse<rapidjsonParseFlags>(serial); !res) {
         Global::capture().error.println("JSON Parse Error at offset ", res.Offset(), ". String is:");
-        Global::capture().error.println(strCopy);
+        Global::capture().error.println(json);
     }
 }
 
@@ -440,9 +425,9 @@ void removeMember(std::string_view const key, rapidjson::Value& val) {
 
     // Handle simple case: direct member of root document
     if (!key.contains(SpecialCharacter::dot) && !key.contains(SpecialCharacter::arrayOpen)) {
-        auto const keyStr = std::string(key); // Convert to std::string for rapidjson compatibility
-        if (val.HasMember(keyStr.c_str())) {
-            val.RemoveMember(keyStr.c_str());
+        rapidjson::Value const member(rapidjson::StringRef(key.data(), key.size()));
+        if (val.HasMember(member)) {
+            val.RemoveMember(member);
         }
         return;
     }
@@ -458,17 +443,17 @@ void removeMember(std::string_view const key, rapidjson::Value& val) {
         if (poppedIndex >= 0) {
             // Remove an array element
             if (!poppedMember.empty()) {
-                auto const finalKeyStr = std::string(poppedMember); // Convert to std::string for rapidjson compatibility
-                parent[poppedIndex].RemoveMember(finalKeyStr.c_str());
+                rapidjson::Value const finalKey(rapidjson::StringRef(poppedMember.data(), poppedMember.size()));
+                parent[poppedIndex].RemoveMember(finalKey);
             // NOLINTNEXTLINE
             } else if (parent->IsArray() && poppedIndex < static_cast<int>(parent->Size())) {
                 parent->Erase(parent->Begin() + poppedIndex);
             }
         } else if (!poppedMember.empty()) {
-            auto const finalKeyStr = std::string(poppedMember); // Convert to std::string for rapidjson compatibility
+            rapidjson::Value const finalKey(rapidjson::StringRef(poppedMember.data(), poppedMember.size()));
             // Remove object member
-            if (parent->IsObject() && parent->HasMember(finalKeyStr.c_str())) {
-                parent->RemoveMember(finalKeyStr.c_str());
+            if (parent->IsObject() && parent->HasMember(finalKey)) {
+                parent->RemoveMember(finalKey);
             }
         }
     }

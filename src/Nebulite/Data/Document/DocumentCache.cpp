@@ -8,10 +8,14 @@
 #include <string_view>
 #include <utility>
 
+// External
+#include <rapidjson/document.h>
+
 // Nebulite
 #include "Nebulite/Data/Document/DocumentCache.hpp"
 #include "Nebulite/Data/Document/KeyType.hpp"
 #include "Nebulite/Data/Document/ReadOnlyDocs.hpp"
+#include "Nebulite/Data/Document/RjDirectAccess.hpp"
 #include "Nebulite/Interaction/Context.hpp"
 #include "Nebulite/Utility/StringHandler.hpp"
 
@@ -81,6 +85,21 @@ std::string DocumentCache::getDocString(std::string_view const link) const {
     readOnlyDocs.update();
 
     return serial;
+}
+
+void DocumentCache::copy(rapidjson::Document& dest, std::string_view link) const {
+    ReadOnlyDoc const* docPtr = readOnlyDocs.getDocument(link);
+
+    // Check if the document exists in the cache
+    if (docPtr == nullptr) {
+        dest.SetObject(); // Return empty JSON if document loading fails
+        return;
+    }
+
+    RjDirectAccess::deserializeFromJson(dest, docPtr->serial);
+
+    // Update the cache (unload old documents)
+    readOnlyDocs.update();
 }
 
 std::pair<std::string_view, std::string_view> DocumentCache::splitDocKey(std::string_view docAndKey) {

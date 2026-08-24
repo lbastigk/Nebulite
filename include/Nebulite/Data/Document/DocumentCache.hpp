@@ -7,6 +7,7 @@
 // Standard library
 #include <cstddef>
 #include <expected>
+#include <rapidjson/document.h>
 #include <string>
 #include <string_view>
 #include <utility>
@@ -95,6 +96,15 @@ public:
      * @return The serialized JSON string of the entire document.
      */
     std::string getDocString(std::string_view link) const ;
+
+    /**
+     * @brief Copies the entire document or a portion of the document into another rapidjson::Document.
+     * @details If the document does not exist, the destination document will be set to an empty JSON object.
+     *          This function serves as an alternative to getDocString + manual parsing, as it doesn't require a string copy.
+     * @param dest The destination document.
+     * @param link The link to the document to copy.
+     */
+    void copy(rapidjson::Document& dest, std::string_view link) const ;
 
 private:
     /**

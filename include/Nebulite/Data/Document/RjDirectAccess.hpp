@@ -203,6 +203,12 @@ namespace Nebulite::Data::RjDirectAccess {
      */
     void deserialize(rapidjson::Document& doc, std::string_view serialOrLink);
 
+    /**
+     * @brief Deserializes a JSON string into a rapidjson document.
+     * @details Only use if the given string is guaranteed to be a valid JSON string!
+     */
+    void deserializeFromJson(rapidjson::Document& doc, std::string_view json);
+
     //------------------------------------------
     // Helper functions
 
