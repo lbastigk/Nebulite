@@ -139,7 +139,7 @@ rapidjson::Value* traversePath(std::string_view const key, [[clang::lifetimeboun
 
     while (!keyView.empty()) {
         // Extract current key part (object key)
-        std::string const keyPart = extractKeyPart(keyView);
+        auto const keyPart = extractKeyPart(keyView);
 
         // Handle object key part if non-empty
         current = traverseIntoObject(keyPart, current);
@@ -215,7 +215,7 @@ rapidjson::Value* ensurePath(std::string_view const key, [[clang::lifetimebound]
 
     while (!keyView.empty()) {
         // Extract current key part (object key)
-        std::string const keyPart = extractKeyPart(keyView);
+        auto const keyPart = extractKeyPart(keyView);
 
         // Handle object key part if non-empty
         current = ensurePathIntoObject(keyPart, current, allocator);
@@ -363,7 +363,7 @@ void deserialize(rapidjson::Document& doc, std::string_view const serialOrLink) 
     }
 
     // Strip JSONC comments before parsing
-    std::string const cleanJson = stripComments(jsonString);
+    auto const cleanJson = stripComments(jsonString);
     if (rapidjson::ParseResult const res = doc.Parse(cleanJson.c_str()); !res) {
         Global::capture().error.println("JSON Parse Error at offset ", res.Offset(), ". String is:");
         Global::capture().error.println(cleanJson);
@@ -485,7 +485,7 @@ bool isJsonOrJsonc(std::string_view const str) {
     // Complicated check using RapidJSON parsing
     // Simpler check is just not worth it due to various valid JSON formats
     rapidjson::Document doc;
-    std::string const cleanJson = stripComments(str);
+    auto const cleanJson = stripComments(str);
     return !doc.Parse(cleanJson.c_str()).HasParseError();
 }
 
@@ -506,7 +506,7 @@ void removeMember(std::string_view const key, rapidjson::Value& val) {
 
     // Handle simple case: direct member of root document
     if (!key.contains(SpecialCharacter::dot) && !key.contains(SpecialCharacter::arrayOpen)) {
-        std::string const keyStr(key);
+        auto const keyStr = std::string(key); // Convert to std::string for rapidjson compatibility
         if (val.HasMember(keyStr.c_str())) {
             val.RemoveMember(keyStr.c_str());
         }
@@ -524,14 +524,14 @@ void removeMember(std::string_view const key, rapidjson::Value& val) {
         if (poppedIndex >= 0) {
             // Remove an array element
             if (!poppedMember.empty()) {
-                std::string const finalKeyStr(poppedMember);
+                auto const finalKeyStr = std::string(poppedMember); // Convert to std::string for rapidjson compatibility
                 parent[poppedIndex].RemoveMember(finalKeyStr.c_str());
             // NOLINTNEXTLINE
             } else if (parent->IsArray() && poppedIndex < static_cast<int>(parent->Size())) {
                 parent->Erase(parent->Begin() + poppedIndex);
             }
         } else if (!poppedMember.empty()) {
-            std::string const finalKeyStr(poppedMember);
+            auto const finalKeyStr = std::string(poppedMember); // Convert to std::string for rapidjson compatibility
             // Remove object member
             if (parent->IsObject() && parent->HasMember(finalKeyStr.c_str())) {
                 parent->RemoveMember(finalKeyStr.c_str());
@@ -545,7 +545,7 @@ bool isValidKey(std::string_view const key) {
     while (!keyView.empty()) {
         // Extract current key part (object key)
         // Validate object key part if non-empty
-        if (std::string const keyPart = extractKeyPart(keyView); !keyPart.empty()) {
+        if (auto const keyPart = extractKeyPart(keyView); !keyPart.empty()) {
             // Check for invalid characters in keyPart
             if (keyPart.find_first_of("[]") != std::string_view::npos) {
                 return false; // Invalid character found
