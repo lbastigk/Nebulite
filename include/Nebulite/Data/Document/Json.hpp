@@ -245,6 +245,8 @@ public:
     /**
      * @brief Gets a pointer to a double value pointer in the JSON document.
      * @return A pointer to the double value associated with the key.
+     *         Guaranteed to not be nullptr.
+     * @todo A C++26 contract assert postcondition r != nullptr would be nice
      */
     double* getStableDoublePointer(std::string_view key) const ;
 
