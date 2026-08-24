@@ -46,12 +46,11 @@ void Json::set(std::string_view const key, T const& val){
         "Please use the value inside the expected instead."
     );
 
-    // Basically the same as setVariant, but for template types
-    std::scoped_lock const lockGuard(mtx);
-
+    // string_view is not a simple value, so we need to convert it to string before setting it
     if constexpr (std::is_same_v<T, std::string_view>) {
         setVariant(key, RjDirectAccess::SimpleValue(std::string(val)));
     }
+    // otherwise, we can directly set the value as a simple value
     else {
         setVariant(key, RjDirectAccess::SimpleValue(val));
     }

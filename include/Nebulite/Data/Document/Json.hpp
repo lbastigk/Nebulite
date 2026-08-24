@@ -219,7 +219,8 @@ public:
      * @param key The key of the value to retrieve.
      * @return The value associated with the key, or an error.
      */
-    template <typename T> std::expected<T, SimpleValueRetrievalError> get(std::string_view key) const ;
+    template <typename T>
+    std::expected<T, SimpleValueRetrievalError> get(std::string_view key) const ;
 
     /**
      * @brief Gets a variant value from the JSON document.
@@ -266,7 +267,8 @@ public:
      * @param key The key of the value to set.
      * @param val The value to set.
      */
-    template <typename T> void set(std::string_view key, T const& val);
+    template <typename T>
+    void set(std::string_view key, T const& val);
 
     /**
      * @brief Sets a variant value of supported simple values in the JSON document.
