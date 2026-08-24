@@ -57,19 +57,19 @@ std::optional<SimpleValue> getSimpleValue(rapidjson::Value const* val) {
 
 namespace {
 
-rapidjson::Value* traverseIntoObject(std::string_view const keyPart, [[clang::lifetimebound]] rapidjson::Value* current) {
-    if (!keyPart.empty()) {
-        auto keyPartStr = std::string(keyPart); // Convert to std::string for rapidjson compatibility
-
-        if (!current->IsObject()) {
-            return nullptr;
-        }
-        if (!current->HasMember(keyPartStr.c_str())) {
-            return nullptr;
-        }
-        return &(*current)[keyPartStr.c_str()];
+rapidjson::Value* traverseIntoObject(std::string_view const member, [[clang::lifetimebound]] rapidjson::Value* current) {
+    if (member.empty()) return current;
+    if (!current->IsObject()) {
+        return nullptr;
     }
-    return current;
+    auto const memberValue = rapidjson::Value{
+        rapidjson::StringRef(member.data(), member.size())
+    };
+    auto it = current->FindMember(memberValue);
+    if (it == current->MemberEnd()) {
+        return nullptr;
+    }
+    return &it->value;
 }
 
 rapidjson::Value* traverseIntoArray(std::string_view& keyView, rapidjson::Value* current) {
@@ -133,6 +133,7 @@ std::string_view extractKeyPart(std::string_view& keyView) {
 
 } // namespace
 
+// TODO: does this work if the key starts with an array? Function isn't as clear as it could be, please refactor to make it more readable and understandable.
 rapidjson::Value* traversePath(std::string_view const key, [[clang::lifetimebound]] rapidjson::Value& val) {
     rapidjson::Value* current = &val;
     std::string_view keyView(key);
