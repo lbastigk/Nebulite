@@ -210,22 +210,24 @@ traverseResult traverseToParent(std::string_view keyStr, [[clang::lifetimebound]
 
 namespace {
 
-rapidjson::Value* ensurePathIntoObject(std::string_view const keyPart, [[clang::lifetimebound]] rapidjson::Value* current, rapidjson::Document::AllocatorType& allocator) {
-    if (!keyPart.empty()) {
-        if (!current->IsObject()) {
-            current->SetObject();
-        }
+rapidjson::Value* ensurePathIntoObject(std::string_view const member, [[clang::lifetimebound]] rapidjson::Value* current, rapidjson::Document::AllocatorType& allocator) {
+    if (member.empty()) return current;
+    if (!current->IsObject()) current->SetObject();
 
-        auto const keyPartStr = std::string(keyPart); // Convert to std::string for rapidjson compatibility
-
-        if (!current->HasMember(keyPartStr.c_str())) {
-            rapidjson::Value keyVal(keyPartStr.c_str(), allocator);
-            rapidjson::Value newObj(rapidjson::kObjectType);
-            current->AddMember(keyVal, newObj, allocator);
-        }
-        return &(*current)[keyPartStr.c_str()];
+    rapidjson::Value const lookup(rapidjson::StringRef(member.data(), member.size()));
+    auto it = current->FindMember(lookup);
+    if (it != current->MemberEnd()) {
+        return &it->value;
     }
-    return current;
+
+    rapidjson::Value key;
+    key.SetString(member.data(), static_cast<unsigned int>(member.size()), allocator);
+    current->AddMember(
+        key,
+        rapidjson::Value(rapidjson::kObjectType),
+        allocator
+    );
+    return &current->MemberEnd()[-1].value;
 }
 
 rapidjson::Value* ensurePathIntoArray(std::string_view& keyView, rapidjson::Value* current, rapidjson::Document::AllocatorType& allocator) {
