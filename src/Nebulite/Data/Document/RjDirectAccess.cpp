@@ -29,6 +29,10 @@
 //------------------------------------------
 namespace Nebulite::Data::RjDirectAccess {
 
+// NOTE: While RjDirectAccess uses string_view for key traversal, they are converted to std::string when interacting with rapidjson,
+// as rapidjson requires null-terminated strings for keys.
+// Later on we should look for ways to avoid this conversion, perhaps a fork of rapidjson is required to support string_view directly.
+
 //------------------------------------------
 // Static Public Helper Functions
 
@@ -53,15 +57,17 @@ std::optional<SimpleValue> getSimpleValue(rapidjson::Value const* val) {
 
 namespace {
 
-rapidjson::Value* traverseIntoObject(std::string const& keyPart, [[clang::lifetimebound]] rapidjson::Value* current) {
+rapidjson::Value* traverseIntoObject(std::string_view const keyPart, [[clang::lifetimebound]] rapidjson::Value* current) {
     if (!keyPart.empty()) {
+        auto keyPartStr = std::string(keyPart); // Convert to std::string for rapidjson compatibility
+
         if (!current->IsObject()) {
             return nullptr;
         }
-        if (!current->HasMember(keyPart.c_str())) {
+        if (!current->HasMember(keyPartStr.c_str())) {
             return nullptr;
         }
-        return &(*current)[keyPart.c_str()];
+        return &(*current)[keyPartStr.c_str()];
     }
     return current;
 }
