@@ -12,6 +12,7 @@
 #include <mutex>
 #include <optional>
 #include <ranges>
+#include <span>
 #include <stdexcept>
 #include <string>
 #include <string_view>
@@ -108,17 +109,11 @@ void Json::flush(std::string_view const key) const {
 
 bool Json::getSubDocWithTransformations(std::string_view const key, Json& outDoc) const {
     auto args = splitKeyWithTransformations(key);
-    {
-        auto const& baseKey = args[0];
-
-        // Using getSubDoc to properly populate the tempDoc with the rapidjson::Value
-        // Slower than a manual copy that handles types, but more secure and less error-prone
-        outDoc = getSubDoc(baseKey);
-    }
-
-    // Apply each transformation in sequence
-    args.erase(args.begin());
-    return JsonTransformer::instance().parse(args, outDoc);
+    outDoc = getSubDoc(args[0]); // First argument is the base key, which we use to initialize the output document
+    return JsonTransformer::instance().parse(
+        std::span<std::string_view const>(args).subspan(1), // Skip the base key
+        outDoc
+    );
 }
 
 std::vector<std::string_view> Json::splitKeyWithTransformations(std::string_view const key) {
