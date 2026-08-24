@@ -37,6 +37,27 @@
 #include "Nebulite/Utility/StringHandler.hpp"
 
 //------------------------------------------
+namespace {
+bool isRelatedToKey(std::string_view key, std::string_view parentKey) {
+    // If the parent key is empty, all keys are considered related
+    if (parentKey.empty()) {
+        return true;
+    }
+
+    // If the key does not start with the parent key, or if they are equal, they are not related
+    if (!key.starts_with(parentKey) || key.length() == parentKey.length()) {
+        return false;
+    }
+
+    // At this point, we know that the key starts with the parent key and is longer than it.
+    // If the next character after the parent key is a dot or an array open bracket, then the key is related to the parent key.
+    char const next = key[parentKey.length()];
+    return next == Nebulite::Data::Json::SpecialCharacter::dot
+        || next == Nebulite::Data::Json::SpecialCharacter::arrayOpen;
+}
+} // namespace
+
+//------------------------------------------
 namespace Nebulite::Data {
 
 //------------------------------------------
@@ -45,10 +66,7 @@ namespace Nebulite::Data {
 void Json::synchronizeChildren(std::string_view const parentKey) const {
     // Find all child keys and invalidate them
     for (auto const& [key, entry] : cache) {
-        bool const base = key.starts_with(parentKey) && key.length() > parentKey.length();
-        bool const startsWithParentKeyPlusDot = base && key[parentKey.length()] == SpecialCharacter::dot;
-        bool const startsWithParentKeyPlusArr = base && key[parentKey.length()] == SpecialCharacter::arrayOpen;
-        if (bool const parentKeyIsRoot = parentKey.empty(); parentKeyIsRoot || startsWithParentKeyPlusDot || startsWithParentKeyPlusArr) {
+        if (isRelatedToKey(key, parentKey)) {
             if (auto const variant = RjDirectAccess::getSimpleValue(key, doc); variant.has_value()) {
                 entry->setValueClean(variant.value());
             }
@@ -221,17 +239,17 @@ std::expected<RjDirectAccess::SimpleValue, SimpleValueRetrievalError> Json::getV
             && Math::isEqualAllowNan(*entry->stableDoublePointer, entry->lastDoubleValue);
     })) {
         // Checking for malformed shouldn't be necessary, but just in case
-        auto const it = cache.find(key);
-        if (it.has_value() && it.value().state == CacheEntry::EntryState::malformed) {
+        auto const entry = cache.find(key);
+        if (entry.has_value() && entry.value().state == CacheEntry::EntryState::malformed) {
             Global::capture().error.println("Warning: Attempted to access malformed key in getVariant(): ", key);
             Global::capture().error.println("This is a serious logic issue, the malformed key check should have happened already. Please report to the developers!");
             return std::unexpected(SimpleValueRetrievalError::malformedKey);
         }
 
-        if (it.has_value() && it.value().state != CacheEntry::EntryState::deleted) {
+        if (entry.has_value() && entry.value().state != CacheEntry::EntryState::deleted) {
             // Entry exists and is not deleted
-            it.value().updateNumericValue();
-            return it.value().value;
+            entry.value().updateNumericValue();
+            return entry.value().value;
         }
     }
 
@@ -274,14 +292,14 @@ double* Json::getStableDoublePointer(std::string_view const key) const {
     }
 
     // Check cache first
-    if (auto const it = cache.find(key); it.has_value()) {
+    if (auto const entry = cache.find(key); entry.has_value()) {
         // If the entry is deleted, we need to update its value from the document
-        if (it.value().state == CacheEntry::EntryState::deleted) {
-            *it.value().stableDoublePointer = get<double>(key).value_or(0.0); // Default to 0.0 if retrieval fails
-            it.value().lastDoubleValue = *it.value().stableDoublePointer;
-            it.value().state = CacheEntry::EntryState::derived;
+        if (entry.value().state == CacheEntry::EntryState::deleted) {
+            *entry.value().stableDoublePointer = get<double>(key).value_or(0.0); // Default to 0.0 if retrieval fails
+            entry.value().lastDoubleValue = *entry.value().stableDoublePointer;
+            entry.value().state = CacheEntry::EntryState::derived;
         }
-        return it.value().stableDoublePointer;
+        return entry.value().stableDoublePointer;
     }
 
     // Try loading from document into cache
@@ -338,9 +356,9 @@ void Json::setVariant(std::string_view const key, RjDirectAccess::SimpleValue co
     }
 
     // Set value in cache
-    if (auto const it = cache.find(key); it.has_value()) {
+    if (auto const entry = cache.find(key); entry.has_value()) {
         // Existing cache value, structure validity guaranteed
-        it.value().setValueDirty(val);
+        entry.value().setValueDirty(val);
     } else {
         // New cache value, structural validity is not guaranteed
         // so we flush contents into the rapidjson document after inserting
@@ -349,8 +367,8 @@ void Json::setVariant(std::string_view const key, RjDirectAccess::SimpleValue co
         synchronizeChildren(key);
 
         // Create new entry directly in DIRTY state
-        cache.insert(key, [val](CacheEntry& entry) {
-            entry.setValueDirty(val);
+        cache.insert(key, [val](CacheEntry& newEntry) {
+            newEntry.setValueDirty(val);
         });
 
         // Flush to RapidJSON document for structural integrity
@@ -498,10 +516,10 @@ void Json::setConcatenative(std::string_view const key, std::string_view const v
     set<std::string>(key, current + valStr);
 
     // Update double pointer value to default NAN
-    if (auto const it = cache.find(key); it.has_value()) {
+    if (auto const entry = cache.find(key); entry.has_value()) {
         // Strings Default to 0
-        *it.value().stableDoublePointer = CacheEntry::standardNumericValue;
-        it.value().lastDoubleValue = CacheEntry::standardNumericValue;
+        *entry.value().stableDoublePointer = CacheEntry::standardNumericValue;
+        entry.value().lastDoubleValue = CacheEntry::standardNumericValue;
     }
 }
 
@@ -758,13 +776,13 @@ std::expected<RjDirectAccess::SimpleValue, SimpleValueRetrievalError> Json::getS
         // Check for simple value
         if (auto v = RjDirectAccess::getSimpleValue(val); v.has_value()) {
             // Since we already have a value, load it into the cache/update existing entry
-            if (auto it = cache.find(key); !it.has_value()) {
-                cache.insert(key, [v](CacheEntry& entry) {
-                    entry.setValueClean(v.value());
+            if (auto entry = cache.find(key); !entry.has_value()) {
+                cache.insert(key, [v](CacheEntry& newEntry) {
+                    newEntry.setValueClean(v.value());
                 });
             }
             else {
-                it.value().setValueClean(v.value());
+                entry.value().setValueClean(v.value());
             }
             return v.value();
         }
