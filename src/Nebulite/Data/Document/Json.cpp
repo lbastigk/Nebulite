@@ -28,6 +28,7 @@
 #include "Nebulite/Data/Document/JsonTransformer.hpp"
 #include "Nebulite/Data/Document/KeyType.hpp"
 #include "Nebulite/Data/Document/RjDirectAccess.hpp"
+#include "Nebulite/Data/Document/RjDirectAccess.tpp" // NOLINT TODO: why is this required?
 #include "Nebulite/Data/Document/SimpleValueError.hpp"
 #include "Nebulite/Math/Equality.hpp"
 #include "Nebulite/Module/Base/TransformationModule.hpp"
@@ -71,7 +72,7 @@ void Json::flush(std::string_view const key) const {
         // Every dirty entry is flushed back to the document and marked clean
         entry->updateNumericValue();
         if (entry->state == CacheEntry::EntryState::dirty) {
-            if (!RjDirectAccess::set(entryKey.c_str(), entry->value, doc, doc.GetAllocator())) {
+            if (!RjDirectAccess::set(entryKey, entry->value, doc, doc.GetAllocator())) {
                 throw std::runtime_error("Failed to flush key to document: " + std::string(entryKey));
             }
             entry->state = CacheEntry::EntryState::clean;
