@@ -103,6 +103,12 @@ class Json {
      */
     bool getSubDocWithTransformations(std::string_view key, Json& outDoc) const ;
 
+    /**
+     * @brief Splits a key string into its base key and transformation arguments.
+     * @param key The key string to split.
+     * @return A vector containing the base key and transformation arguments.
+     *         Guaranteed to have at least one element (the base key).
+     */
     static std::vector<std::string_view> splitKeyWithTransformations(std::string_view key);
 
     //------------------------------------------

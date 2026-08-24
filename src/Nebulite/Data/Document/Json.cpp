@@ -128,6 +128,7 @@ std::vector<std::string_view> Json::splitKeyWithTransformations(std::string_view
         // No key provided, assume root and push back an empty string
         result.insert(result.begin(), "");
     }
+    assert(!result.empty()); // Should always have at least one element (the base key)
     return result;
 }
 
