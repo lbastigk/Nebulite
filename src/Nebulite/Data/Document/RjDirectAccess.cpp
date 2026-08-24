@@ -81,11 +81,8 @@ rapidjson::Value* traverseIntoArray(std::string_view& keyView, rapidjson::Value*
     }
 
     // Extract index string between open and close array character
-    std::string_view const idxStr = keyView.substr(1, closeBracket - 1);
-    unsigned int index = 0;
-    try {
-        index = static_cast<unsigned int>(std::stoul(std::string(idxStr)));
-    } catch (...) {
+    auto index = Utility::Convert::Cast::String::to<unsigned int>(keyView.substr(1, closeBracket - 1));
+    if (!index.has_value()) {
         return nullptr; // invalid number
     }
 
@@ -95,13 +92,13 @@ rapidjson::Value* traverseIntoArray(std::string_view& keyView, rapidjson::Value*
     }
 
     // Check if array size is high enough
-    if (current->Size() <= index) {
+    if (current->Size() <= index.value()) {
         return nullptr;
     }
 
     // Remove processed '[index]'
     keyView.remove_prefix(closeBracket + 1);
-    return &(*current)[index];
+    return &(*current)[index.value()];
 }
 
 /**
@@ -189,11 +186,8 @@ rapidjson::Value* ensurePathIntoArray(std::string_view& keyView, rapidjson::Valu
     }
 
     // Extract index string between open and close array character
-    std::string_view const idxStr = keyView.substr(1, closeBracket - 1);
-    unsigned int index = 0;
-    try {
-        index = static_cast<unsigned int>(std::stoul(std::string(idxStr)));
-    } catch (...) {
+    auto index = Utility::Convert::Cast::String::to<unsigned int>(keyView.substr(1, closeBracket - 1));
+    if (!index.has_value()) {
         return nullptr; // invalid number
     }
 
@@ -203,14 +197,14 @@ rapidjson::Value* ensurePathIntoArray(std::string_view& keyView, rapidjson::Valu
     }
 
     // Expand array if needed
-    while (current->Size() <= index) {
+    while (current->Size() <= index.value()) {
         rapidjson::Value emptyObj(rapidjson::kObjectType);
         current->PushBack(emptyObj, allocator);
     }
 
     // Remove processed '[index]'
     keyView.remove_prefix(closeBracket + 1);
-    return &(*current)[index];
+    return &(*current)[index.value()];
 }
 
 } // namespace
