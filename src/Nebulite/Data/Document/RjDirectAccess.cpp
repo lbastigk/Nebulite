@@ -99,12 +99,14 @@ rapidjson::Value* traverseIntoArray(std::string_view& keyView, rapidjson::Value*
 }
 
 /**
- * @brief Extracts the next part of a key from a dot/bracket notation key string.
+ * @brief Extracts the next member of a key from a dot/bracket notation key string.
  *        Moves keyView forward past the extracted part.
  * @param keyView View to extract from and modify.
- * @return The extracted key part as a std::string.
+ * @return The extracted member as a std::string.
+ *         If the next part is an array index (e.g. "[11]"), the extracted member will be empty.
+ *         If the next part is a named array (e.g. "array[11]"), the extracted member will be "array".
  */
-std::string_view extractKeyPart(std::string_view& keyView) {
+std::string_view popMember(std::string_view& keyView) {
     // Find dot or array opening char as next separators
     auto const dotPos = keyView.find(SpecialCharacter::dot);
     auto const bracketPos = keyView.find(SpecialCharacter::arrayOpen);
@@ -130,27 +132,26 @@ std::string_view extractKeyPart(std::string_view& keyView) {
 
 } // namespace
 
-// TODO: does this work if the key starts with an array? Function isn't as clear as it could be, please refactor to make it more readable and understandable.
 rapidjson::Value* traversePath(std::string_view const key, [[clang::lifetimebound]] rapidjson::Value& val) {
     rapidjson::Value* current = &val;
     std::string_view keyView(key);
 
     while (!keyView.empty()) {
-        // Extract current key part (object key)
-        auto const keyPart = extractKeyPart(keyView);
+        // Extract next member, if available
+        auto const member = popMember(keyView);
 
         // Handle object key part if non-empty
-        current = traverseIntoObject(keyPart, current);
+        current = traverseIntoObject(member, current);
         if (!current) return nullptr;
 
-        // Now handle zero or more array indices if they appear next
+        // Check if next part is an array index and handle it
         while (!keyView.empty() && keyView[0] == SpecialCharacter::arrayOpen) {
             current = traverseIntoArray(keyView, current);
             if (!current) return nullptr;
         }
 
-        // If next character is dot, skip it and continue
-        if (!keyView.empty() && keyView[0] == SpecialCharacter::dot) {
+        // Skip any dot separators before the next iteration
+        while (!keyView.empty() && keyView[0] == SpecialCharacter::dot) {
             keyView.remove_prefix(1);
         }
     }
@@ -262,11 +263,11 @@ rapidjson::Value* ensurePath(std::string_view const key, [[clang::lifetimebound]
     std::string_view keyView(key);
 
     while (!keyView.empty()) {
-        // Extract current key part (object key)
-        auto const keyPart = extractKeyPart(keyView);
+        // Extract next member, if available
+        auto const member = popMember(keyView);
 
-        // Handle object key part if non-empty
-        current = ensurePathIntoObject(keyPart, current, allocator);
+        // Walk into the next member, creating objects as needed
+        current = ensurePathIntoObject(member, current, allocator);
         if (!current) return nullptr;
 
         // Now handle zero or more array indices if they appear next
@@ -461,9 +462,9 @@ bool isValidKey(std::string_view const key) {
     while (!keyView.empty()) {
         // Extract current key part (object key)
         // Validate object key part if non-empty
-        if (auto const keyPart = extractKeyPart(keyView); !keyPart.empty()) {
-            // Check for invalid characters in keyPart
-            if (keyPart.find_first_of("[]") != std::string_view::npos) {
+        if (auto const member = popMember(keyView); !member.empty()) {
+            // Check for invalid characters in member name
+            if (member.find_first_of("[]") != std::string_view::npos) {
                 return false; // Invalid character found
             }
         }
