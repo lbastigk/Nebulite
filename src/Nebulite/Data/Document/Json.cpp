@@ -64,15 +64,19 @@ namespace Nebulite::Data {
 // Cache System
 
 void Json::synchronizeChildren(std::string_view const parentKey) const {
+    auto cacheToSync = cache
+        | std::views::filter([&](auto& pair) {
+            auto const& [entryKey, entry] = pair;
+            return isRelatedToKey(entryKey, parentKey);
+        });
+
     // Find all child keys and invalidate them
-    for (auto const& [key, entry] : cache) {
-        if (isRelatedToKey(key, parentKey)) {
-            if (auto const variant = RjDirectAccess::getSimpleValue(key, doc); variant.has_value()) {
-                entry->setValueClean(variant.value());
-            }
-            else {
-                entry->markAsDeleted();
-            }
+    for (auto const& [key, entry] : cacheToSync) {
+        if (auto const variant = RjDirectAccess::getSimpleValue(key, doc); variant.has_value()) {
+            entry->setValueClean(variant.value());
+        }
+        else {
+            entry->markAsDeleted();
         }
     }
 }
@@ -80,14 +84,14 @@ void Json::synchronizeChildren(std::string_view const parentKey) const {
 void Json::flush(std::string_view const key) const {
     auto const parent = findParentKey(key);
 
-    for (auto const& [entryKey, entry] : cache) {
-        if (!entryKey.starts_with(parent)) continue;
+    auto cacheToSync = cache
+        | std::views::filter([&](auto& pair) {
+            auto const& [entryKey, entry] = pair;
+            return entry->state != CacheEntry::EntryState::malformed
+                && entryKey.starts_with(parent);
+        });
 
-        // Skip malformed entries
-        if (entry->state == CacheEntry::EntryState::malformed) {
-            continue;
-        }
-
+    for (auto const& [entryKey, entry] : cacheToSync) {
         // Every dirty entry is flushed back to the document and marked clean
         entry->updateNumericValue();
         if (entry->state == CacheEntry::EntryState::dirty) {
