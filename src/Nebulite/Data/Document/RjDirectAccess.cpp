@@ -159,6 +159,54 @@ rapidjson::Value* traversePath(std::string_view const key, [[clang::lifetimeboun
     return current;
 }
 
+traverseResult traverseToParent(std::string_view keyStr, [[clang::lifetimebound]] rapidjson::Value& root) {
+    auto const lastDot = keyStr.find_last_of(SpecialCharacter::dot);
+    auto const lastBracket = keyStr.find_last_of(SpecialCharacter::arrayOpen);
+
+    if (lastBracket != std::string::npos && (lastDot == std::string::npos || lastBracket > lastDot)) {
+        // Last access is array index: var.subVar[2] or var[2]
+        auto const openBracket = keyStr.find_last_of(SpecialCharacter::arrayOpen);
+        if (auto const closeBracket = keyStr.find_last_of(SpecialCharacter::arrayClose); openBracket != std::string::npos && closeBracket != std::string::npos && closeBracket > openBracket) {
+            auto const parentPath = keyStr.substr(0, openBracket);
+            auto const indexStr = keyStr.substr(openBracket + 1, closeBracket - openBracket - 1);
+
+            auto idx = Utility::Convert::Cast::String::to<int>(indexStr);
+            if (!idx.has_value()){ // Invalid index
+                return {
+                    .parent=nullptr,
+                    .poppedMember="",
+                    .poppedIndex=-1
+                };
+            }
+            if (parentPath.empty()) { // Parent is root
+                return {
+                    .parent=&root,
+                    .poppedMember="",
+                    .poppedIndex=idx.value()
+                };
+            }
+            return {
+                .parent=traversePath(parentPath, root),
+                .poppedMember="",
+                .poppedIndex=idx.value()
+            };
+        }
+    }
+    if (lastDot != std::string::npos) {
+        // Last access is object member: var.subVar.finalKey
+        return {
+            .parent=traversePath(keyStr.substr(0, lastDot), root),
+            .poppedMember=keyStr.substr(lastDot + 1),
+            .poppedIndex=-1
+        };
+    }
+    return {
+        .parent=nullptr,
+        .poppedMember="",
+        .poppedIndex=-1
+    };
+}
+
 namespace {
 
 rapidjson::Value* ensurePathIntoObject(std::string_view const keyPart, [[clang::lifetimebound]] rapidjson::Value* current, rapidjson::Document::AllocatorType& allocator) {
@@ -238,57 +286,8 @@ rapidjson::Value* ensurePath(std::string_view const key, [[clang::lifetimebound]
     return current;
 }
 
-traverseResult traverseToParent(std::string_view keyStr, [[clang::lifetimebound]] rapidjson::Value& root) {
-    auto const lastDot = keyStr.find_last_of(SpecialCharacter::dot);
-    auto const lastBracket = keyStr.find_last_of(SpecialCharacter::arrayOpen);
-
-    if (lastBracket != std::string::npos && (lastDot == std::string::npos || lastBracket > lastDot)) {
-        // Last access is array index: var.subVar[2] or var[2]
-        auto const openBracket = keyStr.find_last_of(SpecialCharacter::arrayOpen);
-        if (auto const closeBracket = keyStr.find_last_of(SpecialCharacter::arrayClose); openBracket != std::string::npos && closeBracket != std::string::npos && closeBracket > openBracket) {
-            auto const parentPath = keyStr.substr(0, openBracket);
-            auto const indexStr = keyStr.substr(openBracket + 1, closeBracket - openBracket - 1);
-
-            auto idx = Utility::Convert::Cast::String::to<int>(indexStr);
-            if (!idx.has_value()){ // Invalid index
-                return {
-                    .parent=nullptr,
-                    .poppedMember="",
-                    .poppedIndex=-1
-                };
-            }
-            if (parentPath.empty()) { // Parent is root
-                return {
-                    .parent=&root,
-                    .poppedMember="",
-                    .poppedIndex=idx.value()
-                };
-            }
-            return {
-                .parent=traversePath(parentPath, root),
-                .poppedMember="",
-                .poppedIndex=idx.value()
-            };
-        }
-    }
-    if (lastDot != std::string::npos) {
-        // Last access is object member: var.subVar.finalKey
-        return {
-            .parent=traversePath(keyStr.substr(0, lastDot), root),
-            .poppedMember=keyStr.substr(lastDot + 1),
-            .poppedIndex=-1
-        };
-    }
-    return {
-        .parent=nullptr,
-        .poppedMember="",
-        .poppedIndex=-1
-    };
-}
-
 //------------------------------------------
 // Serialization/Deserialization
-
 
 std::string serialize(rapidjson::Document const& doc, SerializationType type) {
     // Determine writer type
@@ -365,10 +364,18 @@ void deserialize(rapidjson::Document& doc, std::string_view const serialOrLink) 
     }
 
     // Strip JSONC comments before parsing
-    auto const cleanJson = stripComments(jsonString);
-    if (rapidjson::ParseResult const res = doc.Parse(cleanJson.c_str()); !res) {
+    if (Utility::StringHandler::isNullTerminated(jsonString)) {
+        auto const* nullTerminatedData = jsonString.data(); // Safe to use directly since it's null-terminated
+        if (rapidjson::ParseResult const res = doc.Parse<rapidjsonParseFlags>(nullTerminatedData); !res) {
+            Global::capture().error.println("JSON Parse Error at offset ", res.Offset(), ". String is:");
+            Global::capture().error.println(nullTerminatedData);
+        }
+        return;
+    }
+    auto strCopy = std::string(jsonString); // Make a copy to ensure null-termination
+    if (rapidjson::ParseResult const res = doc.Parse<rapidjsonParseFlags>(strCopy.c_str()); !res) {
         Global::capture().error.println("JSON Parse Error at offset ", res.Offset(), ". String is:");
-        Global::capture().error.println(cleanJson);
+        Global::capture().error.println(strCopy);
     }
 }
 
@@ -403,92 +410,14 @@ rapidjson::Value sortRecursive(rapidjson::Value const& value, rapidjson::Documen
     return {value, allocator};
 }
 
-/**
- * @brief Helpers for comment stripping
- */
-namespace {
-struct ParseState {
-    bool inString = false;
-    bool inSingleComment = false;
-    bool inMultiComment = false;
-    bool escaped = false;
-};
-
-bool handleSingleLineComment(char const c, ParseState& state, std::string& result) {
-    if (c == '\n') {
-        state.inSingleComment = false;
-        result += c; // Preserve newline for line counting
-    }
-    return true; // Character was handled
-}
-
-bool handleMultiLineComment(char const c, char const next, ParseState& state, std::size_t& skipNext) {
-    if (c == '*' && next == '/') {
-        state.inMultiComment = false;
-        skipNext = 1; // Skip the '/'
-    }
-    return true; // Character was handled
-}
-
-bool handleStringContent(char const c, ParseState& state, std::string& result) {
-    result += c;
-    if (state.escaped) {
-        state.escaped = false;
-    } else if (c == '\\') {
-        state.escaped = true;
-    } else if (c == '"') {
-        state.inString = false;
-    }
-    return true; // Character was handled
-}
-
-bool handleRegularContent(char const c, char const next, ParseState& state, std::string& result, std::size_t& skipNext) {
-    if (c == '"') {
-        state.inString = true;
-        result += c;
-    } else if (c == '/' && next == '/') {
-        state.inSingleComment = true;
-        skipNext = 1; // Skip the second '/'
-    } else if (c == '/' && next == '*') {
-        state.inMultiComment = true;
-        skipNext = 1; // Skip the '*'
-    } else {
-        result += c;
-    }
-    return true; // Character was handled
-}
-} // namespace
-
-std::string stripComments(std::string_view const jsonc) {
-    std::string result;
-    result.reserve(jsonc.size());
-    ParseState state;
-    for (std::size_t i = 0; i < jsonc.size(); ++i) {
-        char const c = jsonc[i];
-        char const next = i + 1 < jsonc.size() ? jsonc[i + 1] : '\0';
-        std::size_t skipNext = 0;
-
-        if (state.inSingleComment) {
-            handleSingleLineComment(c, state, result);
-        } else if (state.inMultiComment) {
-            handleMultiLineComment(c, next, state, skipNext);
-        } else if (state.inString) {
-            handleStringContent(c, state, result);
-        } else {
-            handleRegularContent(c, next, state, result, skipNext);
-        }
-
-        i += skipNext; // Skip additional characters if needed
-    }
-    return result;
-}
-
 bool isJsonOrJsonc(std::string_view const str) {
-    // Complicated check using RapidJSON parsing
-    // Simpler check is just not worth it due to various valid JSON formats
     rapidjson::Document doc;
-    auto const cleanJson = stripComments(str);
-    return !doc.Parse(cleanJson.c_str()).HasParseError();
+    if (Utility::StringHandler::isNullTerminated(str)) {
+        auto const* nullTerminatedData = str.data(); // Safe to use directly since it's null-terminated
+        return !doc.Parse<rapidjsonParseFlags>(nullTerminatedData).HasParseError();
+    }
+    auto strCopy = std::string(str); // Make a copy to ensure null-termination
+    return !doc.Parse<rapidjsonParseFlags>(strCopy.c_str()).HasParseError();
 }
 
 //------------------------------------------

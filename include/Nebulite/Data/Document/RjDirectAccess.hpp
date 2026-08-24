@@ -14,6 +14,7 @@
 
 // External
 #include <rapidjson/document.h>
+#include <rapidjson/reader.h>
 
 //------------------------------------------
 /**
@@ -21,6 +22,11 @@
  * @brief Provides direct access and manipulation of RapidJSON values.
  */
 namespace Nebulite::Data::RjDirectAccess {
+    /**
+     * @brief Used flags for rapidjson parsing, allowing comments and trailing commas in JSON.
+     */
+    static auto constexpr rapidjsonParseFlags = rapidjson::kParseCommentsFlag | rapidjson::kParseTrailingCommasFlag;
+
     /**
      * @brief Definition of a simple value variant type.
      *        All of these types are supported for direct access.
@@ -136,17 +142,8 @@ namespace Nebulite::Data::RjDirectAccess {
     rapidjson::Value* traversePath(std::string_view key, rapidjson::Value& val);
 
     /**
-     * @brief Traverses a rapidjson value to find or create a value within identified by its key.
-     *
-     * @param key The key to search for.
-     * @param val The rapidjson value to search within.
-     * @param allocator The allocator to use for creating new values.
-     * @return A pointer to the found or created rapidjson value.
-     *         Note that the returned value may be nullptr if the given key is invalid
-     *         (e.g., trying to index into a non-array or using a malformed index).
+     * @brief Structure to hold the result of traversing a rapidjson value to find the parent of a value identified by its key.
      */
-    rapidjson::Value* ensurePath(std::string_view key, rapidjson::Value& val, rapidjson::Document::AllocatorType& allocator);
-
     struct traverseResult {
         rapidjson::Value* parent;
         std::string_view poppedMember;
@@ -163,6 +160,18 @@ namespace Nebulite::Data::RjDirectAccess {
      * @return A traverseResult containing the parent value and traversal information.
      */
     traverseResult traverseToParent(std::string_view keyStr, rapidjson::Value& root);
+
+    /**
+     * @brief Traverses a rapidjson value to find or create a value within identified by its key.
+     *
+     * @param key The key to search for.
+     * @param val The rapidjson value to search within.
+     * @param allocator The allocator to use for creating new values.
+     * @return A pointer to the found or created rapidjson value.
+     *         Note that the returned value may be nullptr if the given key is invalid
+     *         (e.g., trying to index into a non-array or using a malformed index).
+     */
+    rapidjson::Value* ensurePath(std::string_view key, rapidjson::Value& val, rapidjson::Document::AllocatorType& allocator);
 
     //------------------------------------------
     // Serialization/Deserialization
