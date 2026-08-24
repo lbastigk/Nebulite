@@ -4,6 +4,7 @@
 // Standard library
 #include <algorithm>
 #include <array>
+#include <cassert>
 #include <cstddef>
 #include <cstdint> // NOLINT
 #include <expected>
@@ -425,27 +426,15 @@ void Json::setEmptyObject(std::string_view const key) {
 //------------------------------------------
 // Special sets for threadsafe maths operations
 
-// TODO: optimize by avoiding double cache lookups
-// special get-function that returns the cache pointer instead of value
+// TODO: add a lock-free setVariant and getVariant to reduce locking.
 
 void Json::setAdditive(std::string_view const key, double const val) {
     std::scoped_lock const lockGuard(mtx);
 
     // Get current value
     auto const current = get<double>(key).value_or(CacheEntry::standardNumericValue); // Default to 0 if retrieval fails
-    double const newValue = current + val;
-
-    // Update double pointer value
-    if (auto it = cache.find(key); it.has_value()) {
-        *it.value().stableDoublePointer = newValue;
-    } else {
-        set<double>(key, newValue);
-        it = cache.find(key);
-        if (it.has_value()) {
-            *it.value().stableDoublePointer = newValue;
-            it.value().lastDoubleValue = newValue;
-        }
-    }
+    setVariant(key, current + val);
+    assert(cache.find(key).has_value()); // Ensure the key was inserted
 }
 
 void Json::setAdditive(std::string_view const key, std::int64_t const val) {
@@ -476,19 +465,8 @@ void Json::setMultiplicative(std::string_view const key, double const val) {
 
     // Get current value
     auto const current = get<double>(key).value_or(CacheEntry::standardNumericValue); // Default to 0 if retrieval fails
-    double const newValue = current * val;
-
-    // Update double pointer value
-    if (auto it = cache.find(key); it.has_value()) {
-        *it.value().stableDoublePointer = newValue;
-    } else {
-        set<double>(key, newValue);
-        it = cache.find(key);
-        if (it.has_value()) {
-            *it.value().stableDoublePointer = newValue;
-            it.value().lastDoubleValue = newValue;
-        }
-    }
+    setVariant(key, current * val);
+    assert(cache.find(key).has_value()); // Ensure the key was inserted
 }
 
 void Json::setMultiplicative(std::string_view const key, std::int64_t const val) {
