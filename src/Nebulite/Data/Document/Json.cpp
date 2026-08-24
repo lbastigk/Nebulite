@@ -284,14 +284,13 @@ double* Json::getStableDoublePointer(std::string_view const key) const {
 
     // Try loading from document into cache
     if (rapidjson::Value const* val = RjDirectAccess::traversePath(key, doc); val != nullptr) {
-        auto const& v = RjDirectAccess::getSimpleValue(val);
-        if(v.has_value()) {
+        if (auto const& v = RjDirectAccess::getSimpleValue(val); v.has_value()) {
             // Insert into cache and return value
             return cache.insertAndGet<double*>(
                 key,
                 [v](CacheEntry& entry) {
                     entry.setValueClean(v.value());
-                }, [](CacheEntry& entry) {
+                }, [](CacheEntry const& entry) {
                     return entry.stableDoublePointer;
                 }
             );
@@ -307,7 +306,7 @@ double* Json::getStableDoublePointer(std::string_view const key) const {
             entry.lastDoubleValue = CacheEntry::standardNumericValue;
             entry.state = CacheEntry::EntryState::derived;
         },
-        [](CacheEntry& entry) {
+        [](CacheEntry const& entry) {
             return entry.stableDoublePointer;
         }
     );
@@ -760,7 +759,6 @@ void Json::deserialize(std::string_view const serialOrLink) {
 
     // Reset document and cache
     flush("");
-    doc.SetObject();
     for (auto const& entry : std::views::values(cache)) {
         entry->markAsDeleted();
     }
