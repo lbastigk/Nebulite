@@ -22,6 +22,7 @@
 #include "Nebulite/Core/GlobalSpace.hpp"
 #include "Nebulite/Data/Document/RjDirectAccess.hpp"
 #include "Nebulite/Nebulite.hpp"
+#include "Nebulite/Utility/Convert/Cast.hpp"
 #include "Nebulite/Utility/Io/Capture.hpp"
 #include "Nebulite/Utility/StringHandler.hpp"
 
@@ -235,37 +236,52 @@ rapidjson::Value* ensurePath(std::string_view const key, [[clang::lifetimebound]
     return current;
 }
 
-rapidjson::Value* traverseToParent(std::string_view const fullKey, [[clang::lifetimebound]] rapidjson::Value& root, std::string& finalKey, int& arrayIndex) {
-    std::string const keyStr(fullKey);
+traverseResult traverseToParent(std::string_view keyStr, [[clang::lifetimebound]] rapidjson::Value& root) {
     std::size_t const lastDot = keyStr.find_last_of(SpecialCharacter::dot);
     std::size_t const lastBracket = keyStr.find_last_of(SpecialCharacter::arrayOpen);
 
-    rapidjson::Value* parent = nullptr;
     if (lastBracket != std::string::npos && (lastDot == std::string::npos || lastBracket > lastDot)) {
         // Last access is array index: var.subVar[2] or var[2]
         std::size_t const openBracket = keyStr.find_last_of(SpecialCharacter::arrayOpen);
         if (std::size_t const closeBracket = keyStr.find_last_of(SpecialCharacter::arrayClose); openBracket != std::string::npos && closeBracket != std::string::npos && closeBracket > openBracket) {
-            std::string const parentPath = keyStr.substr(0, openBracket);
-            std::string const indexStr = keyStr.substr(openBracket + 1, closeBracket - openBracket - 1);
+            auto const parentPath = keyStr.substr(0, openBracket);
+            auto const indexStr = keyStr.substr(openBracket + 1, closeBracket - openBracket - 1);
 
-            try {
-                arrayIndex = std::stoi(indexStr);
-                if (parentPath.empty()) {
-                    parent = &root;
-                } else {
-                    parent = traversePath(parentPath, root);
-                }
-            } catch (...) {
-                return nullptr; // Invalid index
+            auto idx = Utility::Convert::Cast::String::to<int>(indexStr);
+            if (!idx.has_value()){ // Invalid index
+                return {
+                    .parent=nullptr,
+                    .poppedMember="",
+                    .poppedIndex=-1
+                };
             }
+            if (parentPath.empty()) { // Parent is root
+                return {
+                    .parent=&root,
+                    .poppedMember="",
+                    .poppedIndex=idx.value()
+                };
+            }
+            return {
+                .parent=traversePath(parentPath, root),
+                .poppedMember="",
+                .poppedIndex=idx.value()
+            };
         }
-    } else if (lastDot != std::string::npos) {
-        // Last access is object member: var.subVar.finalKey
-        std::string const parentPath = keyStr.substr(0, lastDot);
-        finalKey = keyStr.substr(lastDot + 1);
-        parent = traversePath(parentPath, root);
     }
-    return parent;
+    if (lastDot != std::string::npos) {
+        // Last access is object member: var.subVar.finalKey
+        return {
+            .parent=traversePath(keyStr.substr(0, lastDot), root),
+            .poppedMember=keyStr.substr(lastDot + 1),
+            .poppedIndex=-1
+        };
+    }
+    return {
+        .parent=nullptr,
+        .poppedMember="",
+        .poppedIndex=-1
+    };
 }
 
 //------------------------------------------
@@ -504,21 +520,21 @@ void removeMember(std::string_view const key, rapidjson::Value& val) {
     // - parent[index]
     // - parent.child[index]
     // Remove the final key/index from parent
-    std::string finalKey;
-    int arrayIndex = -1;
-    if (auto* parent = traverseToParent(key, val, finalKey, arrayIndex); parent != nullptr) {
-        if (arrayIndex >= 0) {
+    if (auto [parent, poppedMember, poppedIndex] = traverseToParent(key, val); parent != nullptr) {
+        if (poppedIndex >= 0) {
             // Remove an array element
-            if (!finalKey.empty()) {
-                parent[arrayIndex].RemoveMember(finalKey.c_str());
+            if (!poppedMember.empty()) {
+                std::string const finalKeyStr(poppedMember);
+                parent[poppedIndex].RemoveMember(finalKeyStr.c_str());
             // NOLINTNEXTLINE
-            } else if (parent->IsArray() && arrayIndex < static_cast<int>(parent->Size())) {
-                parent->Erase(parent->Begin() + arrayIndex);
+            } else if (parent->IsArray() && poppedIndex < static_cast<int>(parent->Size())) {
+                parent->Erase(parent->Begin() + poppedIndex);
             }
-        } else if (!finalKey.empty()) {
+        } else if (!poppedMember.empty()) {
+            std::string const finalKeyStr(poppedMember);
             // Remove object member
-            if (parent->IsObject() && parent->HasMember(finalKey.c_str())) {
-                parent->RemoveMember(finalKey.c_str());
+            if (parent->IsObject() && parent->HasMember(finalKeyStr.c_str())) {
+                parent->RemoveMember(finalKeyStr.c_str());
             }
         }
     }

@@ -147,18 +147,22 @@ namespace Nebulite::Data::RjDirectAccess {
      */
     rapidjson::Value* ensurePath(std::string_view key, rapidjson::Value& val, rapidjson::Document::AllocatorType& allocator);
 
+    struct traverseResult {
+        rapidjson::Value* parent;
+        std::string_view poppedMember;
+        int poppedIndex;
+    };
+
     /**
      * @brief Traverses a rapidjson value to find the parent of a value identified by its key.
-     *        - `parent.child`           -> returns `parent`,       finalKey = `child`,   arrayIndex = -1
-     *        - `parent.child[index]`    -> returns `parent.child`, finalKey = `child`,   arrayIndex = index
-     *        - `parent[index]`          -> returns `parent`,       finalKey = "",        arrayIndex = index
-     * @param fullKey The key to search for.
+     *        - `parent.child`           -> returns `parent`,       poppedMember = `child`,   poppedIndex = -1
+     *        - `parent.child[index]`    -> returns `parent.child`, poppedMember = `child`,   poppedIndex = index
+     *        - `parent[index]`          -> returns `parent`,       poppedMember = "",        poppedIndex = index
+     * @param keyStr The child key
      * @param root The rapidjson value to search within.
-     * @param finalKey The final key or index of the value to find the parent of.
-     * @param arrayIndex The index if the final key is an array index, -1 otherwise.
-     * @return A pointer to the parent rapidjson value, or nullptr if not found
+     * @return A traverseResult containing the parent value and traversal information.
      */
-    rapidjson::Value* traverseToParent(std::string_view fullKey, rapidjson::Value& root, std::string& finalKey, int& arrayIndex);
+    traverseResult traverseToParent(std::string_view keyStr, rapidjson::Value& root);
 
     //------------------------------------------
     // Serialization/Deserialization
