@@ -90,5 +90,5 @@ protected:
     }
 };
 } // namespace Nebulite::Module::Base
-#include "DomainModule.tpp" // NOLINT(misc-include-cleaner)
+#include "Nebulite/Module/Base/DomainModule.tpp" // NOLINT(misc-include-cleaner)
 #endif // NEBULITE_MODULE_BASE_DOMAINMODULE_HPP
