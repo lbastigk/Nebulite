@@ -457,8 +457,7 @@ void removeMember(std::string_view const key, rapidjson::Value& val) {
     }
 }
 
-bool isValidKey(std::string_view const key) {
-    std::string_view keyView(key);
+bool isValidKey(std::string_view keyView) {
     while (!keyView.empty()) {
         // Extract current key part (object key)
         // Validate object key part if non-empty
