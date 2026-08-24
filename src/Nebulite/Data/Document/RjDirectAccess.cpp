@@ -62,7 +62,7 @@ rapidjson::Value* traverseIntoObject(std::string_view const member, [[clang::lif
     auto const memberValue = rapidjson::Value{
         rapidjson::StringRef(member.data(), member.size())
     };
-    auto it = current->FindMember(memberValue);
+    auto const it = current->FindMember(memberValue);
     if (it == current->MemberEnd()) {
         return nullptr;
     }
@@ -78,7 +78,7 @@ rapidjson::Value* traverseIntoArray(std::string_view& keyView, rapidjson::Value*
     }
 
     // Extract index string between open and close array character
-    auto index = Utility::Convert::Cast::String::to<unsigned int>(keyView.substr(1, closeBracket - 1));
+    auto const index = Utility::Convert::Cast::String::to<unsigned int>(keyView.substr(1, closeBracket - 1));
     if (!index.has_value()) {
         return nullptr; // invalid number
     }
@@ -157,18 +157,16 @@ rapidjson::Value* traversePath(std::string_view const key, [[clang::lifetimeboun
     return current;
 }
 
-traverseResult traverseToParent(std::string_view keyStr, [[clang::lifetimebound]] rapidjson::Value& root) {
+TraverseResult traverseToParent(std::string_view const keyStr, [[clang::lifetimebound]] rapidjson::Value& root) {
     auto const lastDot = keyStr.find_last_of(SpecialCharacter::dot);
-    auto const lastBracket = keyStr.find_last_of(SpecialCharacter::arrayOpen);
-
-    if (lastBracket != std::string::npos && (lastDot == std::string::npos || lastBracket > lastDot)) {
+    if (auto const lastBracket = keyStr.find_last_of(SpecialCharacter::arrayOpen); lastBracket != std::string::npos && (lastDot == std::string::npos || lastBracket > lastDot)) {
         // Last access is array index: var.subVar[2] or var[2]
         auto const openBracket = keyStr.find_last_of(SpecialCharacter::arrayOpen);
         if (auto const closeBracket = keyStr.find_last_of(SpecialCharacter::arrayClose); openBracket != std::string::npos && closeBracket != std::string::npos && closeBracket > openBracket) {
             auto const parentPath = keyStr.substr(0, openBracket);
             auto const indexStr = keyStr.substr(openBracket + 1, closeBracket - openBracket - 1);
 
-            auto idx = Utility::Convert::Cast::String::to<int>(indexStr);
+            auto const idx = Utility::Convert::Cast::String::to<int>(indexStr);
             if (!idx.has_value()){ // Invalid index
                 return {
                     .parent=nullptr,
@@ -212,7 +210,7 @@ rapidjson::Value* ensurePathIntoObject(std::string_view const member, [[clang::l
     if (!current->IsObject()) current->SetObject();
 
     rapidjson::Value const lookup(rapidjson::StringRef(member.data(), member.size()));
-    auto it = current->FindMember(lookup);
+    auto const it = current->FindMember(lookup);
     if (it != current->MemberEnd()) {
         return &it->value;
     }
@@ -236,7 +234,7 @@ rapidjson::Value* ensurePathIntoArray(std::string_view& keyView, rapidjson::Valu
     }
 
     // Extract index string between open and close array character
-    auto index = Utility::Convert::Cast::String::to<unsigned int>(keyView.substr(1, closeBracket - 1));
+    auto const index = Utility::Convert::Cast::String::to<unsigned int>(keyView.substr(1, closeBracket - 1));
     if (!index.has_value()) {
         return nullptr; // invalid number
     }
@@ -360,7 +358,8 @@ void deserialize(rapidjson::Document& doc, std::string_view const serialOrLink) 
 
 void deserializeFromJson(rapidjson::Document& doc, std::string_view json){
     assert(isJsonOrJsonc(json) && "Input string is not valid JSON or JSONC format.");
-    auto serial = rapidjson::StringRef(json.data(), json.size());
+    auto const serial = rapidjson::StringRef(json.data(), json.size());
+    doc.SetObject(); // Empty the document before parsing
     if (rapidjson::ParseResult const res = doc.Parse<rapidjsonParseFlags>(serial); !res) {
         Global::capture().error.println("JSON Parse Error at offset ", res.Offset(), ". String is:");
         Global::capture().error.println(json);
@@ -404,7 +403,7 @@ bool isJsonOrJsonc(std::string_view const str) {
         auto const* nullTerminatedData = str.data(); // Safe to use directly since it's null-terminated
         return !doc.Parse<rapidjsonParseFlags>(nullTerminatedData).HasParseError();
     }
-    auto strCopy = std::string(str); // Make a copy to ensure null-termination
+    auto const strCopy = std::string(str); // Make a copy to ensure null-termination
     return !doc.Parse<rapidjsonParseFlags>(strCopy.c_str()).HasParseError();
 }
 
@@ -425,8 +424,7 @@ void removeMember(std::string_view const key, rapidjson::Value& val) {
 
     // Handle simple case: direct member of root document
     if (!key.contains(SpecialCharacter::dot) && !key.contains(SpecialCharacter::arrayOpen)) {
-        rapidjson::Value const member(rapidjson::StringRef(key.data(), key.size()));
-        if (val.HasMember(member)) {
+        if (rapidjson::Value const member(rapidjson::StringRef(key.data(), key.size())); val.HasMember(member)) {
             val.RemoveMember(member);
         }
         return;
@@ -450,9 +448,8 @@ void removeMember(std::string_view const key, rapidjson::Value& val) {
                 parent->Erase(parent->Begin() + poppedIndex);
             }
         } else if (!poppedMember.empty()) {
-            rapidjson::Value const finalKey(rapidjson::StringRef(poppedMember.data(), poppedMember.size()));
             // Remove object member
-            if (parent->IsObject() && parent->HasMember(finalKey)) {
+            if (rapidjson::Value const finalKey(rapidjson::StringRef(poppedMember.data(), poppedMember.size())); parent->IsObject() && parent->HasMember(finalKey)) {
                 parent->RemoveMember(finalKey);
             }
         }

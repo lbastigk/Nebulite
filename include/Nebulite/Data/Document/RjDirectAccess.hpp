@@ -144,7 +144,7 @@ namespace Nebulite::Data::RjDirectAccess {
     /**
      * @brief Structure to hold the result of traversing a rapidjson value to find the parent of a value identified by its key.
      */
-    struct traverseResult {
+    struct TraverseResult {
         rapidjson::Value* parent;
         std::string_view poppedMember;
         int poppedIndex;
@@ -159,7 +159,7 @@ namespace Nebulite::Data::RjDirectAccess {
      * @param root The rapidjson value to search within.
      * @return A traverseResult containing the parent value and traversal information.
      */
-    traverseResult traverseToParent(std::string_view keyStr, rapidjson::Value& root);
+    TraverseResult traverseToParent(std::string_view keyStr, rapidjson::Value& root);
 
     /**
      * @brief Traverses a rapidjson value to find or create a value within identified by its key.
@@ -274,5 +274,5 @@ namespace Nebulite::Data::RjDirectAccess {
         static auto constexpr dot = '.';
     };
 } // namespace Nebulite::Data::RjDirectAccess
-#include "RjDirectAccess.tpp" // NOLINT(misc-include-cleaner)
+#include "Nebulite/Data/Document/RjDirectAccess.tpp" // NOLINT(misc-include-cleaner)
 #endif // NEBULITE_DATA_DOCUMENT_RJDIRECTACCESS_HPP

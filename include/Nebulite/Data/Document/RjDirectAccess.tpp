@@ -267,8 +267,7 @@ template <> inline void convertFromJsonValue(rapidjson::Value const& jsonValue, 
     if (jsonValue.IsNumber()) {
         result = jsonValue.GetDouble();
     } else if (jsonValue.IsString()) {
-        auto const converted = Utility::Convert::Cast::String::to<double>(jsonValue.GetString());
-        if (converted.has_value()) {
+        if (auto const converted = Utility::Convert::Cast::String::to<double>(jsonValue.GetString()); converted.has_value()) {
             result = converted.value();
         } else {
             result = defaultValue;
