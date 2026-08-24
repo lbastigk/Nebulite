@@ -113,7 +113,7 @@ std::pair<std::string_view, std::string_view> DocumentCache::splitDocKey(std::st
 
     if (pos == std::string::npos) {
         // No colon found, meaning the entire string is document name/link
-        return {std::string(docAndKey), ""};
+        return {docAndKey, ""};
     }
 
     if (pos == barPos) {
