@@ -71,8 +71,18 @@ namespace Nebulite::Data::RjDirectAccess {
      * @param val The rapidjson value to search within.
      * @return The retrieved value or the default value.
      */
-    template <typename T>
-    T get(char const* key, T const& defaultValue, rapidjson::Value& val);
+    template <typename T> requires (std::is_trivially_copyable_v<T>)
+    T get(std::string_view key, T defaultValue, rapidjson::Value& val);
+
+    /**
+     * @brief Fallback to direct rapidjson access for getting values.
+     * @param key The key of the value to retrieve.
+     * @param defaultValue The default value to return if the key is not found.
+     * @param val The rapidjson value to search within.
+     * @return The retrieved value or the default value.
+     */
+    template <typename T> requires (!std::is_trivially_copyable_v<T>)
+    T get(std::string_view key, T const& defaultValue, rapidjson::Value& val);
 
     /**
      * @brief Fallback to direct rapidjson access for setting values.
@@ -84,8 +94,21 @@ namespace Nebulite::Data::RjDirectAccess {
      * @param allocator The allocator to use for creating new rapidjson values.
      * @return true if the value was set successfully, false otherwise.
      */
-    template <typename T>
-    bool set(char const* key, T const& value, rapidjson::Value& val, rapidjson::Document::AllocatorType& allocator);
+    template <typename T> requires (std::is_trivially_copyable_v<T>)
+    bool set(std::string_view key, T value, rapidjson::Value& val, rapidjson::Document::AllocatorType& allocator);
+
+    /**
+     * @brief Fallback to direct rapidjson access for setting values.
+     *        This function sets a value in the rapidjson document, ensuring that the key exists.
+     *        If the key does not exist, it is created.
+     * @param key The key of the value to set.
+     * @param value The value to set.
+     * @param val The rapidjson value to modify.
+     * @param allocator The allocator to use for creating new rapidjson values.
+     * @return true if the value was set successfully, false otherwise.
+     */
+    template <typename T> requires (!std::is_trivially_copyable_v<T>)
+    bool set(std::string_view key, T const& value, rapidjson::Value& val, rapidjson::Document::AllocatorType& allocator);
 
     //------------------------------------------
     // Conversion

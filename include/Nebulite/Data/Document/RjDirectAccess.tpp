@@ -108,8 +108,21 @@ std::optional<SimpleValue> getSimpleValue(std::string_view key, RjValType& doc) 
 //------------------------------------------
 // Direct access get/set
 
-template <typename T>
-T get(char const* key, T const& defaultValue, rapidjson::Value& val) {
+template <typename T> requires (std::is_trivially_copyable_v<T>)
+T get(std::string_view const key, T const defaultValue, rapidjson::Value& val) {
+  rapidjson::Value const* keyVal = traversePath(key, val);
+  if (keyVal == nullptr) {
+    // Value doesn't exist in doc, return default
+    return defaultValue;
+  }
+  // Base case: convert currentVal to T using JSONHandler
+  T tmp;
+  convertFromJsonValue<T>(*keyVal, tmp, defaultValue);
+  return tmp;
+}
+
+template <typename T> requires (!std::is_trivially_copyable_v<T>)
+T get(std::string_view const key, T const& defaultValue, rapidjson::Value& val) {
     rapidjson::Value const* keyVal = traversePath(key, val);
     if (keyVal == nullptr) {
         // Value doesn't exist in doc, return default
@@ -121,8 +134,18 @@ T get(char const* key, T const& defaultValue, rapidjson::Value& val) {
     return tmp;
 }
 
-template <typename T>
-bool set(char const* key, T const& value, rapidjson::Value& val, rapidjson::Document::AllocatorType& allocator) {
+template <typename T> requires (std::is_trivially_copyable_v<T>)
+bool set(std::string_view const key, T const value, rapidjson::Value& val, rapidjson::Document::AllocatorType& allocator) {
+  // Ensure key path exists
+  if (rapidjson::Value* keyVal = ensurePath(key, val, allocator); keyVal != nullptr) {
+    convertToJsonValue<T>(value, *keyVal, allocator);
+    return true;
+  }
+  return false;
+}
+
+template <typename T> requires (!std::is_trivially_copyable_v<T>)
+bool set(std::string_view const key, T const& value, rapidjson::Value& val, rapidjson::Document::AllocatorType& allocator) {
     // Ensure key path exists
     if (rapidjson::Value* keyVal = ensurePath(key, val, allocator); keyVal != nullptr) {
         convertToJsonValue<T>(value, *keyVal, allocator);
@@ -137,6 +160,8 @@ bool set(char const* key, T const& value, rapidjson::Value& val, rapidjson::Docu
 //------------------------------------------
 // 1.) to JSON value
 //------------------------------------------
+
+// Trivially copyable types
 
 template <> inline void convertToJsonValue<bool>(bool const data, rapidjson::Value& jsonValue, rapidjson::Document::AllocatorType& /*allocator*/) {
     jsonValue.SetBool(data);
@@ -160,14 +185,6 @@ template <> inline void convertToJsonValue<double>(double const data, rapidjson:
 
 template <> inline void convertToJsonValue<std::int64_t>(std::int64_t const data, rapidjson::Value& jsonValue, rapidjson::Document::AllocatorType& /*allocator*/) {
     jsonValue.SetInt64(data);
-}
-
-template <> inline void convertToJsonValue<std::string>(std::string const& data, rapidjson::Value& jsonValue, rapidjson::Document::AllocatorType& allocator) {
-    jsonValue.SetString(
-        data.c_str(),
-        static_cast<rapidjson::SizeType>(data.length()),
-        allocator
-    );
 }
 
 template <> inline void convertToJsonValue<char const*>(char const* data, rapidjson::Value& jsonValue, rapidjson::Document::AllocatorType& allocator) {
@@ -194,18 +211,30 @@ template <> inline void convertToJsonValue<rapidjson::Document*>(rapidjson::Docu
     jsonValue.CopyFrom(*data, allocator);
 }
 
+// Non-trivially copyable types
+
+template <> inline void convertToJsonValue<std::string>(std::string const& data, rapidjson::Value& jsonValue, rapidjson::Document::AllocatorType& allocator) {
+    jsonValue.SetString(
+        data.c_str(),
+        static_cast<rapidjson::SizeType>(data.length()),
+        allocator
+    );
+}
+
 template <> inline void convertToJsonValue<rapidjson::Document>(rapidjson::Document const& data, rapidjson::Value& jsonValue, rapidjson::Document::AllocatorType& allocator) {
     jsonValue.CopyFrom(data, allocator);
 }
 
 // Template specialization for std::variant
 // So we don't have to manually call std::visit every time
+//*
 template <> inline void convertToJsonValue(SimpleValue const& data, rapidjson::Value& jsonValue, rapidjson::Document::AllocatorType& allocator) {
     std::visit([&]<typename T>(T const& value) {
         using Decayed = std::decay_t<T>;
         convertToJsonValue<Decayed>(value, jsonValue, allocator);
     }, data);
 }
+//*/
 
 //------------------------------------------
 // 2.) from JSON Value
