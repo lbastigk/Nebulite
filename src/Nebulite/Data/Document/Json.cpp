@@ -455,7 +455,7 @@ void Json::setAdditive(std::string_view const key, std::int64_t const val) {
         " If this assertion fails, please review the implementation of setAdditive for int"
         " and ensure it properly defaults to 0 when retrieval fails."
     );
-    auto const current = getVariant(key).value_or(static_cast<int>(CacheEntry::standardNumericValue));
+    auto const current = getVariant(key).value_or(CacheEntry::standardNumericValue);
     std::visit([&]<typename T>(T const& currentVal) {
         // Check if it's an integer
         if constexpr(std::is_integral_v<T>) {
@@ -464,8 +464,8 @@ void Json::setAdditive(std::string_view const key, std::int64_t const val) {
         else if constexpr(std::is_floating_point_v<T>) {
             set<double>(key, currentVal + static_cast<double>(val));
         }
-        else {
-            auto const currentDbl = get<double>(key).value_or(static_cast<int>(CacheEntry::standardNumericValue));
+        else { // Fallback to double for any other type.
+            auto const currentDbl = RjDirectAccess::convertSimpleValue<double>(current).value_or(CacheEntry::standardNumericValue);
             set<double>(key, currentDbl + static_cast<double>(val));
         }
     }, current);
@@ -498,18 +498,17 @@ void Json::setMultiplicative(std::string_view const key, std::int64_t const val)
         " If this assertion fails, please review the implementation of setAdditive for int"
         " and ensure it properly defaults to 0 when retrieval fails."
     );
-    auto const current = getVariant(key).value_or(static_cast<int>(CacheEntry::standardNumericValue));
+    auto const current = getVariant(key).value_or(CacheEntry::standardNumericValue);
     std::visit([&]<typename T>(T const& currentVal) {
-        // Check if it's an integer
         if constexpr(std::is_integral_v<T>) {
             set<int64_t>(key, static_cast<int64_t>(currentVal) * val);
         }
         else if constexpr(std::is_floating_point_v<T>) {
             set<double>(key, currentVal * static_cast<double>(val));
         }
-        else {
-            auto const currentDbl = get<double>(key).value_or(static_cast<int>(CacheEntry::standardNumericValue));
-            set<double>(key, currentDbl + static_cast<double>(val));
+        else { // Fallback to double for any other type.
+            auto const currentDbl = RjDirectAccess::convertSimpleValue<double>(current).value_or(CacheEntry::standardNumericValue);
+            set<double>(key, currentDbl * static_cast<double>(val));
         }
     }, current);
 }
