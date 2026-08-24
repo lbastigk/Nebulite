@@ -563,28 +563,28 @@ KeyType Json::memberType(std::string_view const key) const {
 
 namespace {
 
-using Fn = bool (rapidjson::Value::*)() const;
-using Formatter = std::string (*)(rapidjson::Value const*);
-
-std::array<std::pair<Fn, char const*>, 6> numericTypeList = {{
-    {&rapidjson::Value::IsInt64, "value:int:64"},
-    {&rapidjson::Value::IsInt, "value:int:32"},
-    {&rapidjson::Value::IsDouble, "value:float:64"},
-    {&rapidjson::Value::IsFloat, "value:float:32"},
-    {&rapidjson::Value::IsUint64, "value:uint:64"},
-    {&rapidjson::Value::IsUint, "value:uint:32"},
-},};
+auto constexpr numericTypeList = std::array{
+    std::make_pair(&rapidjson::Value::IsInt64, "value:int:64"),
+    std::make_pair(&rapidjson::Value::IsInt, "value:int:32"),
+    std::make_pair(&rapidjson::Value::IsDouble, "value:float:64"),
+    std::make_pair(&rapidjson::Value::IsFloat, "value:float:32"),
+    std::make_pair(&rapidjson::Value::IsUint64, "value:uint:64"),
+    std::make_pair(&rapidjson::Value::IsUint, "value:uint:32"),
+};
 
 std::string numberType(rapidjson::Value const* val) {
     for (auto const& [checkFunc, typeStr] : numericTypeList) {
-        if ((val->*checkFunc)()) {
+        if (std::invoke(checkFunc, val)) {
             return typeStr;
         }
     }
     std::unreachable();
 }
 
-auto constexpr generalTypeList = std::array<std::pair<Fn, Formatter>, 6>{
+using Verifier = bool (rapidjson::Value::*)() const;
+using Formatter = std::string (*)(rapidjson::Value const*);
+
+auto constexpr generalTypeList = std::array<std::pair<Verifier, Formatter>, 6>{
     std::make_pair(&rapidjson::Value::IsArray, [](rapidjson::Value const* val) -> std::string {return "array:" + std::to_string(val->Size());}),
     std::make_pair(&rapidjson::Value::IsBool, [](rapidjson::Value const*) -> std::string {return "value:bool";}),
     std::make_pair(&rapidjson::Value::IsNull, [](rapidjson::Value const*) -> std::string {return "null";}),
