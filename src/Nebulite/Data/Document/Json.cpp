@@ -8,6 +8,7 @@
 #include <cstddef>
 #include <cstdint> // NOLINT
 #include <expected>
+#include <functional>
 #include <memory>
 #include <mutex>
 #include <optional>
@@ -227,7 +228,7 @@ std::expected<RjDirectAccess::SimpleValue, SimpleValueRetrievalError> Json::getV
         if (Json tmp; getSubDocWithTransformations(key, tmp)) {
             return tmp.getVariant(Module::Base::TransformationModule::rootKeyStr);
         }
-        return std::unexpected(SimpleValueRetrievalError::transformationFailure);
+        return std::unexpected{SimpleValueRetrievalError::transformationFailure};
     }
 
     // Check cache first
@@ -243,7 +244,7 @@ std::expected<RjDirectAccess::SimpleValue, SimpleValueRetrievalError> Json::getV
         if (entry.has_value() && entry.value().state == CacheEntry::EntryState::malformed) {
             Global::capture().error.println("Warning: Attempted to access malformed key in getVariant(): ", key);
             Global::capture().error.println("This is a serious logic issue, the malformed key check should have happened already. Please report to the developers!");
-            return std::unexpected(SimpleValueRetrievalError::malformedKey);
+            return std::unexpected{SimpleValueRetrievalError::malformedKey};
         }
 
         if (entry.has_value() && entry.value().state != CacheEntry::EntryState::deleted) {
@@ -583,14 +584,14 @@ std::string numberType(rapidjson::Value const* val) {
     std::unreachable();
 }
 
-std::array<std::pair<Fn, Formatter>, 6> constexpr generalTypeList = {{
-    {&rapidjson::Value::IsNull, [](rapidjson::Value const*) -> std::string { return "null"; }},
-    {&rapidjson::Value::IsArray, [](rapidjson::Value const* val) -> std::string { return "array:" + std::to_string(val->Size()); }},
-    {&rapidjson::Value::IsObject, [](rapidjson::Value const* val) -> std::string { return "object:" + std::to_string(val->MemberCount()); }},
-    {&rapidjson::Value::IsNumber, [](rapidjson::Value const* val) -> std::string { return numberType(val); }},
-    {&rapidjson::Value::IsString, [](rapidjson::Value const* val) -> std::string { return "value:string:" + std::to_string(val->GetStringLength()); }},
-    {&rapidjson::Value::IsBool, [](rapidjson::Value const*) -> std::string { return "value:bool"; }},
-},};
+auto constexpr generalTypeList = std::array<std::pair<Fn, Formatter>, 6>{
+    std::make_pair(&rapidjson::Value::IsArray, [](rapidjson::Value const* val) -> std::string {return "array:" + std::to_string(val->Size());}),
+    std::make_pair(&rapidjson::Value::IsBool, [](rapidjson::Value const*) -> std::string {return "value:bool";}),
+    std::make_pair(&rapidjson::Value::IsNull, [](rapidjson::Value const*) -> std::string {return "null";}),
+    std::make_pair(&rapidjson::Value::IsNumber, [](rapidjson::Value const* val) -> std::string {return numberType(val);}),
+    std::make_pair(&rapidjson::Value::IsObject, [](rapidjson::Value const* val) -> std::string {return "object:" + std::to_string(val->MemberCount());}),
+    std::make_pair(&rapidjson::Value::IsString, [](rapidjson::Value const* val) -> std::string {return "value:string:" + std::to_string(val->GetStringLength());}),
+};
 
 } // namespace
 
@@ -615,8 +616,8 @@ std::string Json::memberTypeString(std::string_view const key) const {
         return "null";
     }
     for (auto const& [checkFunc, typeFunc] : generalTypeList) {
-        if ((val->*checkFunc)()) {
-            return typeFunc(val);
+        if (std::invoke(checkFunc, val)) {
+            return std::invoke(typeFunc, val);
         }
     }
     std::unreachable(); // If it's any other type, something went wrong...
@@ -639,7 +640,7 @@ size_t Json::memberSize(std::string_view const key) const {
         return 0;
     }
     if (kt == KeyType::value || kt == KeyType::object) {
-        return 1;
+        return 1; // Should we return 0 instead?
     }
     // Is array, get size
     flush(key); // Ensure cache is flushed before accessing doc
@@ -789,19 +790,19 @@ std::expected<RjDirectAccess::SimpleValue, SimpleValueRetrievalError> Json::getS
 
         // If we reach here, the value is not a simple value, return appropriate error
         if (val->IsNull()) {
-            return std::unexpected(SimpleValueRetrievalError::isNull);
+            return std::unexpected{SimpleValueRetrievalError::isNull};
         }
         if (val->IsArray()) {
-            return std::unexpected(SimpleValueRetrievalError::isArray);
+            return std::unexpected{SimpleValueRetrievalError::isArray};
         }
         if (val->IsObject()) {
-            return std::unexpected(SimpleValueRetrievalError::isObject);
+            return std::unexpected{SimpleValueRetrievalError::isObject};
         }
-        return std::unexpected(SimpleValueRetrievalError::conversionFailure);
+        return std::unexpected{SimpleValueRetrievalError::conversionFailure};
     }
 
     // Value could not be found, return empty optional
-    return std::unexpected(SimpleValueRetrievalError::isNull);
+    return std::unexpected{SimpleValueRetrievalError::isNull};
 }
 
 } // namespace Nebulite::Data
