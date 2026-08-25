@@ -36,9 +36,7 @@ namespace Nebulite::Data {
  */
 class MappedOrderedCacheList {
 public:
-    explicit MappedOrderedCacheList([[clang::lifetimebound]] JsonScope& ownerReference)
-        : reference(ownerReference) {
-    }
+    explicit MappedOrderedCacheList([[clang::lifetimebound]] JsonScope& ownerReference);
 
     using OrderedCacheList = std::vector<double*>;
 

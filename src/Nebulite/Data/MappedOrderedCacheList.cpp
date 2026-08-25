@@ -15,6 +15,9 @@
 //------------------------------------------
 namespace Nebulite::Data {
 
+MappedOrderedCacheList::MappedOrderedCacheList([[clang::lifetimebound]] JsonScope& ownerReference)
+    : reference(ownerReference) {}
+
 std::size_t MappedOrderedCacheList::generateUniqueId(std::string_view const identifier) {
     static auto generator = Utility::Coordination::IdGenerator::stringToRollingIdGenerator();
     return generator(identifier);
