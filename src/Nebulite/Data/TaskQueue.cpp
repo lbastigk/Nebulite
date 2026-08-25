@@ -44,6 +44,9 @@ void resolveArgument(std::string& argStr, TaskQueueResult& fullResult, std::stri
 }
 } // namespace
 
+TaskQueue::TaskQueue(std::string const& callbackName, bool const clearAfterResolving)
+        : settings{.callbackName=callbackName, .clearAfterResolving=clearAfterResolving} {}
+
 TaskQueueResult TaskQueue::resolve(Interaction::Context& ctx, Interaction::ContextScope& ctxScope, bool const recover) {
     TaskQueueResult fullResult;
 

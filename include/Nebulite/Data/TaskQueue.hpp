@@ -39,8 +39,7 @@ public:
      * @param callbackName The name used as arg[0] when parsing tasks from this queue.
      * @param clearAfterResolving If true, the task queue is cleared after resolving tasks.
      */
-    explicit TaskQueue(std::string const& callbackName, bool const clearAfterResolving = true)
-        : settings{.callbackName=callbackName, .clearAfterResolving=clearAfterResolving} {}
+    explicit TaskQueue(std::string const& callbackName, bool clearAfterResolving = true);
 
     /**
      * @brief Resolves the task queue by parsing and executing each task in the context of the provided domain.
