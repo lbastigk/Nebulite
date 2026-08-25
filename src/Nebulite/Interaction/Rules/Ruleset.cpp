@@ -91,7 +91,8 @@ bool JsonRuleset::evaluateConditionGlobally(Execution::Domain& other, Execution:
 
     // Promise was fulfilled during ruleset parsing
     ContextScope const contextScope{self.domainScope, other.domainScope, global.domainScope};
-    return logicalArg->evalAsBool(contextScope, Utility::Promise<&Logic::Expression::isReturnableAsBool>{});
+    auto constexpr promise = Utility::Promise<Utility::PromiseType::FunctionVerified, &Logic::Expression::isReturnableAsBool>{};
+    return logicalArg->evalAsBool(contextScope, promise);
 }
 
 void JsonRuleset::applyContext(Context& context, ContextScope& contextScope, GlobalValueCopy const& /*globalValueCopy*/) {

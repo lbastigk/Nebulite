@@ -44,10 +44,10 @@ void ReadOnlyDocs::update() const {
         return; // No documents to check
     }
 
-    // Check the last used time of a random document
+    // Randomly select a document to check for unloading
+    auto lock = std::scoped_lock{docsMutex};
     auto it = docs.begin();
     thread_local std::mt19937_64 rng{std::random_device{}()};
-    auto lock = std::scoped_lock{docsMutex};
     std::uniform_int_distribution<std::size_t> dist(0, docs.size() - 1);
     std::advance(it, dist(rng));
 

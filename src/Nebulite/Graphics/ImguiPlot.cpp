@@ -125,8 +125,12 @@ struct Plots {
             lastUpdated = ImGui::GetTime();
             for (auto& plot : plots) {
                 if (plot.expressionX.isReturnableAsDouble() && plot.expressionY.isReturnableAsDouble()) {
-                    double const x = plot.expressionX.evalAsDouble(ctxScope, Nebulite::Utility::Promise<&Nebulite::Interaction::Logic::Expression::isReturnableAsDouble>());
-                    double const y = plot.expressionY.evalAsDouble(ctxScope, Nebulite::Utility::Promise<&Nebulite::Interaction::Logic::Expression::isReturnableAsDouble>());
+                    auto constexpr promise = Nebulite::Utility::Promise<
+                        Nebulite::Utility::PromiseType::FunctionVerified,
+                        &Nebulite::Interaction::Logic::Expression::isReturnableAsDouble
+                    >{};
+                    double const x = plot.expressionX.evalAsDouble(ctxScope, promise);
+                    double const y = plot.expressionY.evalAsDouble(ctxScope, promise);
                     plot.points.emplace_back(x, y);
                     while (plot.points.size() > static_cast<size_t>(pointsToKeep)) {
                         plot.points.pop_front();
@@ -167,10 +171,14 @@ struct Plots {
         ImGui::Separator();
         if (ImPlot::BeginPlot("Plot", ImVec2(-1,0), ImPlotFlags_NoLegend)) {
             if (validLimits()) {
-                double const xMin = expressionXMin.evalAsDouble(ctxScope, Nebulite::Utility::Promise<&Nebulite::Interaction::Logic::Expression::isReturnableAsDouble>());
-                double const xMax = expressionXMax.evalAsDouble(ctxScope, Nebulite::Utility::Promise<&Nebulite::Interaction::Logic::Expression::isReturnableAsDouble>());
-                double const yMin = expressionYMin.evalAsDouble(ctxScope, Nebulite::Utility::Promise<&Nebulite::Interaction::Logic::Expression::isReturnableAsDouble>());
-                double const yMax = expressionYMax.evalAsDouble(ctxScope, Nebulite::Utility::Promise<&Nebulite::Interaction::Logic::Expression::isReturnableAsDouble>());
+                auto constexpr promise = Nebulite::Utility::Promise<
+                    Nebulite::Utility::PromiseType::FunctionVerified,
+                    &Nebulite::Interaction::Logic::Expression::isReturnableAsDouble
+                >{};
+                double const xMin = expressionXMin.evalAsDouble(ctxScope, promise);
+                double const xMax = expressionXMax.evalAsDouble(ctxScope, promise);
+                double const yMin = expressionYMin.evalAsDouble(ctxScope, promise);
+                double const yMax = expressionYMax.evalAsDouble(ctxScope, promise);
                 ImPlot::SetupAxesLimits(xMin, xMax, yMin, yMax, ImPlotCond_Always);
             }
 

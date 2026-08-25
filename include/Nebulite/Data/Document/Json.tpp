@@ -7,24 +7,21 @@
 // Standard library
 #include <cassert>
 #include <expected>
-#include <memory>
 #include <mutex>
-#include <optional>
 #include <span>
 #include <string>
 #include <string_view>
 #include <type_traits>
-#include <utility>
 
 // External
 #include <rapidjson/document.h>
 
 // Nebulite
+#include "Nebulite/Data/Document/JsonCache.hpp"
 #include "Nebulite/Data/Document/JsonTransformer.hpp"
 #include "Nebulite/Data/Document/RjDirectAccess.hpp"
 #include "Nebulite/Data/Document/SimpleValueError.hpp"
 #include "Nebulite/Module/Base/TransformationModule.hpp"
-#include "Nebulite/Utility/Convert/Cast.hpp"
 #include "Nebulite/Utility/TypeCheck.hpp"
 
 //------------------------------------------
@@ -49,12 +46,11 @@ void Json::set(std::string_view const key, T const& val){
         "Please use the value inside the expected instead."
     );
 
-    // Basically the same as setVariant, but for template types
-    std::scoped_lock const lockGuard(mtx);
-
+    // string_view is not a simple value, so we need to convert it to string before setting it
     if constexpr (std::is_same_v<T, std::string_view>) {
         setVariant(key, RjDirectAccess::SimpleValue(std::string(val)));
     }
+    // otherwise, we can directly set the value as a simple value
     else {
         setVariant(key, RjDirectAccess::SimpleValue(val));
     }
@@ -76,7 +72,7 @@ std::expected<T, SimpleValueRetrievalError> Json::get(std::string_view const key
     // Get variant and convert to requested type
     auto const var = getVariant(key);
     if(var.has_value()){
-        if (auto const converted = convertVariant<T>(var.value()); converted.has_value()) {
+        if (auto const converted = RjDirectAccess::convertSimpleValue<T>(var.value()); converted.has_value()) {
             return converted.value();
         }
         return std::unexpected(SimpleValueRetrievalError::conversionFailure);
@@ -86,8 +82,8 @@ std::expected<T, SimpleValueRetrievalError> Json::get(std::string_view const key
 
 template<typename T>
 std::expected<T, SimpleValueRetrievalError> Json::getWithTransformations(std::string_view const key) const {
+    // Guaranteed to have at least one element (the base key), even if no transformations are present
     auto args = splitKeyWithTransformations(key);
-    assert(!args.empty());
 
     // In order to minimize the re-initialization overhead of an entire JSON document,
     // we use a thread-local temporary JSON document for applying transformations.
@@ -96,104 +92,20 @@ std::expected<T, SimpleValueRetrievalError> Json::getWithTransformations(std::st
     // This approach ensures a temporary document with the same value as this JSON object,
     // but without the overhead of creating and destroying a new JSON object on each call.
     thread_local Json tempDoc;
-    {
-        // Simply overwriting with setSubDoc isn't enough, as this may leave behind stale entries for stable double pointers, which we don't need here.
-        // So we manually clear the entire cache.
-        auto const& baseKey = args[0];
-        tempDoc.cache.clear();
-        tempDoc.doc.SetObject();
-        tempDoc.setSubDoc("", *this, baseKey); // Make a copy of the required member to transform
-    }
+
+    // Simply overwriting with setSubDoc isn't enough, as this may leave behind stale entries for stable double pointers, which we don't need here.
+    // So we manually clear the entire cache.
+    // Clearing the cache is okay, as tempDoc never leaves this function, and no stable double pointers are ever returned from this function.
+    tempDoc.cache.clear();
+    tempDoc.doc.SetObject();
+    tempDoc.setSubDoc("", *this, args[0]); // Make a copy of the required member to transform
 
     // Apply each transformation in sequence
-    if (auto const argsSpan = std::span<std::string_view const>(args.begin()+1, args.end()); !JsonTransformer::instance().parse(argsSpan, tempDoc)) {
+    if (auto const argsSpan = std::span<std::string_view const>(args).subspan(1); !JsonTransformer::instance().parse(argsSpan, tempDoc)) {
         return std::unexpected(SimpleValueRetrievalError::transformationFailure); // if any transformation fails, return default value
     }
     return tempDoc.get<T>(Module::Base::TransformationModule::rootKeyStr);
 }
 
-template<typename T>
-std::optional<T> Json::jsonValueToCache(std::string_view const key, rapidjson::Value const* val) const {
-    // Create a new cache entry
-    auto newEntry = std::make_unique<CacheEntry>(*cacheLine, cachelineIndex);
-
-    // Get supported types
-    auto const& v = RjDirectAccess::getSimpleValue(val);
-    if(!v.has_value()) {
-        return std::nullopt; // Unsupported type, do not cache
-    }
-    newEntry->value = v.value();
-
-    // Mark as clean
-    newEntry->state = CacheEntry::EntryState::clean;
-
-    // Set stable double pointer
-    *newEntry->stableDoublePointer = convertVariant<double>(newEntry->value).value_or(standardNumericValue); // Default to NAN if conversion fails
-    newEntry->lastDoubleValue = *newEntry->stableDoublePointer;
-
-    // Insert into cache
-    auto const value = convertVariant<T>(newEntry->value);
-    cache[key] = std::move(newEntry);
-
-    // Return converted value
-    return value;
-}
-
-// Using NOLINTNEXTLINE to silence "Arguments passed in possible wrong order" warnings
-template<typename NewType>
-std::optional<NewType> Json::convertVariant(RjDirectAccess::SimpleValue const& var){
-    return std::visit([&]<typename T>(T const& value){
-        // Removing all qualifiers (const, volatile, references, etc.)
-        using ValueT = std::decay_t<decltype(value)>;
-
-        //------------------------------------------
-        // To float is seen as special case, as we do not store floats.
-        // If NewType is float, get double first and convert to float
-        if constexpr(std::is_same_v<NewType, float>) {
-            if (auto const val = convertVariant<double>(var); val.has_value()) {
-                return std::optional<NewType>(static_cast<float>(val.value()));
-            }
-            return std::optional<NewType>(std::nullopt);
-        }
-
-        //------------------------------------------
-        // Try some special conversions first
-
-        // [BOOL] -> [STRING]
-        else if constexpr(std::is_same_v<ValueT, bool> && std::is_same_v<NewType, std::string>) {
-            return Utility::Convert::Cast::Bool::to<std::string>(value);
-        }
-
-        // [DOUBLE] -> [BOOL]
-        // First, as the static_cast from a direct conversion doesn't work well here
-        else if constexpr (std::is_same_v<ValueT, double> && std::is_same_v<NewType, bool>){
-            return Utility::Convert::Cast::Double::to<bool>(value);
-        }
-
-        // [STRING] -> [ANY]
-        else if constexpr (std::is_same_v<ValueT, std::string>) {
-            return Utility::Convert::Cast::String::to<NewType>(value);
-        }
-
-        //------------------------------------------
-        // Try basic direct conversions
-
-        // [ANY] -> [ANY] via static_cast
-        else if constexpr (std::is_convertible_v<ValueT, NewType>){
-            return std::optional<NewType>{static_cast<NewType>(value)};
-        }
-        // [ARITHMETIC] -> [STRING]
-        else if constexpr (std::is_arithmetic_v<ValueT> && std::is_same_v<NewType, std::string>){
-            return std::optional<NewType>{std::to_string(value)};
-        }
-
-        //------------------------------------------
-        // [ERROR] Unsupported conversion
-        else {
-            std::unreachable();
-        }
-    },
-    var);
-}
 } // namespace Nebulite::Data
 #endif // NEBULITE_DATA_DOCUMENT_JSON_TPP

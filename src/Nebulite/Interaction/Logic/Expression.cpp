@@ -219,19 +219,19 @@ Data::Json Expression::evalAsJson(ContextScope const& context, std::size_t const
     return jsonResult;
 }
 
-double Expression::evalAsDouble(ContextScope const& context, Utility::Promise<&Expression::isReturnableAsDouble> /*promise*/) const {
+double Expression::evalAsDouble(ContextScope const& context, Utility::Promise<Utility::PromiseType::FunctionVerified, &Expression::isReturnableAsDouble> /*promise*/) const {
     assert(isReturnableAsDouble() && "Expression is not returnable as double! Promise not fulfilled.");
     return components[0].evalAsDouble([&]{updateCaches(context);});
 }
 
-int64_t Expression::evalAsInt(ContextScope const& context, Utility::Promise<&Expression::isReturnableAsInt> /*promise*/) const {
+int64_t Expression::evalAsInt(ContextScope const& context, Utility::Promise<Utility::PromiseType::FunctionVerified, &Expression::isReturnableAsInt> /*promise*/) const {
     assert(isReturnableAsInt() && "Expression is not returnable as int! Promise not fulfilled.");
     return static_cast<int64_t>(components[0].evalAsDouble([&]{updateCaches(context);}));
 }
 
-bool Expression::evalAsBool(ContextScope const& context, Utility::Promise<&Expression::isReturnableAsBool> /*promise*/) const {
+bool Expression::evalAsBool(ContextScope const& context, Utility::Promise<Utility::PromiseType::FunctionVerified, &Expression::isReturnableAsBool> /*promise*/) const {
     assert(isReturnableAsBool() && "Expression is not returnable as bool! Promise not fulfilled.");
-    double const result = evalAsDouble(context, Utility::Promise<&Expression::isReturnableAsDouble>{});
+    double const result = evalAsDouble(context, Utility::Promise<Utility::PromiseType::FunctionVerified, &Expression::isReturnableAsDouble>{});
     if (std::isnan(result)) {
         // We consider NaN as false
         return false;
