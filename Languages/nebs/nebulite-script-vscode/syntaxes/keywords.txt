@@ -13,9 +13,12 @@ assign
 at
 average
 basicValue
+batch
+batchPadded
 beep
+bind
 broadcast
-bundleToArray
+bundle
 cam
 capitalize
 capture
@@ -155,6 +158,7 @@ once
 open
 or
 other
+pad
 parse
 play-sound
 pop-back
@@ -183,6 +187,7 @@ replace
 require
 reverse
 rmlui
+rng
 rng2Arg
 rng2ArgInt16
 rng3Arg
@@ -209,6 +214,7 @@ setString
 settings
 sgn
 show-fps
+slide
 snapshot
 sort
 spawn
@@ -223,6 +229,7 @@ store
 strCompare
 strCountAppearance
 strLen
+stride
 string
 strip
 sub

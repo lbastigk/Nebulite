@@ -8,7 +8,7 @@
         <link type="text/rcss" href="./Resources/Rcss/playerStack.rcss"/>
     </head>
     <body class="player-stack" data-model="nebuliteDataSync">
-        <div data-reflect="{global:players|ensureArray|enumerate index}">
+        <div data-reflect="{global:players|ensureArray|enumerateInline index}">
             <div class="player-entry window">
                 <!-- Click surface -->
                 <!-- TODO: rml focus element is still buggy ... -->

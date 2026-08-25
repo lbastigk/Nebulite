@@ -79,7 +79,7 @@
         <!-- Here we use listMembersAndValues to get an array of objects -->
         <!-- with key and value members for each entry in the original object -->
         <!-- Data-reflect populates the self-context, all other contexts stay unchanged -->
-        <p data-reflect="{global:time|listMembersAndValues|enumerate index}">
+        <p data-reflect="{global:time|listMembersAndValues|enumerateInline index}">
             <!-- For every index in the generated array, the following is repeated: -->
             <!-- Each entry has access to arr[i] as {self:} -->
             <!-- where arr is the generated array from the data-reflect statement -->

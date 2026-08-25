@@ -16,7 +16,7 @@
         "expected": { "cout": [], "cerr": [] }
     },
     {
-        "command": "task TaskFiles/Tests/JSON/Transformations/Collection/bundleToArray.nebs",
+        "command": "task TaskFiles/Tests/JSON/Transformations/Collection/bundle.nebs",
         "expected": { "cout": [], "cerr": [] }
     }
 ]

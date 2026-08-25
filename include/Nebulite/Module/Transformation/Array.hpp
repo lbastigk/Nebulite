@@ -68,7 +68,7 @@ public:
 
     // TODO: dedupe, pick, omit
 
-    // Metadata
+    // Dimensionality
 
     static bool flatten(Data::JsonScope& jsonDoc);
     static auto constexpr flattenName = "flatten";
@@ -79,14 +79,6 @@ public:
     static auto constexpr reverseDesc = "Reverses the array in the current JSON value.\n"
         "If the current value is not an array, it is first wrapped into a single-element array.\n"
         "Usage: |reverse -> {array}\n";
-
-    // TODO: no index name passing. Instead: turn into object with index and value
-    //       even better: a canonical representation of tuples for the Json/JsonScope class
-    static bool enumerate(std::span<std::string_view const> args, Data::JsonScope& jsonDoc);
-    static auto constexpr enumerateName = "enumerate";
-    static auto constexpr enumerateDesc = "Enumerates the array in the current JSON value.\n"
-        "Usage: |enumerate <indexKey> -> {array}\n"
-        "Where indexKey is the key of each array element to populate with the index of the element in the array.\n";
 
     static bool batch(std::span<std::string_view const> args, Data::JsonScope& jsonDoc);
     static auto constexpr batchName = "batch";

@@ -26,7 +26,10 @@ void Collection::bindTransformations() {
     bindTransformation(&Collection::get, getName, getDesc);
     bindTransformation(&Collection::listMembers, listMembersName, listMembersDesc);
     bindTransformation(&Collection::listMembersAndValues, listMembersAndValuesName, listMembersAndValuesDesc);
-    bindTransformation(&Collection::bundleToArray, bundleToArrayName, bundleToArrayDesc);
+    bindTransformation(&Collection::enumerate, enumerateName, enumerateDesc);
+    bindTransformation(&Collection::enumerateInline, enumerateInlineName, enumerateInlineDesc);
+    bindTransformation(&Collection::bundle, bundleName, bundleDesc);
+    bindTransformation(&Collection::bind, bindName, bindDesc);
 }
 
 bool Collection::map(std::span<std::string_view const> const args, Data::JsonScope& jsonDoc) {
@@ -111,13 +114,57 @@ bool Collection::listMembersAndValues(Data::JsonScope& jsonDoc){
     return true;
 }
 
-bool Collection::bundleToArray(std::span<std::string_view const> const args, Data::JsonScope& jsonDoc) {
+bool Collection::enumerateInline(std::span<std::string_view const> const args, Data::JsonScope& jsonDoc){
+    if (args.size() < 2) return false;
+    if (jsonDoc.memberType(rootKey) != Data::KeyType::array) return false;
+    auto const& indexKey = args.at(1);
+    std::ranges::for_each(
+        std::views::iota(std::size_t{0}, jsonDoc.memberSize(rootKey)),
+        [&](std::size_t const i) {
+            auto const key = rootKey.addIndex(i).addMember(indexKey);
+            jsonDoc.set(key, i);
+        }
+    );
+    return true;
+}
+
+bool Collection::enumerate(std::span<std::string_view const> args, Data::JsonScope& jsonDoc){
+    if (args.size() != 1) return false;
+    if (jsonDoc.memberType(rootKey) != Data::KeyType::array) return false;
+    Data::Json tmp;
+    std::ranges::for_each(
+        std::views::iota(std::size_t{0}, jsonDoc.memberSize(rootKey)),
+        [&](std::size_t const i) {
+            auto const key = rootKey.addIndex(i);
+            tmp.set<std::size_t>(key.addIndex(0).toString(), i);
+            tmp.setSubDoc(key.addIndex(1).toString(), jsonDoc.getSubDoc(key));
+        }
+    );
+    jsonDoc.setSubDoc(rootKey, tmp);
+    return true;
+}
+
+// Obj->Array: bundle
+bool Collection::bundle(std::span<std::string_view const> const args, Data::JsonScope& jsonDoc) {
     if (args.size() < 2) {
         return false;
     }
     Data::Json tmp;
     for (auto [idx, key] : args.subspan(1) | std::views::enumerate) {
         tmp.setSubDoc("[" + std::to_string(idx) + "]", jsonDoc.getSubDoc(rootKey.addMember(key)));
+    }
+    jsonDoc.setSubDoc(rootKey, tmp);
+    return true;
+}
+
+// Array->Obj: bind
+bool Collection::bind(std::span<std::string_view const> args, Data::JsonScope& jsonDoc){
+    if (args.size() < 2) {
+        return false;
+    }
+    Data::Json tmp;
+    for (auto [idx, key] : args.subspan(1) | Utility::Ranges::enumerate) {
+        tmp.setSubDoc(key, jsonDoc.getSubDoc(rootKey.addIndex(idx)));
     }
     jsonDoc.setSubDoc(rootKey, tmp);
     return true;
