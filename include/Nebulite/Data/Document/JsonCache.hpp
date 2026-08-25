@@ -191,15 +191,15 @@ public:
     /**
      * @brief Inserts a new cache entry with the given key, applies a modifier function to it, and returns a value using a return function.
      * @tparam R The type of the value to return.
-     * @tparam F The type of the modifier function, which must be invocable with a CacheEntry& and return void.
-     * @tparam RF The type of the return function, which must be invocable with a CacheEntry& and return R.
+     * @tparam ModifierFunc The type of the modifier function, which must be invocable with a CacheEntry& and return void.
+     * @tparam ReturnFunc The type of the return function, which must be invocable with a CacheEntry& and return R.
      * @param key The key of the cache entry to insert.
-     * @param modifier The modifier function to apply to the new cache entry.
+     * @param modifierFunc The modifier function to apply to the new cache entry.
      * @param returnFunc The return function to use for retrieving the value.
      * @return The value returned by the return function.
      */
-    template<typename R, typename F, typename RF>
-    R insertAndGet(std::string_view key, F&& modifier, RF&& returnFunc);
+    template<typename R, typename ModifierFunc, typename ReturnFunc>
+    R insertAndGet(std::string_view key, ModifierFunc&& modifierFunc, ReturnFunc&& returnFunc);
 };
 
 } // namespace Nebulite::Data

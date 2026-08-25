@@ -67,7 +67,7 @@ void CacheEntry::setValueDirty(RjDirectAccess::SimpleValue const& newValue) {
     lastDoubleValue = *stableDoublePointer;
 }
 
-CacheEntry& JsonCache::createNewCacheEntry(std::string_view key) {
+CacheEntry& JsonCache::createNewCacheEntry(std::string_view const key) {
     auto newEntry = std::make_shared<CacheEntry>(*cacheLine, cacheLineIndex);
     cache[key] = newEntry;
     cacheVector.emplace_back(std::string(key), newEntry);
@@ -90,8 +90,8 @@ void JsonCache::clear() {
     cacheVector.clear();
 }
 
-void JsonCache::deleteEntry(std::string_view key) {
-    if (auto it = cache.find(key); it != cache.end()) {
+void JsonCache::deleteEntry(std::string_view const key) {
+    if (auto const it = cache.find(key); it != cache.end()) {
         it->second->markAsDeleted();
     }
 }
@@ -104,9 +104,8 @@ void JsonCache::deleteEntry(std::string_view key) {
     return cacheVector.end();
 }
 
-[[nodiscard]] std::optional<CacheEntry&> JsonCache::find(std::string_view key) const [[clang::lifetimebound]] {
-    auto it = cache.find(key);
-    if (it != cache.end()) {
+[[nodiscard]] std::optional<CacheEntry&> JsonCache::find(std::string_view const key) const [[clang::lifetimebound]] {
+    if (auto it = cache.find(key); it != cache.end()) {
         return *it->second;
     }
     return std::nullopt;

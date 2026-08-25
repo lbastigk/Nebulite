@@ -28,7 +28,7 @@ std::optional<NewType> CacheEntry::convertTo(){
 }
 
 template<typename F>
-void JsonCache::insert(std::string_view key, F&& modifier) {
+void JsonCache::insert(std::string_view const key, F&& modifier) {
     static_assert(std::is_invocable_r_v<void, F, CacheEntry&>, "Modifier function must be invocable with CacheEntry& and return void.");
     assert(!find(key).has_value() && "Key already exists in cache.");
 
@@ -36,15 +36,15 @@ void JsonCache::insert(std::string_view key, F&& modifier) {
     std::invoke(std::forward<F>(modifier), newEntry);
 }
 
-template<typename R, typename F, typename RF>
-R JsonCache::insertAndGet(std::string_view key, F&& modifier, RF&& returnFunc) {
-    static_assert(std::is_invocable_r_v<void, F, CacheEntry&>, "Modifier function must be invocable with CacheEntry& and return void.");
-    static_assert(std::is_invocable_r_v<R, RF, CacheEntry&>, "Result function must be invocable with CacheEntry& and return R.");
+template<typename R, typename ModifierFunc, typename ReturnFunc>
+R JsonCache::insertAndGet(std::string_view const key, ModifierFunc&& modifierFunc, ReturnFunc&& returnFunc) {
+    static_assert(std::is_invocable_r_v<void, ModifierFunc, CacheEntry&>, "Modifier function must be invocable with CacheEntry& and return void.");
+    static_assert(std::is_invocable_r_v<R, ReturnFunc, CacheEntry&>, "Result function must be invocable with CacheEntry& and return R.");
     assert(!find(key).has_value() && "Key already exists in cache.");
 
     auto& newEntry = createNewCacheEntry(key);
-    std::invoke(std::forward<F>(modifier), newEntry);
-    auto r = std::invoke(std::forward<RF>(returnFunc), newEntry);
+    std::invoke(std::forward<ModifierFunc>(modifierFunc), newEntry);
+    auto r = std::invoke(std::forward<ReturnFunc>(returnFunc), newEntry);
     return r;
 }
 

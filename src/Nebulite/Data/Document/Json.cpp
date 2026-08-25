@@ -40,7 +40,7 @@
 
 //------------------------------------------
 namespace {
-bool isRelatedToKey(std::string_view key, std::string_view parentKey) {
+bool isRelatedToKey(std::string_view const key, std::string_view const parentKey) {
     // If the parent key is empty, all keys are considered related
     if (parentKey.empty()) {
         return true;
