@@ -193,7 +193,8 @@ bool Filter::filterCustom(std::span<std::string_view const> const args, Data::Js
                 .global = element,
             },
         };
-        return expression.evalAsBool(ctxScope, Utility::Promise<&Interaction::Logic::Expression::isReturnableAsBool>{});
+        auto constexpr promise = Utility::Promise<Utility::PromiseType::FunctionVerified, &Interaction::Logic::Expression::isReturnableAsBool>{};
+        return expression.evalAsBool(ctxScope, promise);
     });
     return true;
 }

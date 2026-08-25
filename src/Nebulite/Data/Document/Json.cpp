@@ -4,13 +4,16 @@
 // Standard library
 #include <algorithm>
 #include <array>
+#include <cassert>
 #include <cstddef>
 #include <cstdint> // NOLINT
 #include <expected>
+#include <functional>
 #include <memory>
 #include <mutex>
 #include <optional>
 #include <ranges>
+#include <span>
 #include <stdexcept>
 #include <string>
 #include <string_view>
@@ -23,10 +26,12 @@
 
 // Nebulite
 #include "Nebulite/Data/Document/Json.hpp"
+#include "Nebulite/Data/Document/JsonCache.hpp"
 #include "Nebulite/Data/Document/JsonScope.hpp"
 #include "Nebulite/Data/Document/JsonTransformer.hpp"
 #include "Nebulite/Data/Document/KeyType.hpp"
 #include "Nebulite/Data/Document/RjDirectAccess.hpp"
+#include "Nebulite/Data/Document/RjDirectAccess.tpp" // NOLINT TODO: why is this required?
 #include "Nebulite/Data/Document/SimpleValueError.hpp"
 #include "Nebulite/Math/Equality.hpp"
 #include "Nebulite/Module/Base/TransformationModule.hpp"
@@ -34,10 +39,166 @@
 #include "Nebulite/Utility/StringHandler.hpp"
 
 //------------------------------------------
+namespace {
+bool isRelatedToKey(std::string_view key, std::string_view parentKey) {
+    // If the parent key is empty, all keys are considered related
+    if (parentKey.empty()) {
+        return true;
+    }
+
+    // If the key does not start with the parent key, or if they are equal, they are not related
+    if (!key.starts_with(parentKey) || key.length() == parentKey.length()) {
+        return false;
+    }
+
+    // At this point, we know that the key starts with the parent key and is longer than it.
+    // If the next character after the parent key is a dot or an array open bracket, then the key is related to the parent key.
+    char const next = key[parentKey.length()];
+    return next == Nebulite::Data::Json::SpecialCharacter::dot
+        || next == Nebulite::Data::Json::SpecialCharacter::arrayOpen;
+}
+} // namespace
+
+//------------------------------------------
 namespace Nebulite::Data {
 
 //------------------------------------------
-// Prefix: parent finder
+// Cache System
+
+void Json::synchronizeChildren(std::string_view const parentKey) const {
+    auto cacheToSync = cache
+        | std::views::filter([&](auto& pair) {
+            auto const& [entryKey, entry] = pair;
+            return isRelatedToKey(entryKey, parentKey);
+        });
+
+    // Find all child keys and invalidate them
+    for (auto const& [key, entry] : cacheToSync) {
+        if (auto const variant = RjDirectAccess::getSimpleValue(key, doc); variant.has_value()) {
+            entry->setValueClean(variant.value());
+        }
+        else {
+            entry->markAsDeleted();
+        }
+    }
+}
+
+void Json::flush(std::string_view const key) const {
+    auto const parentKey = findParentKey(key);
+
+    auto cacheToSync = cache
+        | std::views::filter([&](auto& pair) {
+            auto const& [entryKey, entry] = pair;
+            return entry->state != CacheEntry::EntryState::malformed
+                && isRelatedToKey(entryKey, parentKey);
+        });
+
+    for (auto const& [entryKey, entry] : cacheToSync) {
+        // Every dirty entry is flushed back to the document and marked clean
+        entry->updateNumericValue();
+        if (entry->state == CacheEntry::EntryState::dirty) {
+            if (!RjDirectAccess::set(entryKey, entry->value, doc, doc.GetAllocator())) {
+                throw std::runtime_error("Failed to flush key to document: " + std::string(entryKey));
+            }
+            entry->state = CacheEntry::EntryState::clean;
+        }
+    }
+}
+
+//------------------------------------------
+// Return Value Transformation system
+
+bool Json::getSubDocWithTransformations(std::string_view const key, Json& outDoc) const {
+    auto args = splitKeyWithTransformations(key);
+    outDoc = getSubDoc(args[0]); // First argument is the base key, which we use to initialize the output document
+    return JsonTransformer::instance().parse(
+        std::span<std::string_view const>(args).subspan(1), // Skip the base key
+        outDoc
+    );
+}
+
+std::vector<std::string_view> Json::splitKeyWithTransformations(std::string_view const key) {
+    auto result = Utility::StringHandler::splitOnSameDepth(key, SpecialCharacter::transformationPipe);
+    for (auto& arg : result) {
+        if (arg.starts_with(SpecialCharacter::transformationPipe)) {
+            arg = arg.substr(1);
+        }
+    }
+    std::erase_if(result, [](std::string_view const arg) { return arg.empty(); });
+    if (!key.empty() && key.starts_with(SpecialCharacter::transformationPipe)) {
+        // No key provided, assume root and push back an empty string
+        result.insert(result.begin(), "");
+    }
+    assert(!result.empty()); // Should always have at least one element (the base key)
+    return result;
+}
+
+//------------------------------------------
+// Constructor/Destructor
+
+Json::Json() = default;
+
+Json::~Json() {
+    std::scoped_lock const lockGuard(mtx);
+    doc.SetObject();
+}
+
+//------------------------------------------
+// Move
+
+Json& Json::operator=(Json&& other) noexcept {
+    if (this != &other) {
+        std::scoped_lock const lockGuard(mtx, other.mtx);
+        doc = std::move(other.doc);
+        cache = std::move(other.cache);
+    }
+    return *this;
+}
+
+Json::Json(Json&& other) noexcept : cache(std::move(other.cache)), doc(std::move(other.doc)) {}
+
+//------------------------------------------
+// Scope sharing
+
+JsonScope& Json::fullScope() {
+    std::scoped_lock const lockGuard(mtx);
+    if (!fullScopeInstance) {
+        fullScopeInstance = std::make_unique<JsonScope>(*this, "");
+    }
+    return *fullScopeInstance;
+}
+
+JsonScope& Json::shareManagedScope(std::string_view const prefix) {
+    std::scoped_lock const lockGuard(mtx);
+
+    if (auto const it = managedScopes.find(prefix); it != managedScopes.end()) {
+        return *it->second;
+    }
+    managedScopes[prefix] = std::make_unique<JsonScope>(*this, std::string(prefix));
+    return *managedScopes[prefix];
+}
+
+JsonScope& Json::getDummyScope() {
+    std::scoped_lock const lockGuard(mtx);
+    if (!dummyScopeInstance) {
+        dummyScopeInstance = std::make_unique<JsonScope>(*this, std::nullopt);
+    }
+    return *dummyScopeInstance;
+}
+
+//------------------------------------------
+// Custom copy method
+
+void Json::copyFrom(Json const& other) {
+    setSubDoc("", other);
+}
+
+//------------------------------------------
+// Static helpers
+
+bool Json::isJsonOrJsonc(std::string_view const str) {
+    return RjDirectAccess::isJsonOrJsonc(str);
+}
 
 std::string_view Json::findParentKey(std::string_view const key) {
     if (key.empty()) {
@@ -57,162 +218,6 @@ std::string_view Json::findParentKey(std::string_view const key) {
 }
 
 //------------------------------------------
-// Construct / Destruct
-
-Json::Json() {
-    cacheLine = std::make_unique<CacheLine>();
-}
-
-Json::~Json() {
-    std::scoped_lock const lockGuard(mtx);
-    doc.SetObject();
-    cache.clear();
-}
-
-//------------------------------------------
-// Allow move
-
-Json& Json::operator=(Json&& other) noexcept {
-    if (this != &other) {
-        std::scoped_lock const lockGuard(mtx, other.mtx);
-        doc = std::move(other.doc);
-        cache = std::move(other.cache);
-        cacheLine = std::move(other.cacheLine);
-    }
-    return *this;
-}
-
-Json::Json(Json&& other) noexcept : cacheLine(std::move(other.cacheLine)), cache(std::move(other.cache)), doc(std::move(other.doc)) {
-    std::scoped_lock const lockGuard(mtx, other.mtx); // Locks both, deadlock-free
-}
-
-//------------------------------------------
-// Scope sharing
-
-JsonScope& Json::shareManagedScope(std::string_view const prefix) {
-    std::scoped_lock const lockGuard(mtx);
-
-    if (auto const it = managedScopes.find(prefix); it != managedScopes.end()) {
-        return *it->second;
-    }
-    managedScopes[prefix] = std::make_unique<JsonScope>(*this, std::string(prefix));
-    return *managedScopes[prefix];
-}
-
-//------------------------------------------
-// Dummy sharing
-
-JsonScope& Json::getDummyScope() {
-    std::scoped_lock const lockGuard(mtx);
-    if (!dummyScopeInstance) {
-        dummyScopeInstance = std::make_unique<JsonScope>(*this, std::nullopt);
-    }
-    return *dummyScopeInstance;
-}
-
-//------------------------------------------
-// Custom copy method
-
-/**
- * @brief Copies the entire content from another JSON document into this one.
- * @param other The other JSON document to copy from.
- */
-void Json::copyFrom(Json const& other) {
-    setSubDoc("", other);
-}
-
-//------------------------------------------
-// Validity check
-
-/**
- * @brief Checks if a string is in JSON or JSONC format.
- * @param str The string to check.
- * @return true if the string is JSON or JSONC, false otherwise.
- */
-bool Json::isJsonOrJsonc(std::string_view const str) {
-    return RjDirectAccess::isJsonOrJsonc(str);
-}
-
-//------------------------------------------
-// Argument splitting for transformations
-
-std::vector<std::string_view> Json::splitKeyWithTransformations(std::string_view const key) {
-    auto result = Utility::StringHandler::splitOnSameDepth(key, SpecialCharacter::transformationPipe);
-    for (auto& arg : result) {
-        if (arg.starts_with(SpecialCharacter::transformationPipe)) {
-            arg = arg.substr(1);
-        }
-    }
-    std::erase_if(result, [](std::string_view const arg) { return arg.empty(); });
-    if (!key.empty() && key.starts_with(SpecialCharacter::transformationPipe)) {
-        // No key provided, assume root and push back an empty string
-        result.insert(result.begin(), "");
-    }
-    return result;
-}
-
-//------------------------------------------
-// Private methods
-
-JsonScope& Json::fullScope() {
-    std::scoped_lock const lockGuard(mtx);
-    if (!fullScopeInstance) {
-        fullScopeInstance = std::make_unique<JsonScope>(*this, "");
-    }
-    return *fullScopeInstance;
-}
-
-void Json::synchronizeChildren(std::string_view const parentKey) const {
-    std::scoped_lock const lockGuard(mtx);
-
-    // Find all child keys and invalidate them
-    for (auto& [key, entry] : cache) {
-        bool const base = key.starts_with(parentKey) && key.length() > parentKey.length();
-        bool const startsWithParentKeyPlusDot = base && key[parentKey.length()] == SpecialCharacter::dot;
-        bool const startsWithParentKeyPlusArr = base && key[parentKey.length()] == SpecialCharacter::arrayOpen;
-        if (bool const parentKeyIsRoot = parentKey.empty(); parentKeyIsRoot || startsWithParentKeyPlusDot || startsWithParentKeyPlusArr) {
-            if (auto const variant = RjDirectAccess::getSimpleValue(key, doc); variant.has_value()) {
-                entry->state = CacheEntry::EntryState::clean;
-                entry->value = variant.value();
-                *entry->stableDoublePointer = convertVariant<double>(entry->value).value_or(standardNumericValue); // Default to 0 if conversion fails
-                entry->lastDoubleValue = *entry->stableDoublePointer;
-            }
-            else {
-                deleteCacheEntry(entry);
-            }
-        }
-    }
-}
-
-void Json::flush(std::string_view const key) const {
-    std::scoped_lock const lockGuard(mtx);
-
-    auto const parent = findParentKey(key);
-
-    for (auto& [entryKey, entry] : cache) {
-        if (!entryKey.starts_with(parent)) continue;
-
-        // Skip malformed entries
-        if (entry->state == CacheEntry::EntryState::malformed) {
-            continue;
-        }
-
-        // If double values changed, mark dirty
-        if (!Math::isEqualAllowNan(entry->lastDoubleValue, *entry->stableDoublePointer)) {
-            entry->state = CacheEntry::EntryState::dirty;
-            entry->lastDoubleValue = *entry->stableDoublePointer;
-            entry->value = *entry->stableDoublePointer;
-        }
-
-        // Every dirty entry is flushed back to the document and marked clean
-        if (entry->state == CacheEntry::EntryState::dirty) {
-            (void)RjDirectAccess::set(entryKey.c_str(), entry->value, doc, doc.GetAllocator());
-            entry->state = CacheEntry::EntryState::clean;
-        }
-    }
-}
-
-//------------------------------------------
 // Get methods
 
 std::expected<RjDirectAccess::SimpleValue, SimpleValueRetrievalError> Json::getVariant(std::string_view const key) const {
@@ -223,7 +228,7 @@ std::expected<RjDirectAccess::SimpleValue, SimpleValueRetrievalError> Json::getV
         if (Json tmp; getSubDocWithTransformations(key, tmp)) {
             return tmp.getVariant(Module::Base::TransformationModule::rootKeyStr);
         }
-        return std::unexpected(SimpleValueRetrievalError::transformationFailure);
+        return std::unexpected{SimpleValueRetrievalError::transformationFailure};
     }
 
     // Check cache first
@@ -235,26 +240,17 @@ std::expected<RjDirectAccess::SimpleValue, SimpleValueRetrievalError> Json::getV
             && Math::isEqualAllowNan(*entry->stableDoublePointer, entry->lastDoubleValue);
     })) {
         // Checking for malformed shouldn't be necessary, but just in case
-        auto const it = cache.find(key);
-        if (it != cache.end() && it->second->state == CacheEntry::EntryState::malformed) {
+        auto const entry = cache.find(key);
+        if (entry.has_value() && entry.value().state == CacheEntry::EntryState::malformed) {
             Global::capture().error.println("Warning: Attempted to access malformed key in getVariant(): ", key);
             Global::capture().error.println("This is a serious logic issue, the malformed key check should have happened already. Please report to the developers!");
-            return std::unexpected(SimpleValueRetrievalError::malformedKey);
+            return std::unexpected{SimpleValueRetrievalError::malformedKey};
         }
 
-        if (it != cache.end() && it->second->state != CacheEntry::EntryState::deleted) {
+        if (entry.has_value() && entry.value().state != CacheEntry::EntryState::deleted) {
             // Entry exists and is not deleted
-
-            // Check its double value for change detection using an epsilon to avoid unsafe direct comparison
-            if (!Math::isEqualAllowNan(*it->second->stableDoublePointer, it->second->lastDoubleValue)) {
-                // Value changed since last check
-                // We update the actual value with the new double value
-                // Then we convert the double to the requested type
-                it->second->lastDoubleValue = *it->second->stableDoublePointer;
-                it->second->value = it->second->lastDoubleValue;
-                it->second->state = CacheEntry::EntryState::dirty; // Mark as dirty to sync back
-            }
-            return it->second->value;
+            entry.value().updateNumericValue();
+            return entry.value().value;
         }
     }
 
@@ -288,21 +284,6 @@ Json Json::getSubDoc(std::string_view const key) const {
     return Json{};
 }
 
-bool Json::getSubDocWithTransformations(std::string_view const key, Json& outDoc) const {
-    auto args = splitKeyWithTransformations(key);
-    {
-        auto const& baseKey = args[0];
-
-        // Using getSubDoc to properly populate the tempDoc with the rapidjson::Value
-        // Slower than a manual copy that handles types, but more secure and less error-prone
-        outDoc = getSubDoc(baseKey);
-    }
-
-    // Apply each transformation in sequence
-    args.erase(args.begin());
-    return JsonTransformer::instance().parse(args, outDoc);
-}
-
 double* Json::getStableDoublePointer(std::string_view const key) const {
     std::scoped_lock const lockGuard(mtx);
 
@@ -312,39 +293,49 @@ double* Json::getStableDoublePointer(std::string_view const key) const {
     }
 
     // Check cache first
-    if (auto const it = cache.find(key); it != cache.end()) {
+    if (auto const entry = cache.find(key); entry.has_value()) {
         // If the entry is deleted, we need to update its value from the document
-        if (it->second->state == CacheEntry::EntryState::deleted) {
-            *it->second->stableDoublePointer = get<double>(key).value_or(0.0); // Default to 0.0 if retrieval fails
-            it->second->lastDoubleValue = *it->second->stableDoublePointer;
-            it->second->state = CacheEntry::EntryState::derived;
+        if (entry.value().state == CacheEntry::EntryState::deleted) {
+            *entry.value().stableDoublePointer = get<double>(key).value_or(0.0); // Default to 0.0 if retrieval fails
+            entry.value().lastDoubleValue = *entry.value().stableDoublePointer;
+            entry.value().state = CacheEntry::EntryState::derived;
         }
-        return it->second->stableDoublePointer;
+        return entry.value().stableDoublePointer;
     }
 
     // Try loading from document into cache
     if (rapidjson::Value const* val = RjDirectAccess::traversePath(key, doc); val != nullptr) {
-        if (jsonValueToCache<double>(key, val).has_value()) {
-            // Successfully loaded into cache, return pointer
-            return cache[key]->stableDoublePointer;
+        if (auto const& v = RjDirectAccess::getSimpleValue(val); v.has_value()) {
+            // Insert into cache and return value
+            return cache.insertAndGet<double*>(
+                key,
+                [v](CacheEntry& entry) {
+                    entry.setValueClean(v.value());
+                }, [](CacheEntry const& entry) {
+                    return entry.stableDoublePointer;
+                }
+            );
         }
     }
 
     // If loading from document failed, create a new derived entry
-    auto newEntry = std::make_unique<CacheEntry>(*cacheLine, cachelineIndex);
-    newEntry->value = standardNumericValue;
-    *newEntry->stableDoublePointer = standardNumericValue;
-    newEntry->lastDoubleValue = standardNumericValue;
-    newEntry->state = CacheEntry::EntryState::derived;
-    auto* const ptr = newEntry->stableDoublePointer;
-    cache[key] = std::move(newEntry);
-    return ptr;
+    return cache.insertAndGet<double*>(
+        key,
+        [](CacheEntry& entry) {
+            entry.value = CacheEntry::standardNumericValue;
+            *entry.stableDoublePointer = CacheEntry::standardNumericValue;
+            entry.lastDoubleValue = CacheEntry::standardNumericValue;
+            entry.state = CacheEntry::EntryState::derived;
+        },
+        [](CacheEntry const& entry) {
+            return entry.stableDoublePointer;
+        }
+    );
 }
 
 std::unique_lock<std::recursive_mutex> Json::lock() const {
     return std::unique_lock(mtx);
 }
-
 
 //------------------------------------------
 // Set methods
@@ -366,16 +357,9 @@ void Json::setVariant(std::string_view const key, RjDirectAccess::SimpleValue co
     }
 
     // Set value in cache
-    if (auto const it = cache.find(key); it != cache.end()) {
+    if (auto const entry = cache.find(key); entry.has_value()) {
         // Existing cache value, structure validity guaranteed
-
-        // Update the entry, mark as dirty
-        it->second->value = val;
-        it->second->state = CacheEntry::EntryState::dirty;
-
-        // Update double pointer value
-        *it->second->stableDoublePointer = convertVariant<double>(val).value_or(standardNumericValue); // Default to 0 if conversion fails
-        it->second->lastDoubleValue = *it->second->stableDoublePointer;
+        entry.value().setValueDirty(val);
     } else {
         // New cache value, structural validity is not guaranteed
         // so we flush contents into the rapidjson document after inserting
@@ -384,17 +368,9 @@ void Json::setVariant(std::string_view const key, RjDirectAccess::SimpleValue co
         synchronizeChildren(key);
 
         // Create new entry directly in DIRTY state
-        auto newEntry = std::make_unique<CacheEntry>(*cacheLine, cachelineIndex);
-
-        // Set entry values
-        newEntry->value = val;
-        // Pointer was created in constructor, no need to redo make_shared
-        *newEntry->stableDoublePointer = convertVariant<double>(newEntry->value).value_or(standardNumericValue); // Default to 0 if conversion fails
-        newEntry->lastDoubleValue = *newEntry->stableDoublePointer;
-        newEntry->state = CacheEntry::EntryState::dirty;
-
-        // Insert into cache
-        cache[key] = std::move(newEntry);
+        cache.insert(key, [val](CacheEntry& newEntry) {
+            newEntry.setValueDirty(val);
+        });
 
         // Flush to RapidJSON document for structural integrity
         flush(key);
@@ -405,7 +381,7 @@ void Json::setSubDoc(std::string_view const key, Json const& child, std::string_
     std::scoped_lock const lockGuard(mtx);
 
     // Delete cache entry
-    deleteCacheEntry(key);
+    cache.deleteEntry(key);
 
     // Flush own contents
     flush(key);
@@ -428,7 +404,7 @@ void Json::setSubDoc(std::string_view const key, Json const& child, std::string_
             keyVal->CopyFrom(childCopy, doc.GetAllocator());
 
             // Delete cache entry
-            deleteCacheEntry(childKey);
+            cache.deleteEntry(childKey);
 
             // Delete the child copy to free memory, since it's no longer needed
             childCopy.SetNull();
@@ -444,7 +420,7 @@ void Json::setSubDoc(std::string_view const key, Json const& child, std::string_
     }
 
     // Check if cache holds the key mark as deleted
-    deleteCacheEntry(key);
+    cache.deleteEntry(key);
 
     // Since we inserted an entire document, we need sync its children
     synchronizeChildren(key);
@@ -467,37 +443,85 @@ void Json::setEmptyObject(std::string_view const key) {
 }
 
 //------------------------------------------
-// Serialize/Deserialize
+// Special sets for threadsafe maths operations
 
-std::string Json::serialize(std::string_view const key, RjDirectAccess::SerializationType const type) const {
+// TODO: add a lock-free setVariant and getVariant to reduce locking.
+
+void Json::setAdditive(std::string_view const key, double const val) {
     std::scoped_lock const lockGuard(mtx);
-    flush(key); // Ensure all changes are reflected in the document
-    if (key.empty()) {
-        // Serialize entire doc
-        return RjDirectAccess::serialize(doc, type);
-    }
-    Json const sub = getSubDoc(key);
-    return sub.serialize();
+
+    // Get current value
+    auto const current = get<double>(key).value_or(CacheEntry::standardNumericValue); // Default to 0 if retrieval fails
+    setVariant(key, current + val);
+    assert(cache.find(key).has_value()); // Ensure the key was inserted
 }
 
-void Json::deserialize(std::string_view const serialOrLink) {
+void Json::setAdditive(std::string_view const key, std::int64_t const val) {
     std::scoped_lock const lockGuard(mtx);
-    helperNonConstVar++; // Signal non-const operation
+    static_assert(Math::isZero(CacheEntry::standardNumericValue),
+        "This function relies on the standard numeric value being 0 for correct defaulting."
+        " If this assertion fails, please review the implementation of setAdditive for int"
+        " and ensure it properly defaults to 0 when retrieval fails."
+    );
+    auto const current = getVariant(key).value_or(CacheEntry::standardNumericValue);
+    std::visit([&]<typename T>(T const& currentVal) {
+        // Check if it's an integer
+        if constexpr(std::is_integral_v<T>) {
+            set<int64_t>(key, static_cast<int64_t>(currentVal) + val);
+        }
+        else if constexpr(std::is_floating_point_v<T>) {
+            set<double>(key, currentVal + static_cast<double>(val));
+        }
+        else { // Fallback to double for any other type.
+            auto const currentDbl = RjDirectAccess::convertSimpleValue<double>(current).value_or(CacheEntry::standardNumericValue);
+            set<double>(key, currentDbl + static_cast<double>(val));
+        }
+    }, current);
+}
 
-    // Reset document and cache
-    flush("");
-    doc.SetObject();
-    for (auto const& entry : std::views::values(cache)) {
-        deleteCacheEntry(entry);
+void Json::setMultiplicative(std::string_view const key, double const val) {
+    std::scoped_lock const lockGuard(mtx);
+
+    // Get current value
+    auto const current = get<double>(key).value_or(CacheEntry::standardNumericValue); // Default to 0 if retrieval fails
+    setVariant(key, current * val);
+    assert(cache.find(key).has_value()); // Ensure the key was inserted
+}
+
+void Json::setMultiplicative(std::string_view const key, std::int64_t const val) {
+    std::scoped_lock const lockGuard(mtx);
+    static_assert(Math::isZero(CacheEntry::standardNumericValue),
+        "This function relies on the standard numeric value being 0 for correct defaulting."
+        " If this assertion fails, please review the implementation of setAdditive for int"
+        " and ensure it properly defaults to 0 when retrieval fails."
+    );
+    auto const current = getVariant(key).value_or(CacheEntry::standardNumericValue);
+    std::visit([&]<typename T>(T const& currentVal) {
+        if constexpr(std::is_integral_v<T>) {
+            set<int64_t>(key, static_cast<int64_t>(currentVal) * val);
+        }
+        else if constexpr(std::is_floating_point_v<T>) {
+            set<double>(key, currentVal * static_cast<double>(val));
+        }
+        else { // Fallback to double for any other type.
+            auto const currentDbl = RjDirectAccess::convertSimpleValue<double>(current).value_or(CacheEntry::standardNumericValue);
+            set<double>(key, currentDbl * static_cast<double>(val));
+        }
+    }, current);
+}
+
+void Json::setConcatenative(std::string_view const key, std::string_view const valStr) {
+    std::scoped_lock const lockGuard(mtx);
+
+    auto const current = get<std::string>(key).value_or(""); // Default to empty string if retrieval fails
+    set<std::string>(key, current + valStr);
+
+    // Update double pointer value to default NAN
+    if (auto const entry = cache.find(key); entry.has_value()) {
+        // Strings Default to 0
+        *entry.value().stableDoublePointer = CacheEntry::standardNumericValue;
+        entry.value().lastDoubleValue = CacheEntry::standardNumericValue;
     }
-
-    //------------------------------------------
-    // Load the JSON file
-    RjDirectAccess::deserialize(doc, serialOrLink);
-
-    //------------------------------------------
-    // Sync all cache entries
-    synchronizeChildren("");
 }
 
 //------------------------------------------
@@ -539,35 +563,35 @@ KeyType Json::memberType(std::string_view const key) const {
 
 namespace {
 
-using Fn = bool (rapidjson::Value::*)() const;
-using Formatter = std::string (*)(rapidjson::Value const*);
-
-std::array<std::pair<Fn, char const*>, 6> numericTypeList = {{
-    {&rapidjson::Value::IsInt64, "value:int:64"},
-    {&rapidjson::Value::IsInt, "value:int:32"},
-    {&rapidjson::Value::IsDouble, "value:float:64"},
-    {&rapidjson::Value::IsFloat, "value:float:32"},
-    {&rapidjson::Value::IsUint64, "value:uint:64"},
-    {&rapidjson::Value::IsUint, "value:uint:32"},
-},};
+auto constexpr numericTypeList = std::array{
+    std::make_pair(&rapidjson::Value::IsInt64, "value:int:64"),
+    std::make_pair(&rapidjson::Value::IsInt, "value:int:32"),
+    std::make_pair(&rapidjson::Value::IsDouble, "value:float:64"),
+    std::make_pair(&rapidjson::Value::IsFloat, "value:float:32"),
+    std::make_pair(&rapidjson::Value::IsUint64, "value:uint:64"),
+    std::make_pair(&rapidjson::Value::IsUint, "value:uint:32"),
+};
 
 std::string numberType(rapidjson::Value const* val) {
     for (auto const& [checkFunc, typeStr] : numericTypeList) {
-        if ((val->*checkFunc)()) {
+        if (std::invoke(checkFunc, val)) {
             return typeStr;
         }
     }
     std::unreachable();
 }
 
-std::array<std::pair<Fn, Formatter>, 6> constexpr generalTypeList = {{
-    {&rapidjson::Value::IsNull, [](rapidjson::Value const*) -> std::string { return "null"; }},
-    {&rapidjson::Value::IsArray, [](rapidjson::Value const* val) -> std::string { return "array:" + std::to_string(val->Size()); }},
-    {&rapidjson::Value::IsObject, [](rapidjson::Value const* val) -> std::string { return "object:" + std::to_string(val->MemberCount()); }},
-    {&rapidjson::Value::IsNumber, [](rapidjson::Value const* val) -> std::string { return numberType(val); }},
-    {&rapidjson::Value::IsString, [](rapidjson::Value const* val) -> std::string { return "value:string:" + std::to_string(val->GetStringLength()); }},
-    {&rapidjson::Value::IsBool, [](rapidjson::Value const*) -> std::string { return "value:bool"; }},
-},};
+using Verifier = bool (rapidjson::Value::*)() const;
+using Formatter = std::string (*)(rapidjson::Value const*);
+
+auto constexpr generalTypeList = std::array<std::pair<Verifier, Formatter>, 6>{
+    std::make_pair(&rapidjson::Value::IsArray, [](rapidjson::Value const* val) -> std::string {return "array:" + std::to_string(val->Size());}),
+    std::make_pair(&rapidjson::Value::IsBool, [](rapidjson::Value const*) -> std::string {return "value:bool";}),
+    std::make_pair(&rapidjson::Value::IsNull, [](rapidjson::Value const*) -> std::string {return "null";}),
+    std::make_pair(&rapidjson::Value::IsNumber, [](rapidjson::Value const* val) -> std::string {return numberType(val);}),
+    std::make_pair(&rapidjson::Value::IsObject, [](rapidjson::Value const* val) -> std::string {return "object:" + std::to_string(val->MemberCount());}),
+    std::make_pair(&rapidjson::Value::IsString, [](rapidjson::Value const* val) -> std::string {return "value:string:" + std::to_string(val->GetStringLength());}),
+};
 
 } // namespace
 
@@ -592,8 +616,8 @@ std::string Json::memberTypeString(std::string_view const key) const {
         return "null";
     }
     for (auto const& [checkFunc, typeFunc] : generalTypeList) {
-        if ((val->*checkFunc)()) {
-            return typeFunc(val);
+        if (std::invoke(checkFunc, val)) {
+            return std::invoke(typeFunc, val);
         }
     }
     std::unreachable(); // If it's any other type, something went wrong...
@@ -616,7 +640,7 @@ size_t Json::memberSize(std::string_view const key) const {
         return 0;
     }
     if (kt == KeyType::value || kt == KeyType::object) {
-        return 1;
+        return 1; // Should we return 0 instead?
     }
     // Is array, get size
     flush(key); // Ensure cache is flushed before accessing doc
@@ -632,7 +656,7 @@ void Json::removeMember(std::string_view const key) {
     flush(key);
 
     // Remove member from cache, synchronize children
-    cache.erase(key);
+    cache.deleteEntry(key);
     RjDirectAccess::removeMember(key, doc);
     synchronizeChildren(key);
 }
@@ -713,109 +737,36 @@ std::vector<std::string> Json::listAvailableMembers(std::string_view const key) 
 }
 
 //------------------------------------------
-// Threadsafe sets
+// Serialize/Deserialize
 
-// TODO: optimize by avoiding double cache lookups
-// special get-function that returns the cache pointer instead of value
-
-void Json::setAdditive(std::string_view const key, double const val) {
+std::string Json::serialize(std::string_view const key, RjDirectAccess::SerializationType const type) const {
     std::scoped_lock const lockGuard(mtx);
-
-    // Get current value
-    auto const current = get<double>(key).value_or(standardNumericValue); // Default to 0 if retrieval fails
-    double const newValue = current + val;
-
-    // Update double pointer value
-    if (auto it = cache.find(key); it != cache.end()) {
-        *it->second->stableDoublePointer = newValue;
-    } else {
-        set<double>(key, newValue);
-        it = cache.find(key);
-        if (it != cache.end()) {
-            *it->second->stableDoublePointer = newValue;
-            it->second->lastDoubleValue = newValue;
-        }
+    flush(key); // Ensure all changes are reflected in the document
+    if (key.empty()) {
+        // Serialize entire doc
+        return RjDirectAccess::serialize(doc, type);
     }
+    Json const sub = getSubDoc(key);
+    return sub.serialize();
 }
 
-void Json::setAdditive(std::string_view const key, std::int64_t const val) {
+void Json::deserialize(std::string_view const serialOrLink) {
     std::scoped_lock const lockGuard(mtx);
-    static_assert(Math::isZero(standardNumericValue),
-        "This function relies on the standard numeric value being 0 for correct defaulting."
-        " If this assertion fails, please review the implementation of setAdditive for int"
-        " and ensure it properly defaults to 0 when retrieval fails."
-    );
-    auto const current = getVariant(key).value_or(static_cast<int>(standardNumericValue));
-    std::visit([&]<typename T>(T const& currentVal) {
-        // Check if it's an integer
-        if constexpr(std::is_integral_v<T>) {
-            set<int64_t>(key, static_cast<int64_t>(currentVal) + val);
-        }
-        else if constexpr(std::is_floating_point_v<T>) {
-            set<double>(key, currentVal + static_cast<double>(val));
-        }
-        else {
-            auto const currentDbl = get<double>(key).value_or(static_cast<int>(standardNumericValue));
-            set<double>(key, currentDbl + static_cast<double>(val));
-        }
-    }, current);
-}
+    helperNonConstVar++; // Signal non-const operation
 
-void Json::setMultiplicative(std::string_view const key, double const val) {
-    std::scoped_lock const lockGuard(mtx);
-
-    // Get current value
-    auto const current = get<double>(key).value_or(standardNumericValue); // Default to 0 if retrieval fails
-    double const newValue = current * val;
-
-    // Update double pointer value
-    if (auto it = cache.find(key); it != cache.end()) {
-        *it->second->stableDoublePointer = newValue;
-    } else {
-        set<double>(key, newValue);
-        it = cache.find(key);
-        if (it != cache.end()) {
-            *it->second->stableDoublePointer = newValue;
-            it->second->lastDoubleValue = newValue;
-        }
+    // Reset document and cache
+    flush("");
+    for (auto const& entry : std::views::values(cache)) {
+        entry->markAsDeleted();
     }
-}
 
-void Json::setMultiplicative(std::string_view const key, std::int64_t const val) {
-    std::scoped_lock const lockGuard(mtx);
-    static_assert(Math::isZero(standardNumericValue),
-        "This function relies on the standard numeric value being 0 for correct defaulting."
-        " If this assertion fails, please review the implementation of setAdditive for int"
-        " and ensure it properly defaults to 0 when retrieval fails."
-    );
-    auto const current = getVariant(key).value_or(static_cast<int>(standardNumericValue));
-    std::visit([&]<typename T>(T const& currentVal) {
-        // Check if it's an integer
-        if constexpr(std::is_integral_v<T>) {
-            set<int64_t>(key, static_cast<int64_t>(currentVal) * val);
-        }
-        else if constexpr(std::is_floating_point_v<T>) {
-            set<double>(key, currentVal * static_cast<double>(val));
-        }
-        else {
-            auto const currentDbl = get<double>(key).value_or(static_cast<int>(standardNumericValue));
-            set<double>(key, currentDbl + static_cast<double>(val));
-        }
-    }, current);
-}
+    //------------------------------------------
+    // Load the JSON file
+    RjDirectAccess::deserialize(doc, serialOrLink);
 
-void Json::setConcatenative(std::string_view const key, std::string_view const valStr) {
-    std::scoped_lock const lockGuard(mtx);
-
-    auto const current = get<std::string>(key).value_or(""); // Default to empty string if retrieval fails
-    set<std::string>(key, current + valStr);
-
-    // Update double pointer value to default NAN
-    if (auto const it = cache.find(key); it != cache.end()) {
-        // Strings Default to 0
-        *it->second->stableDoublePointer = standardNumericValue;
-        it->second->lastDoubleValue = standardNumericValue;
-    }
+    //------------------------------------------
+    // Sync all cache entries
+    synchronizeChildren("");
 }
 
 //------------------------------------------
@@ -823,44 +774,35 @@ void Json::setConcatenative(std::string_view const key, std::string_view const v
 
 std::expected<RjDirectAccess::SimpleValue, SimpleValueRetrievalError> Json::getSimpleValueFromDocument(std::string_view const key) const {
     if (rapidjson::Value const* val = RjDirectAccess::traversePath(key, doc); val != nullptr) {
-        auto it = cache.find(key);
-        if (it == cache.end() && RjDirectAccess::getSimpleValue(val).has_value()) {
-            // Insert only if the value is of a supported type, otherwise complex types might be interpreted as simple values.
-            // Create new cache entry and insert into cache
-            auto newEntry = std::make_unique<CacheEntry>(*cacheLine, cachelineIndex);
-            cache[key] = std::move(newEntry);
-            it = cache.find(key);
-        }
-
-        if (it != cache.end()) {
-            // Modify existing entry
-            if (auto const& v = RjDirectAccess::getSimpleValue(val); v.has_value()) {
-                it->second->value = v.value();
-
-                // Mark as clean
-                it->second->state = CacheEntry::EntryState::clean;
-
-                // Set stable double pointer
-                *it->second->stableDoublePointer = convertVariant<double>(it->second->value).value_or(standardNumericValue); // Default to 0 if conversion fails
-                it->second->lastDoubleValue = *it->second->stableDoublePointer;
-
-                return v.value();
+        // Check for simple value
+        if (auto v = RjDirectAccess::getSimpleValue(val); v.has_value()) {
+            // Since we already have a value, load it into the cache/update existing entry
+            if (auto entry = cache.find(key); !entry.has_value()) {
+                cache.insert(key, [v](CacheEntry& newEntry) {
+                    newEntry.setValueClean(v.value());
+                });
             }
+            else {
+                entry.value().setValueClean(v.value());
+            }
+            return v.value();
         }
+
+        // If we reach here, the value is not a simple value, return appropriate error
         if (val->IsNull()) {
-            return std::unexpected(SimpleValueRetrievalError::isNull);
+            return std::unexpected{SimpleValueRetrievalError::isNull};
         }
         if (val->IsArray()) {
-            return std::unexpected(SimpleValueRetrievalError::isArray);
+            return std::unexpected{SimpleValueRetrievalError::isArray};
         }
         if (val->IsObject()) {
-            return std::unexpected(SimpleValueRetrievalError::isObject);
+            return std::unexpected{SimpleValueRetrievalError::isObject};
         }
-        return std::unexpected(SimpleValueRetrievalError::conversionFailure);
+        return std::unexpected{SimpleValueRetrievalError::conversionFailure};
     }
 
     // Value could not be found, return empty optional
-    return std::unexpected(SimpleValueRetrievalError::isNull);
+    return std::unexpected{SimpleValueRetrievalError::isNull};
 }
 
 } // namespace Nebulite::Data

@@ -5,13 +5,11 @@
 // Includes
 
 // Standard library
-#include <array>
 #include <cstddef>
 #include <cstdint> // NOLINT
 #include <expected>
 #include <memory>
 #include <mutex>
-#include <optional>
 #include <string>
 #include <string_view>
 #include <vector>
@@ -21,10 +19,10 @@
 #include <rapidjson/document.h>
 
 // Nebulite
+#include "Nebulite/Data/Document/JsonCache.hpp"
 #include "Nebulite/Data/Document/KeyType.hpp"
 #include "Nebulite/Data/Document/RjDirectAccess.hpp"
 #include "Nebulite/Data/Document/SimpleValueError.hpp"
-#include "Nebulite/Utility/CompileTimeEvaluate.hpp"
 
 //------------------------------------------
 // Forward declarations
@@ -50,7 +48,98 @@ namespace Nebulite::Data {
  *            allowing fast access to numeric values in a sorted manner.
  */
 class Json {
+    mutable JsonCache cache;
+
+    /**
+     * @brief A helper variable that is modified to signal certain functions as non-const.
+     */
+    std::uint64_t helperNonConstVar = 0;
+
+    /**
+     * @brief The underlying RapidJSON document.
+     * @details Is mutable, as we regularly need to flush contents into it from const get-calls.
+     */
+    mutable rapidjson::Document doc;
+
+    // Mutex for thread safety
+    mutable std::recursive_mutex mtx;
+
+    /**
+     * @brief Synchronizes all children of a given key.
+     * @details For example, if parent_key is "config", it will sync
+     *          "config.option1", "config.option2.suboption", etc.
+     *          as well as "config[0]", "config[1].suboption", etc.
+     *          with the rapidjson values.
+     */
+    void synchronizeChildren(std::string_view parentKey) const ;
+
+    /**
+     * @brief Flush all DIRTY entries in the cache back to the RapidJSON document.
+     * @details This ensures that the RapidJSON document is always structurally valid
+     *          and up-to-date with the cached values.
+     * @param key The key to flush. Finds the parent key and flushes all entries beginning with the parent key.
+     * @throws std::runtime_error if setting a value in the RapidJSON document fails due to structural issues.
+     */
+    void flush(std::string_view key) const ;
+
+    //------------------------------------------
+    // Return Value Transformation system
+
+    /**
+     * @brief Apply transformations found in the key string and retrieve the modified value.
+     * @tparam T The type of the value to retrieve.
+     * @param key The key string containing transformations.
+     * @return The modified value of type T, or none on failure.
+     */
+    template <typename T>
+    std::expected<T, SimpleValueRetrievalError> getWithTransformations(std::string_view key) const ;
+
+    /**
+     * @brief Apply transformations found in the key string and retrieve the modified document.
+     * @param key The key string containing transformations.
+     * @param outDoc The output JSON document to store the modified result.
+     * @return True on success, false on failure.
+     * @note We use an external outDoc to avoid copying the entire document on return/on optional::getValue().
+     */
+    bool getSubDocWithTransformations(std::string_view key, Json& outDoc) const ;
+
+    /**
+     * @brief Splits a key string into its base key and transformation arguments.
+     * @param key The key string to split.
+     * @return A vector containing the base key and transformation arguments.
+     *         Guaranteed to have at least one element (the base key).
+     */
+    static std::vector<std::string_view> splitKeyWithTransformations(std::string_view key);
+
+    //------------------------------------------
+    // Scope sharing system
+
+    absl::flat_hash_map<std::string, std::unique_ptr<JsonScope>> managedScopes;
+    std::unique_ptr<JsonScope> fullScopeInstance;
+    std::unique_ptr<JsonScope> dummyScopeInstance;
+
 public:
+    //------------------------------------------
+    // Constructor/Destructor
+
+    /**
+     * @brief Constructs a new JSON document.
+     */
+    Json();
+
+    ~Json();
+
+    //------------------------------------------
+    // Move/Copy
+
+    // No copy
+    Json(Json const&) = delete;
+    Json& operator=(Json const&) = delete;
+
+    // Allow move
+    Json(Json&& other) noexcept;
+    Json& operator=(Json&& other) noexcept;
+
     //------------------------------------------
     // Basic public constants
 
@@ -77,223 +166,6 @@ public:
         static auto constexpr transformationPipe = '|';
         static auto constexpr linkKeySeparator = ':';
     };
-
-    static std::string_view findParentKey(std::string_view key);
-
-private:
-    /**
-     * @brief Standard numeric value used for initializing cache entries and failed variant conversions
-     */
-    static double constexpr standardNumericValue = 0.0;
-
-    /**
-     * @brief The amount of pre-cached double values per Document.
-     */
-    static auto constexpr cachelineSize = 1024 / sizeof(double);
-
-    /**
-     * @brief Pre-allocated cacheline for fast double value access.
-     * @details Instead of always allocating new double values, we use a pre-allocated cacheline.
-     *          This reduces memory fragmentation and improves cache locality.
-     */
-    using CacheLine = std::array<double, cachelineSize>;
-    mutable std::unique_ptr<CacheLine> cacheLine;
-
-    /**
-     * @brief Current index in the cacheline for the next double value.
-     */
-    mutable std::size_t cachelineIndex = 0;
-
-    /**
-     * @struct CacheEntry
-     * @brief Represents a cached entry in the JSON document, including its value, state, and stable pointer for double values.
-     */
-    struct CacheEntry {
-        /**
-         * @enum EntryState
-         * @brief Represents the state of a cached entry in the JSON document.
-         *        How it works:
-         *        - On reloading a full document, all entries become DELETED.
-         *        - If we access a double pointer of a deleted/nonexistent value, we mark the entry as VIRTUAL,
-         *          as it's a resurrected entry, but its potentially not the real value due to casting.
-         *        - A value becomes DIRTY if it was previously CLEAN, and we notice a change in its double value.
-         *        - On flushing, all DIRTY entries become CLEAN again. VIRTUAL entries remain VIRTUAL as they are not flushed.
-         *        - Values may be marked DELETED if their parent is modified or deleted.
-         */
-        enum class EntryState : std::uint8_t {
-            clean, // Synchronized with RapidJSON document, real value. NOTE: This may be invalid at any time if double pointer is used elsewhere! This just marks the last known state.
-            dirty, // Modified in cache, needs flushing to RapidJSON, real value
-            derived, // Deleted/nonexistent entry that was accessed via double pointer
-            deleted, // Deleted entry due to deserialization or child invalidation, inner value is invalid
-            malformed, // A key that is known to be malformed due to transformations. Used in getStableDoublePointer for integrity.
-        };
-
-        //------------------------------------------
-        // No copying or moving
-
-        CacheEntry(CacheEntry const&) = delete;
-        CacheEntry& operator=(CacheEntry const&) = delete;
-        CacheEntry(CacheEntry&&) = delete;
-        CacheEntry& operator=(CacheEntry&&) = delete;
-
-        //------------------------------------------
-        // Data members
-
-        RjDirectAccess::SimpleValue value = standardNumericValue;
-        double lastDoubleValue = standardNumericValue;
-        double* stableDoublePointer = nullptr; // Stable pointer to double value
-        EntryState state = EntryState::dirty; // Default to dirty: each new entry needs flushing
-        bool managedInternalDouble = false; // Whether the stable double pointer is managed internally or externally (from cacheline)
-
-        CacheEntry([[clang::lifetimebound]] CacheLine& cl, std::size_t& index) {
-            if (index >= cachelineSize) [[unlikely]] {
-                stableDoublePointer = new double(standardNumericValue);
-                managedInternalDouble = true;
-            }
-            else [[likely]] {
-                // Assign stable double pointer from cacheline
-                stableDoublePointer = &cl[index];
-                index++;
-                *stableDoublePointer = standardNumericValue;
-                managedInternalDouble = false;
-            }
-        }
-
-        ~CacheEntry() {
-            if (managedInternalDouble) {
-                delete stableDoublePointer;
-            }
-        }
-    };
-
-    /**
-     * @brief The Caching system used for fast access to frequently used values.
-     * @details Is mutable, as caching itself is used in get-calls, which are const.
-     * @note Optionals would be better, but this requires a large refactor
-     * @todo Wrap this in another class that contains a list of all entries for faster iteration
-     */
-    mutable absl::flat_hash_map<std::string, std::unique_ptr<CacheEntry>> cache;
-
-    /**
-     * @brief A helper variable that is modified to signal certain functions as non-const.
-     */
-    std::uint64_t helperNonConstVar = 0;
-
-    /**
-     * @brief The underlying RapidJSON document.
-     * @details Is mutable, as we regularly need to flush contents into it from const get-calls.
-     */
-    mutable rapidjson::Document doc;
-
-    // Mutex for thread safety
-    mutable std::recursive_mutex mtx;
-
-    /**
-     * @brief Inserts a rapidjson value into the cache, converting it to the appropriate C++ type.
-     * @param key The key of the value to cache.
-     * @param val The rapidjson value to cache.
-     * @return The converted value of type T, or nullopt if conversion fails or the value is not cacheable.
-     */
-    template <typename T>
-    std::optional<T> jsonValueToCache(std::string_view key, rapidjson::Value const* val) const ;
-
-    /**
-     * @brief Synchronizes all children of a given key.
-     * @details For example, if parent_key is "config", it will sync
-     *          "config.option1", "config.option2.suboption", etc.
-     *          as well as "config[0]", "config[1].suboption", etc.
-     *          with the rapidjson values.
-     */
-    void synchronizeChildren(std::string_view parentKey) const ;
-
-    /**
-     * @brief Helper function to convert any type from cache into another type.
-     * @param var The variant value stored in the cache.
-     * @return The converted value of type NewType, or nullopt if conversion fails.
-     */
-    template <typename NewType>
-    static std::optional<NewType> convertVariant(RjDirectAccess::SimpleValue const& var);
-
-    /**
-     * @brief Flush all DIRTY entries in the cache back to the RapidJSON document.
-     * @details This ensures that the RapidJSON document is always structurally valid
-     *          and up-to-date with the cached values.
-     * @param key The key to flush. Finds the parent key and flushes all entries beginning with the parent key.
-     */
-    void flush(std::string_view key) const ;
-
-    //------------------------------------------
-    // Return Value Transformation system
-
-    /**
-     * @brief Apply transformations found in the key string and retrieve the modified value.
-     * @tparam T The type of the value to retrieve.
-     * @param key The key string containing transformations.
-     * @return The modified value of type T, or none on failure.
-     */
-    template <typename T>
-    std::expected<T, SimpleValueRetrievalError> getWithTransformations(std::string_view key) const ;
-
-    /**
-     * @brief Apply transformations found in the key string and retrieve the modified document.
-     * @param key The key string containing transformations.
-     * @param outDoc The output JSON document to store the modified result.
-     * @return True on success, false on failure.
-     * @note We use an external outDoc to avoid copying the entire document on return/on optional::getValue().
-     */
-    bool getSubDocWithTransformations(std::string_view key, Json& outDoc) const ;
-
-    //------------------------------------------
-    // Scope sharing system
-
-    absl::flat_hash_map<std::string, std::unique_ptr<JsonScope>> managedScopes;
-    std::unique_ptr<JsonScope> fullScopeInstance;
-    std::unique_ptr<JsonScope> dummyScopeInstance;
-
-    //------------------------------------------
-    // Cache management
-
-    void deleteCacheEntry(std::string_view const key) const {
-        if (auto const it = cache.find(key); it != cache.end()) {
-            auto const& entry = it->second;
-            deleteCacheEntry(entry);
-        }
-    }
-
-    static void deleteCacheEntry(std::unique_ptr<CacheEntry> const& entry) {
-        entry->state = CacheEntry::EntryState::deleted; // Mark as deleted
-        entry->value = standardNumericValue;
-        *entry->stableDoublePointer = standardNumericValue;
-        entry->lastDoubleValue = standardNumericValue;
-    }
-
-public:
-    //------------------------------------------
-    // Assertions
-
-    // Make sure cache size is a power of two for optimal performance
-    static_assert(Utility::CompileTimeEvaluate::isPowerOfTwo(cachelineSize), "cachelineSize must be a power of two for optimal performance.");
-
-    //------------------------------------------
-    // Constructor/Destructor
-
-    /**
-     * @brief Constructs a new JSON document.
-     */
-    Json();
-
-    ~Json();
-
-    //------------------------------------------
-    // Overload of assign operators
-
-    // No copy
-    Json(Json const&) = delete;
-    Json& operator=(Json const&) = delete;
-
-    // Allow move
-    Json(Json&& other) noexcept;
-    Json& operator=(Json&& other) noexcept;
 
     //------------------------------------------
     // Scope sharing
@@ -326,7 +198,7 @@ public:
     void copyFrom(Json const& other);
 
     //------------------------------------------
-    // Validity check
+    // Static helpers
 
     /**
      * @brief Checks if a string is in JSON or JSONC format.
@@ -335,10 +207,60 @@ public:
      */
     static bool isJsonOrJsonc(std::string_view str);
 
-    //------------------------------------------
-    // Argument splitting for transformations
+    /**
+     * @brief Finds the parent key of a given key in the JSON document.
+     * @param key The key to find the parent of.
+     * @return The parent key as a string_view. If the key is at the root level, returns an empty string_view.
+     */
+    static std::string_view findParentKey(std::string_view key);
 
-    static std::vector<std::string_view> splitKeyWithTransformations(std::string_view key);
+    //------------------------------------------
+    // Get methods
+
+    /**
+     * @brief Gets a value from the JSON document.
+     * @details This function retrieves a value of the specified type from the JSON document.
+     *          If the key does not exist, the default value is returned.
+     * @tparam T The type of the value to retrieve.
+     * @param key The key of the value to retrieve.
+     * @return The value associated with the key, or an error.
+     */
+    template <typename T>
+    std::expected<T, SimpleValueRetrievalError> get(std::string_view key) const ;
+
+    /**
+     * @brief Gets a variant value from the JSON document.
+     * @details This function retrieves a variant value from the JSON document.
+     *          If the key does not exist, void is returned.
+     * @param key The key of the value to retrieve.
+     * @return The variant value associated with the key, or an error if the retrieval failed.
+     */
+    std::expected<RjDirectAccess::SimpleValue, SimpleValueRetrievalError> getVariant(std::string_view key) const ;
+
+    /**
+     * @brief Gets a sub-document from the JSON document.
+     * @details If the key does not exist, an empty JSON object is returned.
+     *          Note that the cache is flushed into the document.
+     *          If the key is a basic type, its value is returned.
+     *          You may use `memberType("")` to check the type stored in the JSON.
+     *          You may use `get<T>("",T())` on the returned sub-document to get the simple value.
+     * @param key The key of the sub-document to retrieve.
+     * @return The sub-document associated with the key, or an empty JSON object if the key does not exist.
+     */
+    Json getSubDoc(std::string_view key) const ;
+
+    /**
+     * @brief Gets a pointer to a double value pointer in the JSON document.
+     * @return A pointer to the double value associated with the key.
+     *         Guaranteed to not be nullptr.
+     * @todo A C++26 contract assert postcondition r != nullptr would be nice
+     */
+    double* getStableDoublePointer(std::string_view key) const ;
+
+    /**
+     * @brief Provides access to the internal mutex for thread-safe operations.
+     */
+    std::unique_lock<std::recursive_mutex> lock() const ;
 
     //------------------------------------------
     // Set methods
@@ -351,7 +273,8 @@ public:
      * @param key The key of the value to set.
      * @param val The value to set.
      */
-    template <typename T> void set(std::string_view key, T const& val);
+    template <typename T>
+    void set(std::string_view key, T const& val);
 
     /**
      * @brief Sets a variant value of supported simple values in the JSON document.
@@ -410,51 +333,6 @@ public:
      * @brief Performs a concatenation operation on a string value in the JSON document.
      */
     void setConcatenative(std::string_view key, std::string_view valStr);
-
-    //------------------------------------------
-    // Get methods
-
-    /**
-     * @brief Gets a value from the JSON document.
-     * @details This function retrieves a value of the specified type from the JSON document.
-     *          If the key does not exist, the default value is returned.
-     * @tparam T The type of the value to retrieve.
-     * @param key The key of the value to retrieve.
-     * @return The value associated with the key, or an error.
-     */
-    template <typename T> std::expected<T, SimpleValueRetrievalError> get(std::string_view key) const ;
-
-    /**
-     * @brief Gets a variant value from the JSON document.
-     * @details This function retrieves a variant value from the JSON document.
-     *          If the key does not exist, void is returned.
-     * @param key The key of the value to retrieve.
-     * @return The variant value associated with the key, or an error if the retrieval failed.
-     */
-    std::expected<RjDirectAccess::SimpleValue, SimpleValueRetrievalError> getVariant(std::string_view key) const ;
-
-    /**
-     * @brief Gets a sub-document from the JSON document.
-     * @details If the key does not exist, an empty JSON object is returned.
-     *          Note that the cache is flushed into the document.
-     *          If the key is a basic type, its value is returned.
-     *          You may use `memberType("")` to check the type stored in the JSON.
-     *          You may use `get<T>("",T())` on the returned sub-document to get the simple value.
-     * @param key The key of the sub-document to retrieve.
-     * @return The sub-document associated with the key, or an empty JSON object if the key does not exist.
-     */
-    Json getSubDoc(std::string_view key) const ;
-
-    /**
-     * @brief Gets a pointer to a double value pointer in the JSON document.
-     * @return A pointer to the double value associated with the key.
-     */
-    double* getStableDoublePointer(std::string_view key) const ;
-
-    /**
-     * @brief Provides access to the internal mutex for thread-safe operations.
-     */
-    std::unique_lock<std::recursive_mutex> lock() const ;
 
     //------------------------------------------
     // Key Types, Sizes

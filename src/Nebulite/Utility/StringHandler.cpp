@@ -20,6 +20,12 @@
 //------------------------------------------
 namespace Nebulite::Utility {
 
+// [COMPARE/CHECK]
+
+bool StringHandler::isNullTerminated(std::string_view const str) {
+    return !str.empty() && str.back() == '\0';
+}
+
 // [GENERATE]
 
 std::string StringHandler::createPaddedTable(std::vector<std::string> const& words, std::size_t const rowSize){
