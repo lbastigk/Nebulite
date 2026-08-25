@@ -7,11 +7,9 @@
 // Standard library
 #include <array>
 #include <atomic>
-#include <cmath>
 #include <cstddef>
 #include <memory>
 #include <optional>
-#include <utility>
 
 // Nebulite
 #include "Nebulite/Constants/ThreadSettings.hpp"
@@ -85,33 +83,9 @@ public:
 template <FlatContainerType Type>
 class FlatContainer final : public BaseContainer<FlatContainer<Type>*> {
 public:
-    explicit FlatContainer(std::atomic<bool>& stopFlag, std::size_t workerIndex, std::size_t workerCount)
-        : BaseContainer<FlatContainer*>(stopFlag, workerIndex, workerCount, this) {
-        FlatContainerBase::Settings settings{};
+    explicit FlatContainer(std::atomic<bool>& stopFlag, std::size_t workerIndex, std::size_t workerCount);
 
-        if constexpr (Type == FlatContainerType::applyOffset) { // Set offsets based on worker index
-            settings.relativeOffset = static_cast<double>(workerIndex) / static_cast<double>(workerCount);
-            settings.listenerOffset = std::pow(settings.relativeOffset, 1);
-            settings.broadcasterOffset = std::pow(settings.relativeOffset, 1);
-            settings.lvOffset = std::pow(settings.relativeOffset, 2);
-            settings.bvOffset = std::pow(settings.relativeOffset, 2);
-        }
-        else if constexpr (Type == FlatContainerType::noOffset) { // No offsets, workers start at the same index for listeners and broadcasters
-            settings.relativeOffset = 0;
-            settings.listenerOffset = std::pow(settings.relativeOffset, 1);
-            settings.broadcasterOffset = std::pow(settings.relativeOffset, 1);
-            settings.lvOffset = std::pow(settings.relativeOffset, 2);
-            settings.bvOffset = std::pow(settings.relativeOffset, 2);
-        }
-        else {
-            // More types may be added in the future
-            std::unreachable();
-        }
-
-        base.emplace(settings);
-    }
-
-    ~FlatContainer() override = default;
+    ~FlatContainer() override ;
 
     FlatContainer(FlatContainer const&) = delete;
     FlatContainer& operator=(FlatContainer const&) = delete;
@@ -122,30 +96,19 @@ public:
      * @brief Broadcasts a ruleset to all listeners on its topic.
      * @param entry The ruleset to broadcast. Make sure the topic is not empty, as this implies a local-only entry!
      */
-    void broadcast(std::shared_ptr<Interaction::Rules::Ruleset>&& entry) override {
-        base->broadcast(std::move(entry)); // NOLINT
-    }
+    void broadcast(std::shared_ptr<Interaction::Rules::Ruleset>&& entry) override ;
 
     /**
      * @brief Listens for rulesets on a specific topic.
      * @param listener The listener to add.
      */
-    void listen(std::shared_ptr<Interaction::Rules::Listener>&& listener) override {
-        base->listen(std::move(listener)); // NOLINT
-    }
+    void listen(std::shared_ptr<Interaction::Rules::Listener>&& listener) override ;
 
     /**
      * @brief Processes all broadcasted rulesets,
      *        matching them with listeners and executing the appropriate actions.
      */
-    void process() override {
-        if constexpr (Type == FlatContainerType::noOffset) {
-            base->processNoOffset(); // NOLINT
-        }
-        else {
-            base->processWithOffset(); // NOLINT
-        }
-    }
+    void process() override ;
 
 private:
     /**
@@ -155,4 +118,5 @@ private:
 };
 
 } // namespace Nebulite::Data::BroadcastListenContainer
+#include "Nebulite/Data/BroadcastListenContainer/FlatContainer.tpp" // NOLINT(misc-include-cleaner)
 #endif // NEBULITE_DATA_BROADCASTLISTENCONTAINER_FLATCONTAINER_HPP
