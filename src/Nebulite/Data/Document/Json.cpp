@@ -89,18 +89,18 @@ void Json::flush(std::string_view const key) const {
     auto cacheToSync = cache
         | std::views::filter([&](auto& pair) {
             auto const& [entryKey, entry] = pair;
-            return entry->state != CacheEntry::EntryState::malformed
+            return entry->state != CacheEntry::State::malformed
                 && isRelatedToKey(entryKey, parentKey);
         });
 
     for (auto const& [entryKey, entry] : cacheToSync) {
         // Every dirty entry is flushed back to the document and marked clean
         entry->updateNumericValue();
-        if (entry->state == CacheEntry::EntryState::dirty) {
+        if (entry->state == CacheEntry::State::dirty) {
             if (!RjDirectAccess::set(entryKey, entry->value, doc, doc.GetAllocator())) {
                 throw std::runtime_error("Failed to flush key to document: " + std::string(entryKey));
             }
-            entry->state = CacheEntry::EntryState::clean;
+            entry->state = CacheEntry::State::clean;
         }
     }
 }
@@ -236,18 +236,18 @@ std::expected<RjDirectAccess::SimpleValue, SimpleValueRetrievalError> Json::getV
         auto& [cachedKey, entry] = pair;
         return cachedKey.starts_with(key)
             && cachedKey != key
-            && entry->state != CacheEntry::EntryState::deleted
+            && entry->state != CacheEntry::State::deleted
             && Math::isEqualAllowNan(*entry->stableDoublePointer, entry->lastDoubleValue);
     })) {
         // Checking for malformed shouldn't be necessary, but just in case
         auto const entry = cache.find(key);
-        if (entry.has_value() && entry.value().state == CacheEntry::EntryState::malformed) {
+        if (entry.has_value() && entry.value().state == CacheEntry::State::malformed) {
             Global::capture().error.println("Warning: Attempted to access malformed key in getVariant(): ", key);
             Global::capture().error.println("This is a serious logic issue, the malformed key check should have happened already. Please report to the developers!");
             return std::unexpected{SimpleValueRetrievalError::malformedKey};
         }
 
-        if (entry.has_value() && entry.value().state != CacheEntry::EntryState::deleted) {
+        if (entry.has_value() && entry.value().state != CacheEntry::State::deleted) {
             // Entry exists and is not deleted
             entry.value().updateNumericValue();
             return entry.value().value;
@@ -295,10 +295,10 @@ double* Json::getStableDoublePointer(std::string_view const key) const {
     // Check cache first
     if (auto const entry = cache.find(key); entry.has_value()) {
         // If the entry is deleted, we need to update its value from the document
-        if (entry.value().state == CacheEntry::EntryState::deleted) {
+        if (entry.value().state == CacheEntry::State::deleted) {
             *entry.value().stableDoublePointer = get<double>(key).value_or(0.0); // Default to 0.0 if retrieval fails
             entry.value().lastDoubleValue = *entry.value().stableDoublePointer;
-            entry.value().state = CacheEntry::EntryState::derived;
+            entry.value().state = CacheEntry::State::derived;
         }
         return entry.value().stableDoublePointer;
     }
@@ -325,7 +325,7 @@ double* Json::getStableDoublePointer(std::string_view const key) const {
             entry.value = CacheEntry::standardNumericValue;
             *entry.stableDoublePointer = CacheEntry::standardNumericValue;
             entry.lastDoubleValue = CacheEntry::standardNumericValue;
-            entry.state = CacheEntry::EntryState::derived;
+            entry.state = CacheEntry::State::derived;
         },
         [](CacheEntry const& entry) {
             return entry.stableDoublePointer;

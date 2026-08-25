@@ -6,7 +6,6 @@
 
 // Standard library
 #include <array>
-#include <cassert>
 #include <cstddef>
 #include <cstdint> // NOLINT
 #include <memory>
@@ -41,7 +40,6 @@ using CacheLine = std::array<double, cachelineSize>;
 // Make sure cache size is a power of two for optimal performance
 static_assert(Utility::CompileTimeEvaluate::isPowerOfTwo(cachelineSize), "cachelineSize must be a power of two for optimal performance.");
 
-
 /**
  * @struct CacheEntry
  * @brief Represents a cached entry in the JSON document, including its value, state, and stable pointer for double values.
@@ -53,7 +51,7 @@ struct CacheEntry {
     static double constexpr standardNumericValue = 0.0;
 
     /**
-     * @enum EntryState
+     * @enum State
      * @brief Represents the state of a cached entry in the JSON document.
      *        How it works:
      *        - On reloading a full document, all entries become DELETED.
@@ -63,7 +61,7 @@ struct CacheEntry {
      *        - On flushing, all DIRTY entries become CLEAN again. VIRTUAL entries remain VIRTUAL as they are not flushed.
      *        - Values may be marked DELETED if their parent is modified or deleted.
      */
-    enum class EntryState : std::uint8_t {
+    enum class State : std::uint8_t {
         clean, // Synchronized with RapidJSON document, real value. NOTE: This may be invalid at any time if double pointer is used elsewhere! This just marks the last known state.
         dirty, // Modified in cache, needs flushing to RapidJSON, real value
         derived, // Deleted/nonexistent entry that was accessed via double pointer
@@ -85,28 +83,12 @@ struct CacheEntry {
     RjDirectAccess::SimpleValue value = standardNumericValue;
     double lastDoubleValue = standardNumericValue;
     double* stableDoublePointer = nullptr; // Stable pointer to double value
-    EntryState state = EntryState::dirty; // Default to dirty: each new entry needs flushing
+    State state = State::dirty; // Default to dirty: each new entry needs flushing
     bool managedInternalDouble = false; // Whether the stable double pointer is managed internally or externally (from cacheline)
 
-    CacheEntry([[clang::lifetimebound]] CacheLine& cl, std::size_t& index) {
-        if (index >= cachelineSize) [[unlikely]] {
-            stableDoublePointer = new double(standardNumericValue);
-            managedInternalDouble = true;
-        }
-        else [[likely]] {
-            // Assign stable double pointer from cacheline
-            stableDoublePointer = &cl[index];
-            index++;
-            *stableDoublePointer = standardNumericValue;
-            managedInternalDouble = false;
-        }
-    }
+    CacheEntry([[clang::lifetimebound]] CacheLine& cl, std::size_t& index);
 
-    ~CacheEntry() {
-        if (managedInternalDouble) {
-            delete stableDoublePointer;
-        }
-    }
+    ~CacheEntry();
 
     void updateNumericValue();
 
@@ -150,12 +132,7 @@ class JsonCache {
      * @param key The key for which to create a new cache entry.
      * @return A reference to the newly created cache entry.
      */
-    auto& createNewCacheEntry(std::string_view key) {
-        auto newEntry = std::make_shared<CacheEntry>(*cacheLine, cacheLineIndex);
-        cache[key] = newEntry;
-        cacheVector.emplace_back(std::string(key), newEntry);
-        return *newEntry.get();
-    }
+    CacheEntry& createNewCacheEntry(std::string_view key);
 
 public:
     JsonCache();
@@ -209,13 +186,7 @@ public:
      * @param modifier The modifier function to apply to the new cache entry.
      */
     template<typename F>
-    void insert(std::string_view key, F&& modifier) {
-        static_assert(std::is_invocable_r_v<void, F, CacheEntry&>, "Modifier function must be invocable with CacheEntry& and return void.");
-        assert(!find(key).has_value() && "Key already exists in cache.");
-
-        auto& newEntry = createNewCacheEntry(key);
-        std::invoke(std::forward<F>(modifier), newEntry);
-    }
+    void insert(std::string_view key, F&& modifier);
 
     /**
      * @brief Inserts a new cache entry with the given key, applies a modifier function to it, and returns a value using a return function.
@@ -228,16 +199,7 @@ public:
      * @return The value returned by the return function.
      */
     template<typename R, typename F, typename RF>
-    R insertAndGet(std::string_view key, F&& modifier, RF&& returnFunc) {
-        static_assert(std::is_invocable_r_v<void, F, CacheEntry&>, "Modifier function must be invocable with CacheEntry& and return void.");
-        static_assert(std::is_invocable_r_v<R, RF, CacheEntry&>, "Result function must be invocable with CacheEntry& and return R.");
-        assert(!find(key).has_value() && "Key already exists in cache.");
-
-        auto& newEntry = createNewCacheEntry(key);
-        std::invoke(std::forward<F>(modifier), newEntry);
-        auto r = std::invoke(std::forward<RF>(returnFunc), newEntry);
-        return r;
-    }
+    R insertAndGet(std::string_view key, F&& modifier, RF&& returnFunc);
 };
 
 } // namespace Nebulite::Data

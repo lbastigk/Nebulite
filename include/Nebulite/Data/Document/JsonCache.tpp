@@ -5,7 +5,9 @@
 // Includes
 
 // Standard library
+#include <cassert>
 #include <optional>
+#include <string_view>
 
 // Nebulite
 #include "Nebulite/Data/Document/RjDirectAccess.hpp"
@@ -19,13 +21,32 @@
 
 //------------------------------------------
 namespace Nebulite::Data {
-/**
- * @brief Helper function to convert any type from cache into another type.
- * @return The converted value of type NewType, or nullopt if conversion fails.
- */
+
 template <typename NewType>
 std::optional<NewType> CacheEntry::convertTo(){
     return RjDirectAccess::convertSimpleValue<NewType>(value);
 }
+
+template<typename F>
+void JsonCache::insert(std::string_view key, F&& modifier) {
+    static_assert(std::is_invocable_r_v<void, F, CacheEntry&>, "Modifier function must be invocable with CacheEntry& and return void.");
+    assert(!find(key).has_value() && "Key already exists in cache.");
+
+    auto& newEntry = createNewCacheEntry(key);
+    std::invoke(std::forward<F>(modifier), newEntry);
+}
+
+template<typename R, typename F, typename RF>
+R JsonCache::insertAndGet(std::string_view key, F&& modifier, RF&& returnFunc) {
+    static_assert(std::is_invocable_r_v<void, F, CacheEntry&>, "Modifier function must be invocable with CacheEntry& and return void.");
+    static_assert(std::is_invocable_r_v<R, RF, CacheEntry&>, "Result function must be invocable with CacheEntry& and return R.");
+    assert(!find(key).has_value() && "Key already exists in cache.");
+
+    auto& newEntry = createNewCacheEntry(key);
+    std::invoke(std::forward<F>(modifier), newEntry);
+    auto r = std::invoke(std::forward<RF>(returnFunc), newEntry);
+    return r;
+}
+
 } // namespace Nebulite::Data
 #endif // NEBULITE_DATA_DOCUMENT_JSONCACHE_TPP
