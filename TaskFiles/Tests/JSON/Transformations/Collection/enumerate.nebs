@@ -1,0 +1,48 @@
+# Test enumerate functionality
+
+set arr[0] a
+set arr[1] b
+set arr[2] c
+set arr[3] d
+
+set arrObj[0].value a
+set arrObj[1].value b
+set arrObj[2].value c
+set arrObj[3].value d
+
+# Enumerate: Best option, as it does not overwrite values but moves them
+# [0]: index
+# [1]: value
+assign self:result.enumerate.arr = {self:arr|enumerate}
+assign self:result.enumerate.arrObj = {self:arrObj|enumerate}
+
+# Inline enumerate
+# Faster, but can overwrite values if not careful. Use with caution.
+assign self:result.inline.arr = {self:arr|enumerateInline idx}          # Not recommended, overwrites values
+assign self:result.inline.arrObj = {self:arrObj|enumerateInline idx}    # Recommended, adds idx to each object
+
+# Verify: enumerate
+for i 0 3 eval nop {self:result.enumerate.arr[{i}][0]|assert equals int {i}}
+eval nop {self:result.enumerate.arr[0][1]|assert equals string a}
+eval nop {self:result.enumerate.arr[1][1]|assert equals string b}
+eval nop {self:result.enumerate.arr[2][1]|assert equals string c}
+eval nop {self:result.enumerate.arr[3][1]|assert equals string d}
+for i 0 3 eval nop {self:result.enumerate.arrObj[{i}][0]|assert equals int {i}}
+eval nop {self:result.enumerate.arrObj[0][1].value|assert equals string a}
+eval nop {self:result.enumerate.arrObj[1][1].value|assert equals string b}
+eval nop {self:result.enumerate.arrObj[2][1].value|assert equals string c}
+eval nop {self:result.enumerate.arrObj[3][1].value|assert equals string d}
+
+# Verify: enumerateInline
+for i 0 3 eval nop {self:result.inline.arr[{i}].idx|assert equals int {i}}
+eval nop {self:result.inline.arr[0]|length|assert equals int 1}
+eval nop {self:result.inline.arr[1]|length|assert equals int 1}
+eval nop {self:result.inline.arr[2]|length|assert equals int 1}
+eval nop {self:result.inline.arr[3]|length|assert equals int 1}
+for i 0 3 eval nop {self:result.inline.arrObj[{i}].idx|assert equals int {i}}
+eval nop {self:result.inline.arrObj[0].value|assert equals string a}
+eval nop {self:result.inline.arrObj[1].value|assert equals string b}
+eval nop {self:result.inline.arrObj[2].value|assert equals string c}
+eval nop {self:result.inline.arrObj[3].value|assert equals string d}
+
+exit

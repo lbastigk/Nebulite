@@ -16,6 +16,10 @@
         "expected": { "cout": [], "cerr": [] }
     },
     {
+        "command": "task TaskFiles/Tests/JSON/Transformations/Collection/enumerate.nebs",
+        "expected": { "cout": [], "cerr": [] }
+    },
+    {
         "command": "task TaskFiles/Tests/JSON/Transformations/Collection/bundle.nebs",
         "expected": { "cout": [], "cerr": [] }
     }
