@@ -162,9 +162,17 @@ bool Collection::bind(std::span<std::string_view const> args, Data::JsonScope& j
     if (args.size() < 2) {
         return false;
     }
+    if (jsonDoc.memberType(rootKey) != Data::KeyType::array) {
+        return false;
+    }
+
     Data::Json tmp;
     for (auto [idx, key] : args.subspan(1) | Utility::Ranges::enumerate) {
-        tmp.setSubDoc(key, jsonDoc.getSubDoc(rootKey.addIndex(idx)));
+        auto element = jsonDoc.getSubDoc(rootKey.addIndex(idx));
+        if (element.memberType("") == Data::KeyType::null) { // Default to empty object instead of null
+            element.setEmptyObject("");
+        }
+        tmp.setSubDoc(key, element);
     }
     jsonDoc.setSubDoc(rootKey, tmp);
     return true;
