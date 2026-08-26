@@ -169,7 +169,7 @@ bool Filter::filterNulls(Data::JsonScope& jsonDoc) {
         if (memberType != Data::KeyType::null) {
             if (rootType == Data::KeyType::array) {
                 // For arrays, we need to reindex the keys
-                filteredObject.setSubDoc("[" + std::to_string(arrayIndex) + "]", memberValue);
+                filteredObject.setSubDoc(rootKey.addIndex(arrayIndex).toString(), memberValue);
                 arrayIndex++;
             } else {
                 filteredObject.setSubDoc(member, memberValue);

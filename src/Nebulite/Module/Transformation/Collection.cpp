@@ -150,8 +150,8 @@ bool Collection::bundle(std::span<std::string_view const> const args, Data::Json
         return false;
     }
     Data::Json tmp;
-    for (auto [idx, key] : args.subspan(1) | std::views::enumerate) {
-        tmp.setSubDoc("[" + std::to_string(idx) + "]", jsonDoc.getSubDoc(rootKey.addMember(key)));
+    for (auto [idx, key] : args.subspan(1) | Utility::Ranges::enumerate) {
+        tmp.setSubDoc(rootKey.addIndex(idx).toString(), jsonDoc.getSubDoc(rootKey.addMember(key)));
     }
     jsonDoc.setSubDoc(rootKey, tmp);
     return true;
