@@ -1,0 +1,28 @@
+# Test bind functionality
+# a bind-transformation takes an array and binds its values sequentially to the specified keys
+
+# Array
+set arr[0] 1
+set arr[1] 2
+set arr[2] 3
+
+# Bind: Arr->Obj
+assign self:result.bind.a = {self:arr|bind key1 key2 key3}
+assign self:result.bind.b = {self:arr|bind key1 key2}
+assign self:result.bind.c = {self:arr|bind key1}
+
+# Verify
+eval nop {self:result.bind.a|assert type object}
+eval nop {self:result.bind.a|listMembers|length|assert equals int 3}
+eval nop {self:result.bind.a.key1|assert equals int 1}
+eval nop {self:result.bind.a.key2|assert equals int 2}
+eval nop {self:result.bind.a.key3|assert equals int 3}
+eval nop {self:result.bind.b|assert type object}
+eval nop {self:result.bind.b|listMembers|length|assert equals int 2}
+eval nop {self:result.bind.b.key1|assert equals int 1}
+eval nop {self:result.bind.b.key2|assert equals int 2}
+eval nop {self:result.bind.c|assert type object}
+eval nop {self:result.bind.c|listMembers|length|assert equals int 1}
+eval nop {self:result.bind.c.key1|assert equals int 1}
+
+exit

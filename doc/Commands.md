@@ -2,7 +2,7 @@
 
 This documentation is automatically generated.
 
-Generated on: Sun Aug  9 11:46:19 CEST 2026
+Generated on: Thu Aug 27 08:43:11 CEST 2026
 
 ## Table of Contents
 
@@ -75,6 +75,7 @@ Available Functions
 | `query` | Functions to manipulate JSON data via SQL query results |
 | `reparse` | Commands for forwarding function calls to other contexts (other or global) while switching context. |
 | `rmlui` | Functions for managing RmlUI elements. |
+| `rng` | Random number generation functions. |
 | `ruleset` | Functions for managing rulesets. |
 | `selected-object` | Functions to select and interact with a selected RenderObject |
 | `set` | Set a key to a string value in the JSON document. |
@@ -957,6 +958,28 @@ Usage: rmlui document load <name> <file_path>
 ```
 Removes a loaded RmlUI document from the renderer's context by its name.
 Usage: rmlui document remove <name>
+```
+
+#### `rng`
+
+Available Functions
+
+| Function | Description |
+|----------|-------------|
+| `help` | Show available commands and their descriptions |
+| `off` | Disables RNG updates. Useful for TAS scripts to avoid RNG state changes, or benchmarking to avoid RNG state changes. |
+| `on` | Re-enables RNG updates. |
+
+##### `rng off`
+
+```
+Disables RNG updates. Useful for TAS scripts to avoid RNG state changes, or benchmarking to avoid RNG state changes.
+```
+
+##### `rng on`
+
+```
+Re-enables RNG updates.
 ```
 
 #### `ruleset`
@@ -2066,7 +2089,10 @@ Available Functions
 | `assign` | Assigns a value based on the result of an expression. |
 | `at` | Gets the element at the specified index from the array in the current JSON value. |
 | `average` | Calculates the average of the elements of the array in the current JSON value. |
-| `bundleToArray` | Gathers all members from the provided keys into an array. |
+| `batch` | Batches the array in the current JSON value into subarrays of the specified size. |
+| `batchPadded` | Batches the array in the current JSON value into subarrays of the specified size, padding the last batch with empty objects if necessary. |
+| `bind` | Binds the elements of an array to the provided keys. |
+| `bundle` | Gathers all members from the provided keys into an array. |
 | `capitalize` | Capitalizes the current JSON string. |
 | `ceiling` | Rounds the current JSON numeric value down to the nearest integer. |
 | `complexAbs` | Calculates the absolute value (magnitude) of a complex number. |
@@ -2078,6 +2104,7 @@ Available Functions
 | `echo` | Echoes the provided arguments to the console, with newline. |
 | `ensureArray` | Ensures the current JSON value is an array. |
 | `enumerate` | Enumerates the array in the current JSON value. |
+| `enumerateInline` | Enumerates the array in the current JSON value using a provided key. |
 | `eq` | Checks if the current JSON value is equal to the specified value. |
 | `error` | Echoes the provided arguments to the console as an error message, with newline. |
 | `exists` | Checks if a specified key exists in the current JSON object. |
@@ -2119,6 +2146,7 @@ Available Functions
 | `neq` | Checks if the current JSON value is not equal to the specified value. |
 | `not` | Logical NOT operation on the current JSON value. |
 | `numberToComplex` | Converts a given number to a complex number. |
+| `pad` | Pads the array in the current JSON value to the specified length with empty objects. |
 | `pow` | Raises the current JSON value to the power of a numeric value. |
 | `print` | Prints the current JSON value to the console. |
 | `product` | Multiplies the elements of the array in the current JSON value. |
@@ -2141,6 +2169,7 @@ Available Functions
 | `setDouble` | Sets a double value at the specified key in the JSON document. |
 | `setInt` | Sets an integer value at the specified key in the JSON document. |
 | `setString` | Sets a string value at the specified key in the JSON document. |
+| `slide` | Slides the array in the current JSON value by the specified size, generating overlapping windows. |
 | `sort` | Sorting transformation functions |
 | `split` | Splits the current JSON string value into an array of substrings based on a specified character delimiter. |
 | `sqrt` | Calculates the square root of the current JSON value. |
@@ -2149,6 +2178,7 @@ Available Functions
 | `strCompare` | Functions for comparing string values. |
 | `strCountAppearance` | Counts the number of occurrences of a specified substring in the current JSON string value. |
 | `strLen` | Calculates the length of the current JSON string value. |
+| `stride` | Strides the array in the current JSON value by the specified size. |
 | `strip` | Strips whitespace from both ends of the current JSON string value. |
 | `sub` | Subtracts a numeric value from the current JSON value. |
 | `subspan` | Gets a subarray from the array in the current JSON value. |
@@ -2357,11 +2387,36 @@ Input must be an array of numbers. If any element is not a number, the current v
 Usage: |average -> {number}
 ```
 
-#### `bundleToArray`
+#### `batch`
+
+```
+Batches the array in the current JSON value into subarrays of the specified size.
+Usage: |batch <size> -> {array}
+```
+
+#### `batchPadded`
+
+```
+Batches the array in the current JSON value into subarrays of the specified size, padding the last batch with empty objects if necessary.
+Usage: |batchPadded <size> -> {array}
+```
+
+#### `bind`
+
+```
+Binds the elements of an array to the provided keys.
+think of C++ structured bindings: auto [key1, key2, key3] = arr;
+Fails if the given scope is not an array or if no keys are provided.
+Inserts empty objects for missing values in the array.
+Usage: |bind <key1> <key2> ... -> {object}
+```
+
+#### `bundle`
 
 ```
 Gathers all members from the provided keys into an array.
-Usage: |bundleToArray <key1> <key2> ... -> {array}
+Inserts empty objects for missing values in the object.
+Usage: |bundle <key1> <key2> ... -> {array}
 ```
 
 #### `capitalize`
@@ -2447,7 +2502,18 @@ Usage: |ensureArray -> {array}
 
 ```
 Enumerates the array in the current JSON value.
-Usage: |enumerate <indexKey> -> {array}
+Creates another array for each element, where [0] is the index and [1] is the value.
+Recommended over enumerateInline if the values stored are not objects.
+Usage: |enumerate -> {array}
+Where indexKey is the key of each array element to populate with the index of the element in the array.
+```
+
+#### `enumerateInline`
+
+```
+Enumerates the array in the current JSON value using a provided key.
+Recommended over enumerate if the values stored are objects.
+Usage: |enumerateInline <indexKey> -> {array}
 Where indexKey is the key of each array element to populate with the index of the element in the array.
 ```
 
@@ -2769,6 +2835,14 @@ Allowed values are:
   - Scientific notation (e.g., 1e-3, -2.5e+4)
   - Complex numbers in the form a+bi (e.g., 1+2i, -3-4i)
 The transformation fails if the current JSON value is not convertible to a complex number.
+```
+
+#### `pad`
+
+```
+Pads the array in the current JSON value to the specified length with empty objects.
+If the current value is larger than the specified length, it is not modified.
+Usage: |pad <length> -> {array}
 ```
 
 #### `pow`
@@ -3096,6 +3170,13 @@ Expects two arguments: <key> and <value>.
 Usage: |setString <key> <value> -> {json}
 ```
 
+#### `slide`
+
+```
+Slides the array in the current JSON value by the specified size, generating overlapping windows.
+Usage: |slide <size> -> {array}
+```
+
 #### `sort`
 
 Available Functions
@@ -3242,6 +3323,13 @@ Counts whitespaces if no substring is given
 ```
 Calculates the length of the current JSON string value.
 Usage: |strLen -> {int}
+```
+
+#### `stride`
+
+```
+Strides the array in the current JSON value by the specified size.
+Usage: |stride <size> -> {array}
 ```
 
 #### `strip`

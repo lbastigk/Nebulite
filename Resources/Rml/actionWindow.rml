@@ -29,7 +29,7 @@
 
     <!-- Bottom window -->
     <!-- Generates N many hotkey-entries -->
-    <div class="window hotkey-aligner" data-reflect-once="{global:hotkey|enumerate index}">
+    <div class="window hotkey-aligner" data-reflect-once="{global:hotkey|enumerateInline index}">
         <!-- Hotkey Entry -->
         <div if="$(1)">
             <div class="hotkey-entry">

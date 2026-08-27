@@ -46,7 +46,8 @@ namespace Nebulite::Data {
  * @details It allows for modifications to a JSON document within a specific scope,
  *          that is a key-prefixed section of the document. This is useful for modular data management,
  *          where different parts of a JSON document can be managed independently.
- *          Holds little data itself, mostly acts as a scoped view over an existing JSON document or another JsonScope.
+ *          This class also includes an ordered cache list system for fast caching of numeric value references,
+ *          breaking down the complexity of set/get operations into a more efficient structure for hot paths.
  */
 class JsonScope final {
 public:
@@ -72,6 +73,7 @@ private:
 
     /**
      * @brief Mapped ordered double pointers intended for non-locking access
+     * @todo Is a lazy init possible? This could reduce the memory footprint of JsonScope instances and make copying potentially cheaper.
      */
     alignas(Constants::Alignment::simdAlign) std::array<MappedOrderedCacheList, cacheLookupThreadCount> odpCache;
 
@@ -307,7 +309,7 @@ public:
     [[nodiscard]] std::vector<ScopedKey> listAvailableKeys(ScopedKeyView const& key) const ;
     [[nodiscard]] std::vector<ScopedKey> listAvailableKeys(ScopedKey const& key) const ;
 
-    // Helper struct for holding a member as well as its full key
+    // Helper struct for holding a member name as well as its full key
     struct MemberAndKey {
         std::string member;
         ScopedKey key;
