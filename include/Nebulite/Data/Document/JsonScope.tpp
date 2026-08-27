@@ -5,7 +5,17 @@
 // Includes
 
 // Standard library
+#include <cassert>
+#include <complex>
+#include <concepts>
+#include <cstddef>
+#include <cstdint> // NOLINT
 #include <expected>
+#include <optional>
+#include <ranges>
+#include <string>
+#include <tuple>
+#include <type_traits>
 
 // Nebulite
 #include "Nebulite/Data/Document/Json.hpp"
@@ -76,10 +86,8 @@ void JsonScope::setArray(ScopedKeyView const& key, R const& range) {
 template <std::ranges::input_range R> requires std::same_as<std::remove_cvref_t<std::ranges::range_reference_t<R>>,ScopedKeyView>
 double** JsonScope::ensureOrderedCacheList(std::uint64_t uniqueId, R const& keys) {
     thread_local std::size_t const threadIndex = assignCacheLookupIndex();
-    if (threadIndex >= cacheLookupThreadCount) {
-        throw std::runtime_error("Thread index exceeds non-locking array size! Too many threads accessing ordered cache lists, increase cacheLookupThreadCount or reduce thread count.");
-    }
-    return odpCache[threadIndex].ensureOrderedCacheListNoLock(uniqueId, keys);
+    assert(threadIndex < cacheLookupThreadCount && "Thread index exceeds non-locking array size! Too many threads accessing ordered cache lists, increase cacheLookupThreadCount or reduce thread count.");
+    return odpCache[threadIndex].get(*this).ensureOrderedCacheListNoLock(uniqueId, keys);
 }
 
 } // namespace Nebulite::Data
