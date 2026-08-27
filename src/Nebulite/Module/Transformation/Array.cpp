@@ -30,10 +30,9 @@ void Array::bindTransformations() {
     bindTransformation(&Array::length, lengthName, lengthDesc);
     bindTransformation(&Array::subspan, subspanName, subspanDesc);
 
-    // Metadata
+    // Dimensionality
     bindTransformation(&Array::flatten, flattenName, flattenDesc);
     bindTransformation(&Array::reverse, reverseName, reverseDesc);
-    bindTransformation(&Array::enumerate, enumerateName, enumerateDesc);
     bindTransformation(&Array::batch, batchName, batchDesc);
     bindTransformation(&Array::batchPadded, batchPaddedName, batchPaddedDesc);
     bindTransformation(&Array::stride, strideName, strideDesc);
@@ -227,20 +226,6 @@ bool Array::reverse(Data::JsonScope& jsonDoc) {
         Data::Json const element = tmp.getSubDoc(elementKey);
         jsonDoc.setSubDoc(key, element);
     }
-    return true;
-}
-
-bool Array::enumerate(std::span<std::string_view const> const args, Data::JsonScope& jsonDoc){
-    if (args.size() < 2) return false;
-    if (jsonDoc.memberType(rootKey) != Data::KeyType::array) return false;
-    auto const& indexKey = args.at(1);
-    std::ranges::for_each(
-        std::views::iota(std::size_t{0}, jsonDoc.memberSize(rootKey)),
-        [&](std::size_t const i) {
-            auto const key = rootKey.addIndex(i).addMember(indexKey);
-            jsonDoc.set(key, i);
-        }
-    );
     return true;
 }
 

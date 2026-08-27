@@ -74,7 +74,7 @@ set workspace.objectMember.value1 1
 set workspace.objectMember.value2 2
 
 # Bundle the members into an array and store the result in the workspace
-assign global:workspace.result = {global:|bundleToArray workspace.valueMember workspace.arrayMember workspace.objectMember}
+assign global:workspace.result = {global:|bundle workspace.valueMember workspace.arrayMember workspace.objectMember}
 
 # Confirm the result is correct
 eval nop {global:workspace.result[0]|typeAsString|assert equals string value:string:5}

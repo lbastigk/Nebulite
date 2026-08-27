@@ -8,7 +8,6 @@
 #include <ranges>
 #include <span>
 #include <string>
-#include <utility>
 #include <vector>
 
 // Nebulite
@@ -26,7 +25,10 @@ void Collection::bindTransformations() {
     bindTransformation(&Collection::get, getName, getDesc);
     bindTransformation(&Collection::listMembers, listMembersName, listMembersDesc);
     bindTransformation(&Collection::listMembersAndValues, listMembersAndValuesName, listMembersAndValuesDesc);
-    bindTransformation(&Collection::bundleToArray, bundleToArrayName, bundleToArrayDesc);
+    bindTransformation(&Collection::enumerate, enumerateName, enumerateDesc);
+    bindTransformation(&Collection::enumerateInline, enumerateInlineName, enumerateInlineDesc);
+    bindTransformation(&Collection::bundle, bundleName, bundleDesc);
+    bindTransformation(&Collection::bind, bindName, bindDesc);
 }
 
 bool Collection::map(std::span<std::string_view const> const args, Data::JsonScope& jsonDoc) {
@@ -40,7 +42,7 @@ bool Collection::map(std::span<std::string_view const> const args, Data::JsonSco
         return false; // still not an array, something went wrong
     }
 
-    std::size_t const arraySize = jsonDoc.memberSize(rootKey);
+    auto const arraySize = jsonDoc.memberSize(rootKey);
     for (std::uint32_t idx = 0; idx < arraySize; ++idx) {
         // Set temp document with current element
         auto const elementKey = rootKey.addIndex(idx);
@@ -81,27 +83,31 @@ bool Collection::listMembers(Data::JsonScope& jsonDoc){
 }
 
 bool Collection::listMembersAndValues(Data::JsonScope& jsonDoc){
-    // Copy values
     auto const membersAndKeys = jsonDoc.listAvailableMembersAndKeys(rootKey);
-    std::vector<Data::Json> values;
-    std::ranges::for_each(
-        membersAndKeys,
-        [&](auto const& memberAndKey) {
-            auto const& [member, key] = memberAndKey;
-            Data::Json newObject;
-            newObject.deserialize(jsonDoc.serialize(key));
-            values.push_back(std::move(newObject));
-        }
-    );
+    auto const members = membersAndKeys
+        | std::views::transform([]([[clang::lifetimebound]] auto const& memberAndKey) -> auto const& {
+              return memberAndKey.member;
+          });
+
+    auto const keys = membersAndKeys
+        | std::views::transform([]([[clang::lifetimebound]] auto const& memberAndKey) -> auto const& {
+              return memberAndKey.key;
+          });
+
+    // Copy values
+    auto const values = keys
+        | std::views::transform([&](auto const& key) {
+              return jsonDoc.getSubDoc(key);
+          })
+        | std::ranges::to<std::vector>();
 
     // Reinsert, enumerated
     jsonDoc.removeMember(rootKey);
     jsonDoc.setEmptyArray(rootKey);
     std::ranges::for_each(
-        membersAndKeys | Utility::Ranges::enumerate,
-        [&](auto const& enumeratedMemberAndKey) {
-            auto const& [index, memberAndKey] = enumeratedMemberAndKey;
-            auto const& [member, key] = memberAndKey;
+        members | Utility::Ranges::enumerate,
+        [&](auto const& enumeratedMember) {
+            auto const& [index, member] = enumeratedMember;
             auto const key1 = rootKey.addIndex(index).addMember("key");
             auto const key2 = rootKey.addIndex(index).addMember("value");
             jsonDoc.set<std::string>(key1,member);
@@ -111,13 +117,68 @@ bool Collection::listMembersAndValues(Data::JsonScope& jsonDoc){
     return true;
 }
 
-bool Collection::bundleToArray(std::span<std::string_view const> const args, Data::JsonScope& jsonDoc) {
+bool Collection::enumerateInline(std::span<std::string_view const> const args, Data::JsonScope& jsonDoc){
+    if (args.size() < 2) return false;
+    if (jsonDoc.memberType(rootKey) != Data::KeyType::array) return false;
+    auto const& indexKey = args.at(1);
+    std::ranges::for_each(
+        std::views::iota(std::size_t{0}, jsonDoc.memberSize(rootKey)),
+        [&](std::size_t const i) {
+            auto const key = rootKey.addIndex(i).addMember(indexKey);
+            jsonDoc.set(key, i);
+        }
+    );
+    return true;
+}
+
+bool Collection::enumerate(std::span<std::string_view const> args, Data::JsonScope& jsonDoc){
+    if (args.size() != 1) return false;
+    if (jsonDoc.memberType(rootKey) != Data::KeyType::array) return false;
+    Data::Json tmp;
+    std::ranges::for_each(
+        std::views::iota(std::size_t{0}, jsonDoc.memberSize(rootKey)),
+        [&](std::size_t const i) {
+            auto const key = rootKey.addIndex(i);
+            tmp.set<std::size_t>(key.addIndex(0).toString(), i);
+            tmp.setSubDoc(key.addIndex(1).toString(), jsonDoc.getSubDoc(key));
+        }
+    );
+    jsonDoc.setSubDoc(rootKey, tmp);
+    return true;
+}
+
+// Obj->Array: bundle
+bool Collection::bundle(std::span<std::string_view const> const args, Data::JsonScope& jsonDoc) {
     if (args.size() < 2) {
         return false;
     }
     Data::Json tmp;
-    for (auto [idx, key] : args.subspan(1) | std::views::enumerate) {
-        tmp.setSubDoc("[" + std::to_string(idx) + "]", jsonDoc.getSubDoc(rootKey.addMember(key)));
+    for (auto [idx, key] : args.subspan(1) | Utility::Ranges::enumerate) {
+        auto element = jsonDoc.getSubDoc(rootKey.addMember(key));
+        if (element.memberType("") == Data::KeyType::null) { // Default to empty object instead of null
+            element.setEmptyObject("");
+        }
+        tmp.setSubDoc(rootKey.addIndex(idx).toString(), element);
+    }
+    jsonDoc.setSubDoc(rootKey, tmp);
+    return true;
+}
+
+// Array->Obj: bind
+bool Collection::bind(std::span<std::string_view const> args, Data::JsonScope& jsonDoc){
+    if (args.size() < 2) {
+        return false;
+    }
+    if (jsonDoc.memberType(rootKey) != Data::KeyType::array) {
+        return false;
+    }
+    Data::Json tmp;
+    for (auto [idx, key] : args.subspan(1) | Utility::Ranges::enumerate) {
+        auto element = jsonDoc.getSubDoc(rootKey.addIndex(idx));
+        if (element.memberType("") == Data::KeyType::null) { // Default to empty object instead of null
+            element.setEmptyObject("");
+        }
+        tmp.setSubDoc(key, element);
     }
     jsonDoc.setSubDoc(rootKey, tmp);
     return true;
