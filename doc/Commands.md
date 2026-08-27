@@ -2,7 +2,7 @@
 
 This documentation is automatically generated.
 
-Generated on: Tue Aug 25 19:16:25 CEST 2026
+Generated on: Thu Aug 27 08:43:11 CEST 2026
 
 ## Table of Contents
 
@@ -2104,6 +2104,7 @@ Available Functions
 | `echo` | Echoes the provided arguments to the console, with newline. |
 | `ensureArray` | Ensures the current JSON value is an array. |
 | `enumerate` | Enumerates the array in the current JSON value. |
+| `enumerateInline` | Enumerates the array in the current JSON value using a provided key. |
 | `eq` | Checks if the current JSON value is equal to the specified value. |
 | `error` | Echoes the provided arguments to the console as an error message, with newline. |
 | `exists` | Checks if a specified key exists in the current JSON object. |
@@ -2404,6 +2405,9 @@ Usage: |batchPadded <size> -> {array}
 
 ```
 Binds the elements of an array to the provided keys.
+think of C++ structured bindings: auto [key1, key2, key3] = arr;
+Fails if the given scope is not an array or if no keys are provided.
+Inserts empty objects for missing values in the array.
 Usage: |bind <key1> <key2> ... -> {object}
 ```
 
@@ -2411,6 +2415,7 @@ Usage: |bind <key1> <key2> ... -> {object}
 
 ```
 Gathers all members from the provided keys into an array.
+Inserts empty objects for missing values in the object.
 Usage: |bundle <key1> <key2> ... -> {array}
 ```
 
@@ -2500,6 +2505,15 @@ Enumerates the array in the current JSON value.
 Creates another array for each element, where [0] is the index and [1] is the value.
 Recommended over enumerateInline if the values stored are not objects.
 Usage: |enumerate -> {array}
+Where indexKey is the key of each array element to populate with the index of the element in the array.
+```
+
+#### `enumerateInline`
+
+```
+Enumerates the array in the current JSON value using a provided key.
+Recommended over enumerate if the values stored are objects.
+Usage: |enumerateInline <indexKey> -> {array}
 Where indexKey is the key of each array element to populate with the index of the element in the array.
 ```
 

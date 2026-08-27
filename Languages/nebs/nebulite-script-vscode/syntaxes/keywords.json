@@ -59,6 +59,7 @@
   "ensure-array",
   "ensureArray",
   "enumerate",
+  "enumerateInline",
   "env",
   "eq",
   "equals",
