@@ -8,7 +8,6 @@
 #include <ranges>
 #include <span>
 #include <string>
-#include <utility>
 #include <vector>
 
 // Nebulite
@@ -43,7 +42,7 @@ bool Collection::map(std::span<std::string_view const> const args, Data::JsonSco
         return false; // still not an array, something went wrong
     }
 
-    std::size_t const arraySize = jsonDoc.memberSize(rootKey);
+    auto const arraySize = jsonDoc.memberSize(rootKey);
     for (std::uint32_t idx = 0; idx < arraySize; ++idx) {
         // Set temp document with current element
         auto const elementKey = rootKey.addIndex(idx);
@@ -84,27 +83,31 @@ bool Collection::listMembers(Data::JsonScope& jsonDoc){
 }
 
 bool Collection::listMembersAndValues(Data::JsonScope& jsonDoc){
-    // Copy values
     auto const membersAndKeys = jsonDoc.listAvailableMembersAndKeys(rootKey);
-    std::vector<Data::Json> values;
-    std::ranges::for_each(
-        membersAndKeys,
-        [&](auto const& memberAndKey) {
-            auto const& [member, key] = memberAndKey;
-            Data::Json newObject;
-            newObject.deserialize(jsonDoc.serialize(key));
-            values.push_back(std::move(newObject));
-        }
-    );
+    auto const members = membersAndKeys
+        | std::views::transform([]([[clang::lifetimebound]] auto const& memberAndKey) -> auto const& {
+              return memberAndKey.member;
+          });
+
+    auto const keys = membersAndKeys
+        | std::views::transform([]([[clang::lifetimebound]] auto const& memberAndKey) -> auto const& {
+              return memberAndKey.key;
+          });
+
+    // Copy values
+    auto const values = keys
+        | std::views::transform([&](auto const& key) {
+              return jsonDoc.getSubDoc(key);
+          })
+        | std::ranges::to<std::vector>();
 
     // Reinsert, enumerated
     jsonDoc.removeMember(rootKey);
     jsonDoc.setEmptyArray(rootKey);
     std::ranges::for_each(
-        membersAndKeys | Utility::Ranges::enumerate,
-        [&](auto const& enumeratedMemberAndKey) {
-            auto const& [index, memberAndKey] = enumeratedMemberAndKey;
-            auto const& [member, key] = memberAndKey;
+        members | Utility::Ranges::enumerate,
+        [&](auto const& enumeratedMember) {
+            auto const& [index, member] = enumeratedMember;
             auto const key1 = rootKey.addIndex(index).addMember("key");
             auto const key2 = rootKey.addIndex(index).addMember("value");
             jsonDoc.set<std::string>(key1,member);
