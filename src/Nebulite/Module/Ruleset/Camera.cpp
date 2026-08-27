@@ -17,7 +17,7 @@
 //------------------------------------------
 namespace Nebulite::Module::Ruleset {
 
-Camera::Camera() : RulesetModule(moduleName, this) {
+Camera::Camera() : RulesetModule(moduleName, this, "renderer") {
     auto const baseListFunc = generateBaseListFunction(baseKeys);
 
     // Bind Camera-related static rulesets here
