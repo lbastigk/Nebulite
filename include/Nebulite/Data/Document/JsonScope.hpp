@@ -22,7 +22,6 @@
 #include <vector>
 
 // Nebulite
-#include "Nebulite/Constants/Alignment.hpp"
 #include "Nebulite/Constants/ThreadSettings.hpp"
 #include "Nebulite/Data/Document/KeyType.hpp"
 #include "Nebulite/Data/Document/RjDirectAccess.hpp"
@@ -30,6 +29,7 @@
 #include "Nebulite/Data/Document/ScopedKeyView.hpp"
 #include "Nebulite/Data/Document/SimpleValueError.hpp"
 #include "Nebulite/Data/MappedOrderedCacheList.hpp"
+#include "Nebulite/Utility/Coordination/LazyInit.hpp"
 
 //------------------------------------------
 // Forward declarations
@@ -73,9 +73,11 @@ private:
 
     /**
      * @brief Mapped ordered double pointers intended for non-locking access
-     * @todo Is a lazy init possible? This could reduce the memory footprint of JsonScope instances and make copying potentially cheaper.
      */
-    alignas(Constants::Alignment::simdAlign) std::array<MappedOrderedCacheList, cacheLookupThreadCount> odpCache;
+    std::array<
+        Utility::Coordination::LazyInit<MappedOrderedCacheList, JsonScope&>,
+        cacheLookupThreadCount>
+    odpCache;
 
     //------------------------------------------
     // Complex number prefixes
