@@ -1,4 +1,5 @@
-# TODO ...
+# Test bind functionality
+# a bind-transformation takes an array and binds its values sequentially to the specified keys
 
 # Array
 set arr[0] 1

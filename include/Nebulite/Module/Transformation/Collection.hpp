@@ -77,11 +77,15 @@ public:
     static bool bundle(std::span<std::string_view const> args, Data::JsonScope& jsonDoc);
     static auto constexpr bundleName = "bundle";
     static auto constexpr bundleDesc = "Gathers all members from the provided keys into an array.\n"
+        "Inserts empty objects for missing values in the object.\n"
         "Usage: |bundle <key1> <key2> ... -> {array}\n";
 
     static bool bind(std::span<std::string_view const> args, Data::JsonScope& jsonDoc);
     static auto constexpr bindName = "bind";
     static auto constexpr bindDesc = "Binds the elements of an array to the provided keys.\n"
+        "think of C++ structured bindings: auto [key1, key2, key3] = arr;\n"
+        "Fails if the given scope is not an array or if no keys are provided.\n"
+        "Inserts empty objects for missing values in the array.\n"
         "Usage: |bind <key1> <key2> ... -> {object}\n";
 };
 } // namespace Nebulite::Module::Transformation
