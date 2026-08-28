@@ -7,6 +7,7 @@
 #include <cassert>
 #include <cmath>
 #include <complex>
+#include <concepts>
 #include <cstddef>
 #include <numbers>
 #include <ranges>
@@ -22,6 +23,26 @@
 #include "Nebulite/Utility/Ranges.hpp"
 
 //------------------------------------------
+// Concepts
+
+template<class R>
+using index_reference_t = decltype(std::declval<R&>()[std::declval<std::ranges::range_size_t<R>>()]);
+
+template<class R>
+concept IndexableRange = std::ranges::range<R>
+    && requires(R& r, std::ranges::range_size_t<R> i){
+        r[i];
+    };
+
+template<class R>
+concept MutableRange = IndexableRange<R>
+    && requires(R& r, std::ranges::range_size_t<R> i) {
+        requires std::is_lvalue_reference_v<index_reference_t<R>>;
+        requires std::assignable_from<index_reference_t<R>, std::ranges::range_value_t<R>>;
+        requires std::swappable<index_reference_t<R>>;
+    };
+
+//------------------------------------------
 namespace Nebulite::Math::Fft {
 
 namespace {
@@ -30,14 +51,16 @@ struct BitReversalPermutation {
     struct Closure : std::ranges::range_adaptor_closure<Closure> {
         std::size_t n;
 
-        template<std::ranges::input_range R>
+        Closure(std::size_t rangeSize) : n(rangeSize) {}
+
+        template<MutableRange R>
         auto operator()(R&& r) const {
             auto const bitCount = static_cast<std::size_t>(std::bit_width(n - 1));
             assert(r.size() == n);
             assert(std::has_single_bit(n)); // n must be a power of two
             for (auto const i : Utility::Generate::indices(n)) {
                 if (auto const b = Utility::Convert::Bits::reverse(i, bitCount); i < b) {
-                    std::swap(r[i], r[b]);
+                    std::ranges::swap(r[i], r[b]);
                 }
             }
             return std::forward<R>(r);
@@ -45,10 +68,7 @@ struct BitReversalPermutation {
     };
 
     auto operator()(std::size_t const n) const {
-        return Closure{
-            {}, // NOLINT
-            n,
-        };
+        return Closure(n);
     }
 } constexpr bitReversalPermutation;
 
@@ -57,7 +77,9 @@ struct ApplyStages {
         std::size_t const n;
         double const fullAngle;
 
-        template<std::ranges::input_range R>
+        Closure(std::size_t const rangeSize, double const a) : n(rangeSize), fullAngle(a) {}
+
+        template<MutableRange R>
         static void applyStage(R& r, std::complex<double> const stageTwiddle, std::size_t const stageSize, std::size_t const n) {
             auto const halfStageSize = stageSize / 2;
 
@@ -76,7 +98,7 @@ struct ApplyStages {
             }
         }
 
-        template<std::ranges::input_range R>
+        template<MutableRange R>
         auto operator()(R&& r) const {
             for (auto const stageSize : Utility::Generate::powersOfTwo(n)) {
                 double const ang = fullAngle / static_cast<double>(stageSize);
@@ -90,11 +112,7 @@ struct ApplyStages {
     double fullAngle;
 
     auto operator()(std::size_t const n) const {
-        return Closure{
-            {}, // NOLINT
-            n,
-            fullAngle,
-        };
+        return Closure(n, fullAngle);
     }
 };
 
