@@ -43,6 +43,7 @@ class RulesetModule {
 
     // Unique identifier for caching
     std::uint64_t const id;
+
 public:
     /**
      * @brief Constructs a RulesetModule with a unique identifier based on the module name.
