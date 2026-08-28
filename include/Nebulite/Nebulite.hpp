@@ -5,7 +5,7 @@
 // Includes
 
 // Standard library
-#include <string>
+#include <string_view>
 
 // Nebulite
 #include "Nebulite/ScopeAccessor.hpp"
@@ -51,7 +51,7 @@ Core::GlobalSpace& instance();
  * @param prefix Prefix to append to the access token's prefix for scope retrieval.
  * @return Reference to the shared JsonScope.
  */
-[[nodiscard]] Data::JsonScope& shareScope(ScopeAccessor::BaseAccessToken const& at, std::string const& prefix = "");
+[[nodiscard]] Data::JsonScope& shareScope(ScopeAccessor::BaseAccessToken const& at, std::string_view prefix = "");
 
 //------------------------------------------
 // Capture access
