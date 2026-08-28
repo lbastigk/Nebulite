@@ -295,9 +295,13 @@ struct InplaceBitReversalPermutation {
             auto const bitCount = static_cast<std::size_t>(std::bit_width(n - 1));
             assert(r.size() == n);
             assert(std::has_single_bit(n)); // n must be a power of two
+
+            // Since we verified the size, we can access directly without bounds checking. This is a performance optimization.
+            auto* data = std::ranges::data(r);
+
             for (auto const i : Generate::indices(n)) {
                 if (auto const b = Convert::Bits::reverse(i, bitCount); i < b) {
-                    std::ranges::swap(r[i], r[b]);
+                    std::ranges::swap(data[i], data[b]);
                 }
             }
         }
@@ -327,17 +331,23 @@ struct CopyBitReversalPermutation {
 
         template<IndexableRange R>
         static std::vector<T> apply(R const& r, std::size_t const n, T const defaultValue) {
+            assert(std::has_single_bit(n)); // n must be a power of two
+
             std::vector<T> result(n);
             auto const bitCount = static_cast<std::size_t>(std::bit_width(n - 1));
-            assert(std::has_single_bit(n)); // n must be a power of two
+
+            // Since we verified the size, we can access directly without bounds checking. This is a performance optimization.
+            auto* dstData = std::ranges::data(result);
+            auto* srcData = std::ranges::data(r);
+
             for (auto const source : Generate::indices(n)) {
                 auto const destination = Convert::Bits::reverse(source, bitCount);
 
                 if (source >= r.size()) {
-                    result[destination] = defaultValue;
+                    dstData[destination] = defaultValue;
                 }
                 else {
-                    result[destination] = static_cast<T>(r[source]);
+                    dstData[destination] = static_cast<T>(srcData[source]);
                 }
             }
             return std::move(result);

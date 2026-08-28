@@ -35,18 +35,23 @@ struct InplaceApplyStages {
         static void applySingleStage(R& r, std::complex<double> const stageTwiddle, std::size_t const stageSize, std::size_t const n) {
             assert(r.size() >= n);
 
-            auto const halfStageSize = stageSize / 2;
+            // Since we verified the size, we can access directly without bounds checking. This is a performance optimization.
+            auto* data = std::ranges::data(r);
 
+            // Perform the FFT butterfly operation for the current stage
+            auto const halfStageSize = stageSize / 2;
             for (auto const i : Utility::Generate::indices(n) | std::views::stride(stageSize)) {
-                std::complex w(1.0);
+                std::complex w(1.0); // Preallocation of ws is about 100% slower than just computing them on the fly for large arrays, so we do that instead
+
+                auto* lo = data + i;
+                auto* hi = data + i + halfStageSize;
 
                 for (auto const j : Utility::Generate::indices(halfStageSize)) {
-                    auto const u = r[i + j];
-                    auto const v = r[i + j + halfStageSize] * w;
-
-                    r[i + j] = u + v;
-                    r[i + j + halfStageSize] = u - v;
-
+                    assert(i + j + halfStageSize < n);
+                    auto const u = lo[j];
+                    auto const v = hi[j] * w;
+                    lo[j] = u + v;
+                    hi[j] = u - v;
                     w *= stageTwiddle;
                 }
             }
