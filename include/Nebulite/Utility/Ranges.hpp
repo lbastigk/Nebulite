@@ -6,6 +6,8 @@
 
 // Standard library
 #include <algorithm>
+#include <bit>
+#include <cassert>
 #include <concepts>
 #include <cstddef>
 #include <functional>
@@ -14,6 +16,10 @@
 #include <ranges>
 #include <type_traits>
 #include <vector>
+
+// Nebulite
+#include "Nebulite/Utility/Convert/Bits.hpp"
+#include "Nebulite/Utility/Generate.hpp"
 
 //------------------------------------------
 /**
@@ -277,5 +283,77 @@ static struct Normalize {
         };
     }
 } constexpr normalize{};
+
+struct InplaceBitReversalPermutation {
+    struct Closure : std::ranges::range_adaptor_closure<Closure> {
+        std::size_t n;
+
+        Closure(std::size_t rangeSize) : n(rangeSize) {}
+
+        template<MutableRange R>
+        static void apply(R& r, std::size_t const n) {
+            auto const bitCount = static_cast<std::size_t>(std::bit_width(n - 1));
+            assert(r.size() == n);
+            assert(std::has_single_bit(n)); // n must be a power of two
+            for (auto const i : Generate::indices(n)) {
+                if (auto const b = Convert::Bits::reverse(i, bitCount); i < b) {
+                    std::ranges::swap(r[i], r[b]);
+                }
+            }
+        }
+
+        template<MutableRange R>
+        auto operator()(R&& r) const {
+            apply(r, n);
+            return std::forward<R>(r);
+        }
+    };
+
+    auto operator()(std::size_t const n) const {
+        return Closure(n);
+    }
+} constexpr inplaceBitReversalPermutation; // NOLINT
+
+/**
+ * @brief Creates a copy of a range with elements permuted according to the bit-reversal permutation.
+ */
+struct CopyBitReversalPermutation {
+    template<typename T>
+    struct Closure : std::ranges::range_adaptor_closure<Closure<T>> {
+        std::size_t n;
+        T t;
+
+        Closure(std::size_t rangeSize, T const defaultValue) : n(rangeSize), t(defaultValue) {}
+
+        template<IndexableRange R>
+        static std::vector<T> apply(R const& r, std::size_t const n, T const defaultValue) {
+            std::vector<T> result(n);
+            auto const bitCount = static_cast<std::size_t>(std::bit_width(n - 1));
+            assert(std::has_single_bit(n)); // n must be a power of two
+            for (auto const source : Generate::indices(n)) {
+                auto const destination = Convert::Bits::reverse(source, bitCount);
+
+                if (source >= r.size()) {
+                    result[destination] = defaultValue;
+                }
+                else {
+                    result[destination] = static_cast<T>(r[source]);
+                }
+            }
+            return std::move(result);
+        }
+
+        template<IndexableRange R>
+        std::vector<T> operator()(R const& r) const {
+            return apply(r, n, t);
+        }
+    };
+
+    template<typename T>
+    auto operator()(std::size_t const n, T const defaultValue = T{}) const {
+        return Closure<T>(n, std::move(defaultValue));
+    }
+} constexpr copyBitReversalPermutation;
+
 } // namespace Nebulite::Utility::Ranges
 #endif // NEBULITE_UTILITY_RANGES_HPP

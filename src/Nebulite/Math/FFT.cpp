@@ -2,12 +2,10 @@
 // Includes
 
 // Standard library
-#include <algorithm>
 #include <bit>
 #include <cassert>
 #include <cmath>
 #include <complex>
-#include <concepts>
 #include <cstddef>
 #include <numbers>
 #include <ranges>
@@ -18,7 +16,6 @@
 // Nebulite
 #include "Nebulite/Math/Equality.hpp"
 #include "Nebulite/Math/FFT.hpp"
-#include "Nebulite/Utility/Convert/Bits.hpp"
 #include "Nebulite/Utility/Generate.hpp"
 #include "Nebulite/Utility/Ranges.hpp"
 
@@ -27,37 +24,7 @@ namespace Nebulite::Math::Fft {
 
 namespace {
 
-struct BitReversalPermutation {
-    struct Closure : std::ranges::range_adaptor_closure<Closure> {
-        std::size_t n;
-
-        Closure(std::size_t rangeSize) : n(rangeSize) {}
-
-        template<Utility::Ranges::MutableRange R>
-        static void apply(R& r, std::size_t const n) {
-            auto const bitCount = static_cast<std::size_t>(std::bit_width(n - 1));
-            assert(r.size() == n);
-            assert(std::has_single_bit(n)); // n must be a power of two
-            for (auto const i : Utility::Generate::indices(n)) {
-                if (auto const b = Utility::Convert::Bits::reverse(i, bitCount); i < b) {
-                    std::ranges::swap(r[i], r[b]);
-                }
-            }
-        }
-
-        template<Utility::Ranges::MutableRange R>
-        auto operator()(R&& r) const {
-            apply(r, n);
-            return std::forward<R>(r);
-        }
-    };
-
-    auto operator()(std::size_t const n) const {
-        return Closure(n);
-    }
-} constexpr bitReversalPermutation;
-
-struct ApplyStages {
+struct InplaceApplyStages {
     struct Closure : std::ranges::range_adaptor_closure<Closure> {
         std::size_t const n;
         double const fullAngle;
@@ -108,29 +75,26 @@ struct ApplyStages {
     }
 };
 
-inline constexpr ApplyStages applyStagesForward{ -2.0 * std::numbers::pi };
-inline constexpr ApplyStages applyStagesInverse{ 2.0 * std::numbers::pi };
+inline constexpr InplaceApplyStages inplaceApplyStagesForward{ -2.0 * std::numbers::pi };
+inline constexpr InplaceApplyStages inplaceApplyStagesInverse{ 2.0 * std::numbers::pi };
 
 } // namespace
 
 std::vector<std::complex<double>> fft(std::vector<double> const& data) {
     if (data.empty()) return {};
     auto const n = std::bit_ceil(data.size()); // next power of two
-    std::vector<std::complex<double>> a(n); // Initialized to 0.0
-    std::copy_n(data.begin(), data.size(), a.begin());
-    return a
-        | bitReversalPermutation(n)
-        | applyStagesForward(n);
+    return data
+        | Utility::Ranges::copyBitReversalPermutation(n, std::complex{0.0})
+        | inplaceApplyStagesForward(n);
 }
 
 std::vector<std::complex<double>> fftInverse(std::vector<std::complex<double>> const& xValues) {
     auto const n = std::bit_ceil(xValues.size()); // next power of two
     if (n == 0) return {};
-    std::vector<std::complex<double>> a = xValues;
-    a.resize(n);
-    return a
-        | bitReversalPermutation(n)
-        | applyStagesInverse(n)
+
+    return xValues
+        | Utility::Ranges::copyBitReversalPermutation(n, std::complex{0.0})
+        | inplaceApplyStagesInverse(n)
         | Utility::Ranges::normalize(n);
 }
 
