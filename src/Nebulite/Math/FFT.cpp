@@ -23,26 +23,6 @@
 #include "Nebulite/Utility/Ranges.hpp"
 
 //------------------------------------------
-// Concepts
-
-template<class R>
-using index_reference_t = decltype(std::declval<R&>()[std::declval<std::ranges::range_size_t<R>>()]);
-
-template<class R>
-concept IndexableRange = std::ranges::range<R>
-    && requires(R& r, std::ranges::range_size_t<R> i){
-        r[i];
-    };
-
-template<class R>
-concept MutableRange = IndexableRange<R>
-    && requires(R& r, std::ranges::range_size_t<R> i) {
-        requires std::is_lvalue_reference_v<index_reference_t<R>>;
-        requires std::assignable_from<index_reference_t<R>, std::ranges::range_value_t<R>>;
-        requires std::swappable<index_reference_t<R>>;
-    };
-
-//------------------------------------------
 namespace Nebulite::Math::Fft {
 
 namespace {
@@ -53,7 +33,7 @@ struct BitReversalPermutation {
 
         Closure(std::size_t rangeSize) : n(rangeSize) {}
 
-        template<MutableRange R>
+        template<Utility::Ranges::MutableRange R>
         static void apply(R& r, std::size_t const n) {
             auto const bitCount = static_cast<std::size_t>(std::bit_width(n - 1));
             assert(r.size() == n);
@@ -65,7 +45,7 @@ struct BitReversalPermutation {
             }
         }
 
-        template<MutableRange R>
+        template<Utility::Ranges::MutableRange R>
         auto operator()(R&& r) const {
             apply(r, n);
             return std::forward<R>(r);
@@ -84,7 +64,7 @@ struct ApplyStages {
 
         Closure(std::size_t const rangeSize, double const a) : n(rangeSize), fullAngle(a) {}
 
-        template<MutableRange R>
+        template<Utility::Ranges::MutableRange R>
         static void applySingleStage(R& r, std::complex<double> const stageTwiddle, std::size_t const stageSize, std::size_t const n) {
             assert(r.size() >= n);
 
@@ -105,7 +85,7 @@ struct ApplyStages {
             }
         }
 
-        template<MutableRange R>
+        template<Utility::Ranges::MutableRange R>
         static void apply(R& r, std::size_t const n, double const fullAngle) {
             for (auto const stageSize : Utility::Generate::powersOfTwo(n)) {
                 double const ang = fullAngle / static_cast<double>(stageSize);
@@ -114,7 +94,7 @@ struct ApplyStages {
             }
         }
 
-        template<MutableRange R>
+        template<Utility::Ranges::MutableRange R>
         auto operator()(R&& r) const {
             apply(r, n, fullAngle);
             return std::forward<R>(r);
@@ -140,8 +120,7 @@ std::vector<std::complex<double>> fft(std::vector<double> const& data) {
     std::copy_n(data.begin(), data.size(), a.begin());
     return a
         | bitReversalPermutation(n)
-        | applyStagesForward(n)
-        | std::ranges::to<std::vector<std::complex<double>>>();
+        | applyStagesForward(n);
 }
 
 std::vector<std::complex<double>> fftInverse(std::vector<std::complex<double>> const& xValues) {
@@ -152,15 +131,15 @@ std::vector<std::complex<double>> fftInverse(std::vector<std::complex<double>> c
     return a
         | bitReversalPermutation(n)
         | applyStagesInverse(n)
-        | Utility::Ranges::normalize(n)
-        | std::ranges::to<std::vector<std::complex<double>>>();
+        | Utility::Ranges::normalize(n);
 }
 
 namespace {
-std::complex<double> evaluatePolynomial(std::vector<double> const& coefficients, std::complex<double> const z) {
+template <std::ranges::input_range R>
+std::complex<double> evaluatePolynomial(R&& coefficients, std::complex<double> const z) {
     std::complex zPow(1.0);
     std::complex result(0.0);
-    for (double const c : coefficients | std::views::reverse) { // coefficients hold highest order first
+    for (double const c : std::forward<R>(coefficients) | std::views::reverse) { // coefficients hold highest order first
         assert(!std::isnan(c));
         result += c * zPow;
         zPow *= z;
