@@ -15,12 +15,6 @@
 #include <type_traits>
 #include <vector>
 
-
-
-
-
-
-
 //------------------------------------------
 /**
  * @namespace Nebulite::Utility::Ranges
