@@ -84,37 +84,39 @@ struct ApplyStages {
 
         Closure(std::size_t const rangeSize, double const a) : n(rangeSize), fullAngle(a) {}
 
-        template<IndexableRange I, MutableRange O>
-        static void applySingleStage(I& input, O& output, std::complex<double> const stageTwiddle, std::size_t const stageSize, std::size_t const n) {
+        template<MutableRange R>
+        static void applySingleStage(R& r, std::complex<double> const stageTwiddle, std::size_t const stageSize, std::size_t const n) {
+            assert(r.size() >= n);
+
             auto const halfStageSize = stageSize / 2;
 
             for (auto const i : Utility::Generate::indices(n) | std::views::stride(stageSize)) {
                 std::complex w(1.0);
 
                 for (auto const j : Utility::Generate::indices(halfStageSize)) {
-                    auto const u = input[i + j];
-                    auto const v = input[i + j + halfStageSize] * w;
+                    auto const u = r[i + j];
+                    auto const v = r[i + j + halfStageSize] * w;
 
-                    output[i + j] = u + v;
-                    output[i + j + halfStageSize] = u - v;
+                    r[i + j] = u + v;
+                    r[i + j + halfStageSize] = u - v;
 
                     w *= stageTwiddle;
                 }
             }
         }
 
-        template<IndexableRange I, MutableRange O>
-        static void apply(I& input, O& output, std::size_t const n, double const fullAngle) {
+        template<MutableRange R>
+        static void apply(R& r, std::size_t const n, double const fullAngle) {
             for (auto const stageSize : Utility::Generate::powersOfTwo(n)) {
                 double const ang = fullAngle / static_cast<double>(stageSize);
                 std::complex const stageTwiddle(std::cos(ang), std::sin(ang));
-                applySingleStage(input, output, stageTwiddle, stageSize, n);
+                applySingleStage(r, stageTwiddle, stageSize, n);
             }
         }
 
         template<MutableRange R>
         auto operator()(R&& r) const {
-            apply(r, r, n, fullAngle);
+            apply(r, n, fullAngle);
             return std::forward<R>(r);
         }
     };
