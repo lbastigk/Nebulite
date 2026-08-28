@@ -8,7 +8,9 @@
 #include <cassert>
 #include <concepts>
 #include <cstdint> // NOLINT
+#include <optional>
 #include <ranges>
+#include <string>
 #include <string_view>
 #include <type_traits>
 #include <vector>
@@ -34,19 +36,28 @@ namespace Nebulite::Module::Base {
 /**
  * @class RulesetModule
  * @brief Base class for all ruleset modules, providing functionality to bind static rulesets with metadata and register them into a StaticRulesetMap.
- * @todo Add canonical double pointer GlobalValues struct for all modules, add static polling for values from domain, pass to every ruleset function
- *       Less code duplication, and if we ever decide to allow non-globalspace global contexts, we can easily poll the values from that context
  */
 class RulesetModule {
+    // Vector of all static rulesets from this module
+    std::vector<Interaction::Rules::StaticRulesetMap::StaticRulesetWithMetadata> moduleRulesets;
+
+    // Unique identifier for caching
+    std::uint64_t const id;
+
 public:
     /**
      * @brief Constructs a RulesetModule with a unique identifier based on the module name.
      * @tparam DerivedModule The derived module type, which must satisfy the DerivedFromRulesetModule concept.
+     *                       Used to ensure that any module deriving from RulesetModule adheres to the expected interface and behavior.
      * @param moduleName The name of the module, used to generate a unique identifier.
+     * @param prefix The optional prefix for global access using getRulesetModuleAccessToken.
+     *               This way, the privilege of a module can be restricted to a subscope of the entire GlobalSpace document.
+     *               Any enhancement is a deliberate choice by modifying the prefix.
      */
     template<DerivedFromRulesetModule DerivedModule>
-    explicit RulesetModule(std::string_view const moduleName, DerivedModule* /*derived*/)
-        : id{Data::MappedOrderedCacheList::generateUniqueId(moduleName)}{}
+    explicit RulesetModule(std::string_view const moduleName, DerivedModule* /*derived*/, std::optional<std::string> const& prefix = std::nullopt)
+        : id{Data::MappedOrderedCacheList::generateUniqueId(moduleName)}
+        , globalAccessScopePrefix{prefix} {}
 
     /**
      * @brief Registers all static rulesets from this module into the given container
@@ -58,11 +69,15 @@ public:
         }
     }
 
+    // Optional prefix for global access scope, if provided
+    std::optional<std::string> const globalAccessScopePrefix;
+
 protected:
     /**
      * @brief Helper function to get a RulesetModuleToken for a derived module
      * @param derivedModule The derived RulesetModule instance, used for the prefix
      * @return A RulesetModuleToken for the derived module
+     * @throw std::runtime_error if the derived module does not have a global access scope prefix
      */
     static ScopeAccessor::RulesetModuleToken getRulesetModuleAccessToken(RulesetModule const& derivedModule){
         return ScopeAccessor::RulesetModuleToken(derivedModule);
@@ -181,13 +196,6 @@ protected:
      * @return true if the global context is correct, false otherwise
      */
     static bool isGlobalContextCorrect(Interaction::Context const& context);
-
-private:
-    // Vector of all static rulesets from this module
-    std::vector<Interaction::Rules::StaticRulesetMap::StaticRulesetWithMetadata> moduleRulesets;
-
-    // Unique identifier for caching
-    std::uint64_t const id;
 };
 } // namespace Nebulite::Module::Base
 #endif // NEBULITE_MODULE_BASE_RULESETMODULE_HPP
