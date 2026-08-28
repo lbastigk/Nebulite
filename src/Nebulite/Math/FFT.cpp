@@ -54,7 +54,7 @@ struct BitReversalPermutation {
         Closure(std::size_t rangeSize) : n(rangeSize) {}
 
         template<MutableRange R>
-        auto operator()(R&& r) const {
+        static void apply(R& r, std::size_t const n) {
             auto const bitCount = static_cast<std::size_t>(std::bit_width(n - 1));
             assert(r.size() == n);
             assert(std::has_single_bit(n)); // n must be a power of two
@@ -63,6 +63,11 @@ struct BitReversalPermutation {
                     std::ranges::swap(r[i], r[b]);
                 }
             }
+        }
+
+        template<MutableRange R>
+        auto operator()(R&& r) const {
+            apply(r, n);
             return std::forward<R>(r);
         }
     };
@@ -79,32 +84,37 @@ struct ApplyStages {
 
         Closure(std::size_t const rangeSize, double const a) : n(rangeSize), fullAngle(a) {}
 
-        template<MutableRange R>
-        static void applyStage(R& r, std::complex<double> const stageTwiddle, std::size_t const stageSize, std::size_t const n) {
+        template<IndexableRange I, MutableRange O>
+        static void applySingleStage(I& input, O& output, std::complex<double> const stageTwiddle, std::size_t const stageSize, std::size_t const n) {
             auto const halfStageSize = stageSize / 2;
 
             for (auto const i : Utility::Generate::indices(n) | std::views::stride(stageSize)) {
                 std::complex w(1.0);
 
                 for (auto const j : Utility::Generate::indices(halfStageSize)) {
-                    auto const u = r[i + j];
-                    auto const v = r[i + j + halfStageSize] * w;
+                    auto const u = input[i + j];
+                    auto const v = input[i + j + halfStageSize] * w;
 
-                    r[i + j] = u + v;
-                    r[i + j + halfStageSize] = u - v;
+                    output[i + j] = u + v;
+                    output[i + j + halfStageSize] = u - v;
 
                     w *= stageTwiddle;
                 }
             }
         }
 
-        template<MutableRange R>
-        auto operator()(R&& r) const {
+        template<IndexableRange I, MutableRange O>
+        static void apply(I& input, O& output, std::size_t const n, double const fullAngle) {
             for (auto const stageSize : Utility::Generate::powersOfTwo(n)) {
                 double const ang = fullAngle / static_cast<double>(stageSize);
                 std::complex const stageTwiddle(std::cos(ang), std::sin(ang));
-                applyStage(r, stageTwiddle, stageSize, n);
+                applySingleStage(input, output, stageTwiddle, stageSize, n);
             }
+        }
+
+        template<MutableRange R>
+        auto operator()(R&& r) const {
+            apply(r, r, n, fullAngle);
             return std::forward<R>(r);
         }
     };
