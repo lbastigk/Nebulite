@@ -22,7 +22,7 @@
 #include "Nebulite/Utility/Ranges.hpp"
 
 //------------------------------------------
-namespace Nebulite::Math {
+namespace Nebulite::Math::Fft {
 
 namespace {
 
@@ -103,7 +103,7 @@ inline constexpr ApplyStages applyStagesInverse{ 2.0 * std::numbers::pi };
 
 } // namespace
 
-std::vector<std::complex<double>> Fft::fft(std::vector<double> const& data) {
+std::vector<std::complex<double>> fft(std::vector<double> const& data) {
     if (data.empty()) return {};
     auto const n = std::bit_ceil(data.size()); // next power of two
     std::vector<std::complex<double>> a(n); // Initialized to 0.0
@@ -114,7 +114,7 @@ std::vector<std::complex<double>> Fft::fft(std::vector<double> const& data) {
         | std::ranges::to<std::vector<std::complex<double>>>();
 }
 
-std::vector<std::complex<double>> Fft::fftInverse(std::vector<std::complex<double>> const& xValues) {
+std::vector<std::complex<double>> fftInverse(std::vector<std::complex<double>> const& xValues) {
     auto const n = std::bit_ceil(xValues.size()); // next power of two
     if (n == 0) return {};
     std::vector<std::complex<double>> a = xValues;
@@ -139,14 +139,14 @@ std::complex<double> evaluatePolynomial(std::vector<double> const& coefficients,
 }
 } // namespace
 
-std::complex<double> Fft::evalTransfer(double const omega, std::vector<double> const& num, std::vector<double> const& den) {
+std::complex<double> evalTransfer(double const omega, std::vector<double> const& num, std::vector<double> const& den) {
     std::complex<double> const z = std::exp(std::complex(0.0, -omega));
     std::complex const numSum = evaluatePolynomial(num, z);
     std::complex const denSum = evaluatePolynomial(den, z);
     return numSum / denSum;
 }
 
-std::vector<double> Fft::applyTransferFunctionFrequencyDomain(std::vector<double> const& data, std::vector<double> const& num, std::vector<double> const& den) {
+std::vector<double> applyTransferFunctionFrequencyDomain(std::vector<double> const& data, std::vector<double> const& num, std::vector<double> const& den) {
     if (isZero(den.back())) {
         throw std::domain_error("Denominator has a zero leading coefficient, which is not yet supported.");
     }
@@ -165,4 +165,4 @@ std::vector<double> Fft::applyTransferFunctionFrequencyDomain(std::vector<double
         | std::ranges::to<std::vector<double>>();
 }
 
-} // namespace Nebulite::Math
+} // namespace Nebulite::Math::Fft
