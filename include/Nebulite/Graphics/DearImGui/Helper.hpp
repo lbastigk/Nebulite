@@ -6,17 +6,15 @@
 
 // Standard Library
 #include <array>
-#include <cstdint>
 #include <functional>
 #include <optional>
 #include <string>
-#include <utility>
 
 // External
 #include <imgui.h>
 
 // Nebulite
-#include "Nebulite/Data/Document/ScopedKey.hpp"
+#include "Nebulite/Graphics/DearImGui/Align.hpp"
 
 //------------------------------------------
 // Forward declarations
@@ -39,44 +37,16 @@ class Capture;
 } // namespace Nebulite::Utility::Io
 
 //------------------------------------------
-namespace Nebulite::Graphics {
+namespace Nebulite::Graphics::DearImGui {
 
-class ImguiHelper {
+class Helper {
 public:
     struct DomainRenderingFlags {
         bool showCloseButton = true; // Whether to show the close button in the ImGui window when rendering a domain
         std::optional<ImVec2> windowPos = std::nullopt; // Optional position
         std::optional<ImVec2> windowSize = std::nullopt; // Optional size
-
-        enum class Alignment : std::uint8_t {
-            none, // No automatic alignment, use exact position specified in windowPos
-            top,
-            bottom,
-            left,
-            right,
-        };
-        std::optional<Alignment> windowAlignment = std::nullopt; // Optional alignment to position the window relative to the specified position
+        std::optional<Align::Alignment> windowAlignment = std::nullopt; // Optional alignment to position the window relative to the specified position
     };
-
-    /**
-     * @brief Checks if imgui is initialized and ready for rendering.
-     * @return true if imgui is initialized, false otherwise.
-     */
-    static bool checkImguiInitialized();
-
-    /**
-     * @brief Checks if Imgui is ready to render a frame
-     * @return true if imgui is initialized and a frame is started, false otherwise.
-     */
-    static bool checkImguiReadyForRendering();
-
-    /**
-     * @brief Renders a JSON scope in an ImGui window.
-     * @details Make sure imgui is initialized and a frame is started before calling this function.
-     * @param scope The JSON scope to render.
-     * @param name The name of the ImGui window.
-     */
-    static void renderJsonScope(Data::JsonScope const& scope, std::string const& name);
 
     /**
      * @brief Renders a Domains scope, name and capture in an ImGui window.
@@ -96,22 +66,6 @@ public:
     );
 
 private:
-    template<typename F>
-    static void imguiChild(char const* name, F&& f, ImVec2 const size = ImVec2(0, 0), ImGuiChildFlags const flags = ImGuiChildFlags_None) {
-        if (ImGui::BeginChild(name, size, flags)) {
-            std::invoke(std::forward<F>(f));
-        }
-        ImGui::EndChild();
-    }
-
-    static void setCursorPosXForRightAlignedButton(char const* buttonLabel);
-
-    /**
-     * @brief Imgui alignment helper, call before Imgui::Begin().
-     * @param alignment The flags for the window alignment.
-     */
-    static void align(DomainRenderingFlags::Alignment const& alignment);
-
     /**
      * @brief Setup ImGui for the next window based on the provided flags
      * @param flags The flags to consider
@@ -168,13 +122,6 @@ private:
     static void renderViewerField(int& id, std::string const& title, FieldState& state, std::function<void()> const& content);
 
     /**
-     * @brief Renders a JSON tree node in an ImGui window.
-     * @param s The JSON scope to render.
-     * @param root The root key for the JSON node.
-     */
-    static void renderJsonTreeNode(Data::JsonScope const& s, Data::ScopedKeyView const& root);
-
-    /**
      * @brief Renders the domain console + capture viewer in an ImGui window.
      * @param ctx The context of the caller.
      * @param ctxScope The scope of the caller.
@@ -191,5 +138,5 @@ private:
     static void renderPlotViewer(Interaction::ContextScope const& ctxScope, std::string const& identifier);
 };
 
-} // namespace Nebulite::Graphics
+} // namespace Nebulite::Graphics::DearImGui
 #endif // NEBULITE_GRAPHICS_IMGUIHELPER_HPP

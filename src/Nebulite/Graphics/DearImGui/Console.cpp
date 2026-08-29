@@ -22,7 +22,8 @@
 // Nebulite
 #include "Nebulite/Core/GlobalSpace.hpp"
 #include "Nebulite/Data/Document/JsonScope.hpp"
-#include "Nebulite/Graphics/ImguiHelper.hpp"
+#include "Nebulite/Graphics/DearImGui/Core.hpp"
+#include "Nebulite/Graphics/DearImGui/Helper.hpp"
 #include "Nebulite/Interaction/Execution/Domain.hpp"
 #include "Nebulite/Interaction/Logic/Expression.hpp"
 #include "Nebulite/Nebulite.hpp"
@@ -270,19 +271,19 @@ int consoleInputCallback(ImGuiInputTextCallbackData* data) {
 } // namespace
 
 //------------------------------------------
-namespace Nebulite::Graphics {
+namespace Nebulite::Graphics::DearImGui {
 
-void ImguiHelper::renderDomainViewerConsole(Interaction::Context& ctx, Interaction::ContextScope& ctxScope, Utility::Io::Capture& capture, std::string const& name) {
+void Helper::renderDomainViewerConsole(Interaction::Context& ctx, Interaction::ContextScope& ctxScope, Utility::Io::Capture& capture, std::string const& name) {
     static auto constexpr function = __FUNCTION__;
 
     //------------------------------------------
     // Console output area:
 
-    imguiChild("#Console", [&] {
+    Core::imguiChild("#Console", [&] {
         //------------------------------------------
         // Console output area
 
-        imguiChild("ConsoleOutput", [&] {
+        Core::imguiChild("ConsoleOutput", [&] {
             ImGui::PushTextWrapPos(0.0f); // wrap at window/child width
             for (auto const& [content, type] : capture.getHistory()){
                 std::string contentFull;
@@ -318,7 +319,7 @@ void ImguiHelper::renderDomainViewerConsole(Interaction::Context& ctx, Interacti
         //------------------------------------------
         // Console input area
 
-        imguiChild("ConsoleInput", [&] {
+        Core::imguiChild("ConsoleInput", [&] {
             // Store state for each console by name
             static std::unordered_map<std::string, ConsoleState> states;
             if (auto const it = states.find(name); it == states.end()) {
@@ -349,4 +350,4 @@ void ImguiHelper::renderDomainViewerConsole(Interaction::Context& ctx, Interacti
     }, ImVec2(0, -ImGui::GetFrameHeightWithSpacing()), ImGuiChildFlags_None);
 }
 
-} // namespace Nebulite::Graphics
+} // namespace Nebulite::Graphics::DearImGui

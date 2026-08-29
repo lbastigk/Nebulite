@@ -8,7 +8,6 @@
 #include <optional>
 #include <string>
 #include <unordered_map>
-#include <utility>
 
 // External
 #include <imgui.h>
@@ -16,84 +15,21 @@
 // Nebulite
 #include "Nebulite/Constants/Event.hpp"
 #include "Nebulite/Data/Document/JsonScope.hpp"
-#include "Nebulite/Data/Document/KeyType.hpp"
-#include "Nebulite/Graphics/ImguiHelper.hpp"
+#include "Nebulite/Graphics/DearImGui/Align.hpp"
+#include "Nebulite/Graphics/DearImGui/Core.hpp"
+#include "Nebulite/Graphics/DearImGui/Helper.hpp"
+#include "Nebulite/Graphics/DearImGui/Json.hpp"
 #include "Nebulite/Interaction/Execution/Domain.hpp"
 #include "Nebulite/Interaction/Logic/Expression.hpp"
 #include "Nebulite/Module/Domain/Common/General.hpp"
 #include "Nebulite/Utility/Io/Capture.hpp"
 
 //------------------------------------------
-namespace Nebulite::Graphics {
+namespace Nebulite::Graphics::DearImGui {
 
-bool ImguiHelper::checkImguiInitialized() {
-    return ImGui::GetCurrentContext() != nullptr;
-}
 
-bool ImguiHelper::checkImguiReadyForRendering() {
-    return checkImguiInitialized() && ImGui::GetFrameCount() > 0;
-}
 
-void ImguiHelper::renderJsonScope(Data::JsonScope const& scope, std::string const& name) {
-    ImGui::Begin(name.c_str());
-    renderJsonTreeNode(scope, scope.getRootScope());
-    ImGui::End();
-}
-
-void ImguiHelper::setCursorPosXForRightAlignedButton(char const* buttonLabel) {
-    float const buttonWidth = ImGui::CalcTextSize(buttonLabel).x + ImGui::GetStyle().FramePadding.x * 2.0f;
-    float const scrollbarWidth = ImGui::GetScrollMaxY() > 0.0f ? ImGui::GetStyle().ScrollbarSize : 0.0f;
-    ImGui::SetCursorPosX(ImGui::GetWindowWidth() - ImGui::GetStyle().WindowPadding.x - buttonWidth - scrollbarWidth);
-}
-
-void ImguiHelper::align(DomainRenderingFlags::Alignment const& alignment) {
-    ImGuiViewport const* const vp = ImGui::GetMainViewport();
-
-    ImVec2 const vpPos  = vp->WorkPos;
-    ImVec2 const vpSize = vp->WorkSize;
-
-    auto const topPos    = ImVec2(vpPos.x, vpPos.y);
-    auto const bottomPos = ImVec2(vpPos.x, vpPos.y + vpSize.y);
-    auto const leftPos   = ImVec2(vpPos.x, vpPos.y);
-    auto const rightPos  = ImVec2(vpPos.x + vpSize.x, vpPos.y);
-
-    switch (alignment) {
-    case DomainRenderingFlags::Alignment::top:
-        ImGui::SetNextWindowPos(topPos, ImGuiCond_Always, ImVec2(0.0f, 0.0f));
-        ImGui::SetNextWindowSize(
-            ImVec2(vpSize.x, vpSize.y * 0.5f),
-            ImGuiCond_Always
-        );
-        break;
-    case DomainRenderingFlags::Alignment::bottom:
-        ImGui::SetNextWindowPos(bottomPos, ImGuiCond_Always, ImVec2(0.0f, 1.0f));
-        ImGui::SetNextWindowSize(
-            ImVec2(vpSize.x, vpSize.y * 0.5f),
-            ImGuiCond_Always
-        );
-        break;
-    case DomainRenderingFlags::Alignment::left:
-        ImGui::SetNextWindowPos(leftPos, ImGuiCond_Always, ImVec2(0.0f, 0.0f));
-        ImGui::SetNextWindowSize(
-            ImVec2(vpSize.x * 0.5f, vpSize.y),
-            ImGuiCond_Always
-        );
-        break;
-    case DomainRenderingFlags::Alignment::right:
-        ImGui::SetNextWindowPos(rightPos, ImGuiCond_Always, ImVec2(1.0f, 0.0f));
-        ImGui::SetNextWindowSize(
-            ImVec2(vpSize.x * 0.5f, vpSize.y),
-            ImGuiCond_Always
-        );
-        break;
-    case DomainRenderingFlags::Alignment::none:
-        break;
-    default:
-        std::unreachable();
-    }
-}
-
-void ImguiHelper::domainViewerSetup(DomainRenderingFlags const& flags) {
+void Helper::domainViewerSetup(DomainRenderingFlags const& flags) {
     // Sizing and alignment
     if (flags.windowPos.has_value()) {
         ImGui::SetNextWindowPos(flags.windowPos.value(), ImGuiCond_Always);
@@ -102,11 +38,11 @@ void ImguiHelper::domainViewerSetup(DomainRenderingFlags const& flags) {
         ImGui::SetNextWindowSize(flags.windowSize.value(), ImGuiCond_Always);
     }
     if (flags.windowAlignment.has_value()) {
-        align(flags.windowAlignment.value());
+        alignWindow(flags.windowAlignment.value());
     }
 }
 
-void ImguiHelper::renderDomainViewerHeader(DomainRenderingFlags const& flags, std::array<FieldData, ViewerLayout::count>& fields, std::string const& windowName, Interaction::Context& ctx, Interaction::ContextScope& ctxScope, Utility::Io::Capture& capture){
+void Helper::renderDomainViewerHeader(DomainRenderingFlags const& flags, std::array<FieldData, ViewerLayout::count>& fields, std::string const& windowName, Interaction::Context& ctx, Interaction::ContextScope& ctxScope, Utility::Io::Capture& capture){
     // Header row: Minimized fields, close button (optional)
     ImGui::SameLine();
 
@@ -144,7 +80,7 @@ void ImguiHelper::renderDomainViewerHeader(DomainRenderingFlags const& flags, st
     }
 }
 
-void ImguiHelper::renderDomainViewer(Interaction::Context& ctx, Interaction::ContextScope& ctxScope, Utility::Io::Capture& capture, std::string const& name, DomainRenderingFlags const& flags) {
+void Helper::renderDomainViewer(Interaction::Context& ctx, Interaction::ContextScope& ctxScope, Utility::Io::Capture& capture, std::string const& name, DomainRenderingFlags const& flags) {
     auto const& scope = ctxScope.self;
     std::string const additionalIdentifier = !ctx.self.capture.hasParent() ? "GLOBAL" : "";
     std::string const identifier = name + "_" + std::to_string(ctx.self.getId()) + "_" + additionalIdentifier;
@@ -168,7 +104,7 @@ void ImguiHelper::renderDomainViewer(Interaction::Context& ctx, Interaction::Con
             .title="JSON",
             .state=json,
             .renderFunction=[&] {
-                renderJsonTreeNode(scope, scope.getRootScope());
+                Json::renderScope(scope, scope.getRootScope());
             },
         },
         FieldData{
@@ -206,14 +142,14 @@ void ImguiHelper::renderDomainViewer(Interaction::Context& ctx, Interaction::Con
     ImGui::End();
 }
 
-void ImguiHelper::renderViewerField(int& id, std::string const& title, FieldState& state, std::function<void()> const& content) {
+void Helper::renderViewerField(int& id, std::string const& title, FieldState& state, std::function<void()> const& content) {
     // Begin Child
     ImGui::PushID(id++);
-    imguiChild(title.c_str(), [&] {
+    Core::imguiChild(title.c_str(), [&] {
         // Header
         ImGui::TextUnformatted(title.c_str());
         ImGui::SameLine();
-        setCursorPosXForRightAlignedButton("Minimize");
+        Align::setCursorPosXForRightAlignedButton("Minimize");
         if (ImGui::Button("Minimize")) {
             state = FieldState::minimized;
         }
@@ -225,30 +161,4 @@ void ImguiHelper::renderViewerField(int& id, std::string const& title, FieldStat
     ImGui::PopID();
 }
 
-void ImguiHelper::renderJsonTreeNode(Data::JsonScope const& s, Data::ScopedKeyView const& root) {
-    for (auto const& key : s.listAvailableKeys(root)) {
-        std::string const rootPath = root.toString();
-        std::string const fullPath = key.view().toString();
-        std::string keyPath = fullPath;
-        if (rootPath != fullPath) keyPath = fullPath.substr(rootPath.length());
-        if (!keyPath.empty() && keyPath.front() == Data::Json::SpecialCharacter::dot) keyPath.erase(0, 1);
-        if (auto const type = s.memberType(key); type == Data::KeyType::object || type == Data::KeyType::array) {
-            // use fullPath as the ID (first arg) and keyPath as the visible text (format)
-            if (ImGui::TreeNode(fullPath.c_str(), "%s", keyPath.c_str())) {
-                renderJsonTreeNode(s, key.view());
-                ImGui::TreePop();
-            }
-        } else if (type == Data::KeyType::value) {
-            if (auto const stringValue = s.get<std::string>(key); stringValue.has_value()) {
-                ImGui::Text("%s : %s", keyPath.c_str(), stringValue.value().c_str());
-            }
-            else {
-                ImGui::TextDisabled("%s : <err: failed to convert value to string>", keyPath.c_str());
-            }
-        } else {
-            ImGui::TextDisabled("%s : null", keyPath.c_str());
-        }
-    }
-}
-
-} // namespace Nebulite::Graphics
+} // namespace Nebulite::Graphics::DearImGui

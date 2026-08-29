@@ -21,7 +21,9 @@
 #include <implot.h>
 
 // Nebulite
-#include "Nebulite/Graphics/ImguiHelper.hpp"
+#include "Nebulite/Graphics/DearImGui/Align.hpp"
+#include "Nebulite/Graphics/DearImGui/Core.hpp"
+#include "Nebulite/Graphics/DearImGui/Helper.hpp"
 #include "Nebulite/Interaction/Execution/Domain.hpp"
 #include "Nebulite/Interaction/Logic/Expression.hpp"
 #include "Nebulite/Utility/Promise.hpp"
@@ -273,9 +275,9 @@ void imguiTable(char const* label, std::array<char const*, N> c, F&& f) {
 } // namespace
 
 //------------------------------------------
-namespace Nebulite::Graphics {
+namespace Nebulite::Graphics::DearImGui {
 
-void ImguiHelper::renderPlotViewer(Interaction::ContextScope const& ctxScope, std::string const& identifier){
+void Helper::renderPlotViewer(Interaction::ContextScope const& ctxScope, std::string const& identifier){
     static std::unordered_map<std::string, Plots> plots;
 
     // Cleanup old plots
@@ -288,14 +290,14 @@ void ImguiHelper::renderPlotViewer(Interaction::ContextScope const& ctxScope, st
     auto& availablePlots = plotMetaData.plots;
 
     // Window
-    imguiChild("PlotViewer", [&] {
+    Core::imguiChild("PlotViewer", [&] {
         ImGui::Separator();
 
         // Add Plot
         ImGui::TextUnformatted("Available Plots:");
         ImGui::SameLine();
         static auto constexpr addPlotText = " + Add Plot";
-        setCursorPosXForRightAlignedButton(addPlotText);
+        Align::setCursorPosXForRightAlignedButton(addPlotText);
         if (ImGui::Button(addPlotText)) {
             availablePlots.emplace_back(plotMetaData.idCounter++, colorFromIndex(availablePlots.size(), 10));
         }
@@ -359,4 +361,4 @@ void ImguiHelper::renderPlotViewer(Interaction::ContextScope const& ctxScope, st
     });
 }
 
-} // namespace Nebulite::Graphics
+} // namespace Nebulite::Graphics::DearImGui
