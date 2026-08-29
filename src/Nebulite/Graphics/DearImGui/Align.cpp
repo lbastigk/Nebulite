@@ -12,12 +12,6 @@
 
 namespace Nebulite::Graphics::DearImGui::Align {
 
-void setCursorPosXForRightAlignedButton(char const* buttonLabel) {
-    float const buttonWidth = ImGui::CalcTextSize(buttonLabel).x + ImGui::GetStyle().FramePadding.x * 2.0f;
-    float const scrollbarWidth = ImGui::GetScrollMaxY() > 0.0f ? ImGui::GetStyle().ScrollbarSize : 0.0f;
-    ImGui::SetCursorPosX(ImGui::GetWindowWidth() - ImGui::GetStyle().WindowPadding.x - buttonWidth - scrollbarWidth);
-}
-
 void alignWindow(Alignment const& alignment) {
     ImGuiViewport const* const vp = ImGui::GetMainViewport();
 
@@ -63,6 +57,12 @@ void alignWindow(Alignment const& alignment) {
     default:
         std::unreachable();
     }
+}
+
+void setCursorPosXForRightAlignedButton(char const* buttonLabel) {
+    float const buttonWidth = ImGui::CalcTextSize(buttonLabel).x + ImGui::GetStyle().FramePadding.x * 2.0f;
+    float const scrollbarWidth = ImGui::GetScrollMaxY() > 0.0f ? ImGui::GetStyle().ScrollbarSize : 0.0f;
+    ImGui::SetCursorPosX(ImGui::GetWindowWidth() - ImGui::GetStyle().WindowPadding.x - buttonWidth - scrollbarWidth);
 }
 
 } // namespace Nebulite::Graphics::DearImGui::Align

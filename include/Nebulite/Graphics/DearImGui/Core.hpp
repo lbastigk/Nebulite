@@ -5,6 +5,8 @@
 // Includes
 
 // Standard Library
+#include <array>
+#include <cstddef>
 #include <functional>
 #include <utility>
 
@@ -34,11 +36,32 @@ bool checkImguiReadyForRendering();
  * @param flags The flags for the child window.
  */
 template<typename F>
-void imguiChild(char const* name, F&& f, ImVec2 const size = ImVec2(0, 0), ImGuiChildFlags const flags = ImGuiChildFlags_None) {
+void renderChild(char const* name, F&& f, ImVec2 const size = ImVec2(0, 0), ImGuiChildFlags const flags = ImGuiChildFlags_None) {
     if (ImGui::BeginChild(name, size, flags)) {
         std::invoke(std::forward<F>(f));
     }
     ImGui::EndChild();
+}
+
+/**
+ * @brief Renders a table based on the provided data.
+ * @tparam N The amount of rows.
+ * @tparam F The content of the table.
+ * @param label The label of the tabel.
+ * @param c The header.
+ * @param f The generator function for the entries.
+ */
+template<std::size_t N, typename F>
+void renderTable(char const* label, std::array<char const*, N> c, F&& f) {
+    if (ImGui::BeginTable(label, c.size(), ImGuiTableFlags_Resizable | ImGuiTableFlags_Borders)) {
+        ImGui::TableNextRow();
+        for (auto const& desc : c) {
+            ImGui::TableNextColumn();
+            ImGui::Text("%s", desc);
+        }
+        std::invoke(std::forward<F>(f));
+        ImGui::EndTable();
+    }
 }
 
 } // namespace Nebulite::Graphics::DearImGui::Core

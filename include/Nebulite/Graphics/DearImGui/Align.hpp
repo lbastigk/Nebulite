@@ -19,16 +19,16 @@ enum class Alignment : std::uint8_t {
 };
 
 /**
- * @brief Sets the cursor position to the right of the specified button.
- * @param buttonLabel The label of the button to align with.
- */
-void setCursorPosXForRightAlignedButton(char const* buttonLabel);
-
-/**
  * @brief Imgui alignment helper, call before Imgui::Begin().
  * @param alignment The flags for the window alignment.
  */
 void alignWindow(Alignment const& alignment);
+
+/**
+ * @brief Sets the cursor position to the right of the specified button.
+ * @param buttonLabel The label of the button to align with.
+ */
+void setCursorPosXForRightAlignedButton(char const* buttonLabel);
 
 } // namespace Nebulite::Graphics::DearImGui::Align
 #endif // NEBULITE_GRAPHICS_DEARIMGUI_ALIGN_HPP

@@ -18,7 +18,7 @@
 #include "Nebulite/Constants/StandardCapture.hpp"
 #include "Nebulite/Core/GlobalSpace.hpp"
 #include "Nebulite/Graphics/DearImGui/Core.hpp"
-#include "Nebulite/Graphics/DearImGui/Helper.hpp"
+#include "Nebulite/Graphics/DearImGui/DomainViewer.hpp"
 #include "Nebulite/Interaction/Logic/Expression.hpp"
 #include "Nebulite/Module/Domain/Common/General.hpp"
 #include "Nebulite/Nebulite.hpp"
@@ -52,7 +52,7 @@ Constants::Event General::updateHook() {
                     .global = *lastContext.globalScope,
                 },
             };
-            Graphics::DearImGui::Helper::renderDomainViewer(ctx, ctxScope, domain.capture, domain.getName());
+            Graphics::DearImGui::DomainViewer::render(ctx, ctxScope, domain.capture, domain.getName());
         });
     }
     return Constants::Event::success;
