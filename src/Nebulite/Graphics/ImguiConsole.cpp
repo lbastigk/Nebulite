@@ -142,7 +142,7 @@ bool checkCompletionsForCommonPrefix(std::string_view const input, std::vector<s
         if (matchIterator == enumeratedString.end()) {
             return first.size();
         }
-        return matchIterator.index;
+        return std::get<0>(*matchIterator);
     }();
     if (auto const match = first.substr(0, matchingLength); !match.empty() && !input.ends_with(match)) {
         completions.clear();

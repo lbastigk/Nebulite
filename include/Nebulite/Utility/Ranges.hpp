@@ -11,10 +11,10 @@
 #include <concepts>
 #include <cstddef>
 #include <functional>
-#include <iterator>
 #include <optional>
 #include <ranges>
 #include <type_traits>
+#include <utility>
 #include <vector>
 
 // Nebulite
@@ -36,7 +36,6 @@ concept OptionalLike = requires(T x) {
     typename std::remove_cvref_t<T>::value_type;
     { x.has_value() } -> std::convertible_to<bool>;
     x.value();
-    *x;
 };
 
 template<class R>
@@ -44,17 +43,15 @@ using index_reference_t = decltype(std::declval<R&>()[std::declval<std::ranges::
 
 template<class R>
 concept IndexableRange = std::ranges::range<R>
-    && requires(R& r, std::ranges::range_size_t<R> i){
-    r[i];
-    };
+    && requires(R& r, std::ranges::range_size_t<R> i){ r[i]; };
 
 template<class R>
 concept MutableRange = IndexableRange<R>
     && requires(R& r, std::ranges::range_size_t<R> i) {
-    requires std::is_lvalue_reference_v<index_reference_t<R>>;
-    requires std::assignable_from<index_reference_t<R>, std::ranges::range_value_t<R>>;
-    requires std::swappable<index_reference_t<R>>;
-    };
+        requires std::is_lvalue_reference_v<index_reference_t<R>>;
+        requires std::assignable_from<index_reference_t<R>, std::ranges::range_value_t<R>>;
+        requires std::swappable<index_reference_t<R>>;
+};
 
 //------------------------------------------
 // Range Utilities
@@ -80,10 +77,10 @@ static struct CollectOptional : std::ranges::range_adaptor_closure<CollectOption
         }
 
         for (auto&& opt : std::forward<R>(r)) {
-            if (!opt) {
+            if (!opt.has_value()) {
                 return std::optional<std::vector<T>>{std::nullopt};
             }
-            result.push_back(*std::forward<decltype(opt)>(opt));
+            result.push_back(std::forward<decltype(opt)>(opt).value());
         }
         return std::optional<std::vector<T>>{std::move(result)};
     }
@@ -116,11 +113,11 @@ static struct TryTransform {
             }
 
             for (auto&& elem : std::forward<R>(r)) {
-                auto value = std::invoke(f, elem);
-                if (!value) {
+                auto opt = std::invoke(f, elem);
+                if (!opt.has_value()) {
                     return std::optional<std::vector<T>>{std::nullopt};
                 }
-                result.push_back(std::move(*value));
+                result.push_back(std::move(opt.value()));
             }
 
             return std::optional<std::vector<T>>{std::move(result)};
@@ -139,68 +136,16 @@ static struct TryTransform {
  * @brief An alternative implementation of std::views::enumerate, where the enumeration index is of type std::size_t
  */
 static struct Enumerate : std::ranges::range_adaptor_closure<Enumerate> {
-    template <typename T>
-    struct EnumerateItem {
-        std::size_t index;
-        T value;
-    };
-
-    // A simple enumerate view implementation that yields EnumerateItem{index, element}
-    template <std::ranges::view V>
-    requires std::ranges::input_range<V>
-    struct EnumerateView : std::ranges::view_interface<EnumerateView<V>> {
-        V base = V();
-
-        EnumerateView() = default;
-        explicit EnumerateView(V b) : base(std::move(b)) {}
-
-        using BaseIterator = std::ranges::iterator_t<V>;
-        using BaseSentinel = std::ranges::sentinel_t<V>;
-
-        struct Iterator {
-            BaseIterator it{};
-            std::size_t index = 0;
-
-            using iterator_category = std::input_iterator_tag; // NOLINT
-            using value_type = EnumerateItem<std::ranges::range_reference_t<V>>; // NOLINT
-            using difference_type = std::ptrdiff_t; // NOLINT
-
-            Iterator() = default;
-            Iterator(BaseIterator const& i, std::size_t const idx) : it(i), index(idx) {}
-
-            value_type operator*() const {
-                return value_type{index, *it};
-            }
-
-            Iterator& operator++() {
-                ++it;
-                ++index;
-                return *this;
-            }
-
-            void operator++(int) { ++*this; }
-
-            friend bool operator==(Iterator const& a, BaseIterator const& b) { return a.it == b; }
-        };
-
-        struct Sentinel {
-            BaseSentinel end;
-        };
-
-        Iterator begin() { return Iterator{std::ranges::begin(base), 0}; }
-        Sentinel end() { return Sentinel{std::ranges::end(base)}; }
-
-        // compare Iterator and sentinel
-        friend bool operator==(Iterator const& it, Sentinel const& s) { return it.it == s.end; }
-        friend bool operator==(Sentinel const& s, Iterator const& it) { return it == s; }
-    };
-
-    template <std::ranges::viewable_range R>
-    auto operator()(R&& r) const {
-        using V = std::views::all_t<R>;
-        return EnumerateView<V>(std::views::all(std::forward<R>(r)));
+    template <std::ranges::viewable_range R> auto operator()(R&& range) const {
+        return std::views::enumerate(std::forward<R>(range))
+            | std::views::transform([](auto&& item) {
+                auto&& [index, value] = item;
+                return std::pair< std::size_t, decltype(value) >{
+                    static_cast<std::size_t>(index),
+                    std::forward<decltype(value)>(value) };
+            });
     }
-} constexpr enumerate{};
+} constexpr enumerate;
 
 /**
  * @brief Checks if all elements in a range are equal and satisfy a given predicate.
@@ -218,7 +163,7 @@ static struct AllEqualAnd : std::ranges::range_adaptor_closure<AllEqualAnd>{
                 return true;
             }
             auto const& first = *std::ranges::begin(r);
-            return std::ranges::all_of(std::forward<R>(r), [this, first](auto const& elem) {
+            return std::ranges::all_of(std::forward<R>(r), [&](auto const& elem) {
                 return std::invoke(pred, elem) && elem == first;
             });
         }
@@ -242,7 +187,7 @@ static struct AllEqual : std::ranges::range_adaptor_closure<AllEqual>{
             return true;
         }
         auto const& first = *std::ranges::begin(r);
-        return std::ranges::all_of(std::forward<R>(r), [first](auto const& elem) {
+        return std::ranges::all_of(std::forward<R>(r), [&](auto const& elem) {
             return elem == first;
         });
     }
@@ -254,6 +199,8 @@ static struct AllEqual : std::ranges::range_adaptor_closure<AllEqual>{
 static struct Normalize {
     struct Closure : std::ranges::range_adaptor_closure<Closure> {
         std::size_t const n;
+
+        Closure(std::size_t const div) : n(div) {}
 
         // Specialization for mutable ranges: modifies the range in place
         template<MutableRange R>
@@ -277,10 +224,7 @@ static struct Normalize {
     };
 
     auto operator()(std::size_t const n) const {
-        return Closure{
-            {}, // NOLINT
-            n,
-        };
+        return Closure{n};
     }
 } constexpr normalize{};
 
@@ -314,9 +258,9 @@ struct InplaceBitReversalPermutation {
     };
 
     auto operator()(std::size_t const n) const {
-        return Closure(n);
+        return Closure{n};
     }
-} constexpr inplaceBitReversalPermutation; // NOLINT
+} constexpr inplaceBitReversalPermutation{};
 
 /**
  * @brief Creates a copy of a range with elements permuted according to the bit-reversal permutation.
@@ -361,7 +305,7 @@ struct CopyBitReversalPermutation {
 
     template<typename T>
     auto operator()(std::size_t const n, T const defaultValue = T{}) const {
-        return Closure<T>(n, std::move(defaultValue));
+        return Closure<T>{n, std::move(defaultValue)};
     }
 } constexpr copyBitReversalPermutation;
 
