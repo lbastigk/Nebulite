@@ -60,6 +60,13 @@ public:
         "Usage: feature-test find-parent-key <key>\n"
         "Using no argument will treated as an empty key.\n";
 
+    // Benchmarks
+
+    [[nodiscard]] Constants::Event largeFft(std::span<std::string_view const> args) const ;
+    static auto constexpr largeFftName = "feature-test large-fft";
+    static auto constexpr largeFftDesc = "Tests the FFT implementation with a large dataset.\n"
+        "Usage: feature-test large-fft <size>\n";
+
     //------------------------------------------
     // Categories
 
@@ -85,6 +92,9 @@ public:
         // Keys
         bindFunction(&FeatureTest::keyCombination, keyCombinationName, keyCombinationDesc);
         bindFunction(&FeatureTest::findParentKey, findParentKeyName, findParentKeyDesc);
+
+        // Benchmarks
+        bindFunction(&FeatureTest::largeFft, largeFftName, largeFftDesc);
     }
 
     struct Key : Data::KeyGroup<""> {

@@ -2,11 +2,15 @@
 // Includes
 
 // Standard library
+#include <algorithm>
+#include <bit>
+#include <cstddef>
 #include <limits>
 #include <span>
 #include <stdexcept>
 #include <string>
 #include <string_view>
+#include <vector>
 
 // Nebulite
 #include "Nebulite/Constants/Event.hpp"
@@ -15,9 +19,12 @@
 #include "Nebulite/Data/Document/Json.hpp"
 #include "Nebulite/Data/Document/ScopedKey.hpp"
 #include "Nebulite/Interaction/Logic/Expression.hpp"
+#include "Nebulite/Math/FFT.hpp"
 #include "Nebulite/Module/Domain/GlobalSpace/FeatureTest.hpp"
 #include "Nebulite/Utility/Args/FuncTree.hpp"
+#include "Nebulite/Utility/Convert/Cast.hpp"
 #include "Nebulite/Utility/StringHandler.hpp"
+#include "Nebulite/Utility/Time.hpp"
 
 //------------------------------------------
 namespace Nebulite::Module::Domain::GlobalSpace {
@@ -111,6 +118,39 @@ Constants::Event FeatureTest::keyCombination(std::span<std::string_view const> c
 Constants::Event FeatureTest::findParentKey(std::span<std::string_view const> const args) const {
     auto const key = args.size() > 1 ? Utility::StringHandler::recombineArgs(args.subspan(1)) : "";
     domain.capture.log.println(Data::Json::findParentKey(key));
+    return Constants::Event::success;
+}
+
+Constants::Event FeatureTest::largeFft(std::span<std::string_view const> const args) const {
+    if (args.size() < 2) {
+        return Constants::StandardCapture::Warning::Functional::tooFewArgs(domain.capture);
+    }
+    if (args.size() > 2) {
+        return Constants::StandardCapture::Warning::Functional::tooManyArgs(domain.capture);
+    }
+
+    auto size = Utility::Convert::Cast::String::to<std::size_t>(args[1]);
+    if (!size.has_value()) {
+        return Constants::StandardCapture::Warning::Functional::invalidArgument(domain.capture);
+    }
+
+    std::vector data(size.value(), 0.0);
+    for (std::size_t i = 0; i < size.value(); ++i) {
+        data[i] = static_cast<double>(i % 100); // Fill with some sample data
+    }
+
+    auto start = Utility::Time::getTime();
+    auto const result = Math::Fft::fft(data);
+    auto end = Utility::Time::getTime();
+
+    domain.capture.log.println("FFT of size ", size.value(), " computed. Took ", end - start, " ms. First 10 results of ", result.size(), " total:");
+    for (std::size_t i = 0; i < std::min(result.size(), static_cast<std::size_t>(10)); ++i) {
+        domain.capture.log.println(result[i]);
+    }
+    if (result.size() != std::bit_ceil(size.value())) {
+        domain.capture.error.println("FFT result size mismatch: expected ", std::bit_ceil(size.value()), " but got ", result.size());
+        return Constants::Event::error;
+    }
     return Constants::Event::success;
 }
 
