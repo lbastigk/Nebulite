@@ -172,20 +172,20 @@ TraverseResult traverseToParent(std::string_view const keyStr, [[clang::lifetime
                 return {
                     .parent=nullptr,
                     .poppedMember="",
-                    .poppedIndex=-1
+                    .poppedIndex=-1,
                 };
             }
             if (parentPath.empty()) { // Parent is root
                 return {
                     .parent=&root,
                     .poppedMember="",
-                    .poppedIndex=idx.value()
+                    .poppedIndex=idx.value(),
                 };
             }
             return {
                 .parent=traversePath(parentPath, root),
                 .poppedMember="",
-                .poppedIndex=idx.value()
+                .poppedIndex=idx.value(),
             };
         }
     }
@@ -194,13 +194,13 @@ TraverseResult traverseToParent(std::string_view const keyStr, [[clang::lifetime
         return {
             .parent=traversePath(keyStr.substr(0, lastDot), root),
             .poppedMember=keyStr.substr(lastDot + 1),
-            .poppedIndex=-1
+            .poppedIndex=-1,
         };
     }
     return {
         .parent=nullptr,
         .poppedMember="",
-        .poppedIndex=-1
+        .poppedIndex=-1,
     };
 }
 
@@ -457,11 +457,11 @@ void removeMember(std::string_view const key, rapidjson::Value& val) {
     }
 }
 
-bool isValidKey(std::string_view keyView) {
-    while (!keyView.empty()) {
+bool isValidKey(std::string_view key) {
+    while (!key.empty()) {
         // Extract current key part (object key)
         // Validate object key part if non-empty
-        if (auto const member = popMember(keyView); !member.empty()) {
+        if (auto const member = popMember(key); !member.empty()) {
             // Check for invalid characters in member name
             if (member.find_first_of("[]") != std::string_view::npos) {
                 return false; // Invalid character found
@@ -469,25 +469,25 @@ bool isValidKey(std::string_view keyView) {
         }
 
         // Now handle zero or more array indices if they appear next
-        while (!keyView.empty() && keyView[0] == SpecialCharacter::arrayOpen) {
+        while (!key.empty() && key[0] == SpecialCharacter::arrayOpen) {
             // Find closing character
-            auto const closeBracket = keyView.find(SpecialCharacter::arrayClose);
+            auto const closeBracket = key.find(SpecialCharacter::arrayClose);
             if (closeBracket == std::string_view::npos) {
                 return false; // Malformed key - missing closing character
             }
 
             // Extract index string between open and close character
-            if (std::string_view const idxStr = keyView.substr(1, closeBracket - 1); !Utility::StringHandler::isNumber(idxStr)) {
+            if (std::string_view const idxStr = key.substr(1, closeBracket - 1); !Utility::StringHandler::isNumber(idxStr)) {
                 return false; // invalid number
             }
 
             // Remove processed '[index]'
-            keyView.remove_prefix(closeBracket + 1);
+            key.remove_prefix(closeBracket + 1);
         }
 
         // If next character is dot, skip it and continue
-        if (!keyView.empty() && keyView[0] == SpecialCharacter::dot) {
-            keyView.remove_prefix(1);
+        if (!key.empty() && key[0] == SpecialCharacter::dot) {
+            key.remove_prefix(1);
         }
     }
     return true;

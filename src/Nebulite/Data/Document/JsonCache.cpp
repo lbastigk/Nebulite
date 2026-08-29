@@ -105,7 +105,7 @@ void JsonCache::deleteEntry(std::string_view const key) {
 }
 
 [[nodiscard]] std::optional<CacheEntry&> JsonCache::find(std::string_view const key) const [[clang::lifetimebound]] {
-    if (auto it = cache.find(key); it != cache.end()) {
+    if (auto const it = cache.find(key); it != cache.end()) {
         return *it->second;
     }
     return std::nullopt;

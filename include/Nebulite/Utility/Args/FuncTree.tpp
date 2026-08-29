@@ -480,7 +480,7 @@ ReturnValue FuncTree<ReturnValue, AdditionalArgs...>::parseStr(std::string_view 
 }
 
 template <typename ReturnValue, typename... AdditionalArgs>
-ReturnValue FuncTree<ReturnValue, AdditionalArgs...>::parse(std::span<std::string_view const> args, AdditionalArgs... addArgs) {
+ReturnValue FuncTree<ReturnValue, AdditionalArgs...>::parse(std::span<std::string_view const> const args, AdditionalArgs... addArgs) {
     auto actualArgs = args.subspan(1); // First arg is caller, remove
     processVariableArguments(actualArgs);
     if (actualArgs.empty()) {

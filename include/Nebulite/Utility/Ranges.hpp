@@ -39,7 +39,7 @@ concept OptionalLike = requires(T x) {
 };
 
 template<class R>
-using index_reference_t = decltype(std::declval<R&>()[std::declval<std::ranges::range_size_t<R>>()]);
+using IndexReferenceT = decltype(std::declval<R&>()[std::declval<std::ranges::range_size_t<R>>()]);
 
 template<class R>
 concept IndexableRange = std::ranges::range<R>
@@ -48,9 +48,9 @@ concept IndexableRange = std::ranges::range<R>
 template<class R>
 concept MutableRange = IndexableRange<R>
     && requires(R& r, std::ranges::range_size_t<R> i) {
-        requires std::is_lvalue_reference_v<index_reference_t<R>>;
-        requires std::assignable_from<index_reference_t<R>, std::ranges::range_value_t<R>>;
-        requires std::swappable<index_reference_t<R>>;
+        requires std::is_lvalue_reference_v<IndexReferenceT<R>>;
+        requires std::assignable_from<IndexReferenceT<R>, std::ranges::range_value_t<R>>;
+        requires std::swappable<IndexReferenceT<R>>;
 };
 
 //------------------------------------------
@@ -140,9 +140,10 @@ static struct Enumerate : std::ranges::range_adaptor_closure<Enumerate> {
         return std::views::enumerate(std::forward<R>(range))
             | std::views::transform([](auto&& item) {
                 auto&& [index, value] = item;
-                return std::pair< std::size_t, decltype(value) >{
+                return std::pair<std::size_t, decltype(value)>{
                     static_cast<std::size_t>(index),
-                    std::forward<decltype(value)>(value) };
+                    std::forward<decltype(value)>(value),
+                };
             });
     }
 } constexpr enumerate;
@@ -200,7 +201,7 @@ static struct Normalize {
     struct Closure : std::ranges::range_adaptor_closure<Closure> {
         std::size_t const n;
 
-        Closure(std::size_t const div) : n(div) {}
+        explicit Closure(std::size_t const div) : n(div) {}
 
         // Specialization for mutable ranges: modifies the range in place
         template<MutableRange R>
@@ -232,7 +233,7 @@ struct InplaceBitReversalPermutation {
     struct Closure : std::ranges::range_adaptor_closure<Closure> {
         std::size_t n;
 
-        Closure(std::size_t rangeSize) : n(rangeSize) {}
+        explicit Closure(std::size_t const rangeSize) : n(rangeSize) {}
 
         template<MutableRange R>
         static void apply(R& r, std::size_t const n) {
@@ -271,7 +272,7 @@ struct CopyBitReversalPermutation {
         std::size_t n;
         T t;
 
-        Closure(std::size_t rangeSize, T const defaultValue) : n(rangeSize), t(defaultValue) {}
+        explicit Closure(std::size_t const rangeSize, T const defaultValue) : n(rangeSize), t(defaultValue) {}
 
         template<IndexableRange R>
         static std::vector<T> apply(R const& r, std::size_t const n, T const defaultValue) {
