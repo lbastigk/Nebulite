@@ -26,7 +26,7 @@
 #include "Nebulite/Data/Document/JsonScope.hpp"
 #include "Nebulite/Data/Document/KeyType.hpp"
 #include "Nebulite/Graphics/Drawcall.hpp"
-#include "Nebulite/Graphics/SdlPrimitive.hpp"
+#include "Nebulite/Graphics/Sdl/Geometry.hpp"
 #include "Nebulite/Math/Equality.hpp"
 #include "Nebulite/Nebulite.hpp"
 #include "Nebulite/Utility/Coordination/IdGenerator.hpp"
@@ -54,8 +54,7 @@ Drawcall::Drawcall(Data::JsonScope& workspace, Utility::Io::Capture& parentCaptu
         updateDrawcallDataIntervalMs + rollingJitter<updateDrawcallDataIntervalJitterMs>(),
         Utility::Coordination::TimedRoutine::ConstructionMode::startImmediately
     }
-    , reInitializeRequested(true)
-{
+    , reInitializeRequested(true) {
     refs.initialize(workspace);
     updateDrawcallData();
 }
@@ -410,7 +409,7 @@ void Drawcall::initializeCircle() {
         .a=static_cast<Uint8>(*refs.colorA),
     };
     SDL_SetRenderDrawColor(sdlRenderer, state.circle.circleColor.r, state.circle.circleColor.g, state.circle.circleColor.b, state.circle.circleColor.a);
-    SdlPrimitive::drawFilledCircle(sdlRenderer, circleTexture, state.circle.circleColor, state.circle.radius);
+    Sdl::Geometry::drawFilledCircle(sdlRenderer, circleTexture, state.circle.circleColor, state.circle.radius);
 
     // Setup src values unless they are already defined
     if (drawcallScope.memberType(Key::Rect::srcX) != Data::KeyType::value) {
@@ -489,11 +488,11 @@ void Drawcall::initializePolygon() {
 
     if (!Math::isZero(*refs.polygonFilled)) {
         // Filled polygon
-        SdlPrimitive::drawFilledPolygon(sdlRenderer, polyTexture, state.polygon.polyColor, points);
+        Sdl::Geometry::drawFilledPolygon(sdlRenderer, polyTexture, state.polygon.polyColor, points);
     }
     else {
         // Empty polygon
-        SdlPrimitive::drawEmptyPolygon(sdlRenderer, polyTexture, state.polygon.polyColor, points);
+        Sdl::Geometry::drawEmptyPolygon(sdlRenderer, polyTexture, state.polygon.polyColor, points);
     }
 
     // Check for errors

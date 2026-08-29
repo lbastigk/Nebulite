@@ -14,12 +14,12 @@
 #include <SDL3/SDL_render.h>
 
 // Nebulite
-#include "Nebulite/Graphics/SdlPrimitive.hpp"
+#include "Nebulite/Graphics/Sdl/Geometry.hpp"
 
 //------------------------------------------
-namespace Nebulite::Graphics {
+namespace Nebulite::Graphics::Sdl::Geometry {
 
-void SdlPrimitive::drawFilledCircle(SDL_Renderer* renderer, SDL_Texture* texture, SDL_Color const& color, int const radius) {
+void drawFilledCircle(SDL_Renderer* renderer, SDL_Texture* texture, SDL_Color const& color, int const radius) {
     SDL_SetRenderTarget(renderer, texture);
     SDL_SetRenderDrawColor(renderer, 0, 0, 0, 0);
     SDL_RenderClear(renderer);
@@ -35,7 +35,7 @@ void SdlPrimitive::drawFilledCircle(SDL_Renderer* renderer, SDL_Texture* texture
     SDL_SetRenderTarget(renderer, nullptr);
 }
 
-void SdlPrimitive::drawLines(SDL_Renderer* renderer, SDL_Texture* texture, SDL_Color const& color, std::vector<SDL_FPoint> const& points) {
+void drawLines(SDL_Renderer* renderer, SDL_Texture* texture, SDL_Color const& color, std::vector<SDL_FPoint> const& points) {
     SDL_SetRenderTarget(renderer, texture);
     SDL_SetRenderDrawColor(renderer, 0, 0, 0, 0);
     SDL_RenderClear(renderer);
@@ -50,7 +50,7 @@ void SdlPrimitive::drawLines(SDL_Renderer* renderer, SDL_Texture* texture, SDL_C
     SDL_SetRenderTarget(renderer, nullptr);
 }
 
-void SdlPrimitive::drawEmptyPolygon(SDL_Renderer* renderer, SDL_Texture* texture, SDL_Color const& color, std::vector<SDL_FPoint> const& points) {
+void drawEmptyPolygon(SDL_Renderer* renderer, SDL_Texture* texture, SDL_Color const& color, std::vector<SDL_FPoint> const& points) {
     if (points.size() < 2) { // Need at least 2 points to draw a polygon
         return;
     }
@@ -61,7 +61,7 @@ void SdlPrimitive::drawEmptyPolygon(SDL_Renderer* renderer, SDL_Texture* texture
     drawLines(renderer, texture, color, closedPoints);
 }
 
-void SdlPrimitive::drawFilledPolygon(SDL_Renderer* renderer, SDL_Texture* texture, SDL_Color const& color, std::vector<SDL_FPoint> const& points) {
+void drawFilledPolygon(SDL_Renderer* renderer, SDL_Texture* texture, SDL_Color const& color, std::vector<SDL_FPoint> const& points) {
     if (points.size() < 3) {
         return; // Need at least a triangle
     }
@@ -128,4 +128,4 @@ void SdlPrimitive::drawFilledPolygon(SDL_Renderer* renderer, SDL_Texture* textur
     SDL_SetRenderTarget(renderer, nullptr);
 }
 
-} // namespace Nebulite::Graphics
+} // namespace Nebulite::Graphics::Sdl::Geometry
