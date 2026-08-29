@@ -18,13 +18,13 @@
 // External
 #include <RmlUi/Core/DataModelHandle.h>
 #include <RmlUi/Core/Element.h>
-#include <RmlUi/Core/Plugin.h>
 #include <RmlUi_Renderer_SDL.h>
 #include <SDL3/SDL_events.h>
 #include <SDL3/SDL_video.h>
 #include <absl/container/flat_hash_map.h>
 
 // Nebulite
+#include "Nebulite/Graphics/RmlDocumentManager.hpp"
 #include "Nebulite/Graphics/RmlSystemInterface.hpp"
 #include "Nebulite/Interaction/Context.hpp"
 
@@ -308,16 +308,18 @@ private:
     std::vector<std::unique_ptr<Module::Base::RmlUiModule>> modules;
     SDL_Window* window = nullptr;
 
-    // Owner -> name -> document
-    absl::flat_hash_map<
-        std::size_t, // owner domain id
-        absl::flat_hash_map<
-            std::string, // document name
-            Rml::ElementDocument*
-        >
-    > ownerToDocument; // Map of owner domain id to its document for easy retrieval and management
-    absl::flat_hash_map<Rml::ElementDocument*, ContextAndScope> documentToContext; // Map of document to its context and scope for expression evaluation
-    absl::flat_hash_map<RmlElementIdentifier, ContextAndScope> elementToContext; // Map of element to its context and scope for expression evaluation
+    using NameToDocumentMap = absl::flat_hash_map<std::string, Rml::ElementDocument*>; // Map of document name to document pointer
+    using OwnerToDocumentMap = absl::flat_hash_map<std::size_t, NameToDocumentMap>; // Map of owner domain id to its documents
+
+    // Ownership management
+
+    struct OwnershipManager {
+        OwnerToDocumentMap ownerToDocument;
+        absl::flat_hash_map<Rml::ElementDocument*, ContextAndScope> documentToContext;
+        absl::flat_hash_map<RmlElementIdentifier, ContextAndScope> elementToContext;
+    } ownershipManager;
+
+    std::unique_ptr<RmlDocumentManager> documentManager;
 
     /**
      * @brief Checks a container for any references to a given domainId in context 'other' or 'global' and replaces them with context 'self'
@@ -338,29 +340,6 @@ private:
      */
     template<typename Container>
     static void removeContext(std::size_t ownerId, Container& container);
-
-    // Document manager
-    class DocumentManager final : public Rml::Plugin {
-    public:
-        explicit DocumentManager();
-
-        ~DocumentManager() override;
-
-        void clearDocuments();
-
-        DocumentManager(DocumentManager const&) = delete;
-        DocumentManager& operator=(DocumentManager const&) = delete;
-        DocumentManager(DocumentManager&&) = delete;
-        DocumentManager& operator=(DocumentManager&&) = delete;
-
-        void OnDocumentLoad(Rml::ElementDocument* document) override ;
-
-        void OnDocumentUnload(Rml::ElementDocument* document) override ;
-
-        // Hashset of opened documents
-        std::unordered_set<Rml::ElementDocument*> openedDocuments;
-    };
-    std::unique_ptr<DocumentManager> documentManager;
 
     // Event processing
 

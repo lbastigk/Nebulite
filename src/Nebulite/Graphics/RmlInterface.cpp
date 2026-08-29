@@ -31,6 +31,7 @@
 
 // Nebulite
 #include "Nebulite/Core/Renderer.hpp"
+#include "Nebulite/Graphics/RmlDocumentManager.hpp"
 #include "Nebulite/Graphics/RmlInterface.hpp"
 #include "Nebulite/Graphics/RmlSystemInterface.hpp"
 #include "Nebulite/Interaction/Context.hpp"
@@ -136,7 +137,7 @@ void RmlInterface::init(Core::Renderer& renderer, int const width, int const hei
     SetSystemInterface(systemInterface.get());
 
     // Core document manager plugin
-    documentManager = std::make_unique<DocumentManager>();
+    documentManager = std::make_unique<RmlDocumentManager>();
     RegisterPlugin(documentManager.get());
 
     // Plugins
@@ -314,7 +315,7 @@ void RmlInterface::update(int const mousePositionX, int const mousePositionY) co
     systemInterface->update(mousePositionX, mousePositionY);
 
     // Update Documents
-    for (auto const& doc : documentToContext | std::views::keys) {
+    for (auto const& doc : ownershipManager.documentToContext | std::views::keys) {
         doc->UpdateDocument();
     }
 
@@ -379,7 +380,7 @@ size_t RmlInterface::countOpenedDocuments() const {
 
 std::vector<std::pair<size_t, std::string>> RmlInterface::listOpenedDocuments() const{
     std::vector<std::pair<size_t, std::string>> documents;
-    for (auto const& [ownerId, nameToDoc] : ownerToDocument) {
+    for (auto const& [ownerId, nameToDoc] : ownershipManager.ownerToDocument) {
         for (auto const& name : nameToDoc | std::views::keys) {
             documents.emplace_back(ownerId, name);
         }
@@ -397,39 +398,39 @@ bool RmlInterface::loadDocument(std::string_view const name, std::string_view co
     auto const& id = ctx.self.getId();
     auto ctxAndScope = ContextAndScope{.ctx=ctx, .ctxScope=ctxScope};
 
-    if (ownerToDocument[id].contains(name)) {
+    if (ownershipManager.ownerToDocument[id].contains(name)) {
         return false; // Document with this name already exists for this owner
     }
-    ownerToDocument[id][std::string(name)] = doc;
-    documentToContext.emplace(doc, ctxAndScope);
+    ownershipManager.ownerToDocument[id][std::string(name)] = doc;
+    ownershipManager.documentToContext.emplace(doc, ctxAndScope);
     doc->Show();
     return true;
 }
 
 bool RmlInterface::removeDocument(std::size_t const id, std::string_view const name) {
-    auto const it = std::ranges::find(ownerToDocument[id], name, [](auto const& pair) { return pair.first; });
-    if (it == ownerToDocument[id].end()) {
+    auto const it = std::ranges::find(ownershipManager.ownerToDocument[id], name, [](auto const& pair) { return pair.first; });
+    if (it == ownershipManager.ownerToDocument[id].end()) {
         return false; // No document with this name for this owner
     }
     auto* const doc = it->second;
     doc->Close();
-    ownerToDocument[id].erase(name);
-    documentToContext.erase(doc);
+    ownershipManager.ownerToDocument[id].erase(name);
+    ownershipManager.documentToContext.erase(doc);
     return true;
 }
 
 bool RmlInterface::removeDocument(Rml::ElementDocument* doc) {
     bool foundInOwnerMap = false;
-    for (auto& documents : ownerToDocument | std::views::values) {
+    for (auto& documents : ownershipManager.ownerToDocument | std::views::values) {
         if (auto const it = std::ranges::find_if(documents, [doc](auto const& pair) { return pair.second == doc; }); it != documents.end()) {
             documents.erase(it);
             foundInOwnerMap = true;
             break;
         }
     }
-    bool const foundInContextMap = documentToContext.contains(doc);
+    bool const foundInContextMap = ownershipManager.documentToContext.contains(doc);
     if (foundInContextMap) {
-        documentToContext.erase(doc);
+        ownershipManager.documentToContext.erase(doc);
     }
     context->UnloadDocument(doc);
     return foundInOwnerMap && foundInContextMap;
@@ -438,29 +439,29 @@ bool RmlInterface::removeDocument(Rml::ElementDocument* doc) {
 void RmlInterface::removeReferencesToId(std::size_t const domainId){
     // This function might be called after the interface is already deleted... So we keep track of the singleton
     if (!statusTracker.rmlInterfaceInitialized) return;
-    if (!ownerToDocument.contains(domainId)) return;
+    if (!ownershipManager.ownerToDocument.contains(domainId)) return;
 
     // 1.) Close and remove all documents owned by the id, and remove them from the context map
-    for (auto const& doc : ownerToDocument[domainId] | std::views::values) {
+    for (auto const& doc : ownershipManager.ownerToDocument[domainId] | std::views::values) {
         doc->Close();
-        documentToContext.erase(doc);
+        ownershipManager.documentToContext.erase(doc);
         context->UnloadDocument(doc);
     }
-    ownerToDocument.erase(domainId);
+    ownershipManager.ownerToDocument.erase(domainId);
 
     // 2.) Erase all references to the domain from the element to context map
-    absl::erase_if(elementToContext, [&](auto const& pair) {
+    absl::erase_if(ownershipManager.elementToContext, [&](auto const& pair) {
         auto const& [element, ctxAndScope] = pair;
         return ctxAndScope.ctx.self.getId() == domainId;
     });
 
     // 3.) See if the context is referenced as other or global in any document or element contexts, and if so replace it with self
-    removeContext(domainId, elementToContext);
-    removeContext(domainId, documentToContext);
+    removeContext(domainId, ownershipManager.elementToContext);
+    removeContext(domainId, ownershipManager.documentToContext);
 }
 
 std::optional<RmlInterface::ContextAndScope> RmlInterface::getRmlElementContextAndScope(RmlElementIdentifier const& elementId) {
-    if (auto const it = elementToContext.find(elementId); it != elementToContext.end()) {
+    if (auto const it = ownershipManager.elementToContext.find(elementId); it != ownershipManager.elementToContext.end()) {
         return it->second;
     }
     return std::nullopt;
@@ -468,42 +469,19 @@ std::optional<RmlInterface::ContextAndScope> RmlInterface::getRmlElementContextA
 
 std::optional<RmlInterface::ContextAndScope> RmlInterface::getRmlDocumentContextAndScope(Rml::ElementDocument* document){
     if (!document) return std::nullopt;
-    if (auto const it = documentToContext.find(document); it != documentToContext.end()) {
+    if (auto const it = ownershipManager.documentToContext.find(document); it != ownershipManager.documentToContext.end()) {
         return it->second;
     }
     return std::nullopt;
 }
 
 void RmlInterface::setRmlElementContextAndScope(RmlElementIdentifier const& elementId, ContextAndScope const& ctxAndScope) {
-    elementToContext.emplace(elementId, ctxAndScope);
+    ownershipManager.elementToContext.emplace(elementId, ctxAndScope);
 }
 
 void RmlInterface::setRmlDocumentContextAndScope(Rml::ElementDocument* document, ContextAndScope const& ctxAndScope) {
     if (!document) return;
-    documentToContext.emplace(document, ctxAndScope);
-}
-
-// Plugin for document tracking
-
-RmlInterface::DocumentManager::DocumentManager() = default;
-
-RmlInterface::DocumentManager::~DocumentManager() {
-    clearDocuments();
-}
-
-void RmlInterface::DocumentManager::clearDocuments(){
-    for (auto const& doc : openedDocuments) {
-        doc->Close();
-    }
-    openedDocuments.clear();
-}
-
-void RmlInterface::DocumentManager::OnDocumentLoad(Rml::ElementDocument* document){
-    openedDocuments.insert(document);
-}
-
-void RmlInterface::DocumentManager::OnDocumentUnload(Rml::ElementDocument* document) {
-    openedDocuments.erase(document);
+    ownershipManager.documentToContext.emplace(document, ctxAndScope);
 }
 
 } // namespace Nebulite::Graphics
