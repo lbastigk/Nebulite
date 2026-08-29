@@ -1,0 +1,5 @@
+# Testing benchmark for FFT (Fast Fourier Transform) implementation
+# Using the featuretest module so we don' have to benchmark with the slower transformation fft.
+
+feature-test large-fft 10000000
+exit

@@ -24,7 +24,8 @@ echo "Starting profiling.nebs"
 # - loading
 # - jsonRuleset
 # - parsing
-set settings.profilingTask transformations
+# - fft
+set settings.profilingTask fft
 ####################################################
 
 ###################
@@ -50,3 +51,7 @@ if $({global:settings.profilingTask|strCompare equals jsonRuleset}) then task Ta
 ###################
 # 6.) Parsing performance
 if $({global:settings.profilingTask|strCompare equals parsing}) then task TaskFiles/Benchmarks/parsing.nebs
+
+###################
+# 7.) FFT performance
+if $({global:settings.profilingTask|strCompare equals fft}) then task TaskFiles/Benchmarks/fft.nebs
