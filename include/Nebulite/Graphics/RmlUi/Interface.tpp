@@ -1,5 +1,5 @@
-#ifndef NEBULITE_GRAPHICS_RMLINTERFACE_TPP
-#define NEBULITE_GRAPHICS_RMLINTERFACE_TPP
+#ifndef NEBULITE_GRAPHICS_RMLUI_INTERFACE_TPP
+#define NEBULITE_GRAPHICS_RMLUI_INTERFACE_TPP
 
 //------------------------------------------
 // Includes
@@ -19,14 +19,14 @@ class Domain;
 //------------------------------------------
 // Conditional includes
 
-#ifndef NEBULITE_GRAPHICS_RMLINTERFACE_HPP
-#include "Nebulite/Graphics/RmlInterface.hpp"
-#endif // NEBULITE_GRAPHICS_RMLINTERFACE_HPP
+#ifndef NEBULITE_GRAPHICS_RMLUI_INTERFACE_HPP
+#include "Nebulite/Graphics/RmlUi/Interface.hpp"
+#endif // NEBULITE_GRAPHICS_RMLUI_INTERFACE_HPP
 
-namespace Nebulite::Graphics {
+namespace Nebulite::Graphics::RmlUi {
 
 template <typename Key, typename Container>
-void RmlInterface::determineNewContext(auto const& ctxAndScope, Key const& key, Container& container, std::size_t const domainId) {
+void Interface::determineNewContext(auto const& ctxAndScope, Key const& key, Container& container, std::size_t const domainId) {
     auto& oldCtx = ctxAndScope.ctx;
     auto& oldCtxScope = ctxAndScope.ctxScope;
     if (oldCtx.other.getId() != domainId && oldCtx.global.getId() != domainId) {
@@ -51,7 +51,7 @@ void RmlInterface::determineNewContext(auto const& ctxAndScope, Key const& key, 
 }
 
 template<typename Container>
-void RmlInterface::removeContext(std::size_t const ownerId, Container& container) {
+void Interface::removeContext(std::size_t const ownerId, Container& container) {
     // Should be possible in one loop: check ctxAndScope for id, replace instantly
     using Key = Container::key_type;
     std::vector<std::pair<Key, ContextAndScope>> updated;
@@ -64,5 +64,5 @@ void RmlInterface::removeContext(std::size_t const ownerId, Container& container
     }
 }
 
-} // namespace Nebulite::Graphics
-#endif // NEBULITE_GRAPHICS_RMLINTERFACE_TPP
+} // namespace Nebulite::Graphics::RmlUi
+#endif // NEBULITE_GRAPHICS_RMLUI_INTERFACE_TPP

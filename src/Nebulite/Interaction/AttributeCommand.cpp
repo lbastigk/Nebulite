@@ -11,7 +11,7 @@
 
 // Nebulite
 #include "Nebulite/Constants/Event.hpp"
-#include "Nebulite/Graphics/RmlInterface.hpp"
+#include "Nebulite/Graphics/RmlUi/Interface.hpp"
 #include "Nebulite/Interaction/AttributeCommand.hpp"
 #include "Nebulite/Interaction/Execution/Domain.hpp"
 #include "Nebulite/Interaction/GlobalValue.hpp"
@@ -25,7 +25,7 @@ namespace Nebulite::Interaction {
 
 static_assert(AttributeCommand<"">::specializationCount == 3, "If you added a new Rml attribute command specialization, make sure to add it to the Actions struct as well!");
 
-void ActionsImpl::applyRuleset(std::string_view const ruleset, Utility::Io::Capture& cap, Graphics::RmlInterface::ContextAndScope& ctxAndScope) {
+void ActionsImpl::applyRuleset(std::string_view const ruleset, Utility::Io::Capture& cap, Graphics::RmlUi::Interface::ContextAndScope& ctxAndScope) {
     auto& [ctx, scope] = ctxAndScope;
     if (auto const rs = Rules::Construction::RulesetCompiler::parseSingle(ruleset, ctx.self); rs) {
         auto const global = GlobalValue(scope.global).copy();
@@ -36,7 +36,7 @@ void ActionsImpl::applyRuleset(std::string_view const ruleset, Utility::Io::Capt
     }
 }
 
-void ActionsImpl::parseString(std::string_view const stringToParse, Utility::Io::Capture& cap, Graphics::RmlInterface::ContextAndScope& ctxAndScope) {
+void ActionsImpl::parseString(std::string_view const stringToParse, Utility::Io::Capture& cap, Graphics::RmlUi::Interface::ContextAndScope& ctxAndScope) {
     // TODO use a taskqueue instead? Some refactoring of taskQueue for accepting a long string with ';' is required
     auto& [ctx, scope] = ctxAndScope;
     for (auto const& task : Utility::StringHandler::split(stringToParse, ';')) {
@@ -57,7 +57,7 @@ void ActionsImpl::parseString(std::string_view const stringToParse, Utility::Io:
     }
 }
 
-void ActionsImpl::applySpecialAction(SpecialAction::Type const& action, Graphics::RmlInterface& manager, Rml::Element* element, Rml::ElementDocument* document) {
+void ActionsImpl::applySpecialAction(SpecialAction::Type const& action, Graphics::RmlUi::Interface& manager, Rml::Element* element, Rml::ElementDocument* document) {
     switch (action) {
     case SpecialAction::Type::blurElement:
         if (element) element->Blur();

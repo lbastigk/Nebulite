@@ -1,5 +1,5 @@
-#ifndef NEBULITE_GRAPHICS_RMLINTERFACE_HPP
-#define NEBULITE_GRAPHICS_RMLINTERFACE_HPP
+#ifndef NEBULITE_GRAPHICS_RMLUI_INTERFACE_HPP
+#define NEBULITE_GRAPHICS_RMLUI_INTERFACE_HPP
 
 //------------------------------------------
 // Includes
@@ -24,8 +24,9 @@
 #include <absl/container/flat_hash_map.h>
 
 // Nebulite
-#include "Nebulite/Graphics/RmlDocumentManager.hpp"
-#include "Nebulite/Graphics/RmlSystemInterface.hpp"
+#include "Nebulite/Graphics/RmlUi/DocumentManager.hpp"
+#include "Nebulite/Graphics/RmlUi/ElementIdentifier.hpp"
+#include "Nebulite/Graphics/RmlUi/SystemInterface.hpp"
 #include "Nebulite/Interaction/Context.hpp"
 
 //------------------------------------------
@@ -44,29 +45,29 @@ class RmlUiModule;
 } // namespace Nebulite::Module::Base
 
 //------------------------------------------
-namespace Nebulite::Graphics {
+namespace Nebulite::Graphics::RmlUi {
 
-class RmlInterface {
-    RmlInterface();
-    ~RmlInterface();
+class Interface {
+    Interface();
+    ~Interface();
 
 public:
-    RmlInterface(RmlInterface const&) = delete;
-    RmlInterface& operator=(RmlInterface const&) = delete;
-    RmlInterface(RmlInterface&&) = delete;
-    RmlInterface& operator=(RmlInterface&&) = delete;
+    Interface(Interface const&) = delete;
+    Interface& operator=(Interface const&) = delete;
+    Interface(Interface&&) = delete;
+    Interface& operator=(Interface&&) = delete;
 
     static auto constexpr contextName = "nebuliteRmlContext";
     static auto constexpr dataModelName = "nebuliteDataSync";
 
     /**
-     * @brief Provides access to the singleton RmlInterface instance
-     * @return A reference to the Nebulite RmlInterface
+     * @brief Provides access to the singleton Interface instance
+     * @return A reference to the Nebulite Interface
      */
-    static RmlInterface& instance();
+    static Interface& instance();
 
     /**
-     * @brief Initialize the RmlInterface with a given Renderer and scope
+     * @brief Initialize the Interface with a given Renderer and scope
      * @param renderer The Renderer to use for rendering RmlUi documents
      * @param width The width of the context
      * @param height The height of the context
@@ -74,7 +75,7 @@ public:
     void init(Core::Renderer& renderer, int width, int height);
 
     /**
-     * @brief Close the RmlInterface, cleaning up all resources and shutting down RmlUi.
+     * @brief Close the Interface, cleaning up all resources and shutting down RmlUi.
      * @details This should be called before the application exits to ensure proper cleanup.
      */
     void close() const ;
@@ -86,7 +87,7 @@ public:
     void processRmlUiEvent(SDL_Event const& event) const ;
 
     /**
-     * @brief Update the RmlInterface, including all open documents and registered modules.
+     * @brief Update the Interface, including all open documents and registered modules.
      * @param mousePositionX The current X position of the mouse cursor, used for cursor management in the system interface
      * @param mousePositionY The current Y position of the mouse cursor, used for cursor management in the system interface
      */
@@ -114,88 +115,6 @@ public:
      * @return True if a text input is active, false otherwise
      */
     [[nodiscard]] bool isTextInputFocused() const ;
-
-    /**
-     * @brief Handles unique element identification for context management.
-     * @details Uses the Rml Attribute functionality to set and retrieve unique identifications
-     */
-    class RmlElementIdentifier {
-        static auto constexpr identifierAttribute = "element-identifier";
-
-        std::size_t id; // This elements id
-
-        static std::size_t& count(); // Get the current id count as reference
-
-        static std::size_t idRoll();
-
-        /**
-         * @brief Construct an identifier with a known id.
-         * @details This should only be used if you are sure the id is not already assigned to another element,
-         *          e.g. for the reflection module to assign a list of owned, pre-allocated, identifiers to newly generated elements
-         * @param knownId The id to use
-         */
-        explicit RmlElementIdentifier(std::size_t const knownId) : id(knownId) {}
-
-    public:
-        /**
-         * @brief Get the current count of assigned identifiers.
-         * @return The count of assigned identifiers.
-         */
-        static std::size_t getCount();
-
-        /**
-         * @brief Forces an Element to have a certain identifier id
-         * @details This should be used with caution and only used with ids that are known to not be registered elsewhere
-         * @param element The element to manipulate
-         * @param identifier The identifier to set
-         */
-        static void forceElementIdentifier(Rml::Element* element, RmlElementIdentifier const& identifier);
-
-        /**
-         * @brief Remove the identifier attribute from an element, effectively unregistering it.
-         *        The freed id cannot be reused.
-         * @param element The element to manipulate
-         */
-        static void removeElementIdentifier(Rml::Element* element);
-
-        /**
-         * @brief Checks if an element has an identifier.
-         * @param element The element to check
-         * @return True if it has an identifier, false otherwise.
-         */
-        static bool hasElementIdentifier(Rml::Element const* element);
-
-        /**
-         * @brief Construct an identifier for/from a given Rml::Element.
-         * @details If the element already has an identifier, it will be used.
-         *          Otherwise, a new identifier will be generated and assigned to the element.
-         * @param e The element to construct the identifier for
-         */
-        explicit RmlElementIdentifier(Rml::Element* e);
-
-        /**
-         * @brief Generates a new RmlElementIdentifier with a unique id.
-         * @return The new RmlElementIdentifier
-         */
-        static RmlElementIdentifier newIdentifier();
-
-        /**
-         * @brief Turns the RmlElementIdentifier into a string representation of its id.
-         * @return The string representation of the id
-         */
-        [[nodiscard]] explicit operator std::string() const {
-            return std::to_string(id);
-        }
-
-        bool operator==(RmlElementIdentifier const& other) const {
-            return id == other.id;
-        }
-
-        template <typename H>
-        friend H AbslHashValue(H h, RmlElementIdentifier const& toHash) { // NOLINT
-            return H::combine(std::move(h), toHash.id);
-        }
-    };
 
     // Helper functions
 
@@ -266,7 +185,7 @@ public:
      * @param elementId The unique Rml element identifier
      * @return The context and scope if it was found, or nullopt if not
      */
-    std::optional<ContextAndScope> getRmlElementContextAndScope(RmlElementIdentifier const& elementId);
+    std::optional<ContextAndScope> getRmlElementContextAndScope(ElementIdentifier const& elementId);
 
     /**
      * @brief Gets a context and scope from a given RML document
@@ -280,7 +199,7 @@ public:
      * @param elementId The unique Rml element identifier
      * @param ctxAndScope The context and scope to set
      */
-    void setRmlElementContextAndScope(RmlElementIdentifier const& elementId, ContextAndScope const& ctxAndScope);
+    void setRmlElementContextAndScope(ElementIdentifier const& elementId, ContextAndScope const& ctxAndScope);
 
     /**
      * @brief Sets a context and scope for an RML document
@@ -316,10 +235,10 @@ private:
     struct OwnershipManager {
         OwnerToDocumentMap ownerToDocument;
         absl::flat_hash_map<Rml::ElementDocument*, ContextAndScope> documentToContext;
-        absl::flat_hash_map<RmlElementIdentifier, ContextAndScope> elementToContext;
+        absl::flat_hash_map<ElementIdentifier, ContextAndScope> elementToContext;
     } ownershipManager;
 
-    std::unique_ptr<RmlDocumentManager> documentManager;
+    std::unique_ptr<DocumentManager> documentManager;
 
     /**
      * @brief Checks a container for any references to a given domainId in context 'other' or 'global' and replaces them with context 'self'
@@ -347,6 +266,6 @@ private:
 
     void processKeyEvent(SDL_Event const& event, int modifiers) const ;
 };
-} // namespace Nebulite::Graphics
-#include "Nebulite/Graphics/RmlInterface.tpp" // NOLINT
-#endif // NEBULITE_GRAPHICS_RMLINTERFACE_HPP
+} // namespace Nebulite::Graphics::RmlUi
+#include "Nebulite/Graphics/RmlUi/Interface.tpp" // NOLINT(misc-include-cleaner)
+#endif // NEBULITE_GRAPHICS_RMLUI_INTERFACE_HPP

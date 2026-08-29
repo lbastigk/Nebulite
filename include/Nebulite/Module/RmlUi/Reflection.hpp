@@ -15,6 +15,7 @@
 
 // Nebulite
 #include "Nebulite/Data/Document/JsonScope.hpp"
+#include "Nebulite/Graphics/RmlUi/ElementIdentifier.hpp"
 #include "Nebulite/Interaction/Logic/Expression.hpp"
 #include "Nebulite/Module/Base/RmlUiModule.hpp"
 #include "Nebulite/Utility/Coordination/TimedRoutine.hpp"
@@ -27,9 +28,9 @@ class Element;
 class ElementDocument;
 } // namespace Rml
 
-namespace Nebulite::Graphics {
-class RmlInterface;
-} // namespace Nebulite::Graphics
+namespace Nebulite::Graphics::RmlUi {
+class Interface;
+} // namespace Nebulite::Graphics::RmlUi
 
 namespace Nebulite::Interaction {
 class Context;
@@ -45,7 +46,7 @@ namespace Nebulite::Module::RmlUi {
 
 class Reflection final : public Base::RmlUiModule {
 public:
-    explicit Reflection(Utility::Io::Capture& c, Graphics::RmlInterface& i);
+    explicit Reflection(Utility::Io::Capture& c, Graphics::RmlUi::Interface& i);
 
     void update() override ;
 
@@ -82,7 +83,7 @@ private:
         Interaction::Logic::Expression reflectionListExpression; // Expression to generate an array of entries to reflect to
         Rml::String rmlValue; // Original RML value to replicate for each entry
         bool markedForDeletion = false;
-        std::vector<Graphics::RmlInterface::RmlElementIdentifier> allocatedIds; // Instead of constantly allocating new element Identifiers per reflection, we reuse them.
+        std::vector<Graphics::RmlUi::ElementIdentifier> allocatedIds; // Instead of constantly allocating new element Identifiers per reflection, we reuse them.
     };
 
     // Entries that we have to add to the active list
@@ -140,7 +141,7 @@ private:
      * @param element The rml element associated with the reflection
      * @param contextAndScope The context and scope of the element
      */
-    void setReflectionScopes(Data::Json& reflectionList, std::unique_ptr<ReflectionEntry> const& entry, Rml::Element const* element, Graphics::RmlInterface::ContextAndScope const& contextAndScope) const ;
+    void setReflectionScopes(Data::Json& reflectionList, std::unique_ptr<ReflectionEntry> const& entry, Rml::Element const* element, Graphics::RmlUi::Interface::ContextAndScope const& contextAndScope) const ;
 
     /**
      * @brief Reflects a single element based on the provided entry
@@ -154,7 +155,7 @@ private:
      * @param element The element to modify
      * @param id The identifier to use for the element and all its children
      */
-    static void setIdentifiers(Rml::Element* element, Graphics::RmlInterface::RmlElementIdentifier const& id);
+    static void setIdentifiers(Rml::Element* element, Graphics::RmlUi::ElementIdentifier const& id);
 };
 } // namespace Nebulite::Module::RmlUi
 #endif // NEBULITE_MODULE_RMLUI_REFLECTION_HPP

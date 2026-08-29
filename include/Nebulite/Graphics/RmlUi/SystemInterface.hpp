@@ -1,5 +1,5 @@
-#ifndef NEBULITE_GRAPHICS_RMLSYSTEMINTERFACE_HPP
-#define NEBULITE_GRAPHICS_RMLSYSTEMINTERFACE_HPP
+#ifndef NEBULITE_GRAPHICS_RMLUI_SYSTEMINTERFACE_HPP
+#define NEBULITE_GRAPHICS_RMLUI_SYSTEMINTERFACE_HPP
 
 //------------------------------------------
 // Includes
@@ -53,4 +53,4 @@ private:
     Position currentMousePosition{0,0};
 };
 } // namespace Nebulite::Graphics
-#endif // NEBULITE_GRAPHICS_RMLSYSTEMINTERFACE_HPP
+#endif // NEBULITE_GRAPHICS_RMLUI_SYSTEMINTERFACE_HPP

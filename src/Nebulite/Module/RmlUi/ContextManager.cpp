@@ -5,7 +5,8 @@
 #include <RmlUi/Core/Element.h>
 
 // Nebulite
-#include "Nebulite/Graphics/RmlInterface.hpp"
+#include "Nebulite/Graphics/RmlUi/ElementIdentifier.hpp"
+#include "Nebulite/Graphics/RmlUi/Interface.hpp"
 #include "Nebulite/Module/Base/RmlUiModule.hpp"
 #include "Nebulite/Module/RmlUi/Conditional.hpp"
 #include "Nebulite/Module/RmlUi/ContextManager.hpp"
@@ -17,7 +18,7 @@
 //------------------------------------------
 namespace Nebulite::Module::RmlUi {
 
-ContextManager::ContextManager(Utility::Io::Capture& c, Graphics::RmlInterface& i) : RmlUiModule(c,i) {}
+ContextManager::ContextManager(Utility::Io::Capture& c, Graphics::RmlUi::Interface& i) : RmlUiModule(c,i) {}
 
 void ContextManager::update() {
     auto anySupportedAttribute = [] (Rml::Element* element, Rml::Element* parent) {
@@ -40,9 +41,9 @@ void ContextManager::update() {
     };
 
     for (auto const& document : interface.getOpenedDocuments()) {
-        Graphics::RmlInterface::updateElement(document, [&](Rml::Element* element, Rml::Element* parent) {
+        Graphics::RmlUi::Interface::updateElement(document, [&](Rml::Element* element, Rml::Element* parent) {
             if (anySupportedAttribute(element, parent)) {
-                if (Graphics::RmlInterface::RmlElementIdentifier const elementId(element); !interface.getRmlElementContextAndScope(elementId).has_value()) {
+                if (Graphics::RmlUi::ElementIdentifier const elementId(element); !interface.getRmlElementContextAndScope(elementId).has_value()) {
                     if (auto const ctx = interface.getRmlDocumentContextAndScope(document); ctx.has_value()) {
                         interface.setRmlElementContextAndScope(elementId, ctx.value());
                     }

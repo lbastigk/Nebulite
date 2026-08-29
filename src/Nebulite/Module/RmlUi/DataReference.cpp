@@ -15,7 +15,8 @@
 
 // Nebulite
 #include "Nebulite/Data/Document/JsonScope.hpp"
-#include "Nebulite/Graphics/RmlInterface.hpp"
+#include "Nebulite/Graphics/RmlUi/ElementIdentifier.hpp"
+#include "Nebulite/Graphics/RmlUi/Interface.hpp"
 #include "Nebulite/Interaction/Context.hpp"
 #include "Nebulite/Interaction/Logic/Expression.hpp"
 #include "Nebulite/Module/Base/RmlUiModule.hpp"
@@ -26,7 +27,7 @@
 //------------------------------------------
 namespace Nebulite::Module::RmlUi {
 
-DataReference::DataReference(Utility::Io::Capture& c, Graphics::RmlInterface& i) : RmlUiModule(c,i) {
+DataReference::DataReference(Utility::Io::Capture& c, Graphics::RmlUi::Interface& i) : RmlUiModule(c,i) {
     evaluationRoutine = std::make_unique<Utility::Coordination::TimedRoutine>(
         [this] {
             updateDataValues();
@@ -46,8 +47,8 @@ void DataReference::OnElementCreate(Rml::Element* element) {
 }
 
 void DataReference::OnElementDestroy(Rml::Element* element) {
-    if (Graphics::RmlInterface::RmlElementIdentifier::hasElementIdentifier(element)) {
-        Graphics::RmlInterface::RmlElementIdentifier const id(element);
+    if (Graphics::RmlUi::ElementIdentifier::hasElementIdentifier(element)) {
+        Graphics::RmlUi::ElementIdentifier const id(element);
         registeredEntries.erase(id);
     }
 }
@@ -71,7 +72,7 @@ void DataReference::registerDataValue(Rml::Element* element) {
             }
 
             // Normalize value + unique element id
-            auto id = Graphics::RmlInterface::RmlElementIdentifier(element);
+            auto id = Graphics::RmlUi::ElementIdentifier(element);
             std::string const normalized = "ID__" + std::string(id) + "__VALUE__" + normalize(attributeValue);
             element->SetAttribute(attribute, normalized);
 
@@ -107,16 +108,16 @@ void DataReference::registerDataValue(Rml::Element* element) {
 
 void DataReference::updateDataValues() {
     for (auto const& document : interface.getOpenedDocuments()) {
-        Graphics::RmlInterface::updateElement(document, [&](Rml::Element* element, Rml::Element* /*parent*/) {
-            if (Graphics::RmlInterface::RmlElementIdentifier::hasElementIdentifier(element)) {
-                Graphics::RmlInterface::RmlElementIdentifier const id(element);
+        Graphics::RmlUi::Interface::updateElement(document, [&](Rml::Element* element, Rml::Element* /*parent*/) {
+            if (Graphics::RmlUi::ElementIdentifier::hasElementIdentifier(element)) {
+                Graphics::RmlUi::ElementIdentifier const id(element);
                 updateRegisteredValues(id, element);
             }
         });
     }
 }
 
-void DataReference::updateRegisteredValues(Graphics::RmlInterface::RmlElementIdentifier const& id, Rml::Element* element){
+void DataReference::updateRegisteredValues(Graphics::RmlUi::ElementIdentifier const& id, Rml::Element* element){
     if (!element) return;
 
     auto const idContext = interface.getRmlElementContextAndScope(id);
@@ -136,7 +137,7 @@ void DataReference::updateRegisteredValues(Graphics::RmlInterface::RmlElementIde
         // Check if the owner has a data model
         if (!element->GetDataModel()) {
             capture.error.println("Failed to update data reference: ", Interaction::ContextDeriver::typeToString(it->second->targetType), ":", it->second->key.view().toString());
-            capture.error.println("element has no data model! Please add 'data-model=\"", Graphics::RmlInterface::dataModelName,"\"' to the body tag.");
+            capture.error.println("element has no data model! Please add 'data-model=\"", Graphics::RmlUi::Interface::dataModelName,"\"' to the body tag.");
             registeredEntries.erase(id);
             return;
         }

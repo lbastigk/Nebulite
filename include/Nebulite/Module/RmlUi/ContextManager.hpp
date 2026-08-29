@@ -10,9 +10,9 @@
 //------------------------------------------
 // Forward declarations
 
-namespace Nebulite::Graphics {
-class RmlInterface;
-} // namespace Nebulite::Graphics
+namespace Nebulite::Graphics::RmlUi {
+class Interface;
+} // namespace Nebulite::Graphics::RmlUi
 
 namespace Nebulite::Utility::Io {
 class Capture;
@@ -23,7 +23,7 @@ namespace Nebulite::Module::RmlUi {
 
 class ContextManager final : public Base::RmlUiModule {
 public:
-    explicit ContextManager(Utility::Io::Capture& c, Graphics::RmlInterface& i);
+    explicit ContextManager(Utility::Io::Capture& c, Graphics::RmlUi::Interface& i);
 
     void update() override ;
 };

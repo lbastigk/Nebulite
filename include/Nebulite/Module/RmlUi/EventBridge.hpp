@@ -12,6 +12,7 @@
 #include <SDL3/SDL_events.h>
 
 // Nebulite
+#include "Nebulite/Graphics/RmlUi/ElementIdentifier.hpp"
 #include "Nebulite/Interaction/AttributeCommand.hpp"
 #include "Nebulite/Module/Base/RmlUiModule.hpp"
 
@@ -23,9 +24,9 @@ class Element;
 class ElementDocument;
 } // namespace Rml
 
-namespace Nebulite::Graphics {
-class RmlInterface;
-} // namespace Nebulite::Graphics
+namespace Nebulite::Graphics::RmlUi {
+class Interface;
+} // namespace Nebulite::Graphics::RmlUi
 
 namespace Nebulite::Utility::Io {
 class Capture;
@@ -35,7 +36,7 @@ class Capture;
 namespace Nebulite::Module::RmlUi {
 class EventBridge final : public Base::RmlUiModule {
 public:
-    explicit EventBridge(Utility::Io::Capture& c, Graphics::RmlInterface& i);
+    explicit EventBridge(Utility::Io::Capture& c, Graphics::RmlUi::Interface& i);
 
     void update() override ;
 
@@ -47,15 +48,15 @@ public:
         struct OnDestroy : Interaction::AttributeCommand<"onDestroy"> {
             // Processing trigger during element deletion used to be buggy.
             // If we ever notice an issue, store the DeletedElement and apply on next cycle
-            static void processTrigger(Graphics::RmlInterface& manager, Utility::Io::Capture& capture, Rml::Element* element);
+            static void processTrigger(Graphics::RmlUi::Interface& manager, Utility::Io::Capture& capture, Rml::Element* element);
         };
 
         struct OnEnter : Interaction::AttributeCommand<"onEnter"> {
-            static void processTrigger(Graphics::RmlInterface& manager, Utility::Io::Capture& capture, SDL_Event const& event, int keyModifiers, Rml::Element* focusElement);
+            static void processTrigger(Graphics::RmlUi::Interface& manager, Utility::Io::Capture& capture, SDL_Event const& event, int keyModifiers, Rml::Element* focusElement);
         };
 
         struct OnClick : Interaction::AttributeCommand<"onClick"> {
-            static  void processTrigger(Graphics::RmlInterface& manager, Utility::Io::Capture& capture, SDL_Event const& event, int keyModifiers, Rml::Element* focusElement);
+            static  void processTrigger(Graphics::RmlUi::Interface& manager, Utility::Io::Capture& capture, SDL_Event const& event, int keyModifiers, Rml::Element* focusElement);
         };
 
         // TODO: New Triggers:
@@ -104,28 +105,28 @@ private:
     struct BridgeEntry {
         explicit BridgeEntry(Rml::Element* element);
 
-        std::optional<Graphics::RmlInterface::RmlElementIdentifier> elementIdentifier = std::nullopt;
+        std::optional<Graphics::RmlUi::ElementIdentifier> elementIdentifier = std::nullopt;
 
         Rml::ElementDocument* owner = nullptr;
 
         Interaction::Actions<TriggerType> actions;
 
-        void apply(Graphics::RmlInterface& manager, Utility::Io::Capture& capture, Rml::Element* element) const ;
+        void apply(Graphics::RmlUi::Interface& manager, Utility::Io::Capture& capture, Rml::Element* element) const ;
     };
 };
 
 template<typename TriggerType>
 EventBridge::BridgeEntry<TriggerType>::BridgeEntry(Rml::Element* element) : actions(element) {
     assert(element);
-    if (Graphics::RmlInterface::RmlElementIdentifier::hasElementIdentifier(element)) {
-        elementIdentifier = Graphics::RmlInterface::RmlElementIdentifier(element);
+    if (Graphics::RmlUi::ElementIdentifier::hasElementIdentifier(element)) {
+        elementIdentifier = Graphics::RmlUi::ElementIdentifier(element);
     }
     owner = element ? element->GetOwnerDocument() : nullptr;
 }
 
 template<typename TriggerType>
-void EventBridge::BridgeEntry<TriggerType>::apply(Graphics::RmlInterface& manager, Utility::Io::Capture& capture, Rml::Element* element) const {
-    auto ctxAndScope = [&] -> std::optional<Graphics::RmlInterface::ContextAndScope> {
+void EventBridge::BridgeEntry<TriggerType>::apply(Graphics::RmlUi::Interface& manager, Utility::Io::Capture& capture, Rml::Element* element) const {
+    auto ctxAndScope = [&] -> std::optional<Graphics::RmlUi::Interface::ContextAndScope> {
         if (elementIdentifier.has_value()) {
             return manager.getRmlElementContextAndScope(elementIdentifier.value());
         }

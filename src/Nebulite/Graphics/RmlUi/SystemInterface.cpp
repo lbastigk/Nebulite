@@ -15,7 +15,7 @@
 #include <utility>
 
 // Nebulite
-#include "Nebulite/Graphics/RmlSystemInterface.hpp"
+#include "Nebulite/Graphics/RmlUi/SystemInterface.hpp"
 #include "Nebulite/Math/Vec2.hpp"
 #include "Nebulite/Utility/Io/Capture.hpp"
 #include "Nebulite/Utility/TimeKeeper.hpp"
