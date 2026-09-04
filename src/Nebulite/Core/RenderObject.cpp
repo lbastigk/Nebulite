@@ -91,7 +91,7 @@ RenderObject::~RenderObject() = default;
 //------------------------------------------
 // Drawcalls
 
-void RenderObject::draw(Renderer const& renderer, float const& offsetX, float const& offsetY) {
+void RenderObject::draw(Renderer& renderer, float const offsetX, float const offsetY) {
     for (auto const& member : drawcallOrder) {
         drawcalls[member]->draw(
             renderer,
@@ -197,8 +197,8 @@ void RenderObject::deserialize(std::string const& serialOrLink) {
 
 [[nodiscard]] RenderObject::Position RenderObject::getPosition() const {
     return Position{
-        static_cast<int32_t>(std::lround(*refs.posX)),
-        static_cast<int32_t>(std::lround(*refs.posY))
+        .x=static_cast<int32_t>(std::lround(*refs.posX)),
+        .y=static_cast<int32_t>(std::lround(*refs.posY))
     };
 }
 

@@ -43,7 +43,7 @@
 #include "Nebulite/Data/RenderObjectContainer.hpp"
 #include "Nebulite/Data/RendererProcessor.hpp"
 #include "Nebulite/Data/Tiling.hpp"
-#include "Nebulite/Graphics/RmlInterface.hpp"
+#include "Nebulite/Graphics/RmlUi/Interface.hpp"
 #include "Nebulite/Module/Domain/GlobalSpace/Settings.hpp"
 #include "Nebulite/Module/Domain/Initializer.hpp"
 #include "Nebulite/Nebulite.hpp"
@@ -264,7 +264,7 @@ void Renderer::initSdl() {
     //------------------------------------------
     // UI
     initImgui();
-    Graphics::RmlInterface::instance().init(*this,w,h);
+    Graphics::RmlUi::Interface::instance().init(*this,w,h);
     status.rmlInterfaceInitialized = true;
 
     //------------------------------------------
@@ -481,16 +481,16 @@ void Renderer::render() {
             continue;
         }
 
-        Graphics::RmlInterface::instance().processRmlUiEvent(event);
+        Graphics::RmlUi::Interface::instance().processRmlUiEvent(event);
     }
 
     // TODO: rml.isTextInputFocused() is somehow very buggy: cursor has to be below the text input field for it to register
     //       -> scaling issue or mouse delta accumulation issue?
     // External text focus management
-    if (Graphics::RmlInterface::instance().isTextInputFocused() || ImGui::GetIO().WantTextInput) {
+    if (Graphics::RmlUi::Interface::instance().isTextInputFocused() || ImGui::GetIO().WantTextInput) {
         SDL_StartTextInput(window);
     }
-    else if (!Graphics::RmlInterface::instance().isTextInputFocused() && !ImGui::GetIO().WantTextInput) {
+    else if (!Graphics::RmlUi::Interface::instance().isTextInputFocused() && !ImGui::GetIO().WantTextInput) {
         SDL_StopTextInput(window);
     }
 
@@ -510,11 +510,11 @@ void Renderer::render() {
     float x = 0;
     float y = 0;
     SDL_GetMouseState(&x,&y);
-    Graphics::RmlInterface::instance().update(
+    Graphics::RmlUi::Interface::instance().update(
         static_cast<int>(x),
         static_cast<int>(y)
     );
-    Graphics::RmlInterface::instance().render();
+    Graphics::RmlUi::Interface::instance().render();
 
     // Finalize render
     if (status.showFps) renderFps();
@@ -531,7 +531,7 @@ void Renderer::render() {
     for (auto const& callback : postRenderCallback) {
         callback();
     }
-    Graphics::RmlInterface::instance().postRenderUpdate();
+    Graphics::RmlUi::Interface::instance().postRenderUpdate();
     postRenderCallback.clear();
 }
 
@@ -625,9 +625,9 @@ void Renderer::purgeTextures() {
 }
 
 void Renderer::destroy() {
-    // RmlInterface cleanup
+    // Interface cleanup
     if (status.rmlInterfaceInitialized) {
-        Graphics::RmlInterface::instance().close();
+        Graphics::RmlUi::Interface::instance().close();
         status.rmlInterfaceInitialized = false;
     }
 
@@ -695,7 +695,7 @@ void Renderer::changeWindowSize(int const w, int const h, std::uint8_t  const sc
     SDL_SetWindowSize(window, w * windowScale, h * windowScale);
 
     // Rescale rml context
-    Graphics::RmlInterface::instance().setDimensions(w * windowScale, h * windowScale);
+    Graphics::RmlUi::Interface::instance().setDimensions(w * windowScale, h * windowScale);
 
     // NOLINTBEGIN
     // We assume that the tiling information is based on renderer states such as resolution,
@@ -762,8 +762,8 @@ void Renderer::renderFrame() {
 
     // Get tile position of camera center
     auto const cameraPosition = RenderObject::Position{
-        dispPosX + w/2,
-        dispPosY + h/2
+        .x=dispPosX + w/2,
+        .y=dispPosY + h/2
     };
     cameraTilePosition = Data::RenderObjectContainer::getTilePos(
         cameraPosition,

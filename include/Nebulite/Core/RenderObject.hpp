@@ -154,7 +154,7 @@ public:
      * @param offsetX The camera offset in the X direction.
      * @param offsetY The camera offset in the Y direction.
      */
-    void draw(Renderer const& renderer, float const& offsetX, float const& offsetY);
+    void draw(Renderer& renderer, float offsetX, float offsetY);
 
     /**
      * @brief Re-initialize all drawcalls from document

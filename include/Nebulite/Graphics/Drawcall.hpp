@@ -5,25 +5,28 @@
 // Includes
 
 // Standard library
-#include <cstddef>
 #include <cstdint> // NOLINT
-#include <string>
+#include <memory>
 #include <string_view>
 
 // External
-#include <SDL3/SDL_pixels.h>
 #include <SDL3/SDL_rect.h>
-#include <SDL3_ttf/SDL_ttf.h>
 
 // Nebulite
 #include "Nebulite/Constants/Event.hpp"
 #include "Nebulite/Core/Texture.hpp"
 #include "Nebulite/Data/Document/JsonScope.hpp"
+#include "Nebulite/Graphics/DrawType/DrawType.hpp"
+#include "Nebulite/Graphics/DrawcallRefs.hpp"
 #include "Nebulite/Interaction/Execution/Domain.hpp"
 #include "Nebulite/Utility/Coordination/TimedRoutine.hpp"
 
 //------------------------------------------
 // Forward declarations
+
+namespace Nebulite::Core {
+class Renderer;
+} // namespace Nebulite::Core
 
 namespace Nebulite::Interaction {
 class Context;
@@ -61,7 +64,7 @@ public:
     Drawcall(Drawcall&&) = delete;
     Drawcall& operator=(Drawcall&&) = delete;
 
-    void draw(Core::Renderer const& nebuliteRenderer, float const& offsetX, float const& offsetY);
+    void draw(Core::Renderer& nebuliteRenderer, float offsetX, float offsetY);
 
     void update();
 
@@ -83,124 +86,13 @@ public:
         static void text(Data::JsonScope& scope);
     };
 
-    /**
-     * @struct Key
-     * @brief Holds the keys used in the drawcall JsonScope.
-     * @details All keys are unscoped, as they are relative to the drawcall's own scope.
-     *          Since the drawcall's scope isn't fixed within the RenderObject's document,
-     *          we cannot use fully scoped keys here.
-     *          Use these keys with caution, ensuring the scope you use them with is indeed
-     *          the drawcall's / texture's scope!
-     */
-    struct Key {
-        static auto constexpr type = Data::ScopedKeyView("drawType"); // "sprite", "text", "geometry", etc.
-        static auto constexpr textureData = Data::ScopedKeyView("textureData"); // Texture data object
-        static auto constexpr rotationDegrees = Data::ScopedKeyView("textureData.rotation.angle"); // Rotation in degrees
-        static auto constexpr rotationCenterX = Data::ScopedKeyView("textureData.rotation.center.x"); // Rotation center X
-        static auto constexpr rotationCenterY = Data::ScopedKeyView("textureData.rotation.center.y"); // Rotation center Y
-
-        struct Rect {
-            static auto constexpr src = Data::ScopedKeyView("rect.src");
-            static auto constexpr srcX = Data::ScopedKeyView("rect.src.x");
-            static auto constexpr srcY = Data::ScopedKeyView("rect.src.y");
-            static auto constexpr srcW = Data::ScopedKeyView("rect.src.w");
-            static auto constexpr srcH = Data::ScopedKeyView("rect.src.h");
-
-            static auto constexpr dst = Data::ScopedKeyView("rect.dst");
-            static auto constexpr dstX = Data::ScopedKeyView("rect.dst.x");
-            static auto constexpr dstY = Data::ScopedKeyView("rect.dst.y");
-            static auto constexpr dstW = Data::ScopedKeyView("rect.dst.w");
-            static auto constexpr dstH = Data::ScopedKeyView("rect.dst.h");
-        };
-
-        struct Color {
-            static auto constexpr r = Data::ScopedKeyView("textureData.color.r");
-            static auto constexpr g = Data::ScopedKeyView("textureData.color.g");
-            static auto constexpr b = Data::ScopedKeyView("textureData.color.b");
-            static auto constexpr a = Data::ScopedKeyView("textureData.color.a");
-        };
-
-        struct SpriteSpecific {
-            static auto constexpr imageLocation = Data::ScopedKeyView("textureData.link");
-        };
-
-        struct TextSpecific {
-            static auto constexpr fontsize = Data::ScopedKeyView("textureData.fontSize");
-            static auto constexpr str = Data::ScopedKeyView("textureData.str");
-        };
-
-        struct CircleSpecific {
-            static auto constexpr radius = Data::ScopedKeyView("textureData.radius");
-        };
-
-        struct PolygonSpecific {
-            static auto constexpr points = Data::ScopedKeyView("textureData.points"); // Array of point objects {x, y}
-            static auto constexpr filled = Data::ScopedKeyView("textureData.filled"); // bool
-        };
-    };
-
 private:
-    Core::Texture texture;
-    Data::JsonScope& drawcallScope;
+    Core::Texture texture; // Texture domain
+    Data::JsonScope& drawcallScope; // The owned scope of the drawcall, holding relevant data
+    std::unique_ptr<DrawType::DrawType> toDraw; // Configuration helper of the type to draw
+    Utility::Coordination::TimedRoutine updaterRoutine; // Allows periodic updating of drawcall data to reflect current state
 
-    // Important state for diff-logic
-    // Perhaps changing to std::variant is better, since only one type is required
-    struct State {
-        struct Sprite {
-            std::string link;
-        } sprite;
-
-        struct Text {
-            std::string text;
-            SDL_Color textColor{.r=0,.g=0,.b=0,.a=0};
-        } text;
-
-        struct Circle {
-            int radius{};
-            SDL_Color circleColor{.r=0,.g=0,.b=0,.a=0};
-        } circle;
-
-        struct Polygon {
-            std::size_t pointCount{};
-            SDL_Color polyColor{.r=0,.g=0,.b=0,.a=0};
-        } polygon;
-    } state;
-
-    // Allows periodic updating of drawcall data to reflect current state
-    Utility::Coordination::TimedRoutine updaterRoutine;
-
-    /**
-     * @struct Refs
-     * @brief Holds frequently used references for quick access.
-     */
-    struct Refs {
-        double* rectSrcX = nullptr;
-        double* rectSrcY = nullptr;
-        double* rectSrcW = nullptr;
-        double* rectSrcH = nullptr;
-
-        double* rectDstX = nullptr;
-        double* rectDstY = nullptr;
-        double* rectDstW = nullptr;
-        double* rectDstH = nullptr;
-
-        double* rotationDegrees = nullptr;
-        double* rotationCenterX = nullptr;
-        double* rotationCenterY = nullptr;
-
-        double* colorR = nullptr;
-        double* colorG = nullptr;
-        double* colorB = nullptr;
-        double* colorA = nullptr;
-
-        double* textFontsize = nullptr;
-
-        double* circleRadius = nullptr;
-
-        double* polygonFilled = nullptr;
-
-        void initialize(Data::JsonScope const& scope);
-    } refs;
+    DrawcallRefs refs;
 
     SDL_FPoint rotationCenter{.x=0.0f, .y=0.0f};
 
@@ -238,61 +130,7 @@ private:
     //------------------------------------------
     // Rendering
 
-    void renderTexture(Core::Renderer const& nebuliteRenderer, float const& dX, float const& dY);
-
-    void renderText(Core::Renderer const& nebuliteRenderer, float const& dX, float const& dY);
-
-    void renderSprite(Core::Renderer const& nebuliteRenderer, float const& dX, float const& dY);
-
-    void renderCircle(Core::Renderer const& nebuliteRenderer, float const& dX, float const& dY);
-
-    void renderPolygon(Core::Renderer const& nebuliteRenderer, float const& dX, float const& dY);
-
-    //------------------------------------------
-    // Specific initializers for each type
-
-    /**
-     * @brief Initializes the drawcall as a sprite.
-     * @note Only called during the draw call, otherwise the thread safety would be compromised.
-     */
-    void initializeSprite();
-
-    /**
-     * @brief Sets standard text rect parameters in the drawcall scope if they are missing.
-     * @param w The width of the texture
-     * @param h The height of the texture
-     * @param font The font used
-     */
-    void setStandardTextRectsIfMissing(float w, float h, TTF_Font* font) const ;
-
-    /**
-     * @brief Initializes the drawcall as a text.
-     * @note Only called during the draw call, otherwise the thread safety would be compromised.
-     */
-    void initializeText();
-
-    /**
-     * @brief Initializes the drawcall as a circle.
-     * @note Only called during the draw call, otherwise the thread safety would be compromised.
-     */
-    void initializeCircle();
-
-    /**
-     * @brief Initializes the drawcall as a polygon.
-     * @note Only called during the draw call, otherwise the thread safety would be compromised.
-     */
-    void initializePolygon();
-
-    //------------------------------------------
-    // Diff noticers for reinitialization
-
-    [[nodiscard]] bool diffSprite() const ;
-
-    [[nodiscard]] bool diffText() const ;
-
-    [[nodiscard]] bool diffCircle() const ;
-
-    [[nodiscard]] bool diffPolygon() const ;
+    void renderTexture(Core::Renderer const& nebuliteRenderer, float dX, float dY);
 };
 
 } // namespace Nebulite::Graphics

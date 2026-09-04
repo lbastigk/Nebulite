@@ -30,32 +30,36 @@
 namespace Nebulite::Module::Domain::Renderer {
 
 [[nodiscard]] Constants::Event Tiling::updateHook() {
-    if (!tileInfoRoutine) {
-        tileInfoRoutine = std::make_unique<Utility::Coordination::TimedRoutine>(
-            [&] {
-                // NOLINTNEXTLINE
-                auto const [wTile, hTile] = domain.tilingInformation();
-                moduleScope.set<uint16_t>(Key::tileSizeW, wTile);
-                moduleScope.set<uint16_t>(Key::tileSizeH, hTile);
-                auto const visibleTiles = domain.visibleTiles();
-                if (visibleTiles.size() < moduleScope.memberSize(Key::visibleTiles)) {
-                    // Not all entries will be overwritten, remove entire array
-                    moduleScope.removeMember(Key::visibleTiles);
-                }
-                for (auto [idx, tile] : visibleTiles | Utility::Ranges::enumerate) {
-                    auto key = Key::visibleTiles.addIndex(idx);
-                    auto keyX = key.addMember("x");
-                    auto keyY = key.addMember("y");
-                    moduleScope.set<int>(keyX, tile.x);
-                    moduleScope.set<int>(keyY, tile.y);
-                }
-            },
-            2000,
-            Utility::Coordination::TimedRoutine::ConstructionMode::startImmediately
-        );
+    // Tile info
+    if (tileInfoOn) {
+        if (!tileInfoRoutine) {
+            tileInfoRoutine = std::make_unique<Utility::Coordination::TimedRoutine>(
+                [&] {
+                    // NOLINTNEXTLINE
+                    auto const [wTile, hTile] = domain.tilingInformation();
+                    moduleScope.set<uint16_t>(Key::tileSizeW, wTile);
+                    moduleScope.set<uint16_t>(Key::tileSizeH, hTile);
+                    auto const visibleTiles = domain.visibleTiles();
+                    if (visibleTiles.size() < moduleScope.memberSize(Key::visibleTiles)) {
+                        // Not all entries will be overwritten, remove entire array
+                        moduleScope.removeMember(Key::visibleTiles);
+                    }
+                    for (auto [idx, tile] : visibleTiles | Utility::Ranges::enumerate) {
+                        auto key = Key::visibleTiles.addIndex(idx);
+                        auto keyX = key.addMember("x");
+                        auto keyY = key.addMember("y");
+                        moduleScope.set<int>(keyX, tile.x);
+                        moduleScope.set<int>(keyY, tile.y);
+                    }
+                },
+                2000,
+                Utility::Coordination::TimedRoutine::ConstructionMode::startImmediately
+            );
+        }
+        tileInfoRoutine->update();
     }
-    tileInfoRoutine->update();
 
+    // Render grid
     if (gridOn) {
         domain.addRenderCallback([&] {
             auto* const renderer = domain.getSdlRenderer();
@@ -132,6 +136,24 @@ namespace Nebulite::Module::Domain::Renderer {
 //------------------------------------------
 // Available Functions
 
+Constants::Event Tiling::tileInfoToggle(std::span<std::string_view const> const args) {
+    if (args.size() > 2) return Constants::StandardCapture::Warning::Functional::tooManyArgs(domain.capture);
+    if (args.empty()) {
+        tileInfoOn = !tileInfoOn;
+        return Constants::Event::success;
+    }
+    auto const& arg = args[1];
+    if (arg == "on") {
+        tileInfoOn = true;
+        return Constants::Event::success;
+    }
+    if (arg == "off") {
+        tileInfoOn = false;
+        return Constants::Event::success;
+    }
+    return Constants::StandardCapture::Warning::Functional::unknownArg(domain.capture);
+}
+
 Constants::Event Tiling::gridToggle(std::span<std::string_view const> const args) {
     if (args.size() > 2) return Constants::StandardCapture::Warning::Functional::tooManyArgs(domain.capture);
     if (args.empty()) {
@@ -169,6 +191,7 @@ Constants::Event Tiling::viewToggle(std::span<std::string_view const> const args
 }
 
 Tiling::Tiling(ConstructorParams const& params) : DomainModule(params) {
+    bindFunction(&Tiling::tileInfoToggle, tileInfoToggleName, tileInfoToggleDesc);
     bindFunction(&Tiling::gridToggle, gridToggleName, gridToggleDesc);
     bindFunction(&Tiling::viewToggle, viewToggleName, viewToggleDesc);
 }

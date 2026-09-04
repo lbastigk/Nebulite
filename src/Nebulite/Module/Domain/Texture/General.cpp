@@ -8,7 +8,7 @@
 #include "Nebulite/Constants/Event.hpp"
 #include "Nebulite/Constants/StandardCapture.hpp"
 #include "Nebulite/Core/Texture.hpp"
-#include "Nebulite/Graphics/Drawcall.hpp"
+#include "Nebulite/Graphics/DrawType/Sprite.hpp"
 #include "Nebulite/Module/Domain/Texture/General.hpp"
 
 //------------------------------------------
@@ -20,7 +20,7 @@ Constants::Event General::updateHook() {
 
 Constants::Event General::reloadTexture() const {
     // Load new texture from the document
-    auto const path = moduleScope.get<std::string>(Graphics::Drawcall::Key::SpriteSpecific::imageLocation).value_or("");
+    auto const path = moduleScope.get<std::string>(Graphics::DrawType::Sprite::Key::imageLocation).value_or("");
     if (path.empty()) {
         return Constants::StandardCapture::Error::File::invalidFile(domain.capture);// No valid path in document
     }

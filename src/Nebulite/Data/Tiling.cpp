@@ -21,6 +21,7 @@
 #include "Nebulite/Data/Batch.hpp"
 #include "Nebulite/Data/RenderObjectContainer.hpp"
 #include "Nebulite/Data/Tiling.hpp"
+#include "Nebulite/Graphics/Sdl/Canvas.hpp"
 #include "Nebulite/Nebulite.hpp"
 #include "Nebulite/Utility/Io/Capture.hpp"
 
@@ -43,10 +44,9 @@ void Tile::appendBatch(Batch&& batch) {
 }
 
 void Tile::moveObjects(std::vector<Core::RenderObject*>& destination) {
-    for (auto& [objects, _] : batches) {
-        // Move all objects to trash
-        std::ranges::move(objects.begin(), objects.end(), std::back_inserter(destination));
-        objects.clear(); // Remove all objects from the batch
+    for (auto& batch : batches) {
+        std::ranges::move(batch.objects, std::back_inserter(destination));
+        batch.objects.clear();
     }
     batches.clear();
 }
@@ -55,7 +55,6 @@ bool Tile::insertIfCostGoalMatches(Core::RenderObject* toAppend) {
     auto const it = std::ranges::find_if(
         batches.begin(),
         batches.end(),
-        // NOLINTNEXTLINE
         [&](Batch const& b) {
             // NOLINTBEGIN
             if constexpr (batchCostGoal == 0) {
@@ -63,7 +62,6 @@ bool Tile::insertIfCostGoalMatches(Core::RenderObject* toAppend) {
             }
             // NOLINTEND
             else {
-                // NOLINTNEXTLINE
                 return b.estimatedCost <= batchCostGoal;
             }
         }
@@ -93,31 +91,25 @@ void Tile::update(std::vector<Core::RenderObject*>& toMove, std::vector<Core::Re
                 toDeleteLocal.push_back(obj);
             }
         }
-        // All objects to move are collected in queue
+
         for (auto* ptr : toMoveLocal) {
             batch.removeObject(ptr);
         }
-
-        // All objects to delete are collected in trash
         for (auto* ptr : toDeleteLocal) {
             batch.removeObject(ptr);
         }
-
-        // Update batch cost
-        batch.updateCost();
-
-        // Invalidate texture
         if (!toMoveLocal.empty() || !toDeleteLocal.empty()) {
             deleteTexture();
         }
 
         std::ranges::move(toMoveLocal.begin(), toMoveLocal.end(), std::back_inserter(toMove));
         std::ranges::move(toDeleteLocal.begin(), toDeleteLocal.end(), std::back_inserter(toDelete));
+        batch.updateCost();
     }
 }
 
 void Tile::render(
-    Core::Renderer const& nebuliteRenderer,
+    Core::Renderer& nebuliteRenderer,
     TileCoordinate const& coordinate,
     TilingInformation const& tilingInfo,
     Utility::Io::Capture& capture,
@@ -127,7 +119,7 @@ void Tile::render(
 ){
     auto* const renderer = nebuliteRenderer.getSdlRenderer();
 
-    // Re-render background texture
+    // Create texture, if missing
     if (!texture) {
         texture = SDL_CreateTexture(
             renderer,
@@ -140,19 +132,21 @@ void Tile::render(
             capture.error.println("Failed to create render target texture.");
             std::abort();
         }
-        SDL_SetRenderTarget(renderer, texture);
-        for (auto const& objects : getBatchedObjects()) {
-            for (auto const& obj : objects) {
-                obj->draw(
-                    nebuliteRenderer,
-                    static_cast<float>(coordinate.x * tilingInfo.w),
-                    static_cast<float>(coordinate.y * tilingInfo.h)
-                );
+
+        Graphics::Sdl::Canvas::drawOnTexture(renderer, texture, [&] {
+            for (auto const& objects : getBatchedObjects()) {
+                for (auto const& obj : objects) {
+                    obj->draw(
+                        nebuliteRenderer,
+                        static_cast<float>(coordinate.x * tilingInfo.w),
+                        static_cast<float>(coordinate.y * tilingInfo.h)
+                    );
+                }
             }
-        }
+        });
     }
 
-    // Render to screen
+    // Render tile to screen
     SDL_SetRenderTarget(renderer, nullptr);
     SDL_FRect const destRect{
         .x = static_cast<float>(windowScale * (coordinate.x * tilingInfo.w - dispPosX)),

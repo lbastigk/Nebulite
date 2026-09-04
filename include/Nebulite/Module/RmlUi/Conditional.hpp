@@ -19,9 +19,9 @@ namespace Rml {
 class Element;
 } // namespace Rml
 
-namespace Nebulite::Graphics {
-class RmlInterface;
-} // namespace Nebulite::Graphics
+namespace Nebulite::Graphics::RmlUi {
+class Interface;
+} // namespace Nebulite::Graphics::RmlUi
 
 namespace Nebulite::Utility::Io {
 class Capture;
@@ -35,7 +35,7 @@ namespace Nebulite::Module::RmlUi {
  */
 class Conditional final : public Base::RmlUiModule {
 public:
-    explicit Conditional(Utility::Io::Capture& c, Graphics::RmlInterface& i);
+    explicit Conditional(Utility::Io::Capture& c, Graphics::RmlUi::Interface& i);
 
     void update() override ;
 
@@ -57,7 +57,7 @@ private:
         Rml::Style::Display originalDisplay; // Original display style of the element
         Interaction::Logic::Expression condition; // Condition to determine if the element should be shown or hidden
 
-        void resolve(Graphics::RmlInterface& interface) const ;
+        void resolve(Graphics::RmlUi::Interface& interface) const ;
 
         void hideElement() const ;
 

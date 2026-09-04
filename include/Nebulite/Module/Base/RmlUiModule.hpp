@@ -10,7 +10,7 @@
 #include <SDL3/SDL_events.h>
 
 // Nebulite
-#include "Nebulite/Graphics/RmlInterface.hpp"
+#include "Nebulite/Graphics/RmlUi/Interface.hpp"
 #include "Nebulite/Utility/Io/Capture.hpp"
 
 //------------------------------------------
@@ -26,7 +26,7 @@ class ElementDocument;
 namespace Nebulite::Module::Base {
 class RmlUiModule : public Rml::Plugin {
 public:
-    explicit RmlUiModule(Utility::Io::Capture& c, Graphics::RmlInterface& i);
+    explicit RmlUiModule(Utility::Io::Capture& c, Graphics::RmlUi::Interface& i);
 
     virtual void update();
 
@@ -43,7 +43,7 @@ public:
 protected:
     Utility::Io::Capture& capture;
 
-    Graphics::RmlInterface& interface;
+    Graphics::RmlUi::Interface& interface;
 };
 } // namespace Nebulite::Module::Base
 #endif // NEBULITE_MODULE_BASE_RMLUIMODULE_HPP

@@ -15,6 +15,7 @@
 
 // Nebulite
 #include "Nebulite/Data/Document/ScopedKey.hpp"
+#include "Nebulite/Graphics/RmlUi/ElementIdentifier.hpp"
 #include "Nebulite/Interaction/Context.hpp"
 #include "Nebulite/Module/Base/RmlUiModule.hpp"
 #include "Nebulite/Utility/Coordination/TimedRoutine.hpp"
@@ -26,9 +27,9 @@ namespace Rml {
 class Element;
 } // namespace Rml
 
-namespace Nebulite::Graphics {
-class RmlInterface;
-} // namespace Nebulite::Graphics
+namespace Nebulite::Graphics::RmlUi {
+class Interface;
+} // namespace Nebulite::Graphics::RmlUi
 
 namespace Nebulite::Utility::Io {
 class Capture;
@@ -39,7 +40,7 @@ namespace Nebulite::Module::RmlUi {
 
 class DataReference final : public Base::RmlUiModule {
 public:
-    explicit DataReference(Utility::Io::Capture& c, Graphics::RmlInterface& i);
+    explicit DataReference(Utility::Io::Capture& c, Graphics::RmlUi::Interface& i);
 
     void update() override ;
 
@@ -74,7 +75,7 @@ private:
         std::optional<std::string> innerRml; // Only set if element has data-if-attribute
     };
 
-    absl::flat_hash_map<Graphics::RmlInterface::RmlElementIdentifier, std::unique_ptr<RegisteredEntry>> registeredEntries;
+    absl::flat_hash_map<Graphics::RmlUi::ElementIdentifier, std::unique_ptr<RegisteredEntry>> registeredEntries;
 
     absl::flat_hash_map<std::string, std::unique_ptr<Rml::String>> registeredStrings;
 
@@ -84,7 +85,7 @@ private:
 
     void registerDataValue(Rml::Element* element) ;
 
-    void updateRegisteredValues(Graphics::RmlInterface::RmlElementIdentifier const& id, Rml::Element* element);
+    void updateRegisteredValues(Graphics::RmlUi::ElementIdentifier const& id, Rml::Element* element);
 
     void synchronizeEntry(std::unique_ptr<RegisteredEntry> const& entry, Rml::Element* element, Data::JsonScope& target);
 

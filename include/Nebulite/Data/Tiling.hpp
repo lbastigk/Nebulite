@@ -116,7 +116,7 @@ public:
      * @param windowScale The scaling factor of the window
      */
     void render(
-        Core::Renderer const& nebuliteRenderer,
+        Core::Renderer& nebuliteRenderer,
         TileCoordinate const& coordinate,
         TilingInformation const& tilingInfo,
         Utility::Io::Capture& capture,

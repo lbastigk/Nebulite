@@ -8,7 +8,8 @@
 #include "Nebulite/Constants/Event.hpp"
 #include "Nebulite/Core/GlobalSpace.hpp" // NOLINT(misc-include-cleaner)
 #include "Nebulite/Core/Renderer.hpp"
-#include "Nebulite/Graphics/ImguiHelper.hpp"
+#include "Nebulite/Graphics/DearImGui/Align.hpp"
+#include "Nebulite/Graphics/DearImGui/DomainViewer.hpp"
 #include "Nebulite/Module/Base/DomainModule.hpp"
 #include "Nebulite/Module/Domain/Renderer/Console.hpp"
 #include "Nebulite/Module/Domain/Renderer/Input.hpp"
@@ -27,11 +28,11 @@ Constants::Event Console::updateHook() {
         domain.skipUpdateNextFrame();
 
         // Set console flags
-        Graphics::ImguiHelper::DomainRenderingFlags const flags{
+        Graphics::DearImGui::DomainViewer::RenderingFlags const flags{
             .showCloseButton = false,
             .windowPos = std::nullopt,
             .windowSize = std::nullopt,
-            .windowAlignment = Graphics::ImguiHelper::DomainRenderingFlags::Alignment::bottom,
+            .windowAlignment = Graphics::DearImGui::Align::Alignment::bottom,
         };
 
         // Set context/scope
@@ -42,7 +43,7 @@ Constants::Event Console::updateHook() {
         Interaction::ContextScope ctxScope = {globalScope, globalScope, globalScope};
 
         // Render
-        Graphics::ImguiHelper::renderDomainViewer(ctx, ctxScope, Global::capture(), "Console", flags);
+        render(ctx, ctxScope, Global::capture(), "Console", flags);
     }
     return Constants::Event::success;
 }

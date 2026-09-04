@@ -419,10 +419,10 @@ public:
     static Data::TilingInformation constexpr tilingInformation() {
         // If we ever decide to make the tile size depend on the resolution,
         // we must re-activate reinsertion of all objects on resolution change!
-        return Data::TilingInformation(
-            static_cast<std::uint16_t>(128),
-            static_cast<std::uint16_t>(128)
-        );
+        return Data::TilingInformation{
+            .w=static_cast<std::uint16_t>(128),
+            .h=static_cast<std::uint16_t>(128)
+        };
     }
 
     /**
@@ -490,7 +490,10 @@ private:
     /**
      * @brief Represents the tile at the middle of the screen
      */
-    Data::TileCoordinate cameraTilePosition;
+    Data::TileCoordinate cameraTilePosition{
+        .x=0,
+        .y=0,
+    };
 
     // Custom Subclasses
     Environment env;

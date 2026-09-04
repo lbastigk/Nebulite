@@ -153,6 +153,12 @@ organize_files(){
             continue
         fi
 
+        # If file does not exist, it was likely deleted or moved, skip it
+        if [ ! -f "$file" ]; then
+            >&2 echo "Skipping non-existent file: $file. Was deleted/moved since the last git diff?"
+            continue
+        fi
+
         # Print the file to stdout as a null-delimited entry for further processing
         printf '%s\0' "$file"
     done
@@ -168,12 +174,6 @@ run_clang_tidy_from_stdin() {
 
     # Process each file from the null-delimited input
     while IFS= read -r -d '' file; do
-        # If file does not exist, it was likely deleted or moved, skip it
-        if [ ! -f "$file" ]; then
-            >&2 echo "Skipping non-existent file: $file. Was deleted/moved since the last git diff?"
-            continue
-        fi
-
         # Run test
         echo "Running clang-tidy on $file"
         tmpfile=$(mktemp)
@@ -220,6 +220,96 @@ run_clang_tidy_from_stdin() {
     echo "Total warnings treated as errors: $total_warnings"
     echo "Total errors found: $total_errors"
     exit "$status"
+}
+
+# Try to run clang-tidy in parallel using GNU parallel when available.
+run_clang_tidy_parallel() {
+    # $1: path to null-delimited file list
+    filelist="$1"
+    status=0
+    total_warnings=0
+    total_errors=0
+
+    # Determine number of jobs to use
+    jobs=$(nproc 2>/dev/null || sysctl -n hw.ncpu 2>/dev/null || echo 4)
+
+    tmpdir=$(mktemp -d)
+    # Ensure tmpdir is removed when this function exits
+    trap 'rm -rf "${tmpdir}"' RETURN
+
+    # Build an array of external include args escaped for reuse in the worker
+    EXTERNAL_INCLUDE_CMD=""
+    for a in "${external_include_args[@]}"; do
+        EXTERNAL_INCLUDE_CMD+=" $(printf '%q' "$a")"
+    done
+
+    # Export necessary environment for the worker script
+    export CLANG_TIDY_HEADER_FILTER="$clang_tidy_header_filter"
+    export CLANG_TIDY_DEFINE="$clang_tidy_define"
+    export EXTERNAL_INCLUDE_CMD
+    export TMPDIR="$tmpdir"
+
+    # Create a worker script to avoid quoting issues with bash -c and parallel
+    worker="$tmpdir/worker.sh"
+    cat >"$worker" <<'WSH'
+#!/usr/bin/env bash
+file="$1"
+out=$(mktemp "$TMPDIR"/out.XXXXXX)
+rcfile=$(mktemp "$TMPDIR"/rc.XXXXXX)
+# Print user-facing progress to stderr so stdout remains machine-readable for aggregation
+printf 'Running clang-tidy on %s\n' "$file" >&2
+# Expand EXTERNAL_INCLUDE_CMD and run clang-tidy
+eval clang-tidy "$file" -warnings-as-errors='*' -header-filter="$CLANG_TIDY_HEADER_FILTER" -config-file=./.clang-tidy -p ./tmp/build_linux-debug -- -std=c++26 "$CLANG_TIDY_DEFINE" -I./include $EXTERNAL_INCLUDE_CMD >"$out" 2>&1
+echo $? >"$rcfile"
+printf "%s:%s:%s\n" "$out" "$rcfile" "$file"
+WSH
+    chmod +x "$worker"
+
+    # Run parallel jobs. Each job prints a single line: outpath:rcpath:file
+    # Set ENV-Vars for language so perl isn't crying about missing locales in some shells...
+    mapfile -t results < <(
+      cat "$filelist" | LC_ALL=C LANG=C LANGUAGE=C parallel -0 -j "$jobs" --will-cite --lb "$worker" {}
+    ) || true
+
+    # Aggregate results
+    echo ""
+    echo ""
+    echo "---------------------------------------------"
+    echo ""
+    echo ""
+    for entry in "${results[@]}"; do
+        out="${entry%%:*}"
+        rest="${entry#*:}"
+        rcfile="${rest%%:*}"
+        file="${rest#*:}"
+
+        # print filtered logs for the user
+        grep -Ev '^([0-9]+ warnings generated\.|Suppressed [0-9]+ warnings .*|Use -header-filter=.*)' "$out" || true
+
+        # extract counts
+        warning_count=$(grep -Eo '[0-9]+ warnings? treated as errors?' "$out" | grep -Eo '[0-9]+' | awk '{s+=$1} END{print s+0}')
+        if [ -n "$warning_count" ]; then
+            total_warnings=$((total_warnings + warning_count))
+        fi
+
+        error_count=$(grep -Eo '[0-9]+ warnings? and [0-9]+ errors? generated\.' "$out" | grep -Eo '[0-9]+ errors?' | grep -Eo '[0-9]+' | awk '{s+=$1} END{print s+0}')
+        if [ -n "$error_count" ]; then
+            total_errors=$((total_errors + error_count))
+        fi
+
+        rc=$(cat "$rcfile" 2>/dev/null || echo 0)
+        if [ "$rc" -ne 0 ]; then
+            status=1
+        fi
+    done
+
+    echo "---------------------------------------------"
+    echo ""
+    echo "Analysis complete."
+    echo ""
+    echo "Total warnings treated as errors: $total_warnings"
+    echo "Total errors found: $total_errors"
+    return "$status"
 }
 
 ###################################################################
@@ -287,6 +377,14 @@ done
 clang-check
 echo "Running clang-tidy version $(clang-tidy --version | grep -oE '[0-9]+(\.[0-9]+)+')"
 echo ""
-cat "$tmpfile" | run_clang_tidy_from_stdin
-result=$?
+# Prefer GNU parallel if available for concurrency, otherwise run sequentially
+USE_PARALLEL=true
+HAS_PARALLEL=$(command -v parallel &>/dev/null && echo true || echo false)
+if [ "$HAS_PARALLEL" = "true" ] && [ "$USE_PARALLEL" = "true" ]; then
+    run_clang_tidy_parallel "$tmpfile"
+    result=$?
+else
+    cat "$tmpfile" | run_clang_tidy_from_stdin
+    result=$?
+fi
 exit "$result"
