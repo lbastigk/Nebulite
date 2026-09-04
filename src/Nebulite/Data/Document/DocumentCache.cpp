@@ -87,7 +87,7 @@ std::string DocumentCache::getDocString(std::string_view const link) const {
     return serial;
 }
 
-void DocumentCache::copy(rapidjson::Document& dest, std::string_view link) const {
+void DocumentCache::copy(rapidjson::Document& dest, std::string_view const link) const {
     ReadOnlyDoc const* docPtr = readOnlyDocs.getDocument(link);
 
     // Check if the document exists in the cache

@@ -36,7 +36,7 @@ struct Vec2<T,CoordinateType::xy> {
         static_assert(std::is_same_v<T, U>, "Type of other Vec2 must match this Vec2 type");
         return Vec2{
             .x=x + other.x,
-            .y=y + other.y
+            .y=y + other.y,
         };
     }
 
@@ -45,7 +45,7 @@ struct Vec2<T,CoordinateType::xy> {
         static_assert(std::is_same_v<T, U>, "Type of other Vec2 must match this Vec2 type");
         return Vec2{
             .x=x - other.x,
-            .y=y - other.y
+            .y=y - other.y,
         };
     }
 
@@ -123,7 +123,7 @@ struct Vec2<T, CoordinateType::wh> {
         static_assert(std::is_same_v<T, U>, "Type of other Vec2 must match this Vec2 type");
         return Vec2{
             .w=w + other.w,
-            .h=h + other.h
+            .h=h + other.h,
         };
     }
 
@@ -132,7 +132,7 @@ struct Vec2<T, CoordinateType::wh> {
         static_assert(std::is_same_v<T, U>, "Type of other Vec2 must match this Vec2 type");
         return Vec2{
             .w = w - other.w,
-            .h = h - other.h
+            .h = h - other.h,
         };
     }
 

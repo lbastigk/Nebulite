@@ -198,7 +198,7 @@ void RenderObject::deserialize(std::string const& serialOrLink) {
 [[nodiscard]] RenderObject::Position RenderObject::getPosition() const {
     return Position{
         .x=static_cast<int32_t>(std::lround(*refs.posX)),
-        .y=static_cast<int32_t>(std::lround(*refs.posY))
+        .y=static_cast<int32_t>(std::lround(*refs.posY)),
     };
 }
 

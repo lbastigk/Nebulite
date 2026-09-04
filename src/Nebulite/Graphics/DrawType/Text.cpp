@@ -105,7 +105,7 @@ bool Text::diff(Data::JsonScope& scope, DrawcallRefs& refs) {
 Math::Vec2<float> Text::getRenderOffset(DrawcallRefs& /*refs*/) {
     return Math::Vec2<float>{
         .x=0.0f,
-        .y=0.0f
+        .y=0.0f,
     };
 }
 

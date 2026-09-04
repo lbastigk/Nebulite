@@ -131,7 +131,7 @@ bool Collection::enumerateInline(std::span<std::string_view const> const args, D
     return true;
 }
 
-bool Collection::enumerate(std::span<std::string_view const> args, Data::JsonScope& jsonDoc){
+bool Collection::enumerate(std::span<std::string_view const> const args, Data::JsonScope& jsonDoc){
     if (args.size() != 1) return false;
     if (jsonDoc.memberType(rootKey) != Data::KeyType::array) return false;
     Data::Json tmp;
@@ -165,7 +165,7 @@ bool Collection::bundle(std::span<std::string_view const> const args, Data::Json
 }
 
 // Array->Obj: bind
-bool Collection::bind(std::span<std::string_view const> args, Data::JsonScope& jsonDoc){
+bool Collection::bind(std::span<std::string_view const> const args, Data::JsonScope& jsonDoc){
     if (args.size() < 2) {
         return false;
     }

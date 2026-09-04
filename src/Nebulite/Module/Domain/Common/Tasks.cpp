@@ -30,7 +30,7 @@ Constants::Event Tasks::updateHook() {
 //------------------------------------------
 // Domain-Bound Functions
 
-Constants::Event Tasks::wait(std::span<std::string_view const> args) const {
+Constants::Event Tasks::wait(std::span<std::string_view const> const args) const {
     if (args.size() < 2) {
         return Constants::StandardCapture::Warning::Functional::tooFewArgs(domain.capture);
     }
@@ -45,7 +45,7 @@ Constants::Event Tasks::wait(std::span<std::string_view const> args) const {
     return Constants::Event::success;
 }
 
-Constants::Event Tasks::task(std::span<std::string_view const> args) const {
+Constants::Event Tasks::task(std::span<std::string_view const> const args) const {
     if (args.size() < 2) {
         return Constants::StandardCapture::Warning::Functional::tooFewArgs(domain.capture);
     }

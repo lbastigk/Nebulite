@@ -2,12 +2,12 @@
 // Includes
 
 // Standard library
+#include <algorithm>
 #include <atomic>
 #include <cstddef>
 #include <cstdint> // NOLINT
 #include <memory>
 #include <mutex>
-#include <numeric>
 #include <optional>
 #include <span>
 #include <string>
@@ -164,8 +164,12 @@ void Domain::baseDeserialization(std::string const& serialOrLinkWithCommands) {
             parts.erase(parts.begin()); // Remove the first part
         }
 
+        auto const partsCombined = std::ranges::fold_left(parts, std::string{}, [](std::string const& acc, std::string_view const p) {
+           return acc + p;
+        });
+
         // Split the rest into tokens based on '|'
-        tokens = stringToDeserializeTokens(std::accumulate(parts.begin(), parts.end(), std::string{}));
+        tokens = stringToDeserializeTokens(partsCombined);
     }
     else {
         //------------------------------------------

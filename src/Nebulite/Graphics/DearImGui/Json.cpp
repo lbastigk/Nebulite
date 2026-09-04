@@ -44,7 +44,7 @@ void renderScope(Data::JsonScope const& s, Data::ScopedKeyView const& root) {
 }
 
 void renderDocument(Data::Json& doc, Data::ScopedKeyView const& root){
-    auto& scope = doc.shareManagedScope(root.toString());
+    auto const& scope = doc.shareManagedScope(root.toString());
     renderScope(scope, root);
 }
 

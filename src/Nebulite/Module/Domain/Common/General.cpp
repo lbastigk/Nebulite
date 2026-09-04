@@ -102,8 +102,7 @@ Constants::Event General::ifFunc(std::span<std::string_view const> const args, I
         ctx.self.capture.error.println("Critical Error: A custom if-condition failed.\nCondition failed: " + condition + " is not a boolean expression.");
         return Constants::Event::warning;
     }
-    auto constexpr promise = Utility::Promise<Utility::PromiseType::FunctionVerified, &Interaction::Logic::Expression::isReturnableAsBool>{};
-    if (expr.evalAsBool(ctxScope, promise)) {
+    if (expr.evalAsBool(ctxScope, Utility::Promise<Utility::PromiseType::FunctionVerified, &Interaction::Logic::Expression::isReturnableAsBool>{})) {
         commands = __FUNCTION__ + std::string(" ") + commands;
         return ctx.self.parseStr(commands, ctx, ctxScope);
     }
@@ -198,8 +197,7 @@ Constants::Event General::assertFunc(std::span<std::string_view const> const arg
         ctx.self.capture.error.println("Critical Error: A custom assertion failed.\nAssertion failed: " + condition + " is not a boolean expression.");
         return Constants::Event::error;
     }
-    auto constexpr promise = Utility::Promise<Utility::PromiseType::FunctionVerified, &Interaction::Logic::Expression::isReturnableAsBool>{};
-    if (!expr.evalAsBool(ctxScope, promise)) {
+    if (!expr.evalAsBool(ctxScope, Utility::Promise<Utility::PromiseType::FunctionVerified, &Interaction::Logic::Expression::isReturnableAsBool>{})) {
         ctx.self.capture.error.println("Critical Error: A custom assertion failed.\nAssertion failed: " + condition + " is not true.");
         return Constants::Event::error;
     }

@@ -20,7 +20,7 @@ GlobalValueCopy GlobalValue::copy() const {
     return GlobalValueCopy{
         .gravitationalConstant = gravitationalConstant,
         .dt = dt,
-        .t = t
+        .t = t,
     };
 }
 

@@ -44,10 +44,13 @@ void Tile::appendBatch(Batch&& batch) {
 }
 
 void Tile::moveObjects(std::vector<Core::RenderObject*>& destination) {
-    for (auto& batch : batches) {
-        std::ranges::move(batch.objects, std::back_inserter(destination));
-        batch.objects.clear();
-    }
+    std::ranges::for_each(
+        batches,
+        [&](auto& batch) {
+            std::ranges::move(batch.objects, std::back_inserter(destination));
+            batch.objects.clear();
+        }
+    );
     batches.clear();
 }
 

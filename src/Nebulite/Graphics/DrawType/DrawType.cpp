@@ -17,7 +17,7 @@ bool DrawType::diff(Data::JsonScope& /*scope*/, DrawcallRefs& /*refs*/) {
 Math::Vec2<float> DrawType::getRenderOffset(DrawcallRefs& /*refs*/) {
     return Math::Vec2<float>{
         .x=0.0f,
-        .y=0.0f
+        .y=0.0f,
     };
 }
 

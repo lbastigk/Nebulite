@@ -51,11 +51,11 @@ private:
 
     Position lastMousePosition{
         .x=0,
-        .y=0
+        .y=0,
     };
     Position currentMousePosition{
         .x=0,
-        .y=0
+        .y=0,
     };
 };
 } // namespace Nebulite::Graphics
