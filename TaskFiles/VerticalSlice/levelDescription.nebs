@@ -97,3 +97,8 @@ selected-object parse imgui-view on
 rmlui document load playerStack ./Resources/Rml/playerStack.rml
 rmlui document load actionWindow ./Resources/Rml/actionWindow.rml
 rmlui document load minimap ./Resources/Rml/minimap.rml
+
+###########################
+# Debug: grid and tiling-info
+grid on
+tile-info on

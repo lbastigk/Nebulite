@@ -10,6 +10,9 @@
 # 6.) Assert non-empty
 # 7.) Assert equal magnitude, opposite direction
 
+# TODO SIGSEV if tile-info is turned on in this test!
+#tile-info on
+
 ##########################################################################
 # Preparation
 
