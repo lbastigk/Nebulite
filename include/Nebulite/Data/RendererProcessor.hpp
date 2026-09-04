@@ -100,8 +100,14 @@ public:
      */
     struct DispatcherWorkspace {
         Tile* work = nullptr; // TODO: multiple tiles per worker might be better
-        TilingInformation tilingInformation;
-        TileCoordinate pos;
+        TilingInformation tilingInformation{
+            .w=128,
+            .h=128,
+        };
+        TileCoordinate pos{
+            .x=0,
+            .y=0,
+        };
         ReinsertionProcess* reinsertionProcess = nullptr;
         DeletionProcess* deletionProcess = nullptr;
     };

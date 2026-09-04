@@ -17,7 +17,8 @@
 #include "Nebulite/Constants/Event.hpp"
 #include "Nebulite/Constants/StandardCapture.hpp"
 #include "Nebulite/Core/GlobalSpace.hpp"
-#include "Nebulite/Graphics/ImguiHelper.hpp"
+#include "Nebulite/Graphics/DearImGui/Core.hpp"
+#include "Nebulite/Graphics/DearImGui/DomainViewer.hpp"
 #include "Nebulite/Interaction/Logic/Expression.hpp"
 #include "Nebulite/Module/Domain/Common/General.hpp"
 #include "Nebulite/Nebulite.hpp"
@@ -29,7 +30,7 @@
 namespace Nebulite::Module::Domain::Common {
 
 Constants::Event General::updateHook() {
-    if (imguiViewEnabled && Graphics::ImguiHelper::checkImguiReadyForRendering()) {
+    if (imguiViewEnabled && Graphics::DearImGui::Core::checkImguiReadyForRendering()) {
         if (!lastContext.valid()) {
             // Context is not valid, disable imgui view and log error
             imguiViewEnabled = false;
@@ -51,7 +52,7 @@ Constants::Event General::updateHook() {
                     .global = *lastContext.globalScope,
                 },
             };
-            Graphics::ImguiHelper::renderDomainViewer(ctx, ctxScope, domain.capture, domain.getName());
+            Graphics::DearImGui::DomainViewer::render(ctx, ctxScope, domain.capture, domain.getName());
         });
     }
     return Constants::Event::success;

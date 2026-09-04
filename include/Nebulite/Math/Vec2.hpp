@@ -31,24 +31,22 @@ struct Vec2<T,CoordinateType::xy> {
     T x;
     T y;
 
-    Vec2() : x(0), y(0) {}
-
-    template<VectorType X, VectorType Y>
-    explicit Vec2(X const xVal, Y const yVal) : x(xVal), y(yVal) {
-        static_assert(std::is_same_v<T, std::remove_cv_t<std::remove_reference_t<X>>>, "Type of x must match this Vec2 type");
-        static_assert(std::is_same_v<T, std::remove_cv_t<std::remove_reference_t<Y>>>, "Type of y must match this Vec2 type");
-    }
-
     template<VectorType U>
     Vec2 operator+(Vec2<U> const& other) const {
         static_assert(std::is_same_v<T, U>, "Type of other Vec2 must match this Vec2 type");
-        return Vec2{x + other.x, y + other.y};
+        return Vec2{
+            .x=x + other.x,
+            .y=y + other.y
+        };
     }
 
     template<VectorType U>
     Vec2 operator-(Vec2<U> const& other) const {
         static_assert(std::is_same_v<T, U>, "Type of other Vec2 must match this Vec2 type");
-        return Vec2{x - other.x, y - other.y};
+        return Vec2{
+            .x=x - other.x,
+            .y=y - other.y
+        };
     }
 
     template<VectorType U>
@@ -120,24 +118,22 @@ struct Vec2<T, CoordinateType::wh> {
     T w;
     T h;
 
-    Vec2() : w(0), h(0) {}
-
-    template<VectorType W, VectorType H>
-    explicit Vec2(W const wVal, H const hVal) : w(wVal), h(hVal) {
-        static_assert(std::is_same_v<T, std::remove_cv_t<std::remove_reference_t<W>>>, "Type of w must match this Vec2 type");
-        static_assert(std::is_same_v<T, std::remove_cv_t<std::remove_reference_t<H>>>, "Type of h must match this Vec2 type");
-    }
-
     template<VectorType U>
     Vec2 operator+(Vec2<U> const& other) const {
         static_assert(std::is_same_v<T, U>, "Type of other Vec2 must match this Vec2 type");
-        return Vec2{w + other.w, h + other.h};
+        return Vec2{
+            .w=w + other.w,
+            .h=h + other.h
+        };
     }
 
     template<VectorType U>
     Vec2 operator-(Vec2<U> const& other) const {
         static_assert(std::is_same_v<T, U>, "Type of other Vec2 must match this Vec2 type");
-        return Vec2{w - other.w, h - other.h};
+        return Vec2{
+            .w = w - other.w,
+            .h = h - other.h
+        };
     }
 
     template<VectorType U>

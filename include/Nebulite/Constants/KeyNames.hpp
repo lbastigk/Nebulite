@@ -7,6 +7,7 @@
 // Nebulite
 #include "Nebulite/Data/Document/KeyGroup.hpp"
 #include "Nebulite/Data/Document/ScopePattern.hpp"
+#include "Nebulite/Data/Document/ScopedKeyView.hpp"
 
 //------------------------------------------
 namespace Nebulite::Constants {
@@ -27,6 +28,44 @@ struct KeyNames {
      */
     struct Domain : Data::KeyGroup<Data::ScopePattern::noScope> {
         //static auto constexpr id = makeScoped("id");
+    };
+
+    /**
+     * @struct Drawcall
+     * @brief Holds the keys used in the drawcall JsonScope.
+     * @details All keys are unscoped, as they are relative to the drawcall's own scope.
+     *          Since the drawcall's scope isn't fixed within the RenderObject's document,
+     *          we cannot use fully scoped keys here.
+     *          Use these keys with caution, ensuring the scope you use them with is indeed
+     *          the drawcall's / texture's scope!
+     */
+    struct Drawcall {
+        static auto constexpr type = Data::ScopedKeyView("drawType"); // "sprite", "text", "geometry", etc.
+        static auto constexpr textureData = Data::ScopedKeyView("textureData"); // Texture data object
+        static auto constexpr rotationDegrees = Data::ScopedKeyView("textureData.rotation.angle"); // Rotation in degrees
+        static auto constexpr rotationCenterX = Data::ScopedKeyView("textureData.rotation.center.x"); // Rotation center X
+        static auto constexpr rotationCenterY = Data::ScopedKeyView("textureData.rotation.center.y"); // Rotation center Y
+
+        struct Rect {
+            static auto constexpr src = Data::ScopedKeyView("rect.src");
+            static auto constexpr srcX = Data::ScopedKeyView("rect.src.x");
+            static auto constexpr srcY = Data::ScopedKeyView("rect.src.y");
+            static auto constexpr srcW = Data::ScopedKeyView("rect.src.w");
+            static auto constexpr srcH = Data::ScopedKeyView("rect.src.h");
+
+            static auto constexpr dst = Data::ScopedKeyView("rect.dst");
+            static auto constexpr dstX = Data::ScopedKeyView("rect.dst.x");
+            static auto constexpr dstY = Data::ScopedKeyView("rect.dst.y");
+            static auto constexpr dstW = Data::ScopedKeyView("rect.dst.w");
+            static auto constexpr dstH = Data::ScopedKeyView("rect.dst.h");
+        };
+
+        struct Color {
+            static auto constexpr r = Data::ScopedKeyView("textureData.color.r");
+            static auto constexpr g = Data::ScopedKeyView("textureData.color.g");
+            static auto constexpr b = Data::ScopedKeyView("textureData.color.b");
+            static auto constexpr a = Data::ScopedKeyView("textureData.color.a");
+        };
     };
 
     /**

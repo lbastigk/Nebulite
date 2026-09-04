@@ -18,7 +18,8 @@
 // Nebulite
 #include "Nebulite/Data/Document/Json.hpp"
 #include "Nebulite/Data/Document/KeyType.hpp"
-#include "Nebulite/Graphics/RmlInterface.hpp"
+#include "Nebulite/Graphics/RmlUi/ElementIdentifier.hpp"
+#include "Nebulite/Graphics/RmlUi/Interface.hpp"
 #include "Nebulite/Interaction/Context.hpp"
 #include "Nebulite/Module/Base/RmlUiModule.hpp"
 #include "Nebulite/Module/RmlUi/Reflection.hpp"
@@ -28,7 +29,7 @@
 //------------------------------------------
 namespace Nebulite::Module::RmlUi {
 
-Reflection::Reflection(Utility::Io::Capture& c, Graphics::RmlInterface& i) : RmlUiModule(c,i) {
+Reflection::Reflection(Utility::Io::Capture& c, Graphics::RmlUi::Interface& i) : RmlUiModule(c,i) {
     evaluationRoutine = std::make_unique<Utility::Coordination::TimedRoutine>(
         [this] {
             removeDeletedElements();
@@ -116,19 +117,19 @@ Data::Json& Reflection::evaluateReflectionList(std::unique_ptr<ReflectionEntry> 
     return *reflectionList;
 }
 
-void Reflection::setIdentifiers(Rml::Element* element, Graphics::RmlInterface::RmlElementIdentifier const& id) {
-    Graphics::RmlInterface::RmlElementIdentifier::forceElementIdentifier(element, id);
+void Reflection::setIdentifiers(Rml::Element* element, Graphics::RmlUi::ElementIdentifier const& id) {
+    Graphics::RmlUi::ElementIdentifier::forceElementIdentifier(element, id);
     for (int j = 0; j < element->GetNumChildren(); ++j) {
         setIdentifiers(element->GetChild(j), id);
     }
 }
 
-void Reflection::setReflectionScopes(Data::Json& reflectionList, std::unique_ptr<ReflectionEntry> const& entry, Rml::Element const* element, Graphics::RmlInterface::ContextAndScope const& contextAndScope) const {
+void Reflection::setReflectionScopes(Data::Json& reflectionList, std::unique_ptr<ReflectionEntry> const& entry, Rml::Element const* element, Graphics::RmlUi::Interface::ContextAndScope const& contextAndScope) const {
     auto const childrenCount = static_cast<size_t>(element->GetNumChildren());
     std::size_t idsIndex = 0;
 
     while (entry->allocatedIds.size() < childrenCount) {
-        entry->allocatedIds.emplace_back(Graphics::RmlInterface::RmlElementIdentifier::newIdentifier());
+        entry->allocatedIds.emplace_back(Graphics::RmlUi::ElementIdentifier::newIdentifier());
     }
 
     std::size_t jsonIndex = 0;
@@ -153,7 +154,7 @@ void Reflection::setReflectionScopes(Data::Json& reflectionList, std::unique_ptr
 
         auto const& allocatedId = entry->allocatedIds[idsIndex];
         setIdentifiers(child, allocatedId);
-        auto const identifier = Graphics::RmlInterface::RmlElementIdentifier(allocatedId);
+        auto const identifier = Graphics::RmlUi::ElementIdentifier(allocatedId);
         interface.setRmlElementContextAndScope(identifier, {.ctx=contextAndScope.ctx, .ctxScope=childContextScope});
         idsIndex++;
     }
@@ -165,8 +166,8 @@ void Reflection::reflectElement(Rml::Element* element, std::unique_ptr<Reflectio
     if (entry->markedForDeletion) return;
 
     // Get context and scope of this reflection
-    auto const contextAndScope = [&](Rml::Element const* e) -> std::optional<Graphics::RmlInterface::ContextAndScope> {
-        if (Graphics::RmlInterface::RmlElementIdentifier::hasElementIdentifier(e)) {
+    auto const contextAndScope = [&](Rml::Element const* e) -> std::optional<Graphics::RmlUi::Interface::ContextAndScope> {
+        if (Graphics::RmlUi::ElementIdentifier::hasElementIdentifier(e)) {
             // If a reflection element already has an element identifier, it's likely that this is the result of a nested reflection.
             // At the moment, this is not supported.
             throw std::logic_error("Nested reflection is not supported. Use JSON-Transformations on the outer reflection to mimic the inner one.");

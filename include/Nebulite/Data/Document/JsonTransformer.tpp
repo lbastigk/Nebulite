@@ -13,7 +13,7 @@
 // Conditional includes
 
 #ifndef NEBULITE_DATA_DOCUMENT_JSONTRANSFORMER_HPP
-#include "JsonTransformer.hpp"
+#include "Nebulite/Data/Document/JsonTransformer.hpp"
 #endif // NEBULITE_DATA_DOCUMENT_JSONTRANSFORMER_HPP
 
 //------------------------------------------

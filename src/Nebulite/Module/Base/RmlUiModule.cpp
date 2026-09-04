@@ -6,14 +6,14 @@
 #include <SDL3/SDL_events.h>
 
 // Nebulite
-#include "Nebulite/Graphics/RmlInterface.hpp"
+#include "Nebulite/Graphics/RmlUi/Interface.hpp"
 #include "Nebulite/Module/Base/RmlUiModule.hpp"
 #include "Nebulite/Utility/Io/Capture.hpp"
 
 //------------------------------------------
 namespace Nebulite::Module::Base {
 
-RmlUiModule::RmlUiModule(Utility::Io::Capture& c, Graphics::RmlInterface& i) :
+RmlUiModule::RmlUiModule(Utility::Io::Capture& c, Graphics::RmlUi::Interface& i) :
     capture(c),
     interface(i)
 {}

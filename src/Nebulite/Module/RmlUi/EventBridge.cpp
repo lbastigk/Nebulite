@@ -6,7 +6,7 @@
 #include <SDL3/SDL_events.h>
 
 // Nebulite
-#include "Nebulite/Graphics/RmlInterface.hpp"
+#include "Nebulite/Graphics/RmlUi/Interface.hpp"
 #include "Nebulite/Module/Base/RmlUiModule.hpp"
 #include "Nebulite/Module/RmlUi/EventBridge.hpp"
 #include "Nebulite/Utility/Io/Capture.hpp"
@@ -14,7 +14,7 @@
 //------------------------------------------
 namespace Nebulite::Module::RmlUi {
 
-EventBridge::EventBridge(Utility::Io::Capture& c, Graphics::RmlInterface& i) : RmlUiModule(c,i) {}
+EventBridge::EventBridge(Utility::Io::Capture& c, Graphics::RmlUi::Interface& i) : RmlUiModule(c,i) {}
 
 void EventBridge::update() {}
 

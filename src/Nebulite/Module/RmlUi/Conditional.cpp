@@ -14,7 +14,8 @@
 #include <RmlUi/Core/StyleTypes.h>
 
 // Nebulite
-#include "Nebulite/Graphics/RmlInterface.hpp"
+#include "Nebulite/Graphics/RmlUi/ElementIdentifier.hpp"
+#include "Nebulite/Graphics/RmlUi/Interface.hpp"
 #include "Nebulite/Interaction/Logic/Expression.hpp"
 #include "Nebulite/Math/Equality.hpp"
 #include "Nebulite/Module/Base/RmlUiModule.hpp"
@@ -24,7 +25,7 @@
 //------------------------------------------
 namespace Nebulite::Module::RmlUi {
 
-Conditional::Conditional(Utility::Io::Capture& c, Graphics::RmlInterface& i) : RmlUiModule(c,i) {}
+Conditional::Conditional(Utility::Io::Capture& c, Graphics::RmlUi::Interface& i) : RmlUiModule(c,i) {}
 
 void Conditional::update() {
     for (auto& entry : registeredEntries | std::views::values) {
@@ -55,13 +56,13 @@ void Conditional::OnElementDestroy(Rml::Element* element){
     }
 }
 
-void Conditional::RegisteredEntry::resolve(Graphics::RmlInterface& interface) const {
+void Conditional::RegisteredEntry::resolve(Graphics::RmlUi::Interface& interface) const {
     // Get context/scope for evaluation
-    auto const ctxAndScope = [&] -> std::optional<Graphics::RmlInterface::ContextAndScope> {
-        if (!Graphics::RmlInterface::RmlElementIdentifier::hasElementIdentifier(element)) {
+    auto const ctxAndScope = [&] -> std::optional<Graphics::RmlUi::Interface::ContextAndScope> {
+        if (!Graphics::RmlUi::ElementIdentifier::hasElementIdentifier(element)) {
             return std::nullopt; // Or should we set an identifier?
         }
-        auto const id = Graphics::RmlInterface::RmlElementIdentifier(element);
+        auto const id = Graphics::RmlUi::ElementIdentifier(element);
         return interface.getRmlElementContextAndScope(id);
     }();
 
