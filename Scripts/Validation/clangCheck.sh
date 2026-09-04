@@ -233,8 +233,8 @@ run_clang_tidy_parallel() {
 
     if ! command -v parallel &>/dev/null; then
         echo "GNU parallel not found; falling back to sequential mode"
-        cat "$filelist" | run_clang_tidy_from_stdin
-        return $?
+        result=$(cat "$filelist" | run_clang_tidy_from_stdin)
+        return result
     fi
 
     # Determine number of jobs to use

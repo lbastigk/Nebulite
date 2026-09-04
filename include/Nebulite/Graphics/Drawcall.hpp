@@ -85,6 +85,7 @@ public:
          */
         static void text(Data::JsonScope& scope);
     };
+
 private:
     Core::Texture texture; // Texture domain
     Data::JsonScope& drawcallScope; // The owned scope of the drawcall, holding relevant data
