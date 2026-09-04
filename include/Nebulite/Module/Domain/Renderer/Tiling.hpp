@@ -33,6 +33,7 @@ public:
     //------------------------------------------
     // Available Functions
 
+    // TODO: causes a sigsev if turned on, in various large scale tests...
     Constants::Event tileInfoToggle(std::span<std::string_view const> args);
     static auto constexpr tileInfoToggleName = "tile-info";
     static auto constexpr tileInfoToggleDesc = "Toggle tile info storage in scope on or off.\n"

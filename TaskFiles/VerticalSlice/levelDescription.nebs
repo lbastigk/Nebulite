@@ -101,4 +101,4 @@ rmlui document load minimap ./Resources/Rml/minimap.rml
 ###########################
 # Debug: grid and tiling-info
 grid on
-tile-info on
+#tile-info on # Not working atm...
