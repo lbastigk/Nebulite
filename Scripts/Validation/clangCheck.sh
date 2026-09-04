@@ -223,19 +223,12 @@ run_clang_tidy_from_stdin() {
 }
 
 # Try to run clang-tidy in parallel using GNU parallel when available.
-# Falls back to the sequential run_clang_tidy_from_stdin function if parallel is not present.
 run_clang_tidy_parallel() {
     # $1: path to null-delimited file list
     filelist="$1"
     status=0
     total_warnings=0
     total_errors=0
-
-    if ! command -v parallel &>/dev/null; then
-        echo "GNU parallel not found; falling back to sequential mode"
-        result=$(cat "$filelist" | run_clang_tidy_from_stdin)
-        return result
-    fi
 
     # Determine number of jobs to use
     jobs=$(nproc 2>/dev/null || sysctl -n hw.ncpu 2>/dev/null || echo 4)
