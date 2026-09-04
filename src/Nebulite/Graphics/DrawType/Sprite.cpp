@@ -1,9 +1,6 @@
 //------------------------------------------
 // Includes
 
-// Standard library
-#include <utility>
-
 // External
 #include <SDL3/SDL_render.h>
 
@@ -14,12 +11,13 @@
 #include "Nebulite/Data/Document/JsonScope.hpp"
 #include "Nebulite/Data/Document/KeyType.hpp"
 #include "Nebulite/Graphics/DrawType/Sprite.hpp"
+#include "Nebulite/Math/Vec2.hpp"
 
 //------------------------------------------
 namespace Nebulite::Graphics::DrawType {
 
 
-Sprite::Sprite(Data::JsonScope& scope, DrawcallRefs& /*refs*/) {
+Sprite::Sprite(Data::JsonScope const& scope, DrawcallRefs& /*refs*/) {
     // Get Texture from container via link
     link = scope.get<std::string>(Key::imageLocation).value_or("");
 }
@@ -59,8 +57,11 @@ bool Sprite::diff(Data::JsonScope& scope, DrawcallRefs& /*refs*/) {
     return link != scope.get<std::string>(Key::imageLocation).value_or("");
 }
 
-std::pair<float,float> Sprite::getRenderOffset(DrawcallRefs& /*refs*/) {
-    return std::make_pair(0.0, 0.0);
+Math::Vec2<float> Sprite::getRenderOffset(DrawcallRefs& /*refs*/) {
+    return Math::Vec2<float>{
+        .x=0.0f,
+        .y=0.0f
+    };
 }
 
 } // namespace Nebulite::Graphics::DrawType

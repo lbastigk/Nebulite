@@ -6,16 +6,15 @@
 
 // Standard library
 #include <string>
-#include <utility>
 
 // External
 #include <SDL3/SDL_pixels.h>
 #include <SDL3_ttf/SDL_ttf.h>
 
 // Nebulite
-#include "Nebulite/Data/Document/JsonScope.hpp"
 #include "Nebulite/Data/Document/ScopedKeyView.hpp"
 #include "Nebulite/Graphics/DrawType/DrawType.hpp"
+#include "Nebulite/Math/Vec2.hpp"
 
 //------------------------------------------
 // Forward declarations
@@ -38,13 +37,20 @@ namespace Nebulite::Graphics::DrawType {
 /**
  * @brief Specialization for drawing Text
  */
-class Text : public DrawType {
+class Text final : public DrawType {
     std::string text;
     SDL_Color textColor{.r=0,.g=0,.b=0,.a=0};
     double* textFontsize = nullptr;
-    
+
+    /**
+     * @brief Sets standard rect data in the scope.
+     * @param scope The scope to modify.
+     * @param w The source width.
+     * @param h The source height.
+     * @param font The font being used. Required for destination rect size calculation.
+     */
     void setStandardTextRectsIfMissing(Data::JsonScope& scope, float w, float h, TTF_Font* font) const ;
-    
+
 public:
     struct Key {
         static auto constexpr fontsize = Data::ScopedKeyView("textureData.fontSize");
@@ -52,13 +58,13 @@ public:
     };
 
     // TODO: Proper width wrapping based on fontsize and max width
-    Text(Data::JsonScope& scope, DrawcallRefs& refs);
+    Text(Data::JsonScope const& scope, DrawcallRefs const& refs);
 
     void drawToTexture(Core::Renderer& renderer, Core::Texture& texture, Data::JsonScope& scope, DrawcallRefs& refs) override ;
 
     bool diff(Data::JsonScope& scope, DrawcallRefs& refs) override ;
 
-    std::pair<float,float> getRenderOffset(DrawcallRefs& /*refs*/) override ;
+    Math::Vec2<float> getRenderOffset(DrawcallRefs& /*refs*/) override ;
 };
 } // namespace Nebulite::Graphics::DrawType
 #endif // NEBULITE_GRAPHICS_DRAWTYPE_TEXT_HPP

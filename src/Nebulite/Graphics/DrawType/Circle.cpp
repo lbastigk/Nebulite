@@ -1,9 +1,6 @@
 //------------------------------------------
 // Includes
 
-// Standard library
-#include <utility>
-
 // External
 #include <SDL3/SDL_pixels.h>
 #include <SDL3/SDL_render.h>
@@ -18,11 +15,12 @@
 #include "Nebulite/Graphics/DrawType/Circle.hpp"
 #include "Nebulite/Graphics/DrawcallRefs.hpp"
 #include "Nebulite/Graphics/Sdl/Geometry.hpp"
+#include "Nebulite/Math/Vec2.hpp"
 
 //------------------------------------------
 namespace Nebulite::Graphics::DrawType {
 
-Circle::Circle(Data::JsonScope& scope, DrawcallRefs& refs) : circleRadius(scope.getStableDoublePointer(Key::radius)) {
+Circle::Circle(Data::JsonScope& scope, DrawcallRefs const& refs) : circleRadius(scope.getStableDoublePointer(Key::radius)) {
     circleColor = {
         .r=static_cast<Uint8>(*refs.colorR),
         .g=static_cast<Uint8>(*refs.colorG),
@@ -64,11 +62,11 @@ bool Circle::diff(Data::JsonScope& /*scope*/, DrawcallRefs& refs) {
         || circleColor.b != static_cast<Uint8>(*refs.colorB)
         || circleColor.a != static_cast<Uint8>(*refs.colorA);
 }
-std::pair<float,float> Circle::getRenderOffset(DrawcallRefs& refs) {
-    return std::make_pair(
-        - static_cast<float>(*refs.rectDstW / 2.0),
-        - static_cast<float>(*refs.rectDstW / 2.0)
-    );
+Math::Vec2<float> Circle::getRenderOffset(DrawcallRefs& refs) {
+    return Math::Vec2<float>{
+        .x = static_cast<float>(*refs.rectDstW / 2.0),
+        .y = static_cast<float>(*refs.rectDstH / 2.0)
+    };
 }
 
 } // namespace Nebulite::Graphics::DrawType

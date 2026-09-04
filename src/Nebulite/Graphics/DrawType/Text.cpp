@@ -1,9 +1,6 @@
 //------------------------------------------
 // Includes
 
-// Standard library
-#include <utility>
-
 // External
 #include <SDL3/SDL_error.h>
 #include <SDL3/SDL_pixels.h>
@@ -20,6 +17,7 @@
 #include "Nebulite/Data/Document/KeyType.hpp"
 #include "Nebulite/Graphics/DrawType/Text.hpp"
 #include "Nebulite/Graphics/DrawcallRefs.hpp"
+#include "Nebulite/Math/Vec2.hpp"
 
 //------------------------------------------
 namespace Nebulite::Graphics::DrawType {
@@ -44,7 +42,7 @@ void Text::setStandardTextRectsIfMissing(Data::JsonScope& scope, float const w, 
     if (scope.memberType(Constants::KeyNames::Drawcall::Rect::dstH) != Data::KeyType::value) scope.set<double>(Constants::KeyNames::Drawcall::Rect::dstH, dstH);
 }
 
-Text::Text(Data::JsonScope& scope, DrawcallRefs& refs) : textFontsize(scope.getStableDoublePointer(Key::fontsize)) {
+Text::Text(Data::JsonScope const& scope, DrawcallRefs const& refs) : textFontsize(scope.getStableDoublePointer(Key::fontsize)) {
     text = scope.get<std::string>(Key::str).value_or("");
     if (text.empty()) {
         text = " "; // Render at least a space to get height
@@ -103,8 +101,12 @@ bool Text::diff(Data::JsonScope& scope, DrawcallRefs& refs) {
         || textColor.a != static_cast<Uint8>(*refs.colorA);
 }
 
-std::pair<float,float> Text::getRenderOffset(DrawcallRefs& /*refs*/) {
-    return std::make_pair(0.0, 0.0);
+
+Math::Vec2<float> Text::getRenderOffset(DrawcallRefs& /*refs*/) {
+    return Math::Vec2<float>{
+        .x=0.0f,
+        .y=0.0f
+    };
 }
 
 } // namespace Nebulite::Graphics::DrawType

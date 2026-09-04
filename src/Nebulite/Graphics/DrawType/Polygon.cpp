@@ -3,7 +3,6 @@
 
 // Standard library
 #include <limits>
-#include <utility>
 
 // External
 #include <SDL3/SDL_error.h>
@@ -22,11 +21,12 @@
 #include "Nebulite/Graphics/DrawcallRefs.hpp"
 #include "Nebulite/Graphics/Sdl/Geometry.hpp"
 #include "Nebulite/Math/Equality.hpp"
+#include "Nebulite/Math/Vec2.hpp"
 
 //------------------------------------------
 namespace Nebulite::Graphics::DrawType {
 
-Polygon::Polygon(Data::JsonScope& scope, DrawcallRefs& refs) {
+Polygon::Polygon(Data::JsonScope& scope, DrawcallRefs const& refs) {
     // Setup destination rect if not already defined
     if (scope.memberType(Constants::KeyNames::Drawcall::Rect::dstX) != Data::KeyType::value) {
         scope.set<double>(Constants::KeyNames::Drawcall::Rect::dstX, 0.0);
@@ -110,8 +110,11 @@ bool Polygon::diff(Data::JsonScope& scope, DrawcallRefs& refs) {
         || polyColor.a != static_cast<Uint8>(*refs.colorA);
 }
 
-std::pair<float,float> Polygon::getRenderOffset(DrawcallRefs& /*refs*/) {
-    return std::make_pair(0.0, 0.0);
+Math::Vec2<float> Polygon::getRenderOffset(DrawcallRefs& /*refs*/) {
+    return Math::Vec2<float>{
+        .x=0.0f,
+        .y=0.0f
+    };
 }
 
 } // namespace Nebulite::Graphics::DrawType

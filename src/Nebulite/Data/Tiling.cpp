@@ -109,7 +109,7 @@ void Tile::update(std::vector<Core::RenderObject*>& toMove, std::vector<Core::Re
 }
 
 void Tile::render(
-    Core::Renderer const& nebuliteRenderer,
+    Core::Renderer& nebuliteRenderer,
     TileCoordinate const& coordinate,
     TilingInformation const& tilingInfo,
     Utility::Io::Capture& capture,

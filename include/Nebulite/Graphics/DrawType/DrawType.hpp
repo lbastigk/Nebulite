@@ -4,8 +4,8 @@
 //------------------------------------------
 // Includes
 
-// Standard library
-#include <utility>
+// Nebulite
+#include "Nebulite/Math/Vec2.hpp"
 
 //------------------------------------------
 // Forward declarations
@@ -33,9 +33,9 @@ public:
     DrawType() = default;
     virtual ~DrawType() = default;
 
-    DrawType& operator=(const DrawType&) = default;
+    DrawType& operator=(DrawType const&) = default;
     DrawType& operator=(DrawType&&) = default;
-    DrawType(const DrawType&) = default;
+    DrawType(DrawType const&) = default;
     DrawType(DrawType&&) = default;
 
     /**
@@ -54,7 +54,12 @@ public:
      */
     virtual bool diff(Data::JsonScope& scope, DrawcallRefs& refs);
 
-    virtual std::pair<float,float> getRenderOffset(DrawcallRefs& refs);
+    /**
+     * @brief Returns the render offset to use for the specialized DrawType.
+     * @param refs General references for any drawtype.
+     * @return The offset.
+     */
+    virtual Math::Vec2<float> getRenderOffset(DrawcallRefs& refs);
 };
 } // namespace Nebulite::Graphics::DrawType
 #endif // NEBULITE_GRAPHICS_DRAWTYPE_DRAWTYPE_HPP

@@ -1,11 +1,9 @@
 //------------------------------------------
 // Includes
 
-// Standard library
-#include <utility>
-
 // Nebulite
 #include "Nebulite/Graphics/DrawType/DrawType.hpp"
+#include "Nebulite/Math/Vec2.hpp"
 
 //------------------------------------------
 namespace Nebulite::Graphics::DrawType {
@@ -16,8 +14,11 @@ bool DrawType::diff(Data::JsonScope& /*scope*/, DrawcallRefs& /*refs*/) {
     return false;
 }
 
-std::pair<float,float> DrawType::getRenderOffset(DrawcallRefs& /*refs*/) {
-    return {0.0, 0.0};
+Math::Vec2<float> DrawType::getRenderOffset(DrawcallRefs& /*refs*/) {
+    return Math::Vec2<float>{
+        .x=0.0f,
+        .y=0.0f
+    };
 }
 
 } // namespace Nebulite::Graphics::DrawType

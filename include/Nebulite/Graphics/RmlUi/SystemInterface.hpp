@@ -49,8 +49,14 @@ private:
 
     using Position = Math::Vec2<int>;
 
-    Position lastMousePosition{0,0};
-    Position currentMousePosition{0,0};
+    Position lastMousePosition{
+        .x=0,
+        .y=0
+    };
+    Position currentMousePosition{
+        .x=0,
+        .y=0
+    };
 };
 } // namespace Nebulite::Graphics
 #endif // NEBULITE_GRAPHICS_RMLUI_SYSTEMINTERFACE_HPP

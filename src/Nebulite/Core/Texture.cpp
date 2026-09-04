@@ -16,7 +16,7 @@
 #include "Nebulite/Constants/StandardCapture.hpp"
 #include "Nebulite/Core/GlobalSpace.hpp"
 #include "Nebulite/Core/Texture.hpp"
-#include "Nebulite/Graphics/Drawcall.hpp"
+#include "Nebulite/Graphics/DrawType/Sprite.hpp"
 #include "Nebulite/Interaction/Execution/Domain.hpp"
 #include "Nebulite/Module/Domain/Initializer.hpp"
 #include "Nebulite/Nebulite.hpp"
@@ -82,7 +82,7 @@ void Texture::generateLocallyManagedTexture() {
     }
 
     // Get global texture
-    std::string const& imageLink = domainScope.get<std::string>(Graphics::Drawcall::Key::SpriteSpecific::imageLocation).value_or("");
+    auto const& imageLink = domainScope.get<std::string>(Graphics::DrawType::Sprite::Key::imageLocation).value_or("");
     auto* const globalTexture = Global::instance().getRenderer().getTexture(imageLink);
     if (globalTexture == nullptr) {
         capture.error.println("Failed to find texture in global renderer for image link: ", imageLink);
