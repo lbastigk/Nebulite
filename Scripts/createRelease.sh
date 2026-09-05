@@ -63,13 +63,13 @@ echo -e "${BLUE}Creating Nebulite ${VERSION} release archives...${NC}"
 #############################################
 # Helper functions
 
-testBinaries(){
+test_binaries(){
     # Test all available binaries
     make clean
     make build-and-test-available
 }
 
-buildReleaseBinaries(){
+build_release_binaries(){
     # Compile binaries: only build release versions for the packaging
     make delete-binaries
     make linux-release
@@ -84,7 +84,7 @@ lint(){
     }
 }
 
-updateDocs(){
+update_docs(){
     # Check for unstaged tracked changes before building docs
     git diff --quiet || {
         echo -e "${YELLOW}Warning: There are unstaged changes after before documentation.${NC}"
@@ -337,12 +337,12 @@ main(){
     echo -e "${BLUE}Nebulite Release Creator${NC}"
     echo -e "${BLUE}Version: ${VERSION}${NC}\n"
     
-    check_binaries
     prepare_build_dir
-    testBinaries
-    buildReleaseBinaries
+    test_binaries
+    build_release_binaries
+    check_binaries
     lint
-    updateDocs
+    update_docs
     create_windows_archive
     create_linux_archive
     show_info
