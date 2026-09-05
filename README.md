@@ -452,7 +452,7 @@ see `./include/Module/GlobalSpace/FeatureTest.hpp` for an example of this approa
 - *rapidJSON* - JSON parsing
 - *abseil* - fast hash maps
 - *tinyexpr* - expression evaluation
-- *imgui*, *rmlui* - GUI
+- *imgui*, *implot*, *rmlui* - GUI
 - *stb* - image encoding/decoding
 
 <!-- TOC --><a name="testing"></a>

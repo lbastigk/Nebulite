@@ -18,20 +18,22 @@ set -e
 
 #############################################
 # Get licenses from LICENSE files
-LIC_ABSEIL=$(cat ./external/abseil/LICENSE)
-LIC_IMGUI=$(cat ./external/imgui/LICENSE.txt)
-LIC_RAPIDJSON=$(cat ./external/rapidjson/license.txt)
-LIC_RMLUI=$(cat ./external/RmlUi/LICENSE.txt)
-LIC_SDL=$(cat ./external/SDL3/LICENSE.txt)
-LIC_SDL_IMAGE=$(cat ./external/SDL3_image/LICENSE.txt)
-LIC_SDL_TTF=$(cat ./external/SDL3_ttf/LICENSE.txt)
-LIC_STB_IMAGE=$(cat ./external/stb/LICENSE)
-LIC_TINYEXPR=$(cat ./external/tinyexpr/LICENSE)
+LIC_ABSEIL=$(cat ./external/absl-src/LICENSE)
+LIC_IMGUI=$(cat ./external/imgui-src/LICENSE.txt)
+LIC_IMPLOT=$(cat ./external/implot-src/LICENSE)
+LIC_RAPIDJSON=$(cat ./external/rapidjson-src/license.txt)
+LIC_RMLUI=$(cat ./external/rmlui-src/LICENSE.txt)
+LIC_SDL=$(cat ./external/sdl3-src/LICENSE.txt)
+LIC_SDL_IMAGE=$(cat ./external/sdl3_image-src/LICENSE.txt)
+LIC_SDL_TTF=$(cat ./external/sdl3_ttf-src/LICENSE.txt)
+LIC_STB_IMAGE=$(cat ./external/stb-src/LICENSE)
+LIC_TINYEXPR=$(cat ./external/tinyexpr-src/LICENSE)
 
 # Generate array of licenses
 LICENSES=(
   "$LIC_ABSEIL"
   "$LIC_IMGUI"
+  "$LIC_IMPLOT"
   "$LIC_RAPIDJSON"
   "$LIC_RMLUI"
   "$LIC_SDL"
@@ -160,6 +162,10 @@ ${LIC_ABSEIL}
 ImGui (MIT License)
 =====================================
 ${LIC_IMGUI}
+
+ImPlot (MIT License)
+=====================================
+${LIC_IMPLOT}
 
 RapidJSON (MIT License)
 =====================================
