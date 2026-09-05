@@ -49,6 +49,9 @@ Polygon::Polygon(Data::JsonScope& scope, DrawcallRefs const& refs) {
         auto const pointY = *refs.rectSrcH * scope.get<double>(key.addMember("y")).value_or(0.0);
         points.push_back({ .x=static_cast<float>(pointX), .y=static_cast<float>(pointY) });
     }
+
+    // Get info about filled/not filled
+    polygonFilled = scope.getStableDoublePointer(Key::filled);
 }
 
 void Polygon::drawToTexture(Core::Renderer& renderer, Core::Texture& texture, Data::JsonScope& /*scope*/, DrawcallRefs& refs) {
