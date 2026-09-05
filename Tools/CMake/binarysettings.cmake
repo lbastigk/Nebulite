@@ -34,10 +34,18 @@ function(setup_binary_settings)
         )
     elseif(CMAKE_BUILD_TYPE STREQUAL "Debug")
         set_target_properties(Nebulite PROPERTIES OUTPUT_NAME "Nebulite_Debug")
-        add_compile_options(
-                -g
-                -ftime-trace=${sourceDir}/tmp/trace_${presetName}.json
-        )
+
+        # Don't add trace on windows
+        if(WIN32)
+            add_compile_options(
+                    -g
+            )
+        else ()
+            add_compile_options(
+                    -g
+                    -ftime-trace=${sourceDir}/tmp/trace_${presetName}.json
+            )
+        endif()
     elseif(CMAKE_BUILD_TYPE STREQUAL "Coverage")
         set_target_properties(Nebulite PROPERTIES OUTPUT_NAME "Nebulite_Coverage")
         add_compile_options(
