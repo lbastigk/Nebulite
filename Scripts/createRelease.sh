@@ -12,6 +12,8 @@ YELLOW='\033[1;33m'
 BLUE='\033[0;34m'
 NC='\033[0m' # No Color
 
+
+
 #############################################
 # Abort on errors
 set -e
@@ -51,53 +53,6 @@ if [ "$CONFIRM" != "y" ]; then
     exit 1
 fi
 
-# Check for any code mistakes using clang-tidy
-./Scripts/Validation/clangCheck.sh || {
-    echo -e "${RED}Error: clang-tidy checks failed. Please fix the issues before creating a release.${NC}"
-    exit 1
-}
-
-# Test all available binaries
-make clean
-make build-and-test-available
-
-# Compile binaries: only build release versions for the packaging
-make delete-binaries
-make linux-release
-make windows-release
-
-# Check for unstaged tracked changes before building docs
-git diff --quiet || {
-    echo -e "${YELLOW}Warning: There are unstaged changes after before documentation.${NC}"
-    git status
-    exit 1
-}
-
-# Generate documentation + standards, commit and push
-make docs
-make standards
-git add doc/
-git add Languages/
-git add Resources/
-
-# Check for unstaged tracked changes
-git diff --quiet || {
-    echo -e "${YELLOW}Warning: There are unstaged changes after building documentation.${NC}"
-    git status
-    exit 1
-}
-
-# Check for untracked files
-if [ -n "$(git ls-files --others --exclude-standard)" ]; then
-    echo -e "${YELLOW}Warning: There are untracked files after building documentation.${NC}"
-    git status
-    exit 1
-fi
-
-git commit -m "Update documentation for release ${VERSION}" || echo "No changes in documentation to commit."
-git push origin main
-
-
 # Configuration
 BUILD_DIR="release_build"
 WINDOWS_ARCHIVE="Nebulite-${VERSION}-windows.zip"
@@ -105,7 +60,62 @@ LINUX_ARCHIVE="Nebulite-${VERSION}-linux.tar.gz"
 
 echo -e "${BLUE}Creating Nebulite ${VERSION} release archives...${NC}"
 
+#############################################
+# Helper functions
 
+testBinaries(){
+    # Test all available binaries
+    make clean
+    make build-and-test-available
+}
+
+buildReleaseBinaries(){
+    # Compile binaries: only build release versions for the packaging
+    make delete-binaries
+    make linux-release
+    make windows-release
+}
+
+lint(){
+    # Check for any code mistakes using clang-tidy
+    ./Scripts/Validation/clangCheck.sh || {
+        echo -e "${RED}Error: clang-tidy checks failed. Please fix the issues before creating a release.${NC}"
+        exit 1
+    }
+}
+
+updateDocs(){
+    # Check for unstaged tracked changes before building docs
+    git diff --quiet || {
+        echo -e "${YELLOW}Warning: There are unstaged changes after before documentation.${NC}"
+        git status
+        exit 1
+    }
+
+    # Generate documentation + standards, commit and push
+    make docs
+    make standards
+    git add doc/
+    git add Languages/
+    git add Resources/
+
+    # Check for unstaged tracked changes
+    git diff --quiet || {
+        echo -e "${YELLOW}Warning: There are unstaged changes after building documentation.${NC}"
+        git status
+        exit 1
+    }
+
+    # Check for untracked files
+    if [ -n "$(git ls-files --others --exclude-standard)" ]; then
+        echo -e "${YELLOW}Warning: There are untracked files after building documentation.${NC}"
+        git status
+        exit 1
+    fi
+
+    git commit -m "Update documentation for release ${VERSION}" || echo "No changes in documentation to commit."
+    git push origin main
+}
 
 # Function to create LICENSE.txt content
 create_license_txt(){
@@ -321,6 +331,7 @@ show_info(){
     echo -e "${BLUE}Release URL: https://github.com/lbastigk/Nebulite/releases/new?tag=v${VERSION}${NC}"
 }
 
+#############################################
 # Main execution
 main(){
     echo -e "${BLUE}Nebulite Release Creator${NC}"
@@ -328,10 +339,14 @@ main(){
     
     check_binaries
     prepare_build_dir
+    testBinaries
+    buildReleaseBinaries
+    lint
+    updateDocs
     create_windows_archive
     create_linux_archive
     show_info
-    
+
     # Cleanup
     rm -rf "$BUILD_DIR"
 }
