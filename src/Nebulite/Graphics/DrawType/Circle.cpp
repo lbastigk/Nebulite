@@ -65,7 +65,7 @@ bool Circle::diff(Data::JsonScope& /*scope*/, DrawcallRefs& refs) {
 Math::Vec2<float> Circle::getRenderOffset(DrawcallRefs& refs) {
     return Math::Vec2<float>{
         .x = static_cast<float>(*refs.rectDstW / 2.0),
-        .y = static_cast<float>(*refs.rectDstH / 2.0)
+        .y = static_cast<float>(*refs.rectDstH / 2.0),
     };
 }
 

@@ -421,7 +421,7 @@ public:
         // we must re-activate reinsertion of all objects on resolution change!
         return Data::TilingInformation{
             .w=static_cast<std::uint16_t>(128),
-            .h=static_cast<std::uint16_t>(128)
+            .h=static_cast<std::uint16_t>(128),
         };
     }
 
