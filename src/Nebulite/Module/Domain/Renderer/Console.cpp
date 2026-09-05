@@ -28,7 +28,7 @@ Constants::Event Console::updateHook() {
         domain.skipUpdateNextFrame();
 
         // Set console flags
-        Graphics::DearImGui::DomainViewer::RenderingFlags const flags{
+        Graphics::DearImGui::DomainViewer::RenderingFlags constexpr flags{
             .showCloseButton = false,
             .windowPos = std::nullopt,
             .windowSize = std::nullopt,

@@ -5,7 +5,7 @@
 // Includes
 
 // Standard Library
-#include <cstdint>
+#include <cstdint> // NOLINT
 #include <functional>
 
 // Nebulite

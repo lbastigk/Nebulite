@@ -60,7 +60,7 @@ bool Sprite::diff(Data::JsonScope& scope, DrawcallRefs& /*refs*/) {
 Math::Vec2<float> Sprite::getRenderOffset(DrawcallRefs& /*refs*/) {
     return Math::Vec2<float>{
         .x=0.0f,
-        .y=0.0f
+        .y=0.0f,
     };
 }
 

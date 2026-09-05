@@ -9,8 +9,12 @@
 #include <string>
 #include <utility>
 
-// External
-#include <RmlUi/Core/Element.h>
+//------------------------------------------
+// Forward declarations
+
+namespace Rml {
+class Element;
+} // namespace Rml
 
 //------------------------------------------
 namespace Nebulite::Graphics::RmlUi {

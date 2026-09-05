@@ -763,7 +763,7 @@ void Renderer::renderFrame() {
     // Get tile position of camera center
     auto const cameraPosition = RenderObject::Position{
         .x=dispPosX + w/2,
-        .y=dispPosY + h/2
+        .y=dispPosY + h/2,
     };
     cameraTilePosition = Data::RenderObjectContainer::getTilePos(
         cameraPosition,

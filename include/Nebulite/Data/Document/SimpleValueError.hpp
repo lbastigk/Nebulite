@@ -5,7 +5,7 @@
 // Includes
 
 // Standard library
-#include <cstdint>
+#include <cstdint> // NOLINT
 
 //------------------------------------------
 // Enum for simple value retrieval error
