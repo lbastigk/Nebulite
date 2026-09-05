@@ -59,7 +59,7 @@ public:
         if (!opt) {
             opt.emplace(std::forward<ConstructorArgs>(args)...);
         }
-        return *opt;
+        return opt.value();
     }
 };
 

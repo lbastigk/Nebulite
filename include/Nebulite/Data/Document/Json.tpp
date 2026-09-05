@@ -5,7 +5,6 @@
 // Includes
 
 // Standard library
-#include <cassert>
 #include <expected>
 #include <mutex>
 #include <span>

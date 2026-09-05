@@ -139,9 +139,9 @@ Constants::Event FeatureTest::largeFft(std::span<std::string_view const> const a
         data[i] = static_cast<double>(i % 100); // Fill with some sample data
     }
 
-    auto start = Utility::Time::getTime();
+    auto const start = Utility::Time::getTime();
     auto const result = Math::Fft::fft(data);
-    auto end = Utility::Time::getTime();
+    auto const end = Utility::Time::getTime();
 
     domain.capture.log.println("FFT of size ", size.value(), " computed. Took ", end - start, " ms. First 10 results of ", result.size(), " total:");
     for (std::size_t i = 0; i < std::min(result.size(), static_cast<std::size_t>(10)); ++i) {
