@@ -17,41 +17,6 @@ NC='\033[0m' # No Color
 set -e
 
 #############################################
-# Get licenses from LICENSE files
-LIC_ABSEIL=$(cat ./external/absl-src/LICENSE)
-LIC_IMGUI=$(cat ./external/imgui-src/LICENSE.txt)
-LIC_IMPLOT=$(cat ./external/implot-src/LICENSE)
-LIC_RAPIDJSON=$(cat ./external/rapidjson-src/license.txt)
-LIC_RMLUI=$(cat ./external/rmlui-src/LICENSE.txt)
-LIC_SDL=$(cat ./external/sdl3-src/LICENSE.txt)
-LIC_SDL_IMAGE=$(cat ./external/sdl3_image-src/LICENSE.txt)
-LIC_SDL_TTF=$(cat ./external/sdl3_ttf-src/LICENSE.txt)
-LIC_STB_IMAGE=$(cat ./external/stb-src/LICENSE)
-LIC_TINYEXPR=$(cat ./external/tinyexpr-src/LICENSE)
-
-# Generate array of licenses
-LICENSES=(
-  "$LIC_ABSEIL"
-  "$LIC_IMGUI"
-  "$LIC_IMPLOT"
-  "$LIC_RAPIDJSON"
-  "$LIC_RMLUI"
-  "$LIC_SDL"
-  "$LIC_SDL_IMAGE"
-  "$LIC_SDL_TTF"
-  "$LIC_STB_IMAGE"
-  "$LIC_TINYEXPR"
-)
-
-# Check if any are empty
-for lic in "${LICENSES[@]}"; do
-    if [ -z "$lic" ]; then
-        echo -e "${RED}Error: One or more license files are empty. Please check the LICENSE files in the external libraries.${NC}"
-        exit 1
-    fi
-done
-
-#############################################
 # Prerequisites:
 
 # Check if there are uncommitted changes
@@ -138,9 +103,9 @@ BUILD_DIR="release_build"
 WINDOWS_ARCHIVE="Nebulite-${VERSION}-windows.zip"
 LINUX_ARCHIVE="Nebulite-${VERSION}-linux.tar.gz"
 
-
-
 echo -e "${BLUE}Creating Nebulite ${VERSION} release archives...${NC}"
+
+
 
 # Function to create LICENSE.txt content
 create_license_txt(){
@@ -149,6 +114,41 @@ create_license_txt(){
 
 # Function to create THIRD_PARTY_LICENSES.txt content
 create_third_party_licenses_txt(){
+    #############################################
+    # Get licenses from LICENSE files
+    LIC_ABSEIL=$(cat ./external/absl-src/LICENSE)
+    LIC_IMGUI=$(cat ./external/imgui-src/LICENSE.txt)
+    LIC_IMPLOT=$(cat ./external/implot-src/LICENSE)
+    LIC_RAPIDJSON=$(cat ./external/rapidjson-src/license.txt)
+    LIC_RMLUI=$(cat ./external/rmlui-src/LICENSE.txt)
+    LIC_SDL=$(cat ./external/sdl3-src/LICENSE.txt)
+    LIC_SDL_IMAGE=$(cat ./external/sdl3_image-src/LICENSE.txt)
+    LIC_SDL_TTF=$(cat ./external/sdl3_ttf-src/LICENSE.txt)
+    LIC_STB_IMAGE=$(cat ./external/stb-src/LICENSE)
+    LIC_TINYEXPR=$(cat ./external/tinyexpr-src/LICENSE)
+
+    # Generate array of licenses
+    LICENSES=(
+      "$LIC_ABSEIL"
+      "$LIC_IMGUI"
+      "$LIC_IMPLOT"
+      "$LIC_RAPIDJSON"
+      "$LIC_RMLUI"
+      "$LIC_SDL"
+      "$LIC_SDL_IMAGE"
+      "$LIC_SDL_TTF"
+      "$LIC_STB_IMAGE"
+      "$LIC_TINYEXPR"
+    )
+
+    # Check if any are empty
+    for lic in "${LICENSES[@]}"; do
+        if [ -z "$lic" ]; then
+            echo -e "${RED}Error: One or more license files are empty. Please check the LICENSE files in the external libraries.${NC}"
+            exit 1
+        fi
+    done
+
     cat << EOF
 Nebulite Third-Party Library Licenses
 ==========================================================================
