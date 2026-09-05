@@ -117,6 +117,7 @@ lPad
 lPadNonNumeric
 lPadNumeric
 lStrip
+large-fft
 last
 length
 leq
@@ -240,6 +241,7 @@ sum
 task
 task-exec
 throw
+tile-info
 time
 toBipolar
 toBool

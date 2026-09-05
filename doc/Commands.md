@@ -2,7 +2,7 @@
 
 This documentation is automatically generated.
 
-Generated on: Thu Aug 27 08:43:11 CEST 2026
+Generated on: Sat Sep  5 20:05:01 CEST 2026
 
 ## Table of Contents
 
@@ -89,6 +89,7 @@ Available Functions
 | `task` | Loads tasks from a file into the taskQueue, but does not execute them immediately. |
 | `task-exec` | Same as 'task', but with instant execution. |
 | `throw` | Throws a runtime error with the provided message. |
+| `tile-info` | Toggle tile info storage in scope on or off. |
 | `time` | Commands for time management |
 | `view` | Toggle view setting to full, low or lowest |
 | `wait` | Sets the waitCounter to the given value to halt all script tasks for a given amount of frames. |
@@ -489,6 +490,7 @@ Available Functions
 | `functree` | Builds a funcTree with extra arguments and tests it |
 | `help` | Show available commands and their descriptions |
 | `key-combination` | Tests key-combinations for the ScopedKey class. |
+| `large-fft` | Tests the FFT implementation with a large dataset. |
 
 ##### `feature-test context-evaluation`
 
@@ -518,6 +520,13 @@ Usage: feature-test functree
 Tests key-combinations for the ScopedKey class.
 Usage: feature-test key-combination <key1> <key2>
 Using <empty> as argument will treated as an empty key.
+```
+
+##### `feature-test large-fft`
+
+```
+Tests the FFT implementation with a large dataset.
+Usage: feature-test large-fft <size>
 ```
 
 #### `fetch-container`
@@ -607,6 +616,7 @@ This is useful for executing commands that are only available in the other conte
 ```
 Toggle grid overlay on or off.
 Usage: grid [on/off]
+Toggles state if no argument is provided.
 ```
 
 #### `if`
@@ -1239,6 +1249,14 @@ Throws a runtime error with the provided message.
 Usage: throw <string>
 
 - <string>: The error message for the thrown exception.
+```
+
+#### `tile-info`
+
+```
+Toggle tile info storage in scope on or off.
+Usage: tile-info [on/off]
+Toggles state if no argument is provided.
 ```
 
 #### `time`
