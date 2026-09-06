@@ -5,7 +5,7 @@
 #include <algorithm>
 #include <cctype>
 #include <cstddef>
-#include <cstdint>
+#include <cstdint> // NOLINT
 #include <cstdlib>
 #include <functional>
 #include <optional>
@@ -19,12 +19,14 @@
 // External
 #include <SDL3/SDL_error.h>
 #include <SDL3/SDL_events.h>
+#include <SDL3/SDL_hints.h>
 #include <SDL3/SDL_init.h>
 #include <SDL3/SDL_keyboard.h>
 #include <SDL3/SDL_mouse.h>
 #include <SDL3/SDL_rect.h>
 #include <SDL3/SDL_render.h>
 #include <SDL3/SDL_scancode.h>
+#include <SDL3/SDL_stdinc.h>
 #include <SDL3/SDL_surface.h>
 #include <SDL3/SDL_video.h>
 #include <SDL3_image/SDL_image.h>
@@ -253,6 +255,12 @@ void Renderer::initSdl() {
     // Define window via x|y|w|h
     int const w = domainScope.get<int>(Constants::KeyNames::Renderer::dispResXWindow).value_or(0);
     int const h = domainScope.get<int>(Constants::KeyNames::Renderer::dispResYWindow).value_or(0);
+
+    // Set env/hints for headless mode
+    if (*headless) {
+        SDL_SetHint(SDL_HINT_RENDER_DRIVER, "software");
+        SDL_SetEnvironmentVariable(SDL_GetEnvironment(), "SDL_VIDEODRIVER", "dummy", true);
+    }
 
     // Create window and renderer
     if (!SDL_CreateWindowAndRenderer("Nebulite", w*windowScale, h*windowScale, getWindowFlags(*headless), &window, &renderer)) {
