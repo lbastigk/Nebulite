@@ -11,6 +11,10 @@
         }
     },
     {
+        "command": "task TaskFiles/Tests/JSON/Caching/assignSimpleValueCacheValid.nebs",
+        "expected": { "cout": [], "cerr": [] }
+    },
+    {
         "command": "task TaskFiles/Tests/JSON/Caching/setSubDoc.nebs",
         "expected": {
             "cout": [

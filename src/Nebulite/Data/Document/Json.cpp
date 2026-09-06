@@ -419,8 +419,14 @@ void Json::setSubDoc(std::string_view const key, Json const& child, std::string_
         }
     }
 
-    // Check if cache holds the key mark as deleted
-    cache.deleteEntry(key);
+    // Sync cache entry with root value
+    auto entry = cache.find(key);
+    if (entry.has_value()) {
+        auto val = child.getVariant("");
+        if (val.has_value()) {
+            entry->setValueClean(val.value());
+        }
+    }
 
     // Since we inserted an entire document, we need sync its children
     synchronizeChildren(key);
