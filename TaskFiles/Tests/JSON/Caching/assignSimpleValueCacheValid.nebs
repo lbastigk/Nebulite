@@ -1,0 +1,39 @@
+# Checks if setting a subdoc via assign that holds a simple value is reflected in the cache.
+# The issue:
+# Normally, an assign of a json document means the internal structure is either an object or array
+# but it could also be a simple value (numeric, string, bool)
+# If that is the case, the associated cache entry must reflect this new state.
+
+# We use a complicated mirror setup to set a value
+# Why? No idea, this was what triggered the error originally...
+# It's likely that the multiple json subdoc setting is what caused the error
+# 1st is from the mirror
+# 2nd is from assign
+
+set-res 1000 1000
+set-fps 100
+time set-fixed-dt 10
+set physics.G 10
+
+set sunSize 10
+set planetSize 3
+
+spawn ./Resources/Renderobjects/Planets/sun.jsonc \
+    |posX=250|posY=500|physics.vX=0|physics.vY=0 \
+    |physics.mass=1500000 \
+    |eval set size.r $({global:sunSize} / 2) \
+    |eval set draw.core.rect.dst.h {global:sunSize} \
+    |eval set draw.core.rect.dst.w {global:sunSize}
+
+selected-object get 1
+selected-object parse mirror on
+
+always assign global:sunPos[0].x = {global:providedScope.module.domain.renderObject.mirror.renderObject.idx1.posX}
+always assign global:sunPos[0].y = {global:providedScope.module.domain.renderObject.mirror.renderObject.idx1.posY}
+always capture cap eval echo $i({global:sunPos[0].x})
+wait 10
+
+assert $(eq({self:cap|length},1))
+assert $(eq({self:cap[0]},250))
+
+exit
