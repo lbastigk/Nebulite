@@ -417,7 +417,7 @@ void removeMember(std::string_view const key, rapidjson::Value& val) {
     }
 
     // Handle simple case: direct member of root document
-    if (!key.contains(SpecialCharacter::dot) && !key.contains(SpecialCharacter::arrayOpen)) {
+    if (key.find_first_of(SpecialCharacter::dotAndArrayOpen) == std::string_view::npos) {
         if (rapidjson::Value const member(rapidjson::StringRef(key.data(), key.size())); val.HasMember(member)) {
             val.RemoveMember(member);
         }
