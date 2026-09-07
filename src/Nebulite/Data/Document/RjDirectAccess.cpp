@@ -456,7 +456,7 @@ bool isValidKey(std::string_view key) {
         // Validate object key part if non-empty
         if (auto const member = popMember(key); !member.empty()) {
             // Check for invalid characters in member name
-            if (member.find_first_of("[]") != std::string_view::npos) {
+            if (member.find_first_of(SpecialCharacter::arrayOpenAndClose) != std::string_view::npos) {
                 return false; // Invalid character found
             }
         }
@@ -493,7 +493,7 @@ std::vector<std::string> listAvailableMembers(rapidjson::Value const& val){
         auto const arrSize = val.Size();
         keys.reserve(arrSize);
         for (std::size_t i = 0; i < arrSize; ++i) {
-            keys.emplace_back("[" + std::to_string(i) + "]");
+            keys.emplace_back(SpecialCharacter::arrayOpen + std::to_string(i) + SpecialCharacter::arrayClose);
         }
         // Note: array keys are inherently ordered by index, no need to sort
         //       If we were to sort, this would cause issues as "[10]" would come before "[2]"
