@@ -420,10 +420,8 @@ void Json::setSubDoc(std::string_view const key, Json const& child, std::string_
     }
 
     // Sync cache entry with root value
-    auto entry = cache.find(key);
-    if (entry.has_value()) {
-        auto val = child.getVariant("");
-        if (val.has_value()) {
+    if (auto entry = cache.find(key); entry.has_value()) {
+        if (auto val = child.getVariant(""); val.has_value()) {
             entry->setValueClean(val.value());
         }
     }
@@ -546,7 +544,6 @@ KeyType Json::memberType(std::string_view const key) const {
     }
 
     // Checking cache is risky, as inner values may have changed ...
-    // Once partial flushing is available, we should use that to minimize the performance impact!
     // Flush before accessing the document to ensure integrity
     flush(key);
 
