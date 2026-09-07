@@ -123,11 +123,13 @@ std::string_view popMember(std::string_view& keyView) {
         }
         return std::min(dotPos, bracketPos);
     }();
-
     // Remove the extracted part from keyView and return it
     auto const extracted = keyView.substr(0, nextSep);
     keyView.remove_prefix(nextSep);
-    return extracted;
+    if (keyView.starts_with(SpecialCharacter::dot)) {
+        keyView.remove_prefix(1);
+    }
+    return extracted; // NOLINT
 }
 
 } // namespace
