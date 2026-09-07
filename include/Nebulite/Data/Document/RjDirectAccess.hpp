@@ -295,6 +295,8 @@ namespace Nebulite::Data::RjDirectAccess {
         static auto constexpr arrayOpen = '[';
         static auto constexpr arrayClose = ']';
         static auto constexpr dot = '.';
+
+        static auto constexpr dotAndArrayOpen = ".[";
     };
 } // namespace Nebulite::Data::RjDirectAccess
 #include "Nebulite/Data/Document/RjDirectAccess.tpp" // NOLINT(misc-include-cleaner)

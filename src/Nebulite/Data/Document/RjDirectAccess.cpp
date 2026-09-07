@@ -107,28 +107,19 @@ rapidjson::Value* traverseIntoArray(std::string_view& keyView, rapidjson::Value*
  *         If the next part is a named array (e.g. "array[11]"), the extracted member will be "array".
  */
 std::string_view popMember(std::string_view& keyView) {
-    // Find dot or array opening char as next separators
-    auto const dotPos = keyView.find(SpecialCharacter::dot);
-    auto const bracketPos = keyView.find(SpecialCharacter::arrayOpen);
+    auto const nextSep = keyView.find_first_of(SpecialCharacter::dotAndArrayOpen);
+    const auto extracted = keyView.substr(0, nextSep);
 
-    auto const nextSep = [&] {
-        if (dotPos == std::string_view::npos && bracketPos == std::string_view::npos) {
-            return keyView.size(); // No separator - last key
+    if (nextSep == std::string_view::npos) {
+        keyView.remove_prefix(keyView.size());
+    } else {
+        keyView.remove_prefix(nextSep);
+
+        if (keyView.starts_with(SpecialCharacter::dot)) {
+            keyView.remove_prefix(1);
         }
-        if (dotPos == std::string_view::npos) {
-            return bracketPos;
-        }
-        if (bracketPos == std::string_view::npos) {
-            return dotPos;
-        }
-        return std::min(dotPos, bracketPos);
-    }();
-    // Remove the extracted part from keyView and return it
-    auto const extracted = keyView.substr(0, nextSep);
-    keyView.remove_prefix(nextSep);
-    if (keyView.starts_with(SpecialCharacter::dot)) {
-        keyView.remove_prefix(1);
     }
+
     return extracted; // NOLINT
 }
 
