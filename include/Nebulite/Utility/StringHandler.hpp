@@ -24,13 +24,6 @@ public:
     // [COMPARE/CHECK]
 
     /**
-     * @brief Checks if a given string_view str is null-terminated (compatible with cstring_view and thus compatible with c-strings).
-     * @param str The string_view to check
-     * @return true if the string_view is null-terminated, false otherwise
-     */
-    static bool isNullTerminated(std::string_view str);
-
-    /**
      * @brief Checks if a given string_view str starts with a given sequence of string_views.
      * @tparam Args The string_views to consider as the start sequence. Any number of arguments is supported.
      * @param str The string to compare to

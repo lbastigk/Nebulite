@@ -393,12 +393,8 @@ rapidjson::Value sortRecursive(rapidjson::Value const& value, rapidjson::Documen
 
 bool isJsonOrJsonc(std::string_view const str) {
     rapidjson::Document doc;
-    if (Utility::StringHandler::isNullTerminated(str)) {
-        auto const* nullTerminatedData = str.data(); // Safe to use directly since it's null-terminated
-        return !doc.Parse<rapidjsonParseFlags>(nullTerminatedData).HasParseError();
-    }
-    auto const strCopy = std::string(str); // Make a copy to ensure null-termination
-    return !doc.Parse<rapidjsonParseFlags>(strCopy.c_str()).HasParseError();
+    auto const serial = rapidjson::StringRef(str.data(), str.size());
+    return !doc.Parse<rapidjsonParseFlags>(serial).HasParseError();
 }
 
 //------------------------------------------
