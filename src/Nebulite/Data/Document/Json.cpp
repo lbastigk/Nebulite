@@ -421,7 +421,7 @@ void Json::setSubDoc(std::string_view const key, Json const& child, std::string_
 
     // Sync cache entry with root value
     if (auto entry = cache.find(key); entry.has_value()) {
-        if (auto val = child.getVariant(""); val.has_value()) {
+        if (auto const val = child.getVariant(""); val.has_value()) {
             entry->setValueClean(val.value());
         }
     }
