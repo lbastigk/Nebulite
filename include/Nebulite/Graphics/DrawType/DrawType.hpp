@@ -44,7 +44,6 @@ public:
      * @param texture The texture to draw on
      * @param scope The scope owning the data of the drawtype.
      * @param refs General references for any drawtype
-     * @todo Add refs to DrawType in general, as well as JsonScope&
      */
     virtual void drawToTexture(Core::Renderer& renderer, Core::Texture& texture, Data::JsonScope& scope, DrawcallRefs& refs);
 
