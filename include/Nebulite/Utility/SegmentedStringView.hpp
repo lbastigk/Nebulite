@@ -16,7 +16,6 @@ namespace Nebulite::Utility {
 /**
  * @class SegmentedStringView
  * @brief Provides basic string functionality for a split string
- * @todo Modify Equality checks to assume a whitespace between each data point
  * @todo Using this class in any FuncTree related parsing could be more powerful, as we avoid recombining
  *       for simple string comparison checks.
  */
@@ -31,8 +30,8 @@ public:
     bool operator==(SegmentedStringView const& other) const;
     bool operator!=(SegmentedStringView const& other) const;
 
-    bool operator==(std::string_view other) const;
-    bool operator!=(std::string_view other) const;
+    bool operator==(std::string_view other) const; // Passing a string_view with quotes will almost certainly return false. Consider turning into a SegmentedStringView first!
+    bool operator!=(std::string_view other) const; // Passing a string_view with quotes will almost certainly return false. Consider turning into a SegmentedStringView first!
 
     [[nodiscard]] std::size_t segmentCount() const;
     [[nodiscard]] std::size_t charactorCount() const;
