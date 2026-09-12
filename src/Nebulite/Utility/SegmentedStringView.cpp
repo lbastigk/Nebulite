@@ -6,16 +6,19 @@
 #include <array>
 #include <cstddef>
 #include <span>
+#include <string>
 #include <string_view>
 
 // Nebulite
 #include "Nebulite/Utility/SegmentedStringView.hpp"
+#include "Nebulite/Utility/StringHandler.hpp"
 
 //------------------------------------------
 
 namespace {
 
 std::size_t countCharacters(std::span<std::string_view const> strings) {
+    // TODO: Consider character between each data point?
     return std::ranges::fold_left(
         strings,
         std::size_t{0},
@@ -95,6 +98,10 @@ SegmentedStringView SegmentedStringView::subspan(std::size_t const index) const 
 }
 SegmentedStringView SegmentedStringView::subspan(std::size_t const startIndex, std::size_t const count) const {
     return SegmentedStringView(data.subspan(startIndex, count));
+}
+
+std::string SegmentedStringView::recombine() const {
+    return StringHandler::recombineArgs(data);
 }
 
 } // namespace Nebulite::Utility
