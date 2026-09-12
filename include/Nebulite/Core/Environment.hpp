@@ -67,7 +67,6 @@ public:
     static auto constexpr finalLayer = Layer::effects;
 
 private:
-
     // All layers in rendering order
     static std::array constexpr allLayers = {
         Layer::background, // Special layer: uses pre-calculated textures. Only updated on object removal/insertion
@@ -86,8 +85,8 @@ private:
 
     absl::flat_hash_map<std::size_t, std::size_t> indexToIdMap;
     std::size_t indexCounter = 1; // Start at 1 to avoid confusion with default value of 0
-public:
 
+public:
     //------------------------------------------
     // Layers
 

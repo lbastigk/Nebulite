@@ -42,6 +42,7 @@ class Tile {
     SDL_Texture* texture = nullptr;
 
     void deleteTexture();
+
 public:
     //------------------------------------------
     // Constants
