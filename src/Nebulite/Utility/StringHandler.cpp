@@ -107,12 +107,12 @@ void StringHandler::strip(std::string_view& str, char const& specialChar) {
 // [ARGS]
 
 StringHandler::ParseResult StringHandler::parseQuotedArguments(std::string_view const cmd) {
-    std::vector<std::string> result;
+    std::vector<std::string_view> result;
     bool const quoteState = parseQuotedArguments(result, cmd);
     return {.args = std::move(result), .unclosedQuote = quoteState};
 }
 
-bool StringHandler::parseQuotedArguments(std::vector<std::string>& existingArgs, std::string_view const cmd) {
+bool StringHandler::parseQuotedArguments(std::vector<std::string_view>& existingArgs, std::string_view const cmd) {
     std::size_t start = 0;
     std::size_t size = 0;
     char activeQuote = '\0'; // '\0' means no active quote

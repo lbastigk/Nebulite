@@ -33,6 +33,7 @@ namespace Filter {
 /**
  * @brief Returns only unique values
  * @details Requires the given range to be sorted!
+ * @todo Move to Utility::Ranges or a separate Filter file
  */
 struct Unique : std::ranges::range_adaptor_closure<Unique> {
     template <std::ranges::input_range R>
@@ -298,14 +299,14 @@ std::vector<std::string> FuncTree<ReturnValue, AdditionalArgs...>::findCompletio
     auto [argsVec, _] = StringHandler::parseQuotedArguments(patternStr);
 
     // Traverse into categories based on args, get pattern to complete
-    auto const [pattern, ftree] = [&] -> std::pair<std::string, FuncTree*> {
+    auto const [pattern, ftree] = [&] -> std::pair<std::string_view, FuncTree*> {
         auto args = std::span(argsVec.data(), argsVec.size());
         if (args.empty()) {
             // No pattern provided, assume root
             return {"", this};
         }
         FuncTree* innerTree = this;
-        std::string const lastArg = args.back();
+        auto const lastArg = args.back();
         args = args.subspan(0, args.size() - 1); // Remove pattern from argsSpan
 
         // Traverse into categories

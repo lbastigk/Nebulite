@@ -468,7 +468,7 @@ public:
      * @param pattern The pattern to match for completions, full command
      * @return A vector of possible completions
      */
-    [[nodiscard]] std::vector<std::string> findCompletions(std::string const& pattern) const {
+    [[nodiscard]] std::vector<std::string> findCompletions(std::string_view const pattern) const {
         return funcTree->findCompletionForFullCommand(pattern);
     }
 

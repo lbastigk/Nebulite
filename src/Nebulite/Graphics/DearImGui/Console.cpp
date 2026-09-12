@@ -45,7 +45,7 @@ void addRootCompletions(std::string_view const input, std::vector<std::string>& 
     if (args.empty() || input.ends_with(' ')) {
         args = {""};
     }
-    std::string const& pattern = args.back();  // Get last argument, which is the one we want to complete
+    auto const& pattern = args.back();  // Get last argument, which is the one we want to complete
 
     auto rootCompletions = domain.findCompletions(pattern);
     completions.insert(completions.end(), rootCompletions.begin(), rootCompletions.end());
@@ -58,7 +58,7 @@ void addFileCompletions(std::string_view const input, std::vector<std::string>& 
     }
 
     // Separate inner from outer directory and get the actual input we need to complete
-    std::string const& pattern = args.back();  // Get last argument, which is the one we want to complete
+    auto const& pattern = args.back();  // Get last argument, which is the one we want to complete
     std::size_t const startIndex = pattern.starts_with("./") ? 2 : 0; // If pattern starts with "./", we want to ignore that for file searching
     std::size_t const endIndex = findFileSeparatorPositionOrFallback(pattern.substr(startIndex)) + startIndex;
     auto const inputToComplete = pattern.substr(endIndex != startIndex ? endIndex + 1 : startIndex);
