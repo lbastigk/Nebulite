@@ -6,9 +6,11 @@
 #include <array>
 #include <cassert>
 #include <cstddef>
+#include <iterator>
 #include <span>
 #include <string>
 #include <string_view>
+#include <vector>
 
 // Nebulite
 #include "Nebulite/Utility/SegmentedStringView.hpp"
@@ -40,6 +42,7 @@ namespace Nebulite::Utility {
 //       Since we often remove just 1 or 2 members, this offers a nice perf boost.
 SegmentedStringView::SegmentedStringView(std::span<std::string_view const> const sv) : data(sv), charCount(countCharacters(sv)) {}
 
+// TODO: Reorganize functionality so we can reuse it easily for beginsWith
 bool SegmentedStringView::operator==(SegmentedStringView const& other) const{
     if (charCount != other.charCount) {
         return false;
@@ -121,6 +124,14 @@ SegmentedStringView SegmentedStringView::subspan(std::size_t const index) const 
 }
 SegmentedStringView SegmentedStringView::subspan(std::size_t const startIndex, std::size_t const count) const {
     return SegmentedStringView(data.subspan(startIndex, count));
+}
+
+void SegmentedStringView::appendSubspan(std::vector<std::string_view>& other, std::size_t index) const {
+    std::ranges::copy(data.subspan(index), std::back_inserter(other));
+}
+
+void SegmentedStringView::appendSubspan(std::vector<std::string_view>& other, std::size_t startIndex, std::size_t count) const{
+    std::ranges::copy(data.subspan(startIndex, count), std::back_inserter(other));
 }
 
 std::string SegmentedStringView::recombine() const {

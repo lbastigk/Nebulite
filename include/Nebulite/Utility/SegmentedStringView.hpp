@@ -9,13 +9,16 @@
 #include <span>
 #include <string>
 #include <string_view>
+#include <vector>
 
 //------------------------------------------
-
 namespace Nebulite::Utility {
 /**
  * @class SegmentedStringView
  * @brief Provides basic string functionality for a split string
+ * @details The comparison functions offer a more complex functionality, as they ignore
+ *          any quotes marks and just compare the content;
+ *          `My name is "Bjarne Stroustrup"` is equal to `My name is Bjarne Stroustrup`
  * @todo Using this class in any FuncTree related parsing could be more powerful, as we avoid recombining
  *       for simple string comparison checks.
  */
@@ -25,6 +28,7 @@ class SegmentedStringView {
     std::size_t const charCount; // Pre-computed, as it's used for many comparisons
 
 public:
+    // TODO: remove, only construct from string_view via algorithm defined in StringHandler::parseQuotedArguments
     explicit SegmentedStringView(std::span<std::string_view const> sv);
 
     bool operator==(SegmentedStringView const& other) const;
@@ -38,6 +42,9 @@ public:
 
     [[nodiscard]] SegmentedStringView subspan(std::size_t index) const ;
     [[nodiscard]] SegmentedStringView subspan(std::size_t startIndex, std::size_t count) const ;
+
+    void appendSubspan(std::vector<std::string_view>& other, std::size_t index) const ;
+    void appendSubspan(std::vector<std::string_view>& other, std::size_t startIndex, std::size_t count) const ;
 
     [[nodiscard]] auto begin() const {
         return data.begin();
