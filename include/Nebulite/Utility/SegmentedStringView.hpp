@@ -18,6 +18,7 @@ namespace Nebulite::Utility {
  * @todo Requires policy setting if between each point a whitespace is assumed
  *       This is important for recombination and comparison!
  *       e.g. ["Hello" "world"] might mean "Helloword" or "Hello world", depending on the policy setting
+ *       Perhaps it's best to always assume a single whitespace inbetween! Check if arg split works that way...
  */
 class SegmentedStringView {
     std::span<std::string_view const> const data;
