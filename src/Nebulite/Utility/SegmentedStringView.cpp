@@ -48,51 +48,62 @@ bool SegmentedStringView::operator==(SegmentedStringView const& other) const{
         return false;
     }
 
+    // Char position in string_view
+    std::size_t posA = 0;
+    std::size_t posB = 0;
+
     // Range position
     auto itA = data.begin();
     auto itB = other.data.begin();
 
     // Iterator advancement checker
-    bool advancedA = false;
-    bool advancedB = false;
+    bool advancedItA = false;
+    bool advancedItB = false;
 
-    // Char position in string_view
-    std::size_t posA = 0;
-    std::size_t posB = 0;
-
-    // Compare each character
-    while (itA != data.end() && itB != other.data.end()) {
-        // Check if segment end is reached
-        if (posA == itA->size()) {
+    auto advanceIterators = [&] -> bool {
+        bool advanced = false;
+        if (!advancedItA && posA == itA->size()) {
             ++itA;
             posA = 0;
-            advancedA = true;
-            continue;
+            advancedItA = true;
+            advanced = true;
         }
-        if (posB == itB->size()) {
+        if (!advancedItB && posB == itB->size()) {
             ++itB;
             posB = 0;
-            advancedB = true;
+            advancedItB = true;
+            advanced = true;
+        }
+        return advanced;
+    };
+
+    // Compare each character
+    while (itA != data.end() || itB != other.data.end()) {
+        // Check if segment end is reached
+        if (advanceIterators()) {
             continue;
         }
 
         // Compare character (either from itX or the whitespace inbetween each view)
-        char const currentA = advancedA ? ' ' : (*itA)[posA];
-        char const currentB = advancedB ? ' ' : (*itB)[posB];
-        if (currentA != currentB) { // NOLINT(readability-redundant-parentheses)
+        char const currentA = advancedItA ? ' ' : (*itA)[posA];
+        char const currentB = advancedItB ? ' ' : (*itB)[posB];
+        if (currentA != currentB) {
             return false;
         }
 
         // Increment position
-        if (!advancedA) {
+        if (!advancedItA) {
             ++posA;
         }
-        if (!advancedB) {
+        if (!advancedItB) {
             ++posB;
         }
-        advancedA = false;
-        advancedB = false;
+        advancedItA = false;
+        advancedItB = false;
     }
+
+    // Sanity check: since character count (incl. whitespaces) is the same,
+    // we must have reached the end in both strings
     assert(itA == data.end() && itB == other.data.end());
     return true;
 }

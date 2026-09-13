@@ -21,6 +21,7 @@ namespace Nebulite::Utility {
  *          `My name is "Bjarne Stroustrup"` is equal to `My name is Bjarne Stroustrup`
  * @todo Using this class in any FuncTree related parsing could be more powerful, as we avoid recombining
  *       for simple string comparison checks.
+ * @todo Add tests in FeatureTest module
  */
 class SegmentedStringView {
     std::span<std::string_view const> const data;
@@ -34,8 +35,20 @@ public:
     bool operator==(SegmentedStringView const& other) const;
     bool operator!=(SegmentedStringView const& other) const;
 
-    bool operator==(std::string_view other) const; // Passing a string_view with quotes will almost certainly return false. Consider turning into a SegmentedStringView first!
-    bool operator!=(std::string_view other) const; // Passing a string_view with quotes will almost certainly return false. Consider turning into a SegmentedStringView first!
+    bool operator==(std::string_view other) const; // Passing a string_view with quotes will return false. Consider turning into a SegmentedStringView first!
+    bool operator!=(std::string_view other) const; // Passing a string_view with quotes will return false. Consider turning into a SegmentedStringView first!
+
+    [[nodiscard]] auto begin() const {
+        return data.begin();
+    }
+
+    [[nodiscard]] auto end() const {
+        return data.end();
+    }
+
+    [[nodiscard]] auto& operator[](std::size_t index) const {
+        return data[index];
+    }
 
     [[nodiscard]] std::size_t segmentCount() const;
     [[nodiscard]] std::size_t charactorCount() const;
@@ -45,14 +58,6 @@ public:
 
     void appendSubspan(std::vector<std::string_view>& other, std::size_t index) const ;
     void appendSubspan(std::vector<std::string_view>& other, std::size_t startIndex, std::size_t count) const ;
-
-    [[nodiscard]] auto begin() const {
-        return data.begin();
-    }
-
-    [[nodiscard]] auto end() const {
-        return data.end();
-    }
 
     // TODO: beginsWith, endsWith, contains
 
