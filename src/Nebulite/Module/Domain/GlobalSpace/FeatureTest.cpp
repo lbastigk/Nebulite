@@ -154,4 +154,12 @@ Constants::Event FeatureTest::largeFft(std::span<std::string_view const> const a
     return Constants::Event::success;
 }
 
+Constants::Event FeatureTest::segmentedStringViewPrint(std::span<std::string_view const> /*args*/) const {
+    return Constants::StandardCapture::Error::Functional::functionNotImplemented(domain.capture);
+}
+
+Constants::Event FeatureTest::segmentedStringViewCompare(std::span<std::string_view const> /*args*/) const {
+    return Constants::StandardCapture::Error::Functional::functionNotImplemented(domain.capture);
+}
+
 } // namespace Nebulite::Module::Domain::GlobalSpace

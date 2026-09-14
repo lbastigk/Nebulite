@@ -67,12 +67,28 @@ public:
     static auto constexpr largeFftDesc = "Tests the FFT implementation with a large dataset.\n"
         "Usage: feature-test large-fft <size>\n";
 
+    // Segmented String view
+
+    [[nodiscard]] Constants::Event segmentedStringViewPrint(std::span<std::string_view const> args) const ;
+    static auto constexpr segmentedStringViewName = "feature-test segmented-string-view print";
+    static auto constexpr segmentedStringViewDesc = "Prints a segmented string view.\n"
+        "Usage: feature-test segmented-string-view print <string>\n";
+
+    [[nodiscard]] Constants::Event segmentedStringViewCompare(std::span<std::string_view const> args) const ;
+    static auto constexpr segmentedStringViewNameCompare = "feature-test segmented-string-view compare";
+    static auto constexpr segmentedStringViewDescCompare = "Compares two segmented string views.\n"
+        "Usage: feature-test segmented-string-view compare --first <string1> --second <string2>\n";
+
+
     //------------------------------------------
     // Categories
 
     static auto constexpr categoryFeatureTestName = "feature-test";
     static auto constexpr categoryFeatureTestDesc = "Functions for testing features in the GlobalSpace\n"
         "Usage: feature-test <function>\n";
+
+    static auto constexpr categoryFeatureTestSegmentedStringViewName = "feature-test segmented-string-view";
+    static auto constexpr categoryFeatureTestSegmentedStringViewDesc = "Functions for testing segmented string view functionality.\n";
 
     //------------------------------------------
     // Setup
@@ -95,6 +111,11 @@ public:
 
         // Benchmarks
         bindFunction(&FeatureTest::largeFft, largeFftName, largeFftDesc);
+
+        // Segmented String View
+        bindCategory(categoryFeatureTestSegmentedStringViewName, categoryFeatureTestSegmentedStringViewDesc);
+        bindFunction(&FeatureTest::segmentedStringViewPrint, segmentedStringViewName, segmentedStringViewDesc);
+        bindFunction(&FeatureTest::segmentedStringViewCompare, segmentedStringViewNameCompare, segmentedStringViewDescCompare);
     }
 
     struct Key : Data::KeyGroup<""> {
