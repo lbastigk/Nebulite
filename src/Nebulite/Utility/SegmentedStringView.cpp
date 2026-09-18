@@ -43,6 +43,7 @@ namespace Nebulite::Utility {
 SegmentedStringView::SegmentedStringView(std::span<std::string_view const> const sv) : data(sv), charCount(countCharacters(sv)) {}
 
 // TODO: Reorganize functionality so we can reuse it easily for beginsWith
+//       -> use StringIterators.hpp
 bool SegmentedStringView::operator==(SegmentedStringView const& other) const{
     if (charCount != other.charCount) {
         return false;

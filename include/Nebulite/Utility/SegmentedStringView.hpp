@@ -30,6 +30,8 @@ class SegmentedStringView {
 
 public:
     // TODO: remove, only construct from string_view via algorithm defined in StringHandler::parseQuotedArguments
+    //       but then we would need an external allocator like a vector of string_views!
+    //       Inside FuncTree::parse, we could create the allocator and then pass the SegmentedStringView by const reference.
     explicit SegmentedStringView(std::span<std::string_view const> sv);
 
     bool operator==(SegmentedStringView const& other) const;
