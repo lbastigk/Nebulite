@@ -86,8 +86,8 @@ bool SegmentedStringView::operator==(SegmentedStringView const& other) const{
         }
 
         // Compare character (either from itX or the whitespace inbetween each view)
-        char const currentA = advancedItA ? ' ' : (*itA)[posA];
-        char const currentB = advancedItB ? ' ' : (*itB)[posB];
+        char const currentA = advancedItA ? ' ' : (*itA)[posA]; // NOLINT
+        char const currentB = advancedItB ? ' ' : (*itB)[posB]; // NOLINT
         if (currentA != currentB) {
             return false;
         }
@@ -138,11 +138,11 @@ SegmentedStringView SegmentedStringView::subspan(std::size_t const startIndex, s
     return SegmentedStringView(data.subspan(startIndex, count));
 }
 
-void SegmentedStringView::appendSubspan(std::vector<std::string_view>& other, std::size_t index) const {
+void SegmentedStringView::appendSubspan(std::vector<std::string_view>& other, std::size_t const index) const {
     std::ranges::copy(data.subspan(index), std::back_inserter(other));
 }
 
-void SegmentedStringView::appendSubspan(std::vector<std::string_view>& other, std::size_t startIndex, std::size_t count) const{
+void SegmentedStringView::appendSubspan(std::vector<std::string_view>& other, std::size_t const startIndex, std::size_t const count) const{
     std::ranges::copy(data.subspan(startIndex, count), std::back_inserter(other));
 }
 

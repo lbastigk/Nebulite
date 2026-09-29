@@ -48,7 +48,7 @@ public:
         return data.end();
     }
 
-    [[nodiscard]] auto& operator[](std::size_t index) const {
+    [[nodiscard]] auto& operator[](std::size_t const index) const {
         return data[index];
     }
 
