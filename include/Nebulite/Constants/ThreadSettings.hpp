@@ -1,5 +1,5 @@
-#ifndef CONSTANTS_THREADSETTINGS_HPP
-#define CONSTANTS_THREADSETTINGS_HPP
+#ifndef NEBULITE_CONSTANTS_THREADSETTINGS_HPP
+#define NEBULITE_CONSTANTS_THREADSETTINGS_HPP
 
 //------------------------------------------
 // Includes
@@ -11,7 +11,6 @@
 #include <thread>
 
 //------------------------------------------
-
 namespace Nebulite::Constants {
 /**
  * @class Nebulite::Constants::ThreadSettings
@@ -61,5 +60,4 @@ public:
     };
 };
 } // namespace Nebulite::Constants
-
-#endif // CONSTANTS_THREADSETTINGS_HPP
+#endif // NEBULITE_CONSTANTS_THREADSETTINGS_HPP
