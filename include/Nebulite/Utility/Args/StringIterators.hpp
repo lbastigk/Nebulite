@@ -29,7 +29,7 @@ class SpanIterator {
     std::size_t pos = 0;
     bool advancedIt = false;
 public:
-    SpanIterator(std::span<std::string_view const> d) : data(d), it(d.begin()) {}
+    SpanIterator([[clang::lifetimebound]] std::span<std::string_view const> d) : data(d), it(d.begin()) {}
 
     char get() {
         return advancedIt ? ' ' : (*it)[pos];
@@ -56,6 +56,8 @@ class StringViewIterator {
     std::string_view data;
     std::string_view::iterator it;
 public:
+    StringViewIterator([[clang::lifetimebound]] std::string_view const d) : data(d), it(d.begin()) {}
+
     [[nodiscard]] char get() const {
         return *it;
     }
