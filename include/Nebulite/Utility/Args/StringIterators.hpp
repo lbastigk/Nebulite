@@ -1,16 +1,27 @@
-#ifndef NEBULITE_UTILITY_STRINGITERATORS_HPP
-#define NEBULITE_UTILITY_STRINGITERATORS_HPP
+#ifndef NEBULITE_UTILITY_ARGS_STRINGITERATORS_HPP
+#define NEBULITE_UTILITY_ARGS_STRINGITERATORS_HPP
 
 //------------------------------------------
 // Includes
 
 // Standard library
+#include <concepts>
 #include <cstddef>
 #include <span>
 #include <string_view>
 
 //------------------------------------------
-namespace Nebulite::Utility {
+// Concepts
+
+template <typename T>
+concept StringIteratorLike = requires(T t) {
+    { t.get() } -> std::convertible_to<char>;
+    { t.endReached() } -> std::convertible_to<bool>;
+    t.operator++();
+};
+
+//------------------------------------------
+namespace Nebulite::Utility::Args {
 
 class SpanIterator {
     std::span<std::string_view const> data;
@@ -25,14 +36,14 @@ public:
     }
 
     void operator++() {
-        advancedIt = false;
         if (pos == data.size()) {
             ++it;
             pos = 0;
             advancedIt = true;
         }
         else {
-            pos++;
+            ++pos;
+            advancedIt = false;
         }
     }
 
@@ -58,5 +69,5 @@ public:
     }
 };
 
-} // namespace Nebulite::Utility
-#endif // NEBULITE_UTILITY_STRINGITERATORS_HPP
+} // namespace Nebulite::Utility::Args
+#endif // NEBULITE_UTILITY_ARGS_STRINGITERATORS_HPP
