@@ -3,7 +3,6 @@
 
 // Standard library
 #include <algorithm>
-#include <array>
 #include <cassert>
 #include <cstddef>
 #include <iterator>
@@ -13,7 +12,8 @@
 #include <vector>
 
 // Nebulite
-#include "Nebulite/Utility/SegmentedStringView.hpp"
+#include "Nebulite/Utility/Args/SegmentedStringView.hpp"
+#include "Nebulite/Utility/Args/StringIterators.hpp"
 #include "Nebulite/Utility/StringHandler.hpp"
 
 //------------------------------------------
@@ -33,7 +33,7 @@ std::size_t countCharacters(std::span<std::string_view const> strings) {
 
 } // namespace
 
-namespace Nebulite::Utility {
+namespace Nebulite::Utility::Args {
 
 // TODO: a private constructor where we can just pass charCount could be a good idea
 //       Essentially: SegmentedStringView(data.subspan(), charCount - removedViewCharCountIncludingWhitespaces)
@@ -42,70 +42,26 @@ namespace Nebulite::Utility {
 //       Since we often remove just 1 or 2 members, this offers a nice perf boost.
 SegmentedStringView::SegmentedStringView(std::span<std::string_view const> const sv) : data(sv), charCount(countCharacters(sv)) {}
 
-// TODO: Reorganize functionality so we can reuse it easily for beginsWith
-//       -> use StringIterators.hpp
 bool SegmentedStringView::operator==(SegmentedStringView const& other) const{
     if (charCount != other.charCount) {
         return false;
     }
 
-    // Char position in string_view
-    std::size_t posA = 0;
-    std::size_t posB = 0;
-
     // Range position
-    auto itA = data.begin();
-    auto itB = other.data.begin();
+    auto itA = SpanIterator{data};
+    auto itB = SpanIterator{other.data};
 
-    // Iterator advancement checker
-    bool advancedItA = false;
-    bool advancedItB = false;
-
-    auto advanceIterators = [&] -> bool {
-        bool advanced = false;
-        if (!advancedItA && posA == itA->size()) {
-            ++itA;
-            posA = 0;
-            advancedItA = true;
-            advanced = true;
-        }
-        if (!advancedItB && posB == itB->size()) {
-            ++itB;
-            posB = 0;
-            advancedItB = true;
-            advanced = true;
-        }
-        return advanced;
-    };
-
-    // Compare each character
-    while (itA != data.end() || itB != other.data.end()) {
-        // Check if segment end is reached
-        if (advanceIterators()) {
-            continue;
-        }
-
-        // Compare character (either from itX or the whitespace inbetween each view)
-        char const currentA = advancedItA ? ' ' : (*itA)[posA]; // NOLINT
-        char const currentB = advancedItB ? ' ' : (*itB)[posB]; // NOLINT
-        if (currentA != currentB) {
+    while (!itA.endReached() && !itB.endReached()) {
+        if (itA.get() != itB.get()) {
             return false;
         }
-
-        // Increment position
-        if (!advancedItA) {
-            ++posA;
-        }
-        if (!advancedItB) {
-            ++posB;
-        }
-        advancedItA = false;
-        advancedItB = false;
+        ++itA;
+        ++itB;
     }
 
     // Sanity check: since character count (incl. whitespaces) is the same,
     // we must have reached the end in both strings
-    assert(itA == data.end() && itB == other.data.end());
+    assert(itA.endReached() && itB.endReached());
     return true;
 }
 
@@ -113,10 +69,20 @@ bool SegmentedStringView::operator!=(SegmentedStringView const& other) const{
     return !(*this == other); // NOLINT(readability-redundant-parentheses)
 }
 
-// array init likely unnecessary, direct comparison would be faster
 bool SegmentedStringView::operator==(std::string_view const other) const {
-    std::array const otherData = {other};
-    return *this == SegmentedStringView{std::span<std::string_view const>{otherData}};
+    // Range position
+    auto itA = SpanIterator{data};
+    auto itB = StringViewIterator{other};
+
+    while (!itA.endReached() && !itB.endReached()) {
+        if (itA.get() != itB.get()) {
+            return false;
+        }
+        ++itA;
+        ++itB;
+    }
+
+    return itA.endReached() && itB.endReached();
 }
 
 bool SegmentedStringView::operator!=(std::string_view const other) const{
@@ -152,4 +118,4 @@ std::string SegmentedStringView::recombine() const {
     return StringHandler::recombineArgs(data);
 }
 
-} // namespace Nebulite::Utility
+} // namespace Nebulite::Utility::Args

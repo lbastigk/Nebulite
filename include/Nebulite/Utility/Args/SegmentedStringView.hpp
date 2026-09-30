@@ -1,5 +1,5 @@
-#ifndef NEBULITE_UTILITY_SEGMENTEDSTRINGVIEW_HPP
-#define NEBULITE_UTILITY_SEGMENTEDSTRINGVIEW_HPP
+#ifndef NEBULITE_UTILITY_ARGS_SEGMENTEDSTRINGVIEW_HPP
+#define NEBULITE_UTILITY_ARGS_SEGMENTEDSTRINGVIEW_HPP
 
 //------------------------------------------
 // Includes
@@ -12,7 +12,7 @@
 #include <vector>
 
 //------------------------------------------
-namespace Nebulite::Utility {
+namespace Nebulite::Utility::Args {
 /**
  * @class SegmentedStringView
  * @brief Provides basic string functionality for a split string
@@ -66,5 +66,5 @@ public:
     [[nodiscard]] std::string recombine() const ;
 };
 
-} // namespace Nebulite::Utility
-#endif // NEBULITE_UTILITY_SEGMENTEDSTRINGVIEW_HPP
+} // namespace Nebulite::Utility::Args
+#endif // NEBULITE_UTILITY_ARGS_SEGMENTEDSTRINGVIEW_HPP
