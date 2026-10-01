@@ -52,8 +52,6 @@ class SegmentedStringView {
 
     mutable Coordination::LazyInitOptional<CharacterCount, std::span<std::string_view const> const> charCount;
 
-    SegmentedStringView(std::span<std::string_view const> args, std::size_t characterCount);
-
 public:
     // TODO: remove, only construct from string_view via algorithm defined in StringHandler::parseQuotedArguments
     //       but then we would need an external allocator like a vector of string_views!

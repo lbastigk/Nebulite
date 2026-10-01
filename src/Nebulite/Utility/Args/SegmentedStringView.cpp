@@ -31,6 +31,18 @@ std::size_t countCharacters(std::span<std::string_view const> strings) {
     );
 }
 
+template<StringIteratorLike A, StringIteratorLike B>
+bool compare(A itA, B itB) {
+    while (!itA.endReached() && !itB.endReached()) {
+        if (itA.get() != itB.get()) {
+            return false;
+        }
+        ++itA;
+        ++itB;
+    }
+    return itA.endReached() && itB.endReached();
+}
+
 } // namespace
 
 namespace Nebulite::Utility::Args {
@@ -39,41 +51,10 @@ CharacterCount::CharacterCount(std::span<std::string_view const> strings) : coun
 
 CharacterCount::CharacterCount(std::size_t c) : count(c) {}
 
-// TODO: a private constructor where we can just pass charCount could be a good idea
-//       Essentially: SegmentedStringView(data.subspan(), charCount - removedViewCharCountIncludingWhitespaces)
-//       -> Add an assert inside that constructor that the passed count is equal to charCount(subspan), just in case.
-//       This should me subspan creation much faster, as we don't have to iterate over each span member, but instead remove the count from the removed ones.
-//       Since we often remove just 1 or 2 members, this offers a nice perf boost.
 SegmentedStringView::SegmentedStringView(std::span<std::string_view const> const args) : data(args) {}
 
-SegmentedStringView::SegmentedStringView(std::span<std::string_view const> args, std::size_t const characterCount) : data(args) {
-    // The passed character count must match with the expected value
-    // This constructor is for internal use only, to avoid recomputing the character count.
-    assert(characterCount == countCharacters(args));
-    charCount.emplace(characterCount);
-}
-
 bool SegmentedStringView::operator==(SegmentedStringView const& other) const {
-    if (characterCount() != other.characterCount()) {
-        return false;
-    }
-
-    // Range position
-    auto itA = SpanIterator{data};
-    auto itB = SpanIterator{other.data};
-
-    while (!itA.endReached() && !itB.endReached()) {
-        if (itA.get() != itB.get()) {
-            return false;
-        }
-        ++itA;
-        ++itB;
-    }
-
-    // Sanity check: since character count (incl. whitespaces) is the same,
-    // we must have reached the end in both strings
-    assert(itA.endReached() && itB.endReached());
-    return true;
+    return compare(SpanIterator{data}, SpanIterator{other.data});
 }
 
 bool SegmentedStringView::operator!=(SegmentedStringView const& other) const{
@@ -81,19 +62,7 @@ bool SegmentedStringView::operator!=(SegmentedStringView const& other) const{
 }
 
 bool SegmentedStringView::operator==(std::string_view const other) const {
-    // Range position
-    auto itA = SpanIterator{data};
-    auto itB = StringViewIterator{other};
-
-    while (!itA.endReached() && !itB.endReached()) {
-        if (itA.get() != itB.get()) {
-            return false;
-        }
-        ++itA;
-        ++itB;
-    }
-
-    return itA.endReached() && itB.endReached();
+    return compare(SpanIterator{data}, StringViewIterator{other});
 }
 
 bool SegmentedStringView::operator!=(std::string_view const other) const{
