@@ -3,6 +3,7 @@
 
 // Standard library
 #include <algorithm>
+#include <array>
 #include <bit>
 #include <cstddef>
 #include <limits>
@@ -167,14 +168,30 @@ void assume(bool condition, MessageArgs&&... args) {
 
 Constants::Event FeatureTest::segmentedStringViewGeneral() const {
     try{
-        std::string_view const str = "Hello world! These are split args.";
-        auto args = Utility::StringHandler::split(str, ' ');
-        auto const ssv = Utility::Args::SegmentedStringView(args);
+        std::array constexpr strings{
+            "",
+            "a ",
+            "a b",
+            "a",
+            "Hello world! These are split args.",
+            "This  is  a  string  with  multiple  whitespaces",
+            "This is  a   string   with  changing whitespaces",
+            "ThisIsAStringWithoutWhitespaces",
+            " This is a string with a starting whitespace",
+            "This is a string with an ending whitespace ",
+            "  ",
+            " ",
+            ""
+        };
 
-        assume(ssv.segmentCount() == 6, "Expected 6 segments");
-        assume(ssv.characterCount() == str.size(), "Expected character count to match the source string");
-        assume(ssv == str, "Expected string view to match the source string");
+        for (auto const* strRaw : strings) {
+            auto str = std::string_view(strRaw);
+            auto args = Utility::StringHandler::split(str, ' ');
+            auto const ssv = Utility::Args::SegmentedStringView(args);
 
+            assume(ssv.characterCount() == str.size(), "Expected character count to match the source string: '", str, "'");
+            assume(ssv == str, "Expected segmented string view operator== to match the source string: '", str, "'");
+        }
         domain.capture.log.println("SegmentedStringView test passed.");
         return Constants::Event::success;
     } catch (std::runtime_error& e) {
