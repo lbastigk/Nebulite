@@ -26,6 +26,7 @@
 #include "Nebulite/Utility/Args/SegmentedStringView.hpp"
 #include "Nebulite/Utility/Convert/Cast.hpp"
 #include "Nebulite/Utility/StringHandler.hpp"
+#include "Nebulite/Utility/Testing.hpp"
 #include "Nebulite/Utility/Time.hpp"
 
 //------------------------------------------
@@ -156,17 +157,7 @@ Constants::Event FeatureTest::largeFft(std::span<std::string_view const> const a
     return Constants::Event::success;
 }
 
-namespace {
-template <typename... MessageArgs>
-void assume(bool const condition, MessageArgs&&... args) {
-    if (!condition) {
-        auto message = Utility::StringHandler::combineWithNewline(std::forward<MessageArgs>(args)...);
-        throw std::runtime_error(message);
-    }
-}
-} // namespace
-
-Constants::Event FeatureTest::segmentedStringViewGeneral() const {
+Constants::Event FeatureTest::segmentedStringViewCompare() const {
     try{
         std::array constexpr strings{
             "",
@@ -189,11 +180,11 @@ Constants::Event FeatureTest::segmentedStringViewGeneral() const {
             auto args = Utility::StringHandler::split(str, ' ');
             auto const ssv = Utility::Args::SegmentedStringView(args);
 
-            assume(ssv == ssv, "Expected segmented string view to be equal to itself"); // NOLINT
-            assume(ssv.characterCount() == str.size(), "Expected character count to match the source string: '", str, "'");
-            assume(ssv == str, "Expected segmented string view operator== to match the source string: '", str, "'");
-            assume(ssv.beginsWith(ssv), "Expected segmented string view to begin with itself (full)");
-            assume(ssv.endsWith(ssv), "Expected segmented string view to end with itself (full)");
+            Utility::assume(ssv == ssv, "Expected segmented string view to be equal to itself"); // NOLINT
+            Utility::assume(ssv.characterCount() == str.size(), "Expected character count to match the source string: '", str, "'");
+            Utility::assume(ssv == str, "Expected segmented string view operator== to match the source string: '", str, "'");
+            Utility::assume(ssv.beginsWith(ssv), "Expected segmented string view to begin with itself (full)");
+            Utility::assume(ssv.endsWith(ssv), "Expected segmented string view to end with itself (full)");
 
             // Compare substrings
             for (size_t i = 0; i < str.size(); ++i) {
@@ -203,21 +194,21 @@ Constants::Event FeatureTest::segmentedStringViewGeneral() const {
                 auto argsRight = Utility::StringHandler::split(right, ' ');
 
                 // Compare against substrings
-                assume(ssv.beginsWith(left), "Expected segmented string view to start with '", left, "'");
-                assume(ssv.endsWith(right), "Expected segmented string view to end with '", right, "'");
+                Utility::assume(ssv.beginsWith(left), "Expected segmented string view to start with '", left, "'");
+                Utility::assume(ssv.endsWith(right), "Expected segmented string view to end with '", right, "'");
 
                 // Compare against another SegmentedStringView
                 auto const ssvLeft = Utility::Args::SegmentedStringView(argsLeft);
                 auto const ssvRight = Utility::Args::SegmentedStringView(argsRight);
-                assume(ssv.beginsWith(ssvLeft), "Expected segmented string view to begin with itself until index ", i);
-                assume(ssv.endsWith(ssvRight), "Expected segmented string view to end with itself from index ", i);
+                Utility::assume(ssv.beginsWith(ssvLeft), "Expected segmented string view to begin with itself until index ", i);
+                Utility::assume(ssv.endsWith(ssvRight), "Expected segmented string view to end with itself from index ", i);
 
                 // Additional checks, if possible
                 if (!str.ends_with(left)) {
-                    assume(!ssv.endsWith(ssvLeft), "Expected segmented string view to not end with the left substring");
+                    Utility::assume(!ssv.endsWith(ssvLeft), "Expected segmented string view to not end with the left substring");
                 }
                 if (!str.starts_with(right)) {
-                    assume(!ssv.beginsWith(ssvRight), "Expected segmented string view to not begin with the right substring");
+                    Utility::assume(!ssv.beginsWith(ssvRight), "Expected segmented string view to not begin with the right substring");
                 }
             }
         }
@@ -227,14 +218,6 @@ Constants::Event FeatureTest::segmentedStringViewGeneral() const {
         domain.capture.log.println("SegmentedStringView test failed: ", e.what());
         return Constants::Event::error;
     }
-}
-
-Constants::Event FeatureTest::segmentedStringViewPrint(std::span<std::string_view const> /*args*/) const {
-    return Constants::StandardCapture::Error::Functional::functionNotImplemented(domain.capture);
-}
-
-Constants::Event FeatureTest::segmentedStringViewCompare(std::span<std::string_view const> /*args*/) const {
-    return Constants::StandardCapture::Error::Functional::functionNotImplemented(domain.capture);
 }
 
 } // namespace Nebulite::Module::Domain::GlobalSpace

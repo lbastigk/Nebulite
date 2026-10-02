@@ -69,21 +69,11 @@ public:
 
     // Segmented String view
 
-    [[nodiscard]] Constants::Event segmentedStringViewGeneral() const ;
-    static auto constexpr segmentedStringViewGeneralName = "feature-test segmented-string-view general";
-    static auto constexpr segmentedStringViewGeneralDesc = "General segemented string view tests.\n"
-        "Usage: feature-test segmented-string-view general\n";
-
-    [[nodiscard]] Constants::Event segmentedStringViewPrint(std::span<std::string_view const> args) const ;
-    static auto constexpr segmentedStringViewPrintName = "feature-test segmented-string-view print";
-    static auto constexpr segmentedStringViewPrintDesc = "Prints a segmented string view.\n"
-        "Usage: feature-test segmented-string-view print <string>\n";
-
-    [[nodiscard]] Constants::Event segmentedStringViewCompare(std::span<std::string_view const> args) const ;
-    static auto constexpr segmentedStringViewNameCompare = "feature-test segmented-string-view compare";
-    static auto constexpr segmentedStringViewDescCompare = "Compares two segmented string views.\n"
-        "Usage: feature-test segmented-string-view compare --first <string1> --second <string2>\n";
-
+    [[nodiscard]] Constants::Event segmentedStringViewCompare() const ;
+    static auto constexpr segmentedStringViewCompareName = "feature-test segmented-string-view compare";
+    static auto constexpr segmentedStringViewCompareDesc = "Segmented string view comparison tests.\n"
+        "Prints the message 'SegmentedStringView test passed.' or 'SegmentedStringView test failed: <reason>'"
+        "Usage: feature-test segmented-string-view compare\n";
 
     //------------------------------------------
     // Categories
@@ -119,9 +109,7 @@ public:
 
         // Segmented String View
         bindCategory(categoryFeatureTestSegmentedStringViewName, categoryFeatureTestSegmentedStringViewDesc);
-        bindFunction(&FeatureTest::segmentedStringViewGeneral, segmentedStringViewGeneralName, segmentedStringViewGeneralDesc);
-        bindFunction(&FeatureTest::segmentedStringViewPrint, segmentedStringViewPrintName, segmentedStringViewPrintDesc);
-        bindFunction(&FeatureTest::segmentedStringViewCompare, segmentedStringViewNameCompare, segmentedStringViewDescCompare);
+        bindFunction(&FeatureTest::segmentedStringViewCompare, segmentedStringViewCompareName, segmentedStringViewCompareDesc);
     }
 
     struct Key : Data::KeyGroup<""> {
