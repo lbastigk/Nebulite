@@ -160,19 +160,29 @@ Constants::Event FeatureTest::largeFft(std::span<std::string_view const> const a
 Constants::Event FeatureTest::segmentedStringViewCompare() const {
     try{
         std::array constexpr strings{
+            // Simple whitespace tests
             "",
-            "a ",
-            "a b",
-            "a",
+            " ",
+            "  ",
+            // Usual inputs
             "Hello world! These are split args.",
             "This  is  a  string  with  multiple  whitespaces",
             "This is  a   string   with  changing whitespaces",
             "ThisIsAStringWithoutWhitespaces",
             " This is a string with a starting whitespace",
             "This is a string with an ending whitespace ",
-            "  ",
-            " ",
-            ""
+            "  This is a string with two starting whitespaces",
+            "This is a string with two ending whitespaces  ",
+            // Some more tests with shortest words
+            "a",
+            " a",
+            "a ",
+            " a ",
+            "  a",
+            "a  ",
+            "  a  ",
+            "a b",
+            " a b ",
         };
 
         for (auto const* strRaw : strings) {
