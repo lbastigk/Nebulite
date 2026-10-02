@@ -34,24 +34,42 @@ class SpanIterator {
     std::span<std::string_view const> data;
     std::span<std::string_view const>::iterator it;
     std::size_t pos = 0;
-    bool advancedIt = false;
+    bool atWhitespacePosition = false;
+
+    void adjustIterator() {
+        if (it+1 == data.end()) {
+            it = data.end();
+        }
+    }
 public:
-    SpanIterator([[clang::lifetimebound]] std::span<std::string_view const> d) : data(d), it(d.begin()) {}
+    explicit SpanIterator([[clang::lifetimebound]] std::span<std::string_view const> d) : data(d), it(d.begin()) {
+        if (it != data.end() && it->empty()) {
+            atWhitespacePosition = true;
+        }
+    }
 
     char get() {
         assert(it != data.end());
-        assert((*it)[pos] != ' ');
-        return advancedIt ? ' ' : (*it)[pos];
+        if (atWhitespacePosition) {
+            return ' ';
+        }
+        assert(pos < it->size());
+        assert(it->at(pos) != ' ');
+        return (*it)[pos];
     }
 
     void operator++() {
-        if (advancedIt) {
+        if (atWhitespacePosition) {
             ++it;
             pos = 0;
-            advancedIt = false;
+            atWhitespacePosition = it != data.end() && it->empty();
+            if (atWhitespacePosition) {
+                adjustIterator();
+            }
         }
         else if (pos + 1 == it->size()) {
-            advancedIt = true;
+            atWhitespacePosition = true;
+            adjustIterator();
         }
         else {
             ++pos;
@@ -70,7 +88,7 @@ class StringViewIterator {
     std::string_view data;
     std::string_view::iterator it;
 public:
-    StringViewIterator([[clang::lifetimebound]] std::string_view const d) : data(d), it(d.begin()) {}
+    explicit StringViewIterator([[clang::lifetimebound]] std::string_view const d) : data(d), it(d.begin()) {}
 
     [[nodiscard]] char get() const {
         return *it;
