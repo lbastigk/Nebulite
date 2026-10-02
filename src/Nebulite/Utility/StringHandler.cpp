@@ -199,6 +199,9 @@ std::string StringHandler::recombineArgs(std::span<std::string_view const> const
 
 std::vector<std::string_view> StringHandler::split(std::string_view const input, char const delimiter, bool const keepDelimiter){
     std::vector<std::string_view> tokens;
+    if (input.empty()) {
+        return tokens;
+    }
     if (!keepDelimiter) {
         std::size_t start = 0;
         while (start <= input.size()) {
@@ -286,6 +289,9 @@ std::vector<std::string_view>
 StringHandler::splitOnSameDepth(std::string_view const input, char const delimiter){
     auto const basicSplitResult = split(input, delimiter, true);
     std::vector<std::string_view> result;
+    if (input.empty()) {
+        return result;
+    }
     std::string_view current;
     int currentDepth = 0;
     for (auto const& part : basicSplitResult) {
