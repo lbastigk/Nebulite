@@ -28,7 +28,7 @@ struct CharacterCount {
      * @brief Gets size from the given span
      * @param strings The span of string views
      */
-    CharacterCount(std::span<std::string_view const> strings);
+    explicit CharacterCount(std::span<std::string_view const> strings);
 
     /**
      * @brief Forces a character count
