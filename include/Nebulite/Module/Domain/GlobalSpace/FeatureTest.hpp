@@ -69,9 +69,14 @@ public:
 
     // Segmented String view
 
+    [[nodiscard]] Constants::Event segmentedStringViewGeneral() const ;
+    static auto constexpr segmentedStringViewGeneralName = "feature-test segmented-string-view general";
+    static auto constexpr segmentedStringViewGeneralDesc = "General segemented string view tests.\n"
+        "Usage: feature-test segmented-string-view general\n";
+
     [[nodiscard]] Constants::Event segmentedStringViewPrint(std::span<std::string_view const> args) const ;
-    static auto constexpr segmentedStringViewName = "feature-test segmented-string-view print";
-    static auto constexpr segmentedStringViewDesc = "Prints a segmented string view.\n"
+    static auto constexpr segmentedStringViewPrintName = "feature-test segmented-string-view print";
+    static auto constexpr segmentedStringViewPrintDesc = "Prints a segmented string view.\n"
         "Usage: feature-test segmented-string-view print <string>\n";
 
     [[nodiscard]] Constants::Event segmentedStringViewCompare(std::span<std::string_view const> args) const ;
@@ -114,7 +119,8 @@ public:
 
         // Segmented String View
         bindCategory(categoryFeatureTestSegmentedStringViewName, categoryFeatureTestSegmentedStringViewDesc);
-        bindFunction(&FeatureTest::segmentedStringViewPrint, segmentedStringViewName, segmentedStringViewDesc);
+        bindFunction(&FeatureTest::segmentedStringViewGeneral, segmentedStringViewGeneralName, segmentedStringViewGeneralDesc);
+        bindFunction(&FeatureTest::segmentedStringViewPrint, segmentedStringViewPrintName, segmentedStringViewPrintDesc);
         bindFunction(&FeatureTest::segmentedStringViewCompare, segmentedStringViewNameCompare, segmentedStringViewDescCompare);
     }
 

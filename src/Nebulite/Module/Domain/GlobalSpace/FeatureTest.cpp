@@ -22,6 +22,7 @@
 #include "Nebulite/Math/FFT.hpp"
 #include "Nebulite/Module/Domain/GlobalSpace/FeatureTest.hpp"
 #include "Nebulite/Utility/Args/FuncTree.hpp"
+#include "Nebulite/Utility/Args/SegmentedStringView.hpp"
 #include "Nebulite/Utility/Convert/Cast.hpp"
 #include "Nebulite/Utility/StringHandler.hpp"
 #include "Nebulite/Utility/Time.hpp"
@@ -152,6 +153,34 @@ Constants::Event FeatureTest::largeFft(std::span<std::string_view const> const a
         return Constants::Event::error;
     }
     return Constants::Event::success;
+}
+
+namespace {
+template <typename... MessageArgs>
+void assume(bool condition, MessageArgs&&... args) {
+    if (!condition) {
+        auto message = Utility::StringHandler::combineWithNewline(std::forward<MessageArgs>(args)...);
+        throw std::runtime_error(message);
+    }
+}
+} // namespace
+
+Constants::Event FeatureTest::segmentedStringViewGeneral() const {
+    try{
+        std::string_view const str = "Hello world! These are split args.";
+        auto args = Utility::StringHandler::split(str, ' ');
+        auto const ssv = Utility::Args::SegmentedStringView(args);
+
+        assume(ssv.segmentCount() == 6, "Expected 6 segments");
+        assume(ssv.characterCount() == str.size(), "Expected character count to match the source string");
+        assume(ssv == str, "Expected string view to match the source string");
+
+        domain.capture.log.println("SegmentedStringView test passed.");
+        return Constants::Event::success;
+    } catch (std::runtime_error& e) {
+        domain.capture.log.println("SegmentedStringView test failed: ", e.what());
+        return Constants::Event::error;
+    }
 }
 
 Constants::Event FeatureTest::segmentedStringViewPrint(std::span<std::string_view const> /*args*/) const {
