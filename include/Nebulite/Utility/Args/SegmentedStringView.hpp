@@ -76,6 +76,10 @@ public:
         return data[index];
     }
 
+    bool empty() const {
+        return data.empty();
+    }
+
     [[nodiscard]] std::size_t segmentCount() const;
     [[nodiscard]] std::size_t characterCount() const;
 
@@ -85,7 +89,9 @@ public:
     void appendSubspan(std::vector<std::string_view>& other, std::size_t index) const ;
     void appendSubspan(std::vector<std::string_view>& other, std::size_t startIndex, std::size_t count) const ;
 
-    // TODO: beginsWith, endsWith, contains
+    [[nodiscard]] std::string recombine() const ;
+
+    // TODO: contains
 
     bool beginsWith(std::string_view other) const;
     bool beginsWith(SegmentedStringView const& other) const;
@@ -93,7 +99,8 @@ public:
     bool endsWith(std::string_view other) const;
     bool endsWith(SegmentedStringView const& other) const;
 
-    [[nodiscard]] std::string recombine() const ;
+    bool contains(std::string_view other) const;
+    bool contains(SegmentedStringView const& other) const;
 };
 
 } // namespace Nebulite::Utility::Args

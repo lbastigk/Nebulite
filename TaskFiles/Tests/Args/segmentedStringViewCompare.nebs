@@ -1,2 +1,2 @@
-# Launches the general tests of the segmented string view
+# Launches the comparison tests of the segmented string view
 feature-test segmented-string-view compare

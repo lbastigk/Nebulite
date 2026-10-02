@@ -75,6 +75,12 @@ public:
         "Prints the message 'SegmentedStringView test passed.' or 'SegmentedStringView test failed: <reason>'"
         "Usage: feature-test segmented-string-view compare\n";
 
+    [[nodiscard]] Constants::Event segmentedStringViewContains() const ;
+    static auto constexpr segmentedStringViewContainsName = "feature-test segmented-string-view contains";
+    static auto constexpr segmentedStringViewContainsDesc = "Tests the contains method of the SegmentedStringView class.\n"
+        "Prints the message 'SegmentedStringView test passed.' or 'SegmentedStringView test failed: <reason>'"
+        "Usage: feature-test segmented-string-view contains\n";
+
     //------------------------------------------
     // Categories
 
@@ -110,6 +116,7 @@ public:
         // Segmented String View
         bindCategory(categoryFeatureTestSegmentedStringViewName, categoryFeatureTestSegmentedStringViewDesc);
         bindFunction(&FeatureTest::segmentedStringViewCompare, segmentedStringViewCompareName, segmentedStringViewCompareDesc);
+        bindFunction(&FeatureTest::segmentedStringViewContains, segmentedStringViewContainsName, segmentedStringViewContainsDesc);
     }
 
     struct Key : Data::KeyGroup<""> {

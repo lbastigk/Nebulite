@@ -157,34 +157,67 @@ Constants::Event FeatureTest::largeFft(std::span<std::string_view const> const a
     return Constants::Event::success;
 }
 
+namespace {
+std::array constexpr strings{
+    // Simple whitespace tests
+    "",
+    " ",
+    "  ",
+    // Usual inputs
+    "Hello world! These are split args.",
+    "This  is  a  string  with  multiple  whitespaces",
+    "This is  a   string   with  changing whitespaces",
+    "ThisIsAStringWithoutWhitespaces",
+    " This is a string with a starting whitespace",
+    "This is a string with an ending whitespace ",
+    "  This is a string with two starting whitespaces",
+    "This is a string with two ending whitespaces  ",
+    // Some more tests with shortest words
+    "a",
+    " a",
+    "a ",
+    " a ",
+    "  a",
+    "a  ",
+    "  a  ",
+    "a   ",
+    "   a",
+    "   a   ",
+    "a b",
+    " a b ",
+    "  a b  ",
+    "   a b   ",
+};
+std::array constexpr containsValues = {
+    "",
+    " ",
+    "  ",
+    "   ",
+    "This is",
+    "This  is",
+    "a",
+    "b",
+    "a b",
+    "a b ",
+    " a b",
+    " a b ",
+    "  a b  ",
+    "string",
+    "String",
+    "with",
+    "With",
+    "whitespaces",
+    "whitespace",
+    "whitespaces ",
+    "whitespace ",
+    "whitespaces. ",
+    "whitespaces.",
+    "ThisIsAStringWithoutWhitespaces",
+};
+} // namespace
+
 Constants::Event FeatureTest::segmentedStringViewCompare() const {
     try{
-        std::array constexpr strings{
-            // Simple whitespace tests
-            "",
-            " ",
-            "  ",
-            // Usual inputs
-            "Hello world! These are split args.",
-            "This  is  a  string  with  multiple  whitespaces",
-            "This is  a   string   with  changing whitespaces",
-            "ThisIsAStringWithoutWhitespaces",
-            " This is a string with a starting whitespace",
-            "This is a string with an ending whitespace ",
-            "  This is a string with two starting whitespaces",
-            "This is a string with two ending whitespaces  ",
-            // Some more tests with shortest words
-            "a",
-            " a",
-            "a ",
-            " a ",
-            "  a",
-            "a  ",
-            "  a  ",
-            "a b",
-            " a b ",
-        };
-
         for (auto const* strRaw : strings) {
             auto str = std::string_view(strRaw);
             auto args = Utility::StringHandler::split(str, ' ');
@@ -222,6 +255,58 @@ Constants::Event FeatureTest::segmentedStringViewCompare() const {
                 }
             }
         }
+        domain.capture.log.println("SegmentedStringView test passed.");
+        return Constants::Event::success;
+    } catch (std::runtime_error& e) {
+        domain.capture.log.println("SegmentedStringView test failed: ", e.what());
+        return Constants::Event::error;
+    }
+}
+
+Constants::Event FeatureTest::segmentedStringViewContains() const {
+    try {
+        for (auto const* strRaw : strings) {
+            auto str = std::string_view(strRaw);
+            auto args = Utility::StringHandler::split(str, ' ');
+            auto const ssv = Utility::Args::SegmentedStringView(args);
+
+            // Check for contains values
+            for (auto const* valRaw : containsValues) {
+                // ssv-string_view compare
+                auto val = std::string_view(valRaw);
+                Utility::assume(
+                    ssv.contains(val) == str.contains(val),
+                    "Mismatch between contains methods ssv-string_view for value: '", val, "'. String is: '", str, "'"
+                );
+
+                // ssv-ssv compare
+                auto valArgs = Utility::StringHandler::split(val, ' ');
+                auto ssvVal = Utility::Args::SegmentedStringView(valArgs);
+                Utility::assume(
+                    ssv.contains(ssvVal) == str.contains(val),
+                    "Mismatch between contains methods ssv-ssv for value: '", val, "'. String is: '", str, "'"
+                );
+            }
+
+            // Each string must contain each substring of itself
+            for (size_t i = 0; i < str.size(); ++i) {
+                auto left = str.substr(0, i);
+                auto right = str.substr(i);
+                auto argsLeft = Utility::StringHandler::split(left, ' ');
+                auto argsRight = Utility::StringHandler::split(right, ' ');
+
+                // Compare against substrings
+                Utility::assume(ssv.contains(left), "Expected segmented string view to contain '", left, "'");
+                Utility::assume(ssv.contains(right), "Expected segmented string view to contain '", right, "'");
+
+                // Compare against another SegmentedStringView
+                auto const ssvLeft = Utility::Args::SegmentedStringView(argsLeft);
+                auto const ssvRight = Utility::Args::SegmentedStringView(argsRight);
+                Utility::assume(ssv.contains(ssvLeft), "Expected segmented string view to contain '", left, "' as ssv");
+                Utility::assume(ssv.contains(ssvRight), "Expected segmented string view to contain '", right, "' as ssv");
+            }
+        }
+
         domain.capture.log.println("SegmentedStringView test passed.");
         return Constants::Event::success;
     } catch (std::runtime_error& e) {

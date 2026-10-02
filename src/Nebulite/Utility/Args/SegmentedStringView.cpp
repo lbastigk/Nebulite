@@ -153,4 +153,48 @@ bool SegmentedStringView::endsWith(SegmentedStringView const& other) const {
     return isEqual(itOther, itSelf);
 }
 
+bool SegmentedStringView::contains(std::string_view const other) const {
+    if (other.size() > characterCount()) {
+        return false;
+    }
+    if (other.empty()){
+        return true;
+    }
+    auto itSelf = SpanIterator{data};
+    auto const itOther = StringViewIterator{other};
+    auto const sizeDiff = characterCount() - other.size();
+    if (sizeDiff == 0) {
+        return isEqual(itOther, itSelf);
+    }
+    for (std::size_t i = 0; i <= sizeDiff; ++i) {
+        if (compareUntilOneEnds(itOther, itSelf)) {
+            return true;
+        }
+        ++itSelf;
+    }
+    return false;
+}
+
+bool SegmentedStringView::contains(SegmentedStringView const& other) const {
+    if (other.characterCount() > characterCount()) {
+        return false;
+    }
+    if (other.empty()) {
+        return true;
+    }
+    auto itSelf = SpanIterator{data};
+    auto const itOther = SpanIterator{other.data};
+    auto const sizeDiff = characterCount() - other.characterCount();
+    if (sizeDiff == 0) {
+        return isEqual(itOther, itSelf);
+    }
+    for (std::size_t i = 0; i <= sizeDiff; ++i) {
+        if (compareUntilOneEnds(itOther, itSelf)) {
+            return true;
+        }
+        ++itSelf;
+    }
+    return false;
+}
+
 } // namespace Nebulite::Utility::Args
