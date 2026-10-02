@@ -87,6 +87,12 @@ public:
 
     // TODO: beginsWith, endsWith, contains
 
+    bool beginsWith(std::string_view other) const;
+    bool beginsWith(SegmentedStringView const& other) const;
+
+    bool endsWith(std::string_view other) const;
+    bool endsWith(SegmentedStringView const& other) const;
+
     [[nodiscard]] std::string recombine() const ;
 };
 

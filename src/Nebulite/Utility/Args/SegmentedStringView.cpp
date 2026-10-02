@@ -32,7 +32,7 @@ std::size_t countCharacters(std::span<std::string_view const> strings) {
 }
 
 template<StringIteratorLike A, StringIteratorLike B>
-bool compare(A itA, B itB) {
+bool isEqual(A itA, B itB) {
     while (!itA.endReached() && !itB.endReached()) {
         if (itA.get() != itB.get()) {
             return false;
@@ -43,18 +43,30 @@ bool compare(A itA, B itB) {
     return itA.endReached() && itB.endReached();
 }
 
+template<StringIteratorLike A, StringIteratorLike B>
+bool compareUntilOneEnds(A itA, B itB) {
+    while (!itA.endReached() && !itB.endReached()) {
+        if (itA.get() != itB.get()) {
+            return false;
+        }
+        ++itA;
+        ++itB;
+    }
+    return true;
+}
+
 } // namespace
 
 namespace Nebulite::Utility::Args {
 
-CharacterCount::CharacterCount(std::span<std::string_view const> strings) : count(countCharacters(strings)) {}
+CharacterCount::CharacterCount(std::span<std::string_view const> const strings) : count(countCharacters(strings)) {}
 
-CharacterCount::CharacterCount(std::size_t c) : count(c) {}
+CharacterCount::CharacterCount(std::size_t const c) : count(c) {}
 
 SegmentedStringView::SegmentedStringView(std::span<std::string_view const> const args) : data(args) {}
 
 bool SegmentedStringView::operator==(SegmentedStringView const& other) const {
-    return compare(SpanIterator{data}, SpanIterator{other.data});
+    return isEqual(SpanIterator{data}, SpanIterator{other.data});
 }
 
 bool SegmentedStringView::operator!=(SegmentedStringView const& other) const{
@@ -62,7 +74,7 @@ bool SegmentedStringView::operator!=(SegmentedStringView const& other) const{
 }
 
 bool SegmentedStringView::operator==(std::string_view const other) const {
-    return compare(SpanIterator{data}, StringViewIterator{other});
+    return isEqual(SpanIterator{data}, StringViewIterator{other});
 }
 
 bool SegmentedStringView::operator!=(std::string_view const other) const{
@@ -97,6 +109,48 @@ std::string SegmentedStringView::recombine() const {
     // TODO: Once the entire FuncTree class uses SegmentedStringView, we should move the functionality purely into this class
     //       Since recombineArgs only makes sense for a SegmentedStringView at that point, having the implementation in StringHandler feels wrong.
     return StringHandler::recombineArgs(data);
+}
+
+bool SegmentedStringView::beginsWith(std::string_view const other) const {
+    if (other.size() > characterCount()) {
+        return false;
+    }
+    return compareUntilOneEnds(SpanIterator{data}, StringViewIterator{other});
+}
+
+bool SegmentedStringView::beginsWith(SegmentedStringView const& other) const {
+    if (other.characterCount() > characterCount()) {
+        return false;
+    }
+    return compareUntilOneEnds(SpanIterator{data}, SpanIterator{other.data});
+}
+
+bool SegmentedStringView::endsWith(std::string_view const other) const {
+    if (other.size() > characterCount()) {
+        return false;
+    }
+    auto itSelf = SpanIterator{data};
+    auto const itOther = StringViewIterator{other};
+
+    auto const sizeDiff = characterCount() - other.size();
+    for (std::size_t i = 0; i < sizeDiff; ++i) {
+        ++itSelf;
+    }
+    return isEqual(itOther, itSelf);
+}
+
+bool SegmentedStringView::endsWith(SegmentedStringView const& other) const {
+    if (other.characterCount() > characterCount()) {
+        return false;
+    }
+    auto itSelf = SpanIterator{data};
+    auto const itOther = SpanIterator{other.data};
+
+    auto const sizeDiff = characterCount() - other.characterCount();
+    for (std::size_t i = 0; i < sizeDiff; ++i) {
+        ++itSelf;
+    }
+    return isEqual(itOther, itSelf);
 }
 
 } // namespace Nebulite::Utility::Args
