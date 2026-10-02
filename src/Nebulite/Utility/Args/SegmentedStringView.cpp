@@ -59,11 +59,22 @@ bool compareUntilOneEnds(A itA, B itB) {
 
 namespace Nebulite::Utility::Args {
 
+//------------------------------------------
+// CharacterCount helper struct
+
 CharacterCount::CharacterCount(std::span<std::string_view const> const strings) : count(countCharacters(strings)) {}
 
 CharacterCount::CharacterCount(std::size_t const c) : count(c) {}
 
+//------------------------------------------
+// Constructor etc.
+
+SegmentedStringView::SegmentedStringView() = default;
+
 SegmentedStringView::SegmentedStringView(std::span<std::string_view const> const args) : data(args) {}
+
+//------------------------------------------
+// Operators
 
 bool SegmentedStringView::operator==(SegmentedStringView const& other) const {
     return isEqual(SpanIterator{data}, SpanIterator{other.data});
@@ -81,6 +92,28 @@ bool SegmentedStringView::operator!=(std::string_view const other) const{
     return !(*this == other); // NOLINT(readability-redundant-parentheses)
 }
 
+[[nodiscard]] decltype(SegmentedStringView::data[0])& SegmentedStringView::operator[](std::size_t const index) const {
+    return data[index];
+}
+
+//------------------------------------------
+// Range
+
+[[nodiscard]] decltype(SegmentedStringView::data.begin()) SegmentedStringView::begin() const {
+    return data.begin();
+}
+
+[[nodiscard]] decltype(SegmentedStringView::data.end()) SegmentedStringView::end() const {
+    return data.end();
+}
+
+//------------------------------------------
+// Size
+
+bool SegmentedStringView::empty() const {
+    return data.empty();
+}
+
 std::size_t SegmentedStringView::characterCount() const {
     return charCount.get(data).count;
 }
@@ -88,6 +121,9 @@ std::size_t SegmentedStringView::characterCount() const {
 std::size_t SegmentedStringView::segmentCount() const {
     return data.size();
 }
+
+//------------------------------------------
+// Span
 
 SegmentedStringView SegmentedStringView::subspan(std::size_t const index) const {
     return SegmentedStringView(data.subspan(index));
@@ -97,19 +133,71 @@ SegmentedStringView SegmentedStringView::subspan(std::size_t const startIndex, s
     return SegmentedStringView(data.subspan(startIndex, count));
 }
 
-void SegmentedStringView::appendSubspan(std::vector<std::string_view>& other, std::size_t const index) const {
+std::string_view SegmentedStringView::getNamedArgument(std::string_view const name) const{
+    assert(name.starts_with("--"));
+    assert(name.size() > 2);
+    if (auto it = std::ranges::find(data, name); it != data.end()) {
+        std::advance(it, 1);
+        if (it != data.end()) {
+            return *it;
+        }
+    }
+    return {};
+}
+
+SegmentedStringView SegmentedStringView::getNamedSpannedArgument(std::string_view const name) const {
+    assert(name.starts_with("--"));
+    assert(name.size() > 2);
+
+    auto const it = std::ranges::find(data, name);
+    if (it == data.end()) {
+        return {};
+    }
+
+    // The named argument itself is not part of the returned span.
+    auto const first = std::next(it);
+    if (first == data.end()) {
+        return SegmentedStringView{};
+    }
+
+    // Find the next named argument.
+    auto const last = std::ranges::find_if(
+        first,
+        data.end(),
+        [](std::string_view const arg) {
+            return arg.starts_with("--");
+        }
+    );
+
+    return SegmentedStringView{std::span{first, last}};
+}
+
+//------------------------------------------
+// Copy
+
+void SegmentedStringView::copy(std::vector<std::string_view>& other) const{
+    std::ranges::copy(data, std::back_inserter(other));
+}
+
+void SegmentedStringView::copySubspan(std::vector<std::string_view>& other, std::size_t const index) const {
     std::ranges::copy(data.subspan(index), std::back_inserter(other));
 }
 
-void SegmentedStringView::appendSubspan(std::vector<std::string_view>& other, std::size_t const startIndex, std::size_t const count) const{
+void SegmentedStringView::copySubspan(std::vector<std::string_view>& other, std::size_t const startIndex, std::size_t const count) const{
     std::ranges::copy(data.subspan(startIndex, count), std::back_inserter(other));
 }
+
+//------------------------------------------
+// Generate
 
 std::string SegmentedStringView::recombine() const {
     // TODO: Once the entire FuncTree class uses SegmentedStringView, we should move the functionality purely into this class
     //       Since recombineArgs only makes sense for a SegmentedStringView at that point, having the implementation in StringHandler feels wrong.
     return StringHandler::recombineArgs(data);
 }
+
+//------------------------------------------
+// Compare
 
 bool SegmentedStringView::beginsWith(std::string_view const other) const {
     if (other.size() > characterCount()) {

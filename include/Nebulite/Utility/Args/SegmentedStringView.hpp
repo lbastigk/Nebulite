@@ -53,10 +53,15 @@ class SegmentedStringView {
     mutable Coordination::LazyInitOptional<CharacterCount, std::span<std::string_view const> const> charCount;
 
 public:
+    SegmentedStringView();
+
     // TODO: remove, only construct from string_view via algorithm defined in StringHandler::parseQuotedArguments
     //       but then we would need an external allocator like a vector of string_views!
     //       Inside FuncTree::parse, we could create the allocator and then pass the SegmentedStringView by const reference.
     explicit SegmentedStringView(std::span<std::string_view const> args);
+
+    //------------------------------------------
+    // Operators
 
     bool operator==(SegmentedStringView const& other) const;
     bool operator!=(SegmentedStringView const& other) const;
@@ -64,34 +69,61 @@ public:
     bool operator==(std::string_view other) const; // Passing a string_view with quotes will return false. Consider turning into a SegmentedStringView first!
     bool operator!=(std::string_view other) const; // Passing a string_view with quotes will return false. Consider turning into a SegmentedStringView first!
 
-    [[nodiscard]] auto begin() const {
-        return data.begin();
-    }
+    [[nodiscard]] decltype(data[0])& operator[](std::size_t index) const ;
 
-    [[nodiscard]] auto end() const {
-        return data.end();
-    }
+    //------------------------------------------
+    // Range
 
-    [[nodiscard]] auto& operator[](std::size_t const index) const {
-        return data[index];
-    }
+    [[nodiscard]] decltype(data.begin()) begin() const ;
 
-    bool empty() const {
-        return data.empty();
-    }
+    [[nodiscard]] decltype(data.end()) end() const ;
 
-    [[nodiscard]] std::size_t segmentCount() const;
-    [[nodiscard]] std::size_t characterCount() const;
+    //------------------------------------------
+    // Size
+
+    [[nodiscard]] bool empty() const ;
+
+    [[nodiscard]] std::size_t segmentCount() const ;
+    [[nodiscard]] std::size_t characterCount() const ;
+
+    //------------------------------------------
+    // Span
 
     [[nodiscard]] SegmentedStringView subspan(std::size_t index) const ;
     [[nodiscard]] SegmentedStringView subspan(std::size_t startIndex, std::size_t count) const ;
 
-    void appendSubspan(std::vector<std::string_view>& other, std::size_t index) const ;
-    void appendSubspan(std::vector<std::string_view>& other, std::size_t startIndex, std::size_t count) const ;
+    /**
+     * @brief Finds a given named argument and returns it.
+     * @details If the name is provided multiple times, the first given value is returned.
+     * @param name The name of the argument. Must start with "--"
+     * @return The argument. If the given argument name is not in the list,
+     *         an empty string_view is returned.
+     */
+    std::string_view getNamedArgument(std::string_view name) const ;
+
+    /**
+     * @brief Returns a subspan of arguments starting from a named argument.
+     * @details The subspan goes until the next '--' or until the end.
+     * @param name The name of the argument. Must start with "--"
+     * @return The subspan of arguments. If the given argument name is not in the list,
+     *         an empty SegmentedStringView is returned.
+     */
+    SegmentedStringView getNamedSpannedArgument(std::string_view name) const ;
+
+    //------------------------------------------
+    // Copy
+
+    void copy(std::vector<std::string_view>& other) const ;
+    void copySubspan(std::vector<std::string_view>& other, std::size_t index) const ;
+    void copySubspan(std::vector<std::string_view>& other, std::size_t startIndex, std::size_t count) const ;
+
+    //------------------------------------------
+    // Generate
 
     [[nodiscard]] std::string recombine() const ;
 
-    // TODO: contains
+    //------------------------------------------
+    // Compare
 
     bool beginsWith(std::string_view other) const;
     bool beginsWith(SegmentedStringView const& other) const;
