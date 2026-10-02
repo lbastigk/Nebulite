@@ -173,6 +173,27 @@ SegmentedStringView SegmentedStringView::getNamedSpannedArgument(std::string_vie
 }
 
 //------------------------------------------
+// Substring
+
+std::string SegmentedStringView::substring(std::size_t const startIndex, std::size_t const count) const {
+    if (count == 0 || startIndex > characterCount()) {
+        return "";
+    }
+    std::string result;
+    result.reserve(characterCount() - startIndex);
+    auto it = SpanIterator{data};
+    for (std::size_t i = 0; i < startIndex + count && !it.endReached(); ++i) {
+        if (i < startIndex) {
+            ++it;
+        }
+        else {
+            result += it.get();
+        }
+    }
+    return result;
+}
+
+//------------------------------------------
 // Copy
 
 void SegmentedStringView::copy(std::vector<std::string_view>& other) const{

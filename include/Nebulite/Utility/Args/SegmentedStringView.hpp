@@ -6,12 +6,14 @@
 
 // Standard library
 #include <cstddef>
+#include <functional>
 #include <span>
 #include <string>
 #include <string_view>
 #include <vector>
 
 // Nebulite
+#include "Nebulite/Utility/Args/StringIterators.hpp"
 #include "Nebulite/Utility/Coordination/LazyInit.hpp"
 
 //------------------------------------------
@@ -111,6 +113,11 @@ public:
     SegmentedStringView getNamedSpannedArgument(std::string_view name) const ;
 
     //------------------------------------------
+    // Substring
+
+    std::string substring(std::size_t startIndex, std::size_t count) const ;
+
+    //------------------------------------------
     // Copy
 
     void copy(std::vector<std::string_view>& other) const ;
@@ -133,6 +140,19 @@ public:
 
     bool contains(std::string_view other) const;
     bool contains(SegmentedStringView const& other) const;
+
+    //------------------------------------------
+    // Iterate
+
+    template<typename F>
+    void forEachCharacter(F&& f) const {
+        static_assert(std::is_invocable_v<F, char>);
+        auto it = SpanIterator{data};
+        while (!it.endReached()) {
+            std::invoke(std::forward<F>(f)(it.get()));
+            ++it;
+        }
+    }
 };
 
 } // namespace Nebulite::Utility::Args
