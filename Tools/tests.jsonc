@@ -16,6 +16,9 @@
     },
     "tests": [
         //---------------------------------------
+        // Args tests
+        "Tools/Tests/Args/segmentedStringView.json",
+        //---------------------------------------
         // Domain tests
         "Tools/Tests/Domain/basics.json",
         "Tools/Tests/Domain/output.json",

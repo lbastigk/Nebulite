@@ -1,0 +1,6 @@
+[
+    {
+        "command": "task TaskFiles/Tests/Args/segmentedStringViewGeneral.nebs",
+        "expected": { "cout": ["SegmentedStringView test passed."], "cerr": [] }
+    }
+]

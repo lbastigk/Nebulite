@@ -1,0 +1,2 @@
+# Launches the general tests of the segmented string view
+feature-test segmented-string-view general
