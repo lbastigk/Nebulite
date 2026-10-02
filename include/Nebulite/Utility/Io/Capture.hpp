@@ -16,8 +16,6 @@
 #include <iostream>
 #include <mutex>
 #include <string>
-#include <string_view>
-#include <type_traits>
 #include <vector>
 
 //------------------------------------------
@@ -52,17 +50,6 @@ template<std::ostream* /*BaseStream*/, HistoryLine::Type /*LineType*/>
 class Stream {
     Capture* capture; // Main capture reference so we can lock its mutex, so cout/cerr don't interfere with each other
     void putStr(std::string const& str, bool printToConsole) const ;
-
-    template<typename T>
-    decltype(auto) logArg(T&& t) {
-        using U = std::remove_reference_t<T>;
-
-        if constexpr (std::is_array_v<U>) {
-            return std::string_view(t); // NOLINT
-        } else {
-            return std::forward<T>(t);
-        }
-    }
 
 public:
     explicit Stream(Capture* c) : capture(c) {}

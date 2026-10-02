@@ -6,8 +6,10 @@
 
 // Standard library
 #include <ostream>
-#include <sstream>
 #include <string>
+
+// Nebulite
+#include "Nebulite/Utility/StringHandler.hpp"
 
 //------------------------------------------
 // Conditional includes
@@ -30,22 +32,13 @@ void Stream<BaseStream, LineType>::putStr(std::string const& str, bool const pri
 template<std::ostream* BaseStream, HistoryLine::Type LineType>
 template<typename... Args>
 void Stream<BaseStream, LineType>::print(bool const printToConsole, Args&&... args) {
-    std::ostringstream workingBuffer{};
-    if constexpr (sizeof...(args) != 0) {
-        (workingBuffer << ... << logArg(std::forward<Args>(args)));
-    }
-    putStr(workingBuffer.str(), printToConsole);
+    putStr(StringHandler::combine(std::forward<Args>(args)...), printToConsole);
 }
 
 template<std::ostream* BaseStream, HistoryLine::Type LineType>
 template<typename... Args>
 void Stream<BaseStream, LineType>::println(bool const printToConsole, Args&&... args) {
-    std::ostringstream workingBuffer{};
-    if constexpr (sizeof...(args) != 0) {
-        (workingBuffer << ... << logArg(std::forward<Args>(args)));
-    }
-    workingBuffer << '\n';
-    putStr(workingBuffer.str(), printToConsole);
+    putStr(StringHandler::combineWithNewline(std::forward<Args>(args)...), printToConsole);
 }
 
 template<std::ostream* BaseStream, HistoryLine::Type LineType>
