@@ -24,6 +24,40 @@ concept StringIteratorLike = requires(T t) {
     t.operator++();
 };
 
+// TODO: Optimize with chunked comparison
+/*
+
+// Shared API:
+std::size_t contiguousMemoryAvailable() const;
+const char* data() const;
+
+// Specialized API:
+void advanceToNext(); // For spaniterator, essentially ++it (+necessary variable updates)
+void advance(std::size_t n); // For stringviewiterator
+
+// Then we can do:
+const auto n = std::min(
+    itA.contiguousMemoryAvailable(),
+    itB.contiguousMemoryAvailable()
+);
+
+if(n == 0){
+    // Legacy compare
+    if (itA.get() != itB.get()) {
+        return false;
+    }
+    ++itA;
+    ++itB;
+}
+else{
+    if (std::memcmp(a.data(), b.data(), n) != 0){
+        return false;
+    }
+    a.advance(n); // or advanceToNext
+    b.advance(n); // or advanceToNext
+}
+*/
+
 //------------------------------------------
 namespace Nebulite::Utility::Args {
 /**
