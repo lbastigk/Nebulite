@@ -1,0 +1,19 @@
+/*
+* Default styles for all the basic elements.
+*/
+
+div
+{
+    display: block;
+}
+
+p
+{
+    display: block;
+}
+
+h1
+{
+    display: block;
+}
+

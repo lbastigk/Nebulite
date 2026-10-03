@@ -1,5 +1,5 @@
-#ifndef CONSTANTS_EVENT_HPP
-#define CONSTANTS_EVENT_HPP
+#ifndef NEBULITE_CONSTANTS_EVENT_HPP
+#define NEBULITE_CONSTANTS_EVENT_HPP
 
 //------------------------------------------
 // Includes
@@ -18,4 +18,4 @@ enum class Event : std::uint8_t {
     error,
 };
 } // namespace Nebulite::Constants
-#endif // CONSTANTS_EVENT_HPP
+#endif // NEBULITE_CONSTANTS_EVENT_HPP

@@ -31,21 +31,7 @@ public:
      * @return True if the string starts with the given sequence, false otherwise
      */
     template <typename... Args>
-    static bool startsWithSequence(std::string_view str, Args... args) {
-        static_assert(sizeof...(Args) > 0, "At least one sequence argument is required for startsWithSequence");
-        auto impl = [&]<typename First, typename... Rest>(auto&& self, std::string_view remaining, First first, Rest... rest) -> bool {
-            if (!remaining.starts_with(first)) {
-                return false;
-            }
-
-            if constexpr (sizeof...(Rest) == 0) {
-                return true;
-            } else {
-                return self(self, remaining.substr(first.size()), rest...);
-            }
-        };
-        return impl(impl, str, args...);
-    }
+    static bool startsWithSequence(std::string_view str, Args... args);
 
     // [GENERATE]
 
@@ -65,6 +51,26 @@ public:
      * @return The modified string with all occurrences replaced.
      */
     static std::string replaceAll(std::string_view target, std::string_view toReplace, std::string_view replacer);
+
+    /**
+     * @brief Combines the given arguments to a string.
+     * @details No character is inserted inbetween.
+     * @tparam Args The type of arguments
+     * @param args The arguments being combined.
+     * @return A string of the combined arguments.
+     */
+    template <typename... Args>
+    static std::string combine(Args&&... args);
+
+    /**
+     * @brief Combines the given arguments to a string.
+     * @details No character is inserted inbetween, but a newline is added at the end.
+     * @tparam Args The type of arguments
+     * @param args The arguments being combined.
+     * @return A string of the combined arguments, with a newline at the end.
+     */
+    template <typename... Args>
+    static std::string combineWithNewline(Args&&... args);
 
     // [VALIDATE]
 
@@ -123,7 +129,7 @@ public:
     // [ARGS]
 
     struct ParseResult {
-        std::vector<std::string> args;
+        std::vector<std::string_view> args;
         bool unclosedQuote = false;
     };
 
@@ -134,7 +140,7 @@ public:
      * @todo Returning a vector of string_views should be possible. Large refactor might be necessary
      */
     static ParseResult parseQuotedArguments(std::string_view cmd);
-    static bool parseQuotedArguments(std::vector<std::string>& existingArgs, std::string_view cmd);
+    static bool parseQuotedArguments(std::vector<std::string_view>& existingArgs, std::string_view cmd);
 
     /**
      * @brief Recombines a span of string_views into a single string with spaces.
@@ -199,4 +205,5 @@ public:
     static std::vector<std::string_view> splitOnSameDepthOf(std::string_view input, Delimiter delimiter);
 };
 }   // namespace Nebulite::Utility
+#include "Nebulite/Utility/StringHandler.tpp" // NOLINT(misc-include-cleaner)
 #endif // NEBULITE_UTILITY_STRINGHANDLER_HPP

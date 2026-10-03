@@ -2,13 +2,18 @@ include(FetchContent)
 
 function(fetchContent)
     ##########################################################
-    # Fetch
+    # Settings
 
-    # Setup external location
-    set(FETCHCONTENT_BASE_DIR "${CMAKE_SOURCE_DIR}/external")
+    set(FETCHCONTENT_BASE_DIR
+            "${CMAKE_SOURCE_DIR}/external"
+            CACHE PATH "FetchContent checkout directory"
+            FORCE
+    )
 
-    # Avoid rebuilding dependencies every configure unless the tag changes.
-    set(FETCHCONTENT_UPDATES_DISCONNECTED ON)
+    set(FETCHCONTENT_UPDATES_DISCONNECTED
+            ON
+            CACHE BOOL "Do not update already-populated dependencies"
+    )
 
     ###########################
     # [SDL]
@@ -104,6 +109,7 @@ function(fetchContent)
     # Make available
 
     message(STATUS "Fetching external dependencies...")
+    set(FETCHCONTENT_QUIET OFF)
     FetchContent_MakeAvailable(
             rapidjson
             tinyexpr

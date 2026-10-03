@@ -1,5 +1,5 @@
-#ifndef CONSTANTS_ALIGNMENT_HPP
-#define CONSTANTS_ALIGNMENT_HPP
+#ifndef NEBULITE_CONSTANTS_ALIGNMENT_HPP
+#define NEBULITE_CONSTANTS_ALIGNMENT_HPP
 
 //------------------------------------------
 // Includes
@@ -29,4 +29,4 @@ public:
 };
 
 } // namespace Nebulite::Constants
-#endif // CONSTANTS_ALIGNMENT_HPP
+#endif // NEBULITE_CONSTANTS_ALIGNMENT_HPP
