@@ -21,7 +21,7 @@
 
 /**
  * @brief Will use memcmp if contiguous memory is available
- * @details Currently slower, likely due to the slow advanceBy being used for SpanIterator.
+ * @details Still slower than character-by-character-comparisons.
  */
 //#define NEBULITE_UTILITY_ARGS_SEGMENTEDSTRINGVIEW_COMPARE_BATCHED
 

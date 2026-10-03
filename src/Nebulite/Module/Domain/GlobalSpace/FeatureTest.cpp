@@ -367,8 +367,6 @@ Constants::Event FeatureTest::segmentedStringViewContains() const {
     }
 }
 
-
-
 Constants::Event FeatureTest::segmentedStringViewBenchmark(std::span<std::string_view const> const args) const {
     auto constexpr nDefault = std::size_t{1'000'000};
     auto const n = args.size() == 2 ? Utility::Convert::Cast::String::to<std::size_t>(args[1]).value_or(nDefault) : nDefault;
@@ -385,6 +383,10 @@ Constants::Event FeatureTest::segmentedStringViewBenchmark(std::span<std::string
     auto const ssvArgs = Utility::StringHandler::split(strRaw, ' ');
     auto const ssv = Utility::Args::SegmentedStringView(ssvArgs);
 
+    // Second ssv with same string for accurate operator== comparison
+    auto const ssvArgs2 = Utility::StringHandler::split(strRaw, ' ');
+    auto const ssv2 = Utility::Args::SegmentedStringView(ssvArgs2);
+
     std::array constexpr queries = {
         std::string_view{strRawContains},
         std::string_view{strRawMissing}
@@ -392,7 +394,7 @@ Constants::Event FeatureTest::segmentedStringViewBenchmark(std::span<std::string
 
     Utility::Testing::timeBenchmark([&] { return ssv.contains(queries[0]); }, n, "SegmentedStringView contains (true)", domain.capture);
     Utility::Testing::timeBenchmark([&] { return ssv.contains(queries[1]); }, n, "SegmentedStringView contains (false)", domain.capture);
-    Utility::Testing::timeBenchmark([&] { return ssv == ssv; }, n, "SegmentedStringView equality", domain.capture); // NOLINT
+    Utility::Testing::timeBenchmark([&] { return ssv == ssv2; }, n, "SegmentedStringView equality", domain.capture); // NOLINT
     return Constants::Event::success;
 }
 
