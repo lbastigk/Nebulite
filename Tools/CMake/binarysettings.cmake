@@ -18,53 +18,51 @@ function(setup_binary_settings)
     # Set output name and settings based on build type
     if(CMAKE_BUILD_TYPE STREQUAL "Release")
         set_target_properties(Nebulite PROPERTIES OUTPUT_NAME "Nebulite")
-        add_compile_options(
-                -O3
-                -DNDEBUG
-                -march=native
-                -mtune=native
-                -flto=auto
-                -fno-semantic-interposition
-                -fomit-frame-pointer
-                -fuse-linker-plugin
-                -fvisibility=hidden
-                -fvisibility-inlines-hidden
-                -finline-functions
-                -fpredictive-commoning
+        target_compile_options(Nebulite PRIVATE
+            -O3
+            -march=native
+            -mtune=native
+            -flto=auto
+            -fno-semantic-interposition
+            -fomit-frame-pointer
+            -fuse-linker-plugin
+            -fvisibility=hidden
+            -fvisibility-inlines-hidden
+            -finline-functions
+            -fpredictive-commoning
         )
+        target_compile_definitions(Nebulite PRIVATE NDEBUG)
     elseif(CMAKE_BUILD_TYPE STREQUAL "Debug")
         set_target_properties(Nebulite PROPERTIES OUTPUT_NAME "Nebulite_Debug")
 
         # Don't add trace on windows
         if(WIN32)
-            add_compile_options(
-                    -g
-            )
+            target_compile_options(Nebulite PRIVATE -g)
         else ()
-            add_compile_options(
-                    -g
-                    -ftime-trace=${sourceDir}/tmp/trace_${presetName}.json
+            target_compile_options(Nebulite PRIVATE
+                -g
+                -ftime-trace=${sourceDir}/tmp/trace_${presetName}.json
             )
         endif()
     elseif(CMAKE_BUILD_TYPE STREQUAL "Coverage")
         set_target_properties(Nebulite PROPERTIES OUTPUT_NAME "Nebulite_Coverage")
-        add_compile_options(
-                -g
-                --coverage
-                -fprofile-arcs
-                -ftest-coverage
+        target_compile_options(Nebulite PRIVATE
+            -g
+            --coverage
+            -fprofile-arcs
+            -ftest-coverage
         )
         add_link_options(--coverage)
         message(STATUS "Coverage build enabled")
     elseif(CMAKE_BUILD_TYPE STREQUAL "Profiling")
         set_target_properties(Nebulite PROPERTIES OUTPUT_NAME "Nebulite_Profiling")
-        add_compile_options(
-                -O3
-                -g
-                -DNDEBUG
-                -fno-omit-frame-pointer
-                -march=native
+        target_compile_options(Nebulite PRIVATE
+            -O3
+            -g
+            -fno-omit-frame-pointer
+            -march=native
         )
+        target_compile_definitions(Nebulite PRIVATE NDEBUG)
     else()
         error("Unknown build type: ${CMAKE_BUILD_TYPE}. Supported types are: Release, Debug, Coverage, Profiling.")
     endif()

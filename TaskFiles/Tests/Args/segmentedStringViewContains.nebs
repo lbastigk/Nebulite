@@ -1,0 +1,2 @@
+# Launches the contains tests of the segmented string view
+feature-test segmented-string-view contains

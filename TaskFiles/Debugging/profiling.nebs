@@ -25,7 +25,8 @@ echo "Starting profiling.nebs"
 # - jsonRuleset
 # - parsing
 # - fft
-set settings.profilingTask fft
+# - ssv
+set settings.profilingTask ssv
 ####################################################
 
 ###################
@@ -55,3 +56,7 @@ if $({global:settings.profilingTask|strCompare equals parsing}) then task TaskFi
 ###################
 # 7.) FFT performance
 if $({global:settings.profilingTask|strCompare equals fft}) then task TaskFiles/Benchmarks/fft.nebs
+
+###################
+# 8.) SegmentedStringView performance
+if $({global:settings.profilingTask|strCompare equals ssv}) then task TaskFiles/Benchmarks/segmentedStringView.nebs

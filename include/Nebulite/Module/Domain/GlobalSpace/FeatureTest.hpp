@@ -67,12 +67,35 @@ public:
     static auto constexpr largeFftDesc = "Tests the FFT implementation with a large dataset.\n"
         "Usage: feature-test large-fft <size>\n";
 
+    // Segmented String view
+
+    [[nodiscard]] Constants::Event segmentedStringViewCompare() const ;
+    static auto constexpr segmentedStringViewCompareName = "feature-test segmented-string-view compare";
+    static auto constexpr segmentedStringViewCompareDesc = "Segmented string view comparison tests.\n"
+        "Prints the message 'SegmentedStringView test passed.' or 'SegmentedStringView test failed: <reason>'"
+        "Usage: feature-test segmented-string-view compare\n";
+
+    [[nodiscard]] Constants::Event segmentedStringViewContains() const ;
+    static auto constexpr segmentedStringViewContainsName = "feature-test segmented-string-view contains";
+    static auto constexpr segmentedStringViewContainsDesc = "Tests the contains method of the SegmentedStringView class.\n"
+        "Prints the message 'SegmentedStringView test passed.' or 'SegmentedStringView test failed: <reason>'"
+        "Usage: feature-test segmented-string-view contains\n";
+
+    [[nodiscard]] Constants::Event segmentedStringViewBenchmark(std::span<std::string_view const> args) const ;
+    static auto constexpr segmentedStringViewBenchmarkName = "feature-test segmented-string-view benchmark";
+    static auto constexpr segmentedStringViewBenchmarkDesc = "Tests benchmark for segmented string-view, using compare and contains methods.\n"
+        "Prints the amount of milliseconds the test took."
+        "Usage: feature-test segmented-string-view <size>\n";
+
     //------------------------------------------
     // Categories
 
     static auto constexpr categoryFeatureTestName = "feature-test";
     static auto constexpr categoryFeatureTestDesc = "Functions for testing features in the GlobalSpace\n"
         "Usage: feature-test <function>\n";
+
+    static auto constexpr categoryFeatureTestSegmentedStringViewName = "feature-test segmented-string-view";
+    static auto constexpr categoryFeatureTestSegmentedStringViewDesc = "Functions for testing segmented string view functionality.\n";
 
     //------------------------------------------
     // Setup
@@ -95,6 +118,12 @@ public:
 
         // Benchmarks
         bindFunction(&FeatureTest::largeFft, largeFftName, largeFftDesc);
+
+        // Segmented String View
+        bindCategory(categoryFeatureTestSegmentedStringViewName, categoryFeatureTestSegmentedStringViewDesc);
+        bindFunction(&FeatureTest::segmentedStringViewCompare, segmentedStringViewCompareName, segmentedStringViewCompareDesc);
+        bindFunction(&FeatureTest::segmentedStringViewContains, segmentedStringViewContainsName, segmentedStringViewContainsDesc);
+        bindFunction(&FeatureTest::segmentedStringViewBenchmark, segmentedStringViewBenchmarkName, segmentedStringViewBenchmarkDesc);
     }
 
     struct Key : Data::KeyGroup<""> {

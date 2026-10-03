@@ -7,6 +7,7 @@
 // Standard library
 #include <memory>
 #include <optional>
+#include <utility>
 
 //------------------------------------------
 namespace Nebulite::Utility::Coordination {
@@ -19,7 +20,7 @@ namespace Nebulite::Utility::Coordination {
  */
 template<typename T, typename... ConstructorArgs>
 class LazyInit {
-    std::unique_ptr<T> ptr;
+    mutable std::unique_ptr<T> ptr;
 
 public:
     LazyInit() = default;
@@ -29,11 +30,23 @@ public:
      * @param args The arguments for the constructor.
      * @return A reference to the lazily initialized object.
      */
-    T& get(ConstructorArgs&&... args) {
+    T& get(ConstructorArgs... args) const {
         if (!ptr) {
             ptr = std::make_unique<T>(std::forward<ConstructorArgs>(args)...);
         }
         return *ptr;
+    }
+
+    /**
+     * @brief Constructs or reconstructs the stored object with the given arguments.
+     * @details Any object currently held by this instance is destroyed before the new
+     *          object is stored.
+     * @tparam Args The types of the arguments for the constructor.
+     * @param args The arguments for the constructor.
+     */
+    template<typename... Args>
+    void emplace(Args&&... args) {
+        ptr = std::make_unique<T>(std::forward<Args>(args)...);
     }
 };
 
@@ -45,7 +58,7 @@ public:
  */
 template<typename T, typename... ConstructorArgs>
 class LazyInitOptional {
-    std::optional<T> opt;
+    mutable std::optional<T> opt;
 
 public:
     LazyInitOptional() = default;
@@ -55,11 +68,23 @@ public:
      * @param args The arguments for the constructor.
      * @return A reference to the lazily initialized object.
      */
-    T& get(ConstructorArgs&&... args) {
+    T& get(ConstructorArgs... args) const {
         if (!opt) {
             opt.emplace(std::forward<ConstructorArgs>(args)...);
         }
         return opt.value();
+    }
+
+    /**
+     * @brief Constructs or reconstructs the stored object with the given arguments.
+     * @details Any object currently held by this instance is destroyed before the new
+     *          object is stored.
+     * @tparam Args The types of the arguments for the constructor.
+     * @param args The arguments for the constructor.
+     */
+    template<typename... Args>
+    void emplace(Args&&... args) {
+        opt.emplace(std::forward<Args>(args)...);
     }
 };
 
