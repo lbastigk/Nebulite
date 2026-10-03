@@ -100,7 +100,7 @@ bool JsonTransformer::parse(std::span<std::string_view const> const transformati
 
 // Single
 
-bool JsonTransformer::parseSingleTransformation(std::span<std::string_view const> const args, JsonScope& jsonDoc) const {
+bool JsonTransformer::parseSingleTransformation(Utility::Args::SSV const& args, JsonScope& jsonDoc) const {
     return transformationFuncTree->parse(args, jsonDoc);
 }
 

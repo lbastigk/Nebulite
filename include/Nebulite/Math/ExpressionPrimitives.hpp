@@ -5,12 +5,13 @@
 // Includes
 
 // Standard library
-#include <span>
-#include <string_view>
 #include <vector>
 
 // External
 #include <tinyexpr.h>
+
+// Nebulite
+#include "Nebulite/Utility/Args/CmdArgs.hpp"
 
 //------------------------------------------
 namespace Nebulite::Math {
@@ -222,7 +223,7 @@ public:
      * @brief Prints a list of all available functions with their descriptions to the console.
      * @details Utilizes a temporary funcTree for the sole purpose of printing the list of functions with their descriptions in a formatted manner.
      */
-    static void help(std::span<std::string_view const> args);
+    static void help(Utility::Args::SSV const& args);
 
 private:
     //------------------------------------------

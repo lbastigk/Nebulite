@@ -41,7 +41,7 @@ Constants::Event FeatureTest::updateHook() {
 namespace {
 class MathModifier {
 public:
-    static double add(std::span<std::string_view const> const args, double const input) {
+    static double add(Utility::Args::SSV const& args, double const input) {
         double sum = input;
         // Add all arguments but the first (which is the function name)
         for (auto const& arg : args.subspan(1)) {
@@ -104,7 +104,7 @@ Constants::Event FeatureTest::selfOtherGlobalEvaluation() const {
 
 // Keys
 
-Constants::Event FeatureTest::keyCombination(std::span<std::string_view const> const args) const {
+Constants::Event FeatureTest::keyCombination(Utility::Args::SSV const& args) const {
     if (args.size() < 3) {
         return Constants::StandardCapture::Warning::Functional::tooFewArgs(domain.capture);
     }
@@ -118,13 +118,13 @@ Constants::Event FeatureTest::keyCombination(std::span<std::string_view const> c
     return Constants::Event::success;
 }
 
-Constants::Event FeatureTest::findParentKey(std::span<std::string_view const> const args) const {
+Constants::Event FeatureTest::findParentKey(Utility::Args::SSV const& args) const {
     auto const key = args.size() > 1 ? Utility::StringHandler::recombineArgs(args.subspan(1)) : "";
     domain.capture.log.println(Data::Json::findParentKey(key));
     return Constants::Event::success;
 }
 
-Constants::Event FeatureTest::largeFft(std::span<std::string_view const> const args) const {
+Constants::Event FeatureTest::largeFft(Utility::Args::SSV const& args) const {
     if (args.size() < 2) {
         return Constants::StandardCapture::Warning::Functional::tooFewArgs(domain.capture);
     }
@@ -367,7 +367,7 @@ Constants::Event FeatureTest::segmentedStringViewContains() const {
     }
 }
 
-Constants::Event FeatureTest::segmentedStringViewBenchmark(std::span<std::string_view const> const args) const {
+Constants::Event FeatureTest::segmentedStringViewBenchmark(Utility::Args::SSV const& args) const {
     auto constexpr nDefault = std::size_t{1'000'000};
     auto const n = args.size() == 2 ? Utility::Convert::Cast::String::to<std::size_t>(args[1]).value_or(nDefault) : nDefault;
 

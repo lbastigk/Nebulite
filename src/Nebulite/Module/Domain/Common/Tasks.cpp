@@ -30,7 +30,7 @@ Constants::Event Tasks::updateHook() {
 //------------------------------------------
 // Domain-Bound Functions
 
-Constants::Event Tasks::wait(std::span<std::string_view const> const args) const {
+Constants::Event Tasks::wait(Utility::Args::SSV const& args) const {
     if (args.size() < 2) {
         return Constants::StandardCapture::Warning::Functional::tooFewArgs(domain.capture);
     }
@@ -45,7 +45,7 @@ Constants::Event Tasks::wait(std::span<std::string_view const> const args) const
     return Constants::Event::success;
 }
 
-Constants::Event Tasks::task(std::span<std::string_view const> const args) const {
+Constants::Event Tasks::task(Utility::Args::SSV const& args) const {
     if (args.size() < 2) {
         return Constants::StandardCapture::Warning::Functional::tooFewArgs(domain.capture);
     }
@@ -55,7 +55,7 @@ Constants::Event Tasks::task(std::span<std::string_view const> const args) const
     return Constants::Event::success;
 }
 
-Constants::Event Tasks::taskExec(std::span<std::string_view const> const args, Interaction::Context ctx, Interaction::ContextScope ctxScope) const {
+Constants::Event Tasks::taskExec(Utility::Args::SSV const& args, Interaction::Context ctx, Interaction::ContextScope ctxScope) const {
     if (args.size() < 2) {
         return Constants::StandardCapture::Warning::Functional::tooFewArgs(domain.capture);
     }
@@ -66,7 +66,7 @@ Constants::Event Tasks::taskExec(std::span<std::string_view const> const args, I
     return tq.resolve(ctx, ctxScope, true).worstEvent();
 }
 
-Constants::Event Tasks::always(std::span<std::string_view const> const args) const {
+Constants::Event Tasks::always(Utility::Args::SSV const& args) const {
     if (args.size() < 2) {
         return Constants::StandardCapture::Warning::Functional::tooFewArgs(domain.capture);
     }

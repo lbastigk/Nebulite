@@ -90,7 +90,7 @@ public:
      * @param jsonDoc The document to manipulate
      * @return true if the transformations were successfully applied, false otherwise.
      */
-    bool parseSingleTransformation(std::span<std::string_view const> args, JsonScope& jsonDoc) const ;
+    bool parseSingleTransformation(Utility::Args::SSV const& args, JsonScope& jsonDoc) const ;
 };
 } // namespace Nebulite::Data
 #include "Nebulite/Data/Document/JsonTransformer.tpp" // NOLINT(misc-include-cleaner)

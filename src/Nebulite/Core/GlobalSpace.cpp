@@ -8,7 +8,6 @@
 #include <cstdint> // NOLINT
 #include <memory>
 #include <optional>
-#include <span>
 #include <sstream>
 #include <stdexcept>
 #include <string>
@@ -297,7 +296,7 @@ void GlobalSpace::notifyEvent(Constants::Event const event) {
 //------------------------------------------
 // Pre-parse
 
-Constants::Event GlobalSpace::preParse(std::string_view const functionName, std::span<std::string_view const> const /*args*/) {
+Constants::Event GlobalSpace::preParse(std::string_view const functionName, Utility::Args::SSV const& /*args*/) {
     // NOTE: This function is only called once there is a parse-command
     // Meaning its timing is consistent and not dependent on framerate, frame time variations, etc.
     // Meaning everything we do here is, timing wise, deterministic!

@@ -7,10 +7,12 @@
 // Standard library
 #include <cstddef>
 #include <cstdint> // NOLINT
-#include <span>
 #include <string>
 #include <string_view>
 #include <vector>
+
+// Nebulite
+#include "Nebulite/Utility/Args/CmdArgs.hpp"
 
 //------------------------------------------
 namespace Nebulite::Utility {
@@ -148,7 +150,7 @@ public:
      * @param args The span of argument strings.
      * @return The recombined argument string.
      */
-    static std::string recombineArgs(std::span<std::string_view const> args);
+    static std::string recombineArgs(Args::SSV const& args);
 
     // [SPLIT]
 

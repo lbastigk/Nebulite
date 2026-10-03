@@ -48,13 +48,13 @@ public:
 
     // Keys
 
-    [[nodiscard]] Constants::Event keyCombination(std::span<std::string_view const> args) const ;
+    [[nodiscard]] Constants::Event keyCombination(Utility::Args::SSV const& args) const ;
     static auto constexpr keyCombinationName = "feature-test key-combination";
     static auto constexpr keyCombinationDesc = "Tests key-combinations for the ScopedKey class.\n"
         "Usage: feature-test key-combination <key1> <key2>\n"
         "Using <empty> as argument will treated as an empty key.\n";
 
-    [[nodiscard]] Constants::Event findParentKey(std::span<std::string_view const> args) const ;
+    [[nodiscard]] Constants::Event findParentKey(Utility::Args::SSV const& args) const ;
     static auto constexpr findParentKeyName = "feature-test find-parent-key";
     static auto constexpr findParentKeyDesc = "Finds the parent key of a given key using the Json::findParentKey method.\n"
         "Usage: feature-test find-parent-key <key>\n"
@@ -62,7 +62,7 @@ public:
 
     // Benchmarks
 
-    [[nodiscard]] Constants::Event largeFft(std::span<std::string_view const> args) const ;
+    [[nodiscard]] Constants::Event largeFft(Utility::Args::SSV const& args) const ;
     static auto constexpr largeFftName = "feature-test large-fft";
     static auto constexpr largeFftDesc = "Tests the FFT implementation with a large dataset.\n"
         "Usage: feature-test large-fft <size>\n";
@@ -81,7 +81,7 @@ public:
         "Prints the message 'SegmentedStringView test passed.' or 'SegmentedStringView test failed: <reason>'"
         "Usage: feature-test segmented-string-view contains\n";
 
-    [[nodiscard]] Constants::Event segmentedStringViewBenchmark(std::span<std::string_view const> args) const ;
+    [[nodiscard]] Constants::Event segmentedStringViewBenchmark(Utility::Args::SSV const& args) const ;
     static auto constexpr segmentedStringViewBenchmarkName = "feature-test segmented-string-view benchmark";
     static auto constexpr segmentedStringViewBenchmarkDesc = "Tests benchmark for segmented string-view, using compare and contains methods.\n"
         "Prints the amount of milliseconds the test took."

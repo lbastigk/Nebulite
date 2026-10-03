@@ -31,7 +31,7 @@ void Collection::bindTransformations() {
     bindTransformation(&Collection::bind, bindName, bindDesc);
 }
 
-bool Collection::map(std::span<std::string_view const> const args, Data::JsonScope& jsonDoc) {
+bool Collection::map(Utility::Args::SSV const& args, Data::JsonScope& jsonDoc) {
     if (jsonDoc.memberType(rootKey) != Data::KeyType::array) {
         auto const key = rootKey.addIndex(0);
         jsonDoc.moveMember(rootKey, key);
@@ -56,7 +56,7 @@ bool Collection::map(std::span<std::string_view const> const args, Data::JsonSco
     return true;
 }
 
-bool Collection::get(std::span<std::string_view const> const args, Data::JsonScope& jsonDoc) {
+bool Collection::get(Utility::Args::SSV const& args, Data::JsonScope& jsonDoc) {
     if (args.size() != 2) {
         return false;
     }
@@ -117,7 +117,7 @@ bool Collection::listMembersAndValues(Data::JsonScope& jsonDoc){
     return true;
 }
 
-bool Collection::enumerateInline(std::span<std::string_view const> const args, Data::JsonScope& jsonDoc){
+bool Collection::enumerateInline(Utility::Args::SSV const& args, Data::JsonScope& jsonDoc){
     if (args.size() < 2) return false;
     if (jsonDoc.memberType(rootKey) != Data::KeyType::array) return false;
     auto const& indexKey = args.at(1);
@@ -131,7 +131,7 @@ bool Collection::enumerateInline(std::span<std::string_view const> const args, D
     return true;
 }
 
-bool Collection::enumerate(std::span<std::string_view const> const args, Data::JsonScope& jsonDoc){
+bool Collection::enumerate(Utility::Args::SSV const& args, Data::JsonScope& jsonDoc){
     if (args.size() != 1) return false;
     if (jsonDoc.memberType(rootKey) != Data::KeyType::array) return false;
     Data::Json tmp;
@@ -148,7 +148,7 @@ bool Collection::enumerate(std::span<std::string_view const> const args, Data::J
 }
 
 // Obj->Array: bundle
-bool Collection::bundle(std::span<std::string_view const> const args, Data::JsonScope& jsonDoc) {
+bool Collection::bundle(Utility::Args::SSV const& args, Data::JsonScope& jsonDoc) {
     if (args.size() < 2) {
         return false;
     }
@@ -165,7 +165,7 @@ bool Collection::bundle(std::span<std::string_view const> const args, Data::Json
 }
 
 // Array->Obj: bind
-bool Collection::bind(std::span<std::string_view const> const args, Data::JsonScope& jsonDoc){
+bool Collection::bind(Utility::Args::SSV const& args, Data::JsonScope& jsonDoc){
     if (args.size() < 2) {
         return false;
     }

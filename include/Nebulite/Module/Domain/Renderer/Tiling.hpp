@@ -34,19 +34,19 @@ public:
     // Available Functions
 
     // TODO: causes a sigsev if turned on, in various large scale tests...
-    Constants::Event tileInfoToggle(std::span<std::string_view const> args);
+    Constants::Event tileInfoToggle(Utility::Args::SSV const& args);
     static auto constexpr tileInfoToggleName = "tile-info";
     static auto constexpr tileInfoToggleDesc = "Toggle tile info storage in scope on or off.\n"
         "Usage: tile-info [on/off]\n"
         "Toggles state if no argument is provided.\n";
 
-    Constants::Event gridToggle(std::span<std::string_view const> args);
+    Constants::Event gridToggle(Utility::Args::SSV const& args);
     static auto constexpr gridToggleName = "grid";
     static auto constexpr gridToggleDesc = "Toggle grid overlay on or off.\n"
         "Usage: grid [on/off]\n"
         "Toggles state if no argument is provided.\n";
 
-    [[nodiscard]] Constants::Event viewToggle(std::span<std::string_view const> args) const ;
+    [[nodiscard]] Constants::Event viewToggle(Utility::Args::SSV const& args) const ;
     static auto constexpr viewToggleName = "view";
     static auto constexpr viewToggleDesc = "Toggle view setting to full, low or lowest\n"
         "Usage: view <high/low/lowest>\n";

@@ -24,7 +24,7 @@ void General::bindTransformations() {
     bindTransformation(&General::assign, assignName, assignDesc);
 }
 
-bool General::setString(std::span<std::string_view const> const args, Data::JsonScope& jsonDoc) {
+bool General::setString(Utility::Args::SSV const& args, Data::JsonScope& jsonDoc) {
     if (args.size() != 3) return false;
     auto const key = rootKey.addMember(args[1]);
     auto const value = std::string(args[2]);
@@ -32,7 +32,7 @@ bool General::setString(std::span<std::string_view const> const args, Data::Json
     return true;
 }
 
-bool General::setInt(std::span<std::string_view const> const args, Data::JsonScope& jsonDoc) {
+bool General::setInt(Utility::Args::SSV const& args, Data::JsonScope& jsonDoc) {
     if (args.size() != 3) return false;
     auto const key = rootKey.addMember(args[1]);
     try {
@@ -44,7 +44,7 @@ bool General::setInt(std::span<std::string_view const> const args, Data::JsonSco
     }
 }
 
-bool General::setDouble(std::span<std::string_view const> const args, Data::JsonScope& jsonDoc) {
+bool General::setDouble(Utility::Args::SSV const& args, Data::JsonScope& jsonDoc) {
     if (args.size() != 3) return false;
     auto const key = rootKey.addMember(args[1]);
     try {
@@ -56,7 +56,7 @@ bool General::setDouble(std::span<std::string_view const> const args, Data::Json
     }
 }
 
-bool General::setBool(std::span<std::string_view const> const args, Data::JsonScope& jsonDoc) {
+bool General::setBool(Utility::Args::SSV const& args, Data::JsonScope& jsonDoc) {
     if (args.size() != 3) return false;
     auto const key = rootKey.addMember(args[1]);
     auto const& valStr = args[2];
@@ -65,7 +65,7 @@ bool General::setBool(std::span<std::string_view const> const args, Data::JsonSc
     return true;
 }
 
-bool General::removeMember(std::span<std::string_view const> const args, Data::JsonScope& jsonDoc) {
+bool General::removeMember(Utility::Args::SSV const& args, Data::JsonScope& jsonDoc) {
     if (args.size() < 2) return false;
     for (auto const& arg : args.subspan(1)) {
         auto const key = rootKey.addMember(arg);
@@ -74,7 +74,7 @@ bool General::removeMember(std::span<std::string_view const> const args, Data::J
     return true;
 }
 
-bool General::assign(std::span<std::string_view const> const args, Data::JsonScope& jsonDoc) {
+bool General::assign(Utility::Args::SSV const& args, Data::JsonScope& jsonDoc) {
     if (args.empty()) return false;
     Interaction::Logic::Assignment ass;
     ass.parse(Utility::StringHandler::recombineArgs(args.subspan(1)));

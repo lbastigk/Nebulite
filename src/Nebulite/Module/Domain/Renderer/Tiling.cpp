@@ -136,7 +136,7 @@ namespace Nebulite::Module::Domain::Renderer {
 //------------------------------------------
 // Available Functions
 
-Constants::Event Tiling::tileInfoToggle(std::span<std::string_view const> const args) {
+Constants::Event Tiling::tileInfoToggle(Utility::Args::SSV const& args) {
     if (args.size() > 2) return Constants::StandardCapture::Warning::Functional::tooManyArgs(domain.capture);
     if (args.empty()) {
         tileInfoOn = !tileInfoOn;
@@ -154,7 +154,7 @@ Constants::Event Tiling::tileInfoToggle(std::span<std::string_view const> const 
     return Constants::StandardCapture::Warning::Functional::unknownArg(domain.capture);
 }
 
-Constants::Event Tiling::gridToggle(std::span<std::string_view const> const args) {
+Constants::Event Tiling::gridToggle(Utility::Args::SSV const& args) {
     if (args.size() > 2) return Constants::StandardCapture::Warning::Functional::tooManyArgs(domain.capture);
     if (args.empty()) {
         gridOn = !gridOn;
@@ -172,7 +172,7 @@ Constants::Event Tiling::gridToggle(std::span<std::string_view const> const args
     return Constants::StandardCapture::Warning::Functional::unknownArg(domain.capture);
 }
 
-Constants::Event Tiling::viewToggle(std::span<std::string_view const> const args) const {
+Constants::Event Tiling::viewToggle(Utility::Args::SSV const& args) const {
     if (args.size() < 2) return Constants::StandardCapture::Warning::Functional::tooFewArgs(domain.capture);
     if (args.size() > 2) return Constants::StandardCapture::Warning::Functional::tooManyArgs(domain.capture);
     if (args[1] == "high") {

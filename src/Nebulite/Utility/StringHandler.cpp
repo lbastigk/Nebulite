@@ -170,7 +170,7 @@ bool StringHandler::parseQuotedArguments(std::vector<std::string_view>& existing
     return activeQuote != '\0';
 }
 
-std::string StringHandler::recombineArgs(std::span<std::string_view const> const args) {
+std::string StringHandler::recombineArgs(Utility::Args::SSV const& args) {
     std::string result;
     for (std::size_t i = 0; i < args.size(); ++i) {
         // TODO: consider adding back quotes if any arg has a whitespace

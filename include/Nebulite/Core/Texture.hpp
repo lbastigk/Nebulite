@@ -120,7 +120,7 @@ private:
      * @param functionName The name of the called function.
      * @param args The arguments of the parse
      */
-    [[nodiscard]] Constants::Event preParse(std::string_view functionName, std::span<std::string_view const> args) override;
+    [[nodiscard]] Constants::Event preParse(std::string_view functionName, Utility::Args::SSV const& args) override;
 
     /**
      * @brief The SDL texture managed by this class.

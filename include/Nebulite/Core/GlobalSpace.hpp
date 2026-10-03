@@ -256,7 +256,7 @@ private:
      * @return Error code `Constants::ErrorTable::NONE()` if there was no critical stop,
      *         an error code otherwise.
      */
-    [[nodiscard]] Constants::Event preParse(std::string_view functionName, std::span<std::string_view const> args) override ;
+    [[nodiscard]] Constants::Event preParse(std::string_view functionName, Utility::Args::SSV const& args) override ;
 
     /**
      * @brief Updates all inner domains.

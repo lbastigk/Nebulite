@@ -50,7 +50,7 @@ void Array::bindTransformations() {
 
 // Pick
 
-bool Array::at(std::span<std::string_view const> const args, Data::JsonScope& jsonDoc) {
+bool Array::at(Utility::Args::SSV const& args, Data::JsonScope& jsonDoc) {
     if (args.size() != 2) {
         return false;
     }
@@ -104,7 +104,7 @@ bool Array::length(Data::JsonScope& jsonDoc) {
     return true;
 }
 
-bool Array::subspan(std::span<std::string_view const> const args, Data::JsonScope& jsonDoc) {
+bool Array::subspan(Utility::Args::SSV const& args, Data::JsonScope& jsonDoc) {
     if (args.size() > 3) {
         return false;
     }
@@ -229,7 +229,7 @@ bool Array::reverse(Data::JsonScope& jsonDoc) {
     return true;
 }
 
-bool Array::batch(std::span<std::string_view const> const args, Data::JsonScope& jsonDoc){
+bool Array::batch(Utility::Args::SSV const& args, Data::JsonScope& jsonDoc){
     // Validate arguments and input
     if (args.size() < 2) return false;
     auto const size = Utility::Convert::Cast::String::to<std::size_t>(args.at(1));
@@ -263,7 +263,7 @@ bool Array::batch(std::span<std::string_view const> const args, Data::JsonScope&
     return true;
 }
 
-bool Array::batchPadded(std::span<std::string_view const> const args, Data::JsonScope& jsonDoc){
+bool Array::batchPadded(Utility::Args::SSV const& args, Data::JsonScope& jsonDoc){
 if (!batch(args, jsonDoc)) return false;
 auto const size = Utility::Convert::Cast::String::to<std::size_t>(args.at(1));
 if (!size.has_value()) return false;
@@ -279,7 +279,7 @@ while (jsonDoc.memberSize(lastBatch) < size.value()) {
     return true;
 }
 
-bool Array::stride(std::span<std::string_view const> const args, Data::JsonScope& jsonDoc){
+bool Array::stride(Utility::Args::SSV const& args, Data::JsonScope& jsonDoc){
     if (args.size() < 2) return false;
     auto const size = Utility::Convert::Cast::String::to<std::size_t>(args.at(1));
     if (!size.has_value()) return false;
@@ -294,7 +294,7 @@ bool Array::stride(std::span<std::string_view const> const args, Data::JsonScope
     return true;
 }
 
-bool Array::slide(std::span<std::string_view const> const args, Data::JsonScope& jsonDoc){
+bool Array::slide(Utility::Args::SSV const& args, Data::JsonScope& jsonDoc){
     if (args.size() < 2) return false;
     auto const size = Utility::Convert::Cast::String::to<std::size_t>(args.at(1));
     if (!size.has_value()) return false;
@@ -313,7 +313,7 @@ bool Array::slide(std::span<std::string_view const> const args, Data::JsonScope&
 
 // Generate
 
-bool Array::iota(std::span<std::string_view const> const args, Data::JsonScope& jsonDoc){
+bool Array::iota(Utility::Args::SSV const& args, Data::JsonScope& jsonDoc){
     if (args.size() < 3) return false;
     auto start = std::stoll(std::string(args.at(1)));
     auto end = std::stoll(std::string(args.at(2)));
@@ -356,7 +356,7 @@ bool Array::ensureArray(Data::JsonScope& jsonDoc) {
     return jsonDoc.memberType(rootKey) == Data::KeyType::array;
 }
 
-bool Array::push(std::span<std::string_view const> const args, Data::JsonScope& jsonDoc) {
+bool Array::push(Utility::Args::SSV const& args, Data::JsonScope& jsonDoc) {
     if (args.size() < 2) {
         return false;
     }
@@ -369,7 +369,7 @@ bool Array::push(std::span<std::string_view const> const args, Data::JsonScope& 
     return true;
 }
 
-bool Array::pushNumber(std::span<std::string_view const> const args, Data::JsonScope& jsonDoc) {
+bool Array::pushNumber(Utility::Args::SSV const& args, Data::JsonScope& jsonDoc) {
     if (args.size() != 2) {
         return false;
     }
@@ -387,7 +387,7 @@ bool Array::pushNumber(std::span<std::string_view const> const args, Data::JsonS
     }
 }
 
-bool Array::pad(std::span<std::string_view const> const args, Data::JsonScope& jsonDoc){
+bool Array::pad(Utility::Args::SSV const& args, Data::JsonScope& jsonDoc){
     if (args.size() < 2) return false;
     auto const size = Utility::Convert::Cast::String::to<std::size_t>(args.at(1));
     if (!size.has_value()) return false;
