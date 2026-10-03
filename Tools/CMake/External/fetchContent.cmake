@@ -7,6 +7,7 @@ function(fetchContent)
     set(FETCHCONTENT_BASE_DIR
             "${CMAKE_SOURCE_DIR}/external"
             CACHE PATH "FetchContent checkout directory"
+            FORCE
     )
 
     set(FETCHCONTENT_UPDATES_DISCONNECTED
