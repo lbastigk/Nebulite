@@ -77,7 +77,7 @@ public:
         using M = std::decay_t<FunctionPointer>;
         using Traits = MemberFunctionPointerTraits<M>;
         using C = Traits::ClassType;
-        using Span = CmdArgs::Span;
+        using Span = SSV;
 
         // Determine type
         if constexpr (isInvocableWithArgs<ReturnValue, M, C, int, char const**>) {
@@ -104,7 +104,7 @@ public:
     template <typename FunctionPointer, typename ReturnValue, typename... AdditionalArgs>
     static constexpr FunctionShape classifyFreeFunction() {
         using F = std::decay_t<FunctionPointer>;
-        using Span = CmdArgs::Span;
+        using Span = SSV;
 
         // Determine type
         if constexpr (std::is_invocable_r_v<ReturnValue, F, int, char**>) {

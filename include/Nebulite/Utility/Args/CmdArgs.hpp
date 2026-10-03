@@ -11,10 +11,8 @@
 //------------------------------------------
 namespace Nebulite::Utility::Args {
 
-// Command argument span types
-struct CmdArgs {
-    using Span = std::span<std::string_view const>;
-};
+// Replace with SegmentedStringView later on...
+using SSV = std::span<std::string_view const>;
 
 } // namespace Nebulite::Utility::Args
 #endif // NEBULITE_UTILITY_ARGS_CMDARGS_HPP

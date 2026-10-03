@@ -47,7 +47,7 @@ public:
     //------------------------------------------
     // Important types
 
-    using PreParseFunction = std::function<ReturnValue(std::string_view, CmdArgs::Span)>;
+    using PreParseFunction = std::function<ReturnValue(std::string_view, SSV)>;
 
     // Supported function signatures
     struct SupportedFunctions {
@@ -56,8 +56,8 @@ public:
         };
 
         struct Modern {
-            using Full = std::function<ReturnValue(CmdArgs::Span, AdditionalArgs...)>;
-            using NoAddArgs = std::function<ReturnValue(CmdArgs::Span)>;
+            using Full = std::function<ReturnValue(SSV, AdditionalArgs...)>;
+            using NoAddArgs = std::function<ReturnValue(SSV)>;
             using NoCmdArgs = std::function<ReturnValue(AdditionalArgs...)>;
             using NoArgs = std::function<ReturnValue()>;
         };

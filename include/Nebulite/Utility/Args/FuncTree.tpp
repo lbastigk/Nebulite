@@ -302,11 +302,11 @@ FuncTree<ReturnValue, AdditionalArgs...>::makeFunctionPtr(Func functionPtr) {
         }
         else if constexpr (shape == ShapeClassifier::FunctionShape::freeModernNoAddArgs) {
             return FunctionPtrT(std::in_place_type<typename SupportedFunctions::Modern::NoAddArgs>,
-                                std::function<ReturnValue(CmdArgs::Span)>(functionPtr));
+                                std::function<ReturnValue(SSV)>(functionPtr));
         }
         else if constexpr (shape == ShapeClassifier::FunctionShape::freeModernFull) {
             return FunctionPtrT(std::in_place_type<typename SupportedFunctions::Modern::Full>,
-                                std::function<ReturnValue(CmdArgs::Span, AdditionalArgs...)>(functionPtr));
+                                std::function<ReturnValue(SSV, AdditionalArgs...)>(functionPtr));
         }
         else if constexpr (shape == ShapeClassifier::FunctionShape::freeNoArgs) {
             return FunctionPtrT(std::in_place_type<typename SupportedFunctions::Modern::NoArgs>,
@@ -322,13 +322,13 @@ FuncTree<ReturnValue, AdditionalArgs...>::makeFunctionPtr(Func functionPtr) {
     }
 
     // If it's a callable object (lambda/std::function), try to pick a sensible alternative
-    if constexpr (std::is_invocable_v<Func, CmdArgs::Span, AdditionalArgs...>) {
+    if constexpr (std::is_invocable_v<Func, SSV, AdditionalArgs...>) {
         return FunctionPtrT(std::in_place_type<typename SupportedFunctions::Modern::Full>,
-                            std::function<ReturnValue(CmdArgs::Span, AdditionalArgs...)>(functionPtr));
+                            std::function<ReturnValue(SSV, AdditionalArgs...)>(functionPtr));
     }
-    else if constexpr (std::is_invocable_v<Func, CmdArgs::Span>) {
+    else if constexpr (std::is_invocable_v<Func, SSV>) {
         return FunctionPtrT(std::in_place_type<typename SupportedFunctions::Modern::NoAddArgs>,
-                            std::function<ReturnValue(CmdArgs::Span)>(functionPtr));
+                            std::function<ReturnValue(SSV)>(functionPtr));
     }
     else if constexpr (std::is_invocable_v<Func>) {
         return FunctionPtrT(std::in_place_type<typename SupportedFunctions::Modern::NoArgs>,
@@ -364,7 +364,7 @@ FuncTree<ReturnValue, AdditionalArgs...>::makeFunctionPtr(Obj* objectPtr, MemFun
     else if constexpr (shape == ShapeClassifier::FunctionShape::memberModernNoAddArgs) {
         return FunctionPtrT(
             std::in_place_type<typename SupportedFunctions::Modern::NoAddArgs>,
-            [objectPtr, memberFunctionPtr](CmdArgs::Span args) { // NOLINT(readability-redundant-typename)
+            [objectPtr, memberFunctionPtr](SSV args) { // NOLINT(readability-redundant-typename)
                 return std::invoke(memberFunctionPtr, objectPtr, args);
             }
         );
@@ -372,7 +372,7 @@ FuncTree<ReturnValue, AdditionalArgs...>::makeFunctionPtr(Obj* objectPtr, MemFun
     else if constexpr (shape == ShapeClassifier::FunctionShape::memberModernFull) {
         return FunctionPtrT(
             std::in_place_type<typename SupportedFunctions::Modern::Full>,
-            [objectPtr, memberFunctionPtr](CmdArgs::Span args, AdditionalArgs... rest) { // NOLINT(readability-redundant-typename)
+            [objectPtr, memberFunctionPtr](SSV args, AdditionalArgs... rest) { // NOLINT(readability-redundant-typename)
                 return std::invoke(memberFunctionPtr, objectPtr, args, std::forward<AdditionalArgs>(rest)...);
             }
         );
