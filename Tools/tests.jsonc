@@ -1,9 +1,9 @@
 {
     "binaries" : [
-        "./bin/Nebulite --headless",
         "./bin/Nebulite_Debug --headless",
-        "./bin/Nebulite.exe --headless",
-        "./bin/Nebulite_Debug.exe --headless"
+        "./bin/Nebulite --headless",
+        "./bin/Nebulite_Debug.exe --headless",
+        "./bin/Nebulite.exe --headless"
     ],
     "ignore_lines": { // Lines to ignore in the output, supports wildcards (*)
         "cout" : [
