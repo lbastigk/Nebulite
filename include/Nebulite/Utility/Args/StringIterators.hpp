@@ -8,6 +8,7 @@
 #include <cassert>
 #include <concepts>
 #include <cstddef>
+#include <memory>
 #include <span>
 #include <string_view>
 
@@ -22,6 +23,8 @@ concept StringIteratorLike = requires(T t) {
     { t.get() } -> std::convertible_to<char>;
     { t.endReached() } -> std::convertible_to<bool>;
     t.operator++();
+    { t.contiguousMemoryAvailable() } -> std::convertible_to<std::size_t>;
+    { t.contiguousData() } -> std::convertible_to<const char*>;
 };
 
 // TODO: Optimize with chunked comparison
@@ -29,11 +32,11 @@ concept StringIteratorLike = requires(T t) {
 
 // Shared API:
 std::size_t contiguousMemoryAvailable() const;
-const char* data() const;
+const char* contiguousData() const;
 
 // Specialized API:
-void advanceToNext(); // For spaniterator, essentially ++it (+necessary variable updates)
-void advance(std::size_t n); // For stringviewiterator
+void advanceToNextWord(); // For spaniterator, essentially ++it (+necessary variable updates)
+void advanceBy(std::size_t n); // For stringviewiterator
 
 // Then we can do:
 const auto n = std::min(
@@ -82,7 +85,25 @@ public:
         }
     }
 
-    char get() {
+    [[nodiscard]] std::size_t contiguousMemoryAvailable() const {
+        if (atWhitespacePosition) {
+            return 0;
+        }
+        return it->size() - pos;
+    }
+
+
+    [[nodiscard]] char const* contiguousData() const {
+        assert(!atWhitespacePosition);
+        return it->data() + pos;
+    }
+
+    void advanceToNextWord() {
+        ++it;
+        pos = 0;
+    }
+
+    [[nodiscard]] char get() const {
         assert(it != data.end());
         if (atWhitespacePosition) {
             return ' ';
@@ -94,8 +115,7 @@ public:
 
     void operator++() {
         if (atWhitespacePosition) {
-            ++it;
-            pos = 0;
+            advanceToNextWord();
             atWhitespacePosition = it != data.end() && it->empty();
             if (atWhitespacePosition) {
                 adjustIterator();
@@ -123,6 +143,18 @@ class StringViewIterator {
     std::string_view::iterator it;
 public:
     explicit StringViewIterator([[clang::lifetimebound]] std::string_view const d) : data(d), it(d.begin()) {}
+
+    [[nodiscard]] std::size_t contiguousMemoryAvailable() const {
+        return static_cast<std::size_t>(data.end() - it);
+    }
+
+    [[nodiscard]] char const* contiguousData() const {
+        return std::to_address(it);
+    }
+
+    void advanceBy(std::size_t n) {
+        it += n;
+    }
 
     [[nodiscard]] char get() const {
         return *it;

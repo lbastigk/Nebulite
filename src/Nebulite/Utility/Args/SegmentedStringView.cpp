@@ -32,27 +32,52 @@ std::size_t countCharacters(std::span<std::string_view const> strings) {
 }
 
 template<StringIteratorLike A, StringIteratorLike B>
+bool constexpr bothAreStringViewIterators() {
+    return std::is_same_v<A, Nebulite::Utility::Args::StringViewIterator>
+        && std::is_same_v<B, Nebulite::Utility::Args::StringViewIterator>;
+}
+
+template<StringIteratorLike A, StringIteratorLike B>
 bool isEqual(A itA, B itB) {
-    while (!itA.endReached() && !itB.endReached()) {
-        if (itA.get() != itB.get()) {
+    if constexpr (bothAreStringViewIterators<A, B>()) {
+        auto lA = itA.contiguousMemoryAvailable();
+        auto lB = itB.contiguousMemoryAvailable();
+        if (lA != lB) {
             return false;
         }
-        ++itA;
-        ++itB;
+        return std::__memcmp(itA.contiguousData(), itB.contiguousData(), lA);
     }
-    return itA.endReached() && itB.endReached();
+    else {
+        while (!itA.endReached() && !itB.endReached()) {
+            if (itA.get() != itB.get()) {
+                return false;
+            }
+            ++itA;
+            ++itB;
+        }
+        return itA.endReached() && itB.endReached();
+    }
 }
 
 template<StringIteratorLike A, StringIteratorLike B>
 bool compareUntilOneEnds(A itA, B itB) {
-    while (!itA.endReached() && !itB.endReached()) {
-        if (itA.get() != itB.get()) {
-            return false;
-        }
-        ++itA;
-        ++itB;
+    if constexpr (bothAreStringViewIterators<A, B>()) {
+        auto n = std::min(
+            itA.contiguousMemoryAvailable(),
+            itB.contiguousMemoryAvailable()
+        );
+        return std::__memcmp(itA.contiguousData(), itB.contiguousData(), n);
     }
-    return true;
+    else {
+        while (!itA.endReached() && !itB.endReached()) {
+            if (itA.get() != itB.get()) {
+                return false;
+            }
+            ++itA;
+            ++itB;
+        }
+        return true;
+    }
 }
 
 } // namespace
