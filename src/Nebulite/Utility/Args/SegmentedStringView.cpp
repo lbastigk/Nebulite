@@ -290,9 +290,15 @@ void SegmentedStringView::copySubspan(std::vector<std::string_view>& other, std:
 // Generate
 
 std::string SegmentedStringView::recombine() const {
-    // TODO: Once the entire FuncTree class uses SegmentedStringView, we should move the functionality purely into this class
-    //       Since recombineArgs only makes sense for a SegmentedStringView at that point, having the implementation in StringHandler feels wrong.
     return StringHandler::recombineArgs(data);
+}
+
+std::string SegmentedStringView::recombine(std::size_t const startIndex) const {
+    return StringHandler::recombineArgs(data.subspan(startIndex));
+}
+
+std::string SegmentedStringView::recombine(std::size_t const startIndex, std::size_t const count) const {
+    return StringHandler::recombineArgs(data.subspan(startIndex, count));
 }
 
 //------------------------------------------

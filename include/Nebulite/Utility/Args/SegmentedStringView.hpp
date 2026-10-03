@@ -7,6 +7,7 @@
 // Standard library
 #include <cstddef>
 #include <functional>
+#include <optional>
 #include <span>
 #include <string>
 #include <string_view>
@@ -14,6 +15,7 @@
 
 // Nebulite
 #include "Nebulite/Utility/Args/StringIterators.hpp"
+#include "Nebulite/Utility/Convert/Cast.hpp"
 #include "Nebulite/Utility/Coordination/LazyInit.hpp"
 
 //------------------------------------------
@@ -94,6 +96,17 @@ public:
     [[nodiscard]] SegmentedStringView subspan(std::size_t index) const ;
     [[nodiscard]] SegmentedStringView subspan(std::size_t startIndex, std::size_t count) const ;
 
+    //------------------------------------------
+    // Argument handling
+
+    template<typename T>
+    std::optional<T> tryGetAs(std::size_t const index) const {
+        if (index >= segmentCount()) {
+            return std::nullopt;
+        }
+        return Convert::Cast::String::to<T>(data[index]);
+    }
+
     /**
      * @brief Finds a given named argument and returns it.
      * @details If the name is provided multiple times, the first given value is returned.
@@ -128,6 +141,8 @@ public:
     // Generate
 
     [[nodiscard]] std::string recombine() const ;
+    [[nodiscard]] std::string recombine(std::size_t startIndex) const ;
+    [[nodiscard]] std::string recombine(std::size_t startIndex, std::size_t count) const ;
 
     //------------------------------------------
     // Compare
