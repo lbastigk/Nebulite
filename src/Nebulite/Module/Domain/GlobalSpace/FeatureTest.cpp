@@ -371,7 +371,7 @@ Constants::Event FeatureTest::segmentedStringViewContains() const {
 
 Constants::Event FeatureTest::segmentedStringViewBenchmark(std::span<std::string_view const> const args) const {
     auto constexpr nDefault = std::size_t{1'000'000};
-    auto const n = args.empty() ? nDefault : Utility::Convert::Cast::String::to<std::size_t>(args[0]).value_or(nDefault);
+    auto const n = args.size() == 2 ? Utility::Convert::Cast::String::to<std::size_t>(args[1]).value_or(nDefault) : nDefault;
 
     // NOLINTBEGIN
     auto constexpr strRaw = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."
