@@ -5,6 +5,7 @@
 // Includes
 
 // Standard library
+#include <algorithm>
 #include <cassert>
 #include <concepts>
 #include <cstddef>
@@ -73,10 +74,24 @@ public:
         return it->data() + pos;
     }
 
-    void advanceBy(std::size_t const n) {
-        // TODO: optimize by using contiguousMemoryAvailable to skip faster
-        for (std::size_t i = 0; i < n; ++i) {
-            operator++();
+    void advanceBy(std::size_t n) {
+        while (n > 0) {
+            if (atWhitespacePosition) {
+                advanceToNextWord();
+                --n;
+                return;
+            }
+            assert(it->size() - pos > 0);
+            if (auto const available = it->size() - pos - 1; available == 0) {
+                atWhitespacePosition = true;
+                adjustIterator();
+                --n;
+            }
+            else {
+                auto const advance = std::min(n, available);
+                pos += advance;
+                n -= advance;
+            }
         }
     }
 
