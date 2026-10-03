@@ -24,42 +24,9 @@ concept StringIteratorLike = requires(T t) {
     { t.endReached() } -> std::convertible_to<bool>;
     t.operator++();
     { t.contiguousMemoryAvailable() } -> std::convertible_to<std::size_t>;
-    { t.contiguousData() } -> std::convertible_to<const char*>;
+    { t.contiguousData() } -> std::convertible_to<char const*>;
+    t.advanceBy(std::size_t{});
 };
-
-// TODO: Optimize with chunked comparison
-/*
-
-// Shared API:
-std::size_t contiguousMemoryAvailable() const;
-const char* contiguousData() const;
-
-// Specialized API:
-void advanceToNextWord(); // For spaniterator, essentially ++it (+necessary variable updates)
-void advanceBy(std::size_t n); // For stringviewiterator
-
-// Then we can do:
-const auto n = std::min(
-    itA.contiguousMemoryAvailable(),
-    itB.contiguousMemoryAvailable()
-);
-
-if(n == 0){
-    // Legacy compare
-    if (itA.get() != itB.get()) {
-        return false;
-    }
-    ++itA;
-    ++itB;
-}
-else{
-    if (std::memcmp(a.data(), b.data(), n) != 0){
-        return false;
-    }
-    a.advance(n); // or advanceToNext
-    b.advance(n); // or advanceToNext
-}
-*/
 
 //------------------------------------------
 namespace Nebulite::Utility::Args {
@@ -78,6 +45,15 @@ class SpanIterator {
             it = data.end();
         }
     }
+
+    void advanceToNextWord() {
+        ++it;
+        pos = 0;
+        atWhitespacePosition = it != data.end() && it->empty();
+        if (atWhitespacePosition) {
+            adjustIterator();
+        }
+    }
 public:
     explicit SpanIterator([[clang::lifetimebound]] std::span<std::string_view const> d) : data(d), it(d.begin()) {
         if (it != data.end() && it->empty()) {
@@ -92,15 +68,16 @@ public:
         return it->size() - pos;
     }
 
-
     [[nodiscard]] char const* contiguousData() const {
         assert(!atWhitespacePosition);
         return it->data() + pos;
     }
 
-    void advanceToNextWord() {
-        ++it;
-        pos = 0;
+    void advanceBy(std::size_t const n) {
+        // TODO: optimize by using contiguousMemoryAvailable to skip faster
+        for (std::size_t i = 0; i < n; ++i) {
+            operator++();
+        }
     }
 
     [[nodiscard]] char get() const {
@@ -116,10 +93,6 @@ public:
     void operator++() {
         if (atWhitespacePosition) {
             advanceToNextWord();
-            atWhitespacePosition = it != data.end() && it->empty();
-            if (atWhitespacePosition) {
-                adjustIterator();
-            }
         }
         else if (pos + 1 == it->size()) {
             atWhitespacePosition = true;
@@ -152,7 +125,7 @@ public:
         return std::to_address(it);
     }
 
-    void advanceBy(std::size_t n) {
+    void advanceBy(std::size_t const n) {
         it += n;
     }
 

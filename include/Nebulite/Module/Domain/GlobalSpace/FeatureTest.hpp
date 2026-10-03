@@ -81,6 +81,12 @@ public:
         "Prints the message 'SegmentedStringView test passed.' or 'SegmentedStringView test failed: <reason>'"
         "Usage: feature-test segmented-string-view contains\n";
 
+    [[nodiscard]] Constants::Event segmentedStringViewBenchmark(std::span<std::string_view const> args) const ;
+    static auto constexpr segmentedStringViewBenchmarkName = "feature-test segmented-string-view benchmark";
+    static auto constexpr segmentedStringViewBenchmarkDesc = "Tests benchmark for segmented string-view, using compare and contains methods.\n"
+        "Prints the amount of milliseconds the test took."
+        "Usage: feature-test segmented-string-view <size>\n";
+
     //------------------------------------------
     // Categories
 
@@ -117,6 +123,7 @@ public:
         bindCategory(categoryFeatureTestSegmentedStringViewName, categoryFeatureTestSegmentedStringViewDesc);
         bindFunction(&FeatureTest::segmentedStringViewCompare, segmentedStringViewCompareName, segmentedStringViewCompareDesc);
         bindFunction(&FeatureTest::segmentedStringViewContains, segmentedStringViewContainsName, segmentedStringViewContainsDesc);
+        bindFunction(&FeatureTest::segmentedStringViewBenchmark, segmentedStringViewBenchmarkName, segmentedStringViewBenchmarkDesc);
     }
 
     struct Key : Data::KeyGroup<""> {

@@ -17,6 +17,15 @@
 #include "Nebulite/Utility/StringHandler.hpp"
 
 //------------------------------------------
+// Defines
+
+/**
+ * @brief Will use memcmp if contiguous memory is available
+ * @details Currently slower, likely due to the slow advanceBy being used for SpanIterator.
+ */
+//#define NEBULITE_UTILITY_ARGS_SEGMENTEDSTRINGVIEW_COMPARE_BATCHED
+
+//------------------------------------------
 
 namespace {
 
@@ -45,15 +54,32 @@ bool isEqual(A itA, B itB) {
         if (lA != lB) {
             return false;
         }
-        return std::__memcmp(itA.contiguousData(), itB.contiguousData(), lA);
+        return std::__memcmp(itA.contiguousData(), itB.contiguousData(), lA) == 0;
     }
     else {
         while (!itA.endReached() && !itB.endReached()) {
-            if (itA.get() != itB.get()) {
-                return false;
+#ifdef NEBULITE_UTILITY_ARGS_SEGMENTEDSTRINGVIEW_COMPARE_BATCHED
+            auto n = std::min(
+                itA.contiguousMemoryAvailable(),
+                itB.contiguousMemoryAvailable()
+            );
+            if (n > 0) {
+                if (std::__memcmp(itA.contiguousData(), itB.contiguousData(), n) != 0) {
+                    return false;
+                }
+                itA.advanceBy(n);
+                itB.advanceBy(n);
             }
-            ++itA;
-            ++itB;
+            else {
+#endif // NEBULITE_UTILITY_ARGS_SEGMENTEDSTRINGVIEW_COMPARE_BATCHED
+                if (itA.get() != itB.get()) {
+                    return false;
+                }
+                ++itA;
+                ++itB;
+#ifdef NEBULITE_UTILITY_ARGS_SEGMENTEDSTRINGVIEW_COMPARE_BATCHED
+            }
+#endif // NEBULITE_UTILITY_ARGS_SEGMENTEDSTRINGVIEW_COMPARE_BATCHED
         }
         return itA.endReached() && itB.endReached();
     }
@@ -66,15 +92,32 @@ bool compareUntilOneEnds(A itA, B itB) {
             itA.contiguousMemoryAvailable(),
             itB.contiguousMemoryAvailable()
         );
-        return std::__memcmp(itA.contiguousData(), itB.contiguousData(), n);
+        return std::__memcmp(itA.contiguousData(), itB.contiguousData(), n) == 0;
     }
     else {
         while (!itA.endReached() && !itB.endReached()) {
-            if (itA.get() != itB.get()) {
-                return false;
+#ifdef NEBULITE_UTILITY_ARGS_SEGMENTEDSTRINGVIEW_COMPARE_BATCHED
+            auto n = std::min(
+                itA.contiguousMemoryAvailable(),
+                itB.contiguousMemoryAvailable()
+            );
+            if (n > 0) {
+                if (std::__memcmp(itB.contiguousData(), itA.contiguousData(), n) != 0) {
+                    return false;
+                }
+                itA.advanceBy(n);
+                itB.advanceBy(n);
             }
-            ++itA;
-            ++itB;
+            else {
+#endif // NEBULITE_UTILITY_ARGS_SEGMENTEDSTRINGVIEW_COMPARE_BATCHED
+                if (itA.get() != itB.get()) {
+                    return false;
+                }
+                ++itA;
+                ++itB;
+#ifdef NEBULITE_UTILITY_ARGS_SEGMENTEDSTRINGVIEW_COMPARE_BATCHED
+            }
+#endif // NEBULITE_UTILITY_ARGS_SEGMENTEDSTRINGVIEW_COMPARE_BATCHED
         }
         return true;
     }
@@ -102,7 +145,17 @@ SegmentedStringView::SegmentedStringView(std::span<std::string_view const> const
 // Operators
 
 bool SegmentedStringView::operator==(SegmentedStringView const& other) const {
-    return isEqual(SpanIterator{data}, SpanIterator{other.data});
+    if (data.size() != other.data.size()) {
+        return false;
+    }
+    for (std::size_t index = 0; index < data.size(); ++index) {
+        assert(!data[index].contains(' ')  && "All strings must be split properly by whitespaces!");
+        assert(!other.data[index].contains(' ') && "All strings must be split properly by whitespaces!");
+        if (data[index] != other[index]) {
+            return false;
+        }
+    }
+    return true;
 }
 
 bool SegmentedStringView::operator!=(SegmentedStringView const& other) const{
