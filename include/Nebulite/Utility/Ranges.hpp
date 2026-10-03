@@ -57,6 +57,24 @@ concept MutableRange = IndexableRange<R>
 // Range Utilities
 
 /**
+ * @brief Returns only unique values
+ * @details Requires the given range to be sorted!
+ * @todo Move to Utility::Ranges or a separate Filter file
+ */
+struct FilterUnique : std::ranges::range_adaptor_closure<FilterUnique> {
+    template <std::ranges::input_range R>
+    auto operator()(R&& r) const {
+        return std::forward<R>(r)
+            | std::views::chunk_by([](auto const& a, auto const& b) {
+                return a == b;
+            })
+            | std::views::transform([](auto chunk) {
+                return *chunk.begin();
+            });
+    }
+} constexpr filterUnique;
+
+/**
  * @brief Collects a range of optional values into an optional vector. If any value in the range is empty, the result will be an empty optional.
  */
 static struct CollectOptional : std::ranges::range_adaptor_closure<CollectOptional> {

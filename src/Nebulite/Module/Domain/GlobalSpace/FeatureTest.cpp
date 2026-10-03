@@ -3,6 +3,7 @@
 
 // Standard library
 #include <algorithm>
+#include <array>
 #include <bit>
 #include <cstddef>
 #include <limits>
@@ -22,8 +23,10 @@
 #include "Nebulite/Math/FFT.hpp"
 #include "Nebulite/Module/Domain/GlobalSpace/FeatureTest.hpp"
 #include "Nebulite/Utility/Args/FuncTree.hpp"
+#include "Nebulite/Utility/Args/SegmentedStringView.hpp"
 #include "Nebulite/Utility/Convert/Cast.hpp"
 #include "Nebulite/Utility/StringHandler.hpp"
+#include "Nebulite/Utility/Testing.hpp"
 #include "Nebulite/Utility/Time.hpp"
 
 //------------------------------------------
@@ -151,6 +154,247 @@ Constants::Event FeatureTest::largeFft(std::span<std::string_view const> const a
         domain.capture.error.println("FFT result size mismatch: expected ", std::bit_ceil(size.value()), " but got ", result.size());
         return Constants::Event::error;
     }
+    return Constants::Event::success;
+}
+
+namespace {
+std::array constexpr strings{
+    "a b",
+    // Simple whitespace tests
+    "",
+    " ",
+    "  ",
+    // Usual inputs
+    "Hello world! These are split args.",
+    "This  is  a  string  with  multiple  whitespaces",
+    "This is  a   string   with  changing whitespaces",
+    "ThisIsAStringWithoutWhitespaces",
+    "one two three four five",
+    "alpha beta gamma delta",
+    "abababa",
+    "repeat repeat repeat",
+    "punctuation,! mixed.with; words?",
+    " This is a string with a starting whitespace",
+    "This is a string with an ending whitespace ",
+    "  This is a string with two starting whitespaces",
+    "This is a string with two ending whitespaces  ",
+    "  alpha  beta   gamma  ",
+    "Whitespaces.",
+    "whitespaces.",
+    " Whitespaces.",
+    " whitespaces. ",
+    "Whitespaces. ",
+    "whitespaces. ",
+    " Whitespaces. ",
+    " whitespaces. ",
+    // Some more tests with shortest words
+    "a",
+    " a",
+    "a ",
+    " a ",
+    "  a",
+    "a  ",
+    "  a  ",
+    "a   ",
+    "   a",
+    "   a   ",
+    "a b",
+    " a b ",
+    "  a b  ",
+    "   a b   ",
+};
+std::array constexpr containsValues = {
+    "",
+    " ",
+    "  ",
+    "   ",
+    "This is",
+    "This  is",
+    "world! These",
+    "These are split",
+    "split args.",
+    "multiple whitespaces",
+    "changing whitespaces",
+    "one two three",
+    "two three four",
+    "alpha beta",
+    "beta gamma delta",
+    "ababa",
+    "babab",
+    "repeat repeat",
+    "punctuation,! mixed.with;",
+    "not present",
+    "a",
+    "b",
+    "a b",
+    "a b ",
+    " a b",
+    " a b ",
+    "  a b  ",
+    "string",
+    "String",
+    "with",
+    "With",
+    "whitespaces",
+    "whitespace",
+    "whitespaces ",
+    "whitespace ",
+    "whitespaces. ",
+    "whitespaces.",
+    "ThisIsAStringWithoutWhitespaces",
+};
+} // namespace
+
+Constants::Event FeatureTest::segmentedStringViewCompare() const {
+    try{
+        // Use test data
+        for (auto const* strRaw : strings) {
+            auto str = std::string_view(strRaw);
+            auto args = Utility::StringHandler::split(str, ' ');
+            auto const ssv = Utility::Args::SegmentedStringView(args);
+
+            Utility::Testing::assume(ssv.characterCount() == str.size(), "Expected character count to match the source string for '", str, "'");
+            Utility::Testing::assume(ssv == ssv, "Expected segmented string view operator== to match itself for '", str, "'"); // NOLINT
+            Utility::Testing::assume(ssv == str, "Expected segmented string view operator== to match the source string for '", str, "'");
+            Utility::Testing::assume(ssv.beginsWith(ssv), "Expected segmented string view '", str, "' to begin with itself (full)");
+            Utility::Testing::assume(ssv.endsWith(ssv), "Expected segmented string view '", str, "' to end with itself (full)");
+
+            // Each string must not be equal with string+" " or " "+string
+            auto const strA = std::string(str) + " ";
+            auto const strB = std::string(" ") + str;
+            auto const argsA = Utility::StringHandler::split(strA, ' ');
+            auto const argsB = Utility::StringHandler::split(strB, ' ');
+            auto const ssvA = Utility::Args::SegmentedStringView(argsA);
+            auto const ssvB = Utility::Args::SegmentedStringView(argsB);
+            Utility::Testing::assume(ssv != strA, "Expected segmented string view to not be equal to string '", strA, "'");
+            Utility::Testing::assume(ssv != strB, "Expected segmented string view to not be equal to string '", strB, "'");
+            Utility::Testing::assume(ssv != ssvA && ssvA != ssv, "Expected segmented string view to not be equal to ssv from string '", strA, "'");
+            Utility::Testing::assume(ssv != ssvB && ssvB != ssv, "Expected segmented string view to not be equal to ssv from string '", strB, "'");
+
+            // Compare substrings
+            for (size_t i = 0; i < str.size(); ++i) {
+                auto const left = str.substr(0, i);
+                auto const right = str.substr(i);
+                auto argsLeft = Utility::StringHandler::split(left, ' ');
+                auto argsRight = Utility::StringHandler::split(right, ' ');
+
+                // Compare against substrings
+                Utility::Testing::assume(ssv.beginsWith(left), "Expected segmented string view '", str, "' to start with '", left, "'");
+                Utility::Testing::assume(ssv.endsWith(right), "Expected segmented string view '", str, "' to end with '", right, "'");
+
+                // Compare against another SegmentedStringView
+                auto const ssvLeft = Utility::Args::SegmentedStringView(argsLeft);
+                auto const ssvRight = Utility::Args::SegmentedStringView(argsRight);
+                Utility::Testing::assume(ssv.beginsWith(ssvLeft), "Expected segmented string view '", str, "' to begin with itself until index ", i);
+                Utility::Testing::assume(ssv.endsWith(ssvRight), "Expected segmented string view '", str, "' to end with itself from index ", i);
+
+                // Additional checks, if possible
+                if (!str.ends_with(left)) {
+                    Utility::Testing::assume(!ssv.endsWith(left), "Expected segmented string view '", str, "' to not end with the left substring '", left, "'");
+                    Utility::Testing::assume(!ssv.endsWith(ssvLeft), "Expected segmented string view '", str, "' to not end with the left ssv substring from '", left, "'");
+                }
+                else {
+                    Utility::Testing::assume(ssv.endsWith(left), "Expected segmented string view '", str, "' to end with the left substring '", left, "'");
+                    Utility::Testing::assume(ssv.endsWith(ssvLeft), "Expected segmented string view '", str, "' to end with the left ssv substring from '", left, "'");
+                }
+                if (!str.starts_with(right)) {
+                    Utility::Testing::assume(!ssv.beginsWith(right), "Expected segmented string view '", str, "' to not begin with the right substring '", right, "'");
+                    Utility::Testing::assume(!ssv.beginsWith(ssvRight), "Expected segmented string view '", str, "' to not begin with the right ssv substring from '", right, "'");
+                }
+                else {
+                    Utility::Testing::assume(ssv.beginsWith(right), "Expected segmented string view '", str, "' to begin with the right substring '", right, "'");
+                    Utility::Testing::assume(ssv.beginsWith(ssvRight), "Expected segmented string view '", str, "' to begin with the right ssv substring from '", right, "'");
+                }
+            }
+        }
+        domain.capture.log.println("SegmentedStringView test passed.");
+        return Constants::Event::success;
+    } catch (std::runtime_error& e) {
+        domain.capture.log.println("SegmentedStringView test failed: ", e.what());
+        return Constants::Event::error;
+    }
+}
+
+Constants::Event FeatureTest::segmentedStringViewContains() const {
+    try {
+        for (auto const* strRaw : strings) {
+            auto str = std::string_view(strRaw);
+            auto args = Utility::StringHandler::split(str, ' ');
+            auto const ssv = Utility::Args::SegmentedStringView(args);
+
+            // Check for contains values
+            for (auto const* valRaw : containsValues) {
+                // ssv-string_view compare
+                auto val = std::string_view(valRaw);
+                Utility::Testing::assume(
+                    ssv.contains(val) == str.contains(val),
+                    "Mismatch between contains methods ssv-string_view for value: '", val, "'. String is: '", str, "'"
+                );
+
+                // ssv-ssv compare
+                auto valArgs = Utility::StringHandler::split(val, ' ');
+                auto ssvVal = Utility::Args::SegmentedStringView(valArgs);
+                Utility::Testing::assume(
+                    ssv.contains(ssvVal) == str.contains(val),
+                    "Mismatch between contains methods ssv-ssv for value: '", val, "'. String is: '", str, "'"
+                );
+            }
+
+            // Each string must contain each substring of itself
+            for (size_t i = 0; i < str.size(); ++i) {
+                auto left = str.substr(0, i);
+                auto right = str.substr(i);
+                auto argsLeft = Utility::StringHandler::split(left, ' ');
+                auto argsRight = Utility::StringHandler::split(right, ' ');
+
+                // Compare against substrings
+                Utility::Testing::assume(ssv.contains(left), "Expected segmented string view to contain '", left, "'");
+                Utility::Testing::assume(ssv.contains(right), "Expected segmented string view to contain '", right, "'");
+
+                // Compare against another SegmentedStringView
+                auto const ssvLeft = Utility::Args::SegmentedStringView(argsLeft);
+                auto const ssvRight = Utility::Args::SegmentedStringView(argsRight);
+                Utility::Testing::assume(ssv.contains(ssvLeft), "Expected segmented string view to contain '", left, "' as ssv");
+                Utility::Testing::assume(ssv.contains(ssvRight), "Expected segmented string view to contain '", right, "' as ssv");
+            }
+        }
+
+        domain.capture.log.println("SegmentedStringView test passed.");
+        return Constants::Event::success;
+    } catch (std::runtime_error& e) {
+        domain.capture.log.println("SegmentedStringView test failed: ", e.what());
+        return Constants::Event::error;
+    }
+}
+
+Constants::Event FeatureTest::segmentedStringViewBenchmark(std::span<std::string_view const> const args) const {
+    auto constexpr nDefault = std::size_t{1'000'000};
+    auto const n = args.size() == 2 ? Utility::Convert::Cast::String::to<std::size_t>(args[1]).value_or(nDefault) : nDefault;
+
+    // NOLINTBEGIN
+    auto constexpr strRaw = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."
+        " Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat."
+        " Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur."
+        " Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.";
+    auto constexpr strRawContains = "voluptate velit";
+    auto constexpr strRawMissing = "missing string";
+    // NOLINTEND
+
+    auto const ssvArgs = Utility::StringHandler::split(strRaw, ' ');
+    auto const ssv = Utility::Args::SegmentedStringView(ssvArgs);
+
+    // Second ssv with same string for accurate operator== comparison
+    auto const ssvArgs2 = Utility::StringHandler::split(strRaw, ' ');
+    auto const ssv2 = Utility::Args::SegmentedStringView(ssvArgs2);
+
+    std::array constexpr queries = {
+        std::string_view{strRawContains},
+        std::string_view{strRawMissing}
+    };
+
+    Utility::Testing::timeBenchmark([&] { return ssv.contains(queries[0]); }, n, "SegmentedStringView contains (true)", domain.capture);
+    Utility::Testing::timeBenchmark([&] { return ssv.contains(queries[1]); }, n, "SegmentedStringView contains (false)", domain.capture);
+    Utility::Testing::timeBenchmark([&] { return ssv == ssv2; }, n, "SegmentedStringView equality", domain.capture); // NOLINT
     return Constants::Event::success;
 }
 

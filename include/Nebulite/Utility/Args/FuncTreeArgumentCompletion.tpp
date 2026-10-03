@@ -19,6 +19,7 @@
 #include <vector>
 
 // Nebulite
+#include "Nebulite/Utility/Ranges.hpp"
 #include "Nebulite/Utility/StringHandler.hpp"
 
 //------------------------------------------
@@ -27,26 +28,6 @@
 #ifndef NEBULITE_UTILITY_ARGS_FUNCTREE_HPP
 #include "Nebulite/Utility/Args/FuncTree.hpp"
 #endif // NEBULITE_UTILITY_ARGS_FUNCTREE_HPP
-
-//------------------------------------------
-namespace Filter {
-/**
- * @brief Returns only unique values
- * @details Requires the given range to be sorted!
- */
-struct Unique : std::ranges::range_adaptor_closure<Unique> {
-    template <std::ranges::input_range R>
-    auto operator()(R&& r) const {
-        return std::forward<R>(r)
-            | std::views::chunk_by([](auto const& a, auto const& b) {
-                return a == b;
-            })
-            | std::views::transform([](auto chunk) {
-                return *chunk.begin();
-            });
-  }
-} constexpr unique;
-} // namespace Filter
 
 //------------------------------------------
 namespace Nebulite::Utility::Args {
@@ -159,12 +140,12 @@ void FuncTree<ReturnValue, AdditionalArgs...>::generalHelp() {
     capture.log.println("Help for ", treeName);
     capture.log.println("Add the entries name to the command for more details: ", treeName, " help <foo>");
     capture.log.println("Available functions:");
-    std::ranges::for_each(allFunctions | Filter::unique, [&](auto const& funcInfo) {
+    std::ranges::for_each(allFunctions | Ranges::filterUnique, [&](auto const& funcInfo) {
         auto const& [name, description] = funcInfo;
         displayMember(name, description);
     });
     capture.log.println("Available variables:");
-    std::ranges::for_each(allVariables | Filter::unique, [&](auto const& varInfo) {
+    std::ranges::for_each(allVariables | Ranges::filterUnique, [&](auto const& varInfo) {
         auto const& [name, description] = varInfo;
         displayMember(name, description);
     });
@@ -298,14 +279,14 @@ std::vector<std::string> FuncTree<ReturnValue, AdditionalArgs...>::findCompletio
     auto [argsVec, _] = StringHandler::parseQuotedArguments(patternStr);
 
     // Traverse into categories based on args, get pattern to complete
-    auto const [pattern, ftree] = [&] -> std::pair<std::string, FuncTree*> {
+    auto const [pattern, ftree] = [&] -> std::pair<std::string_view, FuncTree*> {
         auto args = std::span(argsVec.data(), argsVec.size());
         if (args.empty()) {
             // No pattern provided, assume root
             return {"", this};
         }
         FuncTree* innerTree = this;
-        std::string const lastArg = args.back();
+        auto const lastArg = args.back();
         args = args.subspan(0, args.size() - 1); // Remove pattern from argsSpan
 
         // Traverse into categories
@@ -377,7 +358,7 @@ std::vector<std::string> FuncTree<ReturnValue, AdditionalArgs...>::findCompletio
     });
 
     std::ranges::sort(completions);
-    return completions | Filter::unique | std::ranges::to<std::vector<std::string>>();
+    return completions | Ranges::filterUnique | std::ranges::to<std::vector<std::string>>();
 }
 
 } // namespace Nebulite::Utility::Args

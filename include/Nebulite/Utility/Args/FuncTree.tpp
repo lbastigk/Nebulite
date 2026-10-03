@@ -524,9 +524,7 @@ template <typename ReturnValue, typename ... AdditionalArgs>
 ReturnValue FuncTree<ReturnValue, AdditionalArgs...>::parseWithPrefix(std::vector<std::string_view>& existingArgs, std::string_view cmd, AdditionalArgs... addArgs){
     // Optimize to use parseQuotedArguments(existingArgs,cmd) once it supports vec string_view as output!
     // Quote-aware tokenization
-    auto const [args, unclosedQuote] = StringHandler::parseQuotedArguments(cmd);
-    std::ranges::transform(args, std::back_inserter(existingArgs), [](std::string const& str) { return std::string_view(str); });
-    if (unclosedQuote) {
+    if (auto const unclosedQuote = StringHandler::parseQuotedArguments(existingArgs, cmd); unclosedQuote) {
         capture.error.println("Warning: Unclosed quote in command: ", cmd);
     }
     return parse(existingArgs, addArgs...);
