@@ -48,7 +48,6 @@ public:
     void emplace(Args&&... args) {
         ptr = std::make_unique<T>(std::forward<Args>(args)...);
     }
-
 };
 
 /**

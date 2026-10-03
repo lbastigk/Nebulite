@@ -55,6 +55,7 @@ class SpanIterator {
             adjustIterator();
         }
     }
+
 public:
     explicit SpanIterator([[clang::lifetimebound]] std::span<std::string_view const> d) : data(d), it(d.begin()) {
         if (it != data.end() && it->empty()) {
@@ -129,6 +130,7 @@ public:
 class StringViewIterator {
     std::string_view data;
     std::string_view::iterator it;
+
 public:
     explicit StringViewIterator([[clang::lifetimebound]] std::string_view const d) : data(d), it(d.begin()) {}
 
