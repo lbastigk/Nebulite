@@ -80,7 +80,7 @@ function(fetchContent)
     )
     FetchContent_GetProperties(rapidjson)
     if(NOT rapidjson_POPULATED)
-        FetchContent_Populate(rapidjson)
+        FetchContent_MakeAvailable(rapidjson)
     endif()
     set(rapidjson_SOURCE_DIR ${FETCHCONTENT_BASE_DIR}/rapidjson-src PARENT_SCOPE)
 
