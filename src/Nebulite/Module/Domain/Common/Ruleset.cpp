@@ -8,7 +8,6 @@
 #include <memory>
 #include <mutex>
 #include <string>
-#include <string_view>
 
 // Nebulite
 #include "Nebulite/Constants/Event.hpp"

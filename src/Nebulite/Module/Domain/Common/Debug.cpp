@@ -4,7 +4,6 @@
 // Standard library
 #include <stdexcept>
 #include <string>
-#include <string_view>
 
 // Nebulite
 #include "Nebulite/Constants/Event.hpp"
