@@ -70,11 +70,12 @@ public:
     // TODO: remove, only construct from string_view via algorithm defined in StringHandler::parseQuotedArguments
     //       but then we would need an external allocator like a vector of string_views!
     //       Inside FuncTree::parse, we could create the allocator and then pass the SegmentedStringView by const reference.
-
     explicit SegmentedStringView(FoundationalType args);
 
     template <typename Data, typename Size>
     explicit SegmentedStringView(Data d, Size s) : data(FoundationalType{d,s}){}
+
+    explicit SegmentedStringView(std::vector<std::string_view> const& argsData) : data(argsData.data(), argsData.size()) {}
 
     ~SegmentedStringView() = default;
 

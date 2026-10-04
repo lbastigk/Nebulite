@@ -22,18 +22,17 @@ class ArgsTransitionCompatibilityLayer {
 public:
     ArgsTransitionCompatibilityLayer() = default;
 
+    explicit ArgsTransitionCompatibilityLayer(std::span<std::string_view const> const args) : ssv(args) {}
+
     template <typename Data, typename Size>
     explicit ArgsTransitionCompatibilityLayer(Data data, Size size) : ssv(data, size) {}
 
-    explicit ArgsTransitionCompatibilityLayer(std::span<std::string_view const> const args) : ssv(args) {}
-
-    explicit ArgsTransitionCompatibilityLayer(std::vector<std::string_view> const& args) : ssv(std::span(args)) {}
+    explicit ArgsTransitionCompatibilityLayer(std::vector<std::string_view> const& argsData) : ssv(argsData) {}
 
     ~ArgsTransitionCompatibilityLayer() = default;
 
     ArgsTransitionCompatibilityLayer(ArgsTransitionCompatibilityLayer const &) = default;
     ArgsTransitionCompatibilityLayer(ArgsTransitionCompatibilityLayer &&) = default;
-
     ArgsTransitionCompatibilityLayer& operator=(ArgsTransitionCompatibilityLayer const& other) = default;
     ArgsTransitionCompatibilityLayer& operator=(ArgsTransitionCompatibilityLayer &&) = default;
 
