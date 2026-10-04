@@ -15,7 +15,6 @@
 #include "Nebulite/Module/Base/DomainModule.hpp"
 #include "Nebulite/Module/Domain/Renderer/RmlUi.hpp"
 #include "Nebulite/Utility/Args/CmdArgs.hpp"
-#include "Nebulite/Utility/StringHandler.hpp"
 
 //------------------------------------------
 namespace Nebulite::Module::Domain::Renderer {
@@ -40,7 +39,7 @@ Constants::Event RmlUi::loadDocument(Utility::Args::SSV const& args, Interaction
         return Constants::StandardCapture::Warning::Functional::tooFewArgs(domain.capture);
     }
     auto const& name = args[1];
-    auto path = Utility::StringHandler::recombineArgs(args.subspan(2));
+    auto path = args.recombineSubspan(2);
     if (!Graphics::RmlUi::Interface::instance().loadDocument(name, path, ctx, ctxScope)) {
         domain.capture.warning.println("Failed to load document: '", path, "'. Either the owner already has a document with the same name, or the file could not be loaded. Please check the name and path, and try again.");
         return Constants::Event::warning;

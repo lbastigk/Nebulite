@@ -148,6 +148,7 @@ public:
      * @param args The span of argument strings.
      * @return The recombined argument string.
      */
+    [[deprecated("Use SegmentedStringView::recombine() instead.")]]
     static std::string recombineArgs(std::span<std::string_view const> args);
 
     // [SPLIT]

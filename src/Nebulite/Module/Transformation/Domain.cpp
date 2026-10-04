@@ -9,7 +9,6 @@
 #include "Nebulite/Module/Transformation/Domain.hpp"
 #include "Nebulite/Nebulite.hpp"
 #include "Nebulite/Utility/Args/CmdArgs.hpp"
-#include "Nebulite/Utility/StringHandler.hpp"
 
 //------------------------------------------
 namespace Nebulite::Module::Transformation {
@@ -20,7 +19,7 @@ void Domain::bindTransformations(){
 
 bool Domain::injectScript(Utility::Args::SSV const& args, Data::JsonScope& jsonDoc){
     if (args.size() < 2) return false;
-    auto const link = Utility::StringHandler::recombineArgs(args.subspan(1));
+    auto const link = args.recombineSubspan(1);
     Interaction::Execution::Domain tempDomain("injectScriptTempDomain", jsonDoc, Global::capture());
     auto ctx = Interaction::Context{tempDomain,tempDomain,tempDomain};
     auto ctxScope = Interaction::ContextScope{jsonDoc,jsonDoc,jsonDoc};

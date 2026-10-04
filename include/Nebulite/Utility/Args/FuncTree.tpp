@@ -11,7 +11,6 @@
 #include <iterator>
 #include <memory>
 #include <ranges>
-#include <span>
 #include <string>
 #include <string_view>
 #include <type_traits>
@@ -593,7 +592,7 @@ ReturnValue FuncTree<ReturnValue, AdditionalArgs...>::executeFunction(std::strin
     }
     // Find function name in bindingContainer.categories
     if (bindingContainer.categories.find(function) != bindingContainer.categories.end()) {
-        return bindingContainer.categories[function].tree->parseStr(StringHandler::recombineArgs(args), addArgs...);
+        return bindingContainer.categories[function].tree->parseStr(args.recombine(), addArgs...);
     }
 
     // Return error if function not found

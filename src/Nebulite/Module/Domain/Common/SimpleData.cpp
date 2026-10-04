@@ -17,7 +17,6 @@
 #include "Nebulite/Interaction/Logic/Assignment.hpp"
 #include "Nebulite/Module/Domain/Common/SimpleData.hpp"
 #include "Nebulite/Utility/Args/CmdArgs.hpp"
-#include "Nebulite/Utility/StringHandler.hpp"
 
 //------------------------------------------
 namespace Nebulite::Module::Domain::Common {
@@ -39,7 +38,7 @@ Constants::Event SimpleData::set(Utility::Args::SSV const& args, Interaction::Co
         return Constants::StandardCapture::Warning::Functional::tooFewArgs(ctx.self.capture);
     }
     auto const key = ctxScope.self.getRootScope().addMember(args[1]);
-    std::string const value = args.size() < 3 ? std::string("") : Utility::StringHandler::recombineArgs(args.subspan(2));
+    std::string const value = args.size() < 3 ? std::string("") : args.recombineSubspan(2);
     ctxScope.self.set(key, value);
     return Constants::Event::success;
 }
@@ -49,7 +48,7 @@ Constants::Event SimpleData::assign(Utility::Args::SSV const& args, Interaction:
     if (args.size() < 2) {
         return Constants::StandardCapture::Warning::Functional::tooFewArgs(ctx.self.capture);
     }
-    auto const assignmentString = Utility::StringHandler::recombineArgs(args.subspan(1));
+    auto const assignmentString = args.recombineSubspan(1);
     Interaction::Logic::Assignment assignment;
     if (!assignment.parse(assignmentString)) {
         ctx.self.capture.error.println("Error: Failed to parse assignment string '", assignmentString, "'.");

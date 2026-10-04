@@ -83,7 +83,7 @@ Constants::Event Audio::playSound(Utility::Args::SSV const& args) {
         return Constants::StandardCapture::Warning::Functional::tooFewArgs(domain.capture);
     }
 
-    auto const path = Utility::StringHandler::recombineArgs(args | std::views::drop(1));
+    auto const path = args.recombineSubspan(1);
     auto const sound = loadSound(path);
     if (!sound.has_value()) {
         domain.capture.error.println("Failed to load sound from path: ", path);

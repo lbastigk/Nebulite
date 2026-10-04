@@ -14,7 +14,6 @@
 // Nebulite
 #include "Nebulite/Utility/Args/SegmentedStringView.hpp"
 #include "Nebulite/Utility/Args/StringIterators.hpp"
-#include "Nebulite/Utility/StringHandler.hpp"
 
 //------------------------------------------
 // Defines
@@ -297,16 +296,37 @@ void SegmentedStringView::copySubspan(std::vector<std::string_view>& other, std:
 //------------------------------------------
 // Generate
 
+namespace {
+std::string recombineAny(FoundationalType const& args, std::size_t const startIndex, std::size_t const count) {
+    auto const loopCount = std::min(args.size() - startIndex, count);
+    std::string result;
+    for (std::size_t i = 0; i < loopCount; ++i) {
+        // TODO: consider adding back quotes if any arg has a whitespace
+        //       if arg.contains(' ')
+        //         if arg.contains('"')
+        //           result += '\'' + arg + '\''
+        //         else
+        //           result += '"' + arg + '"'
+        result += args[i];
+        // Don't add a whitespace if it's the last argument
+        if (i < args.size() - 1) {
+            result += ' ';
+        }
+    }
+    return result;
+}
+} // namespace
+
 std::string SegmentedStringView::recombine() const {
-    return StringHandler::recombineArgs(data);
+    return recombineAny(data, 0, data.size());
 }
 
-std::string SegmentedStringView::recombine(std::size_t const startIndex) const {
-    return StringHandler::recombineArgs(data.subspan(startIndex));
+std::string SegmentedStringView::recombineSubspan(std::size_t const startIndex) const {
+    return recombineAny(data, startIndex, data.size());
 }
 
-std::string SegmentedStringView::recombine(std::size_t const startIndex, std::size_t const count) const {
-    return StringHandler::recombineArgs(data.subspan(startIndex, count));
+std::string SegmentedStringView::recombineSubspan(std::size_t const startIndex, std::size_t const count) const {
+    return recombineAny(data, startIndex, count);
 }
 
 //------------------------------------------

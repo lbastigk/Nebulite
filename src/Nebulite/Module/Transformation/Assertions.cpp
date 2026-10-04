@@ -15,7 +15,6 @@
 #include "Nebulite/Nebulite.hpp"
 #include "Nebulite/Utility/Args/CmdArgs.hpp"
 #include "Nebulite/Utility/Convert/Cast.hpp"
-#include "Nebulite/Utility/StringHandler.hpp"
 
 //------------------------------------------
 namespace Nebulite::Module::Transformation {
@@ -46,7 +45,7 @@ void Assertions::printUserDefinedMessage(Utility::Args::SSV const& args){
     if (args.size() < 2) {
         return; // No message provided
     }
-    Global::capture().error.println(Utility::StringHandler::recombineArgs(args.subspan(1)));
+    Global::capture().error.println(args.recombineSubspan(1));
 }
 
 bool Assertions::assertTrue(Utility::Args::SSV const& args, Data::JsonScope const& jsonDoc){
@@ -179,7 +178,7 @@ bool Assertions::assertTypeNumericOrNumericString(Utility::Args::SSV const& args
 
 // NOLINTNEXTLINE
 bool Assertions::assertMatchRegex(Utility::Args::SSV const& args, Data::JsonScope const& jsonDoc){
-    std::string const pattern = args.size() < 2 ? "" : Utility::StringHandler::recombineArgs(args.subspan(1));
+    std::string const pattern = args.size() < 2 ? "" : args.recombineSubspan(1);
     std::regex const regex(pattern);
     if (jsonDoc.memberType(rootKey) != Data::KeyType::value) {
         throw std::runtime_error(std::string(assertMatchesRegexName) + ": Current JSON value is not a basic value, expected string to match regex: '" + pattern + "'");
@@ -192,7 +191,7 @@ bool Assertions::assertMatchRegex(Utility::Args::SSV const& args, Data::JsonScop
 
 // NOLINTNEXTLINE
 bool Assertions::assertEqualsString(Utility::Args::SSV const& args, Data::JsonScope const& jsonDoc) {
-    auto const expected = args.size() < 2 ? "" : Utility::StringHandler::recombineArgs(args.subspan(1));
+    auto const expected = args.size() < 2 ? "" : args.recombineSubspan(1);
     if (jsonDoc.memberType(rootKey) != Data::KeyType::value) {
         throw std::runtime_error(std::string(assertEqualsStringName) + ": Current JSON value is not a basic value, expected string: " + expected);
     }
@@ -207,7 +206,7 @@ bool Assertions::assertEqualsInt(Utility::Args::SSV const& args, Data::JsonScope
         throw std::runtime_error(std::string(assertEqualsIntName) + ": No expected integer provided");
     }
     try {
-        auto const expected = Utility::StringHandler::recombineArgs(args.subspan(1));
+        auto const expected = args.recombineSubspan(1);
         auto const expectedInt = std::stoi(expected);
         if (jsonDoc.memberType(rootKey) != Data::KeyType::value) {
             throw std::runtime_error(

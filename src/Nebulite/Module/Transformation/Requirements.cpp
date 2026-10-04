@@ -9,7 +9,6 @@
 #include "Nebulite/Module/Transformation/Requirements.hpp"
 #include "Nebulite/Nebulite.hpp"
 #include "Nebulite/Utility/Args/CmdArgs.hpp"
-#include "Nebulite/Utility/StringHandler.hpp"
 
 //------------------------------------------
 namespace Nebulite::Module::Transformation {
@@ -40,7 +39,7 @@ void Requirements::printUserDefinedMessage(Utility::Args::SSV const& args){
     if (args.size() < 2) {
         return; // No message provided
     }
-    Global::capture().error.println(Utility::StringHandler::recombineArgs(args.subspan(1)));
+    Global::capture().error.println(args.recombineSubspan(1));
 }
 
 bool Requirements::requireTrue(Utility::Args::SSV const& args, Data::JsonScope const& jsonDoc){

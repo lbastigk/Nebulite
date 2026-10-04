@@ -10,7 +10,6 @@
 #include "Nebulite/Interaction/Logic/Assignment.hpp"
 #include "Nebulite/Module/Transformation/General.hpp"
 #include "Nebulite/Utility/Args/CmdArgs.hpp"
-#include "Nebulite/Utility/StringHandler.hpp"
 
 //------------------------------------------
 namespace Nebulite::Module::Transformation {
@@ -77,7 +76,7 @@ bool General::removeMember(Utility::Args::SSV const& args, Data::JsonScope& json
 bool General::assign(Utility::Args::SSV const& args, Data::JsonScope& jsonDoc) {
     if (args.empty()) return false;
     Interaction::Logic::Assignment ass;
-    ass.parse(Utility::StringHandler::recombineArgs(args.subspan(1)));
+    ass.parse(args.recombineSubspan(1));
     Interaction::ContextScope const context{jsonDoc, jsonDoc, jsonDoc};
     ass.apply(context);
     return true;

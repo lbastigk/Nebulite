@@ -37,6 +37,20 @@ public:
     ArgsTransitionCompatibilityLayer& operator=(ArgsTransitionCompatibilityLayer const& other) = default;
     ArgsTransitionCompatibilityLayer& operator=(ArgsTransitionCompatibilityLayer &&) = default;
 
+    auto recombine() const {
+        return ssv.recombine();
+    }
+
+    auto recombineSubspan(std::size_t const startIndex) const {
+        // TODO: Old algo for now, use ssv::recombineSubspan once this works
+        return ssv.subspan(startIndex).recombine();
+    }
+
+    auto recombineSubspan(size_t const startIndex, size_t const count) const {
+        // TODO: Old algo for now, use ssv::recombineSubspan once this works
+        return ssv.subspan(startIndex, count).recombine();
+    }
+
     auto operator[](size_t const index) const {
         return ssv[index];
     }
@@ -45,7 +59,7 @@ public:
         return ssv[index];
     }
 
-    ArgsTransitionCompatibilityLayer subspan(size_t const index) const {
+    auto subspan(size_t const index) const {
         return ArgsTransitionCompatibilityLayer{ssv.subspan(index).data};
     }
 
@@ -79,7 +93,7 @@ public:
 };
 
 // Replace with SegmentedStringView later on...
-using SSV = std::span<std::string_view const>; // ArgsTransitionCompatibilityLayer; //
+using SSV = ArgsTransitionCompatibilityLayer; //std::span<std::string_view const>; //
 
 } // namespace Nebulite::Utility::Args
 #endif // NEBULITE_UTILITY_ARGS_CMDARGS_HPP

@@ -16,7 +16,6 @@
 #include "Nebulite/Interaction/Logic/Expression.hpp"
 #include "Nebulite/Module/Domain/Common/ComplexData.hpp"
 #include "Nebulite/Utility/Args/CmdArgs.hpp"
-#include "Nebulite/Utility/StringHandler.hpp"
 
 //------------------------------------------
 namespace Nebulite::Module::Domain::Common {
@@ -46,7 +45,7 @@ Constants::Event ComplexData::jsonSet(Utility::Args::SSV const& args, Interactio
 
     // Argument parsing
     auto const& myKey = args[1];
-    std::string const expression = Utility::StringHandler::recombineArgs(args.subspan(2));
+    auto const expression = args.recombineSubspan(2);
 
     // Evaluate
     auto const result = Interaction::Logic::Expression::evalAsJson(expression, ctxScope);

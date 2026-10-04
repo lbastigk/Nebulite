@@ -20,7 +20,6 @@
 #include "Nebulite/Nebulite.hpp"
 #include "Nebulite/Utility/Args/CmdArgs.hpp"
 #include "Nebulite/Utility/Args/FuncTree.hpp"
-#include "Nebulite/Utility/StringHandler.hpp"
 
 //------------------------------------------
 namespace Nebulite::Math {
@@ -242,7 +241,7 @@ void ExpressionPrimitives::help(Utility::Args::SSV const& args) {
 
     // Parse the given command into the temporary funcTree:
     // __FUNCTION__ help <potentially more args for specific function help>
-    std::string argStr = Utility::StringHandler::recombineArgs(args.subspan(1));
+    auto argStr = args.recombineSubspan(1);
     if (argStr.empty()) {
         argStr = __FUNCTION__ + std::string(" help");
     }

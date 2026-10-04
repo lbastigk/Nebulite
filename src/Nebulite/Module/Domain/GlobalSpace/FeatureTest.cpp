@@ -7,7 +7,6 @@
 #include <bit>
 #include <cstddef>
 #include <limits>
-#include <span>
 #include <stdexcept>
 #include <string>
 #include <string_view>
@@ -120,7 +119,7 @@ Constants::Event FeatureTest::keyCombination(Utility::Args::SSV const& args) con
 }
 
 Constants::Event FeatureTest::findParentKey(Utility::Args::SSV const& args) const {
-    auto const key = args.size() > 1 ? Utility::StringHandler::recombineArgs(args.subspan(1)) : "";
+    auto const key = args.size() > 1 ? args.recombineSubspan(1) : "";
     domain.capture.log.println(Data::Json::findParentKey(key));
     return Constants::Event::success;
 }

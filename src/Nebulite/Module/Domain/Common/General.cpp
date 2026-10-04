@@ -7,7 +7,6 @@
 #include <iostream>
 #include <iterator>
 #include <ranges>
-#include <span>
 #include <string>
 #include <string_view>
 #include <utility>
@@ -62,7 +61,7 @@ Constants::Event General::updateHook() {
 // [BASIC]
 
 Constants::Event General::echo(Utility::Args::SSV const& args) const {
-    domain.capture.log.println(Utility::StringHandler::recombineArgs(args.subspan(1)));
+    domain.capture.log.println(args.recombineSubspan(1));
     return Constants::Event::success;
 }
 
@@ -88,8 +87,8 @@ Constants::Event General::ifFunc(Utility::Args::SSV const& args, Interaction::Co
     };
 
     auto const [conditionEnd, commandStart] = commandStartFinder();
-    std::string const condition = Utility::StringHandler::recombineArgs(args.subspan(1, conditionEnd));
-    std::string commands = Utility::StringHandler::recombineArgs(args.subspan(commandStart));
+    auto const condition = args.recombineSubspan(1, conditionEnd);
+    auto commands = args.recombineSubspan(commandStart);
 
     // condition must start with $( and end with ): Simple expressions are boolean-convertible
     if (!condition.starts_with("$(") || !condition.ends_with(')')) {
@@ -184,7 +183,7 @@ Constants::Event General::assertFunc(Utility::Args::SSV const& args, Interaction
     if (args.size() < 2) {
         return Constants::StandardCapture::Warning::Functional::tooFewArgs(ctx.self.capture);
     }
-    std::string const& condition = Utility::StringHandler::recombineArgs(args.subspan(1));
+    std::string const& condition = args.recombineSubspan(1);
 
     // condition must start with $( and end with ): Simple expressions are boolean-convertible
     if (condition.front() != '$' || condition[1] != '(' || condition.back() != ')') {
@@ -218,7 +217,7 @@ Constants::Event General::forwardToOther(Utility::Args::SSV const& args, Interac
     if (args.size() < 2) {
         return Constants::StandardCapture::Warning::Functional::tooFewArgs(ctx.self.capture);
     }
-    std::string const argStr = Utility::StringHandler::recombineArgs(args);
+    auto const argStr = args.recombine();
     return ctx.other.parseStr(argStr, ctx, ctxScope);
 }
 
@@ -226,7 +225,7 @@ Constants::Event General::forwardToGlobal(Utility::Args::SSV const& args, Intera
     if (args.size() < 2) {
         return Constants::StandardCapture::Warning::Functional::tooFewArgs(ctx.self.capture);
     }
-    std::string const argStr = Utility::StringHandler::recombineArgs(args);
+    auto const argStr = args.recombine();
     return ctx.global.parseStr(argStr, ctx, ctxScope);
 }
 
@@ -234,7 +233,6 @@ Constants::Event General::reparseInOther(Utility::Args::SSV const& args, Interac
     if (args.size() < 2) {
         return Constants::StandardCapture::Warning::Functional::tooFewArgs(ctx.self.capture);
     }
-    std::string const argStr = Utility::StringHandler::recombineArgs(args);
     Interaction::Context otherCtx{
         {
             .self = ctx.other,
@@ -249,15 +247,13 @@ Constants::Event General::reparseInOther(Utility::Args::SSV const& args, Interac
             .global = ctxScope.global,
         },
     };
-    return ctx.other.parseStr(argStr, otherCtx, otherCtxScope);
+    return ctx.other.parse(args, otherCtx, otherCtxScope);
 }
 
 Constants::Event General::reparseInGlobal(Utility::Args::SSV const& args, Interaction::Context const& ctx, Interaction::ContextScope const& ctxScope) {
     if (args.size() < 2) {
         return Constants::StandardCapture::Warning::Functional::tooFewArgs(ctx.self.capture);
     }
-    std::string const argStr = Utility::StringHandler::recombineArgs(args);
-
     Interaction::Context globalCtx{
         {
             .self = ctx.global,
@@ -272,8 +268,7 @@ Constants::Event General::reparseInGlobal(Utility::Args::SSV const& args, Intera
             .global = ctxScope.global,
         },
     };
-
-    return ctx.global.parseStr(argStr, globalCtx, globalCtxScope);
+    return ctx.global.parse(args, globalCtx, globalCtxScope);
 }
 
 // [IMGUI]
@@ -312,7 +307,7 @@ Constants::Event General::capture(Utility::Args::SSV const& args, Interaction::C
     }
 
     // Parse
-    auto const argsToParse = Utility::StringHandler::recombineArgs(args.subspan(1));
+    auto const argsToParse = args.recombineSubspan(1);
     auto result = Constants::Event::success;
     auto history = ctx.self.capture.redirectHistory([&] {
         result = ctx.self.parseStr(argsToParse, ctx, ctxScope);
@@ -337,7 +332,7 @@ Constants::Event General::eval(Utility::Args::SSV const& args, Interaction::Cont
     //       Do the same for the RenderObject eval function. Perhaps we should combine them?
 
     // argc/argv to string for evaluation
-    std::string const argStr = Utility::StringHandler::recombineArgs(args);
+    auto const argStr = args.recombine();
 
     // Evaluate expression, empty context for self and other
     std::string const argsEvaluated = Interaction::Logic::Expression::eval(argStr, ctxScope);

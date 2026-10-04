@@ -14,7 +14,6 @@
 #include "Nebulite/Interaction/Execution/Domain.hpp"
 #include "Nebulite/Module/Domain/Common/Debug.hpp"
 #include "Nebulite/Utility/Args/CmdArgs.hpp"
-#include "Nebulite/Utility/StringHandler.hpp"
 
 //------------------------------------------
 namespace Nebulite::Module::Domain::Common {
@@ -88,13 +87,13 @@ Constants::Event Debug::warn(Utility::Args::SSV const& args) const {
     if (args.size() < 2) {
         return Constants::StandardCapture::Warning::Functional::tooFewArgs(domain.capture);
     }
-    std::string const argStr = Utility::StringHandler::recombineArgs(args.subspan(1));
+    auto const argStr = args.recombineSubspan(1);
     domain.capture.warning.println(argStr);
     return Constants::Event::warning;
 }
 
 Constants::Event Debug::error(Utility::Args::SSV const& args, Interaction::Context const& ctx, Interaction::ContextScope& /*ctxScope*/) {
-    auto const& argStr = Utility::StringHandler::recombineArgs(args.subspan(1));
+    auto const& argStr = args.recombineSubspan(1);
     ctx.self.capture.error.println(argStr);
     return Constants::Event::error;
 }
@@ -102,7 +101,7 @@ Constants::Event Debug::error(Utility::Args::SSV const& args, Interaction::Conte
 Constants::Event Debug::throwFunc(Utility::Args::SSV const& args) {
     std::string const message = [&] {
         if (args.size() < 2) return std::string("");
-        return Utility::StringHandler::recombineArgs(args.subspan(1));
+        return args.recombineSubspan(1);
     }();
     throw std::runtime_error(message);
 }
@@ -111,7 +110,7 @@ Constants::Event Debug::mustThrow(Utility::Args::SSV const& args, Interaction::C
     if (args.size() < 2) {
         return Constants::StandardCapture::Warning::Functional::tooFewArgs(ctx.self.capture);
     }
-    auto const funcCallStr = Utility::StringHandler::recombineArgs(args);
+    auto const funcCallStr = args.recombine();
     try {
         (void) ctx.self.parseStr(funcCallStr, ctx, ctxScope);
     } catch (...) {

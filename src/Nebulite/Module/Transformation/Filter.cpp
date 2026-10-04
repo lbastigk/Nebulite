@@ -21,7 +21,6 @@
 #include "Nebulite/Utility/Glob.hpp"
 #include "Nebulite/Utility/Promise.hpp"
 #include "Nebulite/Utility/Ranges.hpp"
-#include "Nebulite/Utility/StringHandler.hpp"
 
 //------------------------------------------
 namespace Nebulite::Module::Transformation {
@@ -41,7 +40,7 @@ bool Filter::filterRegex(Utility::Args::SSV const& args, Data::JsonScope& jsonDo
     }
     std::regex regexPattern;
     try {
-        std::string const pattern = Utility::StringHandler::recombineArgs(args.subspan(1));
+        std::string const pattern = args.recombineSubspan(1);
         regexPattern = std::regex(pattern);
     } catch (std::regex_error const&) {
         return false; // Invalid regex pattern
@@ -63,7 +62,7 @@ bool Filter::filterGlob(Utility::Args::SSV const& args, Data::JsonScope& jsonDoc
     if (args.size() != 2) {
         return false;
     }
-    std::string const pattern = Utility::StringHandler::recombineArgs(args.subspan(1));
+    std::string const pattern = args.recombineSubspan(1);
     auto const memberKeyPairs = jsonDoc.listAvailableMembersAndKeys(rootKey);
     Data::Json filtered;
     for (auto const& [member, key] : memberKeyPairs) {
@@ -85,7 +84,7 @@ bool Filter::filterRegexValue(Utility::Args::SSV const& args, Data::JsonScope& j
 
     std::regex regexPattern;
     try {
-        std::string const pattern = Utility::StringHandler::recombineArgs(args.subspan(1));
+        std::string const pattern = args.recombineSubspan(1);
         regexPattern = std::regex(pattern);
     } catch (std::regex_error const&) {
         return false; // Invalid regex pattern
@@ -119,7 +118,7 @@ bool Filter::filterGlobValue(Utility::Args::SSV const& args, Data::JsonScope& js
     if (jsonDoc.memberType(rootKey) != Data::KeyType::array) {
         return false; // Not an array, cannot filter values
     }
-    auto const pattern = Utility::StringHandler::recombineArgs(args.subspan(1));
+    auto const pattern = args.recombineSubspan(1);
 
     // Get values and filter
     auto const values = listMemberValues(jsonDoc, rootKey)
@@ -183,7 +182,7 @@ bool Filter::filterNulls(Data::JsonScope& jsonDoc) {
 bool Filter::filterCustom(Utility::Args::SSV const& args, Data::JsonScope& jsonDoc){
     if (jsonDoc.memberType(rootKey) != Data::KeyType::array) return false; // Not an array, cannot sort
     if (args.size() < 2) return false;
-    Interaction::Logic::Expression const expression('$' + Utility::StringHandler::recombineArgs(args.subspan(1)));
+    Interaction::Logic::Expression const expression('$' + args.recombineSubspan(1));
     if (!expression.isReturnableAsBool()) return false;
     arrayFilter(jsonDoc, [&](Data::JsonScope& element) {
         Interaction::ContextScope const ctxScope{

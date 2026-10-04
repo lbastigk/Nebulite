@@ -161,8 +161,8 @@ public:
     // Generate
 
     [[nodiscard]] std::string recombine() const ;
-    [[nodiscard]] std::string recombine(std::size_t startIndex) const ;
-    [[nodiscard]] std::string recombine(std::size_t startIndex, std::size_t count) const ;
+    [[nodiscard]] std::string recombineSubspan(std::size_t startIndex) const ;
+    [[nodiscard]] std::string recombineSubspan(std::size_t startIndex, std::size_t count) const ;
 
     //------------------------------------------
     // Compare

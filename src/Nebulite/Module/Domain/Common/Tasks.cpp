@@ -16,7 +16,6 @@
 #include "Nebulite/Module/Domain/Common/Tasks.hpp"
 #include "Nebulite/Utility/Args/CmdArgs.hpp"
 #include "Nebulite/Utility/Convert/Cast.hpp"
-#include "Nebulite/Utility/StringHandler.hpp"
 
 //------------------------------------------
 namespace Nebulite::Module::Domain::Common {
@@ -50,7 +49,7 @@ Constants::Event Tasks::task(Utility::Args::SSV const& args) const {
     if (args.size() < 2) {
         return Constants::StandardCapture::Warning::Functional::tooFewArgs(domain.capture);
     }
-    auto const fileName = Utility::StringHandler::recombineArgs(args.subspan(1));
+    auto const fileName = args.recombineSubspan(1);
     domain.capture.log.println("Loading task list from file: ", fileName);
     domain.tasks.addScript(fileName, domain.capture);
     return Constants::Event::success;
@@ -60,7 +59,7 @@ Constants::Event Tasks::taskExec(Utility::Args::SSV const& args, Interaction::Co
     if (args.size() < 2) {
         return Constants::StandardCapture::Warning::Functional::tooFewArgs(domain.capture);
     }
-    auto const fileName = Utility::StringHandler::recombineArgs(args.subspan(1));
+    auto const fileName = args.recombineSubspan(1);
     domain.capture.log.println("Loading task list from file and executing immediately: ", fileName);
     Data::TaskQueue tq("LocalTaskQueue", false);
     tq.addScript(fileName, domain.capture);
@@ -73,7 +72,7 @@ Constants::Event Tasks::always(Utility::Args::SSV const& args) const {
     }
 
     // Split on ';' and push each trimmed command
-    std::string const argStr = Utility::StringHandler::recombineArgs(args.subspan(1));
+    std::string const argStr = args.recombineSubspan(1);
     std::stringstream ss(argStr);
     std::string command;
     while (std::getline(ss, command, ';')) {

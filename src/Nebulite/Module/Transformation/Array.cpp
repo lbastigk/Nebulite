@@ -17,7 +17,6 @@
 #include "Nebulite/Utility/Args/CmdArgs.hpp"
 #include "Nebulite/Utility/Convert/Cast.hpp"
 #include "Nebulite/Utility/Ranges.hpp"
-#include "Nebulite/Utility/StringHandler.hpp"
 
 //------------------------------------------
 namespace Nebulite::Module::Transformation {
@@ -365,7 +364,7 @@ bool Array::push(Utility::Args::SSV const& args, Data::JsonScope& jsonDoc) {
     }
     auto const arraySize = jsonDoc.memberSize(rootKey);
     auto const key = rootKey.addIndex(arraySize);
-    jsonDoc.set(key, Utility::StringHandler::recombineArgs(args.subspan(1)));
+    jsonDoc.set(key, args.recombineSubspan(1));
     return true;
 }
 

@@ -8,7 +8,6 @@
 #include <iterator>
 #include <optional>
 #include <ranges>
-#include <span>
 #include <string>
 
 // Nebulite
@@ -215,18 +214,18 @@ bool String::replace(Utility::Args::SSV const& args, Data::JsonScope& jsonDoc) {
         if (it == args.end()) {
             return false; // invalid argument
         }
-        auto const target = args.subspan(1, static_cast<std::size_t>(std::distance(args.begin(), it) - 1));
-        auto const replacement = args.subspan(static_cast<std::size_t>(std::distance(args.begin(), it) + 1));
+        auto const target = args.recombineSubspan(1, static_cast<std::size_t>(std::distance(args.begin(), it) - 1));
+        auto const replacement = args.recombineSubspan(static_cast<std::size_t>(std::distance(args.begin(), it) + 1));
         if (target.empty() || replacement.empty()) {
             return false; // invalid argument
         }
-        replacer(Utility::StringHandler::recombineArgs(target), Utility::StringHandler::recombineArgs(replacement));
+        replacer(target, replacement);
     }
     return true;
 }
 
 bool String::strCountAppearance(Utility::Args::SSV const& args, Data::JsonScope& jsonDoc) {
-    auto const substring = args.size() > 1 ? Utility::StringHandler::recombineArgs(args.subspan(1)) : " ";
+    auto const substring = args.size() > 1 ? args.recombineSubspan(1) : " ";
     auto str = jsonDoc.get<std::string>(rootKey).value_or("");
     std::size_t count = 0;
     while (!substring.empty() && !str.empty()) {
@@ -276,28 +275,28 @@ bool String::strcompareMembers(Utility::Args::SSV const& args, Data::JsonScope& 
 }
 
 bool String::strcompareEquals(Utility::Args::SSV const& args, Data::JsonScope& jsonDoc) {
-    auto const compareStr = args.size() > 1 ? Utility::StringHandler::recombineArgs(args.subspan(1)) : "";
+    auto const compareStr = args.size() > 1 ? args.recombineSubspan(1) : "";
     auto const str = jsonDoc.get<std::string>(rootKey).value_or("");
     jsonDoc.set(rootKey, str == compareStr);
     return true;
 }
 
 bool String::strcompareContains(Utility::Args::SSV const& args, Data::JsonScope& jsonDoc) {
-    auto const compareStr = args.size() > 1 ? Utility::StringHandler::recombineArgs(args.subspan(1)) : " ";
+    auto const compareStr = args.size() > 1 ? args.recombineSubspan(1) : " ";
     auto const str = jsonDoc.get<std::string>(rootKey).value_or("");
     jsonDoc.set(rootKey, str.contains(compareStr));
     return true;
 }
 
 bool String::strcompareStartsWith(Utility::Args::SSV const& args, Data::JsonScope& jsonDoc) {
-    auto const compareStr = args.size() > 1 ? Utility::StringHandler::recombineArgs(args.subspan(1)) : " ";
+    auto const compareStr = args.size() > 1 ? args.recombineSubspan(1) : " ";
     auto const str = jsonDoc.get<std::string>(rootKey).value_or("");
     jsonDoc.set(rootKey, str.starts_with(compareStr));
     return true;
 }
 
 bool String::strcompareEndsWith(Utility::Args::SSV const& args, Data::JsonScope& jsonDoc) {
-    auto const compareStr = args.size() > 1 ? Utility::StringHandler::recombineArgs(args.subspan(1)) : " ";
+    auto const compareStr = args.size() > 1 ? args.recombineSubspan(1) : " ";
     auto const str = jsonDoc.get<std::string>(rootKey).value_or("");
     jsonDoc.set(rootKey, str.ends_with(compareStr));
     return true;

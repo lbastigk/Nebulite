@@ -19,7 +19,6 @@
 #include "Nebulite/Module/Domain/Common/Ruleset.hpp"
 #include "Nebulite/Nebulite.hpp"
 #include "Nebulite/Utility/Args/CmdArgs.hpp"
-#include "Nebulite/Utility/StringHandler.hpp"
 
 //------------------------------------------
 namespace Nebulite::Module::Domain::Common {
@@ -118,7 +117,7 @@ Constants::Event Ruleset::reload() {
 
 Constants::Event Ruleset::invokeOnce(Utility::Args::SSV const& args) const {
     if (args.size() > 1) {
-        std::string const arg = Utility::StringHandler::recombineArgs(args.subspan(1));
+        std::string const arg = args.recombineSubspan(1);
         if (auto const rs = Interaction::Rules::Construction::RulesetCompiler::parseSingle(arg, domain); rs.has_value()) {
             if (rs.value()->isGlobal()) {
                 Global::instance().broadcast(rs.value());

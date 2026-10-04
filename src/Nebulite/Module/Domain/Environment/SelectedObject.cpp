@@ -13,7 +13,6 @@
 #include "Nebulite/Interaction/Context.hpp"
 #include "Nebulite/Module/Domain/Environment/SelectedObject.hpp"
 #include "Nebulite/Utility/Args/CmdArgs.hpp"
-#include "Nebulite/Utility/StringHandler.hpp"
 
 namespace Nebulite::Module::Domain::Environment {
 
@@ -63,7 +62,7 @@ Constants::Event SelectedObject::selectedObjectParse(Utility::Args::SSV const& a
     if (args.size() < 2) {
         return Constants::StandardCapture::Warning::Functional::tooFewArgs(domain.capture);
     }
-    std::string const command = Utility::StringHandler::recombineArgs(args.subspan(1));
+    std::string const command = args.recombineSubspan(1);
     if (selectedRenderObject == nullptr || selectedRenderObjectData == nullptr) {
         domain.capture.warning.println("No RenderObject selected! Use selectedObjectGet <id> to select a valid object.");
         return Constants::Event::warning;

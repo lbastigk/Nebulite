@@ -14,7 +14,6 @@
 #include "Nebulite/Interaction/Logic/Formatter.hpp"
 #include "Nebulite/Module/Transformation/Complex.hpp"
 #include "Nebulite/Utility/Args/CmdArgs.hpp"
-#include "Nebulite/Utility/StringHandler.hpp"
 
 //------------------------------------------
 namespace Nebulite::Module::Transformation {
@@ -98,7 +97,7 @@ bool Complex::complexToString(Utility::Args::SSV const& args, Data::JsonScope& j
     auto const num = jsonDoc.getComplex(rootKey);
     if (!num) return true;
     try {
-        auto const formatter = Interaction::Logic::Formatter::readFormatter(Utility::StringHandler::recombineArgs(args.subspan(1)));
+        auto const formatter = Interaction::Logic::Formatter::readFormatter(args.recombineSubspan(1));
         jsonDoc.set(rootKey, complexFormatter(num.value(), formatter));
     } catch (...) {
         return false;

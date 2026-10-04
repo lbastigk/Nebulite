@@ -12,7 +12,6 @@
 #include "Nebulite/Interaction/Context.hpp"
 #include "Nebulite/Module/Domain/RenderObject/Drawcall.hpp"
 #include "Nebulite/Utility/Args/CmdArgs.hpp"
-#include "Nebulite/Utility/StringHandler.hpp"
 
 //------------------------------------------
 namespace Nebulite::Module::Domain::RenderObject {
@@ -35,7 +34,7 @@ Constants::Event Drawcall::drawcallParse(Utility::Args::SSV const& args, Interac
         return Constants::StandardCapture::Warning::Functional::tooFewArgs(ctx.self.capture);
     }
     auto const& name = args[1];
-    auto const drawcallArgs = std::string(__FUNCTION__) + " " + Utility::StringHandler::recombineArgs(args.subspan(2));
+    auto const drawcallArgs = std::string(__FUNCTION__) + " " + args.recombineSubspan(2);
     return domain.parseDrawcallCommand(name, drawcallArgs, ctx, ctxScope);
 }
 

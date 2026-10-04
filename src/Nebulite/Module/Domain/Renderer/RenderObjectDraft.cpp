@@ -12,7 +12,6 @@
 #include "Nebulite/Module/Base/DomainModule.hpp"
 #include "Nebulite/Module/Domain/Renderer/RenderObjectDraft.hpp"
 #include "Nebulite/Utility/Args/CmdArgs.hpp"
-#include "Nebulite/Utility/StringHandler.hpp"
 
 //------------------------------------------
 namespace Nebulite::Module::Domain::Renderer {
@@ -25,7 +24,7 @@ Constants::Event RenderObjectDraft::draftParse(Utility::Args::SSV const& args, I
     if (args.size() < 2) {
         return Constants::StandardCapture::Warning::Functional::tooFewArgs(domain.capture);
     }
-    std::string const command = Utility::StringHandler::recombineArgs(args.subspan(1));
+    auto const command = args.recombineSubspan(1);
     return draft.get(domain.capture).parseStr(__FUNCTION__ + std::string(" ") + command, ctx, ctxScope);
 }
 

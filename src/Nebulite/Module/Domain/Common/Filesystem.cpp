@@ -33,14 +33,14 @@ Constants::Event Filesystem::cat(Utility::Args::SSV const& args) const{
         return Constants::StandardCapture::Warning::Functional::tooFewArgs(domain.capture);
     }
 
-    auto const filePath = Utility::StringHandler::recombineArgs(args.subspan(1));
+    auto const filePath = args.recombineSubspan(1);
     auto const fileContent = Utility::Io::FileManagement::loadFile(filePath);
     domain.capture.log.println(fileContent);
     return Constants::Event::success;
 }
 
 Constants::Event Filesystem::ls(Utility::Args::SSV const& args) const {
-    std::string const directoryPath = args.size() >= 2 ? Utility::StringHandler::recombineArgs(args.subspan(1)) : ".";
+    std::string const directoryPath = args.size() >= 2 ? args.recombineSubspan(1) : ".";
     auto const entries = Utility::Io::FileManagement::listContentInDirectory(directoryPath);
     domain.capture.log.println(Utility::StringHandler::createPaddedTable(entries, 80));
     return Constants::Event::success;

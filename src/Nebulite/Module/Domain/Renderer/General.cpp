@@ -33,7 +33,6 @@
 #include "Nebulite/Module/Domain/Renderer/General.hpp"
 #include "Nebulite/Utility/Args/CmdArgs.hpp"
 #include "Nebulite/Utility/Io/FileManagement.hpp"
-#include "Nebulite/Utility/StringHandler.hpp"
 
 //------------------------------------------
 namespace Nebulite::Module::Domain::Renderer {
@@ -57,7 +56,7 @@ Constants::Event General::envLoad(Utility::Args::SSV const& args) const {
         domain.deserialize("{}");
         return Constants::Event::success;
     }
-    auto const fileName = Utility::StringHandler::recombineArgs(args.subspan(1));
+    auto const fileName = args.recombineSubspan(1);
     if (!Utility::Io::FileManagement::fileExists(fileName)) {
         domain.capture.error.println("File ", fileName, " does not exist! Loading an empty environment.");
         domain.deserialize("{}");
@@ -77,7 +76,7 @@ Constants::Event General::spawn(Utility::Args::SSV const& args) const {
     if (args.size() > 1) {
         // Using all args, allowing for whitespaces in the link and in the following functioncalls:
         // e.g.: spawn Planets/sun.jsonc|set text.str This is a sun
-        std::string const linkOrObject = Utility::StringHandler::recombineArgs(args.subspan(1));
+        std::string const linkOrObject = args.recombineSubspan(1);
 
         // Create object with link to globalspace
         auto* ro = new Core::RenderObject(domain.capture);

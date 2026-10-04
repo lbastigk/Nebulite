@@ -2,7 +2,6 @@
 // Includes
 
 // Standard library
-#include <span>
 #include <string>
 #include <utility>
 
@@ -11,7 +10,6 @@
 #include "Nebulite/Data/Document/KeyType.hpp"
 #include "Nebulite/Module/Transformation/Types.hpp"
 #include "Nebulite/Utility/Args/CmdArgs.hpp"
-#include "Nebulite/Utility/StringHandler.hpp"
 
 //------------------------------------------
 namespace Nebulite::Module::Transformation {
@@ -28,7 +26,7 @@ void Types::bindTransformations() {
 
 bool Types::defaultToString(Utility::Args::SSV const& args, Data::JsonScope& jsonDoc){
     if (jsonDoc.memberType(rootKey) == Data::KeyType::null) {
-        jsonDoc.set<std::string>(rootKey, Utility::StringHandler::recombineArgs(args.subspan(1)));
+        jsonDoc.set<std::string>(rootKey, args.recombineSubspan(1));
     }
     return true;
 }
