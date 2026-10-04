@@ -302,9 +302,12 @@ void SegmentedStringView::copySubspan(std::vector<std::string_view>& other, std:
 
 namespace {
 std::string recombineAny(FoundationalType const& args, std::size_t const startIndex, std::size_t const count) {
-    auto const loopCount = std::min(args.size() - startIndex, count);
+    auto const max = std::min( args.size(), startIndex+count);
     std::string result;
-    for (std::size_t i = 0; i < loopCount; ++i) {
+    if (startIndex >= max) {
+        return result;
+    }
+    for (std::size_t i = startIndex; i < max; ++i) {
         // TODO: consider adding back quotes if any arg has a whitespace
         //       if arg.contains(' ')
         //         if arg.contains('"')
@@ -313,7 +316,7 @@ std::string recombineAny(FoundationalType const& args, std::size_t const startIn
         //           result += '"' + arg + '"'
         result += args[i];
         // Don't add a whitespace if it's the last argument
-        if (i < args.size() - 1) {
+        if (i < max - 1) {
             result += ' ';
         }
     }

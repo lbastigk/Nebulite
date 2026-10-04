@@ -111,13 +111,11 @@ public:
     }
 
     auto recombineSubspan(std::size_t const startIndex) const {
-        // TODO: Old algo for now, use ssv::recombineSubspan once this works
-        return ssv.subspan(startIndex).recombine();
+        return ssv.recombineSubspan(startIndex);
     }
 
     auto recombineSubspan(size_t const startIndex, size_t const count) const {
-        // TODO: Old algo for now, use ssv::recombineSubspan once this works
-        return ssv.subspan(startIndex, count).recombine();
+        return ssv.recombineSubspan(startIndex, count);
     }
 };
 
