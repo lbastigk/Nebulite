@@ -78,6 +78,9 @@ function(fetchContent)
             GIT_REPOSITORY https://github.com/Tencent/rapidjson.git
             GIT_TAG master    # Master is fine for rapidjson: rarely updated
     )
+    # RapidJSON's bundled GoogleTest is not needed by Nebulite and may fail
+    # under strict warning-as-error compiler settings.
+    set(RAPIDJSON_BUILD_TESTS OFF CACHE BOOL "Build RapidJSON tests" FORCE)
     FetchContent_GetProperties(rapidjson)
     if(NOT rapidjson_POPULATED)
         FetchContent_MakeAvailable(rapidjson)
@@ -137,4 +140,3 @@ function(fetchContent)
         message(WARNING "Freetype not found. Setting RMLUI_FONT_ENGINE=none for this build. Install freetype or set Freetype_ROOT to enable RmlUi text rendering.")
     endif()
 endfunction()
-
