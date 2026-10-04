@@ -275,7 +275,7 @@ bool String::strcompareMembers(Utility::Args::SSV const& args, Data::JsonScope& 
 }
 
 bool String::strcompareEquals(Utility::Args::SSV const& args, Data::JsonScope& jsonDoc) {
-    auto const compareStr = args.size() > 1 ? args.recombineSubspan(1) : "";
+    auto const compareStr = args.recombineSubspan(1);
     auto const str = jsonDoc.get<std::string>(rootKey).value_or("");
     jsonDoc.set(rootKey, str == compareStr);
     return true;
