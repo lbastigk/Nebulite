@@ -23,7 +23,7 @@ public:
     ArgsTransitionCompatibilityLayer() = default;
 
     template <typename Data, typename Size>
-    explicit ArgsTransitionCompatibilityLayer(Data data, Size size) : ssv(std::span<std::string_view const>(data, size)) {}
+    explicit ArgsTransitionCompatibilityLayer(Data data, Size size) : ssv(data, size) {}
 
     explicit ArgsTransitionCompatibilityLayer(std::span<std::string_view const> const args) : ssv(args) {}
 
