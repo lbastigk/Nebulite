@@ -15,7 +15,7 @@
 #include "Nebulite/Interaction/Execution/Domain.hpp"
 #include "Nebulite/Interaction/Logic/Expression.hpp"
 #include "Nebulite/Module/Domain/Common/ComplexData.hpp"
-#include "Nebulite/Utility/Args/CmdArgs.hpp"
+#include "Nebulite/Utility/Args/SegmentedStringView.hpp"
 
 //------------------------------------------
 namespace Nebulite::Module::Domain::Common {
@@ -37,7 +37,7 @@ Constants::Event ComplexData::querySet() {
     return Constants::StandardCapture::Error::Functional::functionNotImplemented(domain.capture);
 }
 
-Constants::Event ComplexData::jsonSet(Utility::Args::SSV const& args, Interaction::Context const& ctx, Interaction::ContextScope const& ctxScope) {
+Constants::Event ComplexData::jsonSet(Utility::Args::SegmentedStringView const& args, Interaction::Context const& ctx, Interaction::ContextScope const& ctxScope) {
     auto lock = ctxScope.self.lock(); // Lock the domain for thread-safe access
     if (args.size() < 3) {
         return Constants::StandardCapture::Warning::Functional::tooFewArgs(ctx.self.capture);
@@ -53,7 +53,7 @@ Constants::Event ComplexData::jsonSet(Utility::Args::SSV const& args, Interactio
     return Constants::Event::success;
 }
 
-Constants::Event ComplexData::evaluateMember(Utility::Args::SSV const& args, Interaction::Context const& ctx, Interaction::ContextScope const& ctxScope) {
+Constants::Event ComplexData::evaluateMember(Utility::Args::SegmentedStringView const& args, Interaction::Context const& ctx, Interaction::ContextScope const& ctxScope) {
     auto lock = ctxScope.self.lock(); // Lock the domain for thread-safe access
     if (args.size() < 2) {
         return Constants::StandardCapture::Warning::Functional::tooFewArgs(ctx.self.capture);
@@ -76,7 +76,7 @@ Constants::Event ComplexData::evaluateMember(Utility::Args::SSV const& args, Int
     return Constants::Event::success;
 }
 
-Constants::Event ComplexData::evaluateRecursive(Utility::Args::SSV const& args, Interaction::Context const& ctx, Interaction::ContextScope& ctxScope){
+Constants::Event ComplexData::evaluateRecursive(Utility::Args::SegmentedStringView const& args, Interaction::Context const& ctx, Interaction::ContextScope& ctxScope){
     std::function<void(Data::ScopedKey const&)> recursiveEvaluate = [&](auto const& key) -> void {
         switch (ctxScope.self.memberType(key)) {
             case Data::KeyType::value:

@@ -17,7 +17,7 @@
 #include "Nebulite/Interaction/Context.hpp"
 #include "Nebulite/Interaction/Logic/Expression.hpp"
 #include "Nebulite/Module/Transformation/Filter.hpp"
-#include "Nebulite/Utility/Args/CmdArgs.hpp"
+#include "Nebulite/Utility/Args/SegmentedStringView.hpp"
 #include "Nebulite/Utility/Glob.hpp"
 #include "Nebulite/Utility/Promise.hpp"
 #include "Nebulite/Utility/Ranges.hpp"
@@ -34,7 +34,7 @@ void Filter::bindTransformations(){
     bindTransformation(&Filter::filterCustom, filterCustomName, filterCustomDesc);
 }
 
-bool Filter::filterRegex(Utility::Args::SSV const& args, Data::JsonScope& jsonDoc) {
+bool Filter::filterRegex(Utility::Args::SegmentedStringView const& args, Data::JsonScope& jsonDoc) {
     if (args.size() != 2) {
         return false;
     }
@@ -58,7 +58,7 @@ bool Filter::filterRegex(Utility::Args::SSV const& args, Data::JsonScope& jsonDo
     return true;
 }
 
-bool Filter::filterGlob(Utility::Args::SSV const& args, Data::JsonScope& jsonDoc) {
+bool Filter::filterGlob(Utility::Args::SegmentedStringView const& args, Data::JsonScope& jsonDoc) {
     if (args.size() != 2) {
         return false;
     }
@@ -74,7 +74,7 @@ bool Filter::filterGlob(Utility::Args::SSV const& args, Data::JsonScope& jsonDoc
     return true;
 }
 
-bool Filter::filterRegexValue(Utility::Args::SSV const& args, Data::JsonScope& jsonDoc){
+bool Filter::filterRegexValue(Utility::Args::SegmentedStringView const& args, Data::JsonScope& jsonDoc){
     if (args.size() != 2) {
         return false;
     }
@@ -111,7 +111,7 @@ bool Filter::filterRegexValue(Utility::Args::SSV const& args, Data::JsonScope& j
     return true;
 }
 
-bool Filter::filterGlobValue(Utility::Args::SSV const& args, Data::JsonScope& jsonDoc){
+bool Filter::filterGlobValue(Utility::Args::SegmentedStringView const& args, Data::JsonScope& jsonDoc){
     if (args.size() != 2) {
         return false;
     }
@@ -179,7 +179,7 @@ bool Filter::filterNulls(Data::JsonScope& jsonDoc) {
     return true;
 }
 
-bool Filter::filterCustom(Utility::Args::SSV const& args, Data::JsonScope& jsonDoc){
+bool Filter::filterCustom(Utility::Args::SegmentedStringView const& args, Data::JsonScope& jsonDoc){
     if (jsonDoc.memberType(rootKey) != Data::KeyType::array) return false; // Not an array, cannot sort
     if (args.size() < 2) return false;
     Interaction::Logic::Expression const expression('$' + args.recombineSubspan(1));

@@ -20,7 +20,7 @@
 #include "Nebulite/Interaction/Rules/Ruleset.hpp"
 #include "Nebulite/Module/Domain/Initializer.hpp"
 #include "Nebulite/Nebulite.hpp"
-#include "Nebulite/Utility/Args/CmdArgs.hpp"
+#include "Nebulite/Utility/Args/SegmentedStringView.hpp"
 #include "Nebulite/Utility/Io/Capture.hpp"
 
 //------------------------------------------
@@ -146,7 +146,7 @@ void RenderObject::updateDrawcalls() {
     }
 }
 
-Constants::Event RenderObject::parseDrawcallCommand(std::string_view const drawCallName, Utility::Args::SSV const& args, Interaction::Context& ctx, Interaction::ContextScope& ctxScope){
+Constants::Event RenderObject::parseDrawcallCommand(std::string_view const drawCallName, Utility::Args::SegmentedStringView const& args, Interaction::Context& ctx, Interaction::ContextScope& ctxScope){
     if (drawCallName.empty()) {
         capture.error.println("Drawcall name is empty. Cannot parse command.");
         return Constants::Event::error;

@@ -13,7 +13,7 @@
 #include "Nebulite/Core/RenderObject.hpp"
 #include "Nebulite/Data/Document/KeyGroup.hpp"
 #include "Nebulite/Module/Base/DomainModule.hpp"
-#include "Nebulite/Utility/Args/CmdArgs.hpp"
+#include "Nebulite/Utility/Args/SegmentedStringView.hpp"
 
 //------------------------------------------
 // Forward declarations
@@ -47,7 +47,7 @@ public:
     //------------------------------------------
     // Available Functions
 
-    [[nodiscard]] Constants::Event draftParse(Utility::Args::SSV const& args, Interaction::Context& ctx, Interaction::ContextScope& ctxScope);
+    [[nodiscard]] Constants::Event draftParse(Utility::Args::SegmentedStringView const& args, Interaction::Context& ctx, Interaction::ContextScope& ctxScope);
     static auto constexpr draftParseName = "draft parse";
     static auto constexpr draftParseDesc = "Parse Renderobject-specific functions on the draft.\n"
         "\n"

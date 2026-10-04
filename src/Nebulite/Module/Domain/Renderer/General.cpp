@@ -31,7 +31,7 @@
 #include "Nebulite/Data/Document/RjDirectAccess.hpp"
 #include "Nebulite/Module/Base/DomainModule.hpp"
 #include "Nebulite/Module/Domain/Renderer/General.hpp"
-#include "Nebulite/Utility/Args/CmdArgs.hpp"
+#include "Nebulite/Utility/Args/SegmentedStringView.hpp"
 #include "Nebulite/Utility/Io/FileManagement.hpp"
 
 //------------------------------------------
@@ -50,7 +50,7 @@ Constants::Event General::updateHook() {
 //------------------------------------------
 // Domain-Bound Functions
 
-Constants::Event General::envLoad(Utility::Args::SSV const& args) const {
+Constants::Event General::envLoad(Utility::Args::SegmentedStringView const& args) const {
     if (args.size() < 2) {
         // no name provided, load empty env
         domain.deserialize("{}");
@@ -72,7 +72,7 @@ Constants::Event General::envDeload() const {
     return Constants::Event::success;
 }
 
-Constants::Event General::spawn(Utility::Args::SSV const& args) const {
+Constants::Event General::spawn(Utility::Args::SegmentedStringView const& args) const {
     if (args.size() > 1) {
         // Using all args, allowing for whitespaces in the link and in the following functioncalls:
         // e.g.: spawn Planets/sun.jsonc|set text.str This is a sun

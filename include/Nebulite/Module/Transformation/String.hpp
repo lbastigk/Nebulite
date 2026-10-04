@@ -9,8 +9,8 @@
 
 // Nebulite
 #include "Nebulite/Module/Base/TransformationModule.hpp"
-#include "Nebulite/Utility/Args/CmdArgs.hpp"
 #include "Nebulite/Utility/Args/FuncTree.hpp"
+#include "Nebulite/Utility/Args/SegmentedStringView.hpp"
 
 //------------------------------------------
 // Forward declarations
@@ -56,21 +56,21 @@ public:
     static auto constexpr toLowerDesc = "Converts the current JSON string value to lowercase.\n"
         "Usage: |toLower -> {string}\n";
 
-    static bool lPad(Utility::Args::SSV const& args, Data::JsonScope& jsonDoc);
+    static bool lPad(Utility::Args::SegmentedStringView const& args, Data::JsonScope& jsonDoc);
     static auto constexpr lPadName = "lPad";
     static auto constexpr lPadDesc = "Pads the current JSON string value on the left with a specified character until it reaches a specified total length.\n"
         "Usage: |lPad {totalLength} {padChar} -> {string}\n"
         "{totalLength}: Desired total length of the resulting string (including original string and padding)\n"
         "{padChar}: Character to use for padding (if not provided, defaults to space)\n";
 
-    static bool rPad(Utility::Args::SSV const& args, Data::JsonScope& jsonDoc);
+    static bool rPad(Utility::Args::SegmentedStringView const& args, Data::JsonScope& jsonDoc);
     static auto constexpr rPadName = "rPad";
     static auto constexpr rPadDesc = "Pads the current JSON string value on the right with a specified character until it reaches a specified total length.\n"
         "Usage: |rPad {totalLength} {padChar} -> {string}\n"
         "{totalLength}: Desired total length of the resulting string (including original string and padding)\n"
         "{padChar}: Character to use for padding (if not provided, defaults to space)\n";
 
-    static bool lPadNumeric(Utility::Args::SSV const& args, Data::JsonScope& jsonDoc);
+    static bool lPadNumeric(Utility::Args::SegmentedStringView const& args, Data::JsonScope& jsonDoc);
     static auto constexpr lPadNumericName = "lPadNumeric";
     static auto constexpr lPadNumericDesc = "Pads the current JSON numeric string value on the left with a specified character until it reaches a specified total length.\n"
         "If the value is not numeric, it is not modified.\n"
@@ -78,7 +78,7 @@ public:
         "{totalLength}: Desired total length of the resulting string (including original string and padding)\n"
         "{padChar}: Character to use for padding (if not provided, defaults to space)\n";
 
-    static bool rPadNumeric(Utility::Args::SSV const& args, Data::JsonScope& jsonDoc);
+    static bool rPadNumeric(Utility::Args::SegmentedStringView const& args, Data::JsonScope& jsonDoc);
     static auto constexpr rPadNumericName = "rPadNumeric";
     static auto constexpr rPadNumericDesc = "Pads the current JSON numeric string value on the right with a specified character until it reaches a specified total length.\n"
         "If the value is not numeric, it is not modified.\n"
@@ -86,7 +86,7 @@ public:
         "{totalLength}: Desired total length of the resulting string (including original string and padding)\n"
         "{padChar}: Character to use for padding (if not provided, defaults to space)\n";
 
-    static bool lPadNonNumeric(Utility::Args::SSV const& args, Data::JsonScope& jsonDoc);
+    static bool lPadNonNumeric(Utility::Args::SegmentedStringView const& args, Data::JsonScope& jsonDoc);
     static auto constexpr lPadNonNumericName = "lPadNonNumeric";
     static auto constexpr lPadNonNumericDesc = "Pads the current JSON non-numeric string value on the left with a specified character until it reaches a specified total length.\n"
         "If the value is numeric, it is not modified.\n"
@@ -94,7 +94,7 @@ public:
         "{totalLength}: Desired total length of the resulting string (including original string and padding)\n"
         "{padChar}: Character to use for padding (if not provided, defaults to space)\n";
 
-    static bool rPadNonNumeric(Utility::Args::SSV const& args, Data::JsonScope& jsonDoc);
+    static bool rPadNonNumeric(Utility::Args::SegmentedStringView const& args, Data::JsonScope& jsonDoc);
     static auto constexpr rPadNonNumericName = "rPadNonNumeric";
     static auto constexpr rPadNonNumericDesc = "Pads the current JSON non-numeric string value on the right with a specified character until it reaches a specified total length.\n"
         "If the value is numeric, it is not modified.\n"
@@ -117,14 +117,14 @@ public:
     static auto constexpr rStripDesc = "Strips whitespace from the right end of the current JSON string value.\n"
             "Usage: |rStrip -> {string}\n";
 
-    static bool substring(Utility::Args::SSV const& args, Data::JsonScope& jsonDoc);
+    static bool substring(Utility::Args::SegmentedStringView const& args, Data::JsonScope& jsonDoc);
     static auto constexpr substringName = "substring";
     static auto constexpr substringDesc = "Extracts a substring from the current JSON string value.\n"
         "Usage: |substring {start} [length] -> {string}\n"
         "{start}: Starting index (0-based)\n"
         "[length]: Length of the substring. Optional\n";
 
-    static bool replace(Utility::Args::SSV const& args, Data::JsonScope& jsonDoc);
+    static bool replace(Utility::Args::SegmentedStringView const& args, Data::JsonScope& jsonDoc);
     static auto constexpr replaceName = "replace";
     static auto constexpr replaceDesc = "Replaces all occurrences of a target substring with a replacement substring in the current JSON string value.\n"
         "Usage: |replace {target} {replacement} -> {string}\n"
@@ -134,14 +134,14 @@ public:
         "If the target or replacement strings contain spaces, use an arrow '->' to separate them:"
         "|replace {target} -> {replacement}\n";
 
-    static bool strCountAppearance(Utility::Args::SSV const& args, Data::JsonScope& jsonDoc);
+    static bool strCountAppearance(Utility::Args::SegmentedStringView const& args, Data::JsonScope& jsonDoc);
     static auto constexpr strCountAppearanceName = "strCountAppearance";
     static auto constexpr strCountAppearanceDesc = "Counts the number of occurrences of a specified substring in the current JSON string value.\n"
         "Usage: |strCountAppearance {substring} -> {number}\n"
         "Counts whitespaces if no substring is given\n"
         "{substring}: Substring to count\n";
 
-    static bool split(Utility::Args::SSV const& args, Data::JsonScope& jsonDoc);
+    static bool split(Utility::Args::SegmentedStringView const& args, Data::JsonScope& jsonDoc);
     static auto constexpr splitName = "split";
     static auto constexpr splitDesc = "Splits the current JSON string value into an array of substrings based on a specified character delimiter.\n"
         "Usage: |split {delimiter} -> {array}\n"
@@ -156,33 +156,33 @@ public:
         "{comparisonType}: Type of comparison\n"
         "{string}: String to compare with\n";
 
-    static bool strcompareMembers(Utility::Args::SSV const& args, Data::JsonScope& jsonDoc);
+    static bool strcompareMembers(Utility::Args::SegmentedStringView const& args, Data::JsonScope& jsonDoc);
     static auto constexpr strcompareMembersName = "strCompare members";
     static auto constexpr strcompareMembersDesc = "Compare multiple member string values.\n"
         "Usage: |strCompareMembers {key1} {key2} ... {keyN} -> {bool}\n"
         "Checks if all specified member keys have the same string value.\n";
 
-    static bool strcompareEquals(Utility::Args::SSV const& args, Data::JsonScope& jsonDoc);
+    static bool strcompareEquals(Utility::Args::SegmentedStringView const& args, Data::JsonScope& jsonDoc);
     static auto constexpr strcompareEqualsName = "strCompare equals";
     static auto constexpr strcompareEqualsDesc = "Compares the current JSON string value with a specified string for equality.\n"
         "Usage: |strCompare equals {string} -> {bool}\n"
         "Checks if the string is empty if no argument is given\n"
         "{string}: String to compare with\n";
 
-    static bool strcompareContains(Utility::Args::SSV const& args, Data::JsonScope& jsonDoc);
+    static bool strcompareContains(Utility::Args::SegmentedStringView const& args, Data::JsonScope& jsonDoc);
     static auto constexpr strcompareContainsName = "strCompare contains";
     static auto constexpr strcompareContainsDesc = "Checks if the current JSON string value contains a specified substring.\n"
         "Usage: |strCompare contains {string} -> {bool}\n"
         "Checks for whitespaces if no substring is given\n"
         "{string}: Substring to check for\n";
 
-    static bool strcompareStartsWith(Utility::Args::SSV const& args, Data::JsonScope& jsonDoc);
+    static bool strcompareStartsWith(Utility::Args::SegmentedStringView const& args, Data::JsonScope& jsonDoc);
     static auto constexpr strcompareStartsWithName = "strCompare startsWith";
     static auto constexpr strcompareStartsWithDesc = "Checks if the current JSON string value starts with a specified substring.\n"
         "Usage: |strCompare startsWith {string} -> {bool}\n"
         "{string}: Substring to check for. If left empty, it checks for a whitespace.\n";
 
-    static bool strcompareEndsWith(Utility::Args::SSV const& args, Data::JsonScope& jsonDoc);
+    static bool strcompareEndsWith(Utility::Args::SegmentedStringView const& args, Data::JsonScope& jsonDoc);
     static auto constexpr strcompareEndsWithName = "strCompare endsWith";
     static auto constexpr strcompareEndsWithDesc = "Checks if the current JSON string value ends with a specified substring.\n"
         "Usage: |strCompare endsWith {string} -> {bool}\n"

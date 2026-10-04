@@ -8,7 +8,7 @@
 #include "Nebulite/Module/Transformation/Assertions.hpp"
 #include "Nebulite/Module/Transformation/Requirements.hpp"
 #include "Nebulite/Nebulite.hpp"
-#include "Nebulite/Utility/Args/CmdArgs.hpp"
+#include "Nebulite/Utility/Args/SegmentedStringView.hpp"
 
 //------------------------------------------
 namespace Nebulite::Module::Transformation {
@@ -35,14 +35,14 @@ void Requirements::bindTransformations() {
     bindTransformation(&Requirements::requireEqualsInt, requireEqualsIntName, requireEqualsIntDesc);
 }
 
-void Requirements::printUserDefinedMessage(Utility::Args::SSV const& args){
+void Requirements::printUserDefinedMessage(Utility::Args::SegmentedStringView const& args){
     if (args.size() < 2) {
         return; // No message provided
     }
     Global::capture().error.println(args.recombineSubspan(1));
 }
 
-bool Requirements::requireTrue(Utility::Args::SSV const& args, Data::JsonScope const& jsonDoc){
+bool Requirements::requireTrue(Utility::Args::SegmentedStringView const& args, Data::JsonScope const& jsonDoc){
     try {
         Assertions::assertTrue(args, jsonDoc);
     }
@@ -52,7 +52,7 @@ bool Requirements::requireTrue(Utility::Args::SSV const& args, Data::JsonScope c
     return true;
 }
 
-bool Requirements::requireFalse(Utility::Args::SSV const& args, Data::JsonScope const& jsonDoc){
+bool Requirements::requireFalse(Utility::Args::SegmentedStringView const& args, Data::JsonScope const& jsonDoc){
     try {
         Assertions::assertFalse(args, jsonDoc);
     }
@@ -62,7 +62,7 @@ bool Requirements::requireFalse(Utility::Args::SSV const& args, Data::JsonScope 
     return true;
 }
 
-bool Requirements::requireNonEmpty(Utility::Args::SSV const& args, Data::JsonScope const& jsonDoc) {
+bool Requirements::requireNonEmpty(Utility::Args::SegmentedStringView const& args, Data::JsonScope const& jsonDoc) {
     try {
         Assertions::assertNonEmpty(args, jsonDoc);
     }
@@ -72,7 +72,7 @@ bool Requirements::requireNonEmpty(Utility::Args::SSV const& args, Data::JsonSco
     return true;
 }
 
-bool Requirements::requireEmpty(Utility::Args::SSV const& args, Data::JsonScope const& jsonDoc){
+bool Requirements::requireEmpty(Utility::Args::SegmentedStringView const& args, Data::JsonScope const& jsonDoc){
     try {
         Assertions::assertEmpty(args, jsonDoc);
     }
@@ -82,7 +82,7 @@ bool Requirements::requireEmpty(Utility::Args::SSV const& args, Data::JsonScope 
     return true;
 }
 
-bool Requirements::requireTypeObject(Utility::Args::SSV const& args, Data::JsonScope const& jsonDoc) {
+bool Requirements::requireTypeObject(Utility::Args::SegmentedStringView const& args, Data::JsonScope const& jsonDoc) {
     try {
         Assertions::assertTypeObject(args, jsonDoc);
     }
@@ -92,7 +92,7 @@ bool Requirements::requireTypeObject(Utility::Args::SSV const& args, Data::JsonS
     return true;
 }
 
-bool Requirements::requireTypeArray(Utility::Args::SSV const& args, Data::JsonScope const& jsonDoc) {
+bool Requirements::requireTypeArray(Utility::Args::SegmentedStringView const& args, Data::JsonScope const& jsonDoc) {
     try {
         Assertions::assertTypeArray(args, jsonDoc);
     }
@@ -102,7 +102,7 @@ bool Requirements::requireTypeArray(Utility::Args::SSV const& args, Data::JsonSc
     return true;
 }
 
-bool Requirements::requireTypeBasicValue(Utility::Args::SSV const& args, Data::JsonScope const& jsonDoc) {
+bool Requirements::requireTypeBasicValue(Utility::Args::SegmentedStringView const& args, Data::JsonScope const& jsonDoc) {
     try {
         Assertions::assertTypeBasicValue(args, jsonDoc);
     }
@@ -112,7 +112,7 @@ bool Requirements::requireTypeBasicValue(Utility::Args::SSV const& args, Data::J
     return true;
 }
 
-bool Requirements::requireTypeNumeric(Utility::Args::SSV const& args, Data::JsonScope const& jsonDoc){
+bool Requirements::requireTypeNumeric(Utility::Args::SegmentedStringView const& args, Data::JsonScope const& jsonDoc){
     try {
         Assertions::assertTypeNumeric(args, jsonDoc);
     }
@@ -122,7 +122,7 @@ bool Requirements::requireTypeNumeric(Utility::Args::SSV const& args, Data::Json
     return true;
 }
 
-bool Requirements::requireTypeNumericOrNumericString(Utility::Args::SSV const& args, Data::JsonScope const& jsonDoc){
+bool Requirements::requireTypeNumericOrNumericString(Utility::Args::SegmentedStringView const& args, Data::JsonScope const& jsonDoc){
     try {
         Assertions::assertTypeNumericOrNumericString(args, jsonDoc);
     }
@@ -132,7 +132,7 @@ bool Requirements::requireTypeNumericOrNumericString(Utility::Args::SSV const& a
     return true;
 }
 
-bool Requirements::requireMatchRegex(Utility::Args::SSV const& args, Data::JsonScope const& jsonDoc){
+bool Requirements::requireMatchRegex(Utility::Args::SegmentedStringView const& args, Data::JsonScope const& jsonDoc){
     try {
         Assertions::assertMatchRegex(args, jsonDoc);
     }
@@ -142,7 +142,7 @@ bool Requirements::requireMatchRegex(Utility::Args::SSV const& args, Data::JsonS
     return true;
 }
 
-bool Requirements::requireEqualsString(Utility::Args::SSV const& args, Data::JsonScope const& jsonDoc) {
+bool Requirements::requireEqualsString(Utility::Args::SegmentedStringView const& args, Data::JsonScope const& jsonDoc) {
     try {
         Assertions::assertEqualsString(args, jsonDoc);
     }
@@ -152,7 +152,7 @@ bool Requirements::requireEqualsString(Utility::Args::SSV const& args, Data::Jso
     return true;
 }
 
-bool Requirements::requireEqualsInt(Utility::Args::SSV const& args, Data::JsonScope const& jsonDoc){
+bool Requirements::requireEqualsInt(Utility::Args::SegmentedStringView const& args, Data::JsonScope const& jsonDoc){
     try {
         Assertions::assertEqualsInt(args, jsonDoc);
     }

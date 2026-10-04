@@ -9,8 +9,8 @@
 
 // Nebulite
 #include "Nebulite/Module/Base/TransformationModule.hpp"
-#include "Nebulite/Utility/Args/CmdArgs.hpp"
 #include "Nebulite/Utility/Args/FuncTree.hpp"
+#include "Nebulite/Utility/Args/SegmentedStringView.hpp"
 
 //------------------------------------------
 // Forward declarations
@@ -35,37 +35,37 @@ public:
     //------------------------------------------
     // Available Transformations
 
-    static bool setString(Utility::Args::SSV const& args, Data::JsonScope& jsonDoc);
+    static bool setString(Utility::Args::SegmentedStringView const& args, Data::JsonScope& jsonDoc);
     static auto constexpr setStringName = "setString";
     static auto constexpr setStringDesc = "Sets a string value at the specified key in the JSON document.\n"
         "Expects two arguments: <key> and <value>.\n"
         "Usage: |setString <key> <value> -> {json}\n";
 
-    static bool setInt(Utility::Args::SSV const& args, Data::JsonScope& jsonDoc);
+    static bool setInt(Utility::Args::SegmentedStringView const& args, Data::JsonScope& jsonDoc);
     static auto constexpr setIntName = "setInt";
     static auto constexpr setIntDesc = "Sets an integer value at the specified key in the JSON document.\n"
         "Expects two arguments: <key> and <value>.\n"
         "Usage: |setInt <key> <value> -> {json}\n";
 
-    static bool setDouble(Utility::Args::SSV const& args, Data::JsonScope& jsonDoc);
+    static bool setDouble(Utility::Args::SegmentedStringView const& args, Data::JsonScope& jsonDoc);
     static auto constexpr setDoubleName = "setDouble";
     static auto constexpr setDoubleDesc = "Sets a double value at the specified key in the JSON document.\n"
         "Expects two arguments: <key> and <value>.\n"
         "Usage: |setDouble <key> <value> -> {json}\n";
 
-    static bool setBool(Utility::Args::SSV const& args, Data::JsonScope& jsonDoc);
+    static bool setBool(Utility::Args::SegmentedStringView const& args, Data::JsonScope& jsonDoc);
     static auto constexpr setBoolName = "setBool";
     static auto constexpr setBoolDesc = "Sets a boolean value at the specified key in the JSON document.\n"
         "Expects two arguments: <key> and <value> (true/false).\n"
         "Any other value will be considered false.\n"
         "Usage: |setBool <key> <value> -> {json}\n";
 
-    static bool removeMember(Utility::Args::SSV const& args, Data::JsonScope& jsonDoc);
+    static bool removeMember(Utility::Args::SegmentedStringView const& args, Data::JsonScope& jsonDoc);
     static auto constexpr removeMemberName = "removeMember";
     static auto constexpr removeMemberDesc = "Removes the member at the specified key from the JSON document.\n"
             "Usage: |removeMember <key1> <key2> ... -> {json}\n";
 
-    static bool assign(Utility::Args::SSV const& args, Data::JsonScope& jsonDoc);
+    static bool assign(Utility::Args::SegmentedStringView const& args, Data::JsonScope& jsonDoc);
     static auto constexpr assignName = "assign";
     static auto constexpr assignDesc = "Assigns a value based on the result of an expression.\n"
         "Usage: |assign <context>:<key> <assign-operator> <expression> -> {json}\n"

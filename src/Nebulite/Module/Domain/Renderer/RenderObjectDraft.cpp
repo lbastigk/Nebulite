@@ -11,7 +11,7 @@
 #include "Nebulite/Core/Renderer.hpp"
 #include "Nebulite/Module/Base/DomainModule.hpp"
 #include "Nebulite/Module/Domain/Renderer/RenderObjectDraft.hpp"
-#include "Nebulite/Utility/Args/CmdArgs.hpp"
+#include "Nebulite/Utility/Args/SegmentedStringView.hpp"
 
 //------------------------------------------
 namespace Nebulite::Module::Domain::Renderer {
@@ -20,7 +20,7 @@ Constants::Event RenderObjectDraft::updateHook() {
     return draft.get(domain.capture).update();
 }
 
-Constants::Event RenderObjectDraft::draftParse(Utility::Args::SSV const& args, Interaction::Context& ctx, Interaction::ContextScope& ctxScope) {
+Constants::Event RenderObjectDraft::draftParse(Utility::Args::SegmentedStringView const& args, Interaction::Context& ctx, Interaction::ContextScope& ctxScope) {
     if (args.size() < 2) {
         return Constants::StandardCapture::Warning::Functional::tooFewArgs(domain.capture);
     }

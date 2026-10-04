@@ -16,7 +16,7 @@
 #include "Nebulite/Data/Document/JsonScope.hpp"
 #include "Nebulite/Math/FFT.hpp"
 #include "Nebulite/Module/Transformation/FFT.hpp"
-#include "Nebulite/Utility/Args/CmdArgs.hpp"
+#include "Nebulite/Utility/Args/SegmentedStringView.hpp"
 #include "Nebulite/Utility/Convert/Cast.hpp"
 #include "Nebulite/Utility/Ranges.hpp"
 
@@ -70,7 +70,7 @@ bool Fft::applyIfft(Data::JsonScope& jsonDoc) {
     return true;
 }
 
-bool Fft::applyTransferFunctionFrequencyDomain(Utility::Args::SSV const& args, Data::JsonScope& jsonDoc) {
+bool Fft::applyTransferFunctionFrequencyDomain(Utility::Args::SegmentedStringView const& args, Data::JsonScope& jsonDoc) {
     auto const samples = jsonDoc.arrayKeys(rootKey)
         | std::views::transform([&jsonDoc](auto const& key) -> std::optional<double> {
             // Try to retrieve value as real value first (simplest to handle), if not, try to retrieve as complex value

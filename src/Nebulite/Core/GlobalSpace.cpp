@@ -33,7 +33,7 @@
 #include "Nebulite/Module/Domain/Initializer.hpp"
 #include "Nebulite/Nebulite.hpp"
 #include "Nebulite/ScopeAccessor.hpp"
-#include "Nebulite/Utility/Args/CmdArgs.hpp"
+#include "Nebulite/Utility/Args/SegmentedStringView.hpp"
 
 //------------------------------------------
 namespace Nebulite::Core {
@@ -297,7 +297,7 @@ void GlobalSpace::notifyEvent(Constants::Event const event) {
 //------------------------------------------
 // Pre-parse
 
-Constants::Event GlobalSpace::preParse(std::string_view const functionName, Utility::Args::SSV const& /*args*/) {
+Constants::Event GlobalSpace::preParse(std::string_view const functionName, Utility::Args::SegmentedStringView const& /*args*/) {
     // NOTE: This function is only called once there is a parse-command
     // Meaning its timing is consistent and not dependent on framerate, frame time variations, etc.
     // Meaning everything we do here is, timing wise, deterministic!

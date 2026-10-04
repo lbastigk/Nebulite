@@ -10,7 +10,7 @@
 #include "Nebulite/Data/Document/JsonScope.hpp"
 #include "Nebulite/Data/Document/ScopedKeyView.hpp"
 #include "Nebulite/Module/Transformation/Arithmetic.hpp"
-#include "Nebulite/Utility/Args/CmdArgs.hpp"
+#include "Nebulite/Utility/Args/SegmentedStringView.hpp"
 
 //------------------------------------------
 namespace Nebulite::Module::Transformation {
@@ -26,7 +26,7 @@ void Arithmetic::bindTransformations() {
     bindTransformation(&Arithmetic::root, rootName, rootDesc);
 }
 
-bool Arithmetic::add(Utility::Args::SSV const& args, Data::JsonScope& jsonDoc) {
+bool Arithmetic::add(Utility::Args::SegmentedStringView const& args, Data::JsonScope& jsonDoc) {
     return forall(args, [&jsonDoc](std::string_view const arg, Data::ScopedKeyView const& key) {
         double const num = std::stod(std::string(arg));
         jsonDoc.setAdditive(key, num);
@@ -34,7 +34,7 @@ bool Arithmetic::add(Utility::Args::SSV const& args, Data::JsonScope& jsonDoc) {
     });
 }
 
-bool Arithmetic::multiply(Utility::Args::SSV const& args, Data::JsonScope& jsonDoc) {
+bool Arithmetic::multiply(Utility::Args::SegmentedStringView const& args, Data::JsonScope& jsonDoc) {
     return forall(args, [&jsonDoc](std::string_view const arg, Data::ScopedKeyView const& key) {
         double const num = std::stod(std::string(arg));
         jsonDoc.setMultiplicative(key, num);
@@ -42,7 +42,7 @@ bool Arithmetic::multiply(Utility::Args::SSV const& args, Data::JsonScope& jsonD
     });
 }
 
-bool Arithmetic::mod(Utility::Args::SSV const& args, Data::JsonScope& jsonDoc) {
+bool Arithmetic::mod(Utility::Args::SegmentedStringView const& args, Data::JsonScope& jsonDoc) {
     return forall(args, [&jsonDoc](std::string_view const arg, Data::ScopedKeyView const& key) {
         double const modValue = std::stod(std::string(arg));
         auto const currentValue = jsonDoc.get<double>(key).value_or(0.0);
@@ -55,7 +55,7 @@ bool Arithmetic::mod(Utility::Args::SSV const& args, Data::JsonScope& jsonDoc) {
     });
 }
 
-bool Arithmetic::pow(Utility::Args::SSV const& args, Data::JsonScope& jsonDoc) {
+bool Arithmetic::pow(Utility::Args::SegmentedStringView const& args, Data::JsonScope& jsonDoc) {
     return forall(args, [&jsonDoc](std::string_view const arg, Data::ScopedKeyView const& key) {
         double const exponent = std::stod(std::string(arg));
         auto const currentValue = jsonDoc.get<double>(key).value_or(0.0);
@@ -65,7 +65,7 @@ bool Arithmetic::pow(Utility::Args::SSV const& args, Data::JsonScope& jsonDoc) {
     });
 }
 
-bool Arithmetic::subtract(Utility::Args::SSV const& args, Data::JsonScope& jsonDoc) {
+bool Arithmetic::subtract(Utility::Args::SegmentedStringView const& args, Data::JsonScope& jsonDoc) {
     return forall(args, [&jsonDoc](std::string_view const arg, Data::ScopedKeyView const& key) {
         double const num = - std::stod(std::string(arg));
         jsonDoc.setAdditive(key, num);
@@ -73,7 +73,7 @@ bool Arithmetic::subtract(Utility::Args::SSV const& args, Data::JsonScope& jsonD
     });
 }
 
-bool Arithmetic::divide(Utility::Args::SSV const& args, Data::JsonScope& jsonDoc) {
+bool Arithmetic::divide(Utility::Args::SegmentedStringView const& args, Data::JsonScope& jsonDoc) {
     return forall(args, [&jsonDoc](std::string_view const arg, Data::ScopedKeyView const& key) {
         double const divisor = std::stod(std::string(arg));
         if (std::fabs(divisor) < std::numeric_limits<double>::epsilon()) {
@@ -85,7 +85,7 @@ bool Arithmetic::divide(Utility::Args::SSV const& args, Data::JsonScope& jsonDoc
     });
 }
 
-bool Arithmetic::root(Utility::Args::SSV const& args, Data::JsonScope& jsonDoc) {
+bool Arithmetic::root(Utility::Args::SegmentedStringView const& args, Data::JsonScope& jsonDoc) {
     return forall(args, [&jsonDoc](std::string_view const arg, Data::ScopedKeyView const& key) {
         double const n = std::stod(std::string(arg));
         if (std::fabs(n) < std::numeric_limits<double>::epsilon()) {
@@ -101,7 +101,7 @@ bool Arithmetic::root(Utility::Args::SSV const& args, Data::JsonScope& jsonDoc) 
     });
 }
 
-bool Arithmetic::sqrt(Utility::Args::SSV const& args, Data::JsonScope& jsonDoc) {
+bool Arithmetic::sqrt(Utility::Args::SegmentedStringView const& args, Data::JsonScope& jsonDoc) {
     if (args.size() != 1) {
         return false; // No arguments should be provided for sqrt, as it's an operator with a single operand (the current JSON value)
     }

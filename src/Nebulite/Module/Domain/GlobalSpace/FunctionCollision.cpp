@@ -10,8 +10,8 @@
 #include "Nebulite/Core/GlobalSpace.hpp"
 #include "Nebulite/Interaction/Execution/Domain.hpp"
 #include "Nebulite/Module/Domain/GlobalSpace/FunctionCollision.hpp"
-#include "Nebulite/Utility/Args/CmdArgs.hpp"
 #include "Nebulite/Utility/Args/FuncTree.hpp"
+#include "Nebulite/Utility/Args/SegmentedStringView.hpp"
 
 //------------------------------------------
 namespace Nebulite::Module::Domain::GlobalSpace {
@@ -36,7 +36,7 @@ bool testFunctionCollision2(bool const arg) {
 } // namespace
 
 
-Constants::Event FunctionCollision::debugCollisionDetectFunction(Utility::Args::SSV const& args) const {
+Constants::Event FunctionCollision::debugCollisionDetectFunction(Utility::Args::SegmentedStringView const& args) const {
     bool fail = true;
     if (args.size() >= 2) {
         if (auto const& mode = args.at(1); mode == "succeed") {
@@ -72,7 +72,7 @@ Constants::Event FunctionCollision::debugCollisionDetectFunction(Utility::Args::
     return Constants::Event::success;
 }
 
-Constants::Event FunctionCollision::debugCollisionDetectCategory(Utility::Args::SSV const& args) const {
+Constants::Event FunctionCollision::debugCollisionDetectCategory(Utility::Args::SegmentedStringView const& args) const {
     bool fail = true;
     if (args.size() >= 2) {
         if (auto const& mode = args.at(1); mode == "succeed") {
@@ -115,7 +115,7 @@ Constants::Event FunctionCollision::debugCollisionDetectCategory(Utility::Args::
     return Constants::Event::success;
 }
 
-Constants::Event FunctionCollision::debugCollisionDetectVariable(Utility::Args::SSV const& args) const {
+Constants::Event FunctionCollision::debugCollisionDetectVariable(Utility::Args::SegmentedStringView const& args) const {
     bool fail = true;
     if (args.size() >= 2) {
         if (auto const& mode = args.at(1); mode == "succeed") {

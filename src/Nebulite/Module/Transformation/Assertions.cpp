@@ -13,7 +13,7 @@
 #include "Nebulite/Data/Document/KeyType.hpp"
 #include "Nebulite/Module/Transformation/Assertions.hpp"
 #include "Nebulite/Nebulite.hpp"
-#include "Nebulite/Utility/Args/CmdArgs.hpp"
+#include "Nebulite/Utility/Args/SegmentedStringView.hpp"
 #include "Nebulite/Utility/Convert/Cast.hpp"
 
 //------------------------------------------
@@ -41,14 +41,14 @@ void Assertions::bindTransformations() {
     bindTransformation(&Assertions::assertEqualsInt, assertEqualsIntName, assertEqualsIntDesc);
 }
 
-void Assertions::printUserDefinedMessage(Utility::Args::SSV const& args){
+void Assertions::printUserDefinedMessage(Utility::Args::SegmentedStringView const& args){
     if (args.size() < 2) {
         return; // No message provided
     }
     Global::capture().error.println(args.recombineSubspan(1));
 }
 
-bool Assertions::assertTrue(Utility::Args::SSV const& args, Data::JsonScope const& jsonDoc){
+bool Assertions::assertTrue(Utility::Args::SegmentedStringView const& args, Data::JsonScope const& jsonDoc){
     auto variant = jsonDoc.getVariant(rootKey);
     if (!variant) {
         printUserDefinedMessage(args);
@@ -71,7 +71,7 @@ bool Assertions::assertTrue(Utility::Args::SSV const& args, Data::JsonScope cons
     return true;
 }
 
-bool Assertions::assertFalse(Utility::Args::SSV const& args, Data::JsonScope const& jsonDoc){
+bool Assertions::assertFalse(Utility::Args::SegmentedStringView const& args, Data::JsonScope const& jsonDoc){
     auto variant = jsonDoc.getVariant(rootKey);
     if (!variant) {
         printUserDefinedMessage(args);
@@ -94,7 +94,7 @@ bool Assertions::assertFalse(Utility::Args::SSV const& args, Data::JsonScope con
     return true;
 }
 
-bool Assertions::assertNonEmpty(Utility::Args::SSV const& args, Data::JsonScope const& jsonDoc) {
+bool Assertions::assertNonEmpty(Utility::Args::SegmentedStringView const& args, Data::JsonScope const& jsonDoc) {
     if (jsonDoc.memberType(rootKey) == Data::KeyType::null) {
         printUserDefinedMessage(args);
         static std::string const errorMessage = std::string(assertNonEmptyName) + ": JSON value is null";
@@ -103,7 +103,7 @@ bool Assertions::assertNonEmpty(Utility::Args::SSV const& args, Data::JsonScope 
     return true;
 }
 
-bool Assertions::assertEmpty(Utility::Args::SSV const& args, Data::JsonScope const& jsonDoc){
+bool Assertions::assertEmpty(Utility::Args::SegmentedStringView const& args, Data::JsonScope const& jsonDoc){
     if (jsonDoc.memberType(rootKey) != Data::KeyType::null) {
         printUserDefinedMessage(args);
         static std::string const errorMessage = std::string(assertEmptyName) + ": JSON value is not null";
@@ -112,7 +112,7 @@ bool Assertions::assertEmpty(Utility::Args::SSV const& args, Data::JsonScope con
     return true;
 }
 
-bool Assertions::assertTypeObject(Utility::Args::SSV const& args, Data::JsonScope const& jsonDoc) {
+bool Assertions::assertTypeObject(Utility::Args::SegmentedStringView const& args, Data::JsonScope const& jsonDoc) {
     if (jsonDoc.memberType(rootKey) != Data::KeyType::object) {
         printUserDefinedMessage(args);
         static std::string const errorMessage = std::string(assertTypeObjectName) + ": JSON value is not an object";
@@ -121,7 +121,7 @@ bool Assertions::assertTypeObject(Utility::Args::SSV const& args, Data::JsonScop
     return true;
 }
 
-bool Assertions::assertTypeArray(Utility::Args::SSV const& args, Data::JsonScope const& jsonDoc) {
+bool Assertions::assertTypeArray(Utility::Args::SegmentedStringView const& args, Data::JsonScope const& jsonDoc) {
     if (jsonDoc.memberType(rootKey) != Data::KeyType::array) {
         printUserDefinedMessage(args);
         static std::string const errorMessage = std::string(assertTypeArrayName) + ": JSON value is not an array";
@@ -130,7 +130,7 @@ bool Assertions::assertTypeArray(Utility::Args::SSV const& args, Data::JsonScope
     return true;
 }
 
-bool Assertions::assertTypeBasicValue(Utility::Args::SSV const& args, Data::JsonScope const& jsonDoc) {
+bool Assertions::assertTypeBasicValue(Utility::Args::SegmentedStringView const& args, Data::JsonScope const& jsonDoc) {
     if (jsonDoc.memberType(rootKey) != Data::KeyType::value) {
         printUserDefinedMessage(args);
         static std::string const errorMessage = std::string(assertTypeBasicValueName) + ": JSON value is not a basic value";
@@ -160,7 +160,7 @@ bool isNumericOrNumericString(Value const& v){
 } // namespace
 
 
-bool Assertions::assertTypeNumeric(Utility::Args::SSV const& args, Data::JsonScope const& jsonDoc){
+bool Assertions::assertTypeNumeric(Utility::Args::SegmentedStringView const& args, Data::JsonScope const& jsonDoc){
     if (auto const variant = jsonDoc.getVariant(rootKey); variant.has_value() && isNumeric(variant.value())) {
         return true;
     }
@@ -168,7 +168,7 @@ bool Assertions::assertTypeNumeric(Utility::Args::SSV const& args, Data::JsonSco
     throw std::runtime_error(std::string(assertTypeNumericName) + ": JSON value is not a number");
 }
 
-bool Assertions::assertTypeNumericOrNumericString(Utility::Args::SSV const& args, Data::JsonScope const& jsonDoc){
+bool Assertions::assertTypeNumericOrNumericString(Utility::Args::SegmentedStringView const& args, Data::JsonScope const& jsonDoc){
     if (auto const variant = jsonDoc.getVariant(rootKey); variant.has_value() && isNumericOrNumericString(variant.value())) {
         return true;
     }
@@ -177,7 +177,7 @@ bool Assertions::assertTypeNumericOrNumericString(Utility::Args::SSV const& args
 }
 
 // NOLINTNEXTLINE
-bool Assertions::assertMatchRegex(Utility::Args::SSV const& args, Data::JsonScope const& jsonDoc){
+bool Assertions::assertMatchRegex(Utility::Args::SegmentedStringView const& args, Data::JsonScope const& jsonDoc){
     std::string const pattern = args.size() < 2 ? "" : args.recombineSubspan(1);
     std::regex const regex(pattern);
     if (jsonDoc.memberType(rootKey) != Data::KeyType::value) {
@@ -190,7 +190,7 @@ bool Assertions::assertMatchRegex(Utility::Args::SSV const& args, Data::JsonScop
 }
 
 // NOLINTNEXTLINE
-bool Assertions::assertEqualsString(Utility::Args::SSV const& args, Data::JsonScope const& jsonDoc) {
+bool Assertions::assertEqualsString(Utility::Args::SegmentedStringView const& args, Data::JsonScope const& jsonDoc) {
     auto const expected = args.size() < 2 ? "" : args.recombineSubspan(1);
     if (jsonDoc.memberType(rootKey) != Data::KeyType::value) {
         throw std::runtime_error(std::string(assertEqualsStringName) + ": Current JSON value is not a basic value, expected string: " + expected);
@@ -201,7 +201,7 @@ bool Assertions::assertEqualsString(Utility::Args::SSV const& args, Data::JsonSc
     return true;
 }
 
-bool Assertions::assertEqualsInt(Utility::Args::SSV const& args, Data::JsonScope const& jsonDoc){
+bool Assertions::assertEqualsInt(Utility::Args::SegmentedStringView const& args, Data::JsonScope const& jsonDoc){
     if (args.size() < 2) {
         throw std::runtime_error(std::string(assertEqualsIntName) + ": No expected integer provided");
     }

@@ -9,8 +9,8 @@
 
 // Nebulite
 #include "Nebulite/Module/Base/TransformationModule.hpp"
-#include "Nebulite/Utility/Args/CmdArgs.hpp"
 #include "Nebulite/Utility/Args/FuncTree.hpp"
+#include "Nebulite/Utility/Args/SegmentedStringView.hpp"
 
 //------------------------------------------
 // Forward declarations
@@ -58,7 +58,7 @@ public:
         "Usage: |complexArg -> {argument}\n"
         "The transformation fails if the current JSON value is not a complex number.\n";
 
-    static bool complexToString(Utility::Args::SSV const& args, Data::JsonScope& jsonDoc);
+    static bool complexToString(Utility::Args::SegmentedStringView const& args, Data::JsonScope& jsonDoc);
     static auto constexpr complexToStringName = "complexToString";
     static auto constexpr complexToStringDesc = "Formats the contained complex number object to a string.\n"
         "If the stored value is not a complex number, the value is not modified.\n"
@@ -66,7 +66,7 @@ public:
         "Example formatters: 04.2f, 5i, 06i\n"
         "Usage: |complexToString [formatter] -> {string}\n";
 
-    static bool formatComplexNumberString(Utility::Args::SSV const& args, Data::JsonScope& jsonDoc);
+    static bool formatComplexNumberString(Utility::Args::SegmentedStringView const& args, Data::JsonScope& jsonDoc);
     static auto constexpr formatComplexNumberStringName = "formatComplexNumberString";
     static auto constexpr formatComplexNumberStringDesc = "Formats the contained complex number string to another string\n"
         "If the stored value is not a simple value, the transformation fails.\n"

@@ -109,7 +109,7 @@ void Json::flush(std::string_view const key) const {
 
 bool Json::getSubDocWithTransformations(std::string_view const key, Json& outDoc) const {
     auto args = splitKeyWithTransformations(key);
-    auto const argsView = Utility::Args::SSV(args.data(), args.size()).subspan(1); // Skip the base key
+    auto const argsView = Utility::Args::SegmentedStringView(args.data(), args.size()).subspan(1); // Skip the base key
     outDoc = getSubDoc(args[0]); // First argument is the base key, which we use to initialize the output document
     return JsonTransformer::instance().parse(argsView, outDoc);
 }

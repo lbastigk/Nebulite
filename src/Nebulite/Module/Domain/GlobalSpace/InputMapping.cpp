@@ -16,7 +16,7 @@
 #include "Nebulite/Module/Domain/GlobalSpace/InputMapping.hpp"
 #include "Nebulite/Module/Domain/GlobalSpace/Settings.hpp"
 #include "Nebulite/Module/Domain/Renderer/Input.hpp"
-#include "Nebulite/Utility/Args/CmdArgs.hpp"
+#include "Nebulite/Utility/Args/SegmentedStringView.hpp"
 #include "Nebulite/Utility/StringHandler.hpp"
 
 //------------------------------------------
@@ -36,7 +36,7 @@ InputMapping::InputMapping(ConstructorParams const& params)
     bindFunction(&InputMapping::unlock, unlockName, unlockDesc);
 }
 
-Constants::Event InputMapping::lockOnce(Utility::Args::SSV const& args) {
+Constants::Event InputMapping::lockOnce(Utility::Args::SegmentedStringView const& args) {
     if (args.size() > 2) {
         return Constants::StandardCapture::Warning::Functional::tooManyArgs(domain.capture);
     }
@@ -58,7 +58,7 @@ Constants::Event InputMapping::lockOnce(Utility::Args::SSV const& args) {
     return Constants::Event::success;
 }
 
-Constants::Event InputMapping::lockOn(Utility::Args::SSV const& args) {
+Constants::Event InputMapping::lockOn(Utility::Args::SegmentedStringView const& args) {
     if (args.size() > 2) {
         return Constants::StandardCapture::Warning::Functional::tooManyArgs(domain.capture);
     }
@@ -80,7 +80,7 @@ Constants::Event InputMapping::lockOn(Utility::Args::SSV const& args) {
     return Constants::Event::success;
 }
 
-Constants::Event InputMapping::unlock(Utility::Args::SSV const& args) {
+Constants::Event InputMapping::unlock(Utility::Args::SegmentedStringView const& args) {
     if (args.size() > 2) {
         return Constants::StandardCapture::Warning::Functional::tooManyArgs(domain.capture);
     }

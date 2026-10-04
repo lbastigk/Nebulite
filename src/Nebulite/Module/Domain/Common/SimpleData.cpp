@@ -16,7 +16,7 @@
 #include "Nebulite/Interaction/Execution/Domain.hpp"
 #include "Nebulite/Interaction/Logic/Assignment.hpp"
 #include "Nebulite/Module/Domain/Common/SimpleData.hpp"
-#include "Nebulite/Utility/Args/CmdArgs.hpp"
+#include "Nebulite/Utility/Args/SegmentedStringView.hpp"
 
 //------------------------------------------
 namespace Nebulite::Module::Domain::Common {
@@ -32,7 +32,7 @@ Constants::Event SimpleData::updateHook() {
 //------------------------------------------
 // General set/get/remove functions
 
-Constants::Event SimpleData::set(Utility::Args::SSV const& args, Interaction::Context const& ctx, Interaction::ContextScope const& ctxScope) {
+Constants::Event SimpleData::set(Utility::Args::SegmentedStringView const& args, Interaction::Context const& ctx, Interaction::ContextScope const& ctxScope) {
     auto lock = ctxScope.self.lock(); // Lock the domain for thread-safe access
     if (args.size() < 2) {
         return Constants::StandardCapture::Warning::Functional::tooFewArgs(ctx.self.capture);
@@ -43,7 +43,7 @@ Constants::Event SimpleData::set(Utility::Args::SSV const& args, Interaction::Co
     return Constants::Event::success;
 }
 
-Constants::Event SimpleData::assign(Utility::Args::SSV const& args, Interaction::Context const& ctx, Interaction::ContextScope const& ctxScope){
+Constants::Event SimpleData::assign(Utility::Args::SegmentedStringView const& args, Interaction::Context const& ctx, Interaction::ContextScope const& ctxScope){
     auto lock = ctxScope.self.lock(); // Lock the domain for thread-safe access
     if (args.size() < 2) {
         return Constants::StandardCapture::Warning::Functional::tooFewArgs(ctx.self.capture);
@@ -58,7 +58,7 @@ Constants::Event SimpleData::assign(Utility::Args::SSV const& args, Interaction:
     return Constants::Event::success;
 }
 
-Constants::Event SimpleData::move(Utility::Args::SSV const& args, Interaction::Context const& ctx, Interaction::ContextScope const& ctxScope) {
+Constants::Event SimpleData::move(Utility::Args::SegmentedStringView const& args, Interaction::Context const& ctx, Interaction::ContextScope const& ctxScope) {
     auto lock = ctxScope.self.lock(); // Lock the domain for thread-safe access
     if (args.size() < 3) {
         return Constants::StandardCapture::Warning::Functional::tooFewArgs(ctx.self.capture);
@@ -72,7 +72,7 @@ Constants::Event SimpleData::move(Utility::Args::SSV const& args, Interaction::C
     return Constants::Event::success;
 }
 
-Constants::Event SimpleData::copy(Utility::Args::SSV const& args, Interaction::Context const& ctx, Interaction::ContextScope const& ctxScope) {
+Constants::Event SimpleData::copy(Utility::Args::SegmentedStringView const& args, Interaction::Context const& ctx, Interaction::ContextScope const& ctxScope) {
     auto lock = ctxScope.self.lock(); // Lock the domain for thread-safe access
     if (args.size() < 3) {
         return Constants::StandardCapture::Warning::Functional::tooFewArgs(ctx.self.capture);
@@ -86,7 +86,7 @@ Constants::Event SimpleData::copy(Utility::Args::SSV const& args, Interaction::C
     return Constants::Event::success;
 }
 
-Constants::Event SimpleData::keyDelete(Utility::Args::SSV const& args, Interaction::Context const& ctx, Interaction::ContextScope const& ctxScope) {
+Constants::Event SimpleData::keyDelete(Utility::Args::SegmentedStringView const& args, Interaction::Context const& ctx, Interaction::ContextScope const& ctxScope) {
     auto lock = ctxScope.self.lock(); // Lock the domain for thread-safe access
     if (args.size() < 2) {
         return Constants::StandardCapture::Warning::Functional::tooFewArgs(ctx.self.capture);
@@ -102,7 +102,7 @@ Constants::Event SimpleData::keyDelete(Utility::Args::SSV const& args, Interacti
 //------------------------------------------
 // Array manipulation functions
 
-Constants::Event SimpleData::ensureArray(Utility::Args::SSV const& args, Interaction::Context const& ctx, Interaction::ContextScope const& ctxScope) {
+Constants::Event SimpleData::ensureArray(Utility::Args::SegmentedStringView const& args, Interaction::Context const& ctx, Interaction::ContextScope const& ctxScope) {
     auto lock = ctxScope.self.lock(); // Lock the domain for thread-safe access
     if (args.size() < 2) {
         return Constants::StandardCapture::Warning::Functional::tooFewArgs(ctx.self.capture);
@@ -117,7 +117,7 @@ Constants::Event SimpleData::ensureArray(Utility::Args::SSV const& args, Interac
     return Constants::Event::success;
 }
 
-Constants::Event SimpleData::pushBack(Utility::Args::SSV const& args, Interaction::Context& ctx, Interaction::ContextScope& ctxScope){
+Constants::Event SimpleData::pushBack(Utility::Args::SegmentedStringView const& args, Interaction::Context& ctx, Interaction::ContextScope& ctxScope){
     auto lock = ctxScope.self.lock(); // Lock the domain for thread-safe access
     if (args.size() > 3) {
         return Constants::StandardCapture::Warning::Functional::tooManyArgs(ctx.self.capture);
@@ -148,7 +148,7 @@ Constants::Event SimpleData::pushBack(Utility::Args::SSV const& args, Interactio
     return Constants::Event::success;
 }
 
-Constants::Event SimpleData::popBack(Utility::Args::SSV const& args, Interaction::Context const& ctx, Interaction::ContextScope const& ctxScope) {
+Constants::Event SimpleData::popBack(Utility::Args::SegmentedStringView const& args, Interaction::Context const& ctx, Interaction::ContextScope const& ctxScope) {
     auto lock = ctxScope.self.lock(); // Lock the domain for thread-safe access
     if (args.size() < 2) {
         return Constants::StandardCapture::Warning::Functional::tooFewArgs(ctx.self.capture);
@@ -160,7 +160,7 @@ Constants::Event SimpleData::popBack(Utility::Args::SSV const& args, Interaction
 
     if (ctxScope.self.memberType(key) != Data::KeyType::array) {
         std::vector<std::string_view> const ensureArrayArgsData = {"", args[1]};
-        auto const ensureArrayArgs = Utility::Args::SSV(ensureArrayArgsData);
+        auto const ensureArrayArgs = Utility::Args::SegmentedStringView(ensureArrayArgsData);
         if (Constants::Event const result = ensureArray(ensureArrayArgs, ctx, ctxScope); result != Constants::Event::success) {
             ctx.self.capture.error.println("Error: Failed to ensure array for key '", std::string(args[1]), "'.");
             return result;
@@ -178,7 +178,7 @@ Constants::Event SimpleData::popBack(Utility::Args::SSV const& args, Interaction
     return Constants::Event::success;
 }
 
-Constants::Event SimpleData::pushFront(Utility::Args::SSV const& args, Interaction::Context& ctx, Interaction::ContextScope& ctxScope) {
+Constants::Event SimpleData::pushFront(Utility::Args::SegmentedStringView const& args, Interaction::Context& ctx, Interaction::ContextScope& ctxScope) {
     auto lock = ctxScope.self.lock(); // Lock the domain for thread-safe access
     if (args.size() > 3) {
         return Constants::StandardCapture::Warning::Functional::tooManyArgs(ctx.self.capture);
@@ -195,7 +195,7 @@ Constants::Event SimpleData::pushFront(Utility::Args::SSV const& args, Interacti
 
     if (ctxScope.self.memberType(key) != Data::KeyType::array) {
         std::vector<std::string_view> const ensureArrayArgsData = {"", args[1]};
-        auto const ensureArrayArgs = Utility::Args::SSV(ensureArrayArgsData);
+        auto const ensureArrayArgs = Utility::Args::SegmentedStringView(ensureArrayArgsData);
         if (Constants::Event const result = ensureArray(ensureArrayArgs, ctx, ctxScope); result != Constants::Event::success) {
             ctx.self.capture.error.println("Error: Failed to ensure array for key '", std::string(args[1]), "'.");
             return result;
@@ -228,7 +228,7 @@ Constants::Event SimpleData::pushFront(Utility::Args::SSV const& args, Interacti
     return Constants::Event::success;
 }
 
-Constants::Event SimpleData::popFront(Utility::Args::SSV const& args, Interaction::Context& ctx, Interaction::ContextScope& ctxScope) {
+Constants::Event SimpleData::popFront(Utility::Args::SegmentedStringView const& args, Interaction::Context& ctx, Interaction::ContextScope& ctxScope) {
     auto lock = ctxScope.self.lock(); // Lock the domain for thread-safe access
     if (args.size() < 2) {
         return Constants::StandardCapture::Warning::Functional::tooFewArgs(ctx.self.capture);

@@ -10,7 +10,7 @@
 #include <type_traits>
 
 // Nebulite
-#include "Nebulite/Utility/Args/CmdArgs.hpp"
+#include "Nebulite/Utility/Args/SegmentedStringView.hpp"
 #include "Nebulite/Utility/CompileTimeEvaluate.hpp"
 
 //------------------------------------------
@@ -77,16 +77,16 @@ public:
         using M = std::decay_t<FunctionPointer>;
         using Traits = MemberFunctionPointerTraits<M>;
         using C = Traits::ClassType;
-        using Span = SSV;
+        using ModernArgs = SegmentedStringView;
 
         // Determine type
         if constexpr (isInvocableWithArgs<ReturnValue, M, C, int, char const**>) {
             return FunctionShape::memberLegacyIntConstChar;
         }
-        else if constexpr (isInvocableWithArgs<ReturnValue, M, C, Span, AdditionalArgs...>) {
+        else if constexpr (isInvocableWithArgs<ReturnValue, M, C, ModernArgs, AdditionalArgs...>) {
             return FunctionShape::memberModernFull;
         }
-        else if constexpr (isInvocableWithArgs<ReturnValue, M, C, Span>) {
+        else if constexpr (isInvocableWithArgs<ReturnValue, M, C, ModernArgs>) {
             return FunctionShape::memberModernNoAddArgs;
         }
         else if constexpr (isInvocableWithArgs<ReturnValue, M, C, AdditionalArgs...>) {
@@ -104,7 +104,7 @@ public:
     template <typename FunctionPointer, typename ReturnValue, typename... AdditionalArgs>
     static constexpr FunctionShape classifyFreeFunction() {
         using F = std::decay_t<FunctionPointer>;
-        using Span = SSV;
+        using ModernArgs = SegmentedStringView;
 
         // Determine type
         if constexpr (std::is_invocable_r_v<ReturnValue, F, int, char**>) {
@@ -113,10 +113,10 @@ public:
         else if constexpr (std::is_invocable_r_v<ReturnValue, F, int, char const**>) {
             return FunctionShape::freeLegacyIntConstChar;
         }
-        else if constexpr (std::is_invocable_r_v<ReturnValue, F, Span, AdditionalArgs...>) {
+        else if constexpr (std::is_invocable_r_v<ReturnValue, F, ModernArgs, AdditionalArgs...>) {
             return FunctionShape::freeModernFull;
         }
-        else if constexpr (std::is_invocable_r_v<ReturnValue, F, Span>) {
+        else if constexpr (std::is_invocable_r_v<ReturnValue, F, ModernArgs>) {
             return FunctionShape::freeModernNoAddArgs;
         }
         else if constexpr (std::is_invocable_r_v<ReturnValue, F, AdditionalArgs...>) {

@@ -9,8 +9,8 @@
 
 // Nebulite
 #include "Nebulite/Module/Base/TransformationModule.hpp"
-#include "Nebulite/Utility/Args/CmdArgs.hpp"
 #include "Nebulite/Utility/Args/FuncTree.hpp"
+#include "Nebulite/Utility/Args/SegmentedStringView.hpp"
 
 //------------------------------------------
 // Forward declarations
@@ -67,7 +67,7 @@ public:
         "Usage: |toBoolString -> {value:string}\n"
         "Either 'true' or 'false'\n";
 
-    static bool formatNumber(Utility::Args::SSV const& args, Data::JsonScope& jsonDoc);
+    static bool formatNumber(Utility::Args::SegmentedStringView const& args, Data::JsonScope& jsonDoc);
     static auto constexpr formatNumberName = "formatNumber";
     static auto constexpr formatNumberDesc = "If the stored value is a number, it is formatted with a given format specifier\n"
         "Usage: |formatNumber <format> -> {string}"

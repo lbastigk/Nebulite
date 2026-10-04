@@ -18,7 +18,7 @@
 #include "Nebulite/Interaction/Rules/Ruleset.hpp"
 #include "Nebulite/Module/Domain/Common/Ruleset.hpp"
 #include "Nebulite/Nebulite.hpp"
-#include "Nebulite/Utility/Args/CmdArgs.hpp"
+#include "Nebulite/Utility/Args/SegmentedStringView.hpp"
 
 //------------------------------------------
 namespace Nebulite::Module::Domain::Common {
@@ -115,7 +115,7 @@ Constants::Event Ruleset::reload() {
     return Constants::Event::success;
 }
 
-Constants::Event Ruleset::invokeOnce(Utility::Args::SSV const& args) const {
+Constants::Event Ruleset::invokeOnce(Utility::Args::SegmentedStringView const& args) const {
     if (args.size() > 1) {
         std::string const arg = args.recombineSubspan(1);
         if (auto const rs = Interaction::Rules::Construction::RulesetCompiler::parseSingle(arg, domain); rs.has_value()) {
@@ -133,7 +133,7 @@ Constants::Event Ruleset::invokeOnce(Utility::Args::SSV const& args) const {
     return Constants::StandardCapture::Warning::Functional::tooFewArgs(domain.capture);
 }
 
-Constants::Event Ruleset::broadcast(Utility::Args::SSV const& args) const {
+Constants::Event Ruleset::broadcast(Utility::Args::SegmentedStringView const& args) const {
     if (args.size() < 2) {
         return Constants::StandardCapture::Warning::Functional::tooFewArgs(domain.capture);
     }
@@ -148,7 +148,7 @@ Constants::Event Ruleset::broadcast(Utility::Args::SSV const& args) const {
     return Constants::StandardCapture::Error::Ruleset::parsingFailed(domain.capture);
 }
 
-Constants::Event Ruleset::listen(Utility::Args::SSV const& args) const {
+Constants::Event Ruleset::listen(Utility::Args::SegmentedStringView const& args) const {
     if (args.size() < 2) {
         return Constants::StandardCapture::Warning::Functional::tooFewArgs(domain.capture);
     }

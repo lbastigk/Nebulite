@@ -16,8 +16,8 @@
 // Nebulite
 #include "Nebulite/Data/Document/JsonScope.hpp"
 #include "Nebulite/Module/Base/TransformationModule.hpp"
-#include "Nebulite/Utility/Args/CmdArgs.hpp"
 #include "Nebulite/Utility/Args/FuncTree.hpp"
+#include "Nebulite/Utility/Args/SegmentedStringView.hpp"
 #include "Nebulite/Utility/Ranges.hpp"
 
 //------------------------------------------
@@ -68,7 +68,7 @@ public:
         "If the current value is not an array, the transformation fails.\n"
         "Usage: |sort numerically -> {sorted array}\n";
 
-    static bool sortCustom(Utility::Args::SSV const& args, Data::JsonScope& jsonDoc);
+    static bool sortCustom(Utility::Args::SegmentedStringView const& args, Data::JsonScope& jsonDoc);
     static auto constexpr sortCustomName = "sort custom";
     static auto constexpr sortCustomDesc = "Sorts the array in the current JSON value using a custom comparator expression.\n"
         "The comparator function uses the context self for the first element and other for the second element.\n"

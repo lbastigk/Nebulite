@@ -22,7 +22,7 @@
 #include "Nebulite/Interaction/Execution/Domain.hpp"
 #include "Nebulite/Interaction/GlobalValue.hpp"
 #include "Nebulite/Interaction/Invoke.hpp"
-#include "Nebulite/Utility/Args/CmdArgs.hpp"
+#include "Nebulite/Utility/Args/SegmentedStringView.hpp"
 
 //------------------------------------------
 // Forward declarations
@@ -256,7 +256,7 @@ private:
      * @return Error code `Constants::ErrorTable::NONE()` if there was no critical stop,
      *         an error code otherwise.
      */
-    [[nodiscard]] Constants::Event preParse(std::string_view functionName, Utility::Args::SSV const& args) override ;
+    [[nodiscard]] Constants::Event preParse(std::string_view functionName, Utility::Args::SegmentedStringView const& args) override ;
 
     /**
      * @brief Updates all inner domains.

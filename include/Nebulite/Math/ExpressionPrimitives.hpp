@@ -11,7 +11,7 @@
 #include <tinyexpr.h>
 
 // Nebulite
-#include "Nebulite/Utility/Args/CmdArgs.hpp"
+#include "Nebulite/Utility/Args/SegmentedStringView.hpp"
 
 //------------------------------------------
 namespace Nebulite::Math {
@@ -223,7 +223,7 @@ public:
      * @brief Prints a list of all available functions with their descriptions to the console.
      * @details Utilizes a temporary funcTree for the sole purpose of printing the list of functions with their descriptions in a formatted manner.
      */
-    static void help(Utility::Args::SSV const& args);
+    static void help(Utility::Args::SegmentedStringView const& args);
 
 private:
     //------------------------------------------

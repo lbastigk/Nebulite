@@ -9,7 +9,7 @@
 #include "Nebulite/Constants/StandardCapture.hpp"
 #include "Nebulite/Interaction/Execution/Domain.hpp"
 #include "Nebulite/Module/Domain/Common/Filesystem.hpp"
-#include "Nebulite/Utility/Args/CmdArgs.hpp"
+#include "Nebulite/Utility/Args/SegmentedStringView.hpp"
 #include "Nebulite/Utility/Io/FileManagement.hpp"
 #include "Nebulite/Utility/StringHandler.hpp"
 
@@ -28,7 +28,7 @@ Constants::Event Filesystem::updateHook() {
 //------------------------------------------
 // Domain-Bound Functions
 
-Constants::Event Filesystem::cat(Utility::Args::SSV const& args) const{
+Constants::Event Filesystem::cat(Utility::Args::SegmentedStringView const& args) const{
     if (args.size() < 2) {
         return Constants::StandardCapture::Warning::Functional::tooFewArgs(domain.capture);
     }
@@ -39,7 +39,7 @@ Constants::Event Filesystem::cat(Utility::Args::SSV const& args) const{
     return Constants::Event::success;
 }
 
-Constants::Event Filesystem::ls(Utility::Args::SSV const& args) const {
+Constants::Event Filesystem::ls(Utility::Args::SegmentedStringView const& args) const {
     std::string const directoryPath = args.size() >= 2 ? args.recombineSubspan(1) : ".";
     auto const entries = Utility::Io::FileManagement::listContentInDirectory(directoryPath);
     domain.capture.log.println(Utility::StringHandler::createPaddedTable(entries, 80));

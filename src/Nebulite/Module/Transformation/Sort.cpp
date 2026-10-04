@@ -10,7 +10,7 @@
 #include "Nebulite/Interaction/Context.hpp"
 #include "Nebulite/Interaction/Logic/Expression.hpp"
 #include "Nebulite/Module/Transformation/Sort.hpp"
-#include "Nebulite/Utility/Args/CmdArgs.hpp"
+#include "Nebulite/Utility/Args/SegmentedStringView.hpp"
 #include "Nebulite/Utility/Promise.hpp"
 #include "Nebulite/Utility/Sort.hpp"
 
@@ -49,7 +49,7 @@ bool Sort::sortNumerically(Data::JsonScope& jsonDoc){
     return true;
 }
 
-bool Sort::sortCustom(Utility::Args::SSV const& args, Data::JsonScope& jsonDoc){
+bool Sort::sortCustom(Utility::Args::SegmentedStringView const& args, Data::JsonScope& jsonDoc){
     if (jsonDoc.memberType(rootKey) != Data::KeyType::array) return false; // Not an array, cannot sort
     if (args.size() < 2) return false;
     Interaction::Logic::Expression const expression('$' + args.recombineSubspan(1));

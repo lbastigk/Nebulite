@@ -11,7 +11,7 @@
 #include "Nebulite/Core/RenderObject.hpp"
 #include "Nebulite/Interaction/Context.hpp"
 #include "Nebulite/Module/Domain/RenderObject/Drawcall.hpp"
-#include "Nebulite/Utility/Args/CmdArgs.hpp"
+#include "Nebulite/Utility/Args/SegmentedStringView.hpp"
 
 //------------------------------------------
 namespace Nebulite::Module::Domain::RenderObject {
@@ -29,14 +29,14 @@ Constants::Event Drawcall::updateHook() {
 //------------------------------------------
 // Domain-Bound Functions
 
-Constants::Event Drawcall::drawcallParse(Utility::Args::SSV const& args, Interaction::Context& ctx, Interaction::ContextScope& ctxScope) const {
+Constants::Event Drawcall::drawcallParse(Utility::Args::SegmentedStringView const& args, Interaction::Context& ctx, Interaction::ContextScope& ctxScope) const {
     if (args.size() < 3) {
         return Constants::StandardCapture::Warning::Functional::tooFewArgs(ctx.self.capture);
     }
     auto const& name = args[1];
     std::vector<std::string_view> drawcallArgsData{__FUNCTION__};
     args.copySubspan(drawcallArgsData, 2);
-    auto const drawcallArgs = Utility::Args::SSV{drawcallArgsData};
+    auto const drawcallArgs = Utility::Args::SegmentedStringView{drawcallArgsData};
     return domain.parseDrawcallCommand(name, drawcallArgs, ctx, ctxScope);
 }
 

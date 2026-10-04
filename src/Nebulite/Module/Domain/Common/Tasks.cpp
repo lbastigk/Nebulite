@@ -14,7 +14,7 @@
 #include "Nebulite/Interaction/Context.hpp"
 #include "Nebulite/Interaction/Execution/Tasks.hpp"
 #include "Nebulite/Module/Domain/Common/Tasks.hpp"
-#include "Nebulite/Utility/Args/CmdArgs.hpp"
+#include "Nebulite/Utility/Args/SegmentedStringView.hpp"
 #include "Nebulite/Utility/Convert/Cast.hpp"
 
 //------------------------------------------
@@ -30,7 +30,7 @@ Constants::Event Tasks::updateHook() {
 //------------------------------------------
 // Domain-Bound Functions
 
-Constants::Event Tasks::wait(Utility::Args::SSV const& args) const {
+Constants::Event Tasks::wait(Utility::Args::SegmentedStringView const& args) const {
     if (args.size() < 2) {
         return Constants::StandardCapture::Warning::Functional::tooFewArgs(domain.capture);
     }
@@ -45,7 +45,7 @@ Constants::Event Tasks::wait(Utility::Args::SSV const& args) const {
     return Constants::Event::success;
 }
 
-Constants::Event Tasks::task(Utility::Args::SSV const& args) const {
+Constants::Event Tasks::task(Utility::Args::SegmentedStringView const& args) const {
     if (args.size() < 2) {
         return Constants::StandardCapture::Warning::Functional::tooFewArgs(domain.capture);
     }
@@ -55,7 +55,7 @@ Constants::Event Tasks::task(Utility::Args::SSV const& args) const {
     return Constants::Event::success;
 }
 
-Constants::Event Tasks::taskExec(Utility::Args::SSV const& args, Interaction::Context ctx, Interaction::ContextScope ctxScope) const {
+Constants::Event Tasks::taskExec(Utility::Args::SegmentedStringView const& args, Interaction::Context ctx, Interaction::ContextScope ctxScope) const {
     if (args.size() < 2) {
         return Constants::StandardCapture::Warning::Functional::tooFewArgs(domain.capture);
     }
@@ -66,7 +66,7 @@ Constants::Event Tasks::taskExec(Utility::Args::SSV const& args, Interaction::Co
     return tq.resolve(ctx, ctxScope, true).worstEvent();
 }
 
-Constants::Event Tasks::always(Utility::Args::SSV const& args) const {
+Constants::Event Tasks::always(Utility::Args::SegmentedStringView const& args) const {
     if (args.size() < 2) {
         return Constants::StandardCapture::Warning::Functional::tooFewArgs(domain.capture);
     }

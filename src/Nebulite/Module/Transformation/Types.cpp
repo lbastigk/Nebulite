@@ -9,7 +9,7 @@
 #include "Nebulite/Data/Document/JsonScope.hpp"
 #include "Nebulite/Data/Document/KeyType.hpp"
 #include "Nebulite/Module/Transformation/Types.hpp"
-#include "Nebulite/Utility/Args/CmdArgs.hpp"
+#include "Nebulite/Utility/Args/SegmentedStringView.hpp"
 
 //------------------------------------------
 namespace Nebulite::Module::Transformation {
@@ -24,7 +24,7 @@ void Types::bindTransformations() {
     bindTransformation(&Types::exists, existsName, existsDesc);
 }
 
-bool Types::defaultToString(Utility::Args::SSV const& args, Data::JsonScope& jsonDoc){
+bool Types::defaultToString(Utility::Args::SegmentedStringView const& args, Data::JsonScope& jsonDoc){
     if (jsonDoc.memberType(rootKey) == Data::KeyType::null) {
         jsonDoc.set<std::string>(rootKey, args.recombineSubspan(1));
     }
@@ -79,7 +79,7 @@ bool Types::deserialize(Data::JsonScope& jsonDoc) {
     return true;
 }
 
-bool Types::exists(Utility::Args::SSV const& args, Data::JsonScope& jsonDoc) {
+bool Types::exists(Utility::Args::SegmentedStringView const& args, Data::JsonScope& jsonDoc) {
     if (args.size() > 2) {
         return false;
     }

@@ -9,8 +9,8 @@
 
 // Nebulite
 #include "Nebulite/Module/Base/TransformationModule.hpp"
-#include "Nebulite/Utility/Args/CmdArgs.hpp"
 #include "Nebulite/Utility/Args/FuncTree.hpp"
+#include "Nebulite/Utility/Args/SegmentedStringView.hpp"
 
 //------------------------------------------
 // Forward declarations
@@ -37,33 +37,33 @@ public:
     //------------------------------------------
     // Available Transformations
 
-    static bool echo(Utility::Args::SSV const& args);
+    static bool echo(Utility::Args::SegmentedStringView const& args);
     static auto constexpr echoName = "echo";
     static auto constexpr echoDesc = "Echoes the provided arguments to the console, with newline.\n"
         "Usage: |echo <arg1> <arg2> -> {unchanged-json}\n";
 
-    static bool warn(Utility::Args::SSV const& args);
+    static bool warn(Utility::Args::SegmentedStringView const& args);
     static auto constexpr warnName = "warn";
     static auto constexpr warnDesc = "Echoes the provided arguments to the console as a warning message, with newline.\n"
         "Usage: |warn <arg1> <arg2> -> {unchanged-json}\n";
 
-    static bool error(Utility::Args::SSV const& args);
+    static bool error(Utility::Args::SegmentedStringView const& args);
     static auto constexpr errorName = "error";
     static auto constexpr errorDesc = "Echoes the provided arguments to the console as an error message, with newline.\n"
         "Usage: |error <arg1> <arg2> -> {unchanged-json}\n";
 
-    static bool print(Utility::Args::SSV const& args, Data::JsonScope& jsonDoc);
+    static bool print(Utility::Args::SegmentedStringView const& args, Data::JsonScope& jsonDoc);
     static auto constexpr printName = "print";
     static auto constexpr printDesc = "Prints the current JSON value to the console.\n"
         "Usage: |print -> {unchanged-json}\n";
 
-    [[noreturn]] static bool unreachable(Utility::Args::SSV const& args);
+    [[noreturn]] static bool unreachable(Utility::Args::SegmentedStringView const& args);
     static auto constexpr unreachableName = "unreachable";
     static auto constexpr unreachableDesc = "Indicates that the current code path should be unreachable.\n"
         "If this transformation is executed, it indicates a bug in the program, and an std::logic_error is thrown.\n"
         "Usage: |unreachable\n";
 
-    static bool store(Utility::Args::SSV const& args, Data::JsonScope const& jsonDoc);
+    static bool store(Utility::Args::SegmentedStringView const& args, Data::JsonScope const& jsonDoc);
     static auto constexpr storeName = "store";
     static auto constexpr storeDesc = "Stores the current JSON value as a file with the given name.\n"
         "Usage: |store <filename> -> {unchanged-json}\n";

@@ -18,8 +18,8 @@
 // Nebulite
 #include "Nebulite/Math/ExpressionPrimitives.hpp"
 #include "Nebulite/Nebulite.hpp"
-#include "Nebulite/Utility/Args/CmdArgs.hpp"
 #include "Nebulite/Utility/Args/FuncTree.hpp"
+#include "Nebulite/Utility/Args/SegmentedStringView.hpp"
 
 //------------------------------------------
 namespace Nebulite::Math {
@@ -229,7 +229,7 @@ bool pseudoBind() {
 }
 } // namespace
 
-void ExpressionPrimitives::help(Utility::Args::SSV const& args) {
+void ExpressionPrimitives::help(Utility::Args::SegmentedStringView const& args) {
     // Create a temporary funcTree to utilize its printFunctionList method for formatted output
 
     Utility::Args::FuncTree tempFuncTree("Nebulite Expressions", true, true, Global::capture()); // Pass to main capture

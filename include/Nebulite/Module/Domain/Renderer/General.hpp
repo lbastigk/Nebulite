@@ -7,7 +7,7 @@
 // Nebulite
 #include "Nebulite/Constants/Event.hpp"
 #include "Nebulite/Module/Base/DomainModule.hpp"
-#include "Nebulite/Utility/Args/CmdArgs.hpp"
+#include "Nebulite/Utility/Args/SegmentedStringView.hpp"
 
 //------------------------------------------
 // Forward declarations
@@ -53,7 +53,7 @@ public:
      *          - RenderObject deletion mechanism in Renderer::update()
      *          As of now, the implementation is fully functional so it's a low priority task.
      */
-    [[nodiscard]] Constants::Event spawn(Utility::Args::SSV const& args) const ;
+    [[nodiscard]] Constants::Event spawn(Utility::Args::SegmentedStringView const& args) const ;
     static auto constexpr spawnName = "spawn";
     static auto constexpr spawnDesc = "Spawn a RenderObject from a json/jsonc file.\n"
         "\n"
@@ -68,7 +68,7 @@ public:
         "- './Resources/Renderobjects/Planets/sun.jsonc'\n"
         "and spawns the first found object.\n";
 
-    [[nodiscard]] Constants::Event envLoad(Utility::Args::SSV const& args) const ;
+    [[nodiscard]] Constants::Event envLoad(Utility::Args::SegmentedStringView const& args) const ;
     static auto constexpr envLoadName = "env load";
     static auto constexpr envLoadDesc = "Load an environment/level from a json/jsonc file.\n"
         "\n"

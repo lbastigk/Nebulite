@@ -23,7 +23,7 @@
 #include "Nebulite/Module/Domain/Common/General.hpp"
 #include "Nebulite/Module/Domain/GlobalSpace/Debug.hpp"
 #include "Nebulite/Nebulite.hpp"
-#include "Nebulite/Utility/Args/CmdArgs.hpp"
+#include "Nebulite/Utility/Args/SegmentedStringView.hpp"
 #include "Nebulite/Utility/Coordination/TimedRoutine.hpp"
 #include "Nebulite/Utility/Io/FileManagement.hpp"
 
@@ -171,14 +171,14 @@ Constants::Event Debug::logState(int const argc, char const** argv) const {
     return Constants::Event::success;
 }
 
-Constants::Event Debug::standardFileRenderObject(Utility::Args::SSV const& /*args*/) const {
+Constants::Event Debug::standardFileRenderObject(Utility::Args::SegmentedStringView const& /*args*/) const {
     if (Core::RenderObject const ro(domain.capture); !Utility::Io::FileManagement::writeFile("./Resources/Renderobjects/standard.jsonc", ro.serialize())) {
         return Constants::StandardCapture::Error::File::couldNotWriteFile(domain.capture);
     }
     return Constants::Event::success;
 }
 
-Constants::Event Debug::errorLog(Utility::Args::SSV const& args, Interaction::Context const& ctx, Interaction::ContextScope& /*ctxScope*/) {
+Constants::Event Debug::errorLog(Utility::Args::SegmentedStringView const& args, Interaction::Context const& ctx, Interaction::ContextScope& /*ctxScope*/) {
     // Initialize the error logging buffer
     if (!originalCerrBuf) {
         originalCerrBuf = std::cerr.rdbuf();
@@ -245,13 +245,13 @@ void clearScreen() {
 } // namespace
 
 
-Constants::Event Debug::clearConsole(Utility::Args::SSV const& /*args*/){
+Constants::Event Debug::clearConsole(Utility::Args::SegmentedStringView const& /*args*/){
     clearScreen();
     Global::capture().clear();
     return Constants::Event::success;
 }
 
-Constants::Event Debug::crash(Utility::Args::SSV const& args, Interaction::Context const& ctx, Interaction::ContextScope& /*ctxScope*/) {
+Constants::Event Debug::crash(Utility::Args::SegmentedStringView const& args, Interaction::Context const& ctx, Interaction::ContextScope& /*ctxScope*/) {
     // If an argument is provided, use it to select crash type
     if (args.size() > 1) {
         if (auto const& crashType = args[1]; crashType == "segfault") {
@@ -278,7 +278,7 @@ Constants::Event Debug::crash(Utility::Args::SSV const& args, Interaction::Conte
     return Constants::Event::success;
 }
 
-Constants::Event Debug::waitForInput(Utility::Args::SSV const& args, Interaction::Context const& ctx, Interaction::ContextScope& /*ctxScope*/) {
+Constants::Event Debug::waitForInput(Utility::Args::SegmentedStringView const& args, Interaction::Context const& ctx, Interaction::ContextScope& /*ctxScope*/) {
     if (args.size() > 2) {
         return Constants::StandardCapture::Warning::Functional::tooManyArgs(ctx.self.capture);
     }
@@ -292,7 +292,7 @@ Constants::Event Debug::waitForInput(Utility::Args::SSV const& args, Interaction
     return Constants::Event::success;
 }
 
-Constants::Event Debug::listExpressionFunctions(Utility::Args::SSV const& args) {
+Constants::Event Debug::listExpressionFunctions(Utility::Args::SegmentedStringView const& args) {
     // Forward to ExpressionPrimitives::help
     Math::ExpressionPrimitives::help(args);
     return Constants::Event::success;

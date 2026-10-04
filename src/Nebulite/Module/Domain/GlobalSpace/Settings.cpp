@@ -14,7 +14,7 @@
 #include "Nebulite/Module/Domain/GlobalSpace/InputMapping.hpp"
 #include "Nebulite/Module/Domain/GlobalSpace/Settings.hpp"
 #include "Nebulite/Nebulite.hpp"
-#include "Nebulite/Utility/Args/CmdArgs.hpp"
+#include "Nebulite/Utility/Args/SegmentedStringView.hpp"
 #include "Nebulite/Utility/Io/FileManagement.hpp"
 
 //------------------------------------------
@@ -50,7 +50,7 @@ Constants::Event Settings::overWriteSettingsFile() const {
     return saveSettings();
 }
 
-Constants::Event Settings::setSettingStr(Utility::Args::SSV const& args) const {
+Constants::Event Settings::setSettingStr(Utility::Args::SegmentedStringView const& args) const {
     if (args.size() < 2) {
         return Constants::StandardCapture::Warning::Functional::tooFewArgs(domain.capture);
     }
@@ -65,7 +65,7 @@ Constants::Event Settings::setSettingStr(Utility::Args::SSV const& args) const {
     return Constants::Event::success;
 }
 
-Constants::Event Settings::setSettingInt(Utility::Args::SSV const& args) const {
+Constants::Event Settings::setSettingInt(Utility::Args::SegmentedStringView const& args) const {
     if (args.size() < 2) {
         return Constants::StandardCapture::Warning::Functional::tooFewArgs(domain.capture);
     }

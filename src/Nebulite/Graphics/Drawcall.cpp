@@ -29,7 +29,7 @@
 #include "Nebulite/Graphics/Drawcall.hpp"
 #include "Nebulite/Math/Equality.hpp"
 #include "Nebulite/Nebulite.hpp"
-#include "Nebulite/Utility/Args/CmdArgs.hpp"
+#include "Nebulite/Utility/Args/SegmentedStringView.hpp"
 #include "Nebulite/Utility/Coordination/IdGenerator.hpp"
 #include "Nebulite/Utility/Io/Capture.hpp"
 
@@ -185,7 +185,7 @@ Constants::Event Drawcall::parseStr(std::string_view const str, Interaction::Con
     return texture.parseStr(str, ctx, ctxScope);
 }
 
-Constants::Event Drawcall::parse(Utility::Args::SSV const& args, Interaction::Context& ctx, Interaction::ContextScope& ctxScope) const{
+Constants::Event Drawcall::parse(Utility::Args::SegmentedStringView const& args, Interaction::Context& ctx, Interaction::ContextScope& ctxScope) const{
     return texture.parse(args, ctx, ctxScope);
 }
 

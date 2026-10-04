@@ -12,8 +12,8 @@
 #include "Nebulite/Data/Document/JsonScope.hpp"
 #include "Nebulite/Data/Document/JsonTransformer.hpp"
 #include "Nebulite/Nebulite.hpp"
-#include "Nebulite/Utility/Args/CmdArgs.hpp"
 #include "Nebulite/Utility/Args/FuncTree.hpp"
+#include "Nebulite/Utility/Args/SegmentedStringView.hpp"
 
 // Nebulite: Transformation modules
 #include "Nebulite/Module/Transformation/Arithmetic.hpp"
@@ -81,7 +81,7 @@ JsonTransformer& JsonTransformer::instance() {
 
 // SPAN
 
-bool JsonTransformer::parse(Utility::Args::SSV const& transformationList, JsonScope& jsonDoc) const {
+bool JsonTransformer::parse(Utility::Args::SegmentedStringView const& transformationList, JsonScope& jsonDoc) const {
     if (transformationList.empty()) [[unlikely]] {
         return false;
     }
@@ -93,14 +93,14 @@ bool JsonTransformer::parse(Utility::Args::SSV const& transformationList, JsonSc
     });
 }
 
-bool JsonTransformer::parse(Utility::Args::SSV const& transformationList, Json& jsonDoc) const {
+bool JsonTransformer::parse(Utility::Args::SegmentedStringView const& transformationList, Json& jsonDoc) const {
     auto& scope = jsonDoc.fullScope();
     return parse(transformationList, scope);
 }
 
 // Single
 
-bool JsonTransformer::parseSingleTransformation(Utility::Args::SSV const& args, JsonScope& jsonDoc) const {
+bool JsonTransformer::parseSingleTransformation(Utility::Args::SegmentedStringView const& args, JsonScope& jsonDoc) const {
     return transformationFuncTree->parse(args, jsonDoc);
 }
 

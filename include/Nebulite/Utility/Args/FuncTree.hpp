@@ -19,7 +19,7 @@
 #include <absl/container/flat_hash_map.h>
 
 // Nebulite
-#include "Nebulite/Utility/Args/CmdArgs.hpp"
+#include "Nebulite/Utility/Args/SegmentedStringView.hpp"
 #include "Nebulite/Utility/FunctionIdentity.hpp"
 
 //------------------------------------------
@@ -46,7 +46,7 @@ public:
     //------------------------------------------
     // Important types
 
-    using PreParseFunction = std::function<ReturnValue(std::string_view, SSV)>;
+    using PreParseFunction = std::function<ReturnValue(std::string_view, SegmentedStringView const&)>;
 
     // Supported function signatures
     struct SupportedFunctions {
@@ -55,8 +55,8 @@ public:
         };
 
         struct Modern {
-            using Full = std::function<ReturnValue(SSV, AdditionalArgs...)>;
-            using NoAddArgs = std::function<ReturnValue(SSV)>;
+            using Full = std::function<ReturnValue(SegmentedStringView const&, AdditionalArgs...)>;
+            using NoAddArgs = std::function<ReturnValue(SegmentedStringView const&)>;
             using NoCmdArgs = std::function<ReturnValue(AdditionalArgs...)>;
             using NoArgs = std::function<ReturnValue()>;
         };
@@ -151,7 +151,7 @@ public:
      * @return The return value of the executed function, or the standard/error value.
      */
     ReturnValue parseStr(std::string_view cmd, AdditionalArgs... addArgs);
-    ReturnValue parse(SSV const& args, AdditionalArgs... addArgs);
+    ReturnValue parse(SegmentedStringView const& args, AdditionalArgs... addArgs);
     ReturnValue parse(std::vector<std::string_view> const& args, AdditionalArgs... addArgs);
     ReturnValue parse(std::vector<std::string> const& args, AdditionalArgs... addArgs);
 
@@ -310,13 +310,13 @@ private:
      * @param addArgs Additional arguments to pass to the function.
      * @return The return value of the function.
      */
-    ReturnValue executeFunction(std::string_view name, SSV const& args, AdditionalArgs... addArgs);
+    ReturnValue executeFunction(std::string_view name, SegmentedStringView const& args, AdditionalArgs... addArgs);
 
     /**
      * @brief Displays help information to all bound functions. Automatically bound to any FuncTree on construction.
      * @return The standard return value.
      */
-    ReturnValue help(SSV const& args);
+    ReturnValue help(SegmentedStringView const& args);
 
     /**
      * @brief Retrieves a list of all functions and their descriptions.
@@ -386,7 +386,7 @@ private:
      * @brief Processes variable arguments at the start of the argument list.
      * @param args The arguments to remove and process variable assignments from.
      */
-    void processVariableArguments(SSV& args);
+    void processVariableArguments(SegmentedStringView& args);
 
     /**
      * @brief Finds an argument in inherited FuncTrees.
@@ -404,7 +404,7 @@ private:
      * @param args A list of arguments to complete
      * @return The standard return value.
      */
-    ReturnValue complete(SSV const& args);
+    ReturnValue complete(SegmentedStringView const& args);
 
     /**
      * @brief Finds possible completions for a given pattern and prefix in the current FuncTree.

@@ -21,7 +21,7 @@
 #include "Nebulite/Interaction/Logic/Expression.hpp"
 #include "Nebulite/Module/Domain/Common/General.hpp"
 #include "Nebulite/Nebulite.hpp"
-#include "Nebulite/Utility/Args/CmdArgs.hpp"
+#include "Nebulite/Utility/Args/SegmentedStringView.hpp"
 #include "Nebulite/Utility/Promise.hpp"
 #include "Nebulite/Utility/Ranges.hpp"
 #include "Nebulite/Utility/StringHandler.hpp"
@@ -60,12 +60,12 @@ Constants::Event General::updateHook() {
 
 // [BASIC]
 
-Constants::Event General::echo(Utility::Args::SSV const& args) const {
+Constants::Event General::echo(Utility::Args::SegmentedStringView const& args) const {
     domain.capture.log.println(args.recombineSubspan(1));
     return Constants::Event::success;
 }
 
-Constants::Event General::ifFunc(Utility::Args::SSV const& args, Interaction::Context& ctx, Interaction::ContextScope& ctxScope) {
+Constants::Event General::ifFunc(Utility::Args::SegmentedStringView const& args, Interaction::Context& ctx, Interaction::ContextScope& ctxScope) {
     if (args.size() < 3) {
         return Constants::StandardCapture::Warning::Functional::tooFewArgs(ctx.self.capture);
     }
@@ -109,7 +109,7 @@ Constants::Event General::ifFunc(Utility::Args::SSV const& args, Interaction::Co
     return Constants::Event::success;
 }
 
-Constants::Event General::forFunc(Utility::Args::SSV const& args, Interaction::Context& ctx, Interaction::ContextScope& ctxScope) {
+Constants::Event General::forFunc(Utility::Args::SegmentedStringView const& args, Interaction::Context& ctx, Interaction::ContextScope& ctxScope) {
     if (args.size() > 4) {
         auto const& varName = std::string(args[1]);
 
@@ -132,7 +132,7 @@ Constants::Event General::forFunc(Utility::Args::SSV const& args, Interaction::C
     return Constants::StandardCapture::Warning::Functional::tooFewArgs(ctx.self.capture);
 }
 
-Constants::Event General::forFuncProgress(Utility::Args::SSV const& args, Interaction::Context& ctx, Interaction::ContextScope& ctxScope) {
+Constants::Event General::forFuncProgress(Utility::Args::SegmentedStringView const& args, Interaction::Context& ctx, Interaction::ContextScope& ctxScope) {
     if (args.size() > 4) {
         std::size_t constexpr barWidth = 50;
 
@@ -179,7 +179,7 @@ Constants::Event General::forFuncProgress(Utility::Args::SSV const& args, Intera
     return Constants::StandardCapture::Warning::Functional::tooFewArgs(ctx.self.capture);
 }
 
-Constants::Event General::assertFunc(Utility::Args::SSV const& args, Interaction::Context const& ctx, Interaction::ContextScope const& ctxScope) {
+Constants::Event General::assertFunc(Utility::Args::SegmentedStringView const& args, Interaction::Context const& ctx, Interaction::ContextScope const& ctxScope) {
     if (args.size() < 2) {
         return Constants::StandardCapture::Warning::Functional::tooFewArgs(ctx.self.capture);
     }
@@ -213,7 +213,7 @@ Constants::Event General::nop() {
 
 // [FORWARD/REPARSE]
 
-Constants::Event General::forwardToOther(Utility::Args::SSV const& args, Interaction::Context& ctx, Interaction::ContextScope& ctxScope) {
+Constants::Event General::forwardToOther(Utility::Args::SegmentedStringView const& args, Interaction::Context& ctx, Interaction::ContextScope& ctxScope) {
     if (args.size() < 2) {
         return Constants::StandardCapture::Warning::Functional::tooFewArgs(ctx.self.capture);
     }
@@ -221,7 +221,7 @@ Constants::Event General::forwardToOther(Utility::Args::SSV const& args, Interac
     return ctx.other.parseStr(argStr, ctx, ctxScope);
 }
 
-Constants::Event General::forwardToGlobal(Utility::Args::SSV const& args, Interaction::Context& ctx, Interaction::ContextScope& ctxScope) {
+Constants::Event General::forwardToGlobal(Utility::Args::SegmentedStringView const& args, Interaction::Context& ctx, Interaction::ContextScope& ctxScope) {
     if (args.size() < 2) {
         return Constants::StandardCapture::Warning::Functional::tooFewArgs(ctx.self.capture);
     }
@@ -229,7 +229,7 @@ Constants::Event General::forwardToGlobal(Utility::Args::SSV const& args, Intera
     return ctx.global.parseStr(argStr, ctx, ctxScope);
 }
 
-Constants::Event General::reparseInOther(Utility::Args::SSV const& args, Interaction::Context const& ctx, Interaction::ContextScope const& ctxScope) {
+Constants::Event General::reparseInOther(Utility::Args::SegmentedStringView const& args, Interaction::Context const& ctx, Interaction::ContextScope const& ctxScope) {
     if (args.size() < 2) {
         return Constants::StandardCapture::Warning::Functional::tooFewArgs(ctx.self.capture);
     }
@@ -250,7 +250,7 @@ Constants::Event General::reparseInOther(Utility::Args::SSV const& args, Interac
     return ctx.other.parse(args, otherCtx, otherCtxScope);
 }
 
-Constants::Event General::reparseInGlobal(Utility::Args::SSV const& args, Interaction::Context const& ctx, Interaction::ContextScope const& ctxScope) {
+Constants::Event General::reparseInGlobal(Utility::Args::SegmentedStringView const& args, Interaction::Context const& ctx, Interaction::ContextScope const& ctxScope) {
     if (args.size() < 2) {
         return Constants::StandardCapture::Warning::Functional::tooFewArgs(ctx.self.capture);
     }
@@ -273,7 +273,7 @@ Constants::Event General::reparseInGlobal(Utility::Args::SSV const& args, Intera
 
 // [IMGUI]
 
-Constants::Event General::imguiView(Utility::Args::SSV const& args, Interaction::Context const& ctx, Interaction::ContextScope const& ctxScope) {
+Constants::Event General::imguiView(Utility::Args::SegmentedStringView const& args, Interaction::Context const& ctx, Interaction::ContextScope const& ctxScope) {
     if (args.size() < 2) {
         return Constants::StandardCapture::Warning::Functional::tooFewArgs(ctx.self.capture);
     }
@@ -301,7 +301,7 @@ Constants::Event General::imguiView(Utility::Args::SSV const& args, Interaction:
 
 // [OTHER]
 
-Constants::Event General::capture(Utility::Args::SSV const& args, Interaction::Context& ctx, Interaction::ContextScope& ctxScope){
+Constants::Event General::capture(Utility::Args::SegmentedStringView const& args, Interaction::Context& ctx, Interaction::ContextScope& ctxScope){
     if (args.size() < 3) {
         return Constants::StandardCapture::Warning::Functional::tooFewArgs(ctx.self.capture);
     }
@@ -323,7 +323,7 @@ Constants::Event General::capture(Utility::Args::SSV const& args, Interaction::C
     return result;
 }
 
-Constants::Event General::eval(Utility::Args::SSV const& args, Interaction::Context& ctx, Interaction::ContextScope& ctxScope){
+Constants::Event General::eval(Utility::Args::SegmentedStringView const& args, Interaction::Context& ctx, Interaction::ContextScope& ctxScope){
     // TODO: An idea would be to only eval until the next "eval" keyword, allowing for nested evals within for-loops, ifs, etc.:
     //       Example:
     //       eval for i 1 {global.loopCount} eval process-state {global.currentState} {i}

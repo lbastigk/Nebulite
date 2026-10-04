@@ -11,7 +11,7 @@
 #include "Nebulite/Constants/Event.hpp"
 #include "Nebulite/Interaction/Execution/Domain.hpp"
 #include "Nebulite/Module/Base/DomainModule.hpp"
-#include "Nebulite/Utility/Args/CmdArgs.hpp"
+#include "Nebulite/Utility/Args/SegmentedStringView.hpp"
 
 //------------------------------------------
 // Forward declarations
@@ -31,14 +31,14 @@ public:
     //------------------------------------------
     // Available Functions
 
-    [[nodiscard]] Constants::Event cat(Utility::Args::SSV const& args) const ;
+    [[nodiscard]] Constants::Event cat(Utility::Args::SegmentedStringView const& args) const ;
     static auto constexpr catName = "cat";
     static auto constexpr catDesc = "Opens a provided file and prints its content to the console.\n"
         "Usage: cat <filePath>\n"
         "\n"
         "- <filePath>: The path to the file to be read and printed.\n";
 
-    [[nodiscard]] Constants::Event ls(Utility::Args::SSV const& args) const ;
+    [[nodiscard]] Constants::Event ls(Utility::Args::SegmentedStringView const& args) const ;
     static auto constexpr lsName = "ls";
     static auto constexpr lsDesc = "Lists the contents of a provided directory.\n"
         "Usage: ls [directoryPath]\n"

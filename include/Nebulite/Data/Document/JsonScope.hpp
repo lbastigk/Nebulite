@@ -28,7 +28,7 @@
 #include "Nebulite/Data/Document/ScopedKeyView.hpp"
 #include "Nebulite/Data/Document/SimpleValueError.hpp"
 #include "Nebulite/Data/MappedOrderedCacheList.hpp"
-#include "Nebulite/Utility/Args/CmdArgs.hpp"
+#include "Nebulite/Utility/Args/SegmentedStringView.hpp"
 #include "Nebulite/Utility/Coordination/LazyInit.hpp"
 
 //------------------------------------------
@@ -341,7 +341,7 @@ public:
      * @param args The arguments to parse
      * @return True if the transformation was successful, false otherwise.
      */
-    bool transform(Utility::Args::SSV const& args);
+    bool transform(Utility::Args::SegmentedStringView const& args);
 
     //------------------------------------------
     // Access test

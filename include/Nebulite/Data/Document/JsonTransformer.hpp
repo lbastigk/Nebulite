@@ -9,8 +9,8 @@
 #include <vector>
 
 // Nebulite
-#include "Nebulite/Utility/Args/CmdArgs.hpp"
 #include "Nebulite/Utility/Args/FuncTree.hpp"
+#include "Nebulite/Utility/Args/SegmentedStringView.hpp"
 
 //------------------------------------------
 // Forward declarations
@@ -71,7 +71,7 @@ public:
      * @return true if the transformations were successfully applied, false otherwise.
      *         If the value is false, the document should still be considered modified, but in an unknown state.
      */
-    bool parse(Utility::Args::SSV const& transformationList, JsonScope& jsonDoc) const ;
+    bool parse(Utility::Args::SegmentedStringView const& transformationList, JsonScope& jsonDoc) const ;
 
     /**
      * @brief Parses and applies JSON transformations from the given arguments.
@@ -80,7 +80,7 @@ public:
      * @return true if the transformations were successfully applied, false otherwise.
      *         If the value is false, the document should still be considered modified, but in an unknown state.
      */
-    bool parse(Utility::Args::SSV const& transformationList, Json& jsonDoc) const ;
+    bool parse(Utility::Args::SegmentedStringView const& transformationList, Json& jsonDoc) const ;
 
     /**
      * @brief Parse a single transformation with already separated arguments.
@@ -88,7 +88,7 @@ public:
      * @param jsonDoc The document to manipulate
      * @return true if the transformations were successfully applied, false otherwise.
      */
-    bool parseSingleTransformation(Utility::Args::SSV const& args, JsonScope& jsonDoc) const ;
+    bool parseSingleTransformation(Utility::Args::SegmentedStringView const& args, JsonScope& jsonDoc) const ;
 };
 } // namespace Nebulite::Data
 #include "Nebulite/Data/Document/JsonTransformer.tpp" // NOLINT(misc-include-cleaner)

@@ -14,7 +14,7 @@
 #include "Nebulite/Interaction/Context.hpp"
 #include "Nebulite/Module/Base/DomainModule.hpp"
 #include "Nebulite/Module/Domain/Renderer/RmlUi.hpp"
-#include "Nebulite/Utility/Args/CmdArgs.hpp"
+#include "Nebulite/Utility/Args/SegmentedStringView.hpp"
 
 //------------------------------------------
 namespace Nebulite::Module::Domain::Renderer {
@@ -25,7 +25,7 @@ Constants::Event RmlUi::updateHook() {
     return Constants::Event::success;
 }
 
-Constants::Event RmlUi::listDocuments(Utility::Args::SSV const& /*args*/, Interaction::Context const& /*ctx*/, Interaction::ContextScope const& /*ctxScope*/) const {
+Constants::Event RmlUi::listDocuments(Utility::Args::SegmentedStringView const& /*args*/, Interaction::Context const& /*ctx*/, Interaction::ContextScope const& /*ctxScope*/) const {
     auto const& documents = Graphics::RmlUi::Interface::instance().listOpenedDocuments();
     domain.capture.log.println("Currently loaded RmlUI documents from any domain: ");
     for (auto const& [ownerId, name] : documents) {
@@ -34,7 +34,7 @@ Constants::Event RmlUi::listDocuments(Utility::Args::SSV const& /*args*/, Intera
     return Constants::Event::success;
 }
 
-Constants::Event RmlUi::loadDocument(Utility::Args::SSV const& args, Interaction::Context const& ctx, Interaction::ContextScope const& ctxScope) const {
+Constants::Event RmlUi::loadDocument(Utility::Args::SegmentedStringView const& args, Interaction::Context const& ctx, Interaction::ContextScope const& ctxScope) const {
     if (args.size() < 3) {
         return Constants::StandardCapture::Warning::Functional::tooFewArgs(domain.capture);
     }
@@ -47,7 +47,7 @@ Constants::Event RmlUi::loadDocument(Utility::Args::SSV const& args, Interaction
     return Constants::Event::success;
 }
 
-Constants::Event RmlUi::removeDocument(Utility::Args::SSV const& args, Interaction::Context const& ctx, Interaction::ContextScope& /*ctxScope*/) const {
+Constants::Event RmlUi::removeDocument(Utility::Args::SegmentedStringView const& args, Interaction::Context const& ctx, Interaction::ContextScope& /*ctxScope*/) const {
     if (args.size() < 2) {
         return Constants::StandardCapture::Warning::Functional::tooFewArgs(domain.capture);
     }

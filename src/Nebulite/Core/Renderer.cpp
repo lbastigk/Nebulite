@@ -48,7 +48,7 @@
 #include "Nebulite/Module/Domain/GlobalSpace/Settings.hpp"
 #include "Nebulite/Module/Domain/Initializer.hpp"
 #include "Nebulite/Nebulite.hpp"
-#include "Nebulite/Utility/Args/CmdArgs.hpp"
+#include "Nebulite/Utility/Args/SegmentedStringView.hpp"
 #include "Nebulite/Utility/Io/Capture.hpp"
 #include "Nebulite/Utility/Io/FileManagement.hpp"
 #include "Nebulite/Utility/TypeCheck.hpp"
@@ -122,7 +122,7 @@ void Renderer::setupDisplayValues() {
     domainScope.set<unsigned int>(Constants::KeyNames::Renderer::positionY, 0);
 }
 
-Constants::Event Renderer::preParse(std::string_view const /*functionName*/, Utility::Args::SSV const& /*args*/) {
+Constants::Event Renderer::preParse(std::string_view const /*functionName*/, Utility::Args::SegmentedStringView const& /*args*/) {
     initSdl();
     return Constants::Event::success;
 }

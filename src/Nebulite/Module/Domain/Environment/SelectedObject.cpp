@@ -12,7 +12,7 @@
 #include "Nebulite/Core/Renderer.hpp"
 #include "Nebulite/Interaction/Context.hpp"
 #include "Nebulite/Module/Domain/Environment/SelectedObject.hpp"
-#include "Nebulite/Utility/Args/CmdArgs.hpp"
+#include "Nebulite/Utility/Args/SegmentedStringView.hpp"
 
 namespace Nebulite::Module::Domain::Environment {
 
@@ -58,7 +58,7 @@ Constants::Event SelectedObject::selectedObjectGet(int const argc, char const** 
     return Constants::Event::warning;
 }
 
-Constants::Event SelectedObject::selectedObjectParse(Utility::Args::SSV const& args, Interaction::Context const& ctx, Interaction::ContextScope const& ctxScope) const {
+Constants::Event SelectedObject::selectedObjectParse(Utility::Args::SegmentedStringView const& args, Interaction::Context const& ctx, Interaction::ContextScope const& ctxScope) const {
     if (args.size() < 2) {
         return Constants::StandardCapture::Warning::Functional::tooFewArgs(domain.capture);
     }

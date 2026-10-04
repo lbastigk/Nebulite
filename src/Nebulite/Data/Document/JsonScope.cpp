@@ -21,7 +21,7 @@
 #include "Nebulite/Data/Document/RjDirectAccess.hpp"
 #include "Nebulite/Data/Document/ScopedKey.hpp"
 #include "Nebulite/Data/Document/SimpleValueError.hpp"
-#include "Nebulite/Utility/Args/CmdArgs.hpp"
+#include "Nebulite/Utility/Args/SegmentedStringView.hpp"
 #include "Nebulite/Utility/Coordination/IdGenerator.hpp"
 
 //------------------------------------------
@@ -388,7 +388,7 @@ void JsonScope::deserialize(std::string_view const serialOrLink) {
 //------------------------------------------
 // Transform
 
-bool JsonScope::transform(Utility::Args::SSV const& args){
+bool JsonScope::transform(Utility::Args::SegmentedStringView const& args){
     return JsonTransformer::instance().parseSingleTransformation(args, *this);
 }
 

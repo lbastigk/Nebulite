@@ -24,7 +24,7 @@
 // Nebulite
 #include "Nebulite/Constants/Event.hpp"
 #include "Nebulite/Module/Base/DomainModule.hpp"
-#include "Nebulite/Utility/Args/CmdArgs.hpp"
+#include "Nebulite/Utility/Args/SegmentedStringView.hpp"
 
 //------------------------------------------
 // Forward declarations
@@ -48,7 +48,7 @@ public:
     //------------------------------------------
     // Available Functions
 
-    [[nodiscard]] Constants::Event beep(Utility::Args::SSV const& args) const;
+    [[nodiscard]] Constants::Event beep(Utility::Args::SegmentedStringView const& args) const;
     static auto constexpr beepName = "beep";
     static auto constexpr beepDesc = "Make a beep noise.\n"
         "If no waveform type is specified, defaults to sine.\n"
@@ -57,7 +57,7 @@ public:
         "\n"
         "Usage: beep [sine/square/triangle]\n";
 
-    [[nodiscard]] Constants::Event playSound(Utility::Args::SSV const& args);
+    [[nodiscard]] Constants::Event playSound(Utility::Args::SegmentedStringView const& args);
     static auto constexpr playSoundName = "play-sound";
     static auto constexpr playSoundDesc = "Play a sound from a file.\n"
         "Usage: play-sound <file-path>\n";

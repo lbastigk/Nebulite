@@ -10,7 +10,7 @@
 // Nebulite
 #include "Nebulite/Constants/Event.hpp"
 #include "Nebulite/Module/Base/DomainModule.hpp"
-#include "Nebulite/Utility/Args/CmdArgs.hpp"
+#include "Nebulite/Utility/Args/SegmentedStringView.hpp"
 
 //------------------------------------------
 // Forward declarations
@@ -51,7 +51,7 @@ public:
         "\n"
         "Usage: selected-object get <idx>\n";
 
-    [[nodiscard]] Constants::Event selectedObjectParse(Utility::Args::SSV const& args, Interaction::Context const& ctx, Interaction::ContextScope const& ctxScope) const ;
+    [[nodiscard]] Constants::Event selectedObjectParse(Utility::Args::SegmentedStringView const& args, Interaction::Context const& ctx, Interaction::ContextScope const& ctxScope) const ;
     static auto constexpr selectedObjectParseName = "selected-object parse";
     static auto constexpr selectedObjectParseDesc = "Parse a command on the selected RenderObject.\n"
         "\n"

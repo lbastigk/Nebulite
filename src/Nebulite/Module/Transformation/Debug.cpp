@@ -10,7 +10,7 @@
 #include "Nebulite/Data/Document/JsonScope.hpp"
 #include "Nebulite/Module/Transformation/Debug.hpp"
 #include "Nebulite/Nebulite.hpp"
-#include "Nebulite/Utility/Args/CmdArgs.hpp"
+#include "Nebulite/Utility/Args/SegmentedStringView.hpp"
 #include "Nebulite/Utility/Io/FileManagement.hpp"
 
 //------------------------------------------
@@ -27,23 +27,23 @@ void Debug::bindTransformations() {
 
 // Since this is for debugging only, we pass the output directly to global capture, instead of a local capture
 
-bool Debug::echo(Utility::Args::SSV const& args) {
+bool Debug::echo(Utility::Args::SegmentedStringView const& args) {
     Global::capture().log.println(args.recombineSubspan(1));
     return true;
 }
 
-bool Debug::warn(Utility::Args::SSV const& args) {
+bool Debug::warn(Utility::Args::SegmentedStringView const& args) {
     Global::capture().warning.println(args.recombineSubspan(1));
     return true;
 }
 
-bool Debug::error(Utility::Args::SSV const& args) {
+bool Debug::error(Utility::Args::SegmentedStringView const& args) {
     Global::capture().error.println(args.recombineSubspan(1));
     return true;
 }
 
 // NOLINTNEXTLINE
-bool Debug::print(Utility::Args::SSV const& args, Data::JsonScope& jsonDoc) {
+bool Debug::print(Utility::Args::SegmentedStringView const& args, Data::JsonScope& jsonDoc) {
     // Print to cout, no modifications
     if (args.size() > 1) {
         for (auto const& arg : args | std::views::drop(1)) {
@@ -63,12 +63,12 @@ bool Debug::print(Utility::Args::SSV const& args, Data::JsonScope& jsonDoc) {
     return true;
 }
 
-bool Debug::unreachable(Utility::Args::SSV const& args){
+bool Debug::unreachable(Utility::Args::SegmentedStringView const& args){
     std::string const message = "Unreachable transformation path reached! " + args.recombineSubspan(1);
     throw std::logic_error(message);
 }
 
-bool Debug::store(Utility::Args::SSV const& args, Data::JsonScope const& jsonDoc){
+bool Debug::store(Utility::Args::SegmentedStringView const& args, Data::JsonScope const& jsonDoc){
     if (args.size() < 2) {
         Global::capture().error.println("store transformation requires at least one argument for the file name to store the JSON value under.");
         return false;

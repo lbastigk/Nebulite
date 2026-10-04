@@ -9,8 +9,8 @@
 
 // Nebulite
 #include "Nebulite/Module/Base/TransformationModule.hpp"
-#include "Nebulite/Utility/Args/CmdArgs.hpp"
 #include "Nebulite/Utility/Args/FuncTree.hpp"
+#include "Nebulite/Utility/Args/SegmentedStringView.hpp"
 
 //------------------------------------------
 // Forward declarations
@@ -35,32 +35,32 @@ public:
     //------------------------------------------
     // Available Transformations
 
-    static bool eq(Utility::Args::SSV const& args, Data::JsonScope& jsonDoc);
+    static bool eq(Utility::Args::SegmentedStringView const& args, Data::JsonScope& jsonDoc);
     static auto constexpr eqName = "eq";
     static auto constexpr eqDesc = "Checks if the current JSON value is equal to the specified value.\n"
         "Usage: |eq <value> -> {bool}\n";
 
-    static bool neq(Utility::Args::SSV const& args, Data::JsonScope& jsonDoc);
+    static bool neq(Utility::Args::SegmentedStringView const& args, Data::JsonScope& jsonDoc);
     static auto constexpr neqName = "neq";
     static auto constexpr neqDesc = "Checks if the current JSON value is not equal to the specified value.\n"
         "Usage: |neq <value> -> {bool}\n";
 
-    static bool gt(Utility::Args::SSV const& args, Data::JsonScope& jsonDoc);
+    static bool gt(Utility::Args::SegmentedStringView const& args, Data::JsonScope& jsonDoc);
     static auto constexpr gtName = "gt";
     static auto constexpr gtDesc = "Checks if the current JSON value is greater than the specified value.\n"
         "Usage: |gt <value> -> {bool}\n";
 
-    static bool geq(Utility::Args::SSV const& args, Data::JsonScope& jsonDoc);
+    static bool geq(Utility::Args::SegmentedStringView const& args, Data::JsonScope& jsonDoc);
     static auto constexpr geqName = "geq";
     static auto constexpr geqDesc = "Checks if the current JSON value is greater than or equal to the specified value.\n"
         "Usage: |geq <value> -> {bool}\n";
 
-    static bool lt(Utility::Args::SSV const& args, Data::JsonScope& jsonDoc);
+    static bool lt(Utility::Args::SegmentedStringView const& args, Data::JsonScope& jsonDoc);
     static auto constexpr ltName = "lt";
     static auto constexpr ltDesc = "Checks if the current JSON value is less than the specified value.\n"
         "Usage: |lt <value> -> {bool}\n";
 
-    static bool leq(Utility::Args::SSV const& args, Data::JsonScope& jsonDoc);
+    static bool leq(Utility::Args::SegmentedStringView const& args, Data::JsonScope& jsonDoc);
     static auto constexpr leqName = "leq";
     static auto constexpr leqDesc = "Checks if the current JSON value is less than or equal to the specified value.\n"
         "Usage: |leq <value> -> {bool}\n";
