@@ -29,6 +29,7 @@
 #include "Nebulite/Graphics/Drawcall.hpp"
 #include "Nebulite/Math/Equality.hpp"
 #include "Nebulite/Nebulite.hpp"
+#include "Nebulite/Utility/Args/CmdArgs.hpp"
 #include "Nebulite/Utility/Coordination/IdGenerator.hpp"
 #include "Nebulite/Utility/Io/Capture.hpp"
 
@@ -178,11 +179,18 @@ void Drawcall::updateDrawcallData() {
 }
 
 //------------------------------------------
-// Drawcall defaults
+// Parsing
 
 Constants::Event Drawcall::parseStr(std::string_view const str, Interaction::Context& ctx, Interaction::ContextScope& ctxScope) const {
     return texture.parseStr(str, ctx, ctxScope);
 }
+
+Constants::Event Drawcall::parse(Utility::Args::SSV const& args, Interaction::Context& ctx, Interaction::ContextScope& ctxScope) const{
+    return texture.parse(args, ctx, ctxScope);
+}
+
+//------------------------------------------
+// Drawcall defaults
 
 void Drawcall::ApplyDefault::sprite(Data::JsonScope& scope) {
     // Default type
