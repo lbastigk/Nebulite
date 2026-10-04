@@ -75,8 +75,7 @@ bool Collection::listMembers(Data::JsonScope& jsonDoc){
         [&](auto const& enumeratedMemberAndKey) {
             auto const& [index, memberAndKey] = enumeratedMemberAndKey;
             auto const& [member, _] = memberAndKey;
-            auto key = Data::ScopedKey(rootKey.addIndex(index));
-            jsonDoc.set<std::string>(key,member);
+            jsonDoc.set<std::string>(rootKey.addIndex(index),member);
         }
     );
     return true;
