@@ -176,6 +176,10 @@ bool SegmentedStringView::operator!=(std::string_view const other) const{
 //------------------------------------------
 // Range
 
+[[nodiscard]] decltype(SegmentedStringView::data.at(0)) SegmentedStringView::at(std::size_t const index) const {
+    return data.at(index);
+}
+
 [[nodiscard]] decltype(SegmentedStringView::data.begin()) SegmentedStringView::begin() const {
     return data.begin();
 }
@@ -203,7 +207,7 @@ std::size_t SegmentedStringView::characterCount() const {
     return charCount.get(data).count;
 }
 
-std::size_t SegmentedStringView::segmentCount() const {
+std::size_t SegmentedStringView::size() const {
     return data.size();
 }
 
@@ -285,8 +289,8 @@ void SegmentedStringView::copy(std::vector<std::string_view>& other) const{
     std::ranges::copy(data, std::back_inserter(other));
 }
 
-void SegmentedStringView::copySubspan(std::vector<std::string_view>& other, std::size_t const index) const {
-    std::ranges::copy(data.subspan(index), std::back_inserter(other));
+void SegmentedStringView::copySubspan(std::vector<std::string_view>& other, std::size_t const startIndex) const {
+    std::ranges::copy(data.subspan(startIndex), std::back_inserter(other));
 }
 
 void SegmentedStringView::copySubspan(std::vector<std::string_view>& other, std::size_t const startIndex, std::size_t const count) const{

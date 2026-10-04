@@ -73,6 +73,9 @@ public:
 
     explicit SegmentedStringView(FoundationalType args);
 
+    template <typename Data, typename Size>
+    explicit SegmentedStringView(Data d, Size s) : data(FoundationalType{d,s}){}
+
     ~SegmentedStringView() = default;
 
     SegmentedStringView(SegmentedStringView const& other) = default;
@@ -94,6 +97,8 @@ public:
     //------------------------------------------
     // Range
 
+    [[nodiscard]] decltype(data.at(0)) at(std::size_t index) const ;
+
     [[nodiscard]] decltype(data.begin()) begin() const ;
 
     [[nodiscard]] decltype(data.end()) end() const ;
@@ -107,7 +112,8 @@ public:
 
     [[nodiscard]] bool empty() const ;
 
-    [[nodiscard]] std::size_t segmentCount() const ;
+    [[nodiscard]] std::size_t size() const ;
+
     [[nodiscard]] std::size_t characterCount() const ;
 
     //------------------------------------------
@@ -121,7 +127,7 @@ public:
 
     template<typename T>
     std::optional<T> tryGetAs(std::size_t const index) const {
-        if (index >= segmentCount()) {
+        if (index >= size()) {
             return std::nullopt;
         }
         return Convert::Cast::String::to<T>(data[index]);
@@ -154,7 +160,7 @@ public:
     // Copy
 
     void copy(std::vector<std::string_view>& other) const ;
-    void copySubspan(std::vector<std::string_view>& other, std::size_t index) const ;
+    void copySubspan(std::vector<std::string_view>& other, std::size_t startIndex) const ;
     void copySubspan(std::vector<std::string_view>& other, std::size_t startIndex, std::size_t count) const ;
 
     //------------------------------------------

@@ -37,42 +37,18 @@ public:
     ArgsTransitionCompatibilityLayer& operator=(ArgsTransitionCompatibilityLayer const& other) = default;
     ArgsTransitionCompatibilityLayer& operator=(ArgsTransitionCompatibilityLayer &&) = default;
 
-    auto recombine() const {
-        return ssv.recombine();
-    }
-
-    auto recombineSubspan(std::size_t const startIndex) const {
-        // TODO: Old algo for now, use ssv::recombineSubspan once this works
-        return ssv.subspan(startIndex).recombine();
-    }
-
-    auto recombineSubspan(size_t const startIndex, size_t const count) const {
-        // TODO: Old algo for now, use ssv::recombineSubspan once this works
-        return ssv.subspan(startIndex, count).recombine();
-    }
+    //------------------------------------------
+    // Operators
 
     auto operator[](size_t const index) const {
         return ssv[index];
     }
 
+    //------------------------------------------
+    // Range
+
     auto at(size_t const index) const {
         return ssv[index];
-    }
-
-    auto subspan(size_t const index) const {
-        return ArgsTransitionCompatibilityLayer{ssv.subspan(index).data};
-    }
-
-    auto subspan(size_t const index, size_t const count) const {
-        return ArgsTransitionCompatibilityLayer{ssv.subspan(index, count).data};
-    }
-
-    auto size() const {
-        return ssv.segmentCount();
-    }
-
-    auto empty() const {
-        return ssv.empty();
     }
 
     auto begin() const {
@@ -89,6 +65,60 @@ public:
 
     auto back() const {
         return ssv.back();
+    }
+
+    //------------------------------------------
+    // Size
+
+    auto empty() const {
+        return ssv.empty();
+    }
+
+    auto size() const {
+        return ssv.size();
+    }
+
+    //------------------------------------------
+    // Span
+
+    auto subspan(size_t const index) const {
+        return ArgsTransitionCompatibilityLayer{ssv.subspan(index).data};
+    }
+
+    auto subspan(size_t const index, size_t const count) const {
+        return ArgsTransitionCompatibilityLayer{ssv.subspan(index, count).data};
+    }
+
+    //------------------------------------------
+    // Copy
+
+    void copy(std::vector<std::string_view>& data) const {
+        ssv.copy(data);
+    }
+
+    void copySubspan(std::vector<std::string_view>& data, size_t const startIndex) const {
+        ssv.copySubspan(data, startIndex);
+    }
+
+    void copySubspan(std::vector<std::string_view>& data, size_t const startIndex, size_t const count) const {
+        ssv.copySubspan(data, startIndex, count);
+    }
+
+    //------------------------------------------
+    // Generate
+
+    auto recombine() const {
+        return ssv.recombine();
+    }
+
+    auto recombineSubspan(std::size_t const startIndex) const {
+        // TODO: Old algo for now, use ssv::recombineSubspan once this works
+        return ssv.subspan(startIndex).recombine();
+    }
+
+    auto recombineSubspan(size_t const startIndex, size_t const count) const {
+        // TODO: Old algo for now, use ssv::recombineSubspan once this works
+        return ssv.subspan(startIndex, count).recombine();
     }
 };
 
