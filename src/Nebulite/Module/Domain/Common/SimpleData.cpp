@@ -160,7 +160,8 @@ Constants::Event SimpleData::popBack(Utility::Args::SSV const& args, Interaction
     auto const key = ctxScope.self.getRootScope().addMember(args[1]);
 
     if (ctxScope.self.memberType(key) != Data::KeyType::array) {
-        std::vector<std::string_view> ensureArrayArgs = {"", args[1]};
+        std::vector<std::string_view> const ensureArrayArgsData = {"", args[1]};
+        auto const ensureArrayArgs = Utility::Args::SSV(ensureArrayArgsData);
         if (Constants::Event const result = ensureArray(ensureArrayArgs, ctx, ctxScope); result != Constants::Event::success) {
             ctx.self.capture.error.println("Error: Failed to ensure array for key '", std::string(args[1]), "'.");
             return result;
@@ -194,7 +195,8 @@ Constants::Event SimpleData::pushFront(Utility::Args::SSV const& args, Interacti
     }
 
     if (ctxScope.self.memberType(key) != Data::KeyType::array) {
-        std::vector<std::string_view> ensureArrayArgs = {"", args[1]};
+        std::vector<std::string_view> const ensureArrayArgsData = {"", args[1]};
+        auto const ensureArrayArgs = Utility::Args::SSV(ensureArrayArgsData);
         if (Constants::Event const result = ensureArray(ensureArrayArgs, ctx, ctxScope); result != Constants::Event::success) {
             ctx.self.capture.error.println("Error: Failed to ensure array for key '", std::string(args[1]), "'.");
             return result;

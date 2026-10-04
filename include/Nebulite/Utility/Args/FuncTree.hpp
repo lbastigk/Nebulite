@@ -8,7 +8,6 @@
 #include <functional>
 #include <memory>
 #include <optional>
-#include <span>
 #include <string>
 #include <string_view>
 #include <type_traits>
@@ -387,7 +386,7 @@ private:
      * @brief Processes variable arguments at the start of the argument list.
      * @param args The arguments to remove and process variable assignments from.
      */
-    void processVariableArguments(std::span<std::string_view const>& args);
+    void processVariableArguments(SSV& args);
 
     /**
      * @brief Finds an argument in inherited FuncTrees.

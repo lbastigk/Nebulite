@@ -7,13 +7,13 @@
 #include <cstddef>
 #include <cstdint> // NOLINT
 #include <ranges>
+#include <span>
 #include <string>
 #include <string_view>
 #include <utility>
 #include <vector>
 
 // Nebulite
-#include "Nebulite/Utility/Args/CmdArgs.hpp"
 #include "Nebulite/Utility/Convert/Cast.hpp"
 #include "Nebulite/Utility/StringHandler.hpp"
 
@@ -170,7 +170,7 @@ bool StringHandler::parseQuotedArguments(std::vector<std::string_view>& existing
     return activeQuote != '\0';
 }
 
-std::string StringHandler::recombineArgs(Args::SSV const& args) {
+std::string StringHandler::recombineArgs(std::span<std::string_view const> const args) {
     std::string result;
     for (std::size_t i = 0; i < args.size(); ++i) {
         // TODO: consider adding back quotes if any arg has a whitespace

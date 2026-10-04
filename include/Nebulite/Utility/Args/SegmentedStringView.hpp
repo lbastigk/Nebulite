@@ -41,6 +41,8 @@ struct CharacterCount {
     explicit CharacterCount(std::size_t c);
 };
 
+class ArgsTransitionCompatibilityLayer;
+
 /**
  * @class SegmentedStringView
  * @brief Provides basic string functionality for a split string
@@ -52,17 +54,26 @@ struct CharacterCount {
  * @todo Add tests in FeatureTest module
  */
 class SegmentedStringView {
-    std::span<std::string_view const> const data;
+    std::span<std::string_view const> data;
 
     mutable Coordination::LazyInitOptional<CharacterCount, std::span<std::string_view const> const> charCount;
 
+    friend class ArgsTransitionCompatibilityLayer;
 public:
     SegmentedStringView();
 
     // TODO: remove, only construct from string_view via algorithm defined in StringHandler::parseQuotedArguments
     //       but then we would need an external allocator like a vector of string_views!
     //       Inside FuncTree::parse, we could create the allocator and then pass the SegmentedStringView by const reference.
+
     explicit SegmentedStringView(std::span<std::string_view const> args);
+
+    ~SegmentedStringView() = default;
+
+    SegmentedStringView(SegmentedStringView const& other) = default;
+    SegmentedStringView(SegmentedStringView&& other) = default;
+    SegmentedStringView& operator=(SegmentedStringView const& other) = default;
+    SegmentedStringView& operator=(SegmentedStringView&& other) = default;
 
     //------------------------------------------
     // Operators
@@ -73,7 +84,7 @@ public:
     bool operator==(std::string_view other) const; // Passing a string_view with quotes will return false. Consider turning into a SegmentedStringView first!
     bool operator!=(std::string_view other) const; // Passing a string_view with quotes will return false. Consider turning into a SegmentedStringView first!
 
-    [[nodiscard]] decltype(data[0])& operator[](std::size_t index) const ;
+    [[nodiscard]] std::string_view operator[](std::size_t index) const ;
 
     //------------------------------------------
     // Range
@@ -81,6 +92,10 @@ public:
     [[nodiscard]] decltype(data.begin()) begin() const ;
 
     [[nodiscard]] decltype(data.end()) end() const ;
+
+    [[nodiscard]] decltype(data.front()) front() const ;
+
+    [[nodiscard]] decltype(data.back()) back() const ;
 
     //------------------------------------------
     // Size

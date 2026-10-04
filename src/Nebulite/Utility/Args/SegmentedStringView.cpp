@@ -170,7 +170,7 @@ bool SegmentedStringView::operator!=(std::string_view const other) const{
     return !(*this == other); // NOLINT(readability-redundant-parentheses)
 }
 
-[[nodiscard]] decltype(SegmentedStringView::data[0])& SegmentedStringView::operator[](std::size_t const index) const {
+[[nodiscard]] std::string_view SegmentedStringView::operator[](std::size_t const index) const {
     return data[index];
 }
 
@@ -183,6 +183,14 @@ bool SegmentedStringView::operator!=(std::string_view const other) const{
 
 [[nodiscard]] decltype(SegmentedStringView::data.end()) SegmentedStringView::end() const {
     return data.end();
+}
+
+[[nodiscard]] decltype(SegmentedStringView::data.front()) SegmentedStringView::front() const {
+    return data.front();
+}
+
+[[nodiscard]] decltype(SegmentedStringView::data.back()) SegmentedStringView::back() const {
+    return data.back();
 }
 
 //------------------------------------------

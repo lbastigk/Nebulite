@@ -500,8 +500,8 @@ ReturnValue FuncTree<ReturnValue, AdditionalArgs...>::parse(SSV const& args, Add
 
 template <typename ReturnValue, typename... AdditionalArgs>
 ReturnValue FuncTree<ReturnValue, AdditionalArgs...>::parse(std::vector<std::string_view> const& args, AdditionalArgs... addArgs) {
-    // Turn into span
-    std::span const argsSpan(args.data(), args.size());
+    // Turn into correct args
+    SSV const argsSpan(args.data(), args.size());
     return parse(argsSpan, addArgs...);
 }
 
@@ -516,7 +516,7 @@ ReturnValue FuncTree<ReturnValue, AdditionalArgs...>::parse(std::vector<std::str
             return std::string_view(str);
         }
     );
-    std::span const argsView(vecView);
+    SSV const argsView(vecView);
     return parse(argsView, addArgs...);
 }
 
@@ -636,7 +636,7 @@ void FuncTree<ReturnValue, AdditionalArgs...>::processVariable(std::string_view 
 }
 
 template <typename ReturnValue, typename... AdditionalArgs>
-void FuncTree<ReturnValue, AdditionalArgs...>::processVariableArguments(std::span<std::string_view const>& args) {
+void FuncTree<ReturnValue, AdditionalArgs...>::processVariableArguments(SSV& args) {
     while (!args.empty()) {
         if (auto const& arg = args[0]; arg.length() >= 2 && arg.starts_with("--")) {
             processVariable(arg.substr(2));
