@@ -2,10 +2,7 @@
 // Includes
 
 // Standard library
-#include <algorithm>
 #include <complex>
-#include <cstddef>
-#include <iterator>
 #include <optional>
 #include <ranges>
 #include <string_view>
@@ -88,25 +85,13 @@ bool Fft::applyTransferFunctionFrequencyDomain(Utility::Args::SegmentedStringVie
     // Get num/den polynomial
     using OptVec = std::optional<std::vector<double>>;
     auto [num, den] = [&args] -> std::pair<OptVec, OptVec> {
-        auto const numPos = std::ranges::find(args, std::string_view{"--num"});
-        auto const denPos = std::ranges::find(args, std::string_view{"--den"});
-        if (numPos == args.end() || denPos == args.end()) {
-            return {std::nullopt, std::nullopt};
-        }
-        if (numPos > denPos) {
-            return {std::nullopt, std::nullopt};
-        }
-
-        auto const numIndex = static_cast<std::size_t>(std::distance(args.begin(), numPos));
-        auto const denIndex = static_cast<std::size_t>(std::distance(args.begin(), denPos));
-
         auto constexpr tryDoubleConvert = [](std::string_view const arg) -> std::optional<double> {
             return Utility::Convert::Cast::String::to<double>(arg);
         };
 
-        auto const numV = args.subspan(numIndex + 1, denIndex - numIndex - 1)
+        auto const numV = args.getNamedSpannedArgument("--num")
             | Utility::Ranges::tryTransform(tryDoubleConvert);
-        auto const denV = args.subspan(denIndex + 1)
+        auto const denV = args.getNamedSpannedArgument("--den")
             | Utility::Ranges::tryTransform(tryDoubleConvert);
 
         return std::make_pair(numV, denV);
