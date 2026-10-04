@@ -3,7 +3,6 @@
 
 // Standard library
 #include <functional>
-#include <span>
 #include <string>
 #include <string_view>
 
@@ -16,6 +15,7 @@
 #include "Nebulite/Interaction/Execution/Domain.hpp"
 #include "Nebulite/Interaction/Logic/Expression.hpp"
 #include "Nebulite/Module/Domain/Common/ComplexData.hpp"
+#include "Nebulite/Utility/Args/CmdArgs.hpp"
 #include "Nebulite/Utility/StringHandler.hpp"
 
 //------------------------------------------

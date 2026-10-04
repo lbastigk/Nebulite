@@ -4,7 +4,6 @@
 // Standard library
 #include <cstddef>
 #include <ranges>
-#include <span>
 #include <string>
 #include <string_view>
 #include <vector>
@@ -17,6 +16,7 @@
 #include "Nebulite/Interaction/Execution/Domain.hpp"
 #include "Nebulite/Interaction/Logic/Assignment.hpp"
 #include "Nebulite/Module/Domain/Common/SimpleData.hpp"
+#include "Nebulite/Utility/Args/CmdArgs.hpp"
 #include "Nebulite/Utility/StringHandler.hpp"
 
 //------------------------------------------

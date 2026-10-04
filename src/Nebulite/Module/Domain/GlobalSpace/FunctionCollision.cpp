@@ -2,7 +2,6 @@
 // Includes
 
 // Standard library
-#include <span>
 #include <string_view>
 
 // Nebulite
@@ -11,6 +10,7 @@
 #include "Nebulite/Core/GlobalSpace.hpp"
 #include "Nebulite/Interaction/Execution/Domain.hpp"
 #include "Nebulite/Module/Domain/GlobalSpace/FunctionCollision.hpp"
+#include "Nebulite/Utility/Args/CmdArgs.hpp"
 #include "Nebulite/Utility/Args/FuncTree.hpp"
 
 //------------------------------------------

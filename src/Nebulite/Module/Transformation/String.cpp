@@ -14,6 +14,7 @@
 // Nebulite
 #include "Nebulite/Data/Document/JsonScope.hpp"
 #include "Nebulite/Module/Transformation/String.hpp"
+#include "Nebulite/Utility/Args/CmdArgs.hpp"
 #include "Nebulite/Utility/Ranges.hpp"
 #include "Nebulite/Utility/StringHandler.hpp"
 

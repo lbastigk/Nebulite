@@ -6,7 +6,6 @@
 #include <cstddef>
 #include <cstdint> // NOLINT
 #include <ranges>
-#include <span>
 #include <string>
 #include <vector>
 
@@ -15,6 +14,7 @@
 #include "Nebulite/Data/Document/KeyType.hpp"
 #include "Nebulite/Data/Document/ScopedKey.hpp"
 #include "Nebulite/Module/Transformation/Collection.hpp"
+#include "Nebulite/Utility/Args/CmdArgs.hpp"
 #include "Nebulite/Utility/Ranges.hpp"
 
 //------------------------------------------

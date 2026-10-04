@@ -135,7 +135,7 @@ void Audio::initAudio(){
 
 void Audio::initWaveforms() {
     static_assert(!std::is_unsigned_v<Settings::SampleType>, "SampleType must be a signed type");
-    static double constexpr amplitudeScale = 0.3 * static_cast<double>(Settings::SampleMax); // Scale down the amplitude to prevent clipping
+    static double constexpr amplitudeScale = 0.3 * static_cast<double>(Settings::sampleMax); // Scale down the amplitude to prevent clipping
     static auto constexpr omega = 2.0 * std::numbers::pi * BasicAudioWaveforms::Settings::frequency;
 
     basicAudioWaveforms.sineBuffer = Utility::Generate::array<Settings::SampleType, BasicAudioWaveforms::Settings::samples>(

@@ -3,7 +3,6 @@
 
 // Standard library
 #include <cstdint> // NOLINT
-#include <span>
 #include <string>
 
 // Nebulite
@@ -15,6 +14,7 @@
 #include "Nebulite/Module/Domain/GlobalSpace/InputMapping.hpp"
 #include "Nebulite/Module/Domain/GlobalSpace/Settings.hpp"
 #include "Nebulite/Nebulite.hpp"
+#include "Nebulite/Utility/Args/CmdArgs.hpp"
 #include "Nebulite/Utility/Io/FileManagement.hpp"
 
 //------------------------------------------
@@ -83,7 +83,7 @@ Constants::Event Settings::setSettingInt(Utility::Args::SSV const& args) const {
 //------------------------------------------
 // Private methods
 
-Constants::Event Settings::loadSettings(std::string const& filename) const {
+Constants::Event Settings::loadSettings(std::string_view const filename) const { // NOLINT
     // Load settings file and only set known settings
     Data::Json settings;
 

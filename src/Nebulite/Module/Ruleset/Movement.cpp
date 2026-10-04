@@ -8,7 +8,6 @@
 
 // Nebulite
 #include "Nebulite/Interaction/Execution/Domain.hpp"
-#include "Nebulite/Interaction/Rules/StaticRulesetMap.hpp"
 #include "Nebulite/Module/Base/RulesetModule.hpp"
 #include "Nebulite/Module/Ruleset/Movement.hpp"
 

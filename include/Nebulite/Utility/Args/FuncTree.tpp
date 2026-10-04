@@ -480,7 +480,7 @@ ReturnValue FuncTree<ReturnValue, AdditionalArgs...>::parseStr(std::string_view 
 }
 
 template <typename ReturnValue, typename... AdditionalArgs>
-ReturnValue FuncTree<ReturnValue, AdditionalArgs...>::parse(Utility::Args::SSV const& args, AdditionalArgs... addArgs) {
+ReturnValue FuncTree<ReturnValue, AdditionalArgs...>::parse(SSV const& args, AdditionalArgs... addArgs) {
     auto actualArgs = args.subspan(1); // First arg is caller, remove
     processVariableArguments(actualArgs);
     if (actualArgs.empty()) {
@@ -531,7 +531,7 @@ ReturnValue FuncTree<ReturnValue, AdditionalArgs...>::parseWithPrefix(std::vecto
 }
 
 template <typename ReturnValue, typename... AdditionalArgs>
-ReturnValue FuncTree<ReturnValue, AdditionalArgs...>::executeFunction(std::string_view const name, Utility::Args::SSV const& args, AdditionalArgs... addArgs) {
+ReturnValue FuncTree<ReturnValue, AdditionalArgs...>::executeFunction(std::string_view const name, SSV const& args, AdditionalArgs... addArgs) {
     // Strip whitespaces of name
     std::string_view function = name;
     StringHandler::strip(function);

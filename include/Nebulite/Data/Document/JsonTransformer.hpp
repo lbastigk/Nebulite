@@ -11,6 +11,7 @@
 #include <vector>
 
 // Nebulite
+#include "Nebulite/Utility/Args/CmdArgs.hpp"
 #include "Nebulite/Utility/Args/FuncTree.hpp"
 
 //------------------------------------------
@@ -82,7 +83,6 @@ public:
      *         If the value is false, the document should still be considered modified, but in an unknown state.
      */
     bool parse(std::span<std::string_view const> transformationList, Json& jsonDoc) const ;
-
 
     /**
      * @brief Parse a single transformation with already separated arguments.

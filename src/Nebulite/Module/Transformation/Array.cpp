@@ -7,7 +7,6 @@
 #include <cstddef>
 #include <cstdint> // NOLINT
 #include <ranges>
-#include <span>
 #include <string>
 #include <utility>
 
@@ -15,6 +14,7 @@
 #include "Nebulite/Data/Document/JsonScope.hpp"
 #include "Nebulite/Data/Document/KeyType.hpp"
 #include "Nebulite/Module/Transformation/Array.hpp"
+#include "Nebulite/Utility/Args/CmdArgs.hpp"
 #include "Nebulite/Utility/Convert/Cast.hpp"
 #include "Nebulite/Utility/Ranges.hpp"
 #include "Nebulite/Utility/StringHandler.hpp"

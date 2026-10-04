@@ -33,6 +33,7 @@
 #include "Nebulite/Module/Domain/Initializer.hpp"
 #include "Nebulite/Nebulite.hpp"
 #include "Nebulite/ScopeAccessor.hpp"
+#include "Nebulite/Utility/Args/CmdArgs.hpp"
 
 //------------------------------------------
 namespace Nebulite::Core {

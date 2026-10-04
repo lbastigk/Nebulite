@@ -22,6 +22,7 @@
 #include "Nebulite/Interaction/Logic/Expression.hpp"
 #include "Nebulite/Math/FFT.hpp"
 #include "Nebulite/Module/Domain/GlobalSpace/FeatureTest.hpp"
+#include "Nebulite/Utility/Args/CmdArgs.hpp"
 #include "Nebulite/Utility/Args/FuncTree.hpp"
 #include "Nebulite/Utility/Args/SegmentedStringView.hpp"
 #include "Nebulite/Utility/Convert/Cast.hpp"
@@ -389,7 +390,7 @@ Constants::Event FeatureTest::segmentedStringViewBenchmark(Utility::Args::SSV co
 
     std::array constexpr queries = {
         std::string_view{strRawContains},
-        std::string_view{strRawMissing}
+        std::string_view{strRawMissing},
     };
 
     Utility::Testing::timeBenchmark([&] { return ssv.contains(queries[0]); }, n, "SegmentedStringView contains (true)", domain.capture);

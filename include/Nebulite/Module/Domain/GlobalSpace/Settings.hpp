@@ -5,14 +5,13 @@
 // Includes
 
 // Standard library
-#include <span>
-#include <string>
 #include <string_view>
 
 // Nebulite
 #include "Nebulite/Constants/Event.hpp"
 #include "Nebulite/Data/Document/KeyGroup.hpp"
 #include "Nebulite/Module/Base/DomainModule.hpp"
+#include "Nebulite/Utility/Args/CmdArgs.hpp"
 
 //------------------------------------------
 // Forward declarations
@@ -119,7 +118,7 @@ public:
     }
 
 private:
-    [[nodiscard]] Constants::Event loadSettings(std::string const& filename) const ;
+    [[nodiscard]] Constants::Event loadSettings(std::string_view filename) const ;
 
     void logInitError() const ;
 };

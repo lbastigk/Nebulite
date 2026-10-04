@@ -152,7 +152,7 @@ public:
      * @return The return value of the executed function, or the standard/error value.
      */
     ReturnValue parseStr(std::string_view cmd, AdditionalArgs... addArgs);
-    ReturnValue parse(Utility::Args::SSV const& args, AdditionalArgs... addArgs);
+    ReturnValue parse(SSV const& args, AdditionalArgs... addArgs);
     ReturnValue parse(std::vector<std::string_view> const& args, AdditionalArgs... addArgs);
     ReturnValue parse(std::vector<std::string> const& args, AdditionalArgs... addArgs);
 
@@ -311,13 +311,13 @@ private:
      * @param addArgs Additional arguments to pass to the function.
      * @return The return value of the function.
      */
-    ReturnValue executeFunction(std::string_view name, Utility::Args::SSV const& args, AdditionalArgs... addArgs);
+    ReturnValue executeFunction(std::string_view name, SSV const& args, AdditionalArgs... addArgs);
 
     /**
      * @brief Displays help information to all bound functions. Automatically bound to any FuncTree on construction.
      * @return The standard return value.
      */
-    ReturnValue help(Utility::Args::SSV const& args);
+    ReturnValue help(SSV const& args);
 
     /**
      * @brief Retrieves a list of all functions and their descriptions.
@@ -405,7 +405,7 @@ private:
      * @param args A list of arguments to complete
      * @return The standard return value.
      */
-    ReturnValue complete(Utility::Args::SSV const& args);
+    ReturnValue complete(SSV const& args);
 
     /**
      * @brief Finds possible completions for a given pattern and prefix in the current FuncTree.

@@ -3,7 +3,6 @@
 
 // Standard library
 #include <ranges>
-#include <span>
 #include <stdexcept>
 #include <string>
 
@@ -11,6 +10,7 @@
 #include "Nebulite/Data/Document/JsonScope.hpp"
 #include "Nebulite/Module/Transformation/Debug.hpp"
 #include "Nebulite/Nebulite.hpp"
+#include "Nebulite/Utility/Args/CmdArgs.hpp"
 #include "Nebulite/Utility/Io/FileManagement.hpp"
 #include "Nebulite/Utility/StringHandler.hpp"
 

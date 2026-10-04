@@ -10,7 +10,6 @@
 #include <mutex>
 #include <optional>
 #include <ranges>
-#include <span>
 #include <stdexcept>
 #include <string>
 #include <vector>
@@ -22,6 +21,7 @@
 #include "Nebulite/Data/Document/RjDirectAccess.hpp"
 #include "Nebulite/Data/Document/ScopedKey.hpp"
 #include "Nebulite/Data/Document/SimpleValueError.hpp"
+#include "Nebulite/Utility/Args/CmdArgs.hpp"
 #include "Nebulite/Utility/Coordination/IdGenerator.hpp"
 
 //------------------------------------------

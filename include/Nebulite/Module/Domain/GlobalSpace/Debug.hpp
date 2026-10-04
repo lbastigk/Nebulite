@@ -7,7 +7,6 @@
 // Standard library
 #include <fstream>
 #include <memory>
-#include <span>
 #include <streambuf>
 #include <string_view>
 
@@ -15,6 +14,7 @@
 #include "Nebulite/Constants/Event.hpp"
 #include "Nebulite/Data/Document/KeyGroup.hpp"
 #include "Nebulite/Module/Base/DomainModule.hpp"
+#include "Nebulite/Utility/Args/CmdArgs.hpp"
 
 //------------------------------------------
 // Forward declarations

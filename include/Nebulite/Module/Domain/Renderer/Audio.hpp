@@ -11,9 +11,7 @@
 #include <limits>
 #include <memory>
 #include <optional>
-#include <span>
 #include <string>
-#include <string_view>
 #include <type_traits>
 #include <utility>
 #include <vector>
@@ -26,6 +24,7 @@
 // Nebulite
 #include "Nebulite/Constants/Event.hpp"
 #include "Nebulite/Module/Base/DomainModule.hpp"
+#include "Nebulite/Utility/Args/CmdArgs.hpp"
 
 //------------------------------------------
 // Forward declarations
@@ -83,8 +82,8 @@ private:
 
         using SampleType = float;
 
-        static SampleType constexpr SampleMax = std::is_floating_point_v<SampleType> ? static_cast<SampleType>( 1.0) : std::numeric_limits<SampleType>::max();
-        static SampleType constexpr SampleMin = std::is_floating_point_v<SampleType> ? static_cast<SampleType>(-1.0) : std::numeric_limits<SampleType>::min();
+        static SampleType constexpr sampleMax = std::is_floating_point_v<SampleType> ? static_cast<SampleType>( 1.0) : std::numeric_limits<SampleType>::max();
+        static SampleType constexpr sampleMin = std::is_floating_point_v<SampleType> ? static_cast<SampleType>(-1.0) : std::numeric_limits<SampleType>::min();
 
         static double constexpr sampleRate = 44100.0;
     };

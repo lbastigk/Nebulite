@@ -8,7 +8,6 @@
 #include <cstdlib>
 #include <limits>
 #include <numbers>
-#include <span>
 #include <string>
 #include <string_view>
 #include <vector>
@@ -19,6 +18,7 @@
 // Nebulite
 #include "Nebulite/Math/ExpressionPrimitives.hpp"
 #include "Nebulite/Nebulite.hpp"
+#include "Nebulite/Utility/Args/CmdArgs.hpp"
 #include "Nebulite/Utility/Args/FuncTree.hpp"
 #include "Nebulite/Utility/StringHandler.hpp"
 

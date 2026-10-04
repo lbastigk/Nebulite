@@ -8,7 +8,6 @@
 #include <iterator>
 #include <optional>
 #include <ranges>
-#include <span>
 #include <string_view>
 #include <utility>
 #include <vector>
@@ -17,6 +16,7 @@
 #include "Nebulite/Data/Document/JsonScope.hpp"
 #include "Nebulite/Math/FFT.hpp"
 #include "Nebulite/Module/Transformation/FFT.hpp"
+#include "Nebulite/Utility/Args/CmdArgs.hpp"
 #include "Nebulite/Utility/Convert/Cast.hpp"
 #include "Nebulite/Utility/Ranges.hpp"
 
