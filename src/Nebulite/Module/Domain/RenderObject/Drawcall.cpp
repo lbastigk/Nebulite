@@ -2,8 +2,8 @@
 // Includes
 
 // Standard library
-#include <string>
 #include <string_view>
+#include <vector>
 
 // Nebulite
 #include "Nebulite/Constants/Event.hpp"
@@ -34,7 +34,9 @@ Constants::Event Drawcall::drawcallParse(Utility::Args::SSV const& args, Interac
         return Constants::StandardCapture::Warning::Functional::tooFewArgs(ctx.self.capture);
     }
     auto const& name = args[1];
-    auto const drawcallArgs = std::string(__FUNCTION__) + " " + args.recombineSubspan(2);
+    std::vector<std::string_view> drawcallArgsData{__FUNCTION__};
+    args.copySubspan(drawcallArgsData, 2);
+    auto const drawcallArgs = Utility::Args::SSV{drawcallArgsData};
     return domain.parseDrawcallCommand(name, drawcallArgs, ctx, ctxScope);
 }
 
