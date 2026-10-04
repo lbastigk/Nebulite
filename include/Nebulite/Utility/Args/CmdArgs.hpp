@@ -27,8 +27,6 @@ public:
 
     explicit ArgsTransitionCompatibilityLayer(std::span<std::string_view const> const args) : ssv(args) {}
 
-    //explicit ArgsTransitionCompatibilityLayer(std::span<std::span<std::string_view const>::element_type> const sub) : ssv(sub) {}
-
     explicit ArgsTransitionCompatibilityLayer(std::vector<std::string_view> const& args) : ssv(std::span(args)) {}
 
     ~ArgsTransitionCompatibilityLayer() = default;

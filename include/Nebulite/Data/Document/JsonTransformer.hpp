@@ -6,8 +6,6 @@
 
 // Standard library
 #include <memory>
-#include <span>
-#include <string_view>
 #include <vector>
 
 // Nebulite
@@ -73,7 +71,7 @@ public:
      * @return true if the transformations were successfully applied, false otherwise.
      *         If the value is false, the document should still be considered modified, but in an unknown state.
      */
-    bool parse(std::span<std::string_view const> transformationList, JsonScope& jsonDoc) const ;
+    bool parse(Utility::Args::SSV const& transformationList, JsonScope& jsonDoc) const ;
 
     /**
      * @brief Parses and applies JSON transformations from the given arguments.
@@ -82,7 +80,7 @@ public:
      * @return true if the transformations were successfully applied, false otherwise.
      *         If the value is false, the document should still be considered modified, but in an unknown state.
      */
-    bool parse(std::span<std::string_view const> transformationList, Json& jsonDoc) const ;
+    bool parse(Utility::Args::SSV const& transformationList, Json& jsonDoc) const ;
 
     /**
      * @brief Parse a single transformation with already separated arguments.

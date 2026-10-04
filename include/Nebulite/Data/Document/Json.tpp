@@ -7,7 +7,6 @@
 // Standard library
 #include <expected>
 #include <mutex>
-#include <span>
 #include <string>
 #include <string_view>
 #include <type_traits>
@@ -100,7 +99,7 @@ std::expected<T, SimpleValueRetrievalError> Json::getWithTransformations(std::st
     tempDoc.setSubDoc("", *this, args[0]); // Make a copy of the required member to transform
 
     // Apply each transformation in sequence
-    if (auto const argsSpan = std::span<std::string_view const>(args).subspan(1); !JsonTransformer::instance().parse(argsSpan, tempDoc)) {
+    if (auto const argsSpan = Utility::Args::SSV(args).subspan(1); !JsonTransformer::instance().parse(argsSpan, tempDoc)) {
         return std::unexpected(SimpleValueRetrievalError::transformationFailure); // if any transformation fails, return default value
     }
     return tempDoc.get<T>(Module::Base::TransformationModule::rootKeyStr);

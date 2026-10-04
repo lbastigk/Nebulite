@@ -4,7 +4,6 @@
 // Standard library
 #include <algorithm>
 #include <memory>
-#include <span>
 #include <string_view>
 #include <vector>
 
@@ -82,7 +81,7 @@ JsonTransformer& JsonTransformer::instance() {
 
 // SPAN
 
-bool JsonTransformer::parse(std::span<std::string_view const> const transformationList, JsonScope& jsonDoc) const {
+bool JsonTransformer::parse(Utility::Args::SSV const& transformationList, JsonScope& jsonDoc) const {
     if (transformationList.empty()) [[unlikely]] {
         return false;
     }
@@ -94,7 +93,7 @@ bool JsonTransformer::parse(std::span<std::string_view const> const transformati
     });
 }
 
-bool JsonTransformer::parse(std::span<std::string_view const> const transformationList, Json& jsonDoc) const {
+bool JsonTransformer::parse(Utility::Args::SSV const& transformationList, Json& jsonDoc) const {
     auto& scope = jsonDoc.fullScope();
     return parse(transformationList, scope);
 }

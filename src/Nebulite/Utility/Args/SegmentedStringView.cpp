@@ -29,7 +29,7 @@
 
 namespace {
 
-std::size_t countCharacters(std::span<std::string_view const> strings) {
+std::size_t countCharacters(Nebulite::Utility::Args::FoundationalType const strings) {
     auto const whitespaceCount = strings.empty() ? 0 : strings.size() - 1;
     return whitespaceCount + std::ranges::fold_left(
         strings,
@@ -130,7 +130,7 @@ namespace Nebulite::Utility::Args {
 //------------------------------------------
 // CharacterCount helper struct
 
-CharacterCount::CharacterCount(std::span<std::string_view const> const strings) : count(countCharacters(strings)) {}
+CharacterCount::CharacterCount(FoundationalType const args) : count(countCharacters(args)) {}
 
 CharacterCount::CharacterCount(std::size_t const c) : count(c) {}
 
@@ -139,7 +139,7 @@ CharacterCount::CharacterCount(std::size_t const c) : count(c) {}
 
 SegmentedStringView::SegmentedStringView() = default;
 
-SegmentedStringView::SegmentedStringView(std::span<std::string_view const> const args) : data(args) {}
+SegmentedStringView::SegmentedStringView(FoundationalType const args) : data(args) {}
 
 //------------------------------------------
 // Operators

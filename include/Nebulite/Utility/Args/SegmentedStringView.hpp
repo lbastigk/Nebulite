@@ -21,6 +21,11 @@
 //------------------------------------------
 namespace Nebulite::Utility::Args {
 /**
+ * @brief The underlying type of the Nebulite Argument abstraction.
+ */
+using FoundationalType = std::span<std::string_view const>;
+
+/**
  * @brief Helper wrapper for LazyInit of CharacterCount
  * @details Instead of expanding LazyInit with get()-overloads that accept lambdas for custom initialization,
  *          We just use a wrapper type with constructors.
@@ -29,10 +34,10 @@ struct CharacterCount {
     std::size_t count;
 
     /**
-     * @brief Gets size from the given span
-     * @param strings The span of string views
+     * @brief Gets size from the given foundational arguments
+     * @param args The arguments
      */
-    explicit CharacterCount(std::span<std::string_view const> strings);
+    explicit CharacterCount(FoundationalType args);
 
     /**
      * @brief Forces a character count
@@ -54,9 +59,9 @@ class ArgsTransitionCompatibilityLayer;
  * @todo Add tests in FeatureTest module
  */
 class SegmentedStringView {
-    std::span<std::string_view const> data;
+    FoundationalType data;
 
-    mutable Coordination::LazyInitOptional<CharacterCount, std::span<std::string_view const> const> charCount;
+    mutable Coordination::LazyInitOptional<CharacterCount, FoundationalType> charCount;
 
     friend class ArgsTransitionCompatibilityLayer;
 public:
@@ -66,7 +71,7 @@ public:
     //       but then we would need an external allocator like a vector of string_views!
     //       Inside FuncTree::parse, we could create the allocator and then pass the SegmentedStringView by const reference.
 
-    explicit SegmentedStringView(std::span<std::string_view const> args);
+    explicit SegmentedStringView(FoundationalType args);
 
     ~SegmentedStringView() = default;
 
