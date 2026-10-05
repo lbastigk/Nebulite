@@ -46,7 +46,7 @@ struct OptionalFixedString {
     }
 
     // Returns the last character of the string, or '\0' if the string is empty
-    [[nodiscard]] constexpr char back() const requires(N > 0 && !ForceOutsideDefinition) {
+    [[nodiscard]] char constexpr back() const requires(N > 0 && !ForceOutsideDefinition) {
         if constexpr (N == 1) { // Empty string, return string terminator
             return '\0';
         } else {
@@ -54,8 +54,21 @@ struct OptionalFixedString {
         }
     }
 
-    [[nodiscard]] constexpr std::string_view view() const requires(N > 0 && !ForceOutsideDefinition) {
+    [[nodiscard]] std::string_view constexpr view() const requires(N > 0 && !ForceOutsideDefinition) {
         return {value.data(), N - 1};
+    }
+
+    [[nodiscard]] constexpr bool startsWith(std::string_view str) const noexcept requires(N > 0 && !ForceOutsideDefinition) {
+        if (str.size() > N - 1) {
+            return false;
+        }
+
+        for (std::size_t i = 0; i < str.size(); ++i) {
+            if (value[i] != str[i]) {
+                return false;
+            }
+        }
+        return true;
     }
 };
 
@@ -68,6 +81,11 @@ template <std::size_t N>
 OptionalFixedString(std::array<char, N>) -> OptionalFixedString<N>;
 
 OptionalFixedString() -> OptionalFixedString<0>;
+
+namespace FixedStringState {
+static auto constexpr noFixedStringProvided = OptionalFixedString();
+static auto constexpr forceOutsideDefinition = OptionalFixedString<0, true>();
+} // namespace FixedStringState
 
 } // namespace Nebulite::Data
 #endif // NEBULITE_DATA_OPTIONALFIXEDSTRING_HPP
