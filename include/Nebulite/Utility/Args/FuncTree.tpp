@@ -530,20 +530,19 @@ ReturnValue FuncTree<ReturnValue, AdditionalArgs...>::parseWithPrefix(std::vecto
 }
 
 template <typename ReturnValue, typename... AdditionalArgs>
-ReturnValue FuncTree<ReturnValue, AdditionalArgs...>::executeFunction(std::string_view const name, SegmentedStringView const& args, AdditionalArgs... addArgs) {
+ReturnValue FuncTree<ReturnValue, AdditionalArgs...>::executeFunction(std::string_view name, SegmentedStringView const& args, AdditionalArgs... addArgs) {
     // Strip whitespaces of name
-    std::string_view function = name;
-    StringHandler::strip(function);
+    StringHandler::strip(name);
 
     // Call preParse function if set
     if (preParse != nullptr) {
-        if (ReturnValue err = preParse(function, args); !Math::isEqual(err, standardReturn.valDefault)) {
+        if (ReturnValue err = preParse(name, args); !Math::isEqual(err, standardReturn.valDefault)) {
             return err; // Return error if preParse failed
         }
     }
 
     // Find and execute the function
-    auto functionPosition = bindingContainer.functions.find(function);
+    auto functionPosition = bindingContainer.functions.find(name);
     if (functionPosition != bindingContainer.functions.end()) {
         auto& [functionPtr, description] = functionPosition->second.function;
         return std::visit([&]<typename Func>(Func& func) {
@@ -591,8 +590,8 @@ ReturnValue FuncTree<ReturnValue, AdditionalArgs...>::executeFunction(std::strin
         }, functionPtr);
     }
     // Find function name in bindingContainer.categories
-    if (bindingContainer.categories.find(function) != bindingContainer.categories.end()) {
-        return bindingContainer.categories[function].tree->parseStr(args.recombine(), addArgs...);
+    if (bindingContainer.categories.find(name) != bindingContainer.categories.end()) {
+        return bindingContainer.categories[name].tree->parseStr(args.recombine(), addArgs...);
     }
 
     // Return error if function not found
@@ -600,7 +599,7 @@ ReturnValue FuncTree<ReturnValue, AdditionalArgs...>::executeFunction(std::strin
         auto [i, arg] = indexedArg;
         return acc + std::string("argv[") + std::to_string(i) + "] = '" + arg + "'\n";
     });
-    ExecutionErrorMessage::functionNotFound(capture, treeName, function, arguments);
+    ExecutionErrorMessage::functionNotFound(capture, treeName, name, arguments);
     return standardReturn.valFunctionNotFound;
 }
 
