@@ -30,7 +30,7 @@
 #include "Nebulite/Data/Document/JsonTransformer.hpp"
 #include "Nebulite/Data/Document/KeyType.hpp"
 #include "Nebulite/Data/Document/RjDirectAccess.hpp"
-#include "Nebulite/Data/Document/RjDirectAccess.tpp" // NOLINT TODO: why is this required?
+#include "Nebulite/Data/Document/RjDirectAccess.tpp" // NOLINT TODO: why is this required? Without it, clang-tidy says "no header providing xyz is directly included"
 #include "Nebulite/Data/Document/SimpleValueError.hpp"
 #include "Nebulite/Math/Equality.hpp"
 #include "Nebulite/Module/Base/TransformationModule.hpp"
@@ -199,11 +199,11 @@ bool Json::isJsonOrJsonc(std::string_view const str) {
 
 std::string_view Json::findParentKey(std::string_view const key) {
     if (key.empty()) {
-        return key.substr(0, 0); // Return empty string view
+        return {}; // Key is root -> parent of root is root
     }
     std::size_t const lastPos = key.find_last_of(".]");
     if (lastPos == std::string_view::npos || lastPos == 0) {
-        return key.substr(0, 0); // Return empty string view
+        return {}; // Single member: Parent is root
     }
     if (lastPos == key.length() - 1) {
         return findParentKey(key.substr(0, key.length() > 1 ? key.length() - 1 : 0));
@@ -285,6 +285,7 @@ double* Json::getStableDoublePointer(std::string_view const key) const {
     std::scoped_lock const lockGuard(mtx);
 
     // Check for transformations
+    // TODO: could this be an assert?
     if (key.contains(SpecialCharacter::transformationPipe)) {
         throw std::runtime_error("Transformations are not supported in getStableDoublePointer()");
     }
@@ -301,7 +302,7 @@ double* Json::getStableDoublePointer(std::string_view const key) const {
     }
 
     // Try loading from document into cache
-    if (rapidjson::Value const* val = RjDirectAccess::traversePath(key, doc); val != nullptr) {
+    if (auto const* val = RjDirectAccess::traversePath(key, doc); val != nullptr) {
         if (auto const& v = RjDirectAccess::getSimpleValue(val); v.has_value()) {
             // Insert into cache and return value
             return cache.insertAndGet<double*>(
@@ -682,7 +683,9 @@ void Json::moveMember(std::string_view const fromKey, std::string_view const toK
 
             // Remove all other members except toKey
             for (auto const keys = listAvailableMembers(); auto const& key : keys) {
-                if (key != toKeyStr) removeMember(key);
+                if (key != toKeyStr) {
+                    removeMember(key);
+                }
             }
         }
         // Edge case 3: if fromKey starts with an array, the temporary key must be inside the array to avoid collisions
@@ -700,6 +703,8 @@ void Json::moveMember(std::string_view const fromKey, std::string_view const toK
             removeMember(tempKey);
         }
         else {
+            // TODO: this is really ugly. Maybe we should rather create a temporary subdoc
+            //       while doing so, we should also add more member move tests
             std::string const tempKey = std::string("__temp_move_") + fromKey; // Unlikely to collide with existing keys
             setSubDoc(tempKey, *this, fromKey);
             setSubDoc(toKey, *this, tempKey);
