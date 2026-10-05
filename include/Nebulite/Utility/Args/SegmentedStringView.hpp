@@ -83,6 +83,7 @@ class SegmentedStringView {
      *         an empty SegmentedStringView is returned.
      */
     SegmentedStringView getNamedSpannedArgumentImpl(std::string_view name) const ;
+
 public:
     SegmentedStringView();
 
