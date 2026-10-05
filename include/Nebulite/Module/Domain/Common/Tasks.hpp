@@ -5,13 +5,13 @@
 // Includes
 
 // Standard library
-#include <span>
 #include <string_view>
 
 // Nebulite
 #include "Nebulite/Constants/Event.hpp"
 #include "Nebulite/Interaction/Execution/Domain.hpp"
 #include "Nebulite/Module/Base/DomainModule.hpp"
+#include "Nebulite/Utility/Args/SegmentedStringView.hpp"
 
 //------------------------------------------
 // Forward declarations
@@ -35,7 +35,7 @@ public:
     //------------------------------------------
     // Available Functions
 
-    [[nodiscard]] Constants::Event wait(std::span<std::string_view const> args) const ;
+    [[nodiscard]] Constants::Event wait(Utility::Args::SegmentedStringView const& args) const ;
     static auto constexpr waitName = "wait";
     static auto constexpr waitDesc = "Sets the waitCounter to the given value to halt all script tasks for a given amount of frames.\n"
         "\n"
@@ -49,7 +49,7 @@ public:
         "- Timing events in a sequence.\n"
         "- Tool assisted speedruns (TAS)\n";
 
-    [[nodiscard]] Constants::Event task(std::span<std::string_view const> args) const ;
+    [[nodiscard]] Constants::Event task(Utility::Args::SegmentedStringView const& args) const ;
     static auto constexpr taskName = "task";
     static auto constexpr taskDesc = "Loads tasks from a file into the taskQueue, but does not execute them immediately.\n"
         "\n"
@@ -71,11 +71,11 @@ public:
         "        subCommand2\n"
         "    mainCommand4\n";
 
-    [[nodiscard]] Constants::Event taskExec(std::span<std::string_view const> args, Interaction::Context ctx, Interaction::ContextScope ctxScope) const ;
+    [[nodiscard]] Constants::Event taskExec(Utility::Args::SegmentedStringView const& args, Interaction::Context ctx, Interaction::ContextScope ctxScope) const ;
     static auto constexpr taskExecName = "task-exec";
     static auto constexpr taskExecDesc = "Same as 'task', but with instant execution.";
 
-    [[nodiscard]] Constants::Event always(std::span<std::string_view const> args) const ;
+    [[nodiscard]] Constants::Event always(Utility::Args::SegmentedStringView const& args) const ;
     static auto constexpr alwaysName = "always";
     static auto constexpr alwaysDesc = "Attach a command to the always-taskqueue that is executed on each tick.\n"
         "\n"

@@ -40,7 +40,7 @@ Constants::Event Audio::updateHook() {
 //------------------------------------------
 // Available Functions
 
-Constants::Event Audio::beep(std::span<std::string_view const> const args) const {
+Constants::Event Audio::beep(Utility::Args::SegmentedStringView const& args) const {
     if (args.size() < 2) {
         domain.capture.log.println("No waveform type specified. Defaulting to sine.");
         SDL_PutAudioStreamData(
@@ -78,12 +78,12 @@ Constants::Event Audio::beep(std::span<std::string_view const> const args) const
     return Constants::Event::success;
 }
 
-Constants::Event Audio::playSound(std::span<std::string_view const> const args) {
+Constants::Event Audio::playSound(Utility::Args::SegmentedStringView const& args) {
     if (args.size() < 2) {
         return Constants::StandardCapture::Warning::Functional::tooFewArgs(domain.capture);
     }
 
-    auto const path = Utility::StringHandler::recombineArgs(args | std::views::drop(1));
+    auto const path = args.recombineSubspan(1);
     auto const sound = loadSound(path);
     if (!sound.has_value()) {
         domain.capture.error.println("Failed to load sound from path: ", path);
@@ -135,7 +135,7 @@ void Audio::initAudio(){
 
 void Audio::initWaveforms() {
     static_assert(!std::is_unsigned_v<Settings::SampleType>, "SampleType must be a signed type");
-    static double constexpr amplitudeScale = 0.3 * static_cast<double>(Settings::SampleMax); // Scale down the amplitude to prevent clipping
+    static double constexpr amplitudeScale = 0.3 * static_cast<double>(Settings::sampleMax); // Scale down the amplitude to prevent clipping
     static auto constexpr omega = 2.0 * std::numbers::pi * BasicAudioWaveforms::Settings::frequency;
 
     basicAudioWaveforms.sineBuffer = Utility::Generate::array<Settings::SampleType, BasicAudioWaveforms::Settings::samples>(

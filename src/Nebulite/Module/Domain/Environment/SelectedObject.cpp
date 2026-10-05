@@ -3,9 +3,7 @@
 
 // Standard library
 #include <cstddef>
-#include <span>
 #include <string>
-#include <string_view>
 
 // Nebulite
 #include "Nebulite/Constants/Event.hpp"
@@ -14,7 +12,7 @@
 #include "Nebulite/Core/Renderer.hpp"
 #include "Nebulite/Interaction/Context.hpp"
 #include "Nebulite/Module/Domain/Environment/SelectedObject.hpp"
-#include "Nebulite/Utility/StringHandler.hpp"
+#include "Nebulite/Utility/Args/SegmentedStringView.hpp"
 
 namespace Nebulite::Module::Domain::Environment {
 
@@ -60,11 +58,11 @@ Constants::Event SelectedObject::selectedObjectGet(int const argc, char const** 
     return Constants::Event::warning;
 }
 
-Constants::Event SelectedObject::selectedObjectParse(std::span<std::string_view const> const args, Interaction::Context const& ctx, Interaction::ContextScope const& ctxScope) const {
+Constants::Event SelectedObject::selectedObjectParse(Utility::Args::SegmentedStringView const& args, Interaction::Context const& ctx, Interaction::ContextScope const& ctxScope) const {
     if (args.size() < 2) {
         return Constants::StandardCapture::Warning::Functional::tooFewArgs(domain.capture);
     }
-    std::string const command = Utility::StringHandler::recombineArgs(args.subspan(1));
+    std::string const command = args.recombineSubspan(1);
     if (selectedRenderObject == nullptr || selectedRenderObjectData == nullptr) {
         domain.capture.warning.println("No RenderObject selected! Use selectedObjectGet <id> to select a valid object.");
         return Constants::Event::warning;

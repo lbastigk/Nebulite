@@ -8,7 +8,6 @@
 #include <cstdint> // NOLINT
 #include <memory>
 #include <optional>
-#include <span>
 #include <sstream>
 #include <stdexcept>
 #include <string>
@@ -34,6 +33,7 @@
 #include "Nebulite/Module/Domain/Initializer.hpp"
 #include "Nebulite/Nebulite.hpp"
 #include "Nebulite/ScopeAccessor.hpp"
+#include "Nebulite/Utility/Args/SegmentedStringView.hpp"
 
 //------------------------------------------
 namespace Nebulite::Core {
@@ -297,7 +297,7 @@ void GlobalSpace::notifyEvent(Constants::Event const event) {
 //------------------------------------------
 // Pre-parse
 
-Constants::Event GlobalSpace::preParse(std::string_view const functionName, std::span<std::string_view const> const /*args*/) {
+Constants::Event GlobalSpace::preParse(std::string_view const functionName, Utility::Args::SegmentedStringView const& /*args*/) {
     // NOTE: This function is only called once there is a parse-command
     // Meaning its timing is consistent and not dependent on framerate, frame time variations, etc.
     // Meaning everything we do here is, timing wise, deterministic!

@@ -20,6 +20,7 @@
 #include "Nebulite/Graphics/Drawcall.hpp"
 #include "Nebulite/Interaction/Execution/Domain.hpp"
 #include "Nebulite/Math/Vec2.hpp"
+#include "Nebulite/Utility/Args/SegmentedStringView.hpp"
 
 //------------------------------------------
 // Forward declarations
@@ -187,7 +188,7 @@ public:
      * @param ctxScope The context scope of the interaction
      * @return Constants::Event indicating success or failure
      */
-    Constants::Event parseDrawcallCommand(std::string_view drawCallName, std::string_view args, Interaction::Context& ctx, Interaction::ContextScope& ctxScope);
+    Constants::Event parseDrawcallCommand(std::string_view drawCallName, Utility::Args::SegmentedStringView const& args, Interaction::Context& ctx, Interaction::ContextScope& ctxScope);
 
 private:
     //------------------------------------------

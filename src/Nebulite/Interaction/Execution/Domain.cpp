@@ -9,7 +9,6 @@
 #include <memory>
 #include <mutex>
 #include <optional>
-#include <span>
 #include <string>
 #include <string_view>
 #include <vector>
@@ -26,6 +25,7 @@
 #include "Nebulite/Module/Domain/Common/Ruleset.hpp"
 #include "Nebulite/Module/Domain/Initializer.hpp"
 #include "Nebulite/Nebulite.hpp"
+#include "Nebulite/Utility/Args/SegmentedStringView.hpp"
 #include "Nebulite/Utility/Io/Capture.hpp"
 #include "Nebulite/Utility/StringHandler.hpp"
 
@@ -57,7 +57,7 @@ void Domain::init(std::string_view const name) {
         Constants::Event::warning,
         capture
     );
-    funcTree->setPreParse([this](std::string_view const functionName, std::span<std::string_view const> const args) {
+    funcTree->setPreParse([this](std::string_view const functionName, Utility::Args::SegmentedStringView const& args) {
         return preParse(functionName, args);
     });
 
@@ -104,7 +104,7 @@ Constants::Event Domain::parseWithPrefix(std::vector<std::string_view>& existing
     return funcTree->parseWithPrefix(existingArgs, cmd, ctx, ctxScope);
 }
 
-Constants::Event Domain::parse(std::span<std::string_view const> const args, Context& ctx, ContextScope& ctxScope) const {
+Constants::Event Domain::parse(Utility::Args::SegmentedStringView const& args, Context& ctx, ContextScope& ctxScope) const {
     return funcTree->parse(args, ctx, ctxScope);
 }
 

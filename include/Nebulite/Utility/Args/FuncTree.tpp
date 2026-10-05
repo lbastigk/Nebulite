@@ -11,7 +11,6 @@
 #include <iterator>
 #include <memory>
 #include <ranges>
-#include <span>
 #include <string>
 #include <string_view>
 #include <type_traits>
@@ -23,8 +22,8 @@
 
 // Nebulite
 #include "Nebulite/Math/Equality.hpp"
-#include "Nebulite/Utility/Args/CmdArgs.hpp"
 #include "Nebulite/Utility/Args/FuncTreeErrorMessages.hpp"
+#include "Nebulite/Utility/Args/SegmentedStringView.hpp"
 #include "Nebulite/Utility/Args/ShapeClassifier.hpp"
 #include "Nebulite/Utility/CompileTimeEvaluate.hpp"
 #include "Nebulite/Utility/Coordination/RecursionAllocator.hpp"
@@ -302,11 +301,11 @@ FuncTree<ReturnValue, AdditionalArgs...>::makeFunctionPtr(Func functionPtr) {
         }
         else if constexpr (shape == ShapeClassifier::FunctionShape::freeModernNoAddArgs) {
             return FunctionPtrT(std::in_place_type<typename SupportedFunctions::Modern::NoAddArgs>,
-                                std::function<ReturnValue(CmdArgs::Span)>(functionPtr));
+                                std::function<ReturnValue(SegmentedStringView const&)>(functionPtr));
         }
         else if constexpr (shape == ShapeClassifier::FunctionShape::freeModernFull) {
             return FunctionPtrT(std::in_place_type<typename SupportedFunctions::Modern::Full>,
-                                std::function<ReturnValue(CmdArgs::Span, AdditionalArgs...)>(functionPtr));
+                                std::function<ReturnValue(SegmentedStringView const&, AdditionalArgs...)>(functionPtr));
         }
         else if constexpr (shape == ShapeClassifier::FunctionShape::freeNoArgs) {
             return FunctionPtrT(std::in_place_type<typename SupportedFunctions::Modern::NoArgs>,
@@ -322,13 +321,13 @@ FuncTree<ReturnValue, AdditionalArgs...>::makeFunctionPtr(Func functionPtr) {
     }
 
     // If it's a callable object (lambda/std::function), try to pick a sensible alternative
-    if constexpr (std::is_invocable_v<Func, CmdArgs::Span, AdditionalArgs...>) {
+    if constexpr (std::is_invocable_v<Func, SegmentedStringView const&, AdditionalArgs...>) {
         return FunctionPtrT(std::in_place_type<typename SupportedFunctions::Modern::Full>,
-                            std::function<ReturnValue(CmdArgs::Span, AdditionalArgs...)>(functionPtr));
+                            std::function<ReturnValue(SegmentedStringView const&, AdditionalArgs...)>(functionPtr));
     }
-    else if constexpr (std::is_invocable_v<Func, CmdArgs::Span>) {
+    else if constexpr (std::is_invocable_v<Func, SegmentedStringView const&>) {
         return FunctionPtrT(std::in_place_type<typename SupportedFunctions::Modern::NoAddArgs>,
-                            std::function<ReturnValue(CmdArgs::Span)>(functionPtr));
+                            std::function<ReturnValue(SegmentedStringView const&)>(functionPtr));
     }
     else if constexpr (std::is_invocable_v<Func>) {
         return FunctionPtrT(std::in_place_type<typename SupportedFunctions::Modern::NoArgs>,
@@ -364,7 +363,7 @@ FuncTree<ReturnValue, AdditionalArgs...>::makeFunctionPtr(Obj* objectPtr, MemFun
     else if constexpr (shape == ShapeClassifier::FunctionShape::memberModernNoAddArgs) {
         return FunctionPtrT(
             std::in_place_type<typename SupportedFunctions::Modern::NoAddArgs>,
-            [objectPtr, memberFunctionPtr](CmdArgs::Span args) { // NOLINT(readability-redundant-typename)
+            [objectPtr, memberFunctionPtr](SegmentedStringView const& args) { // NOLINT(readability-redundant-typename)
                 return std::invoke(memberFunctionPtr, objectPtr, args);
             }
         );
@@ -372,7 +371,7 @@ FuncTree<ReturnValue, AdditionalArgs...>::makeFunctionPtr(Obj* objectPtr, MemFun
     else if constexpr (shape == ShapeClassifier::FunctionShape::memberModernFull) {
         return FunctionPtrT(
             std::in_place_type<typename SupportedFunctions::Modern::Full>,
-            [objectPtr, memberFunctionPtr](CmdArgs::Span args, AdditionalArgs... rest) { // NOLINT(readability-redundant-typename)
+            [objectPtr, memberFunctionPtr](SegmentedStringView const& args, AdditionalArgs... rest) { // NOLINT(readability-redundant-typename)
                 return std::invoke(memberFunctionPtr, objectPtr, args, std::forward<AdditionalArgs>(rest)...);
             }
         );
@@ -480,7 +479,7 @@ ReturnValue FuncTree<ReturnValue, AdditionalArgs...>::parseStr(std::string_view 
 }
 
 template <typename ReturnValue, typename... AdditionalArgs>
-ReturnValue FuncTree<ReturnValue, AdditionalArgs...>::parse(std::span<std::string_view const> const args, AdditionalArgs... addArgs) {
+ReturnValue FuncTree<ReturnValue, AdditionalArgs...>::parse(SegmentedStringView const& args, AdditionalArgs... addArgs) {
     auto actualArgs = args.subspan(1); // First arg is caller, remove
     processVariableArguments(actualArgs);
     if (actualArgs.empty()) {
@@ -500,8 +499,8 @@ ReturnValue FuncTree<ReturnValue, AdditionalArgs...>::parse(std::span<std::strin
 
 template <typename ReturnValue, typename... AdditionalArgs>
 ReturnValue FuncTree<ReturnValue, AdditionalArgs...>::parse(std::vector<std::string_view> const& args, AdditionalArgs... addArgs) {
-    // Turn into span
-    std::span const argsSpan(args.data(), args.size());
+    // Turn into correct args
+    SegmentedStringView const argsSpan(args.data(), args.size());
     return parse(argsSpan, addArgs...);
 }
 
@@ -516,7 +515,7 @@ ReturnValue FuncTree<ReturnValue, AdditionalArgs...>::parse(std::vector<std::str
             return std::string_view(str);
         }
     );
-    std::span const argsView(vecView);
+    SegmentedStringView const argsView(vecView);
     return parse(argsView, addArgs...);
 }
 
@@ -531,20 +530,19 @@ ReturnValue FuncTree<ReturnValue, AdditionalArgs...>::parseWithPrefix(std::vecto
 }
 
 template <typename ReturnValue, typename... AdditionalArgs>
-ReturnValue FuncTree<ReturnValue, AdditionalArgs...>::executeFunction(std::string_view const name, std::span<std::string_view const> args, AdditionalArgs... addArgs) {
+ReturnValue FuncTree<ReturnValue, AdditionalArgs...>::executeFunction(std::string_view name, SegmentedStringView const& args, AdditionalArgs... addArgs) {
     // Strip whitespaces of name
-    std::string_view function = name;
-    StringHandler::strip(function);
+    StringHandler::strip(name);
 
     // Call preParse function if set
     if (preParse != nullptr) {
-        if (ReturnValue err = preParse(function, args); !Math::isEqual(err, standardReturn.valDefault)) {
+        if (ReturnValue err = preParse(name, args); !Math::isEqual(err, standardReturn.valDefault)) {
             return err; // Return error if preParse failed
         }
     }
 
     // Find and execute the function
-    auto functionPosition = bindingContainer.functions.find(function);
+    auto functionPosition = bindingContainer.functions.find(name);
     if (functionPosition != bindingContainer.functions.end()) {
         auto& [functionPtr, description] = functionPosition->second.function;
         return std::visit([&]<typename Func>(Func& func) {
@@ -592,8 +590,8 @@ ReturnValue FuncTree<ReturnValue, AdditionalArgs...>::executeFunction(std::strin
         }, functionPtr);
     }
     // Find function name in bindingContainer.categories
-    if (bindingContainer.categories.find(function) != bindingContainer.categories.end()) {
-        return bindingContainer.categories[function].tree->parseStr(StringHandler::recombineArgs(args), addArgs...);
+    if (bindingContainer.categories.find(name) != bindingContainer.categories.end()) {
+        return bindingContainer.categories[name].tree->parseStr(args.recombine(), addArgs...);
     }
 
     // Return error if function not found
@@ -601,7 +599,7 @@ ReturnValue FuncTree<ReturnValue, AdditionalArgs...>::executeFunction(std::strin
         auto [i, arg] = indexedArg;
         return acc + std::string("argv[") + std::to_string(i) + "] = '" + arg + "'\n";
     });
-    ExecutionErrorMessage::functionNotFound(capture, treeName, function, arguments);
+    ExecutionErrorMessage::functionNotFound(capture, treeName, name, arguments);
     return standardReturn.valFunctionNotFound;
 }
 
@@ -636,7 +634,7 @@ void FuncTree<ReturnValue, AdditionalArgs...>::processVariable(std::string_view 
 }
 
 template <typename ReturnValue, typename... AdditionalArgs>
-void FuncTree<ReturnValue, AdditionalArgs...>::processVariableArguments(std::span<std::string_view const>& args) {
+void FuncTree<ReturnValue, AdditionalArgs...>::processVariableArguments(SegmentedStringView& args) {
     while (!args.empty()) {
         if (auto const& arg = args[0]; arg.length() >= 2 && arg.starts_with("--")) {
             processVariable(arg.substr(2));

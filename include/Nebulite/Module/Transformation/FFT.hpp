@@ -6,12 +6,11 @@
 
 // Standard library
 #include <memory>
-#include <span>
-#include <string_view>
 
 // Nebulite
 #include "Nebulite/Module/Base/TransformationModule.hpp"
 #include "Nebulite/Utility/Args/FuncTree.hpp"
+#include "Nebulite/Utility/Args/SegmentedStringView.hpp"
 
 //------------------------------------------
 // Forward declarations
@@ -46,7 +45,7 @@ public:
     static auto constexpr applyIfftDesc = "Stores the inverse fft of a given complex-number or real-number series (mixable)\n"
         "Usage: ifft\n";
 
-    [[nodiscard]] static bool applyTransferFunctionFrequencyDomain(std::span<std::string_view const> args, Data::JsonScope& jsonDoc);
+    [[nodiscard]] static bool applyTransferFunctionFrequencyDomain(Utility::Args::SegmentedStringView const& args, Data::JsonScope& jsonDoc);
     static auto constexpr applyTransferFunctionName = "applyTfDomainF";
     static auto constexpr applyTransferFunctionDesc = "Stores the result of applying a transfer function on the frequency domain to a given real-number series\n"
         "Usage: applyTfFDomain --num <num-series> --den <den-series>\n"

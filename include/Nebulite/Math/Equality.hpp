@@ -56,7 +56,7 @@ bool constexpr isEqualAllowNan(T const& a, T const& b) {
     if (std::isnan(a) || std::isnan(b)) {
         return false; // If only one is NaN, they are not equal
     }
-    return std::abs(a - b) <= std::numeric_limits<double>::epsilon();
+    return std::abs(a - b) <= std::numeric_limits<T>::epsilon();
 }
 
 /**

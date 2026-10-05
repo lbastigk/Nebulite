@@ -1,4 +1,4 @@
-set global:triggerCount = 0
+assign global:triggerCount = 0
 
 # This will trigger
 if $(1) then assign global:triggerCount += 1

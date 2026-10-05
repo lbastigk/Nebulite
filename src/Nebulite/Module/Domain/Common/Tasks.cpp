@@ -3,7 +3,6 @@
 
 // Standard library
 #include <cstddef>
-#include <span>
 #include <sstream>
 #include <string>
 #include <string_view>
@@ -13,9 +12,10 @@
 #include "Nebulite/Constants/StandardCapture.hpp"
 #include "Nebulite/Data/TaskQueue.hpp"
 #include "Nebulite/Interaction/Context.hpp"
+#include "Nebulite/Interaction/Execution/Tasks.hpp"
 #include "Nebulite/Module/Domain/Common/Tasks.hpp"
+#include "Nebulite/Utility/Args/SegmentedStringView.hpp"
 #include "Nebulite/Utility/Convert/Cast.hpp"
-#include "Nebulite/Utility/StringHandler.hpp"
 
 //------------------------------------------
 namespace Nebulite::Module::Domain::Common {
@@ -30,7 +30,7 @@ Constants::Event Tasks::updateHook() {
 //------------------------------------------
 // Domain-Bound Functions
 
-Constants::Event Tasks::wait(std::span<std::string_view const> const args) const {
+Constants::Event Tasks::wait(Utility::Args::SegmentedStringView const& args) const {
     if (args.size() < 2) {
         return Constants::StandardCapture::Warning::Functional::tooFewArgs(domain.capture);
     }
@@ -45,34 +45,34 @@ Constants::Event Tasks::wait(std::span<std::string_view const> const args) const
     return Constants::Event::success;
 }
 
-Constants::Event Tasks::task(std::span<std::string_view const> const args) const {
+Constants::Event Tasks::task(Utility::Args::SegmentedStringView const& args) const {
     if (args.size() < 2) {
         return Constants::StandardCapture::Warning::Functional::tooFewArgs(domain.capture);
     }
-    auto const fileName = Utility::StringHandler::recombineArgs(args.subspan(1));
+    auto const fileName = args.recombineSubspan(1);
     domain.capture.log.println("Loading task list from file: ", fileName);
     domain.tasks.addScript(fileName, domain.capture);
     return Constants::Event::success;
 }
 
-Constants::Event Tasks::taskExec(std::span<std::string_view const> const args, Interaction::Context ctx, Interaction::ContextScope ctxScope) const {
+Constants::Event Tasks::taskExec(Utility::Args::SegmentedStringView const& args, Interaction::Context ctx, Interaction::ContextScope ctxScope) const {
     if (args.size() < 2) {
         return Constants::StandardCapture::Warning::Functional::tooFewArgs(domain.capture);
     }
-    auto const fileName = Utility::StringHandler::recombineArgs(args.subspan(1));
+    auto const fileName = args.recombineSubspan(1);
     domain.capture.log.println("Loading task list from file and executing immediately: ", fileName);
     Data::TaskQueue tq("LocalTaskQueue", false);
     tq.addScript(fileName, domain.capture);
     return tq.resolve(ctx, ctxScope, true).worstEvent();
 }
 
-Constants::Event Tasks::always(std::span<std::string_view const> const args) const {
+Constants::Event Tasks::always(Utility::Args::SegmentedStringView const& args) const {
     if (args.size() < 2) {
         return Constants::StandardCapture::Warning::Functional::tooFewArgs(domain.capture);
     }
 
     // Split on ';' and push each trimmed command
-    std::string const argStr = Utility::StringHandler::recombineArgs(args.subspan(1));
+    std::string const argStr = args.recombineSubspan(1);
     std::stringstream ss(argStr);
     std::string command;
     while (std::getline(ss, command, ';')) {

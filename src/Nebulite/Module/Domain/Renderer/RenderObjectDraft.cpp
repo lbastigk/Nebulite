@@ -2,7 +2,6 @@
 // Includes
 
 // Standard library
-#include <span>
 #include <string>
 #include <string_view>
 
@@ -12,7 +11,7 @@
 #include "Nebulite/Core/Renderer.hpp"
 #include "Nebulite/Module/Base/DomainModule.hpp"
 #include "Nebulite/Module/Domain/Renderer/RenderObjectDraft.hpp"
-#include "Nebulite/Utility/StringHandler.hpp"
+#include "Nebulite/Utility/Args/SegmentedStringView.hpp"
 
 //------------------------------------------
 namespace Nebulite::Module::Domain::Renderer {
@@ -21,11 +20,11 @@ Constants::Event RenderObjectDraft::updateHook() {
     return draft.get(domain.capture).update();
 }
 
-Constants::Event RenderObjectDraft::draftParse(std::span<std::string_view const> const args, Interaction::Context& ctx, Interaction::ContextScope& ctxScope) {
+Constants::Event RenderObjectDraft::draftParse(Utility::Args::SegmentedStringView const& args, Interaction::Context& ctx, Interaction::ContextScope& ctxScope) {
     if (args.size() < 2) {
         return Constants::StandardCapture::Warning::Functional::tooFewArgs(domain.capture);
     }
-    std::string const command = Utility::StringHandler::recombineArgs(args.subspan(1));
+    auto const command = args.recombineSubspan(1);
     return draft.get(domain.capture).parseStr(__FUNCTION__ + std::string(" ") + command, ctx, ctxScope);
 }
 

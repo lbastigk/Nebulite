@@ -13,7 +13,6 @@
 #include <mutex>
 #include <optional>
 #include <ranges>
-#include <span>
 #include <stdexcept>
 #include <string>
 #include <string_view>
@@ -110,11 +109,9 @@ void Json::flush(std::string_view const key) const {
 
 bool Json::getSubDocWithTransformations(std::string_view const key, Json& outDoc) const {
     auto args = splitKeyWithTransformations(key);
+    auto const argsView = Utility::Args::SegmentedStringView(args.data(), args.size()).subspan(1); // Skip the base key
     outDoc = getSubDoc(args[0]); // First argument is the base key, which we use to initialize the output document
-    return JsonTransformer::instance().parse(
-        std::span<std::string_view const>(args).subspan(1), // Skip the base key
-        outDoc
-    );
+    return JsonTransformer::instance().parse(argsView, outDoc);
 }
 
 std::vector<std::string_view> Json::splitKeyWithTransformations(std::string_view const key) {

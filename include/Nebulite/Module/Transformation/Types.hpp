@@ -6,12 +6,11 @@
 
 // Standard library
 #include <memory>
-#include <span>
-#include <string_view>
 
 // Nebulite
 #include "Nebulite/Module/Base/TransformationModule.hpp"
 #include "Nebulite/Utility/Args/FuncTree.hpp"
+#include "Nebulite/Utility/Args/SegmentedStringView.hpp"
 
 //------------------------------------------
 // Forward declarations
@@ -36,7 +35,7 @@ public:
     //------------------------------------------
     // Available Transformations
 
-    static bool defaultToString(std::span<std::string_view const> args, Data::JsonScope& jsonDoc);
+    static bool defaultToString(Utility::Args::SegmentedStringView const& args, Data::JsonScope& jsonDoc);
     static auto constexpr defaultToStringName = "default";
     static auto constexpr defaultToStringDesc = "If the current value is null, default to a given String\n"
         "Usage: |default -> {currentValue/string}\n";
@@ -67,7 +66,7 @@ public:
     static auto constexpr deserializeDesc = "Deserializes the current JSON string value stored in root.\n"
         "Usage: |deserialize -> {value}\n";
 
-    static bool exists(std::span<std::string_view const> args, Data::JsonScope& jsonDoc);
+    static bool exists(Utility::Args::SegmentedStringView const& args, Data::JsonScope& jsonDoc);
     static auto constexpr existsName = "exists";
     static auto constexpr existsDesc = "Checks if a specified key exists in the current JSON object.\n"
         "If no key is provided, checks if the current JSON value is not null.\n"

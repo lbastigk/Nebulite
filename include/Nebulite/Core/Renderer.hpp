@@ -9,7 +9,6 @@
 #include <cstdint> // NOLINT
 #include <functional>
 #include <optional>
-#include <span>
 #include <string>
 #include <string_view>
 #include <utility>
@@ -28,6 +27,7 @@
 #include "Nebulite/Core/Environment.hpp"
 #include "Nebulite/Data/Tiling.hpp"
 #include "Nebulite/Interaction/Execution/Domain.hpp"
+#include "Nebulite/Utility/Args/SegmentedStringView.hpp"
 #include "Nebulite/Utility/TimeKeeper.hpp"
 
 //------------------------------------------
@@ -453,7 +453,7 @@ private:
      * @param functionName The name of the called function.
      * @param args The arguments of the parse
      */
-    [[nodiscard]] Constants::Event preParse(std::string_view functionName, std::span<std::string_view const> args) override;
+    [[nodiscard]] Constants::Event preParse(std::string_view functionName, Utility::Args::SegmentedStringView const& args) override;
 
     //------------------------------------------
     // Boolean Status Variables

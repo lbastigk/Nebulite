@@ -15,7 +15,8 @@
             "cacheVariables": {
                 "CMAKE_EXPORT_COMPILE_COMMANDS": "ON",
                 "SDLTTF_VENDORED": "ON",
-                "CMAKE_SUPPRESS_DEVELOPER_WARNINGS": "TRUE"
+                "CMAKE_SUPPRESS_DEVELOPER_WARNINGS": "TRUE",
+                "CMAKE_POLICY_VERSION_MINIMUM": "3.5"
             }
         },
         {
