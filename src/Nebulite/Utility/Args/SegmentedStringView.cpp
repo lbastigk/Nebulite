@@ -222,7 +222,7 @@ SegmentedStringView SegmentedStringView::subspan(std::size_t const startIndex, s
     return SegmentedStringView(data.subspan(startIndex, count));
 }
 
-std::string_view SegmentedStringView::getNamedArgument(std::string_view const name) const{
+std::string_view SegmentedStringView::getNamedArgumentImpl(std::string_view const name) const{
     assert(name.starts_with("--"));
     assert(name.size() > 2);
     if (auto it = std::ranges::find(data, name); it != data.end()) {
@@ -234,7 +234,7 @@ std::string_view SegmentedStringView::getNamedArgument(std::string_view const na
     return {};
 }
 
-SegmentedStringView SegmentedStringView::getNamedSpannedArgument(std::string_view const name) const {
+SegmentedStringView SegmentedStringView::getNamedSpannedArgumentImpl(std::string_view const name) const {
     assert(name.starts_with("--"));
     assert(name.size() > 2);
 

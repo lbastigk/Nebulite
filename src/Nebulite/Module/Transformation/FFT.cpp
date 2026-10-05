@@ -89,9 +89,9 @@ bool Fft::applyTransferFunctionFrequencyDomain(Utility::Args::SegmentedStringVie
             return Utility::Convert::Cast::String::to<double>(arg);
         };
 
-        auto const numV = args.getNamedSpannedArgument("--num")
+        auto const numV = args.getNamedSpannedArgument<"--num">()
             | Utility::Ranges::tryTransform(tryDoubleConvert);
-        auto const denV = args.getNamedSpannedArgument("--den")
+        auto const denV = args.getNamedSpannedArgument<"--den">()
             | Utility::Ranges::tryTransform(tryDoubleConvert);
 
         return std::make_pair(numV, denV);

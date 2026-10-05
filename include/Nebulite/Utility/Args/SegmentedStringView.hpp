@@ -14,6 +14,7 @@
 #include <vector>
 
 // Nebulite
+#include "Nebulite/Data/OptionalFixedString.hpp"
 #include "Nebulite/Utility/Args/StringIterators.hpp"
 #include "Nebulite/Utility/Convert/Cast.hpp"
 #include "Nebulite/Utility/Coordination/LazyInit.hpp"
@@ -64,6 +65,24 @@ class SegmentedStringView {
     mutable Coordination::LazyInitOptional<CharacterCount, FoundationalType> charCount;
 
     friend class ArgsTransitionCompatibilityLayer;
+
+    /**
+     * @brief Finds a given named argument and returns it.
+     * @details If the name is provided multiple times, the first given value is returned.
+     * @param name The name of the argument. Must start with "--"
+     * @return The argument. If the given argument name is not in the list,
+     *         an empty string_view is returned.
+     */
+    std::string_view getNamedArgumentImpl(std::string_view name) const ;
+
+    /**
+     * @brief Returns a subspan of arguments starting from a named argument.
+     * @details The subspan goes until the next '--' or until the end.
+     * @param name The name of the argument. Must start with "--"
+     * @return The subspan of arguments. If the given argument name is not in the list,
+     *         an empty SegmentedStringView is returned.
+     */
+    SegmentedStringView getNamedSpannedArgumentImpl(std::string_view name) const ;
 public:
     SegmentedStringView();
 
@@ -137,20 +156,30 @@ public:
     /**
      * @brief Finds a given named argument and returns it.
      * @details If the name is provided multiple times, the first given value is returned.
-     * @param name The name of the argument. Must start with "--"
+     * @tparam Name The name of the argument. Must start with "--"
      * @return The argument. If the given argument name is not in the list,
      *         an empty string_view is returned.
      */
-    std::string_view getNamedArgument(std::string_view name) const ;
+    template<Data::OptionalFixedString Name = Data::FixedStringState::noFixedStringProvided>
+    std::string_view getNamedArgument() const {
+        static_assert(Name.hasValue(), "Please provide a name via template argument");
+        static_assert(Name.startsWith("--"), "Name must start with \"--\"");
+        return getNamedArgumentImpl(Name.view());
+    }
 
     /**
-     * @brief Returns a subspan of arguments starting from a named argument.
-     * @details The subspan goes until the next '--' or until the end.
-     * @param name The name of the argument. Must start with "--"
-     * @return The subspan of arguments. If the given argument name is not in the list,
+     * @brief Finds a given named argument and returns it as a SegmentedStringView.
+     * @details If the name is provided multiple times, the first given value is returned.
+     * @tparam Name The name of the argument. Must start with "--"
+     * @return The argument. If the given argument name is not in the list,
      *         an empty SegmentedStringView is returned.
      */
-    SegmentedStringView getNamedSpannedArgument(std::string_view name) const ;
+    template<Data::OptionalFixedString Name = Data::FixedStringState::noFixedStringProvided>
+    SegmentedStringView getNamedSpannedArgument() const {
+        static_assert(Name.hasValue(), "Please provide a name");
+        static_assert(Name.startsWith("--"), "Name must start with \"--\"");
+        return getNamedSpannedArgumentImpl(Name.view());
+    }
 
     //------------------------------------------
     // Substring
