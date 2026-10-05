@@ -234,7 +234,7 @@ std::expected<RjDirectAccess::SimpleValue, SimpleValueRetrievalError> Json::getV
         return cachedKey.starts_with(key)
             && cachedKey != key
             && entry->state != CacheEntry::State::deleted
-            && Math::isEqualAllowNan(*entry->stableDoublePointer, entry->lastDoubleValue);
+            && Math::isEqualAllowNan(*entry->stableDoublePointer, *entry->lastDoubleValue);
     })) {
         // Checking for malformed shouldn't be necessary, but just in case
         auto const entry = cache.find(key);
@@ -294,7 +294,7 @@ double* Json::getStableDoublePointer(std::string_view const key) const {
         // If the entry is deleted, we need to update its value from the document
         if (entry.value().state == CacheEntry::State::deleted) {
             *entry.value().stableDoublePointer = get<double>(key).value_or(0.0); // Default to 0.0 if retrieval fails
-            entry.value().lastDoubleValue = *entry.value().stableDoublePointer;
+            *entry.value().lastDoubleValue = *entry.value().stableDoublePointer;
             entry.value().state = CacheEntry::State::derived;
         }
         return entry.value().stableDoublePointer;
@@ -321,7 +321,7 @@ double* Json::getStableDoublePointer(std::string_view const key) const {
         [](CacheEntry& entry) {
             entry.value = CacheEntry::standardNumericValue;
             *entry.stableDoublePointer = CacheEntry::standardNumericValue;
-            entry.lastDoubleValue = CacheEntry::standardNumericValue;
+            *entry.lastDoubleValue = CacheEntry::standardNumericValue;
             entry.state = CacheEntry::State::derived;
         },
         [](CacheEntry const& entry) {
@@ -521,7 +521,7 @@ void Json::setConcatenative(std::string_view const key, std::string_view const v
     if (auto const entry = cache.find(key); entry.has_value()) {
         // Strings Default to 0
         *entry.value().stableDoublePointer = CacheEntry::standardNumericValue;
-        entry.value().lastDoubleValue = CacheEntry::standardNumericValue;
+        *entry.value().lastDoubleValue = CacheEntry::standardNumericValue;
     }
 }
 

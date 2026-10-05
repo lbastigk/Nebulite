@@ -18,30 +18,33 @@
 namespace Nebulite::Data {
 
 CacheEntry::CacheEntry([[clang::lifetimebound]] CacheLine& cl, std::size_t& index) {
-    if (index >= cachelineSize) [[unlikely]] {
-        stableDoublePointer = new double(standardNumericValue);
-        managedInternalDouble = true;
-    }
-    else [[likely]] {
+    if (index < cachelineSize - 1) {
         // Assign stable double pointer from cacheline
-        stableDoublePointer = &cl[index];
-        index++;
+        stableDoublePointer = &cl[index++];
+        lastDoubleValue = &cl[index++];
         *stableDoublePointer = standardNumericValue;
+        *lastDoubleValue = standardNumericValue;
         managedInternalDouble = false;
+    }
+    else {
+        stableDoublePointer = new double(standardNumericValue);
+        lastDoubleValue = new double(standardNumericValue);
+        managedInternalDouble = true;
     }
 }
 
 CacheEntry::~CacheEntry() {
     if (managedInternalDouble) {
         delete stableDoublePointer;
+        delete lastDoubleValue;
     }
 }
 
 void CacheEntry::updateNumericValue(){
-    if (!Math::isEqualAllowNan(*stableDoublePointer, lastDoubleValue)) {
+    if (!Math::isEqualAllowNan(*stableDoublePointer, *lastDoubleValue)) {
         // Value changed since last check
-        lastDoubleValue = *stableDoublePointer;
-        value = lastDoubleValue;
+        *lastDoubleValue = *stableDoublePointer;
+        value = *lastDoubleValue;
         state = State::dirty;
     }
 }
@@ -50,21 +53,21 @@ void CacheEntry::markAsDeleted() {
     state = State::deleted;
     value = standardNumericValue;
     *stableDoublePointer = standardNumericValue;
-    lastDoubleValue = standardNumericValue;
+    *lastDoubleValue = standardNumericValue;
 }
 
 void CacheEntry::setValueClean(RjDirectAccess::SimpleValue const& newValue) {
     state = State::clean;
     value = newValue;
     *stableDoublePointer = convertTo<double>().value_or(standardNumericValue);
-    lastDoubleValue = *stableDoublePointer;
+    *lastDoubleValue = *stableDoublePointer;
 }
 
 void CacheEntry::setValueDirty(RjDirectAccess::SimpleValue const& newValue) {
     state = State::dirty;
     value = newValue;
     *stableDoublePointer = convertTo<double>().value_or(standardNumericValue);
-    lastDoubleValue = *stableDoublePointer;
+    *lastDoubleValue = *stableDoublePointer;
 }
 
 CacheEntry& JsonCache::createNewCacheEntry(std::string_view const key) {

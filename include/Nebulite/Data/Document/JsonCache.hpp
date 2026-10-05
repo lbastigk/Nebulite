@@ -39,12 +39,42 @@ using CacheLine = std::array<double, cachelineSize>;
 
 // Make sure cache size is a power of two for optimal performance
 static_assert(Utility::CompileTimeEvaluate::isPowerOfTwo(cachelineSize), "cachelineSize must be a power of two for optimal performance.");
+static_assert(cachelineSize > 0, "cachelineSize must be positive.");
 
 /**
- * @struct CacheEntry
+ * @class CacheEntry
  * @brief Represents a cached entry in the JSON document, including its value, state, and stable pointer for double values.
  */
 struct CacheEntry {
+    //------------------------------------------
+    // Constructors
+
+    CacheEntry([[clang::lifetimebound]] CacheLine& cl, std::size_t& index);
+
+    ~CacheEntry();
+
+    //------------------------------------------
+    // No copying or moving
+
+    CacheEntry(CacheEntry const&) = delete;
+    CacheEntry& operator=(CacheEntry const&) = delete;
+    CacheEntry(CacheEntry&&) = delete;
+    CacheEntry& operator=(CacheEntry&&) = delete;
+
+    void updateNumericValue();
+
+    void markAsDeleted();
+
+    void setValueClean(RjDirectAccess::SimpleValue const& newValue);
+
+    void setValueDirty(RjDirectAccess::SimpleValue const& newValue);
+
+    template <typename NewType>
+    std::optional<NewType> convertTo();
+
+    //------------------------------------------
+    // inner static values and types
+
     /**
      * @brief Standard numeric value used for initializing cache entries and failed variant conversions
      */
@@ -70,36 +100,13 @@ struct CacheEntry {
     };
 
     //------------------------------------------
-    // No copying or moving
-
-    CacheEntry(CacheEntry const&) = delete;
-    CacheEntry& operator=(CacheEntry const&) = delete;
-    CacheEntry(CacheEntry&&) = delete;
-    CacheEntry& operator=(CacheEntry&&) = delete;
-
-    //------------------------------------------
     // Data members
 
     RjDirectAccess::SimpleValue value = standardNumericValue;
-    double lastDoubleValue = standardNumericValue;
+    double* lastDoubleValue = nullptr;
     double* stableDoublePointer = nullptr; // Stable pointer to double value
-    State state = State::dirty; // Default to dirty: each new entry needs flushing
     bool managedInternalDouble = false; // Whether the stable double pointer is managed internally or externally (from cacheline)
-
-    CacheEntry([[clang::lifetimebound]] CacheLine& cl, std::size_t& index);
-
-    ~CacheEntry();
-
-    void updateNumericValue();
-
-    void markAsDeleted();
-
-    void setValueClean(RjDirectAccess::SimpleValue const& newValue);
-
-    void setValueDirty(RjDirectAccess::SimpleValue const& newValue);
-
-    template <typename NewType>
-    std::optional<NewType> convertTo();
+    State state = State::dirty; // Default to dirty: each new entry needs flushing
 };
 
 class JsonCache {
