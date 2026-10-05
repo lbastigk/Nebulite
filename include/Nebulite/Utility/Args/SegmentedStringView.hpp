@@ -156,6 +156,7 @@ public:
     /**
      * @brief Finds a given named argument and returns it.
      * @details If the name is provided multiple times, the first given value is returned.
+     * @todo Return last given value instead
      * @tparam Name The name of the argument. Must start with "--"
      * @return The argument. If the given argument name is not in the list,
      *         an empty string_view is returned.
@@ -170,13 +171,14 @@ public:
     /**
      * @brief Finds a given named argument and returns it as a SegmentedStringView.
      * @details If the name is provided multiple times, the first given value is returned.
+     * @todo Return last given value instead
      * @tparam Name The name of the argument. Must start with "--"
      * @return The argument. If the given argument name is not in the list,
      *         an empty SegmentedStringView is returned.
      */
     template<Data::OptionalFixedString Name = Data::FixedStringState::noFixedStringProvided>
     SegmentedStringView getNamedSpannedArgument() const {
-        static_assert(Name.hasValue(), "Please provide a name");
+        static_assert(Name.hasValue(), "Please provide a name via template argument");
         static_assert(Name.startsWith("--"), "Name must start with \"--\"");
         return getNamedSpannedArgumentImpl(Name.view());
     }
