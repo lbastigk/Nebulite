@@ -2,7 +2,6 @@
 // Includes
 
 // Standard library
-#include <span>
 #include <string>
 #include <string_view>
 
@@ -20,6 +19,7 @@
 #include "Nebulite/Interaction/Execution/Domain.hpp"
 #include "Nebulite/Module/Domain/Initializer.hpp"
 #include "Nebulite/Nebulite.hpp"
+#include "Nebulite/Utility/Args/SegmentedStringView.hpp"
 #include "Nebulite/Utility/Io/Capture.hpp"
 
 //------------------------------------------
@@ -112,7 +112,7 @@ void Texture::loadTextureFromFile(std::string const& filePath) {
     }
 }
 
-Constants::Event Texture::preParse(std::string_view const /*functionName*/, std::span<std::string_view const> const /*args*/) {
+Constants::Event Texture::preParse(std::string_view const /*functionName*/, Utility::Args::SegmentedStringView const& /*args*/) {
     if (!textureStoredLocally) {
         generateLocallyManagedTexture();
     }

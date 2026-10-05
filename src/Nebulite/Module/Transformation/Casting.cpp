@@ -7,7 +7,6 @@
 #include <cmath>
 #include <iterator>
 #include <set>
-#include <span>
 #include <string>
 #include <utility>
 
@@ -17,6 +16,7 @@
 #include "Nebulite/Interaction/Logic/Expression.hpp"
 #include "Nebulite/Interaction/Logic/Formatter.hpp"
 #include "Nebulite/Module/Transformation/Casting.hpp"
+#include "Nebulite/Utility/Args/SegmentedStringView.hpp"
 #include "Nebulite/Utility/StringHandler.hpp"
 
 //------------------------------------------
@@ -127,7 +127,7 @@ bool Casting::toBoolString(Data::JsonScope& jsonDoc) {
     return true;
 }
 
-bool Casting::formatNumber(std::span<std::string_view const> const args, Data::JsonScope& jsonDoc){
+bool Casting::formatNumber(Utility::Args::SegmentedStringView const& args, Data::JsonScope& jsonDoc){
     if (jsonDoc.memberType(rootKey) != Data::KeyType::value) return false;
     if (args.size() != 2) return false;
     auto const value = jsonDoc.get<std::string>(rootKey);

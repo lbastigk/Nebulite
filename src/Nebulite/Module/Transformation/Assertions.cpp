@@ -4,7 +4,6 @@
 // Standard library
 #include <exception>
 #include <regex>
-#include <span>
 #include <stdexcept>
 #include <string>
 #include <type_traits>
@@ -14,8 +13,8 @@
 #include "Nebulite/Data/Document/KeyType.hpp"
 #include "Nebulite/Module/Transformation/Assertions.hpp"
 #include "Nebulite/Nebulite.hpp"
+#include "Nebulite/Utility/Args/SegmentedStringView.hpp"
 #include "Nebulite/Utility/Convert/Cast.hpp"
-#include "Nebulite/Utility/StringHandler.hpp"
 
 //------------------------------------------
 namespace Nebulite::Module::Transformation {
@@ -42,14 +41,14 @@ void Assertions::bindTransformations() {
     bindTransformation(&Assertions::assertEqualsInt, assertEqualsIntName, assertEqualsIntDesc);
 }
 
-void Assertions::printUserDefinedMessage(std::span<std::string_view const> const args){
+void Assertions::printUserDefinedMessage(Utility::Args::SegmentedStringView const& args){
     if (args.size() < 2) {
         return; // No message provided
     }
-    Global::capture().error.println(Utility::StringHandler::recombineArgs(args.subspan(1)));
+    Global::capture().error.println(args.recombineSubspan(1));
 }
 
-bool Assertions::assertTrue(std::span<std::string_view const> const args, Data::JsonScope const& jsonDoc){
+bool Assertions::assertTrue(Utility::Args::SegmentedStringView const& args, Data::JsonScope const& jsonDoc){
     auto variant = jsonDoc.getVariant(rootKey);
     if (!variant) {
         printUserDefinedMessage(args);
@@ -72,7 +71,7 @@ bool Assertions::assertTrue(std::span<std::string_view const> const args, Data::
     return true;
 }
 
-bool Assertions::assertFalse(std::span<std::string_view const> const args, Data::JsonScope const& jsonDoc){
+bool Assertions::assertFalse(Utility::Args::SegmentedStringView const& args, Data::JsonScope const& jsonDoc){
     auto variant = jsonDoc.getVariant(rootKey);
     if (!variant) {
         printUserDefinedMessage(args);
@@ -95,7 +94,7 @@ bool Assertions::assertFalse(std::span<std::string_view const> const args, Data:
     return true;
 }
 
-bool Assertions::assertNonEmpty(std::span<std::string_view const> const args, Data::JsonScope const& jsonDoc) {
+bool Assertions::assertNonEmpty(Utility::Args::SegmentedStringView const& args, Data::JsonScope const& jsonDoc) {
     if (jsonDoc.memberType(rootKey) == Data::KeyType::null) {
         printUserDefinedMessage(args);
         static std::string const errorMessage = std::string(assertNonEmptyName) + ": JSON value is null";
@@ -104,7 +103,7 @@ bool Assertions::assertNonEmpty(std::span<std::string_view const> const args, Da
     return true;
 }
 
-bool Assertions::assertEmpty(std::span<std::string_view const> const args, Data::JsonScope const& jsonDoc){
+bool Assertions::assertEmpty(Utility::Args::SegmentedStringView const& args, Data::JsonScope const& jsonDoc){
     if (jsonDoc.memberType(rootKey) != Data::KeyType::null) {
         printUserDefinedMessage(args);
         static std::string const errorMessage = std::string(assertEmptyName) + ": JSON value is not null";
@@ -113,7 +112,7 @@ bool Assertions::assertEmpty(std::span<std::string_view const> const args, Data:
     return true;
 }
 
-bool Assertions::assertTypeObject(std::span<std::string_view const> const args, Data::JsonScope const& jsonDoc) {
+bool Assertions::assertTypeObject(Utility::Args::SegmentedStringView const& args, Data::JsonScope const& jsonDoc) {
     if (jsonDoc.memberType(rootKey) != Data::KeyType::object) {
         printUserDefinedMessage(args);
         static std::string const errorMessage = std::string(assertTypeObjectName) + ": JSON value is not an object";
@@ -122,7 +121,7 @@ bool Assertions::assertTypeObject(std::span<std::string_view const> const args, 
     return true;
 }
 
-bool Assertions::assertTypeArray(std::span<std::string_view const> const args, Data::JsonScope const& jsonDoc) {
+bool Assertions::assertTypeArray(Utility::Args::SegmentedStringView const& args, Data::JsonScope const& jsonDoc) {
     if (jsonDoc.memberType(rootKey) != Data::KeyType::array) {
         printUserDefinedMessage(args);
         static std::string const errorMessage = std::string(assertTypeArrayName) + ": JSON value is not an array";
@@ -131,7 +130,7 @@ bool Assertions::assertTypeArray(std::span<std::string_view const> const args, D
     return true;
 }
 
-bool Assertions::assertTypeBasicValue(std::span<std::string_view const> const args, Data::JsonScope const& jsonDoc) {
+bool Assertions::assertTypeBasicValue(Utility::Args::SegmentedStringView const& args, Data::JsonScope const& jsonDoc) {
     if (jsonDoc.memberType(rootKey) != Data::KeyType::value) {
         printUserDefinedMessage(args);
         static std::string const errorMessage = std::string(assertTypeBasicValueName) + ": JSON value is not a basic value";
@@ -161,7 +160,7 @@ bool isNumericOrNumericString(Value const& v){
 } // namespace
 
 
-bool Assertions::assertTypeNumeric(std::span<std::string_view const> const args, Data::JsonScope const& jsonDoc){
+bool Assertions::assertTypeNumeric(Utility::Args::SegmentedStringView const& args, Data::JsonScope const& jsonDoc){
     if (auto const variant = jsonDoc.getVariant(rootKey); variant.has_value() && isNumeric(variant.value())) {
         return true;
     }
@@ -169,7 +168,7 @@ bool Assertions::assertTypeNumeric(std::span<std::string_view const> const args,
     throw std::runtime_error(std::string(assertTypeNumericName) + ": JSON value is not a number");
 }
 
-bool Assertions::assertTypeNumericOrNumericString(std::span<std::string_view const> const args, Data::JsonScope const& jsonDoc){
+bool Assertions::assertTypeNumericOrNumericString(Utility::Args::SegmentedStringView const& args, Data::JsonScope const& jsonDoc){
     if (auto const variant = jsonDoc.getVariant(rootKey); variant.has_value() && isNumericOrNumericString(variant.value())) {
         return true;
     }
@@ -178,8 +177,8 @@ bool Assertions::assertTypeNumericOrNumericString(std::span<std::string_view con
 }
 
 // NOLINTNEXTLINE
-bool Assertions::assertMatchRegex(std::span<std::string_view const> const args, Data::JsonScope const& jsonDoc){
-    std::string const pattern = args.size() < 2 ? "" : Utility::StringHandler::recombineArgs(args.subspan(1));
+bool Assertions::assertMatchRegex(Utility::Args::SegmentedStringView const& args, Data::JsonScope const& jsonDoc){
+    std::string const pattern = args.size() < 2 ? "" : args.recombineSubspan(1);
     std::regex const regex(pattern);
     if (jsonDoc.memberType(rootKey) != Data::KeyType::value) {
         throw std::runtime_error(std::string(assertMatchesRegexName) + ": Current JSON value is not a basic value, expected string to match regex: '" + pattern + "'");
@@ -191,8 +190,8 @@ bool Assertions::assertMatchRegex(std::span<std::string_view const> const args, 
 }
 
 // NOLINTNEXTLINE
-bool Assertions::assertEqualsString(std::span<std::string_view const> const args, Data::JsonScope const& jsonDoc) {
-    auto const expected = args.size() < 2 ? "" : Utility::StringHandler::recombineArgs(args.subspan(1));
+bool Assertions::assertEqualsString(Utility::Args::SegmentedStringView const& args, Data::JsonScope const& jsonDoc) {
+    auto const expected = args.size() < 2 ? "" : args.recombineSubspan(1);
     if (jsonDoc.memberType(rootKey) != Data::KeyType::value) {
         throw std::runtime_error(std::string(assertEqualsStringName) + ": Current JSON value is not a basic value, expected string: " + expected);
     }
@@ -202,12 +201,12 @@ bool Assertions::assertEqualsString(std::span<std::string_view const> const args
     return true;
 }
 
-bool Assertions::assertEqualsInt(std::span<std::string_view const> const args, Data::JsonScope const& jsonDoc){
+bool Assertions::assertEqualsInt(Utility::Args::SegmentedStringView const& args, Data::JsonScope const& jsonDoc){
     if (args.size() < 2) {
         throw std::runtime_error(std::string(assertEqualsIntName) + ": No expected integer provided");
     }
     try {
-        auto const expected = Utility::StringHandler::recombineArgs(args.subspan(1));
+        auto const expected = args.recombineSubspan(1);
         auto const expectedInt = std::stoi(expected);
         if (jsonDoc.memberType(rootKey) != Data::KeyType::value) {
             throw std::runtime_error(

@@ -4,13 +4,10 @@
 //------------------------------------------
 // Includes
 
-// Standard library
-#include <span>
-#include <string_view>
-
 // Nebulite
 #include "Nebulite/Constants/Event.hpp"
 #include "Nebulite/Module/Base/DomainModule.hpp"
+#include "Nebulite/Utility/Args/SegmentedStringView.hpp"
 
 //------------------------------------------
 // Forward declarations
@@ -39,7 +36,7 @@ public:
     //------------------------------------------
     // Available Functions
 
-    [[nodiscard]] Constants::Event drawcallParse(std::span<std::string_view const> args, Interaction::Context& ctx, Interaction::ContextScope& ctxScope) const ;
+    [[nodiscard]] Constants::Event drawcallParse(Utility::Args::SegmentedStringView const& args, Interaction::Context& ctx, Interaction::ContextScope& ctxScope) const ;
     static auto constexpr drawcallParseName = "drawcall parse";
     static auto constexpr drawcallParseDesc = "Parses a string command into a given drawcall name\n"
         "\n"

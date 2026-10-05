@@ -2,14 +2,13 @@
 // Includes
 
 // Standard library
-#include <span>
 
 // Nebulite
 #include "Nebulite/Data/Document/JsonScope.hpp"
 #include "Nebulite/Module/Transformation/Assertions.hpp"
 #include "Nebulite/Module/Transformation/Requirements.hpp"
 #include "Nebulite/Nebulite.hpp"
-#include "Nebulite/Utility/StringHandler.hpp"
+#include "Nebulite/Utility/Args/SegmentedStringView.hpp"
 
 //------------------------------------------
 namespace Nebulite::Module::Transformation {
@@ -36,14 +35,14 @@ void Requirements::bindTransformations() {
     bindTransformation(&Requirements::requireEqualsInt, requireEqualsIntName, requireEqualsIntDesc);
 }
 
-void Requirements::printUserDefinedMessage(std::span<std::string_view const> const args){
+void Requirements::printUserDefinedMessage(Utility::Args::SegmentedStringView const& args){
     if (args.size() < 2) {
         return; // No message provided
     }
-    Global::capture().error.println(Utility::StringHandler::recombineArgs(args.subspan(1)));
+    Global::capture().error.println(args.recombineSubspan(1));
 }
 
-bool Requirements::requireTrue(std::span<std::string_view const> const args, Data::JsonScope const& jsonDoc){
+bool Requirements::requireTrue(Utility::Args::SegmentedStringView const& args, Data::JsonScope const& jsonDoc){
     try {
         Assertions::assertTrue(args, jsonDoc);
     }
@@ -53,7 +52,7 @@ bool Requirements::requireTrue(std::span<std::string_view const> const args, Dat
     return true;
 }
 
-bool Requirements::requireFalse(std::span<std::string_view const> const args, Data::JsonScope const& jsonDoc){
+bool Requirements::requireFalse(Utility::Args::SegmentedStringView const& args, Data::JsonScope const& jsonDoc){
     try {
         Assertions::assertFalse(args, jsonDoc);
     }
@@ -63,7 +62,7 @@ bool Requirements::requireFalse(std::span<std::string_view const> const args, Da
     return true;
 }
 
-bool Requirements::requireNonEmpty(std::span<std::string_view const> const args, Data::JsonScope const& jsonDoc) {
+bool Requirements::requireNonEmpty(Utility::Args::SegmentedStringView const& args, Data::JsonScope const& jsonDoc) {
     try {
         Assertions::assertNonEmpty(args, jsonDoc);
     }
@@ -73,7 +72,7 @@ bool Requirements::requireNonEmpty(std::span<std::string_view const> const args,
     return true;
 }
 
-bool Requirements::requireEmpty(std::span<std::string_view const> const args, Data::JsonScope const& jsonDoc){
+bool Requirements::requireEmpty(Utility::Args::SegmentedStringView const& args, Data::JsonScope const& jsonDoc){
     try {
         Assertions::assertEmpty(args, jsonDoc);
     }
@@ -83,7 +82,7 @@ bool Requirements::requireEmpty(std::span<std::string_view const> const args, Da
     return true;
 }
 
-bool Requirements::requireTypeObject(std::span<std::string_view const> const args, Data::JsonScope const& jsonDoc) {
+bool Requirements::requireTypeObject(Utility::Args::SegmentedStringView const& args, Data::JsonScope const& jsonDoc) {
     try {
         Assertions::assertTypeObject(args, jsonDoc);
     }
@@ -93,7 +92,7 @@ bool Requirements::requireTypeObject(std::span<std::string_view const> const arg
     return true;
 }
 
-bool Requirements::requireTypeArray(std::span<std::string_view const> const args, Data::JsonScope const& jsonDoc) {
+bool Requirements::requireTypeArray(Utility::Args::SegmentedStringView const& args, Data::JsonScope const& jsonDoc) {
     try {
         Assertions::assertTypeArray(args, jsonDoc);
     }
@@ -103,7 +102,7 @@ bool Requirements::requireTypeArray(std::span<std::string_view const> const args
     return true;
 }
 
-bool Requirements::requireTypeBasicValue(std::span<std::string_view const> const args, Data::JsonScope const& jsonDoc) {
+bool Requirements::requireTypeBasicValue(Utility::Args::SegmentedStringView const& args, Data::JsonScope const& jsonDoc) {
     try {
         Assertions::assertTypeBasicValue(args, jsonDoc);
     }
@@ -113,7 +112,7 @@ bool Requirements::requireTypeBasicValue(std::span<std::string_view const> const
     return true;
 }
 
-bool Requirements::requireTypeNumeric(std::span<std::string_view const> const args, Data::JsonScope const& jsonDoc){
+bool Requirements::requireTypeNumeric(Utility::Args::SegmentedStringView const& args, Data::JsonScope const& jsonDoc){
     try {
         Assertions::assertTypeNumeric(args, jsonDoc);
     }
@@ -123,7 +122,7 @@ bool Requirements::requireTypeNumeric(std::span<std::string_view const> const ar
     return true;
 }
 
-bool Requirements::requireTypeNumericOrNumericString(std::span<std::string_view const> const args, Data::JsonScope const& jsonDoc){
+bool Requirements::requireTypeNumericOrNumericString(Utility::Args::SegmentedStringView const& args, Data::JsonScope const& jsonDoc){
     try {
         Assertions::assertTypeNumericOrNumericString(args, jsonDoc);
     }
@@ -133,7 +132,7 @@ bool Requirements::requireTypeNumericOrNumericString(std::span<std::string_view 
     return true;
 }
 
-bool Requirements::requireMatchRegex(std::span<std::string_view const> const args, Data::JsonScope const& jsonDoc){
+bool Requirements::requireMatchRegex(Utility::Args::SegmentedStringView const& args, Data::JsonScope const& jsonDoc){
     try {
         Assertions::assertMatchRegex(args, jsonDoc);
     }
@@ -143,7 +142,7 @@ bool Requirements::requireMatchRegex(std::span<std::string_view const> const arg
     return true;
 }
 
-bool Requirements::requireEqualsString(std::span<std::string_view const> const args, Data::JsonScope const& jsonDoc) {
+bool Requirements::requireEqualsString(Utility::Args::SegmentedStringView const& args, Data::JsonScope const& jsonDoc) {
     try {
         Assertions::assertEqualsString(args, jsonDoc);
     }
@@ -153,7 +152,7 @@ bool Requirements::requireEqualsString(std::span<std::string_view const> const a
     return true;
 }
 
-bool Requirements::requireEqualsInt(std::span<std::string_view const> const args, Data::JsonScope const& jsonDoc){
+bool Requirements::requireEqualsInt(Utility::Args::SegmentedStringView const& args, Data::JsonScope const& jsonDoc){
     try {
         Assertions::assertEqualsInt(args, jsonDoc);
     }

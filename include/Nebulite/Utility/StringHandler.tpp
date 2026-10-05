@@ -18,7 +18,7 @@
 #endif // NEBULITE_UTILITY_STRINGHANDLER_HPP
 
 //------------------------------------------
-namespace {
+namespace Nebulite::Utility {
 /**
  * @brief Prepares and argument for correct string combination.
  * @details If you notice that certain types aren't turned into the correct string representation,
@@ -28,7 +28,7 @@ namespace {
  * @return The prepared argument for correct string representation.
  */
 template<typename T>
-auto prepareArg(T&& t) {
+static auto prepareArg(T&& t) { // NOLINT
     using U = std::remove_reference_t<T>;
 
     if constexpr (std::is_array_v<U>) {
@@ -37,10 +37,6 @@ auto prepareArg(T&& t) {
         return std::forward<T>(t);
     }
 }
-} // namespace
-
-//------------------------------------------
-namespace Nebulite::Utility {
 
 template <typename... Args>
 bool StringHandler::startsWithSequence(std::string_view str, Args... args) {

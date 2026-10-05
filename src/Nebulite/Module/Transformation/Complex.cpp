@@ -6,7 +6,6 @@
 #include <complex>
 #include <cstddef>
 #include <optional>
-#include <span>
 #include <string>
 #include <string_view>
 
@@ -14,7 +13,7 @@
 #include "Nebulite/Data/Document/JsonScope.hpp"
 #include "Nebulite/Interaction/Logic/Formatter.hpp"
 #include "Nebulite/Module/Transformation/Complex.hpp"
-#include "Nebulite/Utility/StringHandler.hpp"
+#include "Nebulite/Utility/Args/SegmentedStringView.hpp"
 
 //------------------------------------------
 namespace Nebulite::Module::Transformation {
@@ -94,11 +93,11 @@ bool Complex::complexArg(Data::JsonScope& jsonDoc){
     return true;
 }
 
-bool Complex::complexToString(std::span<std::string_view const> const args, Data::JsonScope& jsonDoc){
+bool Complex::complexToString(Utility::Args::SegmentedStringView const& args, Data::JsonScope& jsonDoc){
     auto const num = jsonDoc.getComplex(rootKey);
     if (!num) return true;
     try {
-        auto const formatter = Interaction::Logic::Formatter::readFormatter(Utility::StringHandler::recombineArgs(args.subspan(1)));
+        auto const formatter = Interaction::Logic::Formatter::readFormatter(args.recombineSubspan(1));
         jsonDoc.set(rootKey, complexFormatter(num.value(), formatter));
     } catch (...) {
         return false;
@@ -106,7 +105,7 @@ bool Complex::complexToString(std::span<std::string_view const> const args, Data
     return true;
 }
 
-bool Complex::formatComplexNumberString(std::span<std::string_view const> const args, Data::JsonScope& jsonDoc){
+bool Complex::formatComplexNumberString(Utility::Args::SegmentedStringView const& args, Data::JsonScope& jsonDoc){
     if (args.size() != 2) return false; // No formatter provided
     auto const value = jsonDoc.get<std::string>(rootKey);
     if (!value.has_value()) return false; // Not convertible to string

@@ -3,7 +3,6 @@
 
 // Standard library
 #include <cstdint> // NOLINT
-#include <span>
 #include <string>
 
 // Nebulite
@@ -15,6 +14,7 @@
 #include "Nebulite/Module/Domain/GlobalSpace/InputMapping.hpp"
 #include "Nebulite/Module/Domain/GlobalSpace/Settings.hpp"
 #include "Nebulite/Nebulite.hpp"
+#include "Nebulite/Utility/Args/SegmentedStringView.hpp"
 #include "Nebulite/Utility/Io/FileManagement.hpp"
 
 //------------------------------------------
@@ -50,7 +50,7 @@ Constants::Event Settings::overWriteSettingsFile() const {
     return saveSettings();
 }
 
-Constants::Event Settings::setSettingStr(std::span<std::string_view const> const args) const {
+Constants::Event Settings::setSettingStr(Utility::Args::SegmentedStringView const& args) const {
     if (args.size() < 2) {
         return Constants::StandardCapture::Warning::Functional::tooFewArgs(domain.capture);
     }
@@ -65,7 +65,7 @@ Constants::Event Settings::setSettingStr(std::span<std::string_view const> const
     return Constants::Event::success;
 }
 
-Constants::Event Settings::setSettingInt(std::span<std::string_view const> const args) const {
+Constants::Event Settings::setSettingInt(Utility::Args::SegmentedStringView const& args) const {
     if (args.size() < 2) {
         return Constants::StandardCapture::Warning::Functional::tooFewArgs(domain.capture);
     }
@@ -83,7 +83,7 @@ Constants::Event Settings::setSettingInt(std::span<std::string_view const> const
 //------------------------------------------
 // Private methods
 
-Constants::Event Settings::loadSettings(std::string const& filename) const {
+Constants::Event Settings::loadSettings(std::string_view const filename) const { // NOLINT
     // Load settings file and only set known settings
     Data::Json settings;
 

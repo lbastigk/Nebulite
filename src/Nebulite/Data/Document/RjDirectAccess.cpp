@@ -108,7 +108,7 @@ rapidjson::Value* traverseIntoArray(std::string_view& keyView, rapidjson::Value*
  */
 std::string_view popMember(std::string_view& keyView) {
     auto const nextSep = keyView.find_first_of(SpecialCharacter::dotAndArrayOpen);
-    const auto extracted = keyView.substr(0, nextSep);
+    auto const extracted = keyView.substr(0, nextSep);
 
     if (nextSep == std::string_view::npos) {
         keyView.remove_prefix(keyView.size());

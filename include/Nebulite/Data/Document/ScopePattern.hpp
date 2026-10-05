@@ -17,12 +17,12 @@ public:
     /**
      * @brief A constant representing the absence of a scope.
      */
-    static auto constexpr noScope = OptionalFixedString();
+    static auto constexpr noScope = FixedStringState::noFixedStringProvided;
 
     /**
      * @brief The entire scope is unknown at compile time, but to be used at a given root.
      */
-    static auto constexpr domainRootScope = OptionalFixedString<0, true>();
+    static auto constexpr domainRootScope = FixedStringState::forceOutsideDefinition;
 };
 } // namespace Nebulite::Data
 #endif // NEBULITE_DATA_DOCUMENT_SCOPEPATTERN_HPP

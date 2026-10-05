@@ -7,7 +7,6 @@
 #include <memory>
 #include <ranges>
 #include <string_view>
-#include <vector>
 
 // Nebulite
 #include "Nebulite/Constants/Event.hpp"

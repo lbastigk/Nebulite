@@ -10,7 +10,6 @@
 #include <mutex>
 #include <optional>
 #include <ranges>
-#include <span>
 #include <stdexcept>
 #include <string>
 #include <vector>
@@ -22,6 +21,7 @@
 #include "Nebulite/Data/Document/RjDirectAccess.hpp"
 #include "Nebulite/Data/Document/ScopedKey.hpp"
 #include "Nebulite/Data/Document/SimpleValueError.hpp"
+#include "Nebulite/Utility/Args/SegmentedStringView.hpp"
 #include "Nebulite/Utility/Coordination/IdGenerator.hpp"
 
 //------------------------------------------
@@ -388,7 +388,7 @@ void JsonScope::deserialize(std::string_view const serialOrLink) {
 //------------------------------------------
 // Transform
 
-bool JsonScope::transform(std::span<std::string_view const> const args){
+bool JsonScope::transform(Utility::Args::SegmentedStringView const& args){
     return JsonTransformer::instance().parseSingleTransformation(args, *this);
 }
 

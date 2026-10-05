@@ -3,7 +3,6 @@
 
 // Standard library
 #include <ranges>
-#include <span>
 #include <stdexcept>
 #include <string>
 
@@ -11,8 +10,8 @@
 #include "Nebulite/Data/Document/JsonScope.hpp"
 #include "Nebulite/Module/Transformation/Debug.hpp"
 #include "Nebulite/Nebulite.hpp"
+#include "Nebulite/Utility/Args/SegmentedStringView.hpp"
 #include "Nebulite/Utility/Io/FileManagement.hpp"
-#include "Nebulite/Utility/StringHandler.hpp"
 
 //------------------------------------------
 namespace Nebulite::Module::Transformation {
@@ -28,23 +27,23 @@ void Debug::bindTransformations() {
 
 // Since this is for debugging only, we pass the output directly to global capture, instead of a local capture
 
-bool Debug::echo(std::span<std::string_view const> const args) {
-    Global::capture().log.println(Utility::StringHandler::recombineArgs(args.subspan(1)));
+bool Debug::echo(Utility::Args::SegmentedStringView const& args) {
+    Global::capture().log.println(args.recombineSubspan(1));
     return true;
 }
 
-bool Debug::warn(std::span<std::string_view const> const args) {
-    Global::capture().warning.println(Utility::StringHandler::recombineArgs(args.subspan(1)));
+bool Debug::warn(Utility::Args::SegmentedStringView const& args) {
+    Global::capture().warning.println(args.recombineSubspan(1));
     return true;
 }
 
-bool Debug::error(std::span<std::string_view const> const args) {
-    Global::capture().error.println(Utility::StringHandler::recombineArgs(args.subspan(1)));
+bool Debug::error(Utility::Args::SegmentedStringView const& args) {
+    Global::capture().error.println(args.recombineSubspan(1));
     return true;
 }
 
 // NOLINTNEXTLINE
-bool Debug::print(std::span<std::string_view const> const args, Data::JsonScope& jsonDoc) {
+bool Debug::print(Utility::Args::SegmentedStringView const& args, Data::JsonScope& jsonDoc) {
     // Print to cout, no modifications
     if (args.size() > 1) {
         for (auto const& arg : args | std::views::drop(1)) {
@@ -64,17 +63,17 @@ bool Debug::print(std::span<std::string_view const> const args, Data::JsonScope&
     return true;
 }
 
-bool Debug::unreachable(std::span<std::string_view const> const args){
-    std::string const message = "Unreachable transformation path reached! " + Utility::StringHandler::recombineArgs(args.subspan(1));
+bool Debug::unreachable(Utility::Args::SegmentedStringView const& args){
+    std::string const message = "Unreachable transformation path reached! " + args.recombineSubspan(1);
     throw std::logic_error(message);
 }
 
-bool Debug::store(std::span<std::string_view const> const args, Data::JsonScope const& jsonDoc){
+bool Debug::store(Utility::Args::SegmentedStringView const& args, Data::JsonScope const& jsonDoc){
     if (args.size() < 2) {
         Global::capture().error.println("store transformation requires at least one argument for the file name to store the JSON value under.");
         return false;
     }
-    auto const filename = Utility::StringHandler::recombineArgs(args.subspan(1));
+    auto const filename = args.recombineSubspan(1);
     if (!Utility::Io::FileManagement::writeFile(filename, jsonDoc.serialize())) {
         Global::capture().error.println("Error writing to file.");
         return false;

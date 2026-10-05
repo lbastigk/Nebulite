@@ -7,7 +7,6 @@
 #include <iostream>
 #include <iterator>
 #include <ranges>
-#include <span>
 #include <string>
 #include <string_view>
 #include <utility>
@@ -22,6 +21,7 @@
 #include "Nebulite/Interaction/Logic/Expression.hpp"
 #include "Nebulite/Module/Domain/Common/General.hpp"
 #include "Nebulite/Nebulite.hpp"
+#include "Nebulite/Utility/Args/SegmentedStringView.hpp"
 #include "Nebulite/Utility/Promise.hpp"
 #include "Nebulite/Utility/Ranges.hpp"
 #include "Nebulite/Utility/StringHandler.hpp"
@@ -60,12 +60,12 @@ Constants::Event General::updateHook() {
 
 // [BASIC]
 
-Constants::Event General::echo(std::span<std::string_view const> const args) const {
-    domain.capture.log.println(Utility::StringHandler::recombineArgs(args.subspan(1)));
+Constants::Event General::echo(Utility::Args::SegmentedStringView const& args) const {
+    domain.capture.log.println(args.recombineSubspan(1));
     return Constants::Event::success;
 }
 
-Constants::Event General::ifFunc(std::span<std::string_view const> const args, Interaction::Context& ctx, Interaction::ContextScope& ctxScope) {
+Constants::Event General::ifFunc(Utility::Args::SegmentedStringView const& args, Interaction::Context& ctx, Interaction::ContextScope& ctxScope) {
     if (args.size() < 3) {
         return Constants::StandardCapture::Warning::Functional::tooFewArgs(ctx.self.capture);
     }
@@ -87,8 +87,8 @@ Constants::Event General::ifFunc(std::span<std::string_view const> const args, I
     };
 
     auto const [conditionEnd, commandStart] = commandStartFinder();
-    std::string const condition = Utility::StringHandler::recombineArgs(args.subspan(1, conditionEnd));
-    std::string commands = Utility::StringHandler::recombineArgs(args.subspan(commandStart));
+    auto const condition = args.recombineSubspan(1, conditionEnd);
+    auto commands = args.recombineSubspan(commandStart);
 
     // condition must start with $( and end with ): Simple expressions are boolean-convertible
     if (!condition.starts_with("$(") || !condition.ends_with(')')) {
@@ -109,7 +109,7 @@ Constants::Event General::ifFunc(std::span<std::string_view const> const args, I
     return Constants::Event::success;
 }
 
-Constants::Event General::forFunc(std::span<std::string_view const> const args, Interaction::Context& ctx, Interaction::ContextScope& ctxScope) {
+Constants::Event General::forFunc(Utility::Args::SegmentedStringView const& args, Interaction::Context& ctx, Interaction::ContextScope& ctxScope) {
     if (args.size() > 4) {
         auto const& varName = std::string(args[1]);
 
@@ -132,7 +132,7 @@ Constants::Event General::forFunc(std::span<std::string_view const> const args, 
     return Constants::StandardCapture::Warning::Functional::tooFewArgs(ctx.self.capture);
 }
 
-Constants::Event General::forFuncProgress(std::span<std::string_view const> const args, Interaction::Context& ctx, Interaction::ContextScope& ctxScope) {
+Constants::Event General::forFuncProgress(Utility::Args::SegmentedStringView const& args, Interaction::Context& ctx, Interaction::ContextScope& ctxScope) {
     if (args.size() > 4) {
         std::size_t constexpr barWidth = 50;
 
@@ -179,11 +179,11 @@ Constants::Event General::forFuncProgress(std::span<std::string_view const> cons
     return Constants::StandardCapture::Warning::Functional::tooFewArgs(ctx.self.capture);
 }
 
-Constants::Event General::assertFunc(std::span<std::string_view const> const args, Interaction::Context const& ctx, Interaction::ContextScope const& ctxScope) {
+Constants::Event General::assertFunc(Utility::Args::SegmentedStringView const& args, Interaction::Context const& ctx, Interaction::ContextScope const& ctxScope) {
     if (args.size() < 2) {
         return Constants::StandardCapture::Warning::Functional::tooFewArgs(ctx.self.capture);
     }
-    std::string const& condition = Utility::StringHandler::recombineArgs(args.subspan(1));
+    std::string const& condition = args.recombineSubspan(1);
 
     // condition must start with $( and end with ): Simple expressions are boolean-convertible
     if (condition.front() != '$' || condition[1] != '(' || condition.back() != ')') {
@@ -213,27 +213,26 @@ Constants::Event General::nop() {
 
 // [FORWARD/REPARSE]
 
-Constants::Event General::forwardToOther(std::span<std::string_view const> const args, Interaction::Context& ctx, Interaction::ContextScope& ctxScope) {
+Constants::Event General::forwardToOther(Utility::Args::SegmentedStringView const& args, Interaction::Context& ctx, Interaction::ContextScope& ctxScope) {
     if (args.size() < 2) {
         return Constants::StandardCapture::Warning::Functional::tooFewArgs(ctx.self.capture);
     }
-    std::string const argStr = Utility::StringHandler::recombineArgs(args);
+    auto const argStr = args.recombine();
     return ctx.other.parseStr(argStr, ctx, ctxScope);
 }
 
-Constants::Event General::forwardToGlobal(std::span<std::string_view const> const args, Interaction::Context& ctx, Interaction::ContextScope& ctxScope) {
+Constants::Event General::forwardToGlobal(Utility::Args::SegmentedStringView const& args, Interaction::Context& ctx, Interaction::ContextScope& ctxScope) {
     if (args.size() < 2) {
         return Constants::StandardCapture::Warning::Functional::tooFewArgs(ctx.self.capture);
     }
-    std::string const argStr = Utility::StringHandler::recombineArgs(args);
+    auto const argStr = args.recombine();
     return ctx.global.parseStr(argStr, ctx, ctxScope);
 }
 
-Constants::Event General::reparseInOther(std::span<std::string_view const> const args, Interaction::Context const& ctx, Interaction::ContextScope const& ctxScope) {
+Constants::Event General::reparseInOther(Utility::Args::SegmentedStringView const& args, Interaction::Context const& ctx, Interaction::ContextScope const& ctxScope) {
     if (args.size() < 2) {
         return Constants::StandardCapture::Warning::Functional::tooFewArgs(ctx.self.capture);
     }
-    std::string const argStr = Utility::StringHandler::recombineArgs(args);
     Interaction::Context otherCtx{
         {
             .self = ctx.other,
@@ -248,15 +247,13 @@ Constants::Event General::reparseInOther(std::span<std::string_view const> const
             .global = ctxScope.global,
         },
     };
-    return ctx.other.parseStr(argStr, otherCtx, otherCtxScope);
+    return ctx.other.parse(args, otherCtx, otherCtxScope);
 }
 
-Constants::Event General::reparseInGlobal(std::span<std::string_view const> const args, Interaction::Context const& ctx, Interaction::ContextScope const& ctxScope) {
+Constants::Event General::reparseInGlobal(Utility::Args::SegmentedStringView const& args, Interaction::Context const& ctx, Interaction::ContextScope const& ctxScope) {
     if (args.size() < 2) {
         return Constants::StandardCapture::Warning::Functional::tooFewArgs(ctx.self.capture);
     }
-    std::string const argStr = Utility::StringHandler::recombineArgs(args);
-
     Interaction::Context globalCtx{
         {
             .self = ctx.global,
@@ -271,13 +268,12 @@ Constants::Event General::reparseInGlobal(std::span<std::string_view const> cons
             .global = ctxScope.global,
         },
     };
-
-    return ctx.global.parseStr(argStr, globalCtx, globalCtxScope);
+    return ctx.global.parse(args, globalCtx, globalCtxScope);
 }
 
 // [IMGUI]
 
-Constants::Event General::imguiView(std::span<std::string_view const> const args, Interaction::Context const& ctx, Interaction::ContextScope const& ctxScope) {
+Constants::Event General::imguiView(Utility::Args::SegmentedStringView const& args, Interaction::Context const& ctx, Interaction::ContextScope const& ctxScope) {
     if (args.size() < 2) {
         return Constants::StandardCapture::Warning::Functional::tooFewArgs(ctx.self.capture);
     }
@@ -305,13 +301,13 @@ Constants::Event General::imguiView(std::span<std::string_view const> const args
 
 // [OTHER]
 
-Constants::Event General::capture(std::span<std::string_view const> const args, Interaction::Context& ctx, Interaction::ContextScope& ctxScope){
+Constants::Event General::capture(Utility::Args::SegmentedStringView const& args, Interaction::Context& ctx, Interaction::ContextScope& ctxScope){
     if (args.size() < 3) {
         return Constants::StandardCapture::Warning::Functional::tooFewArgs(ctx.self.capture);
     }
 
     // Parse
-    auto const argsToParse = Utility::StringHandler::recombineArgs(args.subspan(1));
+    auto const argsToParse = args.recombineSubspan(1);
     auto result = Constants::Event::success;
     auto history = ctx.self.capture.redirectHistory([&] {
         result = ctx.self.parseStr(argsToParse, ctx, ctxScope);
@@ -327,7 +323,7 @@ Constants::Event General::capture(std::span<std::string_view const> const args, 
     return result;
 }
 
-Constants::Event General::eval(std::span<std::string_view const> const args, Interaction::Context& ctx, Interaction::ContextScope& ctxScope){
+Constants::Event General::eval(Utility::Args::SegmentedStringView const& args, Interaction::Context& ctx, Interaction::ContextScope& ctxScope){
     // TODO: An idea would be to only eval until the next "eval" keyword, allowing for nested evals within for-loops, ifs, etc.:
     //       Example:
     //       eval for i 1 {global.loopCount} eval process-state {global.currentState} {i}
@@ -336,7 +332,7 @@ Constants::Event General::eval(std::span<std::string_view const> const args, Int
     //       Do the same for the RenderObject eval function. Perhaps we should combine them?
 
     // argc/argv to string for evaluation
-    std::string const argStr = Utility::StringHandler::recombineArgs(args);
+    auto const argStr = args.recombine();
 
     // Evaluate expression, empty context for self and other
     std::string const argsEvaluated = Interaction::Logic::Expression::eval(argStr, ctxScope);

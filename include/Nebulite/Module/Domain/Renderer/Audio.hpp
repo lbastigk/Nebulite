@@ -11,9 +11,7 @@
 #include <limits>
 #include <memory>
 #include <optional>
-#include <span>
 #include <string>
-#include <string_view>
 #include <type_traits>
 #include <utility>
 #include <vector>
@@ -26,6 +24,7 @@
 // Nebulite
 #include "Nebulite/Constants/Event.hpp"
 #include "Nebulite/Module/Base/DomainModule.hpp"
+#include "Nebulite/Utility/Args/SegmentedStringView.hpp"
 
 //------------------------------------------
 // Forward declarations
@@ -49,7 +48,7 @@ public:
     //------------------------------------------
     // Available Functions
 
-    [[nodiscard]] Constants::Event beep(std::span<std::string_view const> args) const;
+    [[nodiscard]] Constants::Event beep(Utility::Args::SegmentedStringView const& args) const;
     static auto constexpr beepName = "beep";
     static auto constexpr beepDesc = "Make a beep noise.\n"
         "If no waveform type is specified, defaults to sine.\n"
@@ -58,7 +57,7 @@ public:
         "\n"
         "Usage: beep [sine/square/triangle]\n";
 
-    [[nodiscard]] Constants::Event playSound(std::span<std::string_view const> args);
+    [[nodiscard]] Constants::Event playSound(Utility::Args::SegmentedStringView const& args);
     static auto constexpr playSoundName = "play-sound";
     static auto constexpr playSoundDesc = "Play a sound from a file.\n"
         "Usage: play-sound <file-path>\n";
@@ -83,8 +82,8 @@ private:
 
         using SampleType = float;
 
-        static SampleType constexpr SampleMax = std::is_floating_point_v<SampleType> ? static_cast<SampleType>( 1.0) : std::numeric_limits<SampleType>::max();
-        static SampleType constexpr SampleMin = std::is_floating_point_v<SampleType> ? static_cast<SampleType>(-1.0) : std::numeric_limits<SampleType>::min();
+        static SampleType constexpr sampleMax = std::is_floating_point_v<SampleType> ? static_cast<SampleType>( 1.0) : std::numeric_limits<SampleType>::max();
+        static SampleType constexpr sampleMin = std::is_floating_point_v<SampleType> ? static_cast<SampleType>(-1.0) : std::numeric_limits<SampleType>::min();
 
         static double constexpr sampleRate = 44100.0;
     };

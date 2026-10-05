@@ -19,6 +19,7 @@
 #include "Nebulite/Graphics/DrawType/DrawType.hpp"
 #include "Nebulite/Graphics/DrawcallRefs.hpp"
 #include "Nebulite/Interaction/Execution/Domain.hpp"
+#include "Nebulite/Utility/Args/SegmentedStringView.hpp"
 #include "Nebulite/Utility/Coordination/TimedRoutine.hpp"
 
 //------------------------------------------
@@ -68,8 +69,9 @@ public:
 
     void update();
 
-    // Parse a string onto the texture
     [[nodiscard]] Constants::Event parseStr(std::string_view str, Interaction::Context& ctx, Interaction::ContextScope& ctxScope) const ;
+
+    [[nodiscard]] Constants::Event parse(Utility::Args::SegmentedStringView const& args, Interaction::Context& ctx, Interaction::ContextScope& ctxScope) const ;
 
     class ApplyDefault {
     public:

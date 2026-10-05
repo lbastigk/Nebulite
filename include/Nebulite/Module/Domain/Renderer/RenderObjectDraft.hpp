@@ -6,15 +6,14 @@
 
 // Standard library
 #include <optional>
-#include <span>
 #include <string>
-#include <string_view>
 
 // Nebulite
 #include "Nebulite/Constants/Event.hpp"
 #include "Nebulite/Core/RenderObject.hpp"
 #include "Nebulite/Data/Document/KeyGroup.hpp"
 #include "Nebulite/Module/Base/DomainModule.hpp"
+#include "Nebulite/Utility/Args/SegmentedStringView.hpp"
 
 //------------------------------------------
 // Forward declarations
@@ -48,7 +47,7 @@ public:
     //------------------------------------------
     // Available Functions
 
-    [[nodiscard]] Constants::Event draftParse(std::span<std::string_view const> args, Interaction::Context& ctx, Interaction::ContextScope& ctxScope);
+    [[nodiscard]] Constants::Event draftParse(Utility::Args::SegmentedStringView const& args, Interaction::Context& ctx, Interaction::ContextScope& ctxScope);
     static auto constexpr draftParseName = "draft parse";
     static auto constexpr draftParseDesc = "Parse Renderobject-specific functions on the draft.\n"
         "\n"

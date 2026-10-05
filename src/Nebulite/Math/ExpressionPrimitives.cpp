@@ -8,7 +8,6 @@
 #include <cstdlib>
 #include <limits>
 #include <numbers>
-#include <span>
 #include <string>
 #include <string_view>
 #include <vector>
@@ -20,7 +19,7 @@
 #include "Nebulite/Math/ExpressionPrimitives.hpp"
 #include "Nebulite/Nebulite.hpp"
 #include "Nebulite/Utility/Args/FuncTree.hpp"
-#include "Nebulite/Utility/StringHandler.hpp"
+#include "Nebulite/Utility/Args/SegmentedStringView.hpp"
 
 //------------------------------------------
 namespace Nebulite::Math {
@@ -230,7 +229,7 @@ bool pseudoBind() {
 }
 } // namespace
 
-void ExpressionPrimitives::help(std::span<std::string_view const> const args) {
+void ExpressionPrimitives::help(Utility::Args::SegmentedStringView const& args) {
     // Create a temporary funcTree to utilize its printFunctionList method for formatted output
 
     Utility::Args::FuncTree tempFuncTree("Nebulite Expressions", true, true, Global::capture()); // Pass to main capture
@@ -242,7 +241,7 @@ void ExpressionPrimitives::help(std::span<std::string_view const> const args) {
 
     // Parse the given command into the temporary funcTree:
     // __FUNCTION__ help <potentially more args for specific function help>
-    std::string argStr = Utility::StringHandler::recombineArgs(args.subspan(1));
+    auto argStr = args.recombineSubspan(1);
     if (argStr.empty()) {
         argStr = __FUNCTION__ + std::string(" help");
     }

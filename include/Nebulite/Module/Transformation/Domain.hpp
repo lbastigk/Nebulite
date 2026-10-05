@@ -6,12 +6,11 @@
 
 // Standard library
 #include <memory>
-#include <span>
-#include <string_view>
 
 // Nebulite
 #include "Nebulite/Module/Base/TransformationModule.hpp"
 #include "Nebulite/Utility/Args/FuncTree.hpp"
+#include "Nebulite/Utility/Args/SegmentedStringView.hpp"
 
 //------------------------------------------
 // Forward declarations
@@ -36,7 +35,7 @@ public:
     //------------------------------------------
     // Available Transformations
 
-    static bool injectScript(std::span<std::string_view const> args, Data::JsonScope& jsonDoc);
+    static bool injectScript(Utility::Args::SegmentedStringView const& args, Data::JsonScope& jsonDoc);
     static auto constexpr injectScriptName = "injectScript";
     static auto constexpr injectScriptDesc = "Injects a nebulite script to modify the json doc.\n"
         "Usage: |injectScript <path/to/script.nebs> -> {modified-json}\n";

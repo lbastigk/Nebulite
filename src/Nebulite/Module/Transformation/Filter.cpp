@@ -7,7 +7,6 @@
 #include <functional>
 #include <ranges>
 #include <regex>
-#include <span>
 #include <string>
 #include <utility>
 #include <vector>
@@ -18,10 +17,10 @@
 #include "Nebulite/Interaction/Context.hpp"
 #include "Nebulite/Interaction/Logic/Expression.hpp"
 #include "Nebulite/Module/Transformation/Filter.hpp"
+#include "Nebulite/Utility/Args/SegmentedStringView.hpp"
 #include "Nebulite/Utility/Glob.hpp"
 #include "Nebulite/Utility/Promise.hpp"
 #include "Nebulite/Utility/Ranges.hpp"
-#include "Nebulite/Utility/StringHandler.hpp"
 
 //------------------------------------------
 namespace Nebulite::Module::Transformation {
@@ -35,13 +34,13 @@ void Filter::bindTransformations(){
     bindTransformation(&Filter::filterCustom, filterCustomName, filterCustomDesc);
 }
 
-bool Filter::filterRegex(std::span<std::string_view const> const args, Data::JsonScope& jsonDoc) {
+bool Filter::filterRegex(Utility::Args::SegmentedStringView const& args, Data::JsonScope& jsonDoc) {
     if (args.size() != 2) {
         return false;
     }
     std::regex regexPattern;
     try {
-        std::string const pattern = Utility::StringHandler::recombineArgs(args.subspan(1));
+        std::string const pattern = args.recombineSubspan(1);
         regexPattern = std::regex(pattern);
     } catch (std::regex_error const&) {
         return false; // Invalid regex pattern
@@ -59,11 +58,11 @@ bool Filter::filterRegex(std::span<std::string_view const> const args, Data::Jso
     return true;
 }
 
-bool Filter::filterGlob(std::span<std::string_view const> const args, Data::JsonScope& jsonDoc) {
+bool Filter::filterGlob(Utility::Args::SegmentedStringView const& args, Data::JsonScope& jsonDoc) {
     if (args.size() != 2) {
         return false;
     }
-    std::string const pattern = Utility::StringHandler::recombineArgs(args.subspan(1));
+    std::string const pattern = args.recombineSubspan(1);
     auto const memberKeyPairs = jsonDoc.listAvailableMembersAndKeys(rootKey);
     Data::Json filtered;
     for (auto const& [member, key] : memberKeyPairs) {
@@ -75,7 +74,7 @@ bool Filter::filterGlob(std::span<std::string_view const> const args, Data::Json
     return true;
 }
 
-bool Filter::filterRegexValue(std::span<std::string_view const> const args, Data::JsonScope& jsonDoc){
+bool Filter::filterRegexValue(Utility::Args::SegmentedStringView const& args, Data::JsonScope& jsonDoc){
     if (args.size() != 2) {
         return false;
     }
@@ -85,7 +84,7 @@ bool Filter::filterRegexValue(std::span<std::string_view const> const args, Data
 
     std::regex regexPattern;
     try {
-        std::string const pattern = Utility::StringHandler::recombineArgs(args.subspan(1));
+        std::string const pattern = args.recombineSubspan(1);
         regexPattern = std::regex(pattern);
     } catch (std::regex_error const&) {
         return false; // Invalid regex pattern
@@ -112,14 +111,14 @@ bool Filter::filterRegexValue(std::span<std::string_view const> const args, Data
     return true;
 }
 
-bool Filter::filterGlobValue(std::span<std::string_view const> const args, Data::JsonScope& jsonDoc){
+bool Filter::filterGlobValue(Utility::Args::SegmentedStringView const& args, Data::JsonScope& jsonDoc){
     if (args.size() != 2) {
         return false;
     }
     if (jsonDoc.memberType(rootKey) != Data::KeyType::array) {
         return false; // Not an array, cannot filter values
     }
-    auto const pattern = Utility::StringHandler::recombineArgs(args.subspan(1));
+    auto const pattern = args.recombineSubspan(1);
 
     // Get values and filter
     auto const values = listMemberValues(jsonDoc, rootKey)
@@ -180,10 +179,10 @@ bool Filter::filterNulls(Data::JsonScope& jsonDoc) {
     return true;
 }
 
-bool Filter::filterCustom(std::span<std::string_view const> const args, Data::JsonScope& jsonDoc){
+bool Filter::filterCustom(Utility::Args::SegmentedStringView const& args, Data::JsonScope& jsonDoc){
     if (jsonDoc.memberType(rootKey) != Data::KeyType::array) return false; // Not an array, cannot sort
     if (args.size() < 2) return false;
-    Interaction::Logic::Expression const expression('$' + Utility::StringHandler::recombineArgs(args.subspan(1)));
+    Interaction::Logic::Expression const expression('$' + args.recombineSubspan(1));
     if (!expression.isReturnableAsBool()) return false;
     arrayFilter(jsonDoc, [&](Data::JsonScope& element) {
         Interaction::ContextScope const ctxScope{

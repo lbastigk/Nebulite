@@ -2,10 +2,8 @@
 // Includes
 
 // Standard library
-#include <span>
 #include <stdexcept>
 #include <string>
-#include <string_view>
 
 // Nebulite
 #include "Nebulite/Constants/Event.hpp"
@@ -15,7 +13,7 @@
 #include "Nebulite/Interaction/Context.hpp"
 #include "Nebulite/Interaction/Execution/Domain.hpp"
 #include "Nebulite/Module/Domain/Common/Debug.hpp"
-#include "Nebulite/Utility/StringHandler.hpp"
+#include "Nebulite/Utility/Args/SegmentedStringView.hpp"
 
 //------------------------------------------
 namespace Nebulite::Module::Domain::Common {
@@ -34,7 +32,7 @@ Constants::Event Debug::updateHook() {
 
 // Fetch
 
-Constants::Event Debug::fetchId(std::span<std::string_view const> const args, Interaction::Context const& ctx, Interaction::ContextScope const& ctxScope) {
+Constants::Event Debug::fetchId(Utility::Args::SegmentedStringView const& args, Interaction::Context const& ctx, Interaction::ContextScope const& ctxScope) {
     if (args.size() < 2) {
         return Constants::StandardCapture::Warning::Functional::tooFewArgs(ctx.self.capture);
     }
@@ -43,7 +41,7 @@ Constants::Event Debug::fetchId(std::span<std::string_view const> const args, In
     return Constants::Event::success;
 }
 
-Constants::Event Debug::fetchName(std::span<std::string_view const> const args, Interaction::Context const& ctx, Interaction::ContextScope const& ctxScope) {
+Constants::Event Debug::fetchName(Utility::Args::SegmentedStringView const& args, Interaction::Context const& ctx, Interaction::ContextScope const& ctxScope) {
     if (args.size() < 2) {
         return Constants::StandardCapture::Warning::Functional::tooFewArgs(ctx.self.capture);
     }
@@ -52,7 +50,7 @@ Constants::Event Debug::fetchName(std::span<std::string_view const> const args, 
     return Constants::Event::success;
 }
 
-Constants::Event Debug::print(std::span<std::string_view const> const args, Interaction::Context const& ctx, Interaction::ContextScope const& ctxScope) {
+Constants::Event Debug::print(Utility::Args::SegmentedStringView const& args, Interaction::Context const& ctx, Interaction::ContextScope const& ctxScope) {
     if (args.size() > 2) {
         return Constants::StandardCapture::Warning::Functional::tooManyArgs(ctx.self.capture);
     }
@@ -76,7 +74,7 @@ Constants::Event Debug::print(std::span<std::string_view const> const args, Inte
     return Constants::Event::success;
 }
 
-Constants::Event Debug::printId(std::span<std::string_view const> const /*args*/, Interaction::Context const& ctx, Interaction::ContextScope& /*ctxScope*/) {
+Constants::Event Debug::printId(Utility::Args::SegmentedStringView const& /*args*/, Interaction::Context const& ctx, Interaction::ContextScope& /*ctxScope*/) {
     ctx.self.capture.log.println(ctx.self.getId());
     return Constants::Event::success;
 }
@@ -85,34 +83,34 @@ Constants::Event Debug::printId(std::span<std::string_view const> const /*args*/
 
 // Ignore lint: Function warn always returns Constants::Event::warning
 // NOLINTNEXTLINE
-Constants::Event Debug::warn(std::span<std::string_view const> const args) const {
+Constants::Event Debug::warn(Utility::Args::SegmentedStringView const& args) const {
     if (args.size() < 2) {
         return Constants::StandardCapture::Warning::Functional::tooFewArgs(domain.capture);
     }
-    std::string const argStr = Utility::StringHandler::recombineArgs(args.subspan(1));
+    auto const argStr = args.recombineSubspan(1);
     domain.capture.warning.println(argStr);
     return Constants::Event::warning;
 }
 
-Constants::Event Debug::error(std::span<std::string_view const> const args, Interaction::Context const& ctx, Interaction::ContextScope& /*ctxScope*/) {
-    auto const& argStr = Utility::StringHandler::recombineArgs(args.subspan(1));
+Constants::Event Debug::error(Utility::Args::SegmentedStringView const& args, Interaction::Context const& ctx, Interaction::ContextScope& /*ctxScope*/) {
+    auto const& argStr = args.recombineSubspan(1);
     ctx.self.capture.error.println(argStr);
     return Constants::Event::error;
 }
 
-Constants::Event Debug::throwFunc(std::span<std::string_view const> const args) {
+Constants::Event Debug::throwFunc(Utility::Args::SegmentedStringView const& args) {
     std::string const message = [&] {
         if (args.size() < 2) return std::string("");
-        return Utility::StringHandler::recombineArgs(args.subspan(1));
+        return args.recombineSubspan(1);
     }();
     throw std::runtime_error(message);
 }
 
-Constants::Event Debug::mustThrow(std::span<std::string_view const> const args, Interaction::Context& ctx, Interaction::ContextScope& ctxScope) {
+Constants::Event Debug::mustThrow(Utility::Args::SegmentedStringView const& args, Interaction::Context& ctx, Interaction::ContextScope& ctxScope) {
     if (args.size() < 2) {
         return Constants::StandardCapture::Warning::Functional::tooFewArgs(ctx.self.capture);
     }
-    auto const funcCallStr = Utility::StringHandler::recombineArgs(args);
+    auto const funcCallStr = args.recombine();
     try {
         (void) ctx.self.parseStr(funcCallStr, ctx, ctxScope);
     } catch (...) {

@@ -5,14 +5,13 @@
 // Includes
 
 // Standard library
-#include <span>
-#include <string>
 #include <string_view>
 
 // Nebulite
 #include "Nebulite/Constants/Event.hpp"
 #include "Nebulite/Data/Document/KeyGroup.hpp"
 #include "Nebulite/Module/Base/DomainModule.hpp"
+#include "Nebulite/Utility/Args/SegmentedStringView.hpp"
 
 //------------------------------------------
 // Forward declarations
@@ -48,13 +47,13 @@ public:
         "\n"
         "Usage: settings save-standards\n";
 
-    [[nodiscard]] Constants::Event setSettingStr(std::span<std::string_view const> args) const ;
+    [[nodiscard]] Constants::Event setSettingStr(Utility::Args::SegmentedStringView const& args) const ;
     static auto constexpr setSettingName = "settings set-string";
     static auto constexpr setSettingDesc = "Sets a global setting to a specified value.\n"
         "\n"
         "Usage: settings set-string <key> <value>\n";
 
-    [[nodiscard]] Constants::Event setSettingInt(std::span<std::string_view const> args) const ;
+    [[nodiscard]] Constants::Event setSettingInt(Utility::Args::SegmentedStringView const& args) const ;
     static auto constexpr setSettingIntName = "settings set-integer";
     static auto constexpr setSettingIntDesc = "Sets a global setting to a specified integer value.\n"
         "\n"
@@ -119,7 +118,7 @@ public:
     }
 
 private:
-    [[nodiscard]] Constants::Event loadSettings(std::string const& filename) const ;
+    [[nodiscard]] Constants::Event loadSettings(std::string_view filename) const ;
 
     void logInitError() const ;
 };
