@@ -2,7 +2,6 @@
 // Includes
 
 // Standard library
-#include <cstddef>
 #include <cstdint> // NOLINT
 #include <memory>
 #include <optional>
@@ -17,28 +16,11 @@
 //------------------------------------------
 namespace Nebulite::Data {
 
-CacheEntry::CacheEntry([[clang::lifetimebound]] CacheLine& cl, std::size_t& index) {
-    if (index < cachelineSize - 1) {
-        // Assign stable double pointer from cacheline
-        stableDoublePointer = &cl[index++];
-        lastDoubleValue = &cl[index++];
-        *stableDoublePointer = standardNumericValue;
-        *lastDoubleValue = standardNumericValue;
-        managedInternalDouble = false;
-    }
-    else {
-        stableDoublePointer = new double(standardNumericValue);
-        lastDoubleValue = new double(standardNumericValue);
-        managedInternalDouble = true;
-    }
+CacheEntry::CacheEntry([[clang::lifetimebound]] CacheAllocator<standardNumericValue>& allocator) : stableDoublePointer(allocator.allocate<2>()) {
+    lastDoubleValue = stableDoublePointer + 1;
 }
 
-CacheEntry::~CacheEntry() {
-    if (managedInternalDouble) {
-        delete stableDoublePointer;
-        delete lastDoubleValue;
-    }
-}
+CacheEntry::~CacheEntry() = default;
 
 void CacheEntry::updateNumericValue(){
     if (!Math::isEqualAllowNan(*stableDoublePointer, *lastDoubleValue)) {
@@ -71,13 +53,13 @@ void CacheEntry::setValueDirty(RjDirectAccess::SimpleValue const& newValue) {
 }
 
 CacheEntry& JsonCache::createNewCacheEntry(std::string_view const key) {
-    auto newEntry = std::make_shared<CacheEntry>(*cacheLine, cacheLineIndex);
+    auto newEntry = std::make_shared<CacheEntry>(allocator);
     cache[key] = newEntry;
     cacheVector.emplace_back(std::string(key), newEntry);
     return *newEntry.get();
 }
 
-JsonCache::JsonCache() : cacheLine(std::make_unique<CacheLine>()) {}
+JsonCache::JsonCache() = default;
 
 JsonCache::JsonCache(JsonCache&& other) noexcept = default;
 
