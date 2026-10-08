@@ -234,7 +234,7 @@ std::expected<RjDirectAccess::SimpleValue, SimpleValueRetrievalError> Json::getV
         return cachedKey.starts_with(key)
             && cachedKey != key
             && entry->state != CacheEntry::State::deleted
-            && Math::isEqualAllowNan(*entry->stableDoublePointer, *entry->lastDoubleValue);
+            && !entry->stableDoublePointerWasModified();
     })) {
         // Checking for malformed shouldn't be necessary, but just in case
         auto const entry = cache.find(key);
