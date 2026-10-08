@@ -6,6 +6,7 @@
 
 // Standard library
 #include <cassert>
+#include <memory>
 #include <optional>
 #include <string_view>
 
@@ -21,6 +22,11 @@
 
 //------------------------------------------
 namespace Nebulite::Data {
+
+template<double InitValue>
+CacheAllocator<InitValue>::CacheAllocator(){
+    cacheLines.emplace_back(std::make_unique<CacheLine>(CacheLine{InitValue}));
+}
 
 template <typename NewType>
 std::optional<NewType> CacheEntry::convertTo(){

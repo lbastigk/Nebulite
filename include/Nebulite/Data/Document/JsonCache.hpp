@@ -45,9 +45,7 @@ class CacheAllocator {
     std::size_t currentCacheLineIndex = 0;
 
 public:
-    CacheAllocator(){
-        cacheLines.emplace_back(std::make_unique<CacheLine>(CacheLine{InitValue}));
-    }
+    CacheAllocator();
 
     template<std::size_t N>
     double* allocate() {
