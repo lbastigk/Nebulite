@@ -2,6 +2,7 @@
 // Includes
 
 // Standard library
+#include <bit>
 #include <cstdint> // NOLINT
 #include <memory>
 #include <optional>
@@ -11,7 +12,6 @@
 // Nebulite
 #include "Nebulite/Data/Document/JsonCache.hpp"
 #include "Nebulite/Data/Document/RjDirectAccess.hpp"
-#include "Nebulite/Math/Equality.hpp"
 
 //------------------------------------------
 namespace Nebulite::Data {
@@ -22,11 +22,17 @@ CacheEntry::CacheEntry([[clang::lifetimebound]] CacheAllocator<standardNumericVa
 
 CacheEntry::~CacheEntry() = default;
 
+bool CacheEntry::stableDoublePointerWasModified() const {
+    // Since on every clean write we set both values equal, this compare should be fine
+    // It detects any outside modification of the value of stableDoublePointer
+    return std::bit_cast<std::uint64_t>(*stableDoublePointer) != std::bit_cast<std::uint64_t>(*lastDoubleValue);
+}
+
 void CacheEntry::updateNumericValue(){
-    if (!Math::isEqualAllowNan(*stableDoublePointer, *lastDoubleValue)) {
+    if (stableDoublePointerWasModified()) {
         // Value changed since last check
         *lastDoubleValue = *stableDoublePointer;
-        value = *lastDoubleValue;
+        value = *stableDoublePointer;
         state = State::dirty;
     }
 }

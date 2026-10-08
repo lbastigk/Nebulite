@@ -86,6 +86,8 @@ struct CacheEntry {
     CacheEntry(CacheEntry&&) = delete;
     CacheEntry& operator=(CacheEntry&&) = delete;
 
+    [[nodiscard]] bool stableDoublePointerWasModified() const ;
+
     void updateNumericValue();
 
     void markAsDeleted();
