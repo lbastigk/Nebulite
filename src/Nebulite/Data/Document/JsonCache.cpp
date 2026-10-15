@@ -8,6 +8,7 @@
 #include <optional>
 #include <string>
 #include <string_view>
+#include <utility>
 
 // Nebulite
 #include "Nebulite/Data/Document/JsonCache.hpp"
@@ -16,7 +17,25 @@
 //------------------------------------------
 namespace Nebulite::Data {
 
-CacheEntry::CacheEntry([[clang::lifetimebound]] CacheAllocator<standardNumericValue>& allocator) : stableDoublePointer(allocator.allocate<2>()) {
+CacheAllocator::CacheAllocator(double const iv) : initValue(iv) {
+    cacheLines.emplace_back(std::make_unique<CacheLine>(CacheLine{initValue}));
+}
+
+CacheAllocator::CacheAllocator(CacheAllocator&& other) noexcept
+    : cacheLines(std::move(other.cacheLines))
+    , currentCacheLineIndex(other.currentCacheLineIndex)
+    , initValue(other.initValue) {}
+
+CacheAllocator& CacheAllocator::operator=(CacheAllocator&& other) noexcept {
+    cacheLines = std::move(other.cacheLines);
+    currentCacheLineIndex = other.currentCacheLineIndex;
+    initValue = other.initValue;
+    return *this;
+}
+
+CacheAllocator::~CacheAllocator() = default;
+
+CacheEntry::CacheEntry([[clang::lifetimebound]] CacheAllocator& allocator) : stableDoublePointer(allocator.allocate<2>()) {
     lastDoubleValue = stableDoublePointer + 1;
 }
 
@@ -65,7 +84,7 @@ CacheEntry& JsonCache::createNewCacheEntry(std::string_view const key) {
     return *newEntry.get();
 }
 
-JsonCache::JsonCache() = default;
+JsonCache::JsonCache() : allocator(CacheEntry::standardNumericValue) {}
 
 JsonCache::JsonCache(JsonCache&& other) noexcept = default;
 

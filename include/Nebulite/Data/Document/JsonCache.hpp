@@ -37,22 +37,30 @@ static_assert(cachelineSize > 0, "cachelineSize must be positive.");
 /**
  * @brief Handles fixed size continuous memory cache allocation
  */
-template<double InitValue>
 class CacheAllocator {
     using CacheLine = std::array<double, cachelineSize>;
 
     std::vector<std::unique_ptr<CacheLine>> cacheLines;
     std::size_t currentCacheLineIndex = 0;
+    double initValue;
 
 public:
-    CacheAllocator();
+    CacheAllocator(double iv);
+
+    // No copy, allow move
+    CacheAllocator(CacheAllocator const&) = delete;
+    CacheAllocator& operator=(CacheAllocator const&) = delete;
+    CacheAllocator(CacheAllocator&& /*other*/) noexcept ;
+    CacheAllocator& operator=(CacheAllocator&& /*other*/) noexcept ;
+
+    ~CacheAllocator();
 
     template<std::size_t N>
     double* allocate() {
         static_assert(N > 0, "N must be greater than 0");
         static_assert(N <= cachelineSize, "Requested amount is too large");
         if (currentCacheLineIndex + N > cachelineSize) {
-            cacheLines.emplace_back(std::make_unique<CacheLine>(CacheLine{InitValue}));
+            cacheLines.emplace_back(std::make_unique<CacheLine>(CacheLine{initValue}));
             currentCacheLineIndex = 0;
         }
         double* result = cacheLines.back()->data() + currentCacheLineIndex;
@@ -74,7 +82,7 @@ struct CacheEntry {
     //------------------------------------------
     // Constructors
 
-    CacheEntry([[clang::lifetimebound]] CacheAllocator<standardNumericValue>& allocator);
+    CacheEntry([[clang::lifetimebound]] CacheAllocator& allocator);
 
     ~CacheEntry();
 
@@ -131,7 +139,7 @@ class JsonCache {
     /**
      * @brief Allocation of numeric values (both the stable double pointer and its reference value)
      */
-    CacheAllocator<CacheEntry::standardNumericValue> allocator;
+    CacheAllocator allocator;
 
     /**
      * @brief The Caching system used for fast access to frequently used values.
