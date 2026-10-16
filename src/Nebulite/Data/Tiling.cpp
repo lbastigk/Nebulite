@@ -118,7 +118,7 @@ void Tile::render(
     Utility::Io::Capture& capture,
     int const dispPosX,
     int const dispPosY,
-    int const windowScale
+    float const pixelScale
 ){
     auto* const renderer = nebuliteRenderer.getSdlRenderer();
 
@@ -128,8 +128,8 @@ void Tile::render(
             renderer,
             SDL_PIXELFORMAT_RGBA8888,
             SDL_TEXTUREACCESS_TARGET,
-            2*windowScale*tilingInfo.w,
-            2*windowScale*tilingInfo.h
+            static_cast<int>(2.0f*pixelScale*static_cast<float>(tilingInfo.w)),
+            static_cast<int>(2.0f*pixelScale*static_cast<float>(tilingInfo.h))
         );
         if (!texture) {
             capture.error.println("Failed to create render target texture.");
@@ -152,10 +152,10 @@ void Tile::render(
     // Render tile to screen
     SDL_SetRenderTarget(renderer, nullptr);
     SDL_FRect const destRect{
-        .x = static_cast<float>(windowScale * (coordinate.x * tilingInfo.w - dispPosX)),
-        .y = static_cast<float>(windowScale * (coordinate.y * tilingInfo.h - dispPosY)),
-        .w = static_cast<float>(2 * windowScale * tilingInfo.w),
-        .h = static_cast<float>(2 * windowScale * tilingInfo.h),
+        .x = pixelScale * static_cast<float>(coordinate.x * tilingInfo.w - dispPosX),
+        .y = pixelScale * static_cast<float>(coordinate.y * tilingInfo.h - dispPosY),
+        .w = 2.0f * pixelScale * static_cast<float>(tilingInfo.w),
+        .h = 2.0f * pixelScale * static_cast<float>(tilingInfo.h),
     };
     if (!SDL_RenderTexture(renderer, texture, nullptr, &destRect)) {
         capture.error.println("Failed to render background tile texture: ", SDL_GetError());

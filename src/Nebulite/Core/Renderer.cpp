@@ -108,6 +108,7 @@ void Renderer::setupDisplayValues() {
     auto const resX = Global::settings().get<uint16_t>(Module::Domain::GlobalSpace::Settings::Key::resolutionX).value_or(1000);
     auto const resY = Global::settings().get<uint16_t>(Module::Domain::GlobalSpace::Settings::Key::resolutionX).value_or(1000);
     windowScale = Global::settings().get<uint8_t>(Module::Domain::GlobalSpace::Settings::Key::resolutionScaling).value_or(1);
+    pixelScale = static_cast<float>(windowScale) * SDL_GetWindowDisplayScale(window);
     fps.target = Global::settings().get<uint16_t>(Module::Domain::GlobalSpace::Settings::Key::targetFps).value_or(60);
 
     // Set in workspace
@@ -685,6 +686,7 @@ void Renderer::changeWindowSize(int const w, int const h, std::uint8_t  const sc
 
     // Set new scalar
     windowScale = scalar;
+    pixelScale = static_cast<float>(windowScale) * SDL_GetWindowDisplayScale(window);
 
     // Set the new resolution in the workspace
     domainScope.set<int>(Constants::KeyNames::Renderer::dispResXWindow, w * windowScale);
@@ -739,12 +741,11 @@ void Renderer::moveCam(int const dX, int const dY) const {
 }
 
 SDL_FRect Renderer::scaleRectFromLogicalSize(SDL_FRect const& logicalRect) const {
-    auto const scale = static_cast<float>(windowScale);
     return SDL_FRect{
-        .x=logicalRect.x * scale,
-        .y=logicalRect.y * scale,
-        .w=logicalRect.w * scale,
-        .h=logicalRect.h * scale,
+        .x=logicalRect.x * pixelScale,
+        .y=logicalRect.y * pixelScale,
+        .w=logicalRect.w * pixelScale,
+        .h=logicalRect.h * pixelScale,
     };
 }
 
@@ -811,7 +812,7 @@ void Renderer::renderFrame() {
                     capture,
                     dispPosX,
                     dispPosY,
-                    windowScale
+                    pixelScale
                 );
             });
         }

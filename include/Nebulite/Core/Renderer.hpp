@@ -498,10 +498,13 @@ private:
     // Custom Subclasses
     Environment env;
 
-    // Rendering
+    // Scaling
+    // TODO: Add event trigger to re-calculate pixelScale!
     std::uint8_t windowScale = 1;
-    SDL_Window* window{};
+    float pixelScale = 1.0;
 
+    // SDL-Related
+    SDL_Window* window{};
     SDL_Renderer* renderer{};
 
     //------------------------------------------
