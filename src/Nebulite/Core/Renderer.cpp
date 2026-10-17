@@ -134,7 +134,7 @@ void Renderer::initImgui() {
     ImPlot::CreateContext();
 
     // Pixel-friendly ImGui style for retro RPGs
-    ImGuiStyle &style = ImGui::GetStyle();
+    auto& style = ImGui::GetStyle();
 
     // Rounding
     style.WindowRounding = 0.0f;
@@ -162,8 +162,9 @@ void Renderer::initImgui() {
     style.AntiAliasedFill  = false;
 
     // Scaling
-    float const fullScale = SDL_GetDisplayContentScale(SDL_GetPrimaryDisplay()) * static_cast<float>(windowScale) * 0.6f; // adjust to taste
+    float const fullScale = pixelScale * static_cast<float>(windowScale) * 0.6f; // adjust to taste
     style.FontScaleDpi = fullScale;
+    style.ScaleAllSizes(SDL_GetWindowDisplayScale(window));
 
     // Color palette: dark backgrounds, warm accent for UI (tweak hex to taste)
     auto constexpr layer0  = ImVec4(0.05f, 0.07f, 0.10f, 1.00f); // deep navy
@@ -472,7 +473,20 @@ void Renderer::pollEvents() {
         events.push_back(event);
 
         // Handle quit event
-        if (event.type == SDL_EVENT_QUIT) { status.quit = true; }
+        if (event.type == SDL_EVENT_QUIT) {
+            status.quit = true;
+        }
+
+        // Handle change in Scale
+        if (event.type == SDL_EVENT_WINDOW_DISPLAY_SCALE_CHANGED) {
+            auto const newScale = SDL_GetWindowDisplayScale(window);
+            auto const oldScale = pixelScale / static_cast<float>(windowScale);
+            auto const scaleDiff = newScale / oldScale;
+            auto& style = ImGui::GetStyle();
+            style.ScaleAllSizes(scaleDiff);
+
+            pixelScale = newScale * static_cast<float>(windowScale);
+        }
     }
 }
 
