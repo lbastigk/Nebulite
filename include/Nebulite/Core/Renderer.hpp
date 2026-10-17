@@ -264,11 +264,18 @@ public:
     void moveCam(int dX, int dY) const;
 
     /**
-     * @brief Scales a rectangle from logical size to window size based on the current window scale factor.
+     * @brief Scales a rectangle from logical size to window size.
      * @param logicalRect The rect from the logical coordinate system to scale.
      * @return The rect in the window coordinate system
      */
     [[nodiscard]] SDL_FRect scaleRectFromLogicalSize(SDL_FRect const& logicalRect) const ;
+
+    /**
+     * @brief Scales a rect from logical size to the ImGui renderer window size.
+     * @param logicalRect The rect from the logical coordinate system to scale.
+     * @return The rect in the window coordinate system
+     */
+    [[nodiscard]] SDL_FRect scaleRectFromLogicalSizeForImgui(SDL_FRect const& logicalRect) const ;
 
     //------------------------------------------
     // Getting
@@ -330,6 +337,16 @@ public:
      * @brief Gets the current window scale factor.
      */
     [[nodiscard]] unsigned int getWindowScale() const noexcept { return windowScale; }
+
+    /**
+     * @brief Sets a debug multiplier for mouse coordinates forwarded to Dear ImGui.
+     */
+    void setImguiMouseScale(float scale) noexcept { imguiMouseScale = scale; }
+
+    /**
+     * @brief Sets a debug multiplier for Dear ImGui's SDL render pass.
+     */
+    void setImguiRenderScale(float scale) noexcept { imguiRenderScale = scale; }
 
     //------------------------------------------
     // Texture-Related
@@ -502,6 +519,8 @@ private:
     // TODO: Add event trigger to re-calculate pixelScale!
     std::uint8_t windowScale = 1;
     float pixelScale = 1.0;
+    float imguiMouseScale = 1.0f;
+    float imguiRenderScale = 1.0f;
 
     // SDL-Related
     SDL_Window* window{};

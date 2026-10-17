@@ -108,7 +108,7 @@ void Renderer::setupDisplayValues() {
     auto const resX = Global::settings().get<uint16_t>(Module::Domain::GlobalSpace::Settings::Key::resolutionX).value_or(1000);
     auto const resY = Global::settings().get<uint16_t>(Module::Domain::GlobalSpace::Settings::Key::resolutionX).value_or(1000);
     windowScale = Global::settings().get<uint8_t>(Module::Domain::GlobalSpace::Settings::Key::resolutionScaling).value_or(1);
-    pixelScale = static_cast<float>(windowScale) * SDL_GetWindowDisplayScale(window);
+    pixelScale = static_cast<float>(windowScale);
     fps.target = Global::settings().get<uint16_t>(Module::Domain::GlobalSpace::Settings::Key::targetFps).value_or(60);
 
     // Set in workspace
@@ -162,9 +162,8 @@ void Renderer::initImgui() {
     style.AntiAliasedFill  = false;
 
     // Scaling
-    float const fullScale = pixelScale * static_cast<float>(windowScale) * 0.6f; // adjust to taste
+    float const fullScale = static_cast<float>(windowScale) * 0.6f; // adjust to taste
     style.FontScaleDpi = fullScale;
-    style.ScaleAllSizes(SDL_GetWindowDisplayScale(window));
 
     // Color palette: dark backgrounds, warm accent for UI (tweak hex to taste)
     auto constexpr layer0  = ImVec4(0.05f, 0.07f, 0.10f, 1.00f); // deep navy
@@ -270,6 +269,7 @@ void Renderer::initSdl() {
         std::abort();
     }
     SDL_SetWindowPosition(window, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED);
+    pixelScale = static_cast<float>(windowScale) * SDL_GetWindowDisplayScale(window);
 
     //------------------------------------------
     // UI
@@ -480,11 +480,7 @@ void Renderer::pollEvents() {
         // Handle change in Scale
         if (event.type == SDL_EVENT_WINDOW_DISPLAY_SCALE_CHANGED) {
             auto const newScale = SDL_GetWindowDisplayScale(window);
-            auto const oldScale = pixelScale / static_cast<float>(windowScale);
-            auto const scaleDiff = newScale / oldScale;
-            auto& style = ImGui::GetStyle();
-            style.ScaleAllSizes(scaleDiff);
-
+            imguiRenderScale = newScale;
             pixelScale = newScale * static_cast<float>(windowScale);
         }
     }
@@ -497,7 +493,22 @@ void Renderer::render() {
     // Event polling and processing
     pollEvents();
     for (auto const& event : events) {
-        ImGui_ImplSDL3_ProcessEvent(&event);
+        if (event.type == SDL_EVENT_MOUSE_MOTION) {
+            SDL_Event imguiEvent = event;
+            imguiEvent.motion.x *= imguiMouseScale;
+            imguiEvent.motion.y *= imguiMouseScale;
+            ImGui_ImplSDL3_ProcessEvent(&imguiEvent);
+        }
+        else if (event.type == SDL_EVENT_MOUSE_BUTTON_DOWN || event.type == SDL_EVENT_MOUSE_BUTTON_UP) {
+            SDL_Event imguiEvent = event;
+            imguiEvent.button.x *= imguiMouseScale;
+            imguiEvent.button.y *= imguiMouseScale;
+            ImGui_ImplSDL3_ProcessEvent(&imguiEvent);
+        }
+        else {
+            ImGui_ImplSDL3_ProcessEvent(&event);
+        }
+
 
         // Skip tab key if Imgui wants text input. Otherwise, RmlUi tries to focus some element.
         if (event.type == SDL_EVENT_KEY_DOWN && event.key.scancode == SDL_SCANCODE_TAB && ImGui::GetIO().WantTextInput) {
@@ -542,7 +553,9 @@ void Renderer::render() {
     // Finalize render
     if (status.showFps) renderFps();
     ImGui::Render();
+    SDL_SetRenderScale(renderer, imguiRenderScale, imguiRenderScale);
     ImGui_ImplSDLRenderer3_RenderDrawData(ImGui::GetDrawData(), renderer);
+    SDL_SetRenderScale(renderer, 1.0f, 1.0f);
 
     // Present frame
     SDL_RenderPresent(renderer);
@@ -698,7 +711,7 @@ void Renderer::changeWindowSize(int const w, int const h, std::uint8_t  const sc
     auto const currentCenterX = domainScope.get<int>(Constants::KeyNames::Renderer::positionX).value_or(0) + domainScope.get<int>(Constants::KeyNames::Renderer::dispResXLogical).value_or(0) / 2;
     auto const currentCenterY = domainScope.get<int>(Constants::KeyNames::Renderer::positionY).value_or(0) + domainScope.get<int>(Constants::KeyNames::Renderer::dispResYLogical).value_or(0) / 2;
 
-    // Set new scalar
+    // Set new scalar, recalculate pixelScale
     windowScale = scalar;
     pixelScale = static_cast<float>(windowScale) * SDL_GetWindowDisplayScale(window);
 
@@ -760,6 +773,16 @@ SDL_FRect Renderer::scaleRectFromLogicalSize(SDL_FRect const& logicalRect) const
         .y=logicalRect.y * pixelScale,
         .w=logicalRect.w * pixelScale,
         .h=logicalRect.h * pixelScale,
+    };
+}
+
+SDL_FRect Renderer::scaleRectFromLogicalSizeForImgui(SDL_FRect const& logicalRect) const {
+    auto const scalar = static_cast<float>(windowScale);
+    return SDL_FRect{
+        .x=logicalRect.x * scalar,
+        .y=logicalRect.y * scalar,
+        .w=logicalRect.w * scalar,
+        .h=logicalRect.h * scalar,
     };
 }
 
