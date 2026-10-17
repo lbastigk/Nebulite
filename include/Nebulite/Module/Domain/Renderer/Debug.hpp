@@ -29,10 +29,28 @@ public:
 
     [[nodiscard]] Constants::Event scale(Utility::Args::SegmentedStringView const& args) const;
 
-    static auto constexpr scaleName = "scale";
+    static auto constexpr scaleName = "imguidb scale";
     static auto constexpr scaleDesc = "Scales all Dear ImGui style sizes.\n"
         "\n"
         "Usage: imguidb scale <scale>\n";
+
+    [[nodiscard]] Constants::Event framebufferScale(Utility::Args::SegmentedStringView const& args) const;
+    static auto constexpr framebufferScaleName = "imguidb framebuffer-scale";
+    static auto constexpr framebufferScaleDesc = "Overrides Dear ImGui's framebuffer scale for the current frame.\n"
+        "\n"
+        "Usage: imguidb framebuffer-scale <scale>\n";
+
+    [[nodiscard]] Constants::Event mouseScale(Utility::Args::SegmentedStringView const& args) const;
+    static auto constexpr mouseScaleName = "imguidb mouse-scale";
+    static auto constexpr mouseScaleDesc = "Scales mouse coordinates forwarded to Dear ImGui.\n"
+        "\n"
+        "Usage: imguidb mouse-scale <scale>\n";
+
+    [[nodiscard]] Constants::Event renderScale(Utility::Args::SegmentedStringView const& args) const;
+    static auto constexpr renderScaleName = "imguidb render-scale";
+    static auto constexpr renderScaleDesc = "Scales Dear ImGui vertices during its SDL render pass.\n"
+        "\n"
+        "Usage: imguidb render-scale <scale>\n";
 
     //------------------------------------------
     // Categories
