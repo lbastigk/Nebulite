@@ -516,7 +516,6 @@ private:
     Environment env;
 
     // Scaling
-    // TODO: Add event trigger to re-calculate pixelScale!
     std::uint8_t windowScale = 1;
     float pixelScale = 1.0;
     float imguiMouseScale = 1.0f;
