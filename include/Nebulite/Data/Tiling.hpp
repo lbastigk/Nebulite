@@ -114,7 +114,7 @@ public:
      * @param capture The capture instance for logging errors during texture creation and rendering
      * @param dispPosX The display position, horizontally
      * @param dispPosY The display position, vertically
-     * @param windowScale The scaling factor of the window
+     * @param pixelScale The scaling factor of the tile texture
      */
     void render(
         Core::Renderer& nebuliteRenderer,
@@ -123,7 +123,7 @@ public:
         Utility::Io::Capture& capture,
         int dispPosX,
         int dispPosY,
-        int windowScale
+        float pixelScale
     );
 };
 
