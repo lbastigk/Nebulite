@@ -46,6 +46,7 @@
 // Renderer
 #include "Nebulite/Module/Domain/Renderer/Audio.hpp"
 #include "Nebulite/Module/Domain/Renderer/Console.hpp"
+#include "Nebulite/Module/Domain/Renderer/Debug.hpp"
 #include "Nebulite/Module/Domain/Renderer/General.hpp"
 #include "Nebulite/Module/Domain/Renderer/Input.hpp"
 #include "Nebulite/Module/Domain/Renderer/RenderObjectDraft.hpp"
@@ -242,6 +243,11 @@ void Initializer::initRenderer(Core::Renderer* target) {
     );
     target->initModule<Core::Renderer, Console>(
         "Renderer Console Functions",
+        Global::settings(),
+        *target
+    );
+    target->initModule<Core::Renderer, Debug>(
+        "Renderer Debug Functions",
         Global::settings(),
         *target
     );
