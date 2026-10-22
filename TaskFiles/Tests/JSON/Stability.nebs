@@ -1,0 +1,38 @@
+# General JSON stability checks that span several document operations.
+
+# Sparse arrays must preserve their size without inventing values for holes.
+set sparse[3] three
+eval nop {global:sparse|assert type array}
+eval nop {global:sparse|length|assert equals int 4}
+eval nop {global:sparse[0]|typeAsString|assert equals string object:0}
+eval nop {global:sparse[1]|typeAsString|assert equals string object:0}
+eval nop {global:sparse[2]|typeAsString|assert equals string object:0}
+eval nop {global:sparse[3]|assert equals string three}
+
+# Replacing a hole and then replacing it repeatedly must not retain stale data.
+set sparse[1] one
+eval nop {global:sparse[1]|assert equals string one}
+set sparse[1] 11
+eval nop {global:sparse[1]|assert equals int 11}
+set sparse[1] one-again
+eval nop {global:sparse[1]|assert equals string one-again}
+
+# Assigning a document must create an independent document value.
+set source.value original
+set source.nested.member before
+assign global:copy = {global:source}
+set source.value changed
+set source.nested.member after
+eval nop {global:copy.value|assert equals string original}
+eval nop {global:copy.nested.member|assert equals string before}
+set copy.value copy-only
+eval nop {global:source.value|assert equals string changed}
+eval nop {global:copy.value|assert equals string copy-only}
+
+# Removing a member from a transformed copy must not mutate the source.
+assign global:withoutNested = {global:source|removeMember nested}
+eval nop {global:source.nested.member|assert equals string after}
+eval nop {global:withoutNested.nested|assert empty}
+eval nop {global:withoutNested.value|assert equals string changed}
+
+exit

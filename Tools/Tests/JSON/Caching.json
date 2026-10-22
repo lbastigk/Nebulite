@@ -15,6 +15,14 @@
         "expected": { "cout": [], "cerr": [] }
     },
     {
+        "command": "task TaskFiles/Tests/JSON/Caching/nestedChildInvalidation.nebs",
+        "expected": { "cout": [], "cerr": [] }
+    },
+    {
+        "command": "task TaskFiles/Tests/JSON/Caching/typeTransition.nebs",
+        "expected": { "cout": [], "cerr": [] }
+    },
+    {
         "command": "task TaskFiles/Tests/JSON/Caching/setSubDoc.nebs",
         "expected": {
             "cout": [

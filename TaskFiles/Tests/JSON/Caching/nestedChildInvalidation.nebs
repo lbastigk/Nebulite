@@ -1,0 +1,23 @@
+# Reading nested values warms cache entries before the parent is replaced.
+set document.branch.leaf.value 10
+set document.branch.leaf.items[0] first
+set document.branch.leaf.items[1] second
+
+eval nop {global:document.branch.leaf.value|assert equals int 10}
+eval nop {global:document.branch.leaf.items[0]|assert equals string first}
+
+# Replacing the parent must invalidate every cached descendant.
+set document.branch replacement
+eval nop {global:document.branch|assert equals string replacement}
+eval nop {global:document.branch.leaf|assert empty}
+eval nop {global:document.branch.leaf.value|assert empty}
+eval nop {global:document.branch.leaf.items|assert empty}
+eval nop {global:document.branch.leaf.items[0]|assert empty}
+
+# The path can be rebuilt after invalidation without stale values reappearing.
+set document.branch.leaf.value 20
+set document.branch.leaf.items[0] rebuilt
+eval nop {global:document.branch.leaf.value|assert equals int 20}
+eval nop {global:document.branch.leaf.items[0]|assert equals string rebuilt}
+
+exit
