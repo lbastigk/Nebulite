@@ -52,6 +52,8 @@
         "Tools/Tests/JSON/Basics.json",
         "Tools/Tests/JSON/Caching.json",
         "Tools/Tests/JSON/ComplexData.json",
+        "Tools/Tests/JSON/LargeScale.json",
+        "Tools/Tests/JSON/Stability.json",
         "Tools/Tests/JSON/TransformationBasics.json", // Test of basic transformation syntax, not specific to any particular transformation
         //---------------------------------------
         // JSON transformation tests

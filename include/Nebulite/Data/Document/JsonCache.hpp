@@ -30,18 +30,47 @@ namespace Nebulite::Data {
  */
 static auto constexpr cachelineSize = 1024 / sizeof(double);
 
-/**
- * @brief Pre-allocated cacheline for fast double value access.
- * @details Instead of always allocating new double values, we use a pre-allocated cacheline.
- *          This reduces memory fragmentation and improves cache locality.
- */
-using CacheLine = std::array<double, cachelineSize>;
-
 // Make sure cache size is a power of two for optimal performance
 static_assert(Utility::CompileTimeEvaluate::isPowerOfTwo(cachelineSize), "cachelineSize must be a power of two for optimal performance.");
+static_assert(cachelineSize > 0, "cachelineSize must be positive.");
 
 /**
- * @struct CacheEntry
+ * @brief Handles fixed size continuous memory cache allocation
+ */
+class CacheAllocator {
+    using CacheLine = std::array<double, cachelineSize>;
+
+    std::vector<std::unique_ptr<CacheLine>> cacheLines;
+    std::size_t currentCacheLineIndex = 0;
+    double initValue;
+
+public:
+    CacheAllocator(double iv);
+
+    // No copy, allow move
+    CacheAllocator(CacheAllocator const&) = delete;
+    CacheAllocator& operator=(CacheAllocator const&) = delete;
+    CacheAllocator(CacheAllocator&& /*other*/) noexcept ;
+    CacheAllocator& operator=(CacheAllocator&& /*other*/) noexcept ;
+
+    ~CacheAllocator();
+
+    template<std::size_t N>
+    double* allocate() {
+        static_assert(N > 0, "N must be greater than 0");
+        static_assert(N <= cachelineSize, "Requested amount is too large");
+        if (currentCacheLineIndex + N > cachelineSize) {
+            cacheLines.emplace_back(std::make_unique<CacheLine>(CacheLine{initValue}));
+            currentCacheLineIndex = 0;
+        }
+        double* result = cacheLines.back()->data() + currentCacheLineIndex;
+        currentCacheLineIndex += N;
+        return result;
+    }
+};
+
+/**
+ * @class CacheEntry
  * @brief Represents a cached entry in the JSON document, including its value, state, and stable pointer for double values.
  */
 struct CacheEntry {
@@ -49,6 +78,37 @@ struct CacheEntry {
      * @brief Standard numeric value used for initializing cache entries and failed variant conversions
      */
     static double constexpr standardNumericValue = 0.0;
+
+    //------------------------------------------
+    // Constructors
+
+    CacheEntry([[clang::lifetimebound]] CacheAllocator& allocator);
+
+    ~CacheEntry();
+
+    //------------------------------------------
+    // No copying or moving
+
+    CacheEntry(CacheEntry const&) = delete;
+    CacheEntry& operator=(CacheEntry const&) = delete;
+    CacheEntry(CacheEntry&&) = delete;
+    CacheEntry& operator=(CacheEntry&&) = delete;
+
+    [[nodiscard]] bool stableDoublePointerWasModified() const ;
+
+    void updateNumericValue();
+
+    void markAsDeleted();
+
+    void setValueClean(RjDirectAccess::SimpleValue const& newValue);
+
+    void setValueDirty(RjDirectAccess::SimpleValue const& newValue);
+
+    template <typename NewType>
+    std::optional<NewType> convertTo();
+
+    //------------------------------------------
+    // Data members
 
     /**
      * @enum State
@@ -69,51 +129,17 @@ struct CacheEntry {
         malformed, // A key that is known to be malformed due to transformations. Used in getStableDoublePointer for integrity.
     };
 
-    //------------------------------------------
-    // No copying or moving
-
-    CacheEntry(CacheEntry const&) = delete;
-    CacheEntry& operator=(CacheEntry const&) = delete;
-    CacheEntry(CacheEntry&&) = delete;
-    CacheEntry& operator=(CacheEntry&&) = delete;
-
-    //------------------------------------------
-    // Data members
-
     RjDirectAccess::SimpleValue value = standardNumericValue;
-    double lastDoubleValue = standardNumericValue;
+    double* lastDoubleValue = nullptr;
     double* stableDoublePointer = nullptr; // Stable pointer to double value
     State state = State::dirty; // Default to dirty: each new entry needs flushing
-    bool managedInternalDouble = false; // Whether the stable double pointer is managed internally or externally (from cacheline)
-
-    CacheEntry([[clang::lifetimebound]] CacheLine& cl, std::size_t& index);
-
-    ~CacheEntry();
-
-    void updateNumericValue();
-
-    void markAsDeleted();
-
-    void setValueClean(RjDirectAccess::SimpleValue const& newValue);
-
-    void setValueDirty(RjDirectAccess::SimpleValue const& newValue);
-
-    template <typename NewType>
-    std::optional<NewType> convertTo();
 };
 
 class JsonCache {
     /**
-     * @brief Pre-allocated cacheline for fast, cache-friendly access to double values.
-     * @details Should stay unique_ptr to ensure the addresses never change.
-     *          With a normal array, the would change on a move, which would invalidate all stable double pointers!
+     * @brief Allocation of numeric values (both the stable double pointer and its reference value)
      */
-    std::unique_ptr<CacheLine> cacheLine;
-
-    /**
-     * @brief Current index in the cacheline for the next double value.
-     */
-    std::size_t cacheLineIndex = 0;
+    CacheAllocator allocator;
 
     /**
      * @brief The Caching system used for fast access to frequently used values.
