@@ -1,0 +1,10 @@
+[
+    {
+        "command": "task TaskFiles/Tests/JSON/Stability.nebs",
+        "expected": { "cout": [], "cerr": [] }
+    },
+    {
+        "command": "task TaskFiles/Tests/JSON/ScalarRoundTrip.nebs",
+        "expected": { "cout": [], "cerr": [] }
+    }
+]

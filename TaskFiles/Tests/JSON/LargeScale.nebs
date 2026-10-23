@@ -1,0 +1,23 @@
+# Build a large nested document to exercise cache growth and repeated lookups.
+for i 0 127 set dataset.records[{i}].id {i}
+for i 0 127 set dataset.records[{i}].label record-{i}
+
+eval nop {global:dataset.records|assert type array}
+eval nop {global:dataset.records|length|assert equals int 128}
+for i 0 127 eval nop {global:dataset.records[{i}].id|assert equals int {i}}
+for i 0 127 eval nop {global:dataset.records[{i}].label|assert equals string record-{i}}
+
+# Mutating one nested entry must preserve its siblings and invalidate its old child.
+set dataset.records[64] replaced
+eval nop {global:dataset.records[63].id|assert equals int 63}
+eval nop {global:dataset.records[64]|assert equals string replaced}
+eval nop {global:dataset.records[64].id|assert empty}
+eval nop {global:dataset.records[65].label|assert equals string record-65}
+
+# Rebuild the replaced entry and verify the cache can serve the new structure.
+set dataset.records[64].id 640
+set dataset.records[64].label rebuilt
+eval nop {global:dataset.records[64].id|assert equals int 640}
+eval nop {global:dataset.records[64].label|assert equals string rebuilt}
+
+exit

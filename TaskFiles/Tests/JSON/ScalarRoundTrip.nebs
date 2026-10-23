@@ -1,0 +1,25 @@
+# Scalar values must survive serialize/deserialize without changing type or value.
+set values.string hello
+assign global:values.int = $i(-42)
+assign global:values.double = $(3.125)
+assign global:values.bool = {|add 0|not}
+
+assign global:serialized = {global:values|serialize}
+assign global:roundTrip = {global:serialized|deserialize}
+
+eval nop {global:roundTrip.string|assert equals string hello}
+eval nop {global:roundTrip.int|assert equals int -42}
+eval nop {global:roundTrip.double|assert equals string 3.125}
+eval nop {global:roundTrip.bool|assert equals string true}
+eval nop {global:roundTrip.int|typeAsString|assert equals string value:int:64}
+eval nop {global:roundTrip.double|typeAsString|assert equals string value:float:64}
+
+# A second round-trip catches cache entries that remain tied to the first document.
+assign global:serializedAgain = {global:roundTrip|serialize}
+assign global:roundTripAgain = {global:serializedAgain|deserialize}
+eval nop {global:roundTripAgain.string|assert equals string hello}
+eval nop {global:roundTripAgain.int|assert equals int -42}
+eval nop {global:roundTripAgain.double|assert equals string 3.125}
+eval nop {global:roundTripAgain.bool|assert equals string true}
+
+exit

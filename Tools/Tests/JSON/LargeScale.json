@@ -1,0 +1,6 @@
+[
+    {
+        "command": "task TaskFiles/Tests/JSON/LargeScale.nebs",
+        "expected": { "cout": [], "cerr": [] }
+    }
+]

@@ -2,46 +2,56 @@
 // Includes
 
 // Standard library
-#include <cstddef>
+#include <bit>
 #include <cstdint> // NOLINT
 #include <memory>
 #include <optional>
 #include <string>
 #include <string_view>
+#include <utility>
 
 // Nebulite
 #include "Nebulite/Data/Document/JsonCache.hpp"
 #include "Nebulite/Data/Document/RjDirectAccess.hpp"
-#include "Nebulite/Math/Equality.hpp"
 
 //------------------------------------------
 namespace Nebulite::Data {
 
-CacheEntry::CacheEntry([[clang::lifetimebound]] CacheLine& cl, std::size_t& index) {
-    if (index >= cachelineSize) [[unlikely]] {
-        stableDoublePointer = new double(standardNumericValue);
-        managedInternalDouble = true;
-    }
-    else [[likely]] {
-        // Assign stable double pointer from cacheline
-        stableDoublePointer = &cl[index];
-        index++;
-        *stableDoublePointer = standardNumericValue;
-        managedInternalDouble = false;
-    }
+CacheAllocator::CacheAllocator(double const iv) : initValue(iv) {
+    cacheLines.emplace_back(std::make_unique<CacheLine>(CacheLine{initValue}));
 }
 
-CacheEntry::~CacheEntry() {
-    if (managedInternalDouble) {
-        delete stableDoublePointer;
-    }
+CacheAllocator::CacheAllocator(CacheAllocator&& other) noexcept
+    : cacheLines(std::move(other.cacheLines))
+    , currentCacheLineIndex(other.currentCacheLineIndex)
+    , initValue(other.initValue) {}
+
+CacheAllocator& CacheAllocator::operator=(CacheAllocator&& other) noexcept {
+    cacheLines = std::move(other.cacheLines);
+    currentCacheLineIndex = other.currentCacheLineIndex;
+    initValue = other.initValue;
+    return *this;
+}
+
+CacheAllocator::~CacheAllocator() = default;
+
+CacheEntry::CacheEntry([[clang::lifetimebound]] CacheAllocator& allocator) : stableDoublePointer(allocator.allocate<2>()) {
+    lastDoubleValue = stableDoublePointer + 1;
+}
+
+CacheEntry::~CacheEntry() = default;
+
+bool CacheEntry::stableDoublePointerWasModified() const {
+    // Since on every clean write we set both values equal, this compare should be fine
+    // It detects any outside modification of the value of stableDoublePointer
+    return std::bit_cast<std::uint64_t>(*stableDoublePointer) != std::bit_cast<std::uint64_t>(*lastDoubleValue);
 }
 
 void CacheEntry::updateNumericValue(){
-    if (!Math::isEqualAllowNan(*stableDoublePointer, lastDoubleValue)) {
+    if (stableDoublePointerWasModified()) {
         // Value changed since last check
-        lastDoubleValue = *stableDoublePointer;
-        value = lastDoubleValue;
+        *lastDoubleValue = *stableDoublePointer;
+        value = *stableDoublePointer;
         state = State::dirty;
     }
 }
@@ -50,31 +60,31 @@ void CacheEntry::markAsDeleted() {
     state = State::deleted;
     value = standardNumericValue;
     *stableDoublePointer = standardNumericValue;
-    lastDoubleValue = standardNumericValue;
+    *lastDoubleValue = standardNumericValue;
 }
 
 void CacheEntry::setValueClean(RjDirectAccess::SimpleValue const& newValue) {
     state = State::clean;
     value = newValue;
     *stableDoublePointer = convertTo<double>().value_or(standardNumericValue);
-    lastDoubleValue = *stableDoublePointer;
+    *lastDoubleValue = *stableDoublePointer;
 }
 
 void CacheEntry::setValueDirty(RjDirectAccess::SimpleValue const& newValue) {
     state = State::dirty;
     value = newValue;
     *stableDoublePointer = convertTo<double>().value_or(standardNumericValue);
-    lastDoubleValue = *stableDoublePointer;
+    *lastDoubleValue = *stableDoublePointer;
 }
 
 CacheEntry& JsonCache::createNewCacheEntry(std::string_view const key) {
-    auto newEntry = std::make_shared<CacheEntry>(*cacheLine, cacheLineIndex);
+    auto newEntry = std::make_shared<CacheEntry>(allocator);
     cache[key] = newEntry;
     cacheVector.emplace_back(std::string(key), newEntry);
     return *newEntry.get();
 }
 
-JsonCache::JsonCache() : cacheLine(std::make_unique<CacheLine>()) {}
+JsonCache::JsonCache() : allocator(CacheEntry::standardNumericValue) {}
 
 JsonCache::JsonCache(JsonCache&& other) noexcept = default;
 

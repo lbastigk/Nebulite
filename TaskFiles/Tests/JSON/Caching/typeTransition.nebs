@@ -1,0 +1,28 @@
+# Exercise object, array, and scalar replacement at the same cached path.
+set state.payload.name before
+set state.payload.values[0] 1
+set state.payload.values[1] 2
+
+eval nop {global:state.payload.name|assert equals string before}
+eval nop {global:state.payload.values[1]|assert equals int 2}
+
+# Object -> array: old object members must no longer be visible.
+set state.payload[0] array-zero
+eval nop {global:state.payload|assert type array}
+eval nop {global:state.payload.name|assert empty}
+eval nop {global:state.payload.values|assert empty}
+eval nop {global:state.payload[0]|assert equals string array-zero}
+
+# Array -> scalar: indexed descendants must be invalidated.
+set state.payload scalar
+eval nop {global:state.payload|assert equals string scalar}
+eval nop {global:state.payload[0]|assert empty}
+
+# Scalar -> object: creating a member must replace the scalar cleanly.
+set state.payload.name after
+eval nop {global:state.payload|assert type object}
+eval nop {global:state.payload|listMembers|length|assert equals int 1}
+eval nop {global:state.payload.name|assert equals string after}
+eval nop {global:state.payload[0]|assert empty}
+
+exit
