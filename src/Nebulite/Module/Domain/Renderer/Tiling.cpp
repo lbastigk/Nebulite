@@ -139,7 +139,7 @@ namespace Nebulite::Module::Domain::Renderer {
 
 Constants::Event Tiling::tileInfoToggle(Utility::Args::SegmentedStringView const& args) {
     if (args.size() > 2) return Constants::StandardCapture::Warning::Functional::tooManyArgs(domain.capture);
-    if (args.empty()) {
+    if (args.size() == 1) {
         tileInfoOn = !tileInfoOn;
         return Constants::Event::success;
     }
@@ -157,7 +157,7 @@ Constants::Event Tiling::tileInfoToggle(Utility::Args::SegmentedStringView const
 
 Constants::Event Tiling::gridToggle(Utility::Args::SegmentedStringView const& args) {
     if (args.size() > 2) return Constants::StandardCapture::Warning::Functional::tooManyArgs(domain.capture);
-    if (args.empty()) {
+    if (args.size() == 1) {
         gridOn = !gridOn;
         return Constants::Event::success;
     }
