@@ -57,11 +57,14 @@ bool Array::at(Utility::Args::SegmentedStringView const& args, Data::JsonScope& 
         if (!ensureArray(jsonDoc)) {
             return false;
         }
-        auto const index = std::stoul(std::string(args.at(1)));
+        auto const index = args.tryGetAs<std::size_t>(1);
+        if (!index) {
+            return false; // Failed to convert index
+        }
         if (index >= jsonDoc.memberSize(rootKey)) {
             return false; // Index out of bounds
         }
-        Data::Json const temp = jsonDoc.getSubDoc(rootKey.addIndex(index));
+        Data::Json const temp = jsonDoc.getSubDoc(rootKey.addIndex(index.value()));
         jsonDoc.setSubDoc(rootKey, temp);
         return true;
     } catch (...) {

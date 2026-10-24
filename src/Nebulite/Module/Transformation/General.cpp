@@ -35,9 +35,11 @@ bool General::setInt(Utility::Args::SegmentedStringView const& args, Data::JsonS
     if (args.size() != 3) return false;
     auto const key = rootKey.addMember(args[1]);
     try {
-        int const value = std::stoi(std::string(args[2]));
-        jsonDoc.set<int>(key, value);
-        return true;
+        if (auto const value = args.tryGetAs<int>(2); value) {
+            jsonDoc.set<int>(key, value.value());
+            return true;
+        }
+        return false;
     } catch (...) {
         return false;
     }
@@ -47,9 +49,11 @@ bool General::setDouble(Utility::Args::SegmentedStringView const& args, Data::Js
     if (args.size() != 3) return false;
     auto const key = rootKey.addMember(args[1]);
     try {
-        double const value = std::stod(std::string(args[2]));
-        jsonDoc.set<double>(key, value);
-        return true;
+        if (auto const value = args.tryGetAs<double>(2); value) {
+            jsonDoc.set<double>(key, value.value());
+            return true;
+        }
+        return false;
     } catch (...) {
         return false;
     }
