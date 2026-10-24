@@ -184,10 +184,10 @@ Constants::Event General::assertFunc(Utility::Args::SegmentedStringView const& a
     if (args.size() < 2) {
         return Constants::StandardCapture::Warning::Functional::tooFewArgs(ctx.self.capture);
     }
-    std::string const& condition = args.recombineSubspan(1);
+    auto const condition = args.subspan(1);
 
     // condition must start with $( and end with ): Simple expressions are boolean-convertible
-    if (condition.front() != '$' || condition[1] != '(' || condition.back() != ')') {
+    if (!condition.beginsWith("$(") || !condition.endsWith(')')) {
         return Constants::StandardCapture::Warning::Functional::unknownArg(ctx.self.capture);
     }
 
@@ -195,11 +195,11 @@ Constants::Event General::assertFunc(Utility::Args::SegmentedStringView const& a
     // We ensured that the condition is wrapped in $() above, but there could still be parsing errors (missing parenthesis etc.)
     Interaction::Logic::Expression const expr(condition);
     if (!expr.isReturnableAsBool()) {
-        ctx.self.capture.error.println("Critical Error: A custom assertion failed.\nAssertion failed: " + condition + " is not a boolean expression.");
+        ctx.self.capture.error.println("Critical Error: A custom assertion failed.\nAssertion failed: " + condition.recombine() + " is not a boolean expression.");
         return Constants::Event::error;
     }
     if (!expr.evalAsBool(ctxScope, Utility::Promise<Utility::PromiseType::FunctionVerified, &Interaction::Logic::Expression::isReturnableAsBool>{})) {
-        ctx.self.capture.error.println("Critical Error: A custom assertion failed.\nAssertion failed: " + condition + " is not true.");
+        ctx.self.capture.error.println("Critical Error: A custom assertion failed.\nAssertion failed: " + condition.recombine() + " is not true.");
         return Constants::Event::error;
     }
 
@@ -218,16 +218,14 @@ Constants::Event General::forwardToOther(Utility::Args::SegmentedStringView cons
     if (args.size() < 2) {
         return Constants::StandardCapture::Warning::Functional::tooFewArgs(ctx.self.capture);
     }
-    auto const argStr = args.recombine();
-    return ctx.other.parseStr(argStr, ctx, ctxScope);
+    return ctx.other.parse(args, ctx, ctxScope);
 }
 
 Constants::Event General::forwardToGlobal(Utility::Args::SegmentedStringView const& args, Interaction::Context& ctx, Interaction::ContextScope& ctxScope) {
     if (args.size() < 2) {
         return Constants::StandardCapture::Warning::Functional::tooFewArgs(ctx.self.capture);
     }
-    auto const argStr = args.recombine();
-    return ctx.global.parseStr(argStr, ctx, ctxScope);
+    return ctx.global.parse(args, ctx, ctxScope);
 }
 
 Constants::Event General::reparseInOther(Utility::Args::SegmentedStringView const& args, Interaction::Context const& ctx, Interaction::ContextScope const& ctxScope) {
@@ -308,10 +306,10 @@ Constants::Event General::capture(Utility::Args::SegmentedStringView const& args
     }
 
     // Parse
-    auto const argsToParse = args.recombineSubspan(1);
+    auto const argsToParse = args.subspan(1); // Kind of breaks contract that args[0] is the caller, as it'll be the key...
     auto result = Constants::Event::success;
     auto history = ctx.self.capture.redirectHistory([&] {
-        result = ctx.self.parseStr(argsToParse, ctx, ctxScope);
+        result = ctx.self.parse(argsToParse, ctx, ctxScope);
     });
 
     // Set
@@ -332,11 +330,10 @@ Constants::Event General::eval(Utility::Args::SegmentedStringView const& args, I
     //       allowing us to properly retrieve the current state for each iteration.
     //       Do the same for the RenderObject eval function. Perhaps we should combine them?
 
-    // argc/argv to string for evaluation
-    auto const argStr = args.recombine();
+    Interaction::Logic::Expression const expr(args.subspan(0));
 
     // Evaluate expression, empty context for self and other
-    std::string const argsEvaluated = Interaction::Logic::Expression::eval(argStr, ctxScope);
+    auto const argsEvaluated = expr.eval(ctxScope);
 
     // reparse
     return ctx.self.parseStr(argsEvaluated, ctx, ctxScope);
