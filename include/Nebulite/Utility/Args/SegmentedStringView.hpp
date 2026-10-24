@@ -206,12 +206,15 @@ public:
     //------------------------------------------
     // Compare
 
+    bool beginsWith(char c) const ;
     bool beginsWith(std::string_view other) const;
     bool beginsWith(SegmentedStringView const& other) const;
 
+    bool endsWith(char c) const ;
     bool endsWith(std::string_view other) const;
     bool endsWith(SegmentedStringView const& other) const;
 
+    bool contains(char c) const;
     bool contains(std::string_view other) const;
     bool contains(SegmentedStringView const& other) const;
 
@@ -223,9 +226,22 @@ public:
         static_assert(std::is_invocable_v<F, char>);
         auto it = SpanIterator{data};
         while (!it.endReached()) {
-            std::invoke(std::forward<F>(f)(it.get()));
+            std::invoke(std::forward<F>(f), it.get());
             ++it;
         }
+    }
+
+    template<typename F>
+    bool checkEachCharacter(F&& f) const { // NOLINT
+        static_assert(std::is_invocable_v<F, char>);
+        auto it = SpanIterator{data};
+        while (!it.endReached()) {
+            if (std::invoke(f, it.get())) {
+                return true;
+            }
+            ++it;
+        }
+        return false;
     }
 };
 

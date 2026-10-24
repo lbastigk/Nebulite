@@ -339,6 +339,13 @@ std::string SegmentedStringView::recombineSubspan(std::size_t const startIndex, 
 //------------------------------------------
 // Compare
 
+bool SegmentedStringView::beginsWith(char const c) const{
+    if (empty()) {
+        return false;
+    }
+    return data.begin()->starts_with(c);
+}
+
 bool SegmentedStringView::beginsWith(std::string_view const other) const {
     if (other.size() > characterCount()) {
         return false;
@@ -351,6 +358,13 @@ bool SegmentedStringView::beginsWith(SegmentedStringView const& other) const {
         return false;
     }
     return compareUntilOneEnds(SpanIterator{data}, SpanIterator{other.data});
+}
+
+bool SegmentedStringView::endsWith(char const c) const {
+    if (empty()) {
+        return false;
+    }
+    return data.back().ends_with(c);
 }
 
 bool SegmentedStringView::endsWith(std::string_view const other) const {
@@ -379,6 +393,12 @@ bool SegmentedStringView::endsWith(SegmentedStringView const& other) const {
         ++itSelf;
     }
     return isEqual(itOther, itSelf);
+}
+
+bool SegmentedStringView::contains(char const c) const{
+    return checkEachCharacter([c](char const ch) {
+        return ch == c;
+    });
 }
 
 bool SegmentedStringView::contains(std::string_view const other) const {
