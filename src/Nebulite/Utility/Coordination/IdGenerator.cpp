@@ -32,7 +32,6 @@ std::function<size_t()> IdGenerator::atomicRollingIdGenerator(std::size_t const 
     };
 }
 
-
 std::function<size_t()> IdGenerator::atomicIncrementIdGenerator() {
     // Each call gets its own shared counter
     // Using a shared pointer is required so the lambda is copyable
@@ -53,7 +52,7 @@ std::function<std::size_t(std::string_view)> IdGenerator::stringToRollingIdGener
     return [mutex, idMap, counter](std::string_view const key) {
         if (*counter > std::numeric_limits<std::size_t>::max() - 1) {
             // Throw an error or handle overflow as needed
-            throw std::overflow_error("Nebulite::Utility::Coordination::IdGenerator::stringToRollingIdGenerator has exceeded maximum limit.");
+            throw std::overflow_error("Nebulite::Utility::Coordination::IdGenerator::stringToRollingIdGenerator has exceeded its limit of IDs.");
         }
         std::scoped_lock const lock(*mutex);
         if (auto const& it = idMap->find(key); it != idMap->end()) {
@@ -61,6 +60,33 @@ std::function<std::size_t(std::string_view)> IdGenerator::stringToRollingIdGener
         }
         std::size_t const id = (*counter)++; // NOLINT
         (*idMap)[std::string(key)] = id; // NOLINT
+        return id;
+    };
+}
+
+std::function<std::size_t(std::string_view, std::string_view)> IdGenerator::twoStringsToRollingIdGenerator() {
+    // Each call gets its own shared map and counter
+    // Using a shared pointer is required so the lambda is copyable
+    auto mutex = std::make_shared<std::mutex>();
+    auto idMap = std::make_shared<absl::flat_hash_map<std::string, absl::flat_hash_map<std::string, std::size_t>>>();
+    auto counter = std::make_shared<std::size_t>(1);
+
+    return [mutex, idMap, counter](std::string_view const key1, std::string_view const key2) {
+        std::scoped_lock const lock(*mutex);
+
+        // Lookups use string_view; stored keys own their memory.
+        if (auto const it = idMap->find(key1); it != idMap->end()) {
+            if (auto const it2 = it->second.find(key2); it2 != it->second.end()) {
+                return it2->second;
+            }
+        }
+
+        if (*counter == std::numeric_limits<std::size_t>::max()) {
+            throw std::overflow_error("Nebulite::Utility::Coordination::IdGenerator::twoStringsToRollingIdGenerator has exceeded its limit of IDs.");
+        }
+
+        std::size_t const id = (*counter)++;
+        (*idMap)[std::string(key1)].try_emplace(std::string(key2), id);
         return id;
     };
 }

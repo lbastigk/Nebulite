@@ -56,7 +56,7 @@ public:
      */
     template<DerivedFromRulesetModule DerivedModule>
     explicit RulesetModule(std::string_view const moduleName, DerivedModule* /*derived*/, std::optional<std::string> const& prefix = std::nullopt)
-        : id{Data::MappedOrderedCacheList::generateUniqueId(moduleName)}
+        : id{Data::MappedOrderedCacheList::generateUniqueId(moduleName, "RulesetModule")}
         , globalAccessScopePrefix{prefix} {}
 
     /**

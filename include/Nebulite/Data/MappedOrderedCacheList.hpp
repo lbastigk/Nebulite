@@ -43,9 +43,11 @@ public:
     /**
      * @brief Generates a unique ID for a list of keys based on a given string.
      * @param identifier The name of the ruleset, or any other string to generate a unique ID from.
+     * @param context An optional context, to avoid collision for unique id generation for same strings,
+     *                without having to build a new string with the context embedded.
      * @return A unique ID corresponding to the given string.
      */
-    static std::size_t generateUniqueId(std::string_view identifier);
+    static std::size_t generateUniqueId(std::string_view identifier, std::string_view context = "");
 
     /**
      * @brief Ensures the existence of an ordered cache list of double pointers for a set of keys.

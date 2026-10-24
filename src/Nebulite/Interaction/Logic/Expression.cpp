@@ -167,17 +167,17 @@ Expression::~Expression() {
 Expression::Expression(std::string_view const expr) : fullExpression(expr) {
     Math::ExpressionPrimitives::registerExpressions(teVariables); // Register built-in functions
     parseFullExpression();
-    cacheId.self = Data::MappedOrderedCacheList::generateUniqueId(std::string("self:") + fullExpression);
-    cacheId.other = Data::MappedOrderedCacheList::generateUniqueId(std::string("other:") + fullExpression);
-    cacheId.global = Data::MappedOrderedCacheList::generateUniqueId(std::string("global:") + fullExpression);
+    cacheId.self = Data::MappedOrderedCacheList::generateUniqueId(fullExpression, "self");
+    cacheId.other = Data::MappedOrderedCacheList::generateUniqueId(fullExpression, "other");
+    cacheId.global = Data::MappedOrderedCacheList::generateUniqueId(fullExpression, "global");
 }
 
 Expression::Expression(Utility::Args::SegmentedStringView const& expr) : fullExpression(expr.recombine()) {
     Math::ExpressionPrimitives::registerExpressions(teVariables); // Register built-in functions
     parseFullExpression();
-    cacheId.self = Data::MappedOrderedCacheList::generateUniqueId(std::string("self:") + fullExpression);
-    cacheId.other = Data::MappedOrderedCacheList::generateUniqueId(std::string("other:") + fullExpression);
-    cacheId.global = Data::MappedOrderedCacheList::generateUniqueId(std::string("global:") + fullExpression);
+    cacheId.self = Data::MappedOrderedCacheList::generateUniqueId(fullExpression, "self");
+    cacheId.other = Data::MappedOrderedCacheList::generateUniqueId(fullExpression, "other");
+    cacheId.global = Data::MappedOrderedCacheList::generateUniqueId(fullExpression, "global");
 }
 
 //------------------------------------------
