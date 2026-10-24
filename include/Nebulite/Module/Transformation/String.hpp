@@ -147,6 +147,8 @@ public:
         "Usage: |split {delimiter} -> {array}\n"
         "{delimiter}: Delimiter to split the string by. If left empty, it splits by whitespace.\n";
 
+    // TODO: split by newline
+
     //------------------------------------------
     // strcompare
 
