@@ -31,6 +31,7 @@
 #include "Nebulite/Math/Equality.hpp"
 #include "Nebulite/Math/ExpressionPrimitives.hpp"
 #include "Nebulite/Nebulite.hpp"
+#include "Nebulite/Utility/Args/SegmentedStringView.hpp"
 #include "Nebulite/Utility/CompileTimeEvaluate.hpp"
 #include "Nebulite/Utility/Coordination/RecursionAllocator.hpp"
 #include "Nebulite/Utility/Promise.hpp"
@@ -163,12 +164,20 @@ Expression::~Expression() {
     }
 }
 
-Expression::Expression(std::string_view const expr){
-    reset();
-    parse(expr);
-    cacheId.self = Data::MappedOrderedCacheList::generateUniqueId(std::string("self:") + std::string(expr));
-    cacheId.other = Data::MappedOrderedCacheList::generateUniqueId(std::string("other:") + std::string(expr));
-    cacheId.global = Data::MappedOrderedCacheList::generateUniqueId(std::string("global:") + std::string(expr));
+Expression::Expression(std::string_view const expr) : fullExpression(expr) {
+    Math::ExpressionPrimitives::registerExpressions(teVariables); // Register built-in functions
+    parseFullExpression();
+    cacheId.self = Data::MappedOrderedCacheList::generateUniqueId(std::string("self:") + fullExpression);
+    cacheId.other = Data::MappedOrderedCacheList::generateUniqueId(std::string("other:") + fullExpression);
+    cacheId.global = Data::MappedOrderedCacheList::generateUniqueId(std::string("global:") + fullExpression);
+}
+
+Expression::Expression(Utility::Args::SegmentedStringView const& expr) : fullExpression(expr.recombine()) {
+    Math::ExpressionPrimitives::registerExpressions(teVariables); // Register built-in functions
+    parseFullExpression();
+    cacheId.self = Data::MappedOrderedCacheList::generateUniqueId(std::string("self:") + fullExpression);
+    cacheId.other = Data::MappedOrderedCacheList::generateUniqueId(std::string("other:") + fullExpression);
+    cacheId.global = Data::MappedOrderedCacheList::generateUniqueId(std::string("global:") + fullExpression);
 }
 
 //------------------------------------------
@@ -417,7 +426,6 @@ void Expression::reset() {
     linkedNumericValues.stable.self.clear();
     linkedNumericValues.stable.other.clear();
     linkedNumericValues.stable.global.clear();
-
     linkedNumericValues.unstable.self.clear();
     linkedNumericValues.unstable.other.clear();
     linkedNumericValues.unstable.global.clear();
@@ -431,9 +439,7 @@ void Expression::reset() {
 //------------------------------------------
 // Parsing and compiling
 
-void Expression::parse(std::string_view const expr) {
-    reset();
-    fullExpression = expr;
+void Expression::parseFullExpression() {
     parseIntoComponents();
     for (auto& component : components) {
         component.compile(teVariables);

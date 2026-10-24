@@ -23,6 +23,7 @@
 #include "Nebulite/Interaction/Context.hpp"
 #include "Nebulite/Interaction/Logic/ExpressionComponent.hpp"
 #include "Nebulite/Interaction/Logic/LinkedNumericValue.hpp"
+#include "Nebulite/Utility/Args/SegmentedStringView.hpp"
 #include "Nebulite/Utility/Promise.hpp"
 
 //------------------------------------------
@@ -60,6 +61,8 @@ public:
      * @param expr The expression string to parse.
      */
     explicit Expression(std::string_view expr);
+
+    explicit Expression(Utility::Args::SegmentedStringView const& expr);
 
     ~Expression();
 
@@ -390,10 +393,9 @@ private:
     // Parsing and compiling
 
     /**
-     * @brief Parses a given expression string with a constant reference to the document cache and the self and global JSON objects.
-     * @param expr The expression string to parse.
+     * @brief Parses the internal full expression string with a constant reference to the document cache and the self and global JSON objects.
      */
-    void parse(std::string_view expr);
+    void parseFullExpression();
 
     /**
      * @brief Parses the given expression into a series of components.
