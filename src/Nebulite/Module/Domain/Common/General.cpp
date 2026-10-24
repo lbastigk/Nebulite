@@ -87,11 +87,11 @@ Constants::Event General::ifFunc(Utility::Args::SegmentedStringView const& args,
     };
 
     auto const [conditionEnd, commandStart] = commandStartFinder();
-    auto const condition = args.recombineSubspan(1, conditionEnd);
-    auto commands = args.recombineSubspan(commandStart);
+    auto const condition = args.subspan(1, conditionEnd);
+    auto const commands = args.subspan(commandStart);
 
     // condition must start with $( and end with ): Simple expressions are boolean-convertible
-    if (!condition.starts_with("$(") || !condition.ends_with(')')) {
+    if (!condition.beginsWith("$(") || !condition.endsWith(')')) {
         return Constants::StandardCapture::Warning::Functional::unknownArg(ctx.self.capture);
     }
 
@@ -99,12 +99,13 @@ Constants::Event General::ifFunc(Utility::Args::SegmentedStringView const& args,
     // We ensured that the condition is wrapped in $() above, but there could still be parsing errors (missing parenthesis etc.)
     Interaction::Logic::Expression const expr(condition);
     if (!expr.isReturnableAsBool()) {
-        ctx.self.capture.error.println("Critical Error: A custom if-condition failed.\nCondition failed: " + condition + " is not a boolean expression.");
+        ctx.self.capture.error.println("Critical Error: A custom if-condition failed.\nCondition failed: " + condition.recombine() + " is not a boolean expression.");
         return Constants::Event::warning;
     }
     if (expr.evalAsBool(ctxScope, Utility::Promise<Utility::PromiseType::FunctionVerified, &Interaction::Logic::Expression::isReturnableAsBool>{})) {
-        commands = __FUNCTION__ + std::string(" ") + commands;
-        return ctx.self.parseStr(commands, ctx, ctxScope);
+        std::vector<std::string_view> newCommands{__FUNCTION__};
+        commands.copySubspan(newCommands, 0);
+        return ctx.self.parse(newCommands, ctx, ctxScope);
     }
     return Constants::Event::success;
 }
