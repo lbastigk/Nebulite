@@ -12,7 +12,13 @@
 
 // Nebulite
 #include "Nebulite/Math/Vec2.hpp"
-#include "Nebulite/Utility/Io/Capture.hpp"
+
+//------------------------------------------
+// Forward declarations
+
+namespace Nebulite::Utility::Io {
+class Capture;
+} // namespace Nebulite::Utility::Io
 
 //------------------------------------------
 namespace Nebulite::Graphics {

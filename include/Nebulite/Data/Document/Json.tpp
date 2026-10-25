@@ -81,7 +81,7 @@ std::expected<T, SimpleValueRetrievalError> Json::get(std::string_view const key
 template<typename T>
 std::expected<T, SimpleValueRetrievalError> Json::getWithTransformations(std::string_view const key) const {
     // Guaranteed to have at least one element (the base key), even if no transformations are present
-    auto args = splitKeyWithTransformations(key);
+    auto const args = splitKeyWithTransformations(key);
 
     // In order to minimize the re-initialization overhead of an entire JSON document,
     // we use a thread-local temporary JSON document for applying transformations.

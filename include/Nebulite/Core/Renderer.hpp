@@ -341,12 +341,12 @@ public:
     /**
      * @brief Sets a debug multiplier for mouse coordinates forwarded to Dear ImGui.
      */
-    void setImguiMouseScale(float scale) noexcept { imguiMouseScale = scale; }
+    void setImguiMouseScale(float const scale) noexcept { imguiMouseScale = scale; }
 
     /**
      * @brief Sets a debug multiplier for Dear ImGui's SDL render pass.
      */
-    void setImguiRenderScale(float scale) noexcept { imguiRenderScale = scale; }
+    void setImguiRenderScale(float const scale) noexcept { imguiRenderScale = scale; }
 
     //------------------------------------------
     // Texture-Related

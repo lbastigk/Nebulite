@@ -7,7 +7,6 @@
 #include <functional>
 #include <numbers>
 #include <ranges>
-#include <span>
 #include <string>
 #include <string_view>
 #include <vector>
@@ -28,7 +27,6 @@
 #include "Nebulite/Module/Domain/Renderer/Audio.hpp"
 #include "Nebulite/Utility/Generate.hpp"
 #include "Nebulite/Utility/Io/Capture.hpp"
-#include "Nebulite/Utility/StringHandler.hpp"
 
 //------------------------------------------
 namespace Nebulite::Module::Domain::Renderer {

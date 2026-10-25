@@ -45,7 +45,7 @@ class CacheAllocator {
     double initValue;
 
 public:
-    CacheAllocator(double iv);
+    explicit CacheAllocator(double iv);
 
     // No copy, allow move
     CacheAllocator(CacheAllocator const&) = delete;
@@ -82,7 +82,7 @@ struct CacheEntry {
     //------------------------------------------
     // Constructors
 
-    CacheEntry([[clang::lifetimebound]] CacheAllocator& allocator);
+    explicit CacheEntry([[clang::lifetimebound]] CacheAllocator& allocator);
 
     ~CacheEntry();
 
