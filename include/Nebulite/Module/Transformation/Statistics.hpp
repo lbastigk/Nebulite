@@ -41,12 +41,6 @@ public:
         "Input must be an array of numbers. If any element is not a number, the current value is not an array or the array is empty, the transformation fails.\n"
         "Usage: |sum -> {number}\n";
 
-    static bool average(Data::JsonScope& jsonDoc);
-    static auto constexpr averageName = "average";
-    static auto constexpr averageDesc = "Calculates the average of the elements of the array in the current JSON value.\n"
-        "Input must be an array of numbers. If any element is not a number, the current value is not an array or the array is empty, the transformation fails.\n"
-        "Usage: |average -> {number}\n";
-
     static bool product(Data::JsonScope& jsonDoc);
     static auto constexpr productName = "product";
     static auto constexpr productDesc = "Multiplies the elements of the array in the current JSON value.\n"
@@ -65,6 +59,13 @@ public:
         "Input must be an array of numbers. If any element is not a number, the current value is not an array or the array is empty, the transformation fails.\n"
         "Usage: |max -> {number}\n";
 
+    static bool mean(Data::JsonScope& jsonDoc);
+    static auto constexpr meanName1 = "mean";
+    static auto constexpr meanName2 = "average";
+    static auto constexpr meanDesc = "Calculates the mean of the elements of the array in the current JSON value.\n"
+        "Input must be an array of numbers. If any element is not a number, the current value is not an array or the array is empty, the transformation fails.\n"
+        "Usage: |average -> {number}\n";
+
     static bool median(Data::JsonScope& jsonDoc);
     static auto constexpr medianName = "median";
     static auto constexpr medianDesc = "Calculates the median of the elements of the array in the current JSON value.\n"
@@ -77,7 +78,7 @@ public:
         "Input must be an array of numbers. If any element is not a number, the current value is not an array or the array is empty, the transformation fails.\n"
         "Usage: |stddev -> {number}\n";
 
-    // TODO: range, mode, mean(same as average)
+    // TODO: range, mode
 
 private:
     /**

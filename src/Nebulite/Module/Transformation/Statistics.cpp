@@ -19,10 +19,11 @@ namespace Nebulite::Module::Transformation {
 
 void Statistics::bindTransformations() {
     bindTransformation(&sum, sumName, sumDesc);
-    bindTransformation(&average, averageName, averageDesc);
     bindTransformation(&product, productName, productDesc);
     bindTransformation(&min, minName, minDesc);
     bindTransformation(&max, maxName, maxDesc);
+    bindTransformation(&mean, meanName1, meanDesc);
+    bindTransformation(&mean, meanName2, meanDesc);
     bindTransformation(&median, medianName, medianDesc);
     bindTransformation(&stddev, stddevName, stddevDesc);
 }
@@ -59,15 +60,6 @@ bool Statistics::sum(Data::JsonScope& jsonDoc) {
     return true;
 }
 
-bool Statistics::average(Data::JsonScope& jsonDoc){
-    double const result = accumulate(jsonDoc, [](double const a, double const b) { return a + b; });
-    if (std::isnan(result)) {
-            return false;
-    }
-    jsonDoc.set(rootKey, result / static_cast<double>(jsonDoc.memberSize(rootKey)));
-    return true;
-}
-
 bool Statistics::product(Data::JsonScope& jsonDoc) {
     double const result = accumulate(jsonDoc, [](double const a, double const b) { return a * b; }, 1.0);
     if (std::isnan(result)) {
@@ -92,6 +84,15 @@ bool Statistics::max(Data::JsonScope& jsonDoc) {
         return false;
     }
     jsonDoc.set(rootKey, result);
+    return true;
+}
+
+bool Statistics::mean(Data::JsonScope& jsonDoc){
+    double const result = accumulate(jsonDoc, [](double const a, double const b) { return a + b; });
+    if (std::isnan(result)) {
+        return false;
+    }
+    jsonDoc.set(rootKey, result / static_cast<double>(jsonDoc.memberSize(rootKey)));
     return true;
 }
 
