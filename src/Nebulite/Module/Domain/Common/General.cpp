@@ -87,11 +87,11 @@ Constants::Event General::ifFunc(Utility::Args::SegmentedStringView const& args,
     };
 
     auto const [conditionEnd, commandStart] = commandStartFinder();
-    auto const condition = args.recombineSubspan(1, conditionEnd);
-    auto commands = args.recombineSubspan(commandStart);
+    auto const condition = args.subspan(1, conditionEnd);
+    auto const commands = args.subspan(commandStart);
 
     // condition must start with $( and end with ): Simple expressions are boolean-convertible
-    if (!condition.starts_with("$(") || !condition.ends_with(')')) {
+    if (!condition.beginsWith("$(") || !condition.endsWith(')')) {
         return Constants::StandardCapture::Warning::Functional::unknownArg(ctx.self.capture);
     }
 
@@ -99,31 +99,44 @@ Constants::Event General::ifFunc(Utility::Args::SegmentedStringView const& args,
     // We ensured that the condition is wrapped in $() above, but there could still be parsing errors (missing parenthesis etc.)
     Interaction::Logic::Expression const expr(condition);
     if (!expr.isReturnableAsBool()) {
-        ctx.self.capture.error.println("Critical Error: A custom if-condition failed.\nCondition failed: " + condition + " is not a boolean expression.");
+        ctx.self.capture.error.println("Critical Error: A custom if-condition failed.\nCondition failed: " + condition.recombine() + " is not a boolean expression.");
         return Constants::Event::warning;
     }
     if (expr.evalAsBool(ctxScope, Utility::Promise<Utility::PromiseType::FunctionVerified, &Interaction::Logic::Expression::isReturnableAsBool>{})) {
-        commands = __FUNCTION__ + std::string(" ") + commands;
-        return ctx.self.parseStr(commands, ctx, ctxScope);
+        std::vector<std::string_view> newCommands{__FUNCTION__};
+        commands.copySubspan(newCommands, 0);
+        return ctx.self.parse(newCommands, ctx, ctxScope);
     }
     return Constants::Event::success;
 }
 
 Constants::Event General::forFunc(Utility::Args::SegmentedStringView const& args, Interaction::Context& ctx, Interaction::ContextScope& ctxScope) {
     if (args.size() > 4) {
-        auto const& varName = std::string(args[1]);
+        auto const varName = '{' + std::string(args[1]) + '}';
+        int const idxStart = std::stoi(Interaction::Logic::Expression::eval(args[2], ctxScope));
+        int const idxEnd = std::stoi(Interaction::Logic::Expression::eval(args[3], ctxScope));
 
-        int const iStart = std::stoi(Interaction::Logic::Expression::eval(args[2], ctxScope));
-        int const iEnd = std::stoi(Interaction::Logic::Expression::eval(args[3], ctxScope));
+        std::vector newArgs{std::string(args[0])};
+        args.copySubspan(newArgs, 4);
+        auto containsVar = newArgs
+            | std::views::transform([varName](std::string const& arg) {
+                return arg.contains(varName);
+            })
+            | std::ranges::to<std::vector<bool>>();
 
-        std::vector argsVec = {std::string(args[0])};
-        for (int i = iStart; i <= iEnd; i++) {
-            argsVec.resize(1);
+        // Rare edge case: if the caller arg, arg[0], contains the varName, do not overwrite!
+        // Should never happen, but just in case. Replacing it could make debugging harder.
+        containsVar[0] = false;
+
+        for (int i = idxStart; i <= idxEnd; i++) {
             auto const replacer = std::to_string(i);
-            for (auto const& arg : args.subspan(4)) {
-                argsVec.push_back(Utility::StringHandler::replaceAll(arg, '{' + varName + '}', replacer));
+            for (auto const [index, arg] : newArgs | Utility::Ranges::enumerate) {
+                if (containsVar[index]) {
+                    auto const originalIndex = 3 + index;
+                    arg = Utility::StringHandler::replaceAll(args[originalIndex], varName, replacer);
+                }
             }
-            if (auto const event = ctx.self.parse(argsVec, ctx, ctxScope); event != Constants::Event::success) {
+            if (auto const event = ctx.self.parse(newArgs, ctx, ctxScope); event != Constants::Event::success) {
                 return event;
             }
         }
@@ -136,15 +149,25 @@ Constants::Event General::forFuncProgress(Utility::Args::SegmentedStringView con
     if (args.size() > 4) {
         std::size_t constexpr barWidth = 50;
 
-        auto const& varName = std::string(args[1]);
+        auto const varName = '{' + std::string(args[1]) + '}';
+        int const idxStart = std::stoi(Interaction::Logic::Expression::eval(args[2], ctxScope));
+        int const idxEnd = std::stoi(Interaction::Logic::Expression::eval(args[3], ctxScope));
 
-        int const iStart = std::stoi(Interaction::Logic::Expression::eval(args[2], ctxScope));
-        int const iEnd = std::stoi(Interaction::Logic::Expression::eval(args[3], ctxScope));
+        std::vector newArgs{std::string(args[0])};
+        args.copySubspan(newArgs, 4);
+        auto containsVar = newArgs
+            | std::views::transform([varName](std::string const& arg) {
+                return arg.contains(varName);
+            })
+            | std::ranges::to<std::vector<bool>>();
 
-        std::vector argsVec = {std::string(args[0])};
-        for (int i = iStart; i <= iEnd; i++) {
+        // Rare edge case: if the caller arg, arg[0], contains the varName, do not overwrite!
+        // Should never happen, but just in case. Replacing it could make debugging harder.
+        containsVar[0] = false;
+
+        for (int i = idxStart; i <= idxEnd; i++) {
             // Provide progress bar only to cout for now
-            double const progress = static_cast<double>(i - iStart) / static_cast<double>(iEnd - iStart + 1);
+            double const progress = static_cast<double>(i - idxStart) / static_cast<double>(idxEnd - idxStart + 1);
             std::cout << "[";
             auto const pos = static_cast<size_t>(barWidth * progress);
             for (std::size_t barIdx = 0; barIdx < barWidth; ++barIdx) {
@@ -155,13 +178,17 @@ Constants::Event General::forFuncProgress(Utility::Args::SegmentedStringView con
             std::cout << "] " << static_cast<int>(progress * 100.0) << " %\r";
             std::cout.flush();
 
-            // Parse
-            argsVec.resize(1);
+            // Replace
             auto const replacer = std::to_string(i);
-            for (auto const& arg : args.subspan(4)) {
-                argsVec.push_back(Utility::StringHandler::replaceAll(arg, '{' + varName + '}', replacer));
+            for (auto const [index, arg] : newArgs | Utility::Ranges::enumerate) {
+                if (containsVar[index]) {
+                    auto const originalIndex = 3 + index;
+                    arg = Utility::StringHandler::replaceAll(args[originalIndex], varName, replacer);
+                }
             }
-            if (auto const event = ctx.self.parse(argsVec, ctx, ctxScope); event != Constants::Event::success) {
+
+            // Parse
+            if (auto const event = ctx.self.parse(newArgs, ctx, ctxScope); event != Constants::Event::success) {
                 return event;
             }
         }
@@ -183,10 +210,10 @@ Constants::Event General::assertFunc(Utility::Args::SegmentedStringView const& a
     if (args.size() < 2) {
         return Constants::StandardCapture::Warning::Functional::tooFewArgs(ctx.self.capture);
     }
-    std::string const& condition = args.recombineSubspan(1);
+    auto const condition = args.subspan(1);
 
     // condition must start with $( and end with ): Simple expressions are boolean-convertible
-    if (condition.front() != '$' || condition[1] != '(' || condition.back() != ')') {
+    if (!condition.beginsWith("$(") || !condition.endsWith(')')) {
         return Constants::StandardCapture::Warning::Functional::unknownArg(ctx.self.capture);
     }
 
@@ -194,11 +221,11 @@ Constants::Event General::assertFunc(Utility::Args::SegmentedStringView const& a
     // We ensured that the condition is wrapped in $() above, but there could still be parsing errors (missing parenthesis etc.)
     Interaction::Logic::Expression const expr(condition);
     if (!expr.isReturnableAsBool()) {
-        ctx.self.capture.error.println("Critical Error: A custom assertion failed.\nAssertion failed: " + condition + " is not a boolean expression.");
+        ctx.self.capture.error.println("Critical Error: A custom assertion failed.\nAssertion failed: " + condition.recombine() + " is not a boolean expression.");
         return Constants::Event::error;
     }
     if (!expr.evalAsBool(ctxScope, Utility::Promise<Utility::PromiseType::FunctionVerified, &Interaction::Logic::Expression::isReturnableAsBool>{})) {
-        ctx.self.capture.error.println("Critical Error: A custom assertion failed.\nAssertion failed: " + condition + " is not true.");
+        ctx.self.capture.error.println("Critical Error: A custom assertion failed.\nAssertion failed: " + condition.recombine() + " is not true.");
         return Constants::Event::error;
     }
 
@@ -217,16 +244,14 @@ Constants::Event General::forwardToOther(Utility::Args::SegmentedStringView cons
     if (args.size() < 2) {
         return Constants::StandardCapture::Warning::Functional::tooFewArgs(ctx.self.capture);
     }
-    auto const argStr = args.recombine();
-    return ctx.other.parseStr(argStr, ctx, ctxScope);
+    return ctx.other.parse(args, ctx, ctxScope);
 }
 
 Constants::Event General::forwardToGlobal(Utility::Args::SegmentedStringView const& args, Interaction::Context& ctx, Interaction::ContextScope& ctxScope) {
     if (args.size() < 2) {
         return Constants::StandardCapture::Warning::Functional::tooFewArgs(ctx.self.capture);
     }
-    auto const argStr = args.recombine();
-    return ctx.global.parseStr(argStr, ctx, ctxScope);
+    return ctx.global.parse(args, ctx, ctxScope);
 }
 
 Constants::Event General::reparseInOther(Utility::Args::SegmentedStringView const& args, Interaction::Context const& ctx, Interaction::ContextScope const& ctxScope) {
@@ -307,10 +332,10 @@ Constants::Event General::capture(Utility::Args::SegmentedStringView const& args
     }
 
     // Parse
-    auto const argsToParse = args.recombineSubspan(1);
+    auto const argsToParse = args.subspan(1); // Kind of breaks contract that args[0] is the caller, as it'll be the key...
     auto result = Constants::Event::success;
     auto history = ctx.self.capture.redirectHistory([&] {
-        result = ctx.self.parseStr(argsToParse, ctx, ctxScope);
+        result = ctx.self.parse(argsToParse, ctx, ctxScope);
     });
 
     // Set
@@ -331,11 +356,10 @@ Constants::Event General::eval(Utility::Args::SegmentedStringView const& args, I
     //       allowing us to properly retrieve the current state for each iteration.
     //       Do the same for the RenderObject eval function. Perhaps we should combine them?
 
-    // argc/argv to string for evaluation
-    auto const argStr = args.recombine();
+    Interaction::Logic::Expression const expr(args.subspan(0));
 
     // Evaluate expression, empty context for self and other
-    std::string const argsEvaluated = Interaction::Logic::Expression::eval(argStr, ctxScope);
+    auto const argsEvaluated = expr.eval(ctxScope);
 
     // reparse
     return ctx.self.parseStr(argsEvaluated, ctx, ctxScope);

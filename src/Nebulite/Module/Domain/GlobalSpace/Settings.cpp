@@ -73,10 +73,13 @@ Constants::Event Settings::setSettingInt(Utility::Args::SegmentedStringView cons
         return Constants::StandardCapture::Warning::Functional::tooManyArgs(domain.capture);
     }
     auto const& key = args[0];
-    int const value = std::stoi(std::string(args[1]));
+    auto const value = args.tryGetAs<int>(1);
+    if (!value) {
+        return Constants::StandardCapture::Warning::Functional::invalidArgument(domain.capture);
+    }
 
     // Set integer setting in global settings
-    moduleScope.set<int>(moduleScope.getRootScope().addMember(key), value);
+    moduleScope.set<int>(moduleScope.getRootScope().addMember(key), value.value());
     return Constants::Event::success;
 }
 

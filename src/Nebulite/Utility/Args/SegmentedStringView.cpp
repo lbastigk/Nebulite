@@ -297,6 +297,24 @@ void SegmentedStringView::copySubspan(std::vector<std::string_view>& other, std:
     std::ranges::copy(data.subspan(startIndex, count), std::back_inserter(other));
 }
 
+void SegmentedStringView::copy(std::vector<std::string>& other) const{
+    for (auto const& arg : data) {
+        other.emplace_back(arg);
+    }
+}
+
+void SegmentedStringView::copySubspan(std::vector<std::string>& other, std::size_t const startIndex) const {
+    for (auto const& arg : data.subspan(startIndex)) {
+        other.emplace_back(arg);
+    }
+}
+
+void SegmentedStringView::copySubspan(std::vector<std::string>& other, std::size_t const startIndex, std::size_t const count) const{
+    for (auto const& arg : data.subspan(startIndex, count)) {
+        other.emplace_back(arg);
+    }
+}
+
 //------------------------------------------
 // Generate
 

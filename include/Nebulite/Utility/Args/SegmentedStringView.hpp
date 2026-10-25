@@ -196,6 +196,10 @@ public:
     void copySubspan(std::vector<std::string_view>& other, std::size_t startIndex) const ;
     void copySubspan(std::vector<std::string_view>& other, std::size_t startIndex, std::size_t count) const ;
 
+    void copy(std::vector<std::string>& other) const ;
+    void copySubspan(std::vector<std::string>& other, std::size_t startIndex) const ;
+    void copySubspan(std::vector<std::string>& other, std::size_t startIndex, std::size_t count) const ;
+
     //------------------------------------------
     // Generate
 
