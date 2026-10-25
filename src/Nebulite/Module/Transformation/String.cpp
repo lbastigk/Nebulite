@@ -95,13 +95,16 @@ bool String::lPad(Utility::Args::SegmentedStringView const& args, Data::JsonScop
     if (args.size() < 2) {
         return false;
     }
-    auto const size = std::stoul(std::string(args[1]));
+    auto const size = args.tryGetAs<std::size_t>(1);
+    if (!size) {
+        return false;
+    }
     auto const padChar = args.size() >= 3 ? args[2][0] : ' ';
     auto str = jsonDoc.get<std::string>(rootKey).value_or("");
-    if (str.size() >= size) {
+    if (str.size() >= size.value()) {
         return true; // No padding needed
     }
-    str = std::string(size - str.size(), padChar) + str;
+    str = std::string(size.value() - str.size(), padChar) + str;
     jsonDoc.set(rootKey, str);
     return true;
 }
@@ -110,13 +113,16 @@ bool String::rPad(Utility::Args::SegmentedStringView const& args, Data::JsonScop
     if (args.size() < 2) {
         return false;
     }
-    auto const size = std::stoul(std::string(args[1]));
+    auto const size = args.tryGetAs<std::size_t>(1);
+    if (!size) {
+        return false;
+    }
     auto const padChar = args.size() >= 3 ? args[2][0] : ' ';
     auto str = jsonDoc.get<std::string>(rootKey).value_or("");
-    if (str.size() >= size) {
+    if (str.size() >= size.value()) {
         return true; // No padding needed
     }
-    str = str + std::string(size - str.size(), padChar);
+    str = str + std::string(size.value() - str.size(), padChar);
     jsonDoc.set(rootKey, str);
     return true;
 }
@@ -181,14 +187,25 @@ bool String::substring(Utility::Args::SegmentedStringView const& args, Data::Jso
         return false;
     }
 
-    auto const start = std::stoul(std::string(args[1]));
+    auto const start = args.tryGetAs<size_t>(1);
+    if (!start) {
+        return false;
+    }
 
     auto const str = jsonDoc.get<std::string>(rootKey).value_or("");
-    if (start >= str.size()) {
+    if (start.value() >= str.size()) {
         jsonDoc.set(rootKey, "");
         return true;
     }
-    auto const substr = args.size() == 3 ? str.substr(start, std::stoul(std::string(args[2]))) : str.substr(start);
+    if (args.size() == 3) {
+        auto const count = args.tryGetAs<size_t>(2);
+        if (!count) {
+            return false;
+        }
+        jsonDoc.set(rootKey, str.substr(start.value(), count.value()));
+        return true;
+    }
+    auto const substr = str.substr(start.value());
     jsonDoc.set(rootKey, substr);
     return true;
 }
