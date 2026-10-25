@@ -30,6 +30,8 @@ void Array::bindTransformations() {
     bindTransformation(&Array::subspan, subspanName, subspanDesc);
     bindTransformation(&Array::head, headName, headDesc);
     bindTransformation(&Array::tail, tailName, tailDesc);
+    bindTransformation(&Array::recombine, recombineName, recombineDesc);
+    bindTransformation(&Array::recombineLines, recombineLinesName, recombineLinesDesc);
 
     // Dimensionality
     bindTransformation(&Array::flatten, flattenName, flattenDesc);
@@ -184,6 +186,44 @@ bool Array::head(Utility::Args::SegmentedStringView const& args, Data::JsonScope
 
 bool Array::tail(Utility::Args::SegmentedStringView const& args, Data::JsonScope& jsonDoc) {
     return takeElements(args, jsonDoc, rootKey, false);
+}
+
+namespace {
+
+bool recombineElements(Data::JsonScope& jsonDoc, std::string_view const delimiter) {
+    if (jsonDoc.memberType(Array::rootKey) != Data::KeyType::array) {
+        return false;
+    }
+
+    std::string result;
+    bool firstElement = true;
+    for (auto const key : jsonDoc.arrayKeys(Array::rootKey)) {
+        auto const value = jsonDoc.get<std::string>(key);
+        if (!value.has_value()) {
+            return false;
+        }
+        if (!firstElement) {
+            result += delimiter;
+        }
+        result += value.value();
+        firstElement = false;
+    }
+    jsonDoc.set(Array::rootKey, result);
+    return true;
+}
+
+} // namespace
+
+bool Array::recombine(Utility::Args::SegmentedStringView const& args, Data::JsonScope& jsonDoc) {
+    if (args.size() > 2 || (args.size() == 2 && args.at(1).size() != 1)) {
+        return false;
+    }
+    auto const delimiter = args.size() == 2 ? args.at(1) : std::string_view{" "};
+    return recombineElements(jsonDoc, delimiter);
+}
+
+bool Array::recombineLines(Data::JsonScope& jsonDoc) {
+    return recombineElements(jsonDoc, "\n");
 }
 
 // Metadata

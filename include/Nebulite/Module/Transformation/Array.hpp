@@ -75,6 +75,17 @@ public:
     static auto constexpr tailDesc = "Gets the last elements of the array in the current JSON value.\n"
         "Usage: |tail <number> -> {array}\n";
 
+    static bool recombine(Utility::Args::SegmentedStringView const& args, Data::JsonScope& jsonDoc);
+    static auto constexpr recombineName = "recombine";
+    static auto constexpr recombineDesc = "Recombines the string elements of the array in the current JSON value.\n"
+        "Uses whitespace as the delimiter if none is provided.\n"
+        "Usage: |recombine [delimiter] -> {string}\n";
+
+    static bool recombineLines(Data::JsonScope& jsonDoc);
+    static auto constexpr recombineLinesName = "recombineLines";
+    static auto constexpr recombineLinesDesc = "Recombines the string elements of the array in the current JSON value with newlines.\n"
+        "Usage: |recombineLines -> {string}\n";
+
     // TODO: dedupe, pick, omit
 
     // Dimensionality

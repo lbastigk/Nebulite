@@ -34,5 +34,9 @@
     {
         "command": "task TaskFiles/Tests/JSON/Transformations/String/startsWithEndsWith.nebs",
         "expected": { "cout": [], "cerr": [] }
+    },
+    {
+        "command": "task TaskFiles/Tests/JSON/Transformations/String/split.nebs",
+        "expected": { "cout": [], "cerr": [] }
     }
 ]
