@@ -28,6 +28,8 @@ void Array::bindTransformations() {
     bindTransformation(&Array::last, lastName, lastDesc);
     bindTransformation(&Array::length, lengthName, lengthDesc);
     bindTransformation(&Array::subspan, subspanName, subspanDesc);
+    bindTransformation(&Array::head, headName, headDesc);
+    bindTransformation(&Array::tail, tailName, tailDesc);
 
     // Dimensionality
     bindTransformation(&Array::flatten, flattenName, flattenDesc);
@@ -140,6 +142,48 @@ bool Array::subspan(Utility::Args::SegmentedStringView const& args, Data::JsonSc
         jsonDoc.removeMember(rootKey.addIndex(i));
     }
     return true;
+}
+
+namespace {
+
+bool takeElements(
+    Utility::Args::SegmentedStringView const& args,
+    Data::JsonScope& jsonDoc,
+    Data::ScopedKeyView const& rootKey,
+    bool const fromHead
+) {
+    if (args.size() != 2) {
+        return false;
+    }
+    auto const count = Utility::Convert::Cast::String::to<std::size_t>(args.at(1));
+    if (!count.has_value() || !Array::ensureArray(jsonDoc)) {
+        return false;
+    }
+
+    auto const arraySize = jsonDoc.memberSize(rootKey);
+    auto const resultSize = std::min(count.value(), arraySize);
+    auto const startIndex = fromHead ? std::size_t{0} : arraySize - resultSize;
+
+    Data::JsonScope result;
+    result.setEmptyArray(rootKey);
+    for (std::size_t index = 0; index < resultSize; ++index) {
+        result.setSubDoc(
+            rootKey.addIndex(index),
+            jsonDoc.getSubDoc(rootKey.addIndex(startIndex + index))
+        );
+    }
+    jsonDoc.setSubDoc(rootKey, result);
+    return true;
+}
+
+} // namespace
+
+bool Array::head(Utility::Args::SegmentedStringView const& args, Data::JsonScope& jsonDoc) {
+    return takeElements(args, jsonDoc, rootKey, true);
+}
+
+bool Array::tail(Utility::Args::SegmentedStringView const& args, Data::JsonScope& jsonDoc) {
+    return takeElements(args, jsonDoc, rootKey, false);
 }
 
 // Metadata

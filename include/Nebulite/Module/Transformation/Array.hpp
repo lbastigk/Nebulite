@@ -65,6 +65,16 @@ public:
     static auto constexpr subspanDesc = "Gets a subarray from the array in the current JSON value.\n"
         "Usage: |subspan <start> [<length>] -> {array}\n";
 
+    static bool head(Utility::Args::SegmentedStringView const& args, Data::JsonScope& jsonDoc);
+    static auto constexpr headName = "head";
+    static auto constexpr headDesc = "Gets the first elements of the array in the current JSON value.\n"
+        "Usage: |head <number> -> {array}\n";
+
+    static bool tail(Utility::Args::SegmentedStringView const& args, Data::JsonScope& jsonDoc);
+    static auto constexpr tailName = "tail";
+    static auto constexpr tailDesc = "Gets the last elements of the array in the current JSON value.\n"
+        "Usage: |tail <number> -> {array}\n";
+
     // TODO: dedupe, pick, omit
 
     // Dimensionality
