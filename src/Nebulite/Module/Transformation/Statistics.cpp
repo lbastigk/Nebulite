@@ -7,6 +7,7 @@
 #include <cstddef>
 #include <functional>
 #include <limits>
+#include <map>
 #include <vector>
 
 // Nebulite
@@ -26,6 +27,8 @@ void Statistics::bindTransformations() {
     bindTransformation(&mean, meanName2, meanDesc);
     bindTransformation(&median, medianName, medianDesc);
     bindTransformation(&stddev, stddevName, stddevDesc);
+    bindTransformation(&range, rangeName, rangeDesc);
+    bindTransformation(&mode, modeName, modeDesc);
 }
 
 double Statistics::accumulate(Data::JsonScope const& jsonDoc, std::function<double(double, double)> const& func, double const initialValue) {
@@ -156,6 +159,62 @@ bool Statistics::stddev(Data::JsonScope& jsonDoc) {
     }
     double const stddevValue = std::sqrt(varianceSum / static_cast<double>(size));
     jsonDoc.set(rootKey, stddevValue);
+    return true;
+}
+
+bool Statistics::range(Data::JsonScope& jsonDoc) {
+    if (jsonDoc.memberType(rootKey) != Data::KeyType::array) {
+        return false;
+    }
+
+    std::size_t const size = jsonDoc.memberSize(rootKey);
+    if (size == 0) {
+        return false;
+    }
+
+    double minimum = std::numeric_limits<double>::infinity();
+    double maximum = -std::numeric_limits<double>::infinity();
+    for (auto const key : rootKey.getArrayKeys(size)) {
+        double const value = jsonDoc.get<double>(key).value_or(std::numeric_limits<double>::quiet_NaN());
+        if (std::isnan(value)) {
+            return false;
+        }
+        minimum = std::min(minimum, value);
+        maximum = std::max(maximum, value);
+    }
+    jsonDoc.set(rootKey, maximum - minimum);
+    return true;
+}
+
+bool Statistics::mode(Data::JsonScope& jsonDoc) {
+    if (jsonDoc.memberType(rootKey) != Data::KeyType::array) {
+        return false;
+    }
+
+    std::size_t const size = jsonDoc.memberSize(rootKey);
+    if (size == 0) {
+        return false;
+    }
+
+    std::map<double, std::size_t> frequencies;
+    for (auto const key : rootKey.getArrayKeys(size)) {
+        double const value = jsonDoc.get<double>(key).value_or(std::numeric_limits<double>::quiet_NaN());
+        if (std::isnan(value)) {
+            return false;
+        }
+        ++frequencies[value];
+    }
+
+    double modeValue = 0.0;
+    std::size_t modeFrequency = 0;
+    for (auto const key : rootKey.getArrayKeys(size)) {
+        double const value = jsonDoc.get<double>(key).value();
+        if (frequencies[value] > modeFrequency) {
+            modeValue = value;
+            modeFrequency = frequencies[value];
+        }
+    }
+    jsonDoc.set(rootKey, modeValue);
     return true;
 }
 

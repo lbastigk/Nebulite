@@ -1,0 +1,15 @@
+set values[0] 2
+set values[1] 4
+set values[2] 4
+set values[3] 1
+set values[4] 2
+
+set invalid[0] 1
+set invalid[1] not-a-number
+
+eval nop {global:values|range|assert equals int 3}
+eval nop {global:invalid|range|unreachable}
+assign global:empty = {|ensureArray}
+assign global:emptyRange = {global:empty|range|unreachable}
+
+exit

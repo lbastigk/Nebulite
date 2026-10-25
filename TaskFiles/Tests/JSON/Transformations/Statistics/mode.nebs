@@ -1,0 +1,21 @@
+set values[0] 2
+set values[1] 4
+set values[2] 4
+set values[3] 1
+set values[4] 2
+
+set tie[0] 3
+set tie[1] 1
+set tie[2] 1
+set tie[3] 3
+
+set invalid[0] 1
+set invalid[1] not-a-number
+
+eval nop {global:values|mode|assert equals int 2}
+eval nop {global:tie|mode|assert equals int 3}
+eval nop {global:invalid|mode|unreachable}
+assign global:empty = {|ensureArray}
+assign global:emptyMode = {global:empty|mode|unreachable}
+
+exit

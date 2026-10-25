@@ -78,7 +78,19 @@ public:
         "Input must be an array of numbers. If any element is not a number, the current value is not an array or the array is empty, the transformation fails.\n"
         "Usage: |stddev -> {number}\n";
 
-    // TODO: range, mode
+    static bool range(Data::JsonScope& jsonDoc);
+    static auto constexpr rangeName = "range";
+    static auto constexpr rangeDesc = "Calculates the range of the elements of the array in the current JSON value.\n"
+        "The range is the maximum value minus the minimum value.\n"
+        "Input must be a non-empty array of numbers.\n"
+        "Usage: |range -> {number}\n";
+
+    static bool mode(Data::JsonScope& jsonDoc);
+    static auto constexpr modeName = "mode";
+    static auto constexpr modeDesc = "Finds the most frequent value in the array in the current JSON value.\n"
+        "If multiple values are tied, the first value in the array is returned.\n"
+        "Input must be a non-empty array of numbers.\n"
+        "Usage: |mode -> {number}\n";
 
 private:
     /**
