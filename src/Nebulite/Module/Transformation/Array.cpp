@@ -9,6 +9,7 @@
 #include <ranges>
 #include <string>
 #include <utility>
+#include <vector>
 
 // Nebulite
 #include "Nebulite/Data/Document/JsonScope.hpp"
@@ -32,6 +33,7 @@ void Array::bindTransformations() {
     bindTransformation(&Array::tail, tailName, tailDesc);
     bindTransformation(&Array::recombine, recombineName, recombineDesc);
     bindTransformation(&Array::recombineLines, recombineLinesName, recombineLinesDesc);
+    bindTransformation(&Array::dedupe, dedupeName, dedupeDesc);
 
     // Dimensionality
     bindTransformation(&Array::flatten, flattenName, flattenDesc);
@@ -224,6 +226,37 @@ bool Array::recombine(Utility::Args::SegmentedStringView const& args, Data::Json
 
 bool Array::recombineLines(Data::JsonScope& jsonDoc) {
     return recombineElements(jsonDoc, "\n");
+}
+
+bool Array::dedupe(Data::JsonScope& jsonDoc){
+    // TODO: Add an array filter option to Data::Json which uses the underlying rapidjson structure directly,
+    //       so we don't have to serialize->deserialize values.
+
+    if (jsonDoc.memberType(rootKey) != Data::KeyType::array) {
+        return false;
+    }
+    std::vector<std::string> seenValues;
+
+    for (auto const key : jsonDoc.arrayKeys(rootKey)) {
+        auto const value = jsonDoc.serialize(key);
+        if (std::ranges::find(seenValues, value) == seenValues.end()) {
+            seenValues.push_back(value);
+        }
+    }
+
+    if (seenValues.size() == jsonDoc.memberSize(rootKey)) {
+        return true;
+    }
+
+    jsonDoc.setEmptyArray(rootKey);
+    for (auto const [index, value] : seenValues | Utility::Ranges::enumerate) {
+        auto const key = rootKey.addIndex(index);
+        Data::Json tmp;
+        tmp.deserialize(value);
+        jsonDoc.setSubDoc(key, tmp);
+    }
+
+    return true;
 }
 
 // Metadata

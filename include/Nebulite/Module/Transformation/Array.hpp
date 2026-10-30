@@ -86,7 +86,10 @@ public:
     static auto constexpr recombineLinesDesc = "Recombines the string elements of the array in the current JSON value with newlines.\n"
         "Usage: |recombineLines -> {string}\n";
 
-    // TODO: dedupe, pick, omit
+    static bool dedupe(Data::JsonScope& jsonDoc);
+    static auto constexpr dedupeName = "dedupe";
+    static auto constexpr dedupeDesc = "Removes duplicate elements from the array in the current JSON value.\n"
+        "Usage: |dedupe -> {array}\n";
 
     // Dimensionality
 
