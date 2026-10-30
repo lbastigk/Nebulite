@@ -1,0 +1,15 @@
+# Test logical OR across multiple arrays.
+set allFalse[0] false
+set allFalse[1] false
+set oneTrue[0] false
+set oneTrue[1] true
+set allTrue[0] true
+set allTrue[1] true
+assign global:empty = {|ensureArray}
+
+eval nop {global:allFalse|or|assert false}
+eval nop {global:oneTrue|or|assert true}
+eval nop {global:allTrue|or|assert true}
+eval nop {global:empty|or|assert false}
+
+exit
