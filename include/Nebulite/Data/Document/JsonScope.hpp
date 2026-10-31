@@ -204,6 +204,16 @@ public:
     template<typename T> void set(ScopedKeyView const& key, T const& value);
     template<typename T> void set(ScopedKey const& key, T const& value){set(key.view(), value);}
 
+    template <std::ranges::viewable_range R>
+    void insertArray(ScopedKeyView const& key, R values);
+    template <std::ranges::viewable_range R>
+    void insertArray(ScopedKey const& key, R values){insertArray(key.view(), values);}
+
+    template <std::ranges::viewable_range R>
+    void appendArray(ScopedKeyView const& key, R values);
+    template <std::ranges::viewable_range R>
+    void appendArray(ScopedKey const& key, R values){appendArray(key.view(), values);}
+
     void setVariant(ScopedKeyView const& key, RjDirectAccess::SimpleValue const& value);
     void setVariant(ScopedKey const& key, RjDirectAccess::SimpleValue const& value);
 

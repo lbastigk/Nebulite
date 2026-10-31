@@ -83,6 +83,16 @@ void JsonScope::setArray(ScopedKeyView const& key, R const& range) {
     }
 }
 
+template <std::ranges::viewable_range R>
+void JsonScope::insertArray(ScopedKeyView const& key, R values) {
+    baseDocument->insertArray(key.full(*this), values);
+}
+
+template <std::ranges::viewable_range R>
+void JsonScope::appendArray(ScopedKeyView const& key, R values) {
+    baseDocument->appendArray(key.full(*this), values);
+}
+
 template <std::ranges::input_range R> requires std::same_as<std::remove_cvref_t<std::ranges::range_reference_t<R>>,ScopedKeyView>
 double** JsonScope::ensureOrderedCacheList(std::uint64_t uniqueId, R const& keys) {
     thread_local std::size_t const threadIndex = assignCacheLookupIndex();

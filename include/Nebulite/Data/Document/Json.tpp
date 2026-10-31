@@ -7,6 +7,8 @@
 // Standard library
 #include <expected>
 #include <mutex>
+#include <ranges>
+#include <stdexcept>
 #include <string>
 #include <string_view>
 #include <type_traits>
@@ -52,6 +54,34 @@ void Json::set(std::string_view const key, T const& val){
     else {
         setVariant(key, RjDirectAccess::SimpleValue(val));
     }
+}
+
+template <std::ranges::viewable_range R>
+void Json::insertArray(std::string_view const key, R values) {
+    std::scoped_lock const lockGuard(mtx);
+    helperNonConstVar++;
+    flush(key);
+    auto* const value = RjDirectAccess::ensurePath(key, doc, doc.GetAllocator());
+    if (value == nullptr) {
+        throw std::runtime_error("Failed to create or access path: " + std::string(key));
+    }
+    RjDirectAccess::insertArray(value, values, doc.GetAllocator());
+    cache.deleteEntry(key);
+    synchronizeChildren(key);
+}
+
+template <std::ranges::viewable_range R>
+void Json::appendArray(std::string_view const key, R values) {
+    std::scoped_lock const lockGuard(mtx);
+    helperNonConstVar++;
+    flush(key);
+    auto* const value = RjDirectAccess::ensurePath(key, doc, doc.GetAllocator());
+    if (value == nullptr) {
+        throw std::runtime_error("Failed to create or access path: " + std::string(key));
+    }
+    RjDirectAccess::appendArray(value, values, doc.GetAllocator());
+    cache.deleteEntry(key);
+    synchronizeChildren(key);
 }
 
 template<typename T>

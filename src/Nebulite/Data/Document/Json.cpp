@@ -433,7 +433,10 @@ void Json::setEmptyArray(std::string_view const key) {
     helperNonConstVar++; // Signal non-const operation
     flush(key);
     rapidjson::Value* val = RjDirectAccess::ensurePath(key, doc, doc.GetAllocator());
-    val->SetArray();
+    if (val == nullptr) {
+        throw std::runtime_error("Failed to create or access path: " + std::string(key));
+    }
+    RjDirectAccess::setEmptyArray(val);
 }
 
 void Json::setEmptyObject(std::string_view const key) {
@@ -441,6 +444,9 @@ void Json::setEmptyObject(std::string_view const key) {
     helperNonConstVar++; // Signal non-const operation
     flush(key);
     rapidjson::Value* val = RjDirectAccess::ensurePath(key, doc, doc.GetAllocator());
+    if (val == nullptr) {
+        throw std::runtime_error("Failed to create or access path: " + std::string(key));
+    }
     val->SetObject();
 }
 

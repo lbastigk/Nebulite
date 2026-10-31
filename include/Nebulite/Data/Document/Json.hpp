@@ -10,6 +10,7 @@
 #include <expected>
 #include <memory>
 #include <mutex>
+#include <ranges>
 #include <string>
 #include <string_view>
 #include <vector>
@@ -275,6 +276,27 @@ public:
      */
     template <typename T>
     void set(std::string_view key, T const& val);
+
+    /**
+     * @brief Replaces the value at a key with an array containing the supplied range.
+     * @details Existing values and cached child entries at the key are discarded.
+     * @tparam R The type of the range to insert.
+     * @param key The key of the array to replace.
+     * @param values The values to insert into the new array.
+     */
+    template <std::ranges::viewable_range R>
+    void insertArray(std::string_view key, R values);
+
+    /**
+     * @brief Appends a range of values to the array at a key.
+     * @details Existing cached values are flushed before appending, and cached child
+     *          entries are synchronized afterward.
+     * @tparam R The type of the range to append.
+     * @param key The key of the array to append to.
+     * @param values The values to append.
+     */
+    template <std::ranges::viewable_range R>
+    void appendArray(std::string_view key, R values);
 
     /**
      * @brief Sets a variant value of supported simple values in the JSON document.
