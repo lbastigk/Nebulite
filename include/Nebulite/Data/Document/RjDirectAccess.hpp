@@ -6,6 +6,7 @@
 
 // Standard library
 #include <cstdint> // NOLINT
+#include <complex>
 #include <optional>
 #include <ranges>
 #include <string>
@@ -23,6 +24,9 @@
  * @brief Provides direct access and manipulation of RapidJSON values.
  */
 namespace Nebulite::Data::RjDirectAccess {
+    static auto constexpr complexRealMember = "re";
+    static auto constexpr complexImaginaryMember = "im";
+
     /**
      * @brief Used flags for rapidjson parsing, allowing comments and trailing commas in JSON.
      */
@@ -63,7 +67,7 @@ namespace Nebulite::Data::RjDirectAccess {
     std::optional<SimpleValue> getSimpleValue(std::string_view key, RjValType& doc);
 
     //------------------------------------------
-    // Templated Getter, Setter
+    // Getter, Setter
 
     /**
      * @brief Fallback to direct rapidjson access for getting values.
@@ -110,6 +114,14 @@ namespace Nebulite::Data::RjDirectAccess {
      */
     template <typename T> requires (!std::is_trivially_copyable_v<T>)
     bool set(std::string_view key, T const& value, rapidjson::Value& val, rapidjson::Document::AllocatorType& allocator);
+
+    /**
+     * @brief Sets a rapidjson value to the object representation of a complex number.
+     * @param val The rapidjson value to modify.
+     * @param value The complex number to store.
+     * @param allocator The allocator to use for creating object members.
+     */
+    void setComplex(rapidjson::Value* val, std::complex<double> const& value, rapidjson::Document::AllocatorType& allocator);
 
     //------------------------------------------
     // Array
