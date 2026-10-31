@@ -442,6 +442,14 @@ public:
      */
     void copyMember(std::string_view fromKey, std::string_view toKey);
 
+    /**
+     * @brief Ensures that a key exists and is an array.
+     * @details If the key does not exist, it will be created as an empty array.
+     *          If the key exists but is not an array, the value is inserted into an array.
+     * @param key The key to ensure is an array.
+     */
+    void ensureArray(std::string_view key);
+
 
     /**
      * @brief Lists all available member keys in a rapidjson object.

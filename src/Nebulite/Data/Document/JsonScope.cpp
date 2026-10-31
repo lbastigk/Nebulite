@@ -318,6 +318,15 @@ void JsonScope::copyMember(ScopedKey const& fromKey, ScopedKeyView const& toKey)
     copyMember(fromKey.view(), toKey);
 }
 
+void JsonScope::ensureArray(ScopedKeyView const& key){
+    doc().ensureArray(key.full(*this));
+}
+
+void JsonScope::ensureArray(ScopedKey const& key){
+    ensureArray(key.view());
+}
+
+
 //------------------------------------------
 // Member listing
 

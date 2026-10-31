@@ -316,6 +316,9 @@ public:
     void copyMember(ScopedKeyView const& fromKey, ScopedKey const& toKey);
     void copyMember(ScopedKey const& fromKey, ScopedKeyView const& toKey);
 
+    void ensureArray(ScopedKeyView const& key);
+    void ensureArray(ScopedKey const& key);
+
     //------------------------------------------
     // Member listing
 

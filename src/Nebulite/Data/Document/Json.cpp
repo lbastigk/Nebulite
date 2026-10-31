@@ -763,6 +763,19 @@ void Json::copyMember(std::string_view const fromKey, std::string_view const toK
     setSubDoc(toKey, *this, fromKey);
 }
 
+void Json::ensureArray(std::string_view key){
+    // TODO: use key for flush and synchronizeChildren?
+    std::scoped_lock const lockGuard(mtx);
+    helperNonConstVar++; // Signal non-const operation
+
+    // Ensure cache is flushed before copying key
+    flush("");
+
+    auto* val = RjDirectAccess::ensurePath(key, doc, doc.GetAllocator());
+    RjDirectAccess::ensureArray(val, doc.GetAllocator());
+    synchronizeChildren("");
+}
+
 std::vector<std::string> Json::listAvailableMembers(std::string_view const key) const {
     std::scoped_lock const lockGuard(mtx);
 
