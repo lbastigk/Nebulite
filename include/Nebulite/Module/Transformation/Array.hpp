@@ -127,7 +127,7 @@ public:
 
     static bool iota(Utility::Args::SegmentedStringView const& args, Data::JsonScope& jsonDoc);
     static auto constexpr iotaName = "iota";
-    static auto constexpr iotaDesc = "Generates an array of values.\n"
+    static auto constexpr iotaDesc = "Generates a sequence of integer values.\n"
         "Usage: |iota <start> <end> -> {array}\n"
         "Generates an array containing the values from start (inclusive) to end (exclusive).\n"
         "If end is not greater than start, the result is an empty array.\n";
