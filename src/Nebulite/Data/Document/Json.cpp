@@ -5,6 +5,7 @@
 #include <algorithm>
 #include <array>
 #include <cassert>
+#include <complex>
 #include <cstddef>
 #include <cstdint> // NOLINT
 #include <expected>
@@ -281,6 +282,22 @@ Json Json::getSubDoc(std::string_view const key) const {
     return Json{};
 }
 
+std::optional<std::complex<double>> Json::getComplex(std::string_view const key) const {
+    auto const memberKey = [key](std::string_view const member) {
+        return key.empty()
+            ? std::string(member)
+            : std::string(key) + "." + std::string(member);
+    };
+    auto const realKey = memberKey(RjDirectAccess::complexRealMember);
+    auto const imaginaryKey = memberKey(RjDirectAccess::complexImaginaryMember);
+    auto const realPart = get<double>(realKey);
+    auto const imaginaryPart = get<double>(imaginaryKey);
+    if (realPart.has_value() && imaginaryPart.has_value()) {
+        return std::complex(realPart.value(), imaginaryPart.value());
+    }
+    return std::nullopt;
+}
+
 double* Json::getStableDoublePointer(std::string_view const key) const {
     std::scoped_lock const lockGuard(mtx);
 
@@ -437,6 +454,18 @@ void Json::setEmptyArray(std::string_view const key) {
         throw std::runtime_error("Failed to create or access path: " + std::string(key));
     }
     RjDirectAccess::setEmptyArray(val);
+}
+
+void Json::setComplex(std::string_view const key, std::complex<double> const& value) {
+    std::scoped_lock const lockGuard(mtx);
+    helperNonConstVar++; // Signal non-const operation
+    flush(key);
+    rapidjson::Value* val = RjDirectAccess::ensurePath(key, doc, doc.GetAllocator());
+    if (val == nullptr) {
+        throw std::runtime_error("Failed to create or access path: " + std::string(key));
+    }
+    RjDirectAccess::setComplex(val, value, doc.GetAllocator());
+    synchronizeChildren(key);
 }
 
 void Json::setEmptyObject(std::string_view const key) {
