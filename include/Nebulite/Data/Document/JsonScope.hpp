@@ -79,13 +79,6 @@ private:
         cacheLookupThreadCount>
     odpCache;
 
-    //------------------------------------------
-    // Complex number prefixes
-
-    static auto constexpr complexRe = "re";
-    static auto constexpr complexIm = "im";
-
-    //------------------------------------------
     // Valid prefix check and generation
 
     /**
@@ -223,18 +216,14 @@ public:
     void setSubDoc(ScopedKeyView const& key, JsonScope const& subDoc);
     void setSubDoc(ScopedKey const& key, JsonScope const& subDoc);
 
-    // Later on, we should use C++26 reflection once widely available, see branch feature/jsonscope/reflection
-    template <std::ranges::input_range R>
-    void setArray(ScopedKeyView const& key, R const& range);
-
     void setEmptyArray(ScopedKeyView const& key);
     void setEmptyArray(ScopedKey const& key);
 
-    void setComplex(ScopedKeyView const& key, std::complex<double> const& value);
-    void setComplex(ScopedKey const& key, std::complex<double> const& value);
-
     void setEmptyObject(ScopedKeyView const& key);
     void setEmptyObject(ScopedKey const& key);
+
+    void setComplex(ScopedKeyView const& key, std::complex<double> const& value);
+    void setComplex(ScopedKey const& key, std::complex<double> const& value);
 
     //------------------------------------------
     // Special sets for threadsafe maths operations

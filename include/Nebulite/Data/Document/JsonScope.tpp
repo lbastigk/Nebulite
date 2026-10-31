@@ -21,7 +21,6 @@
 #include "Nebulite/Data/Document/Json.hpp"
 #include "Nebulite/Data/Document/ScopedKeyView.hpp"
 #include "Nebulite/Data/Document/SimpleValueError.hpp"
-#include "Nebulite/Utility/Ranges.hpp"
 
 //------------------------------------------
 // Conditional includes
@@ -65,22 +64,6 @@ std::expected<T, SimpleValueRetrievalError> JsonScope::get(ScopedKeyView const& 
 template<typename T>
 void JsonScope::set(ScopedKeyView const& key, T const& value) {
     baseDocument->set<T>(key.full(*this), value);
-}
-
-template <std::ranges::input_range R>
-void JsonScope::setArray(ScopedKeyView const& key, R const& range) {
-    setEmptyArray(key);
-    for (auto const [index, indexKey] : getArrayKeys(key, range.size()) | Utility::Ranges::enumerate) {
-        if constexpr (std::is_same_v<typename R::value_type, std::complex<double>>) {
-            setComplex(indexKey, range[index]);
-        }
-        else if constexpr (std::is_same_v<typename R::value_type, Json> || std::is_same_v<typename R::value_type, JsonScope>) {
-            setSubDoc(indexKey, range[index]);
-        }
-        else {
-            set<typename R::value_type>(indexKey, range[index]);
-        }
-    }
 }
 
 template <std::ranges::viewable_range R>
