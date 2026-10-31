@@ -6,7 +6,9 @@
 
 // Standard library
 #include <cstdint> // NOLINT
+#include <complex>
 #include <optional>
+#include <ranges>
 #include <string>
 #include <string_view>
 #include <variant>
@@ -22,6 +24,9 @@
  * @brief Provides direct access and manipulation of RapidJSON values.
  */
 namespace Nebulite::Data::RjDirectAccess {
+    static auto constexpr complexRealMember = "re";
+    static auto constexpr complexImaginaryMember = "im";
+
     /**
      * @brief Used flags for rapidjson parsing, allowing comments and trailing commas in JSON.
      */
@@ -62,7 +67,7 @@ namespace Nebulite::Data::RjDirectAccess {
     std::optional<SimpleValue> getSimpleValue(std::string_view key, RjValType& doc);
 
     //------------------------------------------
-    // Templated Getter, Setter
+    // Getter, Setter
 
     /**
      * @brief Fallback to direct rapidjson access for getting values.
@@ -109,6 +114,53 @@ namespace Nebulite::Data::RjDirectAccess {
      */
     template <typename T> requires (!std::is_trivially_copyable_v<T>)
     bool set(std::string_view key, T const& value, rapidjson::Value& val, rapidjson::Document::AllocatorType& allocator);
+
+    /**
+     * @brief Sets a rapidjson value to the object representation of a complex number.
+     * @param val The rapidjson value to modify.
+     * @param value The complex number to store.
+     * @param allocator The allocator to use for creating object members.
+     */
+    void setComplex(rapidjson::Value* val, std::complex<double> const& value, rapidjson::Document::AllocatorType& allocator);
+
+    //------------------------------------------
+    // Array
+
+    /**
+     * @brief Ensures that a rapidjson value is an array.
+     * @param val The rapidjson value to modify.
+     * @param allocator The allocator to use when moving the value into the array.
+     */
+    void ensureArray(rapidjson::Value* val, rapidjson::Document::AllocatorType& allocator);
+
+    /**
+     * @brief Replaces a rapidjson value with an empty array.
+     * @param val The rapidjson value to modify.
+     */
+    void setEmptyArray(rapidjson::Value* val);
+
+    /**
+     * @brief Replaces a value with an array containing the supplied range.
+     * @details Any existing value is discarded, including an existing array.
+     * @tparam R The type of the range to insert.
+     * @param val The rapidjson value to replace.
+     * @param values The values to insert into the new array.
+     * @param allocator The allocator to use when adding values to the array.
+     */
+    template<std::ranges::viewable_range R>
+    void insertArray(rapidjson::Value* val, R const& values, rapidjson::Document::AllocatorType& allocator);
+
+    /**
+     * @brief Appends a range of values to a rapidjson array.
+     * @details A non-array value is first converted to an array with ensureArray,
+     * preserving it as the first element. A null value becomes an empty array.
+     * @tparam R The type of the range to append.
+     * @param val The rapidjson value to append to.
+     * @param values The values to append to the array.
+     * @param allocator The allocator to use when adding values to the array.
+     */
+    template<std::ranges::viewable_range R>
+    void appendArray(rapidjson::Value* val, R const& values, rapidjson::Document::AllocatorType& allocator);
 
     //------------------------------------------
     // Conversion

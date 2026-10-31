@@ -4,6 +4,7 @@
 // Standard library
 #include <algorithm>
 #include <cassert>
+#include <complex>
 #include <cstddef>
 #include <optional>
 #include <string>
@@ -47,6 +48,37 @@ std::optional<SimpleValue> getSimpleValue(rapidjson::Value const* val) {
     if (val->IsLosslessFloat())  return val->GetDouble();
     if (val->IsFloat())  return val->GetDouble();
     return  std::nullopt;
+}
+
+//------------------------------------------
+// Getter, Setter
+
+void setComplex(rapidjson::Value* val, std::complex<double> const& value, rapidjson::Document::AllocatorType& allocator) {
+    val->SetObject();
+    val->AddMember(rapidjson::StringRef(complexRealMember), value.real(), allocator);
+    val->AddMember(rapidjson::StringRef(complexImaginaryMember), value.imag(), allocator);
+}
+
+//------------------------------------------
+// Array
+
+void ensureArray(rapidjson::Value* val, rapidjson::Document::AllocatorType& allocator) {
+    if (val->IsArray()) {
+        return;
+    }
+
+    if (!val->IsNull()) {
+        rapidjson::Value existingValue(std::move(*val));
+        val->SetArray();
+        val->PushBack(existingValue, allocator);
+        return;
+    }
+
+    val->SetArray();
+}
+
+void setEmptyArray(rapidjson::Value* val) {
+    val->SetArray();
 }
 
 //------------------------------------------

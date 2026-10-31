@@ -128,10 +128,7 @@ double* JsonScope::getStableDoublePointer(ScopedKey const& key) const {
 }
 
 std::optional<std::complex<double>> JsonScope::getComplex(ScopedKeyView const& key) const {
-    if (auto const [realPart, imagPart] = getMultiple<double>(key.addMember(complexRe).view(), key.addMember(complexIm).view()); realPart.has_value() && imagPart.has_value()) {
-        return {std::complex(realPart.value(), imagPart.value())};
-    }
-    return std::nullopt;
+    return baseDocument->getComplex(key.full(*this));
 }
 
 std::optional<std::complex<double>> JsonScope::getComplex(ScopedKey const& key) const {
@@ -176,22 +173,20 @@ void JsonScope::setEmptyArray(ScopedKey const& key) {
     setEmptyArray(key.view());
 }
 
-void JsonScope::setComplex(ScopedKeyView const& key, std::complex<double> const& value){
-    doc().removeMember(key.full(*this)); // Remove any existing member to avoid type conflicts
-    doc().set<double>(key.addMember(complexRe).view().full(*this), value.real());
-    doc().set<double>(key.addMember(complexIm).view().full(*this), value.imag());
-}
-
-void JsonScope::setComplex(ScopedKey const& key, std::complex<double> const& value) {
-    setComplex(key.view(), value);
-}
-
 void JsonScope::setEmptyObject(ScopedKeyView const& key){
     doc().setEmptyObject(key.full(*this));
 }
 
 void JsonScope::setEmptyObject(ScopedKey const& key) {
     setEmptyObject(key.view());
+}
+
+void JsonScope::setComplex(ScopedKeyView const& key, std::complex<double> const& value){
+    doc().setComplex(key.full(*this), value);
+}
+
+void JsonScope::setComplex(ScopedKey const& key, std::complex<double> const& value) {
+    setComplex(key.view(), value);
 }
 
 //------------------------------------------
@@ -322,6 +317,15 @@ void JsonScope::copyMember(ScopedKeyView const& fromKey, ScopedKey const& toKey)
 void JsonScope::copyMember(ScopedKey const& fromKey, ScopedKeyView const& toKey) {
     copyMember(fromKey.view(), toKey);
 }
+
+void JsonScope::ensureArray(ScopedKeyView const& key){
+    doc().ensureArray(key.full(*this));
+}
+
+void JsonScope::ensureArray(ScopedKey const& key){
+    ensureArray(key.view());
+}
+
 
 //------------------------------------------
 // Member listing

@@ -67,16 +67,9 @@ bool Collection::get(Utility::Args::SegmentedStringView const& args, Data::JsonS
 }
 
 bool Collection::listMembers(Data::JsonScope& jsonDoc){
-    auto const membersAndKeys = jsonDoc.listAvailableMembersAndKeys(rootKey);
-    jsonDoc.removeMember(rootKey);
-    jsonDoc.setEmptyArray(rootKey);
-    std::ranges::for_each(
-        membersAndKeys | Utility::Ranges::enumerate,
-        [&](auto const& enumeratedMemberAndKey) {
-            auto const& [index, memberAndKey] = enumeratedMemberAndKey;
-            auto const& [member, _] = memberAndKey;
-            jsonDoc.set<std::string>(rootKey.addIndex(index),member);
-        }
+    jsonDoc.insertArray(
+        rootKey,
+        jsonDoc.listAvailableMembers(rootKey)
     );
     return true;
 }
