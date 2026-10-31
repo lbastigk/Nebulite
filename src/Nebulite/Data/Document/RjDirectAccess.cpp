@@ -50,6 +50,28 @@ std::optional<SimpleValue> getSimpleValue(rapidjson::Value const* val) {
 }
 
 //------------------------------------------
+// Array
+
+void ensureArray(rapidjson::Value* val, rapidjson::Document::AllocatorType& allocator) {
+    if (val->IsArray()) {
+        return;
+    }
+
+    if (!val->IsNull()) {
+        rapidjson::Value existingValue(std::move(*val));
+        val->SetArray();
+        val->PushBack(existingValue, allocator);
+        return;
+    }
+
+    val->SetArray();
+}
+
+void setEmptyArray(rapidjson::Value* val) {
+    val->SetArray();
+}
+
+//------------------------------------------
 // Document traversal
 
 namespace {

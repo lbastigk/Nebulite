@@ -7,6 +7,7 @@
 // Standard library
 #include <cstdint> // NOLINT
 #include <optional>
+#include <ranges>
 #include <sstream>
 #include <string>
 #include <string_view>
@@ -152,6 +153,25 @@ bool set(std::string_view const key, T const& value, rapidjson::Value& val, rapi
         return true;
     }
     return false;
+}
+
+//------------------------------------------
+// Array
+
+template<std::ranges::viewable_range R>
+void insertArray(rapidjson::Value* val, R values, rapidjson::Document::AllocatorType& allocator) {
+    setEmptyArray(val);
+    for (auto const& v : values) {
+        val->PushBack(v, allocator);
+    }
+}
+
+template<std::ranges::viewable_range R>
+void appendArray(rapidjson::Value* val, R values, rapidjson::Document::AllocatorType& allocator) {
+    ensureArray(val, allocator);
+    for (auto const& v : values) {
+        val->PushBack(v, allocator);
+    }
 }
 
 //------------------------------------------
