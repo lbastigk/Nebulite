@@ -1,3 +1,4 @@
+# Testing invalid transformation input arguments against numeric existing data.
 set test.val 3
 
 assign global:result.add = {global:test.val|add a}
@@ -8,7 +9,7 @@ assign global:result.sub = {global:test.val|sub a}
 assign global:result.div = {global:test.val|div a}
 assign global:result.root = {global:test.val|root a}
 
-# Checking for null-values is tricky. We verify the members exist, but are null:
+# Checking for null values is tricky. We verify the members exist, but are null:
 # "add": null,
 # "mod": null,
 # "mul": null,

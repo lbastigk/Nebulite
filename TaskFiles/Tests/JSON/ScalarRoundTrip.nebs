@@ -2,7 +2,7 @@
 set values.string hello
 assign global:values.int = $i(-42)
 assign global:values.double = $(3.125)
-assign global:values.bool = {|add 0|not}
+assign global:values.bool = {|setInt . 0|not}
 
 assign global:serialized = {global:values|serialize}
 assign global:roundTrip = {global:serialized|deserialize}

@@ -1,10 +1,14 @@
 [
     {
-        "command": "task TaskFiles/Tests/JSON/Transformations/Arithmetic/numericValues.nebs",
+        "command": "task TaskFiles/Tests/JSON/Transformations/Arithmetic/existingValueFallback.nebs",
         "expected": { "cout": [], "cerr": [] }
     },
     {
-        "command": "task TaskFiles/Tests/JSON/Transformations/Arithmetic/nonNumericValues.nebs",
+        "command": "task TaskFiles/Tests/JSON/Transformations/Arithmetic/invalidArgumentValues.nebs",
+        "expected": { "cout": [], "cerr": [] }
+    },
+    {
+        "command": "task TaskFiles/Tests/JSON/Transformations/Arithmetic/numericExistingValues.nebs",
         "expected": { "cout": [], "cerr": [] }
     },
     {

@@ -6,10 +6,10 @@
 
 // Standard library
 #include <algorithm>
+#include <cmath>
 #include <functional>
 #include <memory>
 #include <ranges>
-#include <string_view>
 
 // Nebulite
 #include "Nebulite/Data/Document/ScopedKeyView.hpp"
@@ -30,7 +30,8 @@ namespace Nebulite::Module::Transformation {
 /**
  * @class Nebulite::Module::Transformation::Arithmetic
  * @brief Various arithmetic transformations for numeric JSON values.
- * @details These transformations perform basic arithmetic operations on the current JSON value, which must be a number.
+ * @details These transformations perform basic arithmetic operations on the current JSON value.
+ *          Invalid existing values propagate as NaN; provided arguments must be valid numbers.
  *          The transformations can take one or more numeric arguments, and the result is either a single number (if one argument is provided)
  *          or an array of numbers (if multiple arguments are provided).
  */
@@ -60,7 +61,7 @@ public:
     static auto constexpr multiplyName = "mul";
     static auto constexpr multiplyDesc = "Multiplies the current JSON value by a numeric value.\n"
         "If multiple numbers are provided, the result is an array, one element for each provided argument.\n"
-        "Usage: |multiply <number1> <number2> ... -> {number/array}\n";
+        "Usage: |mul <number1> <number2> ... -> {number/array}\n";
 
     static bool pow(Utility::Args::SegmentedStringView const& args, Data::JsonScope& jsonDoc);
     static auto constexpr powName = "pow";
@@ -95,25 +96,27 @@ public:
 private:
     template<typename F>
     static bool forall(Utility::Args::SegmentedStringView const& args, F&& f) {
-        static_assert(std::is_invocable_v<F, std::string_view, Data::ScopedKeyView>, "f must be a function F invokable with f(std::string_view, Data::ScopedKeyView)");
+        static_assert(std::is_invocable_v<F, double, Data::ScopedKeyView>, "f must be invocable with f(double, Data::ScopedKeyView)");
 
         if (args.size() < 2) {
             return false;
         }
-        try {
-            if (args.size() == 2) {
-                return std::invoke(std::forward<F>(f), args[1], rootKey);
-            }
-            return std::ranges::all_of(args | std::views::drop(1) | Utility::Ranges::enumerate,
-                [&](auto const& item) {
-                    auto const& [index, arg] = item;
-                    auto const key = rootKey.addIndex(index);
-                    return std::invoke(std::forward<F>(f), arg, key.view());
-                }
-            );
-        } catch (...) {
-            return false;
+        if (args.size() == 2) {
+            auto const arg = args.tryGetAs<double>(1);
+            return arg.has_value() && std::isfinite(arg.value())
+                && std::invoke(std::forward<F>(f), arg.value(), rootKey);
         }
+
+        return std::ranges::all_of(args | std::views::drop(1) | Utility::Ranges::enumerate,
+            [&](auto const& item) {
+                auto const index = item.first;
+                auto const arg = args.tryGetAs<double>(index + 1);
+                if (!arg || !std::isfinite(arg.value())) {
+                    return false;
+                }
+                return std::invoke(std::forward<F>(f), arg.value(), rootKey.addIndex(index).view());
+            }
+        );
     }
 };
 } // namespace Nebulite::Module::Transformation

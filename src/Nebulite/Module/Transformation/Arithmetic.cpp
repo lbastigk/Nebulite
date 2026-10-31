@@ -4,7 +4,6 @@
 // Standard library
 #include <cmath>
 #include <limits>
-#include <string>
 
 // Nebulite
 #include "Nebulite/Data/Document/JsonScope.hpp"
@@ -14,6 +13,14 @@
 
 //------------------------------------------
 namespace Nebulite::Module::Transformation {
+
+namespace {
+
+double currentValueOrNaN(Data::JsonScope const& jsonDoc, Data::ScopedKeyView const& key) {
+    return jsonDoc.get<double>(key).value_or(std::numeric_limits<double>::quiet_NaN());
+}
+
+} // namespace
 
 void Arithmetic::bindTransformations() {
     bindTransformation(&Arithmetic::add, addName, addDesc);
@@ -27,71 +34,62 @@ void Arithmetic::bindTransformations() {
 }
 
 bool Arithmetic::add(Utility::Args::SegmentedStringView const& args, Data::JsonScope& jsonDoc) {
-    return forall(args, [&jsonDoc](std::string_view const arg, Data::ScopedKeyView const& key) {
-        double const num = std::stod(std::string(arg));
-        jsonDoc.setAdditive(key, num);
+    return forall(args, [&jsonDoc](double const num, Data::ScopedKeyView const& key) {
+        jsonDoc.set<double>(key, currentValueOrNaN(jsonDoc, key) + num);
         return true;
     });
 }
 
 bool Arithmetic::multiply(Utility::Args::SegmentedStringView const& args, Data::JsonScope& jsonDoc) {
-    return forall(args, [&jsonDoc](std::string_view const arg, Data::ScopedKeyView const& key) {
-        double const num = std::stod(std::string(arg));
-        jsonDoc.setMultiplicative(key, num);
+    return forall(args, [&jsonDoc](double const num, Data::ScopedKeyView const& key) {
+        jsonDoc.set<double>(key, currentValueOrNaN(jsonDoc, key) * num);
         return true;
     });
 }
 
 bool Arithmetic::mod(Utility::Args::SegmentedStringView const& args, Data::JsonScope& jsonDoc) {
-    return forall(args, [&jsonDoc](std::string_view const arg, Data::ScopedKeyView const& key) {
-        double const modValue = std::stod(std::string(arg));
-        auto const currentValue = jsonDoc.get<double>(key).value_or(0.0);
+    return forall(args, [&jsonDoc](double const modValue, Data::ScopedKeyView const& key) {
         if (std::fabs(modValue) < std::numeric_limits<double>::epsilon()) {
             return false; // Modulo by zero is undefined
         }
-        double const result = std::fmod(currentValue, modValue);
+        double const result = std::fmod(currentValueOrNaN(jsonDoc, key), modValue);
         jsonDoc.set<double>(key, result);
         return true;
     });
 }
 
 bool Arithmetic::pow(Utility::Args::SegmentedStringView const& args, Data::JsonScope& jsonDoc) {
-    return forall(args, [&jsonDoc](std::string_view const arg, Data::ScopedKeyView const& key) {
-        double const exponent = std::stod(std::string(arg));
-        auto const currentValue = jsonDoc.get<double>(key).value_or(0.0);
-        double const result = std::pow(currentValue, exponent);
+    return forall(args, [&jsonDoc](double const exponent, Data::ScopedKeyView const& key) {
+        double const result = std::pow(currentValueOrNaN(jsonDoc, key), exponent);
         jsonDoc.set<double>(key, result);
         return true;
     });
 }
 
 bool Arithmetic::subtract(Utility::Args::SegmentedStringView const& args, Data::JsonScope& jsonDoc) {
-    return forall(args, [&jsonDoc](std::string_view const arg, Data::ScopedKeyView const& key) {
-        double const num = - std::stod(std::string(arg));
-        jsonDoc.setAdditive(key, num);
+    return forall(args, [&jsonDoc](double const num, Data::ScopedKeyView const& key) {
+        jsonDoc.set<double>(key, currentValueOrNaN(jsonDoc, key) - num);
         return true;
     });
 }
 
 bool Arithmetic::divide(Utility::Args::SegmentedStringView const& args, Data::JsonScope& jsonDoc) {
-    return forall(args, [&jsonDoc](std::string_view const arg, Data::ScopedKeyView const& key) {
-        double const divisor = std::stod(std::string(arg));
+    return forall(args, [&jsonDoc](double const divisor, Data::ScopedKeyView const& key) {
         if (std::fabs(divisor) < std::numeric_limits<double>::epsilon()) {
             return false; // Division by zero is undefined
         }
-        double const result = jsonDoc.get<double>(key).value_or(0.0) / divisor;
+        double const result = currentValueOrNaN(jsonDoc, key) / divisor;
         jsonDoc.set<double>(key, result);
         return true;
     });
 }
 
 bool Arithmetic::root(Utility::Args::SegmentedStringView const& args, Data::JsonScope& jsonDoc) {
-    return forall(args, [&jsonDoc](std::string_view const arg, Data::ScopedKeyView const& key) {
-        double const n = std::stod(std::string(arg));
+    return forall(args, [&jsonDoc](double const n, Data::ScopedKeyView const& key) {
         if (std::fabs(n) < std::numeric_limits<double>::epsilon()) {
             return false; // Root of order zero is undefined
         }
-        auto const currentValue = jsonDoc.get<double>(key).value_or(0.0);
+        auto const currentValue = currentValueOrNaN(jsonDoc, key);
         if (currentValue < 0.0 && std::fabs(std::fmod(n, 2.0)) < std::numeric_limits<double>::epsilon()) {
             return false; // Even root of negative number is undefined
         }
@@ -105,17 +103,9 @@ bool Arithmetic::sqrt(Utility::Args::SegmentedStringView const& args, Data::Json
     if (args.size() != 1) {
         return false; // No arguments should be provided for sqrt, as it's an operator with a single operand (the current JSON value)
     }
-    try {
-        auto const currentValue = jsonDoc.get<double>(rootKey).value_or(0.0);
-        if (currentValue < 0.0) {
-            return false; // Square root of negative number is undefined
-        }
-        double const result = std::sqrt(currentValue);
-        jsonDoc.set<double>(rootKey, result);
-        return true;
-    } catch (...) {
-        return false;
-    }
+    auto const currentValue = currentValueOrNaN(jsonDoc, rootKey);
+    jsonDoc.set<double>(rootKey, std::sqrt(currentValue));
+    return true;
 }
 
 } // namespace Nebulite::Module::Transformation

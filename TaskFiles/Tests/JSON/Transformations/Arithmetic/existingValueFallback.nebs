@@ -1,0 +1,19 @@
+# Invalid existing values should propagate as invalid results instead of using
+# operation-neutral defaults.
+set test.text value
+
+assign global:result.add = {global:test.text|add 2}
+assign global:result.mul = {global:test.text|mul 2}
+assign global:result.div = {global:test.text|div 2}
+assign global:result.pow = {global:test.text|pow 2}
+assign global:result.sqrt = {global:test.text|sqrt}
+
+eval nop {global:result|assert type object}
+eval nop {global:result|listMembers|length|assert equals int 5}
+eval nop {global:result.add|toString|assert equals string nan}
+eval nop {global:result.mul|toString|assert equals string nan}
+eval nop {global:result.div|toString|assert equals string nan}
+eval nop {global:result.pow|toString|assert equals string nan}
+eval nop {global:result.sqrt|toString|assert equals string nan}
+
+exit

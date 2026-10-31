@@ -1,4 +1,4 @@
-# Testing non-numeric values in arithmetic transformations
+# Testing arithmetic transformations with numeric existing data and valid input arguments.
 set test.val 3
 
 assign global:result.add = {global:test.val|add 2}

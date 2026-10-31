@@ -3,7 +3,7 @@
 # Setup
 assign global:workspace.integer = $i(42)
 assign global:workspace.float = $(3.1415926)
-assign global:workspace.bool = {|add 0|not}
+assign global:workspace.bool = {|setInt . 0|not}
 assign global:workspace.null = {|}
 assign global:workspace.string = Hello World
 assign global:workspace.array[0] = one

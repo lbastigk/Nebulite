@@ -5,5 +5,5 @@ set exists someValue
 eval nop {global:exists|require empty|unreachable}
 
 # Scenario 2: success
-assign global:null = {global:doesNotExist|require empty|add 0}
+assign global:null = {global:doesNotExist|require empty|setInt . 0}
 eval nop {global:null|assert equals int 0}

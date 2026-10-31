@@ -2980,7 +2980,7 @@ Usage: |moveMember <source> <destination> -> {json}
 ```
 Multiplies the current JSON value by a numeric value.
 If multiple numbers are provided, the result is an array, one element for each provided argument.
-Usage: |multiply <number1> <number2> ... -> {number/array}
+Usage: |mul <number1> <number2> ... -> {number/array}
 ```
 
 #### `nand`
@@ -3972,4 +3972,3 @@ Returns 1 if exactly one of a or b is logically true, otherwise returns 0.
 Uses epsilon threshold to determine logical truthiness.
 Usage: xor(a, b)
 ```
-
