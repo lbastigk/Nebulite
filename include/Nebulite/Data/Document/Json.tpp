@@ -57,7 +57,7 @@ void Json::set(std::string_view const key, T const& val){
 }
 
 template <std::ranges::viewable_range R>
-void Json::insertArray(std::string_view const key, R values) {
+void Json::insertArray(std::string_view const key, R const& values) {
     std::scoped_lock const lockGuard(mtx);
     helperNonConstVar++;
     flush(key);
@@ -71,7 +71,7 @@ void Json::insertArray(std::string_view const key, R values) {
 }
 
 template <std::ranges::viewable_range R>
-void Json::appendArray(std::string_view const key, R values) {
+void Json::appendArray(std::string_view const key, R const& values) {
     std::scoped_lock const lockGuard(mtx);
     helperNonConstVar++;
     flush(key);

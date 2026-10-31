@@ -158,19 +158,37 @@ bool set(std::string_view const key, T const& value, rapidjson::Value& val, rapi
 //------------------------------------------
 // Array
 
+namespace {
+template <typename T>
+void appendArrayValue(rapidjson::Value* val, T const& value, rapidjson::Document::AllocatorType& allocator) {
+    using ValueT = std::remove_cvref_t<T>;
+    if constexpr (std::is_same_v<ValueT, std::string> || std::is_same_v<ValueT, std::string_view>) {
+        rapidjson::Value stringValue(
+            value.data(),
+            static_cast<rapidjson::SizeType>(value.size()),
+            allocator
+        );
+        val->PushBack(stringValue, allocator);
+    }
+    else {
+        val->PushBack(value, allocator);
+    }
+}
+} // anonymous namespace
+
 template<std::ranges::viewable_range R>
-void insertArray(rapidjson::Value* val, R values, rapidjson::Document::AllocatorType& allocator) {
+void insertArray(rapidjson::Value* val, R const& values, rapidjson::Document::AllocatorType& allocator) {
     setEmptyArray(val);
     for (auto const& v : values) {
-        val->PushBack(v, allocator);
+        appendArrayValue(val, v, allocator);
     }
 }
 
 template<std::ranges::viewable_range R>
-void appendArray(rapidjson::Value* val, R values, rapidjson::Document::AllocatorType& allocator) {
+void appendArray(rapidjson::Value* val, R const& values, rapidjson::Document::AllocatorType& allocator) {
     ensureArray(val, allocator);
     for (auto const& v : values) {
-        val->PushBack(v, allocator);
+        appendArrayValue(val, v, allocator);
     }
 }
 

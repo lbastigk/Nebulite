@@ -136,7 +136,7 @@ namespace Nebulite::Data::RjDirectAccess {
      * @param allocator The allocator to use when adding values to the array.
      */
     template<std::ranges::viewable_range R>
-    void insertArray(rapidjson::Value* val, R values, rapidjson::Document::AllocatorType& allocator);
+    void insertArray(rapidjson::Value* val, R const& values, rapidjson::Document::AllocatorType& allocator);
 
     /**
      * @brief Appends a range of values to a rapidjson array.
@@ -148,7 +148,7 @@ namespace Nebulite::Data::RjDirectAccess {
      * @param allocator The allocator to use when adding values to the array.
      */
     template<std::ranges::viewable_range R>
-    void appendArray(rapidjson::Value* val, R values, rapidjson::Document::AllocatorType& allocator);
+    void appendArray(rapidjson::Value* val, R const& values, rapidjson::Document::AllocatorType& allocator);
 
     //------------------------------------------
     // Conversion

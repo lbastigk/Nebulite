@@ -84,12 +84,12 @@ void JsonScope::setArray(ScopedKeyView const& key, R const& range) {
 }
 
 template <std::ranges::viewable_range R>
-void JsonScope::insertArray(ScopedKeyView const& key, R values) {
+void JsonScope::insertArray(ScopedKeyView const& key, R const& values) {
     baseDocument->insertArray(key.full(*this), values);
 }
 
 template <std::ranges::viewable_range R>
-void JsonScope::appendArray(ScopedKeyView const& key, R values) {
+void JsonScope::appendArray(ScopedKeyView const& key, R const& values) {
     baseDocument->appendArray(key.full(*this), values);
 }
 

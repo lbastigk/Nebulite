@@ -285,7 +285,7 @@ public:
      * @param values The values to insert into the new array.
      */
     template <std::ranges::viewable_range R>
-    void insertArray(std::string_view key, R values);
+    void insertArray(std::string_view key, R const& values);
 
     /**
      * @brief Appends a range of values to the array at a key.
@@ -296,7 +296,7 @@ public:
      * @param values The values to append.
      */
     template <std::ranges::viewable_range R>
-    void appendArray(std::string_view key, R values);
+    void appendArray(std::string_view key, R const& values);
 
     /**
      * @brief Sets a variant value of supported simple values in the JSON document.
