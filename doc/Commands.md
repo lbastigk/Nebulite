@@ -2,7 +2,7 @@
 
 This documentation is automatically generated.
 
-Generated on: Sun Sep  6 19:18:17 CEST 2026
+Generated on: Sat Oct 31 13:32:03 CET 2026
 
 ## Table of Contents
 
@@ -56,6 +56,7 @@ Available Functions
 | `help` | Show available commands and their descriptions |
 | `if` | Executes a block of code if a condition is true. |
 | `imgui-view` | Creates an ImGui view of the domain. |
+| `imguidb` | Dear ImGui debugging utilities. |
 | `input-mapping` | Functions for mapping inputs to actions within the GlobalSpace. |
 | `input-wait` | Waits for user input before continuing. |
 | `json` | Functions to manipulate JSON data via read-only JSON documents |
@@ -491,6 +492,7 @@ Available Functions
 | `help` | Show available commands and their descriptions |
 | `key-combination` | Tests key-combinations for the ScopedKey class. |
 | `large-fft` | Tests the FFT implementation with a large dataset. |
+| `segmented-string-view` | Functions for testing segmented string view functionality. |
 
 ##### `feature-test context-evaluation`
 
@@ -527,6 +529,38 @@ Using <empty> as argument will treated as an empty key.
 ```
 Tests the FFT implementation with a large dataset.
 Usage: feature-test large-fft <size>
+```
+
+##### `feature-test segmented-string-view`
+
+Available Functions
+
+| Function | Description |
+|----------|-------------|
+| `benchmark` | Tests benchmark for segmented string-view, using compare and contains methods. |
+| `compare` | Segmented string view comparison tests. |
+| `contains` | Tests the contains method of the SegmentedStringView class. |
+| `help` | Show available commands and their descriptions |
+
+###### `feature-test segmented-string-view benchmark`
+
+```
+Tests benchmark for segmented string-view, using compare and contains methods.
+Prints the amount of milliseconds the test took.Usage: feature-test segmented-string-view <size>
+```
+
+###### `feature-test segmented-string-view compare`
+
+```
+Segmented string view comparison tests.
+Prints the message 'SegmentedStringView test passed.' or 'SegmentedStringView test failed: <reason>'Usage: feature-test segmented-string-view compare
+```
+
+###### `feature-test segmented-string-view contains`
+
+```
+Tests the contains method of the SegmentedStringView class.
+Prints the message 'SegmentedStringView test passed.' or 'SegmentedStringView test failed: <reason>'Usage: feature-test segmented-string-view contains
 ```
 
 #### `fetch-container`
@@ -640,6 +674,50 @@ if $({global:settings.someFile|strCompare equals ./Resources/myFile.txt}) then e
 Creates an ImGui view of the domain.
 
 Usage: imgui-view <on/off>
+```
+
+#### `imguidb`
+
+Available Functions
+
+| Function | Description |
+|----------|-------------|
+| `framebuffer-scale` | Overrides Dear ImGui's framebuffer scale for the current frame. |
+| `help` | Show available commands and their descriptions |
+| `mouse-scale` | Scales mouse coordinates forwarded to Dear ImGui. |
+| `render-scale` | Scales Dear ImGui vertices during its SDL render pass. |
+| `scale` | Scales all Dear ImGui style sizes. |
+
+##### `imguidb framebuffer-scale`
+
+```
+Overrides Dear ImGui's framebuffer scale for the current frame.
+
+Usage: imguidb framebuffer-scale <scale>
+```
+
+##### `imguidb mouse-scale`
+
+```
+Scales mouse coordinates forwarded to Dear ImGui.
+
+Usage: imguidb mouse-scale <scale>
+```
+
+##### `imguidb render-scale`
+
+```
+Scales Dear ImGui vertices during its SDL render pass.
+
+Usage: imguidb render-scale <scale>
+```
+
+##### `imguidb scale`
+
+```
+Scales all Dear ImGui style sizes.
+
+Usage: imguidb scale <scale>
 ```
 
 #### `input-mapping`
@@ -2102,20 +2180,24 @@ Available Functions
 | Function | Description |
 |----------|-------------|
 | `add` | Adds a numeric value to the current JSON value. |
+| `and` | Logical and operation on the current JSON array values. |
 | `applyTfDomainF` | Stores the result of applying a transfer function on the frequency domain to a given real-number series |
 | `assert` | Assertion transformations that validate JSON values and throw exceptions on failure. |
 | `assign` | Assigns a value based on the result of an expression. |
 | `at` | Gets the element at the specified index from the array in the current JSON value. |
-| `average` | Calculates the average of the elements of the array in the current JSON value. |
+| `average` | Calculates the mean of the elements of the array in the current JSON value. |
 | `batch` | Batches the array in the current JSON value into subarrays of the specified size. |
 | `batchPadded` | Batches the array in the current JSON value into subarrays of the specified size, padding the last batch with empty objects if necessary. |
 | `bind` | Binds the elements of an array to the provided keys. |
+| `booleanToSigned` | Converts the root boolean value to 1 (true) or -1 (false)Usage: |booleanToSigned -> {value:int} |
 | `bundle` | Gathers all members from the provided keys into an array. |
 | `capitalize` | Capitalizes the current JSON string. |
 | `ceiling` | Rounds the current JSON numeric value down to the nearest integer. |
 | `complexAbs` | Calculates the absolute value (magnitude) of a complex number. |
 | `complexArg` | Calculates the argument (phase angle) of a complex number in radians. |
 | `complexToString` | Formats the contained complex number object to a string. |
+| `copyMember` | Copys a value based on the result of an expression. |
+| `dedupe` | Removes duplicate elements from the array in the current JSON value. |
 | `default` | If the current value is null, default to a given String |
 | `deserialize` | Deserializes the current JSON string value stored in root. |
 | `div` | Divides the current JSON value by a numeric value. |
@@ -2141,10 +2223,11 @@ Available Functions
 | `geq` | Checks if the current JSON value is greater than or equal to the specified value. |
 | `get` | Gets the value at the specified key from the current JSON object. |
 | `gt` | Checks if the current JSON value is greater than the specified value. |
+| `head` | Gets the first elements of the array in the current JSON value. |
 | `help` | Show available commands and their descriptions |
 | `ifft` | Stores the inverse fft of a given complex-number or real-number series (mixable) |
 | `injectScript` | Injects a nebulite script to modify the json doc. |
-| `iota` | Generates an array of values. |
+| `iota` | Generates a sequence of integer values. |
 | `lPad` | Pads the current JSON string value on the left with a specified character until it reaches a specified total length. |
 | `lPadNonNumeric` | Pads the current JSON non-numeric string value on the left with a specified character until it reaches a specified total length. |
 | `lPadNumeric` | Pads the current JSON numeric string value on the left with a specified character until it reaches a specified total length. |
@@ -2157,13 +2240,19 @@ Available Functions
 | `lt` | Checks if the current JSON value is less than the specified value. |
 | `map` | Applies a mapping function to each element in the array of the current JSON value. |
 | `max` | Finds the maximum value among the elements of the array in the current JSON value. |
+| `mean` | Calculates the mean of the elements of the array in the current JSON value. |
 | `median` | Calculates the median of the elements of the array in the current JSON value. |
 | `min` | Finds the minimum value among the elements of the array in the current JSON value. |
 | `mod` | Calculates the modulo of the current JSON value by a numeric value. |
+| `mode` | Finds the most frequent value in the array in the current JSON value. |
+| `moveMember` | Moves a value based on the result of an expression. |
 | `mul` | Multiplies the current JSON value by a numeric value. |
+| `nand` | Logical nand operation on the current JSON array values. |
 | `neq` | Checks if the current JSON value is not equal to the specified value. |
+| `nor` | Logical nor operation on the current JSON array values. |
 | `not` | Logical NOT operation on the current JSON value. |
 | `numberToComplex` | Converts a given number to a complex number. |
+| `or` | Logical or operation on the current JSON array values. |
 | `pad` | Pads the array in the current JSON value to the specified length with empty objects. |
 | `pow` | Raises the current JSON value to the power of a numeric value. |
 | `print` | Prints the current JSON value to the console. |
@@ -2174,6 +2263,9 @@ Available Functions
 | `rPadNonNumeric` | Pads the current JSON non-numeric string value on the right with a specified character until it reaches a specified total length. |
 | `rPadNumeric` | Pads the current JSON numeric string value on the right with a specified character until it reaches a specified total length. |
 | `rStrip` | Strips whitespace from the right end of the current JSON string value. |
+| `range` | Calculates the range of the elements of the array in the current JSON value. |
+| `recombine` | Recombines the string elements of the array in the current JSON value. |
+| `recombineLines` | Recombines the string elements of the array in the current JSON value with newlines. |
 | `removeMember` | Removes the member at the specified key from the JSON document. |
 | `replace` | Replaces all occurrences of a target substring with a replacement substring in the current JSON string value. |
 | `require` | Requirement transformations that validate JSON values and return false on failure (fallback to default value in get-call, usually 'null' or 0.0). |
@@ -2190,6 +2282,7 @@ Available Functions
 | `slide` | Slides the array in the current JSON value by the specified size, generating overlapping windows. |
 | `sort` | Sorting transformation functions |
 | `split` | Splits the current JSON string value into an array of substrings based on a specified character delimiter. |
+| `splitNewlines` | Splits the current JSON string value into an array of substrings at newline characters. |
 | `sqrt` | Calculates the square root of the current JSON value. |
 | `stddev` | Calculates the standard deviation of the elements of the array in the current JSON value. |
 | `store` | Stores the current JSON value as a file with the given name. |
@@ -2202,6 +2295,7 @@ Available Functions
 | `subspan` | Gets a subarray from the array in the current JSON value. |
 | `substring` | Extracts a substring from the current JSON string value. |
 | `sum` | Sums the elements of the array in the current JSON value. |
+| `tail` | Gets the last elements of the array in the current JSON value. |
 | `toBool` | Converts the current JSON value to a boolean. |
 | `toBoolString` | Converts the current JSON value to a boolean string. |
 | `toDouble` | Converts the current JSON value to a double. |
@@ -2214,6 +2308,8 @@ Available Functions
 | `typeAsString` | Converts the current JSON type value to a string with metadata. |
 | `unreachable` | Indicates that the current code path should be unreachable. |
 | `warn` | Echoes the provided arguments to the console as a warning message, with newline. |
+| `xnor` | Logical xnor operation on the current JSON array values. |
+| `xor` | Logical xor operation on the current JSON array values. |
 
 #### `add`
 
@@ -2221,6 +2317,14 @@ Available Functions
 Adds a numeric value to the current JSON value.
 If multiple numbers are provided, the result is an array, one element for each provided argument.
 Usage: |add <number1> <number2> ... -> {number/array}
+```
+
+#### `and`
+
+```
+Logical and operation on the current JSON array values.
+Input must be an array.
+Usage: |and -> {value:bool}
 ```
 
 #### `applyTfDomainF`
@@ -2400,7 +2504,7 @@ Usage: |at <index> -> {value}
 #### `average`
 
 ```
-Calculates the average of the elements of the array in the current JSON value.
+Calculates the mean of the elements of the array in the current JSON value.
 Input must be an array of numbers. If any element is not a number, the current value is not an array or the array is empty, the transformation fails.
 Usage: |average -> {number}
 ```
@@ -2427,6 +2531,12 @@ think of C++ structured bindings: auto [key1, key2, key3] = arr;
 Fails if the given scope is not an array or if no keys are provided.
 Inserts empty objects for missing values in the array.
 Usage: |bind <key1> <key2> ... -> {object}
+```
+
+#### `booleanToSigned`
+
+```
+Converts the root boolean value to 1 (true) or -1 (false)Usage: |booleanToSigned -> {value:int}
 ```
 
 #### `bundle`
@@ -2477,6 +2587,20 @@ If the stored value is not a complex number, the value is not modified.
 An optional format specifier can be provided to control the formatting of the real and imaginary parts.
 Example formatters: 04.2f, 5i, 06i
 Usage: |complexToString [formatter] -> {string}
+```
+
+#### `copyMember`
+
+```
+Copys a value based on the result of an expression.
+Usage: |copyMember <source> <destination> -> {json}
+```
+
+#### `dedupe`
+
+```
+Removes duplicate elements from the array in the current JSON value.
+Usage: |dedupe -> {array}
 ```
 
 #### `default`
@@ -2676,6 +2800,13 @@ Checks if the current JSON value is greater than the specified value.
 Usage: |gt <value> -> {bool}
 ```
 
+#### `head`
+
+```
+Gets the first elements of the array in the current JSON value.
+Usage: |head <number> -> {array}
+```
+
 #### `ifft`
 
 ```
@@ -2693,7 +2824,7 @@ Usage: |injectScript <path/to/script.nebs> -> {modified-json}
 #### `iota`
 
 ```
-Generates an array of values.
+Generates a sequence of integer values.
 Usage: |iota <start> <end> -> {array}
 Generates an array containing the values from start (inclusive) to end (exclusive).
 If end is not greater than start, the result is an empty array.
@@ -2796,6 +2927,14 @@ Input must be an array of numbers. If any element is not a number, the current v
 Usage: |max -> {number}
 ```
 
+#### `mean`
+
+```
+Calculates the mean of the elements of the array in the current JSON value.
+Input must be an array of numbers. If any element is not a number, the current value is not an array or the array is empty, the transformation fails.
+Usage: |average -> {number}
+```
+
 #### `median`
 
 ```
@@ -2820,6 +2959,22 @@ If multiple numbers are provided, the result is an array, one element for each p
 Usage: |mod <number1> <number2> ... -> {number/array}
 ```
 
+#### `mode`
+
+```
+Finds the most frequent value in the array in the current JSON value.
+If multiple values are tied, the first value in the array is returned.
+Input must be a non-empty array of numbers.
+Usage: |mode -> {number}
+```
+
+#### `moveMember`
+
+```
+Moves a value based on the result of an expression.
+Usage: |moveMember <source> <destination> -> {json}
+```
+
 #### `mul`
 
 ```
@@ -2828,11 +2983,27 @@ If multiple numbers are provided, the result is an array, one element for each p
 Usage: |multiply <number1> <number2> ... -> {number/array}
 ```
 
+#### `nand`
+
+```
+Logical nand operation on the current JSON array values.
+Input must be an array.
+Usage: |nand -> {value:bool}
+```
+
 #### `neq`
 
 ```
 Checks if the current JSON value is not equal to the specified value.
 Usage: |neq <value> -> {bool}
+```
+
+#### `nor`
+
+```
+Logical nor operation on the current JSON array values.
+Input must be an array.
+Usage: |nor -> {value:bool}
 ```
 
 #### `not`
@@ -2853,6 +3024,14 @@ Allowed values are:
   - Scientific notation (e.g., 1e-3, -2.5e+4)
   - Complex numbers in the form a+bi (e.g., 1+2i, -3-4i)
 The transformation fails if the current JSON value is not convertible to a complex number.
+```
+
+#### `or`
+
+```
+Logical or operation on the current JSON array values.
+Input must be an array.
+Usage: |or -> {value:bool}
 ```
 
 #### `pad`
@@ -2936,6 +3115,30 @@ Usage: |lPadNumeric {totalLength} {padChar} -> {string}
 ```
 Strips whitespace from the right end of the current JSON string value.
 Usage: |rStrip -> {string}
+```
+
+#### `range`
+
+```
+Calculates the range of the elements of the array in the current JSON value.
+The range is the maximum value minus the minimum value.
+Input must be a non-empty array of numbers.
+Usage: |range -> {number}
+```
+
+#### `recombine`
+
+```
+Recombines the string elements of the array in the current JSON value.
+Uses whitespace as the delimiter if none is provided.
+Usage: |recombine [delimiter] -> {string}
+```
+
+#### `recombineLines`
+
+```
+Recombines the string elements of the array in the current JSON value with newlines.
+Usage: |recombineLines -> {string}
 ```
 
 #### `removeMember`
@@ -3247,6 +3450,14 @@ Usage: |sort numerically -> {sorted array}
 Splits the current JSON string value into an array of substrings based on a specified character delimiter.
 Usage: |split {delimiter} -> {array}
 {delimiter}: Delimiter to split the string by. If left empty, it splits by whitespace.
+Delimiter must be a single character.
+```
+
+#### `splitNewlines`
+
+```
+Splits the current JSON string value into an array of substrings at newline characters.
+Usage: |splitNewlines -> {array}
 ```
 
 #### `sqrt`
@@ -3389,6 +3600,13 @@ Input must be an array of numbers. If any element is not a number, the current v
 Usage: |sum -> {number}
 ```
 
+#### `tail`
+
+```
+Gets the last elements of the array in the current JSON value.
+Usage: |tail <number> -> {array}
+```
+
 #### `toBool`
 
 ```
@@ -3479,6 +3697,22 @@ Usage: |unreachable
 ```
 Echoes the provided arguments to the console as a warning message, with newline.
 Usage: |warn <arg1> <arg2> -> {unchanged-json}
+```
+
+#### `xnor`
+
+```
+Logical xnor operation on the current JSON array values.
+Input must be an array.
+Usage: |xnor -> {value:bool}
+```
+
+#### `xor`
+
+```
+Logical xor operation on the current JSON array values.
+Input must be an array.
+Usage: |xor -> {value:bool}
 ```
 
 ## Expression Functions
