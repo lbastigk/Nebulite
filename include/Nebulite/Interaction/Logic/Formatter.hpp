@@ -23,6 +23,7 @@ struct Formatter {
     /**
      * @enum Nebulite::Interaction::Logic::Formatter::CastType
      * @brief Represents the type of cast to apply to an expression component.
+     * @todo Add support for scientific notation
      */
     enum class CastType : std::uint8_t {
         none, // No formatting
@@ -39,6 +40,7 @@ struct Formatter {
      */
     static Formatter readFormatter(std::string_view formatter);
 
+    // TODO: Cuts off large numbers if formatter size is too short
     [[nodiscard]] std::string format(double value) const ;
 };
 } // namespace Nebulite::Interaction::Logic
