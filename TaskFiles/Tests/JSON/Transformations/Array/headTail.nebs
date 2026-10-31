@@ -1,0 +1,39 @@
+# Setup test data
+set data[0] zero
+set data[1] one
+set data[2] two
+set data[3] three
+
+# Calculate
+assign self:result.head = {self:data|head 2}
+assign self:result.tail = {self:data|tail 2}
+assign self:result.headLarge = {self:data|head 10}
+assign self:result.tailLarge = {self:data|tail 10}
+assign self:result.headEmpty = {self:data|head 0}
+assign self:result.tailEmpty = {self:data|tail 0}
+assign self:result.nullHead = {self:missing|head 2}
+assign self:result.nullTail = {self:missing|tail 2}
+
+# Verify
+eval nop {self:result.head|assert type array|length|assert equals int 2}
+eval nop {self:result.head[0]|assert equals string zero}
+eval nop {self:result.head[1]|assert equals string one}
+
+eval nop {self:result.tail|assert type array|length|assert equals int 2}
+eval nop {self:result.tail[0]|assert equals string two}
+eval nop {self:result.tail[1]|assert equals string three}
+
+eval nop {self:result.headLarge|length|assert equals int 4}
+eval nop {self:result.tailLarge|length|assert equals int 4}
+eval nop {self:result.headEmpty|length|assert equals int 0}
+eval nop {self:result.tailEmpty|length|assert equals int 0}
+eval nop {self:result.nullHead|assert type array|length|assert equals int 0}
+eval nop {self:result.nullTail|assert type array|length|assert equals int 0}
+
+# Invalid argument counts and values fail
+assign self:result.invalidHead = {self:data|head|unreachable}
+assign self:result.invalidTail = {self:data|tail -1|unreachable}
+eval nop {self:result.invalidHead|assert empty}
+eval nop {self:result.invalidTail|assert empty}
+
+exit

@@ -1,0 +1,52 @@
+# Test duplicate primitive, object, and array values while preserving first-seen order
+set primitives[0] first
+set primitives[1] second
+set primitives[2] first
+set primitives[3] 3
+set primitives[4] second
+set primitives[5] 3
+
+set objects[0].name alpha
+set objects[0].value 1
+set objects[1].name beta
+set objects[1].value 2
+set objects[2].name alpha
+set objects[2].value 1
+
+set nested[0][0] one
+set nested[0][1] two
+set nested[1][0] one
+set nested[1][1] two
+set nested[2][0] three
+
+# Calculate
+assign global:result.primitives = {global:primitives|dedupe}
+assign global:result.objects = {global:objects|dedupe}
+assign global:result.nested = {global:nested|dedupe}
+assign global:result.empty = {|ensureArray|dedupe}
+assign global:result.unchanged = {global:result.primitives|dedupe}
+
+# Verify primitive values and first-seen order
+eval nop {global:result.primitives|assert type array|length|assert equals int 3}
+eval nop {global:result.primitives[0]|assert equals string first}
+eval nop {global:result.primitives[1]|assert equals string second}
+eval nop {global:result.primitives[2]|assert equals int 3}
+
+# Verify structurally equal objects are deduplicated
+eval nop {global:result.objects|length|assert equals int 2}
+eval nop {global:result.objects[0].name|assert equals string alpha}
+eval nop {global:result.objects[1].name|assert equals string beta}
+
+# Verify structurally equal nested arrays are deduplicated
+eval nop {global:result.nested|length|assert equals int 2}
+eval nop {global:result.nested[0][0]|assert equals string one}
+eval nop {global:result.nested[1][0]|assert equals string three}
+
+# Empty and already-unique arrays remain valid
+eval nop {global:result.empty|assert type array|length|assert equals int 0}
+eval nop {global:result.unchanged|length|assert equals int 3}
+
+# Non-arrays are rejected
+eval nop {global:primitives[0]|dedupe|unreachable}
+
+exit

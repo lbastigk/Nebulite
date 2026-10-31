@@ -1,0 +1,21 @@
+# Setup test data
+set data[0] first
+set data[1] second
+set data[2] third
+
+# Calculate
+assign self:result.default = {self:data|recombine}
+assign self:result.custom = {self:data|recombine ,}
+assign self:result.lines = {self:data|recombineLines}
+assign self:result.empty = {|ensureArray|recombine}
+assign self:result.emptyLines = {|ensureArray|recombineLines}
+
+# Verify
+eval nop {self:result.default|assert equals string first second third}
+eval nop {self:result.custom|assert equals string first,second,third}
+eval nop {self:result.lines|splitNewlines|length|assert equals int 3}
+eval nop {self:result.lines|strLen|assert equals int 18}
+eval nop {self:result.empty|assert equals string ""}
+eval nop {self:result.emptyLines|assert equals string ""}
+
+exit

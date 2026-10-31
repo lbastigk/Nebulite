@@ -1,0 +1,9 @@
+# Test conversion of boolean values to signed integers.
+assign global:one = $(1)
+assign global:result.true = {global:one|not|not}
+assign global:result.false = {global:one|not}
+
+eval nop {global:result.true|booleanToSigned|assert equals int 1}
+eval nop {global:result.false|booleanToSigned|assert equals int -1}
+
+exit

@@ -10,5 +10,9 @@
     {
         "command": "task TaskFiles/Tests/JSON/Transformations/General/assign.nebs",
         "expected": { "cout": [], "cerr": [] }
+    },
+    {
+        "command": "task TaskFiles/Tests/JSON/Transformations/General/copyMoveMember.nebs",
+        "expected": { "cout": [], "cerr": [] }
     }
 ]

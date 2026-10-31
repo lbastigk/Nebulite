@@ -145,9 +145,13 @@ public:
     static auto constexpr splitName = "split";
     static auto constexpr splitDesc = "Splits the current JSON string value into an array of substrings based on a specified character delimiter.\n"
         "Usage: |split {delimiter} -> {array}\n"
-        "{delimiter}: Delimiter to split the string by. If left empty, it splits by whitespace.\n";
+        "{delimiter}: Delimiter to split the string by. If left empty, it splits by whitespace.\n"
+        "Delimiter must be a single character.\n";
 
-    // TODO: split by newline
+    static bool splitNewlines(Data::JsonScope& jsonDoc);
+    static auto constexpr splitNewlinesName = "splitNewlines";
+    static auto constexpr splitNewlinesDesc = "Splits the current JSON string value into an array of substrings at newline characters.\n"
+        "Usage: |splitNewlines -> {array}\n";
 
     //------------------------------------------
     // strcompare

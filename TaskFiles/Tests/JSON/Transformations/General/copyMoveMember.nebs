@@ -1,0 +1,32 @@
+# Test copying and moving values between members
+set source.text copied
+set source.number 42
+set source.items[0] first
+set source.items[1] second
+set moveSource.name moved
+set moveSource.value 123
+
+# Copy preserves the source and copies compound values
+assign global:copyResult = {global:source|copyMember text copiedText|copyMember items copiedItems}
+
+eval nop {global:copyResult.text|assert equals string copied}
+eval nop {global:copyResult.number|assert equals int 42}
+eval nop {global:copyResult.items|length|assert equals int 2}
+eval nop {global:copyResult.items[0]|assert equals string first}
+eval nop {global:copyResult.items[1]|assert equals string second}
+eval nop {global:copyResult.copiedText|assert equals string copied}
+eval nop {global:copyResult.copiedItems[1]|assert equals string second}
+
+# Move transfers compound values and removes the source
+assign global:moveResult = {global:moveSource|moveMember value movedValue|moveMember name movedName}
+
+eval nop {global:moveResult.movedValue|assert equals int 123}
+eval nop {global:moveResult.movedName|assert equals string moved}
+eval nop {global:moveResult.value|assert empty}
+eval nop {global:moveResult.name|assert empty}
+
+# Invalid argument counts fail
+eval nop {global:source|copyMember text|unreachable}
+eval nop {global:source|moveMember text destination extra|unreachable}
+
+exit

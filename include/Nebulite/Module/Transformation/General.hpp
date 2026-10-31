@@ -72,8 +72,15 @@ public:
         "The expression is evaluated in the current scope, and the result is assigned to the given key.\n"
         "The entire context is local, meaning self, other, global are all the same and refer to the current scope.\n";
 
-    // TODO: Even though copy/move is implemented in DomainModule:JsonScope:SimpleData, having these as transformations as well could be useful
-    //       instead of creating a dummy domain to parse a task, we can simply write |copy <source> <destination>
+    static bool copyMember(Utility::Args::SegmentedStringView const& args, Data::JsonScope& jsonDoc);
+    static auto constexpr copyMemberName = "copyMember";
+    static auto constexpr copyMemberDesc = "Copys a value based on the result of an expression.\n"
+        "Usage: |copyMember <source> <destination> -> {json}\n";
+
+    static bool moveMember(Utility::Args::SegmentedStringView const& args, Data::JsonScope& jsonDoc);
+    static auto constexpr moveMemberName = "moveMember";
+    static auto constexpr moveMemberDesc = "Moves a value based on the result of an expression.\n"
+        "Usage: |moveMember <source> <destination> -> {json}\n";
 };
 } // namespace Nebulite::Module::Transformation
 #endif // NEBULITE_MODULE_TRANSFORMATION_GENERAL_HPP

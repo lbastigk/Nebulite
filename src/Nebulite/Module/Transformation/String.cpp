@@ -38,6 +38,7 @@ void String::bindTransformations() {
     bindTransformation(&replace, replaceName, replaceDesc);
     bindTransformation(&strCountAppearance, strCountAppearanceName, strCountAppearanceDesc);
     bindTransformation(&split, splitName, splitDesc);
+    bindTransformation(&splitNewlines, splitNewlinesName, splitNewlinesDesc);
 
     bindCategory(strcompareName, strcompareDesc);
     bindTransformation(&strcompareMembers, strcompareMembersName, strcompareMembersDesc);
@@ -270,6 +271,15 @@ bool String::split(Utility::Args::SegmentedStringView const& args, Data::JsonSco
     for (auto [index, word] : Utility::StringHandler::split(str, delimiter) | Utility::Ranges::enumerate) {
         auto const indexedKey = rootKey.addIndex(index);
         jsonDoc.set(indexedKey, word);
+    }
+    return true;
+}
+
+bool String::splitNewlines(Data::JsonScope& jsonDoc) {
+    auto const str = jsonDoc.get<std::string>(rootKey).value_or("");
+    jsonDoc.setEmptyArray(rootKey);
+    for (auto [index, line] : Utility::StringHandler::split(str, '\n') | Utility::Ranges::enumerate) {
+        jsonDoc.set(rootKey.addIndex(index), line);
     }
     return true;
 }

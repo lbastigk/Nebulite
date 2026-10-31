@@ -9,6 +9,7 @@
 #include <ranges>
 #include <string>
 #include <utility>
+#include <vector>
 
 // Nebulite
 #include "Nebulite/Data/Document/JsonScope.hpp"
@@ -28,6 +29,11 @@ void Array::bindTransformations() {
     bindTransformation(&Array::last, lastName, lastDesc);
     bindTransformation(&Array::length, lengthName, lengthDesc);
     bindTransformation(&Array::subspan, subspanName, subspanDesc);
+    bindTransformation(&Array::head, headName, headDesc);
+    bindTransformation(&Array::tail, tailName, tailDesc);
+    bindTransformation(&Array::recombine, recombineName, recombineDesc);
+    bindTransformation(&Array::recombineLines, recombineLinesName, recombineLinesDesc);
+    bindTransformation(&Array::dedupe, dedupeName, dedupeDesc);
 
     // Dimensionality
     bindTransformation(&Array::flatten, flattenName, flattenDesc);
@@ -139,6 +145,117 @@ bool Array::subspan(Utility::Args::SegmentedStringView const& args, Data::JsonSc
     for (std::size_t i = originalSize; i >= index; i--) {
         jsonDoc.removeMember(rootKey.addIndex(i));
     }
+    return true;
+}
+
+namespace {
+
+bool takeElements(
+    Utility::Args::SegmentedStringView const& args,
+    Data::JsonScope& jsonDoc,
+    Data::ScopedKeyView const& rootKey,
+    bool const fromHead
+) {
+    if (args.size() != 2) {
+        return false;
+    }
+    auto const count = Utility::Convert::Cast::String::to<std::size_t>(args.at(1));
+    if (!count.has_value() || !Array::ensureArray(jsonDoc)) {
+        return false;
+    }
+
+    auto const arraySize = jsonDoc.memberSize(rootKey);
+    auto const resultSize = std::min(count.value(), arraySize);
+    auto const startIndex = fromHead ? std::size_t{0} : arraySize - resultSize;
+
+    Data::JsonScope result;
+    result.setEmptyArray(rootKey);
+    for (std::size_t index = 0; index < resultSize; ++index) {
+        result.setSubDoc(
+            rootKey.addIndex(index),
+            jsonDoc.getSubDoc(rootKey.addIndex(startIndex + index))
+        );
+    }
+    jsonDoc.setSubDoc(rootKey, result);
+    return true;
+}
+
+} // namespace
+
+bool Array::head(Utility::Args::SegmentedStringView const& args, Data::JsonScope& jsonDoc) {
+    return takeElements(args, jsonDoc, rootKey, true);
+}
+
+bool Array::tail(Utility::Args::SegmentedStringView const& args, Data::JsonScope& jsonDoc) {
+    return takeElements(args, jsonDoc, rootKey, false);
+}
+
+namespace {
+
+bool recombineElements(Data::JsonScope& jsonDoc, std::string_view const delimiter) {
+    if (jsonDoc.memberType(Array::rootKey) != Data::KeyType::array) {
+        return false;
+    }
+
+    std::string result;
+    bool firstElement = true;
+    for (auto const key : jsonDoc.arrayKeys(Array::rootKey)) {
+        auto const value = jsonDoc.get<std::string>(key);
+        if (!value.has_value()) {
+            return false;
+        }
+        if (!firstElement) {
+            result += delimiter;
+        }
+        result += value.value();
+        firstElement = false;
+    }
+    jsonDoc.set(Array::rootKey, result);
+    return true;
+}
+
+} // namespace
+
+bool Array::recombine(Utility::Args::SegmentedStringView const& args, Data::JsonScope& jsonDoc) {
+    if (args.size() > 2 || (args.size() == 2 && args.at(1).size() != 1)) {
+        return false;
+    }
+    auto const delimiter = args.size() == 2 ? args.at(1) : std::string_view{" "};
+    return recombineElements(jsonDoc, delimiter);
+}
+
+bool Array::recombineLines(Data::JsonScope& jsonDoc) {
+    return recombineElements(jsonDoc, "\n");
+}
+
+bool Array::dedupe(Data::JsonScope& jsonDoc){
+    // TODO: Add an array filter option to Data::Json which uses the underlying rapidjson structure directly,
+    //       so we don't have to serialize->deserialize values.
+
+    if (jsonDoc.memberType(rootKey) != Data::KeyType::array) {
+        return false;
+    }
+    std::vector<std::string> seenValues;
+
+    for (auto const key : jsonDoc.arrayKeys(rootKey)) {
+        auto const value = jsonDoc.serialize(key);
+        if (std::ranges::find(seenValues, value) == seenValues.end()) {
+            seenValues.push_back(value);
+        }
+    }
+
+    if (seenValues.size() == jsonDoc.memberSize(rootKey)) {
+        return true;
+    }
+
+    jsonDoc.setEmptyArray(rootKey);
+    for (auto const [index, value] : seenValues | Utility::Ranges::enumerate) {
+        auto const key = rootKey.addIndex(index);
+        Data::Json tmp;
+        tmp.deserialize(value);
+        jsonDoc.setSubDoc(key, tmp);
+    }
+
     return true;
 }
 
