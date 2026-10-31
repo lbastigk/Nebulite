@@ -27,5 +27,13 @@
     {
         "command": "task TaskFiles/Tests/JSON/Transformations/Statistics/min.nebs",
         "expected": { "cout": [], "cerr": [] }
+    },
+    {
+        "command": "task TaskFiles/Tests/JSON/Transformations/Statistics/range.nebs",
+        "expected": { "cout": [], "cerr": [] }
+    },
+    {
+        "command": "task TaskFiles/Tests/JSON/Transformations/Statistics/mode.nebs",
+        "expected": { "cout": [], "cerr": [] }
     }
 ]

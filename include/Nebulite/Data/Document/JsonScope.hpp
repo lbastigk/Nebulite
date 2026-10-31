@@ -250,6 +250,18 @@ public:
     [[nodiscard]] auto arrayKeys(ScopedKeyView const& key) const { return getArrayKeys(key, memberSize(key)); }
     [[nodiscard]] auto arrayKeys(ScopedKey const& key) const  { return getArrayKeys(key, memberSize(key)); }
 
+    template<typename T>
+    [[nodiscard]] auto arrayItemsAs(ScopedKeyView const& key) const {
+        return getArrayKeys(key, memberSize(key))
+            | std::views::transform([&](auto const& k) { return get<T>(k); });
+    }
+
+    template<typename T>
+    [[nodiscard]] auto arrayItemsAs(ScopedKey const& key) const {
+        return getArrayKeys(key, memberSize(key))
+            | std::views::transform([&](auto const& k) { return get<T>(k); });
+    }
+
     //------------------------------------------
     // Locking
 

@@ -41,12 +41,46 @@ public:
         "Usage: |not -> {value:bool}\n"
         "If the given value is not convertible to bool, the value is assumed to be false and is set to true";
 
-    // TODO: and, or, xor, nand, nor, xnor, etc.
-    //       All array-based, make sure input is array before processing
-    //       For this to work, we need the ensureArray transformation from Array module
+    static bool booleanToSigned(Data::JsonScope& jsonDoc);
+    static auto constexpr booleanToSignedName = "booleanToSigned";
+    static auto constexpr booleanToSignedDesc = "Converts the root boolean value to 1 (true) or -1 (false)"
+        "Usage: |booleanToSigned -> {value:int}\n";
 
-    // TODO: boolean to signed: true -> 1, false -> -1
-    //       boolean to unsigned: true -> 1, false -> 0
+    static bool booleanAnd(Data::JsonScope& jsonDoc);
+    static auto constexpr booleanAndName = "and";
+    static auto constexpr booleanAndDesc = "Logical and operation on the current JSON array values.\n"
+        "Input must be an array.\n"
+        "Usage: |and -> {value:bool}\n";
+
+    static bool booleanOr(Data::JsonScope& jsonDoc);
+    static auto constexpr booleanOrName = "or";
+    static auto constexpr booleanOrDesc = "Logical or operation on the current JSON array values.\n"
+        "Input must be an array.\n"
+        "Usage: |or -> {value:bool}\n";
+
+    static bool booleanXor(Data::JsonScope& jsonDoc);
+    static auto constexpr booleanXorName = "xor";
+    static auto constexpr booleanXorDesc = "Logical xor operation on the current JSON array values.\n"
+        "Input must be an array.\n"
+        "Usage: |xor -> {value:bool}\n";
+
+    static bool booleanNand(Data::JsonScope& jsonDoc);
+    static auto constexpr booleanNandName = "nand";
+    static auto constexpr booleanNandDesc = "Logical nand operation on the current JSON array values.\n"
+        "Input must be an array.\n"
+        "Usage: |nand -> {value:bool}\n";
+
+    static bool booleanNor(Data::JsonScope& jsonDoc);
+    static auto constexpr booleanNorName = "nor";
+    static auto constexpr booleanNorDesc = "Logical nor operation on the current JSON array values.\n"
+        "Input must be an array.\n"
+        "Usage: |nor -> {value:bool}\n";
+
+    static bool booleanXnor(Data::JsonScope& jsonDoc);
+    static auto constexpr booleanXnorName = "xnor";
+    static auto constexpr booleanXnorDesc = "Logical xnor operation on the current JSON array values.\n"
+        "Input must be an array.\n"
+        "Usage: |xnor -> {value:bool}\n";
 };
 } // namespace Nebulite::Module::Transformation
 #endif // NEBULITE_MODULE_TRANSFORMATION_BOOLEAN_HPP

@@ -7,6 +7,7 @@
 #include <cstddef>
 #include <functional>
 #include <limits>
+#include <map>
 #include <vector>
 
 // Nebulite
@@ -19,12 +20,15 @@ namespace Nebulite::Module::Transformation {
 
 void Statistics::bindTransformations() {
     bindTransformation(&sum, sumName, sumDesc);
-    bindTransformation(&average, averageName, averageDesc);
     bindTransformation(&product, productName, productDesc);
     bindTransformation(&min, minName, minDesc);
     bindTransformation(&max, maxName, maxDesc);
+    bindTransformation(&mean, meanName1, meanDesc);
+    bindTransformation(&mean, meanName2, meanDesc);
     bindTransformation(&median, medianName, medianDesc);
     bindTransformation(&stddev, stddevName, stddevDesc);
+    bindTransformation(&range, rangeName, rangeDesc);
+    bindTransformation(&mode, modeName, modeDesc);
 }
 
 double Statistics::accumulate(Data::JsonScope const& jsonDoc, std::function<double(double, double)> const& func, double const initialValue) {
@@ -59,15 +63,6 @@ bool Statistics::sum(Data::JsonScope& jsonDoc) {
     return true;
 }
 
-bool Statistics::average(Data::JsonScope& jsonDoc){
-    double const result = accumulate(jsonDoc, [](double const a, double const b) { return a + b; });
-    if (std::isnan(result)) {
-            return false;
-    }
-    jsonDoc.set(rootKey, result / static_cast<double>(jsonDoc.memberSize(rootKey)));
-    return true;
-}
-
 bool Statistics::product(Data::JsonScope& jsonDoc) {
     double const result = accumulate(jsonDoc, [](double const a, double const b) { return a * b; }, 1.0);
     if (std::isnan(result)) {
@@ -92,6 +87,15 @@ bool Statistics::max(Data::JsonScope& jsonDoc) {
         return false;
     }
     jsonDoc.set(rootKey, result);
+    return true;
+}
+
+bool Statistics::mean(Data::JsonScope& jsonDoc){
+    double const result = accumulate(jsonDoc, [](double const a, double const b) { return a + b; });
+    if (std::isnan(result)) {
+        return false;
+    }
+    jsonDoc.set(rootKey, result / static_cast<double>(jsonDoc.memberSize(rootKey)));
     return true;
 }
 
@@ -155,6 +159,62 @@ bool Statistics::stddev(Data::JsonScope& jsonDoc) {
     }
     double const stddevValue = std::sqrt(varianceSum / static_cast<double>(size));
     jsonDoc.set(rootKey, stddevValue);
+    return true;
+}
+
+bool Statistics::range(Data::JsonScope& jsonDoc) {
+    if (jsonDoc.memberType(rootKey) != Data::KeyType::array) {
+        return false;
+    }
+
+    std::size_t const size = jsonDoc.memberSize(rootKey);
+    if (size == 0) {
+        return false;
+    }
+
+    double minimum = std::numeric_limits<double>::infinity();
+    double maximum = -std::numeric_limits<double>::infinity();
+    for (auto const key : rootKey.getArrayKeys(size)) {
+        double const value = jsonDoc.get<double>(key).value_or(std::numeric_limits<double>::quiet_NaN());
+        if (std::isnan(value)) {
+            return false;
+        }
+        minimum = std::min(minimum, value);
+        maximum = std::max(maximum, value);
+    }
+    jsonDoc.set(rootKey, maximum - minimum);
+    return true;
+}
+
+bool Statistics::mode(Data::JsonScope& jsonDoc) {
+    if (jsonDoc.memberType(rootKey) != Data::KeyType::array) {
+        return false;
+    }
+
+    std::size_t const size = jsonDoc.memberSize(rootKey);
+    if (size == 0) {
+        return false;
+    }
+
+    std::map<double, std::size_t> frequencies;
+    for (auto const key : rootKey.getArrayKeys(size)) {
+        double const value = jsonDoc.get<double>(key).value_or(std::numeric_limits<double>::quiet_NaN());
+        if (std::isnan(value)) {
+            return false;
+        }
+        ++frequencies[value];
+    }
+
+    double modeValue = 0.0;
+    std::size_t modeFrequency = 0;
+    for (auto const key : rootKey.getArrayKeys(size)) {
+        double const value = jsonDoc.get<double>(key).value();
+        if (frequencies[value] > modeFrequency) {
+            modeValue = value;
+            modeFrequency = frequencies[value];
+        }
+    }
+    jsonDoc.set(rootKey, modeValue);
     return true;
 }
 

@@ -21,6 +21,8 @@ void General::bindTransformations() {
     bindTransformation(&General::setBool, setBoolName, setBoolDesc);
     bindTransformation(&General::removeMember, removeMemberName, removeMemberDesc);
     bindTransformation(&General::assign, assignName, assignDesc);
+    bindTransformation(&General::copyMember, copyMemberName, copyMemberDesc);
+    bindTransformation(&General::moveMember, moveMemberName, moveMemberDesc);
 }
 
 bool General::setString(Utility::Args::SegmentedStringView const& args, Data::JsonScope& jsonDoc) {
@@ -83,6 +85,22 @@ bool General::assign(Utility::Args::SegmentedStringView const& args, Data::JsonS
     ass.parse(args.recombineSubspan(1));
     Interaction::ContextScope const context{jsonDoc, jsonDoc, jsonDoc};
     ass.apply(context);
+    return true;
+}
+
+bool General::copyMember(Utility::Args::SegmentedStringView const& args, Data::JsonScope& jsonDoc){
+    if (args.size() != 3) return false;
+    auto const source = rootKey.addMember(args[1]);
+    auto const destination = rootKey.addMember(args[2]);
+    jsonDoc.copyMember(source, destination);
+    return true;
+}
+
+bool General::moveMember(Utility::Args::SegmentedStringView const& args, Data::JsonScope& jsonDoc){
+    if (args.size() != 3) return false;
+    auto const source = rootKey.addMember(args[1]);
+    auto const destination = rootKey.addMember(args[2]);
+    jsonDoc.moveMember(source, destination);
     return true;
 }
 

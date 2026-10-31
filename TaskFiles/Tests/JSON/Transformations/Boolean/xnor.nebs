@@ -1,0 +1,15 @@
+# Test logical XNOR across multiple arrays.
+set sameTrue[0] true
+set sameTrue[1] true
+set sameFalse[0] false
+set sameFalse[1] false
+set different[0] true
+set different[1] false
+assign global:empty = {|ensureArray}
+
+eval nop {global:sameTrue|xnor|assert true}
+eval nop {global:sameFalse|xnor|assert true}
+eval nop {global:different|xnor|assert false}
+eval nop {global:empty|xnor|assert true}
+
+exit

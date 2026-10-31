@@ -1,0 +1,15 @@
+# Test logical AND across multiple arrays.
+set allTrue[0] true
+set allTrue[1] true
+set oneFalse[0] true
+set oneFalse[1] false
+set allFalse[0] false
+set allFalse[1] false
+assign global:empty = {|ensureArray}
+
+eval nop {global:allTrue|and|assert true}
+eval nop {global:oneFalse|and|assert false}
+eval nop {global:allFalse|and|assert false}
+eval nop {global:empty|and|assert true}
+
+exit

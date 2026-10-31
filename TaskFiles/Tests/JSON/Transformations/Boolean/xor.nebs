@@ -1,0 +1,15 @@
+# Test logical XOR across multiple arrays.
+set sameTrue[0] true
+set sameTrue[1] true
+set sameFalse[0] false
+set sameFalse[1] false
+set different[0] true
+set different[1] false
+assign global:empty = {|ensureArray}
+
+eval nop {global:sameTrue|xor|assert false}
+eval nop {global:sameFalse|xor|assert false}
+eval nop {global:different|xor|assert true}
+eval nop {global:empty|xor|assert false}
+
+exit

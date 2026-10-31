@@ -2,5 +2,33 @@
     {
         "command": "task TaskFiles/Tests/JSON/Transformations/Boolean/not.nebs",
         "expected": { "cout": [], "cerr": [] }
+    },
+    {
+        "command": "task TaskFiles/Tests/JSON/Transformations/Boolean/toSigned.nebs",
+        "expected": { "cout": [], "cerr": [] }
+    },
+    {
+        "command": "task TaskFiles/Tests/JSON/Transformations/Boolean/and.nebs",
+        "expected": { "cout": [], "cerr": [] }
+    },
+    {
+        "command": "task TaskFiles/Tests/JSON/Transformations/Boolean/or.nebs",
+        "expected": { "cout": [], "cerr": [] }
+    },
+    {
+        "command": "task TaskFiles/Tests/JSON/Transformations/Boolean/xor.nebs",
+        "expected": { "cout": [], "cerr": [] }
+    },
+    {
+        "command": "task TaskFiles/Tests/JSON/Transformations/Boolean/nand.nebs",
+        "expected": { "cout": [], "cerr": [] }
+    },
+    {
+        "command": "task TaskFiles/Tests/JSON/Transformations/Boolean/nor.nebs",
+        "expected": { "cout": [], "cerr": [] }
+    },
+    {
+        "command": "task TaskFiles/Tests/JSON/Transformations/Boolean/xnor.nebs",
+        "expected": { "cout": [], "cerr": [] }
     }
 ]

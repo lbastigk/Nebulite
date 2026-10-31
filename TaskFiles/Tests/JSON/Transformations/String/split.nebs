@@ -1,0 +1,35 @@
+# Setup test data
+set data[0] first
+set data[1] second
+set data[2] third
+
+# Recombine array elements with spaces and split them again.
+assign self:result.space = {self:data|recombine|split}
+
+# Recombine array elements with a custom delimiter and split them again.
+assign self:result.custom = {self:data|recombine ,|split ,}
+
+# Recombine array elements with newlines and split them again.
+assign self:result.lines = {self:data|recombineLines|splitNewlines}
+
+# Verify
+eval nop {self:result.space|assert type array|length|assert equals int 3}
+eval nop {self:result.space[0]|assert equals string first}
+eval nop {self:result.space[1]|assert equals string second}
+eval nop {self:result.space[2]|assert equals string third}
+eval nop {self:result.custom|assert type array|length|assert equals int 3}
+eval nop {self:result.custom[0]|assert equals string first}
+eval nop {self:result.custom[1]|assert equals string second}
+eval nop {self:result.custom[2]|assert equals string third}
+eval nop {self:result.lines|assert type array|length|assert equals int 3}
+eval nop {self:result.lines[0]|assert equals string first}
+eval nop {self:result.lines[1]|assert equals string second}
+eval nop {self:result.lines[2]|assert equals string third}
+
+# Empty input produces an empty array for both transformations.
+assign self:result.emptySplit = {|split}
+assign self:result.emptySplitNewlines = {|splitNewlines}
+eval nop {self:result.emptySplit|assert type array|length|assert equals int 0}
+eval nop {self:result.emptySplitNewlines|assert type array|length|assert equals int 0}
+
+exit
