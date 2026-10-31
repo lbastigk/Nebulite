@@ -170,6 +170,26 @@ void appendArrayValue(rapidjson::Value* val, T const& value, rapidjson::Document
         );
         val->PushBack(stringValue, allocator);
     }
+    else if constexpr (std::is_same_v<ValueT, bool>) {
+        rapidjson::Value jsonValue;
+        jsonValue.SetBool(value);
+        val->PushBack(jsonValue, allocator);
+    }
+    else if constexpr (std::is_integral_v<ValueT> && std::is_signed_v<ValueT>) {
+        rapidjson::Value jsonValue;
+        jsonValue.SetInt64(static_cast<std::int64_t>(value));
+        val->PushBack(jsonValue, allocator);
+    }
+    else if constexpr (std::is_integral_v<ValueT> && std::is_unsigned_v<ValueT>) {
+        rapidjson::Value jsonValue;
+        jsonValue.SetUint64(static_cast<std::uint64_t>(value));
+        val->PushBack(jsonValue, allocator);
+    }
+    else if constexpr (std::is_floating_point_v<ValueT>) {
+        rapidjson::Value jsonValue;
+        jsonValue.SetDouble(static_cast<double>(value));
+        val->PushBack(jsonValue, allocator);
+    }
     else {
         val->PushBack(value, allocator);
     }
