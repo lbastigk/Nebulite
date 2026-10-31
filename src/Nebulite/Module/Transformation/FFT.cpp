@@ -44,7 +44,7 @@ bool Fft::applyFft(Data::JsonScope& jsonDoc) {
         return true;
     }
     auto const result = Math::Fft::fft(samples.value());
-    jsonDoc.setArray(rootKey, result);
+    jsonDoc.insertArray(rootKey, result);
     return true;
 }
 
@@ -63,7 +63,7 @@ bool Fft::applyIfft(Data::JsonScope& jsonDoc) {
         return false;
     }
     auto const result = Math::Fft::fftInverse(samples.value());
-    jsonDoc.setArray(rootKey, result);
+    jsonDoc.insertArray(rootKey, result);
     return true;
 }
 
@@ -102,7 +102,7 @@ bool Fft::applyTransferFunctionFrequencyDomain(Utility::Args::SegmentedStringVie
     }
 
     auto const result = Math::Fft::applyTransferFunctionFrequencyDomain(samples.value(), num.value(), den.value());
-    jsonDoc.setArray(rootKey, result);
+    jsonDoc.insertArray(rootKey, result);
     return true;
 }
 
