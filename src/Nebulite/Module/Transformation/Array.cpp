@@ -440,14 +440,7 @@ bool Array::iota(Utility::Args::SegmentedStringView const& args, Data::JsonScope
         jsonDoc.setEmptyArray(rootKey);
         return true;
     }
-    std::ranges::for_each(
-        std::views::iota(start, end),
-        [&](auto const& i) {
-            auto index = i - start;
-            auto const key = rootKey.addIndex(static_cast<size_t>(index));
-            jsonDoc.set(key, i);
-        }
-    );
+    jsonDoc.insertArray(rootKey, std::views::iota(start, end));
     return true;
 }
 
