@@ -5,11 +5,14 @@
 // Includes
 
 // Standard library
+#include <complex>
 #include <cstddef>
 #include <cstdint> // NOLINT
 #include <expected>
 #include <memory>
 #include <mutex>
+#include <optional>
+#include <ranges>
 #include <string>
 #include <string_view>
 #include <vector>
@@ -250,6 +253,14 @@ public:
     Json getSubDoc(std::string_view key) const ;
 
     /**
+     * @brief Gets a complex value from the JSON document.
+     * @details The value is read from an object with `re` and `im` members.
+     * @param key The key of the complex value to retrieve.
+     * @return The complex value, or std::nullopt if either component is unavailable.
+     */
+    std::optional<std::complex<double>> getComplex(std::string_view key) const;
+
+    /**
      * @brief Gets a pointer to a double value pointer in the JSON document.
      * @return A pointer to the double value associated with the key.
      *         Guaranteed to not be nullptr.
@@ -277,12 +288,41 @@ public:
     void set(std::string_view key, T const& val);
 
     /**
+     * @brief Replaces the value at a key with an array containing the supplied range.
+     * @details Existing values and cached child entries at the key are discarded.
+     * @tparam R The type of the range to insert.
+     * @param key The key of the array to replace.
+     * @param values The values to insert into the new array.
+     */
+    template <std::ranges::viewable_range R>
+    void insertArray(std::string_view key, R const& values);
+
+    /**
+     * @brief Appends a range of values to the array at a key.
+     * @details Existing cached values are flushed before appending, and cached child
+     *          entries are synchronized afterward.
+     * @tparam R The type of the range to append.
+     * @param key The key of the array to append to.
+     * @param values The values to append.
+     */
+    template <std::ranges::viewable_range R>
+    void appendArray(std::string_view key, R const& values);
+
+    /**
      * @brief Sets a variant value of supported simple values in the JSON document.
      *        Stable double pointer of the value is updated as well. Child keys are invalidated.
      * @param key The key of the value to set.
      * @param val The variant value to set.
      */
     void setVariant(std::string_view key, RjDirectAccess::SimpleValue const& val);
+
+    /**
+     * @brief Sets a complex value in the JSON document.
+     * @details The value is stored as an object with `re` and `im` members.
+     * @param key The key of the complex value to set.
+     * @param value The complex value to set.
+     */
+    void setComplex(std::string_view key, std::complex<double> const& value);
 
     /**
      * @brief Sets a sub-document in the JSON document.
@@ -401,6 +441,14 @@ public:
      * @param toKey The key to copy the member to.
      */
     void copyMember(std::string_view fromKey, std::string_view toKey);
+
+    /**
+     * @brief Ensures that a key exists and is an array.
+     * @details If the key does not exist, it will be created as an empty array.
+     *          If the key exists but is not an array, the value is inserted into an array.
+     * @param key The key to ensure is an array.
+     */
+    void ensureArray(std::string_view key);
 
 
     /**

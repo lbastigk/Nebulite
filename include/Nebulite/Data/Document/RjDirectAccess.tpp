@@ -5,8 +5,10 @@
 // Includes
 
 // Standard library
+#include <complex>
 #include <cstdint> // NOLINT
 #include <optional>
+#include <ranges>
 #include <sstream>
 #include <string>
 #include <string_view>
@@ -90,19 +92,19 @@ std::optional<NewType> convertSimpleValue(SimpleValue const& simpleValue) {
 
 template<typename RjValType>
 std::optional<SimpleValue> getSimpleValue(std::string_view key, RjValType& doc) {
-  // The given RjValType should be a Document.
-  // If we pass a rapidjson value, we risk not starting at the top of the document, where we should apply the key traversal.
-  // This fixes implicit conversion worries.
-  static_assert(
-      std::is_same_v<RjValType, rapidjson::Document>,
-      "The given Rapidjson Value type should be a document to ensure the key traversal happens at the top! "
-      "Passing, for example, a rapidjson::Value would risk starting the traversal at the wrong point in the document, which could lead to incorrect retrieval or failure to find the value."
-  );
+    // The given RjValType should be a Document.
+    // If we pass a rapidjson value, we risk not starting at the top of the document, where we should apply the key traversal.
+    // This fixes implicit conversion worries.
+    static_assert(
+        std::is_same_v<RjValType, rapidjson::Document>,
+        "The given Rapidjson Value type should be a document to ensure the key traversal happens at the top! "
+        "Passing, for example, a rapidjson::Value would risk starting the traversal at the wrong point in the document, which could lead to incorrect retrieval or failure to find the value."
+    );
 
-  if (auto const rjVal = traversePath(key, doc); rjVal != nullptr) {
-    return getSimpleValue(rjVal);
-  }
-  return std::nullopt;
+    if (auto const rjVal = traversePath(key, doc); rjVal != nullptr) {
+        return getSimpleValue(rjVal);
+    }
+    return std::nullopt;
 }
 
 //------------------------------------------
@@ -110,15 +112,15 @@ std::optional<SimpleValue> getSimpleValue(std::string_view key, RjValType& doc) 
 
 template <typename T> requires (std::is_trivially_copyable_v<T>)
 T get(std::string_view const key, T const defaultValue, rapidjson::Value& val) {
-  rapidjson::Value const* keyVal = traversePath(key, val);
-  if (keyVal == nullptr) {
-    // Value doesn't exist in doc, return default
-    return defaultValue;
-  }
-  // Base case: convert currentVal to T using JSONHandler
-  T tmp;
-  convertFromJsonValue<T>(*keyVal, tmp, defaultValue);
-  return tmp;
+    rapidjson::Value const* keyVal = traversePath(key, val);
+    if (keyVal == nullptr) {
+        // Value doesn't exist in doc, return default
+        return defaultValue;
+    }
+    // Base case: convert currentVal to T using JSONHandler
+    T tmp;
+    convertFromJsonValue<T>(*keyVal, tmp, defaultValue);
+    return tmp;
 }
 
 template <typename T> requires (!std::is_trivially_copyable_v<T>)
@@ -136,12 +138,12 @@ T get(std::string_view const key, T const& defaultValue, rapidjson::Value& val) 
 
 template <typename T> requires (std::is_trivially_copyable_v<T>)
 bool set(std::string_view const key, T const value, rapidjson::Value& val, rapidjson::Document::AllocatorType& allocator) {
-  // Ensure key path exists
-  if (rapidjson::Value* keyVal = ensurePath(key, val, allocator); keyVal != nullptr) {
-    convertToJsonValue<T>(value, *keyVal, allocator);
-    return true;
-  }
-  return false;
+    // Ensure key path exists
+    if (rapidjson::Value* keyVal = ensurePath(key, val, allocator); keyVal != nullptr) {
+        convertToJsonValue<T>(value, *keyVal, allocator);
+        return true;
+    }
+    return false;
 }
 
 template <typename T> requires (!std::is_trivially_copyable_v<T>)
@@ -152,6 +154,68 @@ bool set(std::string_view const key, T const& value, rapidjson::Value& val, rapi
         return true;
     }
     return false;
+}
+
+//------------------------------------------
+// Array
+
+namespace {
+template <typename T>
+void appendArrayValue(rapidjson::Value* val, T const& value, rapidjson::Document::AllocatorType& allocator) {
+    using ValueT = std::remove_cvref_t<T>;
+    if constexpr (std::is_same_v<ValueT, std::string> || std::is_same_v<ValueT, std::string_view>) {
+        rapidjson::Value stringValue(
+            value.data(),
+            static_cast<rapidjson::SizeType>(value.size()),
+            allocator
+        );
+        val->PushBack(stringValue, allocator);
+    }
+    else if constexpr (std::is_same_v<ValueT, bool>) {
+        rapidjson::Value jsonValue;
+        jsonValue.SetBool(value);
+        val->PushBack(jsonValue, allocator);
+    }
+    else if constexpr (std::is_integral_v<ValueT> && std::is_signed_v<ValueT>) {
+        rapidjson::Value jsonValue;
+        jsonValue.SetInt64(static_cast<std::int64_t>(value));
+        val->PushBack(jsonValue, allocator);
+    }
+    else if constexpr (std::is_integral_v<ValueT> && std::is_unsigned_v<ValueT>) {
+        rapidjson::Value jsonValue;
+        jsonValue.SetUint64(static_cast<std::uint64_t>(value));
+        val->PushBack(jsonValue, allocator);
+    }
+    else if constexpr (std::is_floating_point_v<ValueT>) {
+        rapidjson::Value jsonValue;
+        jsonValue.SetDouble(static_cast<double>(value));
+        val->PushBack(jsonValue, allocator);
+    }
+    else if constexpr (std::is_same_v<ValueT, std::complex<double>>) {
+        rapidjson::Value jsonValue;
+        setComplex(&jsonValue, value, allocator);
+        val->PushBack(jsonValue, allocator);
+    }
+    else {
+        val->PushBack(value, allocator);
+    }
+}
+} // anonymous namespace
+
+template<std::ranges::viewable_range R>
+void insertArray(rapidjson::Value* val, R const& values, rapidjson::Document::AllocatorType& allocator) {
+    setEmptyArray(val);
+    for (auto const& v : values) {
+        appendArrayValue(val, v, allocator);
+    }
+}
+
+template<std::ranges::viewable_range R>
+void appendArray(rapidjson::Value* val, R const& values, rapidjson::Document::AllocatorType& allocator) {
+    ensureArray(val, allocator);
+    for (auto const& v : values) {
+        appendArrayValue(val, v, allocator);
+    }
 }
 
 //------------------------------------------

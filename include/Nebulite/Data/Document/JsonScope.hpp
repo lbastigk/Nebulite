@@ -79,13 +79,6 @@ private:
         cacheLookupThreadCount>
     odpCache;
 
-    //------------------------------------------
-    // Complex number prefixes
-
-    static auto constexpr complexRe = "re";
-    static auto constexpr complexIm = "im";
-
-    //------------------------------------------
     // Valid prefix check and generation
 
     /**
@@ -204,6 +197,16 @@ public:
     template<typename T> void set(ScopedKeyView const& key, T const& value);
     template<typename T> void set(ScopedKey const& key, T const& value){set(key.view(), value);}
 
+    template <std::ranges::viewable_range R>
+    void insertArray(ScopedKeyView const& key, R const& values);
+    template <std::ranges::viewable_range R>
+    void insertArray(ScopedKey const& key, R const& values){insertArray(key.view(), values);}
+
+    template <std::ranges::viewable_range R>
+    void appendArray(ScopedKeyView const& key, R const& values);
+    template <std::ranges::viewable_range R>
+    void appendArray(ScopedKey const& key, R const& values){appendArray(key.view(), values);}
+
     void setVariant(ScopedKeyView const& key, RjDirectAccess::SimpleValue const& value);
     void setVariant(ScopedKey const& key, RjDirectAccess::SimpleValue const& value);
 
@@ -213,18 +216,14 @@ public:
     void setSubDoc(ScopedKeyView const& key, JsonScope const& subDoc);
     void setSubDoc(ScopedKey const& key, JsonScope const& subDoc);
 
-    // Later on, we should use C++26 reflection once widely available, see branch feature/jsonscope/reflection
-    template <std::ranges::input_range R>
-    void setArray(ScopedKeyView const& key, R const& range);
-
     void setEmptyArray(ScopedKeyView const& key);
     void setEmptyArray(ScopedKey const& key);
 
-    void setComplex(ScopedKeyView const& key, std::complex<double> const& value);
-    void setComplex(ScopedKey const& key, std::complex<double> const& value);
-
     void setEmptyObject(ScopedKeyView const& key);
     void setEmptyObject(ScopedKey const& key);
+
+    void setComplex(ScopedKeyView const& key, std::complex<double> const& value);
+    void setComplex(ScopedKey const& key, std::complex<double> const& value);
 
     //------------------------------------------
     // Special sets for threadsafe maths operations
@@ -316,6 +315,9 @@ public:
     void copyMember(ScopedKey const& fromKey, ScopedKey const& toKey);
     void copyMember(ScopedKeyView const& fromKey, ScopedKey const& toKey);
     void copyMember(ScopedKey const& fromKey, ScopedKeyView const& toKey);
+
+    void ensureArray(ScopedKeyView const& key);
+    void ensureArray(ScopedKey const& key);
 
     //------------------------------------------
     // Member listing
