@@ -1,0 +1,24 @@
+# Element selection rejects scalar values instead of wrapping them.
+set scalar value
+assign global:result.at = {global:scalar|at 0}
+assign global:result.first = {global:scalar|first}
+assign global:result.last = {global:scalar|last}
+eval nop {global:result.at|assert empty}
+eval nop {global:result.first|assert empty}
+eval nop {global:result.last|assert empty}
+
+# Numeric arguments must be valid and must not mutate the source on failure.
+set global:source[0] zero
+set global:source[1] one
+assign global:result.subspanMissing = {global:source|subspan}
+assign global:result.subspanInvalid = {global:source|subspan invalid}
+assign global:result.subspanExtra = {global:source|subspan 0 1 2}
+assign global:result.pushNumber = {global:source|pushNumber invalid}
+assign global:result.pad = {global:source|pad invalid}
+
+eval nop {global:result.subspanMissing|assert empty}
+eval nop {global:result.subspanInvalid|assert empty}
+eval nop {global:result.subspanExtra|assert empty}
+eval nop {global:result.pushNumber|assert empty}
+eval nop {global:result.pad|assert empty}
+exit

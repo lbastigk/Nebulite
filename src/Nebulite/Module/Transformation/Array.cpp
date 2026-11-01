@@ -6,6 +6,7 @@
 #include <cassert>
 #include <cstddef>
 #include <cstdint> // NOLINT
+#include <optional>
 #include <ranges>
 #include <string>
 #include <utility>
@@ -59,25 +60,22 @@ bool Array::at(Utility::Args::SegmentedStringView const& args, Data::JsonScope& 
     if (args.size() != 2) {
         return false;
     }
-    try {
-        jsonDoc.ensureArray(rootKey);
-        auto const index = args.tryGetAs<std::size_t>(1);
-        if (!index) {
-            return false; // Failed to convert index
-        }
-        if (index >= jsonDoc.memberSize(rootKey)) {
-            return false; // Index out of bounds
-        }
-        Data::Json const temp = jsonDoc.getSubDoc(rootKey.addIndex(index.value()));
-        jsonDoc.setSubDoc(rootKey, temp);
-        return true;
-    } catch (...) {
+    if (jsonDoc.memberType(rootKey) != Data::KeyType::array) {
         return false;
     }
+    auto const index = args.tryGetAs<std::size_t>(1);
+    if (!index || index.value() >= jsonDoc.memberSize(rootKey)) {
+        return false;
+    }
+    Data::Json const temp = jsonDoc.getSubDoc(rootKey.addIndex(index.value()));
+    jsonDoc.setSubDoc(rootKey, temp);
+    return true;
 }
 
 bool Array::first(Data::JsonScope& jsonDoc) {
-    jsonDoc.ensureArray(rootKey);
+    if (jsonDoc.memberType(rootKey) != Data::KeyType::array) {
+        return false;
+    }
     if (jsonDoc.memberSize(rootKey) == 0) {
         return false; // Empty array
     }
@@ -87,7 +85,9 @@ bool Array::first(Data::JsonScope& jsonDoc) {
 }
 
 bool Array::last(Data::JsonScope& jsonDoc) {
-    jsonDoc.ensureArray(rootKey);
+    if (jsonDoc.memberType(rootKey) != Data::KeyType::array) {
+        return false;
+    }
     auto const arraySize = jsonDoc.memberSize(rootKey);
     if (arraySize == 0) {
         return false; // Empty array
@@ -105,28 +105,42 @@ bool Array::length(Data::JsonScope& jsonDoc) {
 }
 
 bool Array::subspan(Utility::Args::SegmentedStringView const& args, Data::JsonScope& jsonDoc) {
-    if (args.size() > 3) {
+    if (args.size() < 2 || args.size() > 3) {
         return false;
     }
+    if (jsonDoc.memberType(rootKey) != Data::KeyType::array) {
+        return false;
+    }
+    auto const startIndex = args.tryGetAs<std::size_t>(1);
+    auto const length = args.size() == 3 ? args.tryGetAs<std::size_t>(2) : std::optional<std::size_t>{};
+
+    // We need at least startIndex, length is optional
+    // But if a provided length arg is not numeric, the transformation fails
+    if (!startIndex || (args.size() == 3 && !length)) {
+        return false;
+    }
+
     // Move the original array to a temp key, so we can modify the original key to be the subspan without losing data
     auto const originalSize = jsonDoc.memberSize(rootKey);
     auto const tmpKey = rootKey.addIndex(originalSize);
     jsonDoc.copyMember(rootKey, tmpKey); // Using copy, as current moveMember is more of a copy+delete and thus slower
 
     // Setup start index and length, with length defaulting to the rest of the array if not provided
-    auto const startIndex = std::stoul(std::string(args.at(1)));
-    auto const length = args.size() > 2 ? std::stoul(std::string(args.at(2))) : originalSize; // Set high enough length if not provided
+    auto const spanLength = length.value_or(originalSize); // Set high enough length if not provided
 
     // If start index is larger than original size, return empty array
-    if (startIndex >= originalSize) {
+    if (startIndex.value() >= originalSize) {
         jsonDoc.setEmptyArray(rootKey);
         return true;
     }
 
     // Starting at startIndex, until length, as long as it's smaller than originalSize
     std::size_t index = 0;
+    auto const endIndex = spanLength > originalSize - startIndex.value()
+        ? originalSize
+        : startIndex.value() + spanLength;
     std::ranges::for_each(
-        std::views::iota(startIndex, std::min(startIndex + length, originalSize)),
+        std::views::iota(startIndex.value(), endIndex),
         [&](std::size_t const i) {
             auto const key = rootKey.addIndex(index++);
             jsonDoc.copyMember(tmpKey.addIndex(i), key);
@@ -341,7 +355,7 @@ bool Array::reverse(Data::JsonScope& jsonDoc) {
 
 bool Array::batch(Utility::Args::SegmentedStringView const& args, Data::JsonScope& jsonDoc){
     // Validate arguments and input
-    if (args.size() < 2) return false;
+    if (args.size() != 2) return false;
     auto const size = Utility::Convert::Cast::String::to<std::size_t>(args.at(1));
     if (!size.has_value()) return false;
     if (size.value() == 0) return false;
@@ -390,7 +404,7 @@ while (jsonDoc.memberSize(lastBatch) < size.value()) {
 }
 
 bool Array::stride(Utility::Args::SegmentedStringView const& args, Data::JsonScope& jsonDoc){
-    if (args.size() < 2) return false;
+    if (args.size() != 2) return false;
     auto const size = Utility::Convert::Cast::String::to<std::size_t>(args.at(1));
     if (!size.has_value()) return false;
     if (size.value() == 0) return false;
@@ -405,7 +419,7 @@ bool Array::stride(Utility::Args::SegmentedStringView const& args, Data::JsonSco
 }
 
 bool Array::slide(Utility::Args::SegmentedStringView const& args, Data::JsonScope& jsonDoc){
-    if (args.size() < 2) return false;
+    if (args.size() != 2) return false;
     auto const size = Utility::Convert::Cast::String::to<std::size_t>(args.at(1));
     if (!size.has_value()) return false;
     if (size.value() == 0) return false;
@@ -457,20 +471,19 @@ bool Array::pushNumber(Utility::Args::SegmentedStringView const& args, Data::Jso
     if (args.size() != 2) {
         return false;
     }
-    try {
-        double const number = std::stod(std::string(args.at(1)));
-        jsonDoc.ensureArray(rootKey);
-        auto const arraySize = jsonDoc.memberSize(rootKey);
-        auto const key = rootKey.addIndex(arraySize);
-        jsonDoc.set(key, number);
-        return true;
-    } catch (...) {
+    auto const number = args.tryGetAs<double>(1);
+    if (!number) {
         return false;
     }
+    jsonDoc.ensureArray(rootKey);
+    auto const arraySize = jsonDoc.memberSize(rootKey);
+    auto const key = rootKey.addIndex(arraySize);
+    jsonDoc.set(key, number.value());
+    return true;
 }
 
 bool Array::pad(Utility::Args::SegmentedStringView const& args, Data::JsonScope& jsonDoc){
-    if (args.size() < 2) return false;
+    if (args.size() != 2) return false;
     auto const size = Utility::Convert::Cast::String::to<std::size_t>(args.at(1));
     if (!size.has_value()) return false;
     jsonDoc.ensureArray(rootKey);

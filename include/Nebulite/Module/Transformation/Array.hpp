@@ -40,19 +40,19 @@ public:
     static bool at(Utility::Args::SegmentedStringView const& args, Data::JsonScope& jsonDoc);
     static auto constexpr atName = "at";
     static auto constexpr atDesc = "Gets the element at the specified index from the array in the current JSON value.\n"
-        "If the index is out of bounds, the transformation fails.\n"
+        "If the current value is not an array or the index is out of bounds, the transformation fails.\n"
         "Usage: |at <index> -> {value}\n";
 
     static bool first(Data::JsonScope& jsonDoc);
     static auto constexpr firstName = "first";
     static auto constexpr firstDesc = "Gets the first element of the array in the current JSON value.\n"
-        "If the current value is not an array, it is first wrapped into a single-element array.\n"
+        "If the current value is not an array or is empty, the transformation fails.\n"
         "Usage: |first -> {value}\n";
 
     static bool last(Data::JsonScope& jsonDoc);
     static auto constexpr lastName = "last";
     static auto constexpr lastDesc = "Gets the last element of the array in the current JSON value.\n"
-        "If the current value is not an array, it is first wrapped into a single-element array.\n"
+        "If the current value is not an array or is empty, the transformation fails.\n"
         "Usage: |last -> {value}\n";
 
     static bool length(Data::JsonScope& jsonDoc);
