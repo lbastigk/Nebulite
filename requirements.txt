@@ -5,3 +5,5 @@ pyttsx3
 soundfile
 scipy
 psutil
+tree-sitter
+tree-sitter-cpp
