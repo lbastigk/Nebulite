@@ -1,0 +1,10 @@
+[
+    {
+        "command": "task TaskFiles/Tests/JSON/Transformations/Generate/iota.nebs",
+        "expected": { "cout": [], "cerr": [] }
+    },
+    {
+        "command": "task TaskFiles/Tests/JSON/Transformations/Generate/iotaMod.nebs",
+        "expected": { "cout": [], "cerr": [] }
+    }
+]

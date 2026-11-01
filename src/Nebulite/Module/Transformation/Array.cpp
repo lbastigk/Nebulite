@@ -44,10 +44,6 @@ void Array::bindTransformations() {
     bindTransformation(&Array::stride, strideName, strideDesc);
     bindTransformation(&Array::slide, slideName, slideDesc);
 
-    // Generate
-    bindTransformation(&Array::iota, iotaName, iotaDesc);
-    bindTransformation(&Array::iotaMod, iotaModName, iotaModDesc);
-
     // Other
     bindTransformation(&Array::ensureArray, ensureArrayName, ensureArrayDesc);
     bindTransformation(&Array::push, pushName, pushDesc);
@@ -428,41 +424,6 @@ bool Array::slide(Utility::Args::SegmentedStringView const& args, Data::JsonScop
         }
     }
     jsonDoc.setSubDoc(rootKey, tmp);
-    return true;
-}
-
-// Generate
-
-bool Array::iota(Utility::Args::SegmentedStringView const& args, Data::JsonScope& jsonDoc){
-    if (args.size() != 3) return false;
-    auto start = std::stoll(std::string(args.at(1)));
-    auto end = std::stoll(std::string(args.at(2)));
-    if (start >= end) {
-        jsonDoc.setEmptyArray(rootKey);
-        return true;
-    }
-    jsonDoc.insertArray(rootKey, std::views::iota(start, end));
-    return true;
-}
-
-bool Array::iotaMod(Utility::Args::SegmentedStringView const& args, Data::JsonScope& jsonDoc){
-    if (args.size() != 4) return false;
-    auto mod = std::stoll(std::string(args.at(1)));
-    auto start = std::stoll(std::string(args.at(2)));
-    auto end = std::stoll(std::string(args.at(3)));
-    if (start >= end) {
-        jsonDoc.setEmptyArray(rootKey);
-        return true;
-    }
-    jsonDoc.insertArray(
-        rootKey,
-        std::views::iota(start, end)
-            | std::views::transform(
-                [mod](auto x) {
-                    return x % mod;
-                }
-            )
-        );
     return true;
 }
 

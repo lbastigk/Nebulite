@@ -29,6 +29,7 @@
 #include "Nebulite/Module/Transformation/FFT.hpp"
 #include "Nebulite/Module/Transformation/Filter.hpp"
 #include "Nebulite/Module/Transformation/General.hpp"
+#include "Nebulite/Module/Transformation/Generate.hpp"
 #include "Nebulite/Module/Transformation/Requirements.hpp"
 #include "Nebulite/Module/Transformation/Sort.hpp"
 #include "Nebulite/Module/Transformation/Statistics.hpp"
@@ -61,6 +62,7 @@ JsonTransformer::JsonTransformer() {
     initModule<Module::Transformation::Fft>();
     initModule<Module::Transformation::Filter>();
     initModule<Module::Transformation::General>();
+    initModule<Module::Transformation::Generate>();
     initModule<Module::Transformation::Requirements>();
     initModule<Module::Transformation::Sort>();
     initModule<Module::Transformation::Statistics>();
