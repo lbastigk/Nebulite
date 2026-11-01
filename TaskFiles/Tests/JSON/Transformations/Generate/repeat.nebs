@@ -1,0 +1,28 @@
+# Test repeat-correctness
+
+# Repeating a sequence
+assign global:result = {|repeat 3 1 2}
+eval nop {global:result|length|assert equals int 6}
+eval nop {global:result|at 0|assert equals int 1}
+eval nop {global:result|at 1|assert equals int 2}
+eval nop {global:result|at 2|assert equals int 1}
+eval nop {global:result|at 5|assert equals int 2}
+
+# Single element
+assign global:result = {|repeat 4 7}
+eval nop {global:result|length|assert equals int 4}
+eval nop {global:result|at 3|assert equals int 7}
+
+# Zero count
+assign global:result = {|repeat 0 1 2}
+eval nop {global:result|length|assert equals int 0}
+
+# Invalid arguments fail, leaving the assigned value empty
+assign global:fail.noElements = {|repeat 3|unreachable}
+assign global:fail.badCount = {|repeat a 1 2|unreachable}
+assign global:fail.negativeCount = {|repeat -1 1 2|unreachable}
+eval nop {global:fail.noElements|assert empty}
+eval nop {global:fail.badCount|assert empty}
+eval nop {global:fail.negativeCount|assert empty}
+
+exit

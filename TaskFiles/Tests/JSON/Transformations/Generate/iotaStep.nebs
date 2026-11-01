@@ -1,0 +1,34 @@
+# Test iotaStep-correctness
+
+# Positive step
+assign global:result = {|iotaStep 0 2 10}
+eval nop {global:result|length|assert equals int 5}
+eval nop {global:result|at 0|assert equals int 0}
+eval nop {global:result|at 4|assert equals int 8}
+
+# Step that does not divide the range evenly
+assign global:result = {|iotaStep 1 3 10}
+eval nop {global:result|length|assert equals int 3}
+eval nop {global:result|at 2|assert equals int 7}
+
+# Negative step
+assign global:result = {|iotaStep 10 -3 0}
+eval nop {global:result|length|assert equals int 4}
+eval nop {global:result|at 0|assert equals int 10}
+eval nop {global:result|at 3|assert equals int 1}
+
+# Empty ranges
+assign global:result = {|iotaStep 5 1 5}
+eval nop {global:result|length|assert equals int 0}
+assign global:result = {|iotaStep 0 -1 5}
+eval nop {global:result|length|assert equals int 0}
+
+# Invalid arguments fail, leaving the assigned value empty
+assign global:fail.zeroStep = {|iotaStep 0 0 10|unreachable}
+assign global:fail.nonNumeric = {|iotaStep 0 a 10|unreachable}
+assign global:fail.missing = {|iotaStep 0 1|unreachable}
+eval nop {global:fail.zeroStep|assert empty}
+eval nop {global:fail.nonNumeric|assert empty}
+eval nop {global:fail.missing|assert empty}
+
+exit

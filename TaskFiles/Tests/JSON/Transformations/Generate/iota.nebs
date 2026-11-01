@@ -17,3 +17,13 @@ assign global:result = {|iota -3 3}
 eval nop {global:result|length|assert equals int 6}
 eval nop {global:result|at 0|assert equals int -3}
 eval nop {global:result|at 5|assert equals int 2}
+
+# Invalid arguments fail, leaving the assigned value empty
+assign global:fail.missing = {|iota 0|unreachable}
+assign global:fail.nonNumeric = {|iota a 5|unreachable}
+assign global:fail.extra = {|iota 0 5 1|unreachable}
+eval nop {global:fail.missing|assert empty}
+eval nop {global:fail.nonNumeric|assert empty}
+eval nop {global:fail.extra|assert empty}
+
+exit

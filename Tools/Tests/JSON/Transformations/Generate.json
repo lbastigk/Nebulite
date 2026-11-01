@@ -6,5 +6,13 @@
     {
         "command": "task TaskFiles/Tests/JSON/Transformations/Generate/iotaMod.nebs",
         "expected": { "cout": [], "cerr": [] }
+    },
+    {
+        "command": "task TaskFiles/Tests/JSON/Transformations/Generate/iotaStep.nebs",
+        "expected": { "cout": [], "cerr": [] }
+    },
+    {
+        "command": "task TaskFiles/Tests/JSON/Transformations/Generate/repeat.nebs",
+        "expected": { "cout": [], "cerr": [] }
     }
 ]

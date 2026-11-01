@@ -48,6 +48,22 @@ public:
         "Usage: |iotaMod <mod> <start> <end> -> {array}\n"
         "Generates an array containing the values from start (inclusive) to end (exclusive), modulo the specified value.\n"
         "If end is not greater than start, the result is an empty array.\n";
+
+    static bool iotaStep(Utility::Args::SegmentedStringView const& args, Data::JsonScope& jsonDoc);
+    static auto constexpr iotaStepName = "iotaStep";
+    static auto constexpr iotaStepDesc = "Generates a sequence of integer values with a custom step.\n"
+        "Usage: |iotaStep <start> <step> <end> -> {array}\n"
+        "Generates an array containing the values from start (inclusive) to end (exclusive), advancing by step.\n"
+        "A negative step generates a descending sequence. A step of 0 fails.\n"
+        "If end cannot be reached in the direction of step, the result is an empty array.\n";
+
+    static bool repeat(Utility::Args::SegmentedStringView const& args, Data::JsonScope& jsonDoc);
+    static auto constexpr repeatName = "repeat";
+    static auto constexpr repeatDesc = "Repeats a sequence of elements.\n"
+        "Usage: |repeat <count> <element1> [<element2> ...] -> {array}\n"
+        "Generates an array containing the given elements, repeated count times.\n"
+        "Elements are stored as integers or doubles if numeric, otherwise as strings.\n"
+        "A count of 0 results in an empty array.\n";
 };
 } // namespace Nebulite::Module::Transformation
 #endif // NEBULITE_MODULE_TRANSFORMATION_GENERATE_HPP

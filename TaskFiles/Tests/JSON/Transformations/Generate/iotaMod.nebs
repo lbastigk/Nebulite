@@ -19,4 +19,12 @@ eval nop {global:result|at 4|assert equals int 1}
 assign global:result = {|iotaMod 5 3 3}
 eval nop {global:result|length|assert equals int 0}
 
+# Invalid arguments fail, leaving the assigned value empty
+assign global:fail.zeroMod = {|iotaMod 0 0 10|unreachable}
+assign global:fail.nonNumeric = {|iotaMod 3 a 10|unreachable}
+assign global:fail.missing = {|iotaMod 3 0|unreachable}
+eval nop {global:fail.zeroMod|assert empty}
+eval nop {global:fail.nonNumeric|assert empty}
+eval nop {global:fail.missing|assert empty}
+
 exit
