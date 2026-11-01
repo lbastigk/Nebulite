@@ -13,7 +13,7 @@ import re
 import sys
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Iterable
+from typing import Callable, Iterable, Match
 
 try:
     from tree_sitter import Language, Parser
@@ -36,31 +36,11 @@ KNOWN_EXCEPTIONS = {
     "Utility::Args::SegmentedStringView const& args, Data::JsonScope& jsonDoc"
     ")",
 }
-SIZE_GUARD = re.compile(
-    r"\bargs\s*\.\s*size\s*\(\s*\)\s*"
-    r"(?P<operator>!=|>=|>|<=|<|==)\s*(?P<value>\d+)"
-)
-MINIMUM_GUARD = re.compile(
-    r"\bargs\s*\.\s*size\s*\(\s*\)\s*(?P<operator><|<=)\s*(?P<value>\d+)"
-)
 EMPTY_CHECK = re.compile(r"\bargs\s*\.\s*empty\s*\(\s*\)")
-INDEX_ACCESS = re.compile(
-    r"\bargs\s*(?:\.\s*(?:at|tryGetAs)\s*(?:<[^;(){}]*>)?\s*\(\s*"
-    r"(?P<method_index>\d+)\s*\)|\[\s*(?P<subscript_index>\d+)\s*\])"
-)
-RECOMBINE_ACCESS = re.compile(
-    r"\bargs\s*\.\s*recombineSubspan\s*\(\s*(?P<index>\d+)\s*\)"
-)
-COPY_SUBSPAN_ACCESS = re.compile(
-    r"\bargs\s*\.\s*copySubspan\s*\([^,]+,\s*(?P<index>\d+)\s*\)"
+MINIMUM_GUARD = re.compile(
+    r"\bargs\s*\.\s*size\s*\(\s*\)\s*(?:<|<=)\s*(?P<value>\d+)"
 )
 RECOMBINE_ALL_ACCESS = re.compile(r"\bargs\s*\.\s*recombine\s*\(\s*\)")
-SUBSPAN_ACCESS = re.compile(
-    r"\bargs\s*\.\s*subspan\s*\(\s*(?P<index>\d+)\s*\)"
-)
-DROP_ACCESS = re.compile(
-    r"\bargs\s*\|\s*std::views::drop\s*\(\s*(?P<index>\d+)\s*\)"
-)
 PASSTHROUGH_ACCESS = re.compile(r"(?:\(|,)\s*args\s*(?:,|\))")
 
 
@@ -88,17 +68,116 @@ class IndexRange:
         return f"{self.start}.." if self.end is None else f"{self.start}..{self.end}"
 
 
-GUARD_PATTERNS = (
-    SIZE_GUARD,
-)
+def exact(index: int) -> IndexRange:
+    return IndexRange(index, index)
 
-ACCESS_PATTERNS = (
-    ("indexed access", INDEX_ACCESS),
-    ("recombineSubspan", RECOMBINE_ACCESS),
-    ("copySubspan", COPY_SUBSPAN_ACCESS),
-    ("subspan", SUBSPAN_ACCESS),
-    ("drop", DROP_ACCESS),
-)
+
+def from_index(index: int) -> IndexRange:
+    return IndexRange(index)
+
+
+def span(start: int, count: int) -> IndexRange:
+    return IndexRange(start, start + count - 1)
+
+
+Pattern = tuple[
+    str,
+    re.Pattern[str],
+    Callable[[Match[str]], IndexRange | None],
+]
+
+
+# Each tuple is: (description, regex, coverage builder).
+# The builders turn regex captures into logical argument-index coverage.
+GUARD_PATTERNS: list[Pattern] = [
+    (
+        "args.size() != N",
+        re.compile(
+            r"\bargs\s*\.\s*size\s*\(\s*\)\s*!=\s*(?P<value>\d+)"
+        ),
+        lambda match: IndexRange(1, int(match.group("value")) - 1),
+    ),
+    (
+        "args.size() < N",
+        re.compile(
+            r"\bargs\s*\.\s*size\s*\(\s*\)\s*<\s*(?P<value>\d+)"
+        ),
+        lambda match: IndexRange(int(match.group("value")) - 1, None),
+    ),
+    (
+        "args.size() > N",
+        re.compile(
+            r"\bargs\s*\.\s*size\s*\(\s*\)\s*>\s*(?P<value>\d+)"
+        ),
+        lambda match: IndexRange(1, int(match.group("value")) - 1),
+    ),
+]
+
+ACCESS_PATTERNS: list[Pattern] = [
+    (
+        "args[<i>]",
+        re.compile(r"\bargs\s*\[\s*(?P<index>\d+)\s*\]"),
+        lambda match: exact(int(match.group("index"))),
+    ),
+    (
+        "args.at(<i>) / args.tryGetAs(<i>)",
+        re.compile(
+            r"\bargs\s*\.\s*(?:at|tryGetAs)"
+            r"(?:<[^;(){}]*>)?\s*\(\s*(?P<index>\d+)\s*\)"
+        ),
+        lambda match: exact(int(match.group("index"))),
+    ),
+    (
+        "args.recombineSubspan(<i>)",
+        re.compile(
+            r"\bargs\s*\.\s*recombineSubspan"
+            r"\(\s*(?P<index>\d+)\s*\)"
+        ),
+        lambda match: from_index(int(match.group("index"))),
+    ),
+    (
+        "args.copySubspan(<target>, <i>)",
+        re.compile(
+            r"\bargs\s*\.\s*copySubspan"
+            r"\([^,]+,\s*(?P<index>\d+)\s*\)"
+        ),
+        lambda match: from_index(int(match.group("index"))),
+    ),
+    (
+        "args.subspan(<i>)",
+        re.compile(
+            r"\bargs\s*\.\s*subspan"
+            r"\(\s*(?P<index>\d+)\s*\)"
+        ),
+        lambda match: from_index(int(match.group("index"))),
+    ),
+    (
+        "args.subspan(<i>, <j>)",
+        re.compile(
+            r"\bargs\s*\.\s*subspan"
+            r"\(\s*(?P<index>\d+)\s*,\s*(?P<count>\d+)\s*\)"
+        ),
+        lambda match: span(
+            int(match.group("index")),
+            int(match.group("count")),
+        ),
+    ),
+    (
+        "args | std::views::drop(<i>)",
+        re.compile(
+            r"\bargs\s*\|\s*std::views::drop"
+            r"\(\s*(?P<index>\d+)\s*\)"
+        ),
+        lambda match: from_index(max(1, int(match.group("index")))),
+    ),
+]
+
+# Compatibility aliases used by the control-flow diagnostics below.
+INDEX_ACCESS = ACCESS_PATTERNS[0][1]
+RECOMBINE_ACCESS = ACCESS_PATTERNS[2][1]
+COPY_SUBSPAN_ACCESS = ACCESS_PATTERNS[3][1]
+SUBSPAN_ACCESS = ACCESS_PATTERNS[4][1]
+DROP_ACCESS = ACCESS_PATTERNS[6][1]
 
 
 def make_parser() -> Parser:
@@ -153,42 +232,18 @@ def find_node(node, node_type: str):
 
 def find_upper_bound(body_text: str) -> int | None:
     """Return the largest permitted args.size(), if a simple upper guard exists."""
-    maximum: int | None = None
-    for match in SIZE_GUARD.finditer(body_text):
-        operator = match.group("operator")
-        value = int(match.group("value"))
-        if operator == ">":
-            candidate = value
-        elif operator == ">=":
-            candidate = value - 1
-        elif operator in {"==", "!="}:
-            candidate = value
-        else:
-            continue
-        maximum = candidate if maximum is None else min(maximum, candidate)
-    return maximum
+    coverage = guard_range(body_text)
+    return None if coverage is None else coverage.end
 
 
 def guard_range(body_text: str) -> IndexRange | None:
     """Combine recognized rejecting size guards into an accepted index range."""
     accepted = IndexRange(1, None)
     found = False
-    for pattern in GUARD_PATTERNS:
+    for _, pattern, builder in GUARD_PATTERNS:
         for match in pattern.finditer(body_text):
             found = True
-            operator = match.group("operator")
-            value = int(match.group("value"))
-            if operator in {"<", "<="}:
-                candidate = IndexRange(value - 1 if operator == "<" else value, None)
-            elif operator in {">", ">="}:
-                candidate = IndexRange(
-                    1,
-                    value - 1 if operator == ">" else value - 2,
-                )
-            elif operator == "!=":
-                candidate = IndexRange(1, value - 1)
-            else:
-                continue
+            candidate = builder(match)
             accepted = accepted.intersect(candidate)
             if accepted is None:
                 return None
@@ -198,20 +253,9 @@ def guard_range(body_text: str) -> IndexRange | None:
 def access_ranges(body_text: str) -> tuple[list[tuple[str, IndexRange]], bool]:
     """Return declarative access coverage and whether all indexes are consumed."""
     ranges: list[tuple[str, IndexRange]] = []
-    for match in INDEX_ACCESS.finditer(body_text):
-        index = int(match.group("method_index") or match.group("subscript_index"))
-        ranges.append(("indexed access", IndexRange(index, index)))
-
-    for name, pattern in ACCESS_PATTERNS[1:]:
+    for name, pattern, builder in ACCESS_PATTERNS:
         for match in pattern.finditer(body_text):
-            index = int(match.group("index"))
-            if name == "drop":
-                if index > 1:
-                    ranges.append(("invalid drop", IndexRange(1, index - 1)))
-                else:
-                    ranges.append((name, IndexRange(1, None)))
-            else:
-                ranges.append((name, IndexRange(index, None)))
+            ranges.append((name, builder(match)))
 
     if RECOMBINE_ALL_ACCESS.search(body_text):
         ranges.append(("recombine", IndexRange(1, None)))
@@ -330,177 +374,30 @@ def analyze_function(
             ], None
         return [], None
 
-    recombine_match = RECOMBINE_ACCESS.search(body_text)
-    if recombine_match and int(recombine_match.group("index")) == 1:
-        if verbose:
-            print(
-                "\t\tRecombined from index 1; reserved index 0 is discarded "
-                "and all user indexes are consumed"
-            )
-        return [], None
-
-    subspan_match = SUBSPAN_ACCESS.search(body_text)
-    if subspan_match and int(subspan_match.group("index")) == 1:
-        if verbose:
-            print(
-                "\t\tIterates subspan from index 1; reserved index 0 is discarded "
-                "and all user indexes are consumed"
-            )
-        return [], None
-    if subspan_match and int(subspan_match.group("index")) == 0:
-        if verbose:
-            print("\t\tIterates subspan from index 0; all indexes are consumed")
-        return [], None
-
-    drop_match = DROP_ACCESS.search(body_text)
-    if drop_match:
-        drop_count = int(drop_match.group("index"))
-        if drop_count <= 1:
+    if pattern_accesses:
+        if pattern_guard is None:
             if verbose:
-                print(
-                    f"\t\tIterates args after dropping {drop_count} index; "
-                    "all user indexes are consumed"
-                )
-            return [], None
-
-        function_name = node_text(function.child_by_field_name("declarator"), source)
-        discarded = f"1..{drop_count - 1}"
-        if verbose:
-            print(
-                f"\t\tDrops indexes 0..{drop_count - 1}; "
-                f"user indexes {discarded} are discarded"
-            )
-        line = source[:function.start_byte].count(b"\n") + 1
-        return [
-            (
-                line,
-                f"{function_name}: args.drop({drop_count}) discards "
-                f"user argument indexes {discarded}",
-            )
-        ], None
-
-    used_indexes = {
-        int(match.group("method_index") or match.group("subscript_index"))
-        for match in INDEX_ACCESS.finditer(body_text)
-    }
-    remainder_match = RECOMBINE_ACCESS.search(body_text)
-    remainder_name = "recombineSubspan"
-    if remainder_match is None:
-        remainder_match = COPY_SUBSPAN_ACCESS.search(body_text)
-        remainder_name = "copySubspan"
-    if remainder_match:
-        remainder_start = int(remainder_match.group("index"))
-        missing_indexes = [
-            index for index in range(1, remainder_start)
-            if index not in used_indexes
-        ]
-        if missing_indexes:
-            function_name = node_text(
-                function.child_by_field_name("declarator"),
-                source,
-            )
-            line = source[:function.start_byte].count(b"\n") + 1
+                print("\t\tNo guard coverage; access patterns are insufficient to prove all indexes")
             return [
                 (
-                    line,
-                    f"{function_name}: argument indexes "
-                    f"{missing_indexes} are accepted but never consumed before "
-                    f"{remainder_name}({remainder_start})",
+                    source[:function.start_byte].count(b"\n") + 1,
+                    f"{function_name}: no argument-count guard covers the access patterns",
                 )
             ], None
-        if verbose:
-            print(
-                f"\t\tDirectly consumed indexes below {remainder_start}: "
-                f"{sorted(index for index in used_indexes if index < remainder_start) or 'none'}"
-            )
-            print(
-                f"\t\t{remainder_name} from index {remainder_start}; "
-                "all later indexes are consumed"
-            )
         return [], None
 
-    maximum = find_upper_bound(body_text)
-    if maximum is None:
-        minimum_match = MINIMUM_GUARD.search(body_text)
-        used_indexes = sorted(used_indexes)
-        if minimum_match and used_indexes:
-            minimum = int(minimum_match.group("value"))
-            first_unused = max(used_indexes) + 1
-            function_name = node_text(
-                function.child_by_field_name("declarator"),
-                source,
-            )
-            if verbose:
-                print(
-                    "\t\tNo maximum argument count; "
-                    f"directly consumed indexes: {used_indexes}"
-                )
-                print(
-                    "\t\tArguments from index "
-                    f"{first_unused} onward are accepted but never consumed"
-                )
-            line = source[:function.start_byte].count(b"\n") + 1
-            return [
-                (
-                    line,
-                    f"{function_name}: no maximum argument count; "
-                    f"argument index {first_unused} and later arguments are accepted "
-                    "but never consumed",
-                )
-            ], None
+    if re.search(r"\bargs\s*\.\s*size\s*\(\s*\)\s*!=\s*1", body_text):
         if verbose:
-            if re.search(r"\bargs\s*\.\s*size\s*\(\s*\)\s*!=\s*1", body_text):
-                print(
-                    "\t\tExact args.size() == 1 guard; "
-                    "reserved index 0 is the only argument"
-                )
-            else:
-                print("\t\tNo simple maximum argument count found; skipping")
-        return [], node_text(function.child_by_field_name("declarator"), source)
+            print("\t\tExact args.size() == 1 guard; no user indexes are accepted")
+        return [], None
+    if pattern_guard is not None:
+        if verbose:
+            print(f"\t\tGuard coverage: {pattern_guard}; no access patterns required")
+        return [], None
 
-    used: set[int] = set()
-    remainder_start: int | None = None
-    for match in INDEX_ACCESS.finditer(body_text):
-        index = match.group("method_index") or match.group("subscript_index")
-        used.add(int(index))
-    for match in RECOMBINE_ACCESS.finditer(body_text):
-        index = int(match.group("index"))
-        remainder_start = (
-            index if remainder_start is None else min(remainder_start, index)
-        )
-    for match in SUBSPAN_ACCESS.finditer(body_text):
-        index = int(match.group("index"))
-        remainder_start = (
-            index if remainder_start is None else min(remainder_start, index)
-        )
-
-    accepted = set(range(1, max(1, maximum)))
-    consumed = {
-        index for index in accepted
-        if index in used
-        or (remainder_start is not None and index >= remainder_start)
-    }
-    unused = sorted(accepted - consumed)
     if verbose:
-        print(f"\t\tAccepted argument indexes: 1..{maximum - 1}")
-        print(
-            "\t\tDirectly consumed indexes: "
-            f"{sorted(index for index in used if index in accepted) or 'none'}"
-        )
-        print(
-            "\t\tConsumed remainder/subspan from index: "
-            f"{remainder_start if remainder_start is not None else 'none'}"
-        )
-        print(f"\t\tUnused accepted indexes: {unused or 'none'}")
-
-    findings = []
-    for index in unused:
-        if index not in used:
-            line = source[:function.start_byte].count(b"\n") + 1
-            findings.append(
-                (line, f"{function_name}: argument index {index} is accepted but never consumed")
-            )
-    return findings, None
+        print("\t\tNo recognized guard or access pattern; skipping")
+    return [], function_name
 
 
 def source_files(paths: list[Path]) -> Iterable[Path]:
