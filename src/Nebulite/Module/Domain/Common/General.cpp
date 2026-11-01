@@ -356,7 +356,7 @@ Constants::Event General::eval(Utility::Args::SegmentedStringView const& args, I
     //       allowing us to properly retrieve the current state for each iteration.
     //       Do the same for the RenderObject eval function. Perhaps we should combine them?
 
-    Interaction::Logic::Expression const expr(args.subspan(0));
+    Interaction::Logic::Expression const expr(args);
 
     // Evaluate expression, empty context for self and other
     auto const argsEvaluated = expr.eval(ctxScope);
