@@ -434,8 +434,7 @@ bool Array::slide(Utility::Args::SegmentedStringView const& args, Data::JsonScop
 // Generate
 
 bool Array::iota(Utility::Args::SegmentedStringView const& args, Data::JsonScope& jsonDoc){
-    if (args.size() < 3) return false;
-    if (args.size() > 4) return false;
+    if (args.size() != 3) return false;
     auto start = std::stoll(std::string(args.at(1)));
     auto end = std::stoll(std::string(args.at(2)));
     if (start >= end) {
@@ -447,8 +446,7 @@ bool Array::iota(Utility::Args::SegmentedStringView const& args, Data::JsonScope
 }
 
 bool Array::iotaMod(Utility::Args::SegmentedStringView const& args, Data::JsonScope& jsonDoc){
-    if (args.size() < 4) return false;
-    if (args.size() > 5) return false;
+    if (args.size() != 4) return false;
     auto mod = std::stoll(std::string(args.at(1)));
     auto start = std::stoll(std::string(args.at(2)));
     auto end = std::stoll(std::string(args.at(3)));
