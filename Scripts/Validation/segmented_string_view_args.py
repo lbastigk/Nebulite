@@ -54,6 +54,9 @@ RECOMBINE_ALL_ACCESS = re.compile(r"\bargs\s*\.\s*recombine\s*\(\s*\)")
 SUBSPAN_ACCESS = re.compile(
     r"\bargs\s*\.\s*subspan\s*\(\s*(?P<index>\d+)\s*\)"
 )
+DROP_ACCESS = re.compile(
+    r"\bargs\s*\|\s*std::views::drop\s*\(\s*(?P<index>\d+)\s*\)"
+)
 PASSTHROUGH_ACCESS = re.compile(r"(?:\(|,)\s*args\s*(?:,|\))")
 
 
@@ -192,6 +195,33 @@ def analyze_function(
         if verbose:
             print("\t\tIterates subspan from index 0; all indexes are consumed")
         return [], None
+
+    drop_match = DROP_ACCESS.search(body_text)
+    if drop_match:
+        drop_count = int(drop_match.group("index"))
+        if drop_count <= 1:
+            if verbose:
+                print(
+                    f"\t\tIterates args after dropping {drop_count} index; "
+                    "all user indexes are consumed"
+                )
+            return [], None
+
+        function_name = node_text(function.child_by_field_name("declarator"), source)
+        discarded = f"1..{drop_count - 1}"
+        if verbose:
+            print(
+                f"\t\tDrops indexes 0..{drop_count - 1}; "
+                f"user indexes {discarded} are discarded"
+            )
+        line = source[:function.start_byte].count(b"\n") + 1
+        return [
+            (
+                line,
+                f"{function_name}: args.drop({drop_count}) discards "
+                f"user argument indexes {discarded}",
+            )
+        ], None
 
     maximum = find_upper_bound(body_text)
     if maximum is None:
@@ -343,6 +373,10 @@ def main() -> int:
         skipped_functions.extend(
             f"{path}: {function}" for function in file_skipped_functions
         )
+    if args.verbose:
+        print("")
+        print("Analysis complete.")
+        print("")
     for path, line, message in findings:
         print(f"{path}:{line}: warning: {message}")
     print(f"Skipped functions: {len(skipped_functions)}")
