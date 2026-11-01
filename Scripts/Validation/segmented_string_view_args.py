@@ -32,9 +32,7 @@ TYPE_MARKER = "SegmentedStringView"
 # These functions use named/spanned arguments whose consumed indexes cannot be
 # inferred from the positional-argument analysis below.
 KNOWN_EXCEPTIONS = {
-    "Fft::applyTransferFunctionFrequencyDomain("
-    "Utility::Args::SegmentedStringView const& args, Data::JsonScope& jsonDoc"
-    ")",
+    "Fft::applyTransferFunctionFrequencyDomain(Utility::Args::SegmentedStringView const& args, Data::JsonScope& jsonDoc)",
 }
 EMPTY_CHECK = re.compile(r"\bargs\s*\.\s*empty\s*\(\s*\)")
 MINIMUM_GUARD = re.compile(
