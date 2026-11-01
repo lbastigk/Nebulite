@@ -384,13 +384,13 @@ bool Array::batch(Utility::Args::SegmentedStringView const& args, Data::JsonScop
 }
 
 bool Array::batchPadded(Utility::Args::SegmentedStringView const& args, Data::JsonScope& jsonDoc){
-if (!batch(args, jsonDoc)) return false;
-auto const size = Utility::Convert::Cast::String::to<std::size_t>(args.at(1));
-if (!size.has_value()) return false;
-auto const batchCount = jsonDoc.memberSize(rootKey);
-if (batchCount == 0) return true;
-auto const lastBatch = rootKey.addIndex(batchCount - 1);
-while (jsonDoc.memberSize(lastBatch) < size.value()) {
+    if (!batch(args, jsonDoc)) return false;
+    auto const size = Utility::Convert::Cast::String::to<std::size_t>(args.at(1));
+    if (!size.has_value()) return false;
+    auto const batchCount = jsonDoc.memberSize(rootKey);
+    if (batchCount == 0) return true;
+    auto const lastBatch = rootKey.addIndex(batchCount - 1);
+    while (jsonDoc.memberSize(lastBatch) < size.value()) {
         auto const newIndex = jsonDoc.memberSize(lastBatch);
         auto const newKey = lastBatch.addIndex(newIndex);
         jsonDoc.setEmptyObject(newKey);
