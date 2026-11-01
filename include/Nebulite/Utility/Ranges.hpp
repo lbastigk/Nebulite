@@ -167,6 +167,28 @@ static struct Enumerate : std::ranges::range_adaptor_closure<Enumerate> {
 } constexpr enumerate;
 
 /**
+ * @brief Repeats a whole range n times, e.g. `std::array{1, 2} | Ranges::repeat(3)` yields 1, 2, 1, 2, 1, 2.
+ * @note The range must be iterable as const, as the repeated view is shared between all repetitions.
+ */
+static struct Repeat {
+    struct Closure : std::ranges::range_adaptor_closure<Closure> {
+        std::size_t n;
+
+        explicit constexpr Closure(std::size_t const count) : n(count) {}
+
+        template <std::ranges::viewable_range R> requires std::ranges::forward_range<R>
+        auto operator()(R&& r) const {
+            return std::views::repeat(std::views::all(std::forward<R>(r)), n)
+                | std::views::join;
+        }
+    };
+
+    constexpr auto operator()(std::size_t const n) const {
+        return Closure{n};
+    }
+} constexpr repeat{};
+
+/**
  * @brief Checks if all elements in a range are equal and satisfy a given predicate.
  */
 static struct AllEqualAnd : std::ranges::range_adaptor_closure<AllEqualAnd>{
