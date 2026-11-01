@@ -1,0 +1,22 @@
+# Test iotaMod-correctness
+
+# Basic modulo sequence
+assign global:result = {|iotaMod 3 0 10}
+eval nop {global:result|length|assert equals int 10}
+eval nop {global:result|at 0|assert equals int 0}
+eval nop {global:result|at 2|assert equals int 2}
+eval nop {global:result|at 3|assert equals int 0}
+eval nop {global:result|at 9|assert equals int 0}
+
+# Modulo sequence with a non-zero start
+assign global:result = {|iotaMod 4 5 10}
+eval nop {global:result|length|assert equals int 5}
+eval nop {global:result|at 0|assert equals int 1}
+eval nop {global:result|at 1|assert equals int 2}
+eval nop {global:result|at 4|assert equals int 1}
+
+# Empty range
+assign global:result = {|iotaMod 5 3 3}
+eval nop {global:result|length|assert equals int 0}
+
+exit

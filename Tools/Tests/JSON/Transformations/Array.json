@@ -48,6 +48,10 @@
         "expected": { "cout": [], "cerr": [] }
     },
     {
+        "command": "task TaskFiles/Tests/JSON/Transformations/Array/iotaMod.nebs",
+        "expected": { "cout": [], "cerr": [] }
+    },
+    {
         "command": "task TaskFiles/Tests/JSON/Transformations/Array/ensureArray.nebs",
         "expected": { "cout": [], "cerr": [] }
     },
