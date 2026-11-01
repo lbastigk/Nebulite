@@ -4,12 +4,13 @@
 set-fps 5000
 wait 1
 
+assign self:benchmark.size = $(2^24)
+
 # Normal FFT benchmark using the optimized feature-test implementation.
 echo ""
 echo ""
 echo "------------------------------------"
-feature-test large-fft 10000000
-feature-test large-fft 10000
+eval feature-test large-fft {self:benchmark.size}
 
 # FFT benchmark using the transformation pipeline. The input is generated with
 # iota and transformed element-by-element before running the FFT transformation.
@@ -18,11 +19,11 @@ echo ""
 echo "------------------------------------"
 wait 1
 eval set pipeline.start {global:time.runtime.t}
-assign global:result = {|iota 0 10000|map mod 100|fft}
+assign global:result = {|iotaMod 100 0 {self:benchmark.size}|fft}
 wait 1
 eval set pipeline.end {global:time.runtime.t}
-eval echo "Pipeline FFT took $6.4f({global:pipeline.end} - {global:pipeline.start}) seconds for N=10000."
+eval echo "Pipeline FFT took $i(1000*({global:pipeline.end} - {global:pipeline.start})) ms for N={self:benchmark.size}."
 eval echo "First 10 results of {global:result|length} total:"
-eval echo {global:result|head 10|map complexToString 10.2f|serialize}
+eval echo {global:result|head 10|map complexToString 012.2f|serialize}
 
 exit
