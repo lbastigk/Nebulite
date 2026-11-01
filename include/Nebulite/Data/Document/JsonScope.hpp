@@ -197,16 +197,6 @@ public:
     template<typename T> void set(ScopedKeyView const& key, T const& value);
     template<typename T> void set(ScopedKey const& key, T const& value){set(key.view(), value);}
 
-    template <std::ranges::viewable_range R>
-    void insertArray(ScopedKeyView const& key, R const& values);
-    template <std::ranges::viewable_range R>
-    void insertArray(ScopedKey const& key, R const& values){insertArray(key.view(), values);}
-
-    template <std::ranges::viewable_range R>
-    void appendArray(ScopedKeyView const& key, R const& values);
-    template <std::ranges::viewable_range R>
-    void appendArray(ScopedKey const& key, R const& values){appendArray(key.view(), values);}
-
     void setVariant(ScopedKeyView const& key, RjDirectAccess::SimpleValue const& value);
     void setVariant(ScopedKey const& key, RjDirectAccess::SimpleValue const& value);
 
@@ -216,14 +206,28 @@ public:
     void setSubDoc(ScopedKeyView const& key, JsonScope const& subDoc);
     void setSubDoc(ScopedKey const& key, JsonScope const& subDoc);
 
-    void setEmptyArray(ScopedKeyView const& key);
-    void setEmptyArray(ScopedKey const& key);
-
     void setEmptyObject(ScopedKeyView const& key);
     void setEmptyObject(ScopedKey const& key);
 
     void setComplex(ScopedKeyView const& key, std::complex<double> const& value);
     void setComplex(ScopedKey const& key, std::complex<double> const& value);
+
+    void setEmptyArray(ScopedKeyView const& key);
+    void setEmptyArray(ScopedKey const& key);
+
+    template <std::ranges::viewable_range R>
+    void insertArray(ScopedKeyView const& key, R const& values);
+    template <std::ranges::viewable_range R>
+    void insertArray(ScopedKey const& key, R const& values){insertArray(key.view(), values);}
+    void insertArray(ScopedKeyView const& key, Json const& values, std::string_view valuesKey);
+    void insertArray(ScopedKey const& key, Json const& values, std::string_view valuesKey);
+
+    template <std::ranges::viewable_range R>
+    void appendArray(ScopedKeyView const& key, R const& values);
+    template <std::ranges::viewable_range R>
+    void appendArray(ScopedKey const& key, R const& values){appendArray(key.view(), values);}
+    void appendArray(ScopedKeyView const& key, Json const& values, std::string_view valuesKey);
+    void appendArray(ScopedKey const& key, Json const& values, std::string_view valuesKey);
 
     //------------------------------------------
     // Special sets for threadsafe maths operations

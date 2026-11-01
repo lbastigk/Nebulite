@@ -445,17 +445,6 @@ void Json::setSubDoc(std::string_view const key, Json const& child, std::string_
     synchronizeChildren(key);
 }
 
-void Json::setEmptyArray(std::string_view const key) {
-    std::scoped_lock const lockGuard(mtx);
-    helperNonConstVar++; // Signal non-const operation
-    flush(key);
-    rapidjson::Value* val = RjDirectAccess::ensurePath(key, doc, doc.GetAllocator());
-    if (val == nullptr) {
-        throw std::runtime_error("Failed to create or access path: " + std::string(key));
-    }
-    RjDirectAccess::setEmptyArray(val);
-}
-
 void Json::setComplex(std::string_view const key, std::complex<double> const& value) {
     std::scoped_lock const lockGuard(mtx);
     helperNonConstVar++; // Signal non-const operation
@@ -477,6 +466,45 @@ void Json::setEmptyObject(std::string_view const key) {
         throw std::runtime_error("Failed to create or access path: " + std::string(key));
     }
     val->SetObject();
+}
+
+void Json::setEmptyArray(std::string_view const key) {
+    std::scoped_lock const lockGuard(mtx);
+    helperNonConstVar++; // Signal non-const operation
+    flush(key);
+    rapidjson::Value* val = RjDirectAccess::ensurePath(key, doc, doc.GetAllocator());
+    if (val == nullptr) {
+        throw std::runtime_error("Failed to create or access path: " + std::string(key));
+    }
+    RjDirectAccess::setEmptyArray(val);
+}
+
+void Json::insertArray(std::string_view key, Json const& values, std::string_view const valuesKey){
+    setEmptyArray(key);
+    auto* existingValue = RjDirectAccess::ensurePath(key, doc, doc.GetAllocator());
+    if (existingValue == nullptr) {
+        throw std::runtime_error("Failed to create or access path: " + std::string(key));
+    }
+
+    auto* toAppend = RjDirectAccess::ensurePath(valuesKey, values.doc, values.doc.GetAllocator());
+    if (toAppend == nullptr) {
+        throw std::runtime_error("Failed to create or access path: " + std::string(key));
+    }
+
+    RjDirectAccess::appendArray(existingValue, toAppend, doc.GetAllocator());
+}
+
+void Json::appendArray(std::string_view key, Json const& values, std::string_view const valuesKey){
+    auto* existingValue = RjDirectAccess::ensurePath(key, doc, doc.GetAllocator());
+    if (existingValue == nullptr) {
+        throw std::runtime_error("Failed to create or access path: " + std::string(key));
+    }
+
+    auto* toAppend = RjDirectAccess::ensurePath(valuesKey, values.doc, values.doc.GetAllocator());
+    if (toAppend == nullptr) {
+        throw std::runtime_error("Failed to create or access path: " + std::string(key));
+    }
+    RjDirectAccess::appendArray(existingValue, toAppend, doc.GetAllocator());
 }
 
 //------------------------------------------

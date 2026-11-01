@@ -6,7 +6,6 @@
 
 // Standard library
 #include <cassert>
-#include <complex>
 #include <concepts>
 #include <cstddef>
 #include <cstdint> // NOLINT

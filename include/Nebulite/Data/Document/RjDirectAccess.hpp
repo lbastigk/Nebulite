@@ -162,6 +162,21 @@ namespace Nebulite::Data::RjDirectAccess {
     template<std::ranges::viewable_range R>
     void appendArray(rapidjson::Value* val, R const& values, rapidjson::Document::AllocatorType& allocator);
 
+    enum class ArrayInsertion : bool {
+        Extend,
+        Nested
+    };
+
+    /**
+     * @brief Appends a given value to an array
+     * @details If toAppend is an array, the array
+     * @param destination The rapidjson value to append to.
+     * @param source The value to append.
+     * @param allocator The allocator to use when adding the value to the array.
+     * @param insertion The type of insertion to perform.
+     */
+    void appendArray(rapidjson::Value* destination, rapidjson::Value* source, rapidjson::Document::AllocatorType& allocator, ArrayInsertion insertion = ArrayInsertion::Extend);
+
     //------------------------------------------
     // Conversion
 

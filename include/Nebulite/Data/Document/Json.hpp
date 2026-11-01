@@ -288,27 +288,6 @@ public:
     void set(std::string_view key, T const& val);
 
     /**
-     * @brief Replaces the value at a key with an array containing the supplied range.
-     * @details Existing values and cached child entries at the key are discarded.
-     * @tparam R The type of the range to insert.
-     * @param key The key of the array to replace.
-     * @param values The values to insert into the new array.
-     */
-    template <std::ranges::viewable_range R>
-    void insertArray(std::string_view key, R const& values);
-
-    /**
-     * @brief Appends a range of values to the array at a key.
-     * @details Existing cached values are flushed before appending, and cached child
-     *          entries are synchronized afterward.
-     * @tparam R The type of the range to append.
-     * @param key The key of the array to append to.
-     * @param values The values to append.
-     */
-    template <std::ranges::viewable_range R>
-    void appendArray(std::string_view key, R const& values);
-
-    /**
      * @brief Sets a variant value of supported simple values in the JSON document.
      *        Stable double pointer of the value is updated as well. Child keys are invalidated.
      * @param key The key of the value to set.
@@ -335,6 +314,15 @@ public:
     void setSubDoc(std::string_view key, Json const& child, std::string_view childKey = "");
 
     /**
+     * @brief Sets an empty object in the JSON document.
+     * @details This function sets an empty object in the JSON document.
+     *          If the key already exists, the object is updated.
+     *          Note that the document is flushed before setting.
+     * @param key The key of the object to set.
+     */
+    void setEmptyObject(std::string_view key);
+
+    /**
      * @brief Sets an empty array in the JSON document.
      * @details This function sets an empty array in the JSON document.
      *          If the key already exists, the array is updated.
@@ -344,13 +332,29 @@ public:
     void setEmptyArray(std::string_view key);
 
     /**
-     * @brief Sets an empty object in the JSON document.
-     * @details This function sets an empty object in the JSON document.
-     *          If the key already exists, the object is updated.
-     *          Note that the document is flushed before setting.
-     * @param key The key of the object to set.
+     * @brief Replaces the value at a key with an array containing the supplied range.
+     * @details Existing values and cached child entries at the key are discarded.
+     * @tparam R The type of the range to insert.
+     * @param key The key of the array to replace.
+     * @param values The values to insert into the new array.
      */
-    void setEmptyObject(std::string_view key);
+    template <std::ranges::viewable_range R>
+    void insertArray(std::string_view key, R const& values);
+
+    void insertArray(std::string_view key, Json const& values, std::string_view valuesKey);
+
+    /**
+     * @brief Appends a range of values to the array at a key.
+     * @details Existing cached values are flushed before appending, and cached child
+     *          entries are synchronized afterward.
+     * @tparam R The type of the range to append.
+     * @param key The key of the array to append to.
+     * @param values The values to append.
+     */
+    template <std::ranges::viewable_range R>
+    void appendArray(std::string_view key, R const& values);
+
+    void appendArray(std::string_view key, Json const& values, std::string_view valuesKey);
 
     //------------------------------------------
     // Special sets for threadsafe maths operations
@@ -449,7 +453,6 @@ public:
      * @param key The key to ensure is an array.
      */
     void ensureArray(std::string_view key);
-
 
     /**
      * @brief Lists all available member keys in a rapidjson object.

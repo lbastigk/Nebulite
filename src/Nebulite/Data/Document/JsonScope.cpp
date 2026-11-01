@@ -165,14 +165,6 @@ void JsonScope::setSubDoc(ScopedKey const& key, JsonScope const& subDoc) {
     setSubDoc(key.view(), subDoc);
 }
 
-void JsonScope::setEmptyArray(ScopedKeyView const& key){
-    doc().setEmptyArray(key.full(*this));
-}
-
-void JsonScope::setEmptyArray(ScopedKey const& key) {
-    setEmptyArray(key.view());
-}
-
 void JsonScope::setEmptyObject(ScopedKeyView const& key){
     doc().setEmptyObject(key.full(*this));
 }
@@ -187,6 +179,30 @@ void JsonScope::setComplex(ScopedKeyView const& key, std::complex<double> const&
 
 void JsonScope::setComplex(ScopedKey const& key, std::complex<double> const& value) {
     setComplex(key.view(), value);
+}
+
+void JsonScope::setEmptyArray(ScopedKeyView const& key){
+    doc().setEmptyArray(key.full(*this));
+}
+
+void JsonScope::setEmptyArray(ScopedKey const& key) {
+    setEmptyArray(key.view());
+}
+
+void JsonScope::insertArray(ScopedKeyView const& key, Json const& values, std::string_view const valuesKey) {
+    baseDocument->insertArray(key.full(*this), values, valuesKey);
+}
+
+void JsonScope::insertArray(ScopedKey const& key, Json const& values, std::string_view const valuesKey) {
+    insertArray(key.view(), values, valuesKey);
+}
+
+void JsonScope::appendArray(ScopedKeyView const& key, Json const& values, std::string_view const valuesKey) {
+    baseDocument->appendArray(key.full(*this), values, valuesKey);
+}
+
+void JsonScope::appendArray(ScopedKey const& key, Json const& values, std::string_view const valuesKey) {
+    appendArray(key.view(), values, valuesKey);
 }
 
 //------------------------------------------

@@ -81,6 +81,23 @@ void setEmptyArray(rapidjson::Value* val) {
     val->SetArray();
 }
 
+void appendArray(rapidjson::Value* destination, rapidjson::Value* source, rapidjson::Document::AllocatorType& allocator, ArrayInsertion insertion){
+    ensureArray(destination, allocator);
+    assert(destination->IsArray());
+    if (source->IsArray() && insertion == ArrayInsertion::Extend) {
+        for (auto const& member : source->GetArray()) {
+            rapidjson::Value copy;
+            copy.CopyFrom(member, allocator);
+            destination->PushBack(copy, allocator);
+        }
+    }
+    else {
+        rapidjson::Value copy;
+        copy.CopyFrom(*source, allocator);
+        destination->PushBack(copy, allocator);
+    }
+}
+
 //------------------------------------------
 // Document traversal
 
