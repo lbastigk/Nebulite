@@ -34,7 +34,7 @@ jobs:
 
       - name: Validate SegmentedStringView argument handling
         run: |
-          python Scripts/Validation/segmented_string_view_argument_validator.py
+          python Scripts/Validation/segmented_string_view_argument_validator.py -v
 
       - name: Install Resources
         run: |
