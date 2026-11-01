@@ -11,6 +11,7 @@ from __future__ import annotations
 import argparse
 import re
 import sys
+from dataclasses import dataclass
 from pathlib import Path
 from typing import Iterable
 
@@ -61,6 +62,43 @@ DROP_ACCESS = re.compile(
     r"\bargs\s*\|\s*std::views::drop\s*\(\s*(?P<index>\d+)\s*\)"
 )
 PASSTHROUGH_ACCESS = re.compile(r"(?:\(|,)\s*args\s*(?:,|\))")
+
+
+@dataclass(frozen=True)
+class IndexRange:
+    """Inclusive index range; None as end means unbounded."""
+
+    start: int
+    end: int | None = None
+
+    def intersect(self, other: "IndexRange") -> "IndexRange | None":
+        start = max(self.start, other.start)
+        if self.end is None:
+            end = other.end
+        elif other.end is None:
+            end = self.end
+        else:
+            end = min(self.end, other.end)
+        return None if end is not None and start > end else IndexRange(start, end)
+
+    def contains(self, index: int) -> bool:
+        return index >= self.start and (self.end is None or index <= self.end)
+
+    def __str__(self) -> str:
+        return f"{self.start}.." if self.end is None else f"{self.start}..{self.end}"
+
+
+GUARD_PATTERNS = (
+    SIZE_GUARD,
+)
+
+ACCESS_PATTERNS = (
+    ("indexed access", INDEX_ACCESS),
+    ("recombineSubspan", RECOMBINE_ACCESS),
+    ("copySubspan", COPY_SUBSPAN_ACCESS),
+    ("subspan", SUBSPAN_ACCESS),
+    ("drop", DROP_ACCESS),
+)
 
 
 def make_parser() -> Parser:
@@ -131,6 +169,61 @@ def find_upper_bound(body_text: str) -> int | None:
     return maximum
 
 
+def guard_range(body_text: str) -> IndexRange | None:
+    """Combine recognized rejecting size guards into an accepted index range."""
+    accepted = IndexRange(1, None)
+    found = False
+    for pattern in GUARD_PATTERNS:
+        for match in pattern.finditer(body_text):
+            found = True
+            operator = match.group("operator")
+            value = int(match.group("value"))
+            if operator in {"<", "<="}:
+                candidate = IndexRange(value - 1 if operator == "<" else value, None)
+            elif operator in {">", ">="}:
+                candidate = IndexRange(
+                    1,
+                    value - 1 if operator == ">" else value - 2,
+                )
+            elif operator == "!=":
+                candidate = IndexRange(1, value - 1)
+            else:
+                continue
+            accepted = accepted.intersect(candidate)
+            if accepted is None:
+                return None
+    return accepted if found else None
+
+
+def access_ranges(body_text: str) -> tuple[list[tuple[str, IndexRange]], bool]:
+    """Return declarative access coverage and whether all indexes are consumed."""
+    ranges: list[tuple[str, IndexRange]] = []
+    for match in INDEX_ACCESS.finditer(body_text):
+        index = int(match.group("method_index") or match.group("subscript_index"))
+        ranges.append(("indexed access", IndexRange(index, index)))
+
+    for name, pattern in ACCESS_PATTERNS[1:]:
+        for match in pattern.finditer(body_text):
+            index = int(match.group("index"))
+            if name == "drop":
+                if index > 1:
+                    ranges.append(("invalid drop", IndexRange(1, index - 1)))
+                else:
+                    ranges.append((name, IndexRange(1, None)))
+            else:
+                ranges.append((name, IndexRange(index, None)))
+
+    if RECOMBINE_ALL_ACCESS.search(body_text):
+        ranges.append(("recombine", IndexRange(1, None)))
+    if PASSTHROUGH_ACCESS.search(body_text):
+        ranges.append(("pass-through", IndexRange(1, None)))
+    return ranges, any(access.end is None for _, access in ranges)
+
+
+def covered(index: int, ranges: list[tuple[str, IndexRange]]) -> bool:
+    return any(access.contains(index) for _, access in ranges)
+
+
 def analyze_function(
     function,
     source: bytes,
@@ -175,6 +268,66 @@ def analyze_function(
     if RECOMBINE_ALL_ACCESS.search(body_text):
         if verbose:
             print("\t\tRecombined all arguments; all indexes are consumed")
+        return [], None
+
+    pattern_accesses, _ = access_ranges(body_text)
+    pattern_guard = guard_range(body_text)
+    invalid_drop = next(
+        (access for name, access in pattern_accesses if name == "invalid drop"),
+        None,
+    )
+    if invalid_drop is not None:
+        line = source[:function.start_byte].count(b"\n") + 1
+        return [
+            (
+                line,
+                f"{function_name}: drop() discards user argument indexes "
+                f"{invalid_drop}",
+            )
+        ], None
+    if pattern_accesses and (
+        pattern_guard is not None
+        or any(access.end is None for _, access in pattern_accesses)
+    ):
+        if pattern_guard is None:
+            if verbose:
+                print("\t\tAccess pattern consumes all user indexes")
+            return [], None
+        maximum = pattern_guard.end
+        if maximum is None:
+            missing = "unbounded"
+            uncovered = []
+            if not any(access.end is None for _, access in pattern_accesses):
+                line = source[:function.start_byte].count(b"\n") + 1
+                return [
+                    (
+                        line,
+                        f"{function_name}: guard accepts an unbounded argument "
+                        "range, but access patterns are bounded",
+                    )
+                ], None
+        else:
+            uncovered = [
+                index for index in range(pattern_guard.start, maximum + 1)
+                if not covered(index, pattern_accesses)
+            ]
+            missing = str(uncovered or "none")
+        if verbose:
+            print(f"\t\tGuard coverage: {pattern_guard}")
+            print(
+                "\t\tAccess coverage: "
+                + ", ".join(f"{name} {access}" for name, access in pattern_accesses)
+            )
+            print(f"\t\tUncovered accepted indexes: {missing}")
+        if uncovered:
+            line = source[:function.start_byte].count(b"\n") + 1
+            return [
+                (
+                    line,
+                    f"{function_name}: accepted argument indexes "
+                    f"{uncovered} are not covered by an access pattern",
+                )
+            ], None
         return [], None
 
     recombine_match = RECOMBINE_ACCESS.search(body_text)
