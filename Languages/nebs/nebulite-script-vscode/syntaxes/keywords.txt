@@ -117,6 +117,8 @@ input-wait
 int
 invoke
 iota
+iotaMod
+iotaStep
 json
 key
 key-combination
@@ -201,6 +203,7 @@ removeMember
 render-object
 render-scale
 reparse
+repeat
 replace
 require
 reverse

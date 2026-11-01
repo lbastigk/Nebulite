@@ -2,7 +2,7 @@
 
 This documentation is automatically generated.
 
-Generated on: Sat Oct 31 13:32:03 CET 2026
+Generated on: Sun Nov  1 16:32:48 CET 2026
 
 ## Table of Contents
 
@@ -2228,6 +2228,8 @@ Available Functions
 | `ifft` | Stores the inverse fft of a given complex-number or real-number series (mixable) |
 | `injectScript` | Injects a nebulite script to modify the json doc. |
 | `iota` | Generates a sequence of integer values. |
+| `iotaMod` | Generates a sequence of modulo integer values. |
+| `iotaStep` | Generates a sequence of integer values with a custom step. |
 | `lPad` | Pads the current JSON string value on the left with a specified character until it reaches a specified total length. |
 | `lPadNonNumeric` | Pads the current JSON non-numeric string value on the left with a specified character until it reaches a specified total length. |
 | `lPadNumeric` | Pads the current JSON numeric string value on the left with a specified character until it reaches a specified total length. |
@@ -2267,6 +2269,7 @@ Available Functions
 | `recombine` | Recombines the string elements of the array in the current JSON value. |
 | `recombineLines` | Recombines the string elements of the array in the current JSON value with newlines. |
 | `removeMember` | Removes the member at the specified key from the JSON document. |
+| `repeat` | Repeats a sequence of elements. |
 | `replace` | Replaces all occurrences of a target substring with a replacement substring in the current JSON string value. |
 | `require` | Requirement transformations that validate JSON values and return false on failure (fallback to default value in get-call, usually 'null' or 0.0). |
 | `reverse` | Reverses the array in the current JSON value. |
@@ -2497,7 +2500,7 @@ The entire context is local, meaning self, other, global are all the same and re
 
 ```
 Gets the element at the specified index from the array in the current JSON value.
-If the index is out of bounds, the transformation fails.
+If the current value is not an array or the index is out of bounds, the transformation fails.
 Usage: |at <index> -> {value}
 ```
 
@@ -2740,7 +2743,7 @@ Usage: |filterRegexValue {!<pattern>} -> {filtered array}
 
 ```
 Gets the first element of the array in the current JSON value.
-If the current value is not an array, it is first wrapped into a single-element array.
+If the current value is not an array or is empty, the transformation fails.
 Usage: |first -> {value}
 ```
 
@@ -2830,11 +2833,30 @@ Generates an array containing the values from start (inclusive) to end (exclusiv
 If end is not greater than start, the result is an empty array.
 ```
 
+#### `iotaMod`
+
+```
+Generates a sequence of modulo integer values.
+Usage: |iotaMod <mod> <start> <end> -> {array}
+Generates an array containing the values from start (inclusive) to end (exclusive), modulo the specified value.
+If end is not greater than start, the result is an empty array.
+```
+
+#### `iotaStep`
+
+```
+Generates a sequence of integer values with a custom step.
+Usage: |iotaStep <start> <step> <end> -> {array}
+Generates an array containing the values from start (inclusive) to end (exclusive), advancing by step.
+A negative step generates a descending sequence. A step of 0 fails.
+If end cannot be reached in the direction of step, the result is an empty array.
+```
+
 #### `lPad`
 
 ```
 Pads the current JSON string value on the left with a specified character until it reaches a specified total length.
-Usage: |lPad {totalLength} {padChar} -> {string}
+Usage: |lPad {totalLength} [padChar] -> {string}
 {totalLength}: Desired total length of the resulting string (including original string and padding)
 {padChar}: Character to use for padding (if not provided, defaults to space)
 ```
@@ -2844,9 +2866,9 @@ Usage: |lPad {totalLength} {padChar} -> {string}
 ```
 Pads the current JSON non-numeric string value on the left with a specified character until it reaches a specified total length.
 If the value is numeric, it is not modified.
-Usage: |lPadNumeric {totalLength} {padChar} -> {string}
+Usage: |lPadNonNumeric {totalLength} [padChar] -> {string}
 {totalLength}: Desired total length of the resulting string (including original string and padding)
-{padChar}: Character to use for padding (if not provided, defaults to space)
+[padChar]: Character to use for padding (if not provided, defaults to space)
 ```
 
 #### `lPadNumeric`
@@ -2854,9 +2876,9 @@ Usage: |lPadNumeric {totalLength} {padChar} -> {string}
 ```
 Pads the current JSON numeric string value on the left with a specified character until it reaches a specified total length.
 If the value is not numeric, it is not modified.
-Usage: |lPadNumeric {totalLength} {padChar} -> {string}
+Usage: |lPadNumeric {totalLength} [padChar] -> {string}
 {totalLength}: Desired total length of the resulting string (including original string and padding)
-{padChar}: Character to use for padding (if not provided, defaults to space)
+[padChar]: Character to use for padding (if not provided, defaults to space)
 ```
 
 #### `lStrip`
@@ -2870,7 +2892,7 @@ Usage: |lStrip -> {string}
 
 ```
 Gets the last element of the array in the current JSON value.
-If the current value is not an array, it is first wrapped into a single-element array.
+If the current value is not an array or is empty, the transformation fails.
 Usage: |last -> {value}
 ```
 
@@ -3085,7 +3107,7 @@ Usage: |pushNumber <value> -> {array}
 
 ```
 Pads the current JSON string value on the right with a specified character until it reaches a specified total length.
-Usage: |rPad {totalLength} {padChar} -> {string}
+Usage: |rPad {totalLength} [padChar] -> {string}
 {totalLength}: Desired total length of the resulting string (including original string and padding)
 {padChar}: Character to use for padding (if not provided, defaults to space)
 ```
@@ -3095,9 +3117,9 @@ Usage: |rPad {totalLength} {padChar} -> {string}
 ```
 Pads the current JSON non-numeric string value on the right with a specified character until it reaches a specified total length.
 If the value is numeric, it is not modified.
-Usage: |lPadNumeric {totalLength} {padChar} -> {string}
+Usage: |rPadNonNumeric {totalLength} [padChar] -> {string}
 {totalLength}: Desired total length of the resulting string (including original string and padding)
-{padChar}: Character to use for padding (if not provided, defaults to space)
+[padChar]: Character to use for padding (if not provided, defaults to space)
 ```
 
 #### `rPadNumeric`
@@ -3105,9 +3127,9 @@ Usage: |lPadNumeric {totalLength} {padChar} -> {string}
 ```
 Pads the current JSON numeric string value on the right with a specified character until it reaches a specified total length.
 If the value is not numeric, it is not modified.
-Usage: |lPadNumeric {totalLength} {padChar} -> {string}
+Usage: |rPadNumeric {totalLength} [padChar] -> {string}
 {totalLength}: Desired total length of the resulting string (including original string and padding)
-{padChar}: Character to use for padding (if not provided, defaults to space)
+[padChar]: Character to use for padding (if not provided, defaults to space)
 ```
 
 #### `rStrip`
@@ -3146,6 +3168,16 @@ Usage: |recombineLines -> {string}
 ```
 Removes the member at the specified key from the JSON document.
 Usage: |removeMember <key1> <key2> ... -> {json}
+```
+
+#### `repeat`
+
+```
+Repeats a sequence of elements.
+Usage: |repeat <count> <element1> [<element2> ...] -> {array}
+Generates an array containing the given elements, repeated count times.
+Elements are stored as integers or doubles if numeric, otherwise as strings.
+A count of 0 results in an empty array.
 ```
 
 #### `replace`
@@ -3972,3 +4004,4 @@ Returns 1 if exactly one of a or b is logically true, otherwise returns 0.
 Uses epsilon threshold to determine logical truthiness.
 Usage: xor(a, b)
 ```
+
