@@ -480,6 +480,9 @@ void Json::setEmptyArray(std::string_view const key) {
 }
 
 void Json::insertArray(std::string_view key, Json const& values, std::string_view const valuesKey){
+    std::scoped_lock const lockGuard(mtx);
+    helperNonConstVar++;
+    flush(key);
     setEmptyArray(key);
     auto* existingValue = RjDirectAccess::ensurePath(key, doc, doc.GetAllocator());
     if (existingValue == nullptr) {
@@ -492,9 +495,13 @@ void Json::insertArray(std::string_view key, Json const& values, std::string_vie
     }
 
     RjDirectAccess::appendArray(existingValue, toAppend, doc.GetAllocator());
+    synchronizeChildren(key);
 }
 
 void Json::appendArray(std::string_view key, Json const& values, std::string_view const valuesKey){
+    std::scoped_lock const lockGuard(mtx);
+    helperNonConstVar++;
+    flush(key);
     auto* existingValue = RjDirectAccess::ensurePath(key, doc, doc.GetAllocator());
     if (existingValue == nullptr) {
         throw std::runtime_error("Failed to create or access path: " + std::string(key));
@@ -505,6 +512,7 @@ void Json::appendArray(std::string_view key, Json const& values, std::string_vie
         throw std::runtime_error("Failed to create or access path: " + std::string(key));
     }
     RjDirectAccess::appendArray(existingValue, toAppend, doc.GetAllocator());
+    synchronizeChildren(key);
 }
 
 //------------------------------------------
