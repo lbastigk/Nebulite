@@ -80,7 +80,7 @@ bool General::removeMember(Utility::Args::SegmentedStringView const& args, Data:
 }
 
 bool General::assign(Utility::Args::SegmentedStringView const& args, Data::JsonScope& jsonDoc) {
-    if (args.empty()) return false;
+    if (args.size() < 2) return false;
     Interaction::Logic::Assignment ass;
     ass.parse(args.recombineSubspan(1));
     Interaction::ContextScope const context{jsonDoc, jsonDoc, jsonDoc};
