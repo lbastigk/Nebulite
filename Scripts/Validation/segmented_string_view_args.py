@@ -38,6 +38,7 @@ INDEX_ACCESS = re.compile(
 RECOMBINE_ACCESS = re.compile(
     r"\bargs\s*\.\s*recombineSubspan\s*\(\s*(?P<index>\d+)\s*\)"
 )
+PASSTHROUGH_ACCESS = re.compile(r"(?:\(|,)\s*args\s*(?:,|\))")
 
 
 def make_parser() -> Parser:
@@ -112,24 +113,32 @@ def analyze_function(
     function,
     source: bytes,
     verbose: bool = False,
-) -> list[tuple[int, str]]:
+) -> tuple[list[tuple[int, str]], bool]:
     parameters = find_node(function, "parameter_list")
     body = find_node(function, "compound_statement")
     if parameters is None or body is None:
-        return []
+        return [], False
 
     args_name = parameter_name(parameters, source)
     if args_name != "args":
-        return []
+        return [], False
 
     if verbose:
         function_name = node_text(function.child_by_field_name("declarator"), source)
         print(f"\tChecking {function_name}")
 
     body_text = node_text(body, source)
+    passed_through = bool(PASSTHROUGH_ACCESS.search(body_text))
+    if passed_through:
+        if verbose:
+            print("\t\tPassed as a function argument; all indexes considered consumed")
+        return [], False
+
     maximum = find_upper_bound(body_text)
     if maximum is None:
-        return []
+        if verbose:
+            print("\t\tNo simple maximum argument count found; skipping")
+        return [], True
 
     used: set[int] = set()
     remainder_start: int | None = None
@@ -143,16 +152,33 @@ def analyze_function(
         )
 
     function_name = node_text(function.child_by_field_name("declarator"), source)
+    accepted = set(range(1, max(1, maximum)))
+    consumed = {
+        index for index in accepted
+        if index in used
+        or (remainder_start is not None and index >= remainder_start)
+    }
+    unused = sorted(accepted - consumed)
+    if verbose:
+        print(f"\t\tAccepted argument indexes: 1..{maximum - 1}")
+        print(
+            "\t\tDirectly consumed indexes: "
+            f"{sorted(index for index in used if index in accepted) or 'none'}"
+        )
+        print(
+            "\t\tConsumed remainder from index: "
+            f"{remainder_start if remainder_start is not None else 'none'}"
+        )
+        print(f"\t\tUnused accepted indexes: {unused or 'none'}")
+
     findings = []
-    for index in range(1, max(1, maximum)):
-        if index not in used and (
-            remainder_start is None or index < remainder_start
-        ):
+    for index in unused:
+        if index not in used:
             line = source[:function.start_byte].count(b"\n") + 1
             findings.append(
                 (line, f"{function_name}: argument index {index} is accepted but never consumed")
             )
-    return findings
+    return findings, False
 
 
 def source_files(paths: list[Path]) -> Iterable[Path]:
@@ -170,14 +196,18 @@ def analyze_file(
     path: Path,
     parser: Parser,
     verbose: bool = False,
-) -> list[tuple[Path, int, str]]:
+) -> tuple[list[tuple[Path, int, str]], int]:
     source = path.read_bytes()
     tree = parser.parse(source)
     findings = []
+    skipped_count = 0
     for function in function_definitions(tree.root_node):
-        for line, message in analyze_function(function, source, verbose):
+        function_findings, skipped = analyze_function(function, source, verbose)
+        if skipped:
+            skipped_count += 1
+        for line, message in function_findings:
             findings.append((path, line, message))
-    return findings
+    return findings, skipped_count
 
 
 def main() -> int:
@@ -199,12 +229,20 @@ def main() -> int:
     tree_parser = make_parser()
     paths = args.paths or [Path("src/Nebulite")]
     findings = []
+    skipped_count = 0
     for path in source_files(paths):
         if args.verbose:
             print(f"Scanning {path}")
-        findings.extend(analyze_file(path, tree_parser, args.verbose))
+        file_findings, file_skipped_count = analyze_file(
+            path,
+            tree_parser,
+            args.verbose,
+        )
+        findings.extend(file_findings)
+        skipped_count += file_skipped_count
     for path, line, message in findings:
         print(f"{path}:{line}: warning: {message}")
+    print(f"Skipped functions: {skipped_count}")
     return 1 if findings else 0
 
 
