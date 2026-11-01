@@ -50,6 +50,9 @@ INDEX_ACCESS = re.compile(
 RECOMBINE_ACCESS = re.compile(
     r"\bargs\s*\.\s*recombineSubspan\s*\(\s*(?P<index>\d+)\s*\)"
 )
+COPY_SUBSPAN_ACCESS = re.compile(
+    r"\bargs\s*\.\s*copySubspan\s*\([^,]+,\s*(?P<index>\d+)\s*\)"
+)
 RECOMBINE_ALL_ACCESS = re.compile(r"\bargs\s*\.\s*recombine\s*\(\s*\)")
 SUBSPAN_ACCESS = re.compile(
     r"\bargs\s*\.\s*subspan\s*\(\s*(?P<index>\d+)\s*\)"
@@ -223,15 +226,50 @@ def analyze_function(
             )
         ], None
 
+    used_indexes = {
+        int(match.group("method_index") or match.group("subscript_index"))
+        for match in INDEX_ACCESS.finditer(body_text)
+    }
+    remainder_match = RECOMBINE_ACCESS.search(body_text)
+    remainder_name = "recombineSubspan"
+    if remainder_match is None:
+        remainder_match = COPY_SUBSPAN_ACCESS.search(body_text)
+        remainder_name = "copySubspan"
+    if remainder_match:
+        remainder_start = int(remainder_match.group("index"))
+        missing_indexes = [
+            index for index in range(1, remainder_start)
+            if index not in used_indexes
+        ]
+        if missing_indexes:
+            function_name = node_text(
+                function.child_by_field_name("declarator"),
+                source,
+            )
+            line = source[:function.start_byte].count(b"\n") + 1
+            return [
+                (
+                    line,
+                    f"{function_name}: argument indexes "
+                    f"{missing_indexes} are accepted but never consumed before "
+                    f"{remainder_name}({remainder_start})",
+                )
+            ], None
+        if verbose:
+            print(
+                f"\t\tDirectly consumed indexes below {remainder_start}: "
+                f"{sorted(index for index in used_indexes if index < remainder_start) or 'none'}"
+            )
+            print(
+                f"\t\t{remainder_name} from index {remainder_start}; "
+                "all later indexes are consumed"
+            )
+        return [], None
+
     maximum = find_upper_bound(body_text)
     if maximum is None:
         minimum_match = MINIMUM_GUARD.search(body_text)
-        used_indexes = sorted(
-            {
-                int(match.group("method_index") or match.group("subscript_index"))
-                for match in INDEX_ACCESS.finditer(body_text)
-            }
-        )
+        used_indexes = sorted(used_indexes)
         if minimum_match and used_indexes:
             minimum = int(minimum_match.group("value"))
             first_unused = max(used_indexes) + 1
