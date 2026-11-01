@@ -11,12 +11,25 @@
 #include <ranges>
 #include <string>
 #include <string_view>
+#include <type_traits>
 #include <variant>
 #include <vector>
 
 // External
 #include <rapidjson/document.h>
 #include <rapidjson/reader.h>
+
+//------------------------------------------
+// Concepts
+
+template<typename T, typename Variant>
+struct is_variant_alternative;
+
+template<typename T, typename... Alternatives>
+struct is_variant_alternative<T, std::variant<Alternatives...>>
+    : std::bool_constant<
+        (std::is_same_v<std::remove_cvref_t<T>, Alternatives> || ...)
+    > {};
 
 //------------------------------------------
 /**
@@ -45,6 +58,11 @@ namespace Nebulite::Data::RjDirectAccess {
         std::string,
         bool
     >;
+
+    template<typename T>
+    consteval bool isSimpleValue() {
+        return is_variant_alternative<T, SimpleValue>::value;
+    }
 
     template <typename NewType>
     std::optional<NewType> convertSimpleValue(SimpleValue const& simpleValue);
