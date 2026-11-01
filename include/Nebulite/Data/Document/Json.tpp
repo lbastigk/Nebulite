@@ -112,58 +112,85 @@ std::expected<T, SimpleValueRetrievalError> Json::get(std::string_view const key
     return std::unexpected{var.error()};
 }
 
-// TODO: optimize with RjDirectAccess
 template<typename T>
 std::optional<std::vector<T>> Json::getArrayOf(std::string_view const key) const {
-    auto const array = getSubDoc(key);
-    if (array.memberType("") != KeyType::array) {
-        return std::nullopt;
+    // T must be a simpleValue
+    static_assert(RjDirectAccess::isSimpleValue<T>(), "T must be a simple value");
+
+    std::scoped_lock const lockGuard(mtx);
+    flush(key);
+
+    auto* val = RjDirectAccess::traversePath(key, doc);
+    if (!val || !val->IsArray()) {
+        return {};
     }
 
     std::vector<T> result;
-    result.reserve(array.memberSize(""));
-    for (std::size_t i = 0; i < array.memberSize(""); ++i) {
-        auto const value = array.get<T>("[" + std::to_string(i) + "]");
+    result.reserve(val->Size());
+    for (auto const& member : val->GetArray()) {
+        auto const simpleValue = RjDirectAccess::getSimpleValue(&member);
+        if (!simpleValue.has_value()) {
+            return std::nullopt;
+        }
+        auto value = RjDirectAccess::convertSimpleValue<T>(simpleValue.value());
         if (!value.has_value()) {
             return std::nullopt;
         }
-        result.push_back(value.value());
+        result.emplace_back(value.value());
     }
     return result;
 }
 
-// TODO: optimize with RjDirectAccess
 template<typename T>
 std::vector<std::optional<T>> Json::getArrayOfOptional(std::string_view const key) const {
-    auto const array = getSubDoc(key);
-    if (array.memberType("") != KeyType::array) {
+    // T must be a simpleValue
+    static_assert(RjDirectAccess::isSimpleValue<T>(), "T must be a simple value");
+
+    std::scoped_lock const lockGuard(mtx);
+    flush(key);
+
+    auto* val = RjDirectAccess::traversePath(key, doc);
+    if (!val || !val->IsArray()) {
         return {};
     }
 
     std::vector<std::optional<T>> result;
-    result.reserve(array.memberSize(""));
-    for (std::size_t i = 0; i < array.memberSize(""); ++i) {
-        auto const value = array.get<T>("[" + std::to_string(i) + "]");
-        result.push_back(value.has_value()
-            ? std::optional<T>{value.value()}
-            : std::nullopt);
+    result.reserve(val->Size());
+    for (auto const& member : val->GetArray()) {
+        auto const simpleValue = RjDirectAccess::getSimpleValue(&member);
+        if (!simpleValue.has_value()) {
+            result.emplace_back(std::nullopt);
+            continue;
+        }
+        result.emplace_back(RjDirectAccess::convertSimpleValue<T>(simpleValue.value()));
     }
     return result;
 }
 
-// TODO: optimize with RjDirectAccess
 template<typename T>
 std::vector<T> Json::getArrayOf(std::string_view const key, T const& defaultValue) const {
-    auto const array = getSubDoc(key);
-    if (array.memberType("") != KeyType::array) {
+    // T must be a simpleValue
+    static_assert(RjDirectAccess::isSimpleValue<T>(), "T must be a simple value");
+
+    std::scoped_lock const lockGuard(mtx);
+    flush(key);
+
+    auto* val = RjDirectAccess::traversePath(key, doc);
+    if (!val || !val->IsArray()) {
         return {};
     }
 
     std::vector<T> result;
-    result.reserve(array.memberSize(""));
-    for (std::size_t i = 0; i < array.memberSize(""); ++i) {
-        auto const value = array.get<T>("[" + std::to_string(i) + "]");
-        result.push_back(value.value_or(defaultValue));
+    result.reserve(val->Size());
+    for (auto const& member : val->GetArray()) {
+        auto const simpleValue = RjDirectAccess::getSimpleValue(&member);
+        if (!simpleValue.has_value()) {
+            result.emplace_back(defaultValue);
+        }
+        else {
+            result.emplace_back(RjDirectAccess::convertSimpleValue<T>(simpleValue.value()).value_or(defaultValue));
+        }
+
     }
     return result;
 }
