@@ -36,6 +36,9 @@ Constants::Event Debug::fetchId(Utility::Args::SegmentedStringView const& args, 
     if (args.size() < 2) {
         return Constants::StandardCapture::Warning::Functional::tooFewArgs(ctx.self.capture);
     }
+    if (args.size() > 2) {
+        return Constants::StandardCapture::Warning::Functional::tooManyArgs(ctx.self.capture);
+    }
     auto const key = Data::ScopedKey(args[1]);
     ctxScope.self.set(key, ctx.self.getId());
     return Constants::Event::success;
@@ -44,6 +47,9 @@ Constants::Event Debug::fetchId(Utility::Args::SegmentedStringView const& args, 
 Constants::Event Debug::fetchName(Utility::Args::SegmentedStringView const& args, Interaction::Context const& ctx, Interaction::ContextScope const& ctxScope) {
     if (args.size() < 2) {
         return Constants::StandardCapture::Warning::Functional::tooFewArgs(ctx.self.capture);
+    }
+    if (args.size() > 2) {
+        return Constants::StandardCapture::Warning::Functional::tooManyArgs(ctx.self.capture);
     }
     auto const key = Data::ScopedKey(args[1]);
     ctxScope.self.set(key, ctx.self.getName());
