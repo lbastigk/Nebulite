@@ -61,6 +61,21 @@ std::expected<T, SimpleValueRetrievalError> JsonScope::get(ScopedKeyView const& 
 }
 
 template<typename T>
+std::optional<std::vector<T>> JsonScope::getArrayOf(ScopedKeyView const& key) const {
+    return baseDocument->getArrayOf<T>(key.full(*this));
+}
+
+template<typename T>
+std::vector<std::optional<T>> JsonScope::getArrayOfOptional(ScopedKeyView const& key) const {
+    return baseDocument->getArrayOfOptional<T>(key.full(*this));
+}
+
+template<typename T>
+std::vector<T> JsonScope::getArrayOf(ScopedKeyView const& key, T const& defaultValue) const {
+    return baseDocument->getArrayOf<T>(key.full(*this), defaultValue);
+}
+
+template<typename T>
 void JsonScope::set(ScopedKeyView const& key, T const& value) {
     baseDocument->set<T>(key.full(*this), value);
 }

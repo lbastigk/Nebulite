@@ -232,6 +232,28 @@ public:
     std::expected<T, SimpleValueRetrievalError> get(std::string_view key) const ;
 
     /**
+     * @brief Gets an array whose elements must all be convertible to T.
+     * @return The converted array, or std::nullopt if the value is not an array
+     *         or any element cannot be converted.
+     */
+    template <typename T>
+    std::optional<std::vector<T>> getArrayOf(std::string_view key) const;
+
+    /**
+     * @brief Gets an array while attempting to convert each element independently.
+     * @return One optional per array element, or an empty vector if the value is not an array.
+     */
+    template <typename T>
+    std::vector<std::optional<T>> getArrayOfOptional(std::string_view key) const;
+
+    /**
+     * @brief Gets an array, using defaultValue for elements that cannot be converted.
+     * @return The converted array, or an empty vector if the value is not an array.
+     */
+    template <typename T>
+    std::vector<T> getArrayOf(std::string_view key, T const& defaultValue) const;
+
+    /**
      * @brief Gets a variant value from the JSON document.
      * @details This function retrieves a variant value from the JSON document.
      *          If the key does not exist, void is returned.

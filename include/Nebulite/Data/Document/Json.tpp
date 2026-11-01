@@ -5,13 +5,16 @@
 // Includes
 
 // Standard library
+#include <cstddef>
 #include <expected>
 #include <mutex>
+#include <optional>
 #include <ranges>
 #include <stdexcept>
 #include <string>
 #include <string_view>
 #include <type_traits>
+#include <vector>
 
 // External
 #include <rapidjson/document.h>
@@ -19,6 +22,7 @@
 // Nebulite
 #include "Nebulite/Data/Document/JsonCache.hpp"
 #include "Nebulite/Data/Document/JsonTransformer.hpp"
+#include "Nebulite/Data/Document/KeyType.hpp"
 #include "Nebulite/Data/Document/RjDirectAccess.hpp"
 #include "Nebulite/Data/Document/SimpleValueError.hpp"
 #include "Nebulite/Module/Base/TransformationModule.hpp"
@@ -106,6 +110,62 @@ std::expected<T, SimpleValueRetrievalError> Json::get(std::string_view const key
         return std::unexpected(SimpleValueRetrievalError::conversionFailure);
     }
     return std::unexpected{var.error()};
+}
+
+// TODO: optimize with RjDirectAccess
+template<typename T>
+std::optional<std::vector<T>> Json::getArrayOf(std::string_view const key) const {
+    auto const array = getSubDoc(key);
+    if (array.memberType("") != KeyType::array) {
+        return std::nullopt;
+    }
+
+    std::vector<T> result;
+    result.reserve(array.memberSize(""));
+    for (std::size_t i = 0; i < array.memberSize(""); ++i) {
+        auto const value = array.get<T>("[" + std::to_string(i) + "]");
+        if (!value.has_value()) {
+            return std::nullopt;
+        }
+        result.push_back(value.value());
+    }
+    return result;
+}
+
+// TODO: optimize with RjDirectAccess
+template<typename T>
+std::vector<std::optional<T>> Json::getArrayOfOptional(std::string_view const key) const {
+    auto const array = getSubDoc(key);
+    if (array.memberType("") != KeyType::array) {
+        return {};
+    }
+
+    std::vector<std::optional<T>> result;
+    result.reserve(array.memberSize(""));
+    for (std::size_t i = 0; i < array.memberSize(""); ++i) {
+        auto const value = array.get<T>("[" + std::to_string(i) + "]");
+        result.push_back(value.has_value()
+            ? std::optional<T>{value.value()}
+            : std::nullopt);
+    }
+    return result;
+}
+
+// TODO: optimize with RjDirectAccess
+template<typename T>
+std::vector<T> Json::getArrayOf(std::string_view const key, T const& defaultValue) const {
+    auto const array = getSubDoc(key);
+    if (array.memberType("") != KeyType::array) {
+        return {};
+    }
+
+    std::vector<T> result;
+    result.reserve(array.memberSize(""));
+    for (std::size_t i = 0; i < array.memberSize(""); ++i) {
+        auto const value = array.get<T>("[" + std::to_string(i) + "]");
+        result.push_back(value.value_or(defaultValue));
+    }
+    return result;
 }
 
 template<typename T>

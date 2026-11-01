@@ -178,6 +178,23 @@ public:
     template<typename T>
     std::expected<T, SimpleValueRetrievalError> get(ScopedKey const& key) const {return get<T>(key.view());}
 
+    template<typename T>
+    std::optional<std::vector<T>> getArrayOf(ScopedKeyView const& key) const;
+    template<typename T>
+    std::optional<std::vector<T>> getArrayOf(ScopedKey const& key) const {return getArrayOf<T>(key.view());}
+
+    template<typename T>
+    std::vector<std::optional<T>> getArrayOfOptional(ScopedKeyView const& key) const;
+    template<typename T>
+    std::vector<std::optional<T>> getArrayOfOptional(ScopedKey const& key) const {return getArrayOfOptional<T>(key.view());}
+
+    template<typename T>
+    std::vector<T> getArrayOf(ScopedKeyView const& key, T const& defaultValue) const;
+    template<typename T>
+    std::vector<T> getArrayOf(ScopedKey const& key, T const& defaultValue) const {
+        return getArrayOf<T>(key.view(), defaultValue);
+    }
+
     [[nodiscard]] std::expected<RjDirectAccess::SimpleValue, SimpleValueRetrievalError> getVariant(ScopedKeyView const& key) const ;
     [[nodiscard]] std::expected<RjDirectAccess::SimpleValue, SimpleValueRetrievalError> getVariant(ScopedKey const& key) const ;
 
