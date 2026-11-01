@@ -28,15 +28,31 @@ except ImportError as error:
 
 SOURCE_SUFFIXES = {".c", ".cc", ".cpp", ".cxx", ".h", ".hh", ".hpp", ".hxx"}
 TYPE_MARKER = "SegmentedStringView"
+# These functions use named/spanned arguments whose consumed indexes cannot be
+# inferred from the positional-argument analysis below.
+KNOWN_EXCEPTIONS = {
+    "Fft::applyTransferFunctionFrequencyDomain("
+    "Utility::Args::SegmentedStringView const& args, Data::JsonScope& jsonDoc"
+    ")",
+}
 SIZE_GUARD = re.compile(
-    r"\bargs\s*\.\s*size\s*\(\s*\)\s*(?P<operator>>=|>|<=|<|==)\s*(?P<value>\d+)"
+    r"\bargs\s*\.\s*size\s*\(\s*\)\s*"
+    r"(?P<operator>!=|>=|>|<=|<|==)\s*(?P<value>\d+)"
 )
+MINIMUM_GUARD = re.compile(
+    r"\bargs\s*\.\s*size\s*\(\s*\)\s*(?P<operator><|<=)\s*(?P<value>\d+)"
+)
+EMPTY_CHECK = re.compile(r"\bargs\s*\.\s*empty\s*\(\s*\)")
 INDEX_ACCESS = re.compile(
     r"\bargs\s*(?:\.\s*(?:at|tryGetAs)\s*(?:<[^;(){}]*>)?\s*\(\s*"
     r"(?P<method_index>\d+)\s*\)|\[\s*(?P<subscript_index>\d+)\s*\])"
 )
 RECOMBINE_ACCESS = re.compile(
     r"\bargs\s*\.\s*recombineSubspan\s*\(\s*(?P<index>\d+)\s*\)"
+)
+RECOMBINE_ALL_ACCESS = re.compile(r"\bargs\s*\.\s*recombine\s*\(\s*\)")
+SUBSPAN_ACCESS = re.compile(
+    r"\bargs\s*\.\s*subspan\s*\(\s*(?P<index>\d+)\s*\)"
 )
 PASSTHROUGH_ACCESS = re.compile(r"(?:\(|,)\s*args\s*(?:,|\))")
 
@@ -101,7 +117,7 @@ def find_upper_bound(body_text: str) -> int | None:
             candidate = value
         elif operator == ">=":
             candidate = value - 1
-        elif operator == "==":
+        elif operator in {"==", "!="}:
             candidate = value
         else:
             continue
@@ -113,32 +129,113 @@ def analyze_function(
     function,
     source: bytes,
     verbose: bool = False,
-) -> tuple[list[tuple[int, str]], bool]:
+) -> tuple[list[tuple[int, str]], str | None]:
     parameters = find_node(function, "parameter_list")
     body = find_node(function, "compound_statement")
     if parameters is None or body is None:
-        return [], False
+        return [], None
 
     args_name = parameter_name(parameters, source)
     if args_name != "args":
-        return [], False
+        return [], None
 
+    function_name = node_text(function.child_by_field_name("declarator"), source)
     if verbose:
-        function_name = node_text(function.child_by_field_name("declarator"), source)
         print(f"\tChecking {function_name}")
 
+    if function_name in KNOWN_EXCEPTIONS:
+        if verbose:
+            print("\t\tKnown exception; named/spanned arguments require manual analysis")
+        return [], None
+
     body_text = node_text(body, source)
+    if EMPTY_CHECK.search(body_text):
+        line = source[:function.start_byte].count(b"\n") + 1
+        function_name = node_text(function.child_by_field_name("declarator"), source)
+        return [
+            (
+                line,
+                f"{function_name}: args.empty() is always false; "
+                "args[0] contains the transformation name",
+            )
+        ], None
+
     passed_through = bool(PASSTHROUGH_ACCESS.search(body_text))
     if passed_through:
         if verbose:
             print("\t\tPassed as a function argument; all indexes considered consumed")
-        return [], False
+        return [], None
+
+    if RECOMBINE_ALL_ACCESS.search(body_text):
+        if verbose:
+            print("\t\tRecombined all arguments; all indexes are consumed")
+        return [], None
+
+    recombine_match = RECOMBINE_ACCESS.search(body_text)
+    if recombine_match and int(recombine_match.group("index")) == 1:
+        if verbose:
+            print(
+                "\t\tRecombined from index 1; reserved index 0 is discarded "
+                "and all user indexes are consumed"
+            )
+        return [], None
+
+    subspan_match = SUBSPAN_ACCESS.search(body_text)
+    if subspan_match and int(subspan_match.group("index")) == 1:
+        if verbose:
+            print(
+                "\t\tIterates subspan from index 1; reserved index 0 is discarded "
+                "and all user indexes are consumed"
+            )
+        return [], None
+    if subspan_match and int(subspan_match.group("index")) == 0:
+        if verbose:
+            print("\t\tIterates subspan from index 0; all indexes are consumed")
+        return [], None
 
     maximum = find_upper_bound(body_text)
     if maximum is None:
+        minimum_match = MINIMUM_GUARD.search(body_text)
+        used_indexes = sorted(
+            {
+                int(match.group("method_index") or match.group("subscript_index"))
+                for match in INDEX_ACCESS.finditer(body_text)
+            }
+        )
+        if minimum_match and used_indexes:
+            minimum = int(minimum_match.group("value"))
+            first_unused = max(used_indexes) + 1
+            function_name = node_text(
+                function.child_by_field_name("declarator"),
+                source,
+            )
+            if verbose:
+                print(
+                    "\t\tNo maximum argument count; "
+                    f"directly consumed indexes: {used_indexes}"
+                )
+                print(
+                    "\t\tArguments from index "
+                    f"{first_unused} onward are accepted but never consumed"
+                )
+            line = source[:function.start_byte].count(b"\n") + 1
+            return [
+                (
+                    line,
+                    f"{function_name}: no maximum argument count; "
+                    f"argument index {first_unused} and later arguments are accepted "
+                    "but never consumed",
+                )
+            ], None
         if verbose:
-            print("\t\tNo simple maximum argument count found; skipping")
-        return [], True
+            if re.search(r"\bargs\s*\.\s*size\s*\(\s*\)\s*!=\s*1", body_text):
+                print(
+                    "\t\tExact args.size() == 1 guard; "
+                    "reserved index 0 is the only argument"
+                )
+            else:
+                print("\t\tNo simple maximum argument count found; skipping")
+        return [], node_text(function.child_by_field_name("declarator"), source)
 
     used: set[int] = set()
     remainder_start: int | None = None
@@ -150,8 +247,12 @@ def analyze_function(
         remainder_start = (
             index if remainder_start is None else min(remainder_start, index)
         )
+    for match in SUBSPAN_ACCESS.finditer(body_text):
+        index = int(match.group("index"))
+        remainder_start = (
+            index if remainder_start is None else min(remainder_start, index)
+        )
 
-    function_name = node_text(function.child_by_field_name("declarator"), source)
     accepted = set(range(1, max(1, maximum)))
     consumed = {
         index for index in accepted
@@ -166,7 +267,7 @@ def analyze_function(
             f"{sorted(index for index in used if index in accepted) or 'none'}"
         )
         print(
-            "\t\tConsumed remainder from index: "
+            "\t\tConsumed remainder/subspan from index: "
             f"{remainder_start if remainder_start is not None else 'none'}"
         )
         print(f"\t\tUnused accepted indexes: {unused or 'none'}")
@@ -178,7 +279,7 @@ def analyze_function(
             findings.append(
                 (line, f"{function_name}: argument index {index} is accepted but never consumed")
             )
-    return findings, False
+    return findings, None
 
 
 def source_files(paths: list[Path]) -> Iterable[Path]:
@@ -196,18 +297,18 @@ def analyze_file(
     path: Path,
     parser: Parser,
     verbose: bool = False,
-) -> tuple[list[tuple[Path, int, str]], int]:
+) -> tuple[list[tuple[Path, int, str]], list[str]]:
     source = path.read_bytes()
     tree = parser.parse(source)
     findings = []
-    skipped_count = 0
+    skipped_functions = []
     for function in function_definitions(tree.root_node):
         function_findings, skipped = analyze_function(function, source, verbose)
-        if skipped:
-            skipped_count += 1
+        if skipped is not None:
+            skipped_functions.append(skipped)
         for line, message in function_findings:
             findings.append((path, line, message))
-    return findings, skipped_count
+    return findings, skipped_functions
 
 
 def main() -> int:
@@ -229,20 +330,24 @@ def main() -> int:
     tree_parser = make_parser()
     paths = args.paths or [Path("src/Nebulite")]
     findings = []
-    skipped_count = 0
+    skipped_functions = []
     for path in source_files(paths):
         if args.verbose:
             print(f"Scanning {path}")
-        file_findings, file_skipped_count = analyze_file(
+        file_findings, file_skipped_functions = analyze_file(
             path,
             tree_parser,
             args.verbose,
         )
         findings.extend(file_findings)
-        skipped_count += file_skipped_count
+        skipped_functions.extend(
+            f"{path}: {function}" for function in file_skipped_functions
+        )
     for path, line, message in findings:
         print(f"{path}:{line}: warning: {message}")
-    print(f"Skipped functions: {skipped_count}")
+    print(f"Skipped functions: {len(skipped_functions)}")
+    for function in skipped_functions:
+        print(f"\t{function}")
     return 1 if findings else 0
 
 
