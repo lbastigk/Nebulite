@@ -132,6 +132,13 @@ public:
         "Generates an array containing the values from start (inclusive) to end (exclusive).\n"
         "If end is not greater than start, the result is an empty array.\n";
 
+    static bool iotaMod(Utility::Args::SegmentedStringView const& args, Data::JsonScope& jsonDoc);
+    static auto constexpr iotaModName = "iotaMod";
+    static auto constexpr iotaModDesc = "Generates a sequence of modulo integer values.\n"
+        "Usage: |iotaMod <mod> <start> <end> -> {array}\n"
+        "Generates an array containing the values from start (inclusive) to end (exclusive), modulo the specified value.\n"
+        "If end is not greater than start, the result is an empty array.\n";
+
     // Other
 
     static bool ensureArray(Data::JsonScope& jsonDoc);
