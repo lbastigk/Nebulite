@@ -110,7 +110,7 @@ bool Collection::listMembersAndValues(Data::JsonScope& jsonDoc){
 }
 
 bool Collection::enumerateInline(Utility::Args::SegmentedStringView const& args, Data::JsonScope& jsonDoc){
-    if (args.size() < 2) return false;
+    if (args.size() != 2) return false;
     if (jsonDoc.memberType(rootKey) != Data::KeyType::array) return false;
     auto const& indexKey = args.at(1);
     std::ranges::for_each(
