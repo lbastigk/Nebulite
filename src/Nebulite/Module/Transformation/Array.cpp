@@ -156,12 +156,7 @@ bool Array::subspan(Utility::Args::SegmentedStringView const& args, Data::JsonSc
 
 namespace {
 
-bool takeElements(
-    Utility::Args::SegmentedStringView const& args,
-    Data::JsonScope& jsonDoc,
-    Data::ScopedKeyView const& rootKey,
-    bool const fromHead
-) {
+bool takeElements(Utility::Args::SegmentedStringView const& args, Data::JsonScope& jsonDoc, Data::ScopedKeyView const& rootKey, bool const fromHead) {
     if (args.size() != 2) {
         return false;
     }

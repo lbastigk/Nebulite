@@ -6,7 +6,6 @@
 #include <optional>
 #include <ranges>
 #include <string_view>
-#include <utility>
 #include <vector>
 
 // Nebulite
@@ -27,20 +26,14 @@ void Fft::bindTransformations() {
 }
 
 bool Fft::applyFft(Data::JsonScope& jsonDoc) {
-    auto const samples = jsonDoc.arrayKeys(rootKey)
-        | std::views::transform([&jsonDoc](auto const& key) -> std::optional<double> {
-            auto value = jsonDoc.get<double>(key);
-            if (!value) {
-                return std::nullopt;
-            }
-            return value.value();
-        })
-        | Utility::Ranges::collectOptional;
+    auto const samples = jsonDoc.getArrayOf<double>(rootKey);
 
     if (!samples) {
         return false;
     }
     if (samples.value().empty()) {
+        // Just because samples is empty doesnt mean that the source is an empty array
+        jsonDoc.setEmptyArray(rootKey);
         return true;
     }
     auto const result = Math::Fft::fft(samples.value());
@@ -68,36 +61,20 @@ bool Fft::applyIfft(Data::JsonScope& jsonDoc) {
 }
 
 bool Fft::applyTransferFunctionFrequencyDomain(Utility::Args::SegmentedStringView const& args, Data::JsonScope& jsonDoc) {
-    auto const samples = jsonDoc.arrayKeys(rootKey)
-        | std::views::transform([&jsonDoc](auto const& key) -> std::optional<double> {
-            // Try to retrieve value as real value first (simplest to handle), if not, try to retrieve as complex value
-            if (auto value = jsonDoc.get<double>(key); value) {
-                return value.value();
-            }
-            return std::nullopt;
-        })
-        | Utility::Ranges::collectOptional;
-
+    auto const samples = jsonDoc.getArrayOf<double>(rootKey);
     if (!samples) {
         return false;
     }
 
     // Get num/den polynomial
-    using OptVec = std::optional<std::vector<double>>;
-    auto [num, den] = [&args] -> std::pair<OptVec, OptVec> {
-        auto constexpr tryDoubleConvert = [](std::string_view const arg) -> std::optional<double> {
-            return Utility::Convert::Cast::String::to<double>(arg);
-        };
-
-        auto const numV = args.getNamedSpannedArgument<"--num">()
-            | Utility::Ranges::tryTransform(tryDoubleConvert);
-        auto const denV = args.getNamedSpannedArgument<"--den">()
-            | Utility::Ranges::tryTransform(tryDoubleConvert);
-
-        return std::make_pair(numV, denV);
-    }();
-
-    if (!samples || !num || !den) {
+    auto constexpr tryDoubleConvert = [](std::string_view const arg) -> std::optional<double> {
+        return Utility::Convert::Cast::String::to<double>(arg);
+    };
+    auto const num = args.getNamedSpannedArgument<"--num">()
+        | Utility::Ranges::tryTransform(tryDoubleConvert);
+    auto const den = args.getNamedSpannedArgument<"--den">()
+        | Utility::Ranges::tryTransform(tryDoubleConvert);
+    if (!num || !den) {
         return false;
     }
 
