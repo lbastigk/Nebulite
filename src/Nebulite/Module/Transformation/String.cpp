@@ -96,6 +96,12 @@ bool String::lPad(Utility::Args::SegmentedStringView const& args, Data::JsonScop
     if (args.size() < 2) {
         return false;
     }
+    if (args.size() > 3) {
+        return false;
+    }
+    if (args[2].size() != 1) {
+        return false;
+    }
     auto const size = args.tryGetAs<std::size_t>(1);
     if (!size) {
         return false;
@@ -112,6 +118,12 @@ bool String::lPad(Utility::Args::SegmentedStringView const& args, Data::JsonScop
 
 bool String::rPad(Utility::Args::SegmentedStringView const& args, Data::JsonScope& jsonDoc) {
     if (args.size() < 2) {
+        return false;
+    }
+    if (args.size() > 3) {
+        return false;
+    }
+    if (args[2].size() != 1) {
         return false;
     }
     auto const size = args.tryGetAs<std::size_t>(1);
@@ -137,7 +149,7 @@ bool String::lPadNumeric(Utility::Args::SegmentedStringView const& args, Data::J
 
 bool String::rPadNumeric(Utility::Args::SegmentedStringView const& args, Data::JsonScope& jsonDoc){
     if (Utility::StringHandler::isNumber(jsonDoc.get<std::string>(rootKey).value_or(""))) {
-            return rPad(args, jsonDoc);
+        return rPad(args, jsonDoc);
     }
     return true; // Not numeric, but not an error either, so we return true without modifying the string
 }
