@@ -254,7 +254,7 @@ Constants::Event Debug::clearConsole(Utility::Args::SegmentedStringView const& /
 Constants::Event Debug::crash(Utility::Args::SegmentedStringView const& args, Interaction::Context const& ctx, Interaction::ContextScope& /*ctxScope*/) {
     // If an argument is provided, use it to select crash type
     if (args.size() > 1) {
-        if (auto const& crashType = args[1]; crashType == "segfault") {
+        if (auto const& crashType = args.recombineSubspan(1); crashType == "segfault") {
             // Cause a segmentation fault
             raise(SIGSEGV); // NOLINT
         } else if (crashType == "abort") {

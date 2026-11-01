@@ -367,6 +367,10 @@ Constants::Event FeatureTest::segmentedStringViewContains() const {
 }
 
 Constants::Event FeatureTest::segmentedStringViewBenchmark(Utility::Args::SegmentedStringView const& args) const {
+    if (args.size() > 2) {
+        return Constants::StandardCapture::Warning::Functional::tooManyArgs(domain.capture);
+    }
+
     auto constexpr nDefault = std::size_t{1'000'000};
     auto const n = args.size() == 2 ? Utility::Convert::Cast::String::to<std::size_t>(args[1]).value_or(nDefault) : nDefault;
 

@@ -37,6 +37,10 @@ bool testFunctionCollision2(bool const arg) {
 
 
 Constants::Event FunctionCollision::debugCollisionDetectFunction(Utility::Args::SegmentedStringView const& args) const {
+    if (args.size() > 2) {
+        return Constants::StandardCapture::Warning::Functional::tooManyArgs(domain.capture);
+    }
+
     bool fail = true;
     if (args.size() >= 2) {
         if (auto const& mode = args.at(1); mode == "succeed") {
@@ -73,6 +77,10 @@ Constants::Event FunctionCollision::debugCollisionDetectFunction(Utility::Args::
 }
 
 Constants::Event FunctionCollision::debugCollisionDetectCategory(Utility::Args::SegmentedStringView const& args) const {
+    if (args.size() > 2) {
+        return Constants::StandardCapture::Warning::Functional::tooManyArgs(domain.capture);
+    }
+
     bool fail = true;
     if (args.size() >= 2) {
         if (auto const& mode = args.at(1); mode == "succeed") {
@@ -116,6 +124,10 @@ Constants::Event FunctionCollision::debugCollisionDetectCategory(Utility::Args::
 }
 
 Constants::Event FunctionCollision::debugCollisionDetectVariable(Utility::Args::SegmentedStringView const& args) const {
+    if (args.size() > 2) {
+        return Constants::StandardCapture::Warning::Functional::tooManyArgs(domain.capture);
+    }
+
     bool fail = true;
     if (args.size() >= 2) {
         if (auto const& mode = args.at(1); mode == "succeed") {
