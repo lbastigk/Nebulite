@@ -32,6 +32,10 @@ jobs:
           . .venv/bin/activate
           echo PATH=$PATH >> $GITHUB_ENV
 
+      - name: Validate SegmentedStringView argument handling
+        run: |
+          python Scripts/Validation/segmented_string_view_argument_validator.py
+
       - name: Install Resources
         run: |
           make resources

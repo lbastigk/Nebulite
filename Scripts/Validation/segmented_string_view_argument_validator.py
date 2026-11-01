@@ -468,7 +468,7 @@ def main() -> int:
     print(f"Skipped functions: {len(skipped_functions)}")
     for function in skipped_functions:
         print(f"\t{function}")
-    return 1 if findings else 0
+    return 1 if findings or skipped_functions else 0
 
 
 if __name__ == "__main__":
