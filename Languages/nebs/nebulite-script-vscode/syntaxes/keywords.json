@@ -256,6 +256,7 @@
   "strLen",
   "stride",
   "string",
+  "string-transformation-arguments",
   "strip",
   "sub",
   "subspan",

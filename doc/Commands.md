@@ -2,7 +2,7 @@
 
 This documentation is automatically generated.
 
-Generated on: Sat Nov  7 22:19:22 CET 2026
+Generated on: Sat Nov  7 23:36:53 CET 2026
 
 ## Table of Contents
 
@@ -493,6 +493,7 @@ Available Functions
 | `key-combination` | Tests key-combinations for the ScopedKey class. |
 | `large-fft` | Tests the FFT implementation with a large dataset. |
 | `segmented-string-view` | Functions for testing segmented string view functionality. |
+| `string-transformation-arguments` | Tests string transformations with explicitly empty argument segments. |
 
 ##### `feature-test context-evaluation`
 
@@ -561,6 +562,13 @@ Prints the message 'SegmentedStringView test passed.' or 'SegmentedStringView te
 ```
 Tests the contains method of the SegmentedStringView class.
 Prints the message 'SegmentedStringView test passed.' or 'SegmentedStringView test failed: <reason>'Usage: feature-test segmented-string-view contains
+```
+
+##### `feature-test string-transformation-arguments`
+
+```
+Tests string transformations with explicitly empty argument segments.
+Usage: feature-test string-transformation-arguments
 ```
 
 #### `fetch-container`
@@ -2556,7 +2564,7 @@ Usage: |bundle <key1> <key2> ... -> {array}
 ```
 Capitalizes the current JSON string.
 Usage: |capitalize {string} -> {string}
-Only capitalizes the first character!
+Uppercases the first byte and lowercases the rest; this is not Unicode-aware. Failed string conversions use an empty string.
 ```
 
 #### `ceiling`
@@ -2861,7 +2869,8 @@ If end cannot be reached in the direction of step, the result is an empty array.
 Pads the current JSON string value on the left with a specified character until it reaches a specified total length.
 Usage: |lPad {totalLength} [padChar] -> {string}
 {totalLength}: Desired total length of the resulting string (including original string and padding)
-{padChar}: Character to use for padding (if not provided, defaults to space)
+{padChar}: One byte; defaults to space if omitted. Empty or multi-byte arguments fail.
+Length is measured in bytes. Values are converted to strings; failed conversions use an empty string.
 ```
 
 #### `lPadNonNumeric`
@@ -2871,7 +2880,8 @@ Pads the current JSON non-numeric string value on the left with a specified char
 If the value is numeric, it is not modified.
 Usage: |lPadNonNumeric {totalLength} [padChar] -> {string}
 {totalLength}: Desired total length of the resulting string (including original string and padding)
-[padChar]: Character to use for padding (if not provided, defaults to space)
+[padChar]: One byte; defaults to space if omitted. Empty or multi-byte arguments fail.
+Arguments are validated even when no padding is applied. Length is in bytes; failed string conversions use an empty string.
 ```
 
 #### `lPadNumeric`
@@ -2881,13 +2891,15 @@ Pads the current JSON numeric string value on the left with a specified characte
 If the value is not numeric, it is not modified.
 Usage: |lPadNumeric {totalLength} [padChar] -> {string}
 {totalLength}: Desired total length of the resulting string (including original string and padding)
-[padChar]: Character to use for padding (if not provided, defaults to space)
+[padChar]: One byte; defaults to space if omitted. Empty or multi-byte arguments fail.
+Arguments are validated even when no padding is applied. Length is in bytes; failed string conversions use an empty string.
 ```
 
 #### `lStrip`
 
 ```
 Strips whitespace from the left end of the current JSON string value.
+Values are converted to strings; failed conversions use an empty string.
 Usage: |lStrip -> {string}
 ```
 
@@ -3119,7 +3131,8 @@ Usage: |pushNumber <value> -> {array}
 Pads the current JSON string value on the right with a specified character until it reaches a specified total length.
 Usage: |rPad {totalLength} [padChar] -> {string}
 {totalLength}: Desired total length of the resulting string (including original string and padding)
-{padChar}: Character to use for padding (if not provided, defaults to space)
+{padChar}: One byte; defaults to space if omitted. Empty or multi-byte arguments fail.
+Length is measured in bytes. Values are converted to strings; failed conversions use an empty string.
 ```
 
 #### `rPadNonNumeric`
@@ -3129,7 +3142,8 @@ Pads the current JSON non-numeric string value on the right with a specified cha
 If the value is numeric, it is not modified.
 Usage: |rPadNonNumeric {totalLength} [padChar] -> {string}
 {totalLength}: Desired total length of the resulting string (including original string and padding)
-[padChar]: Character to use for padding (if not provided, defaults to space)
+[padChar]: One byte; defaults to space if omitted. Empty or multi-byte arguments fail.
+Arguments are validated even when no padding is applied. Length is in bytes; failed string conversions use an empty string.
 ```
 
 #### `rPadNumeric`
@@ -3139,13 +3153,15 @@ Pads the current JSON numeric string value on the right with a specified charact
 If the value is not numeric, it is not modified.
 Usage: |rPadNumeric {totalLength} [padChar] -> {string}
 {totalLength}: Desired total length of the resulting string (including original string and padding)
-[padChar]: Character to use for padding (if not provided, defaults to space)
+[padChar]: One byte; defaults to space if omitted. Empty or multi-byte arguments fail.
+Arguments are validated even when no padding is applied. Length is in bytes; failed string conversions use an empty string.
 ```
 
 #### `rStrip`
 
 ```
 Strips whitespace from the right end of the current JSON string value.
+Values are converted to strings; failed conversions use an empty string.
 Usage: |rStrip -> {string}
 ```
 
@@ -3198,6 +3214,8 @@ Usage: |replace {target} {replacement} -> {string}
 {target}: Substring to be replaced
 {replacement}: Substring to replace with
 If only {target} is provided, it will be replaced with an empty string.
+The target must not be empty. Matches are non-overlapping and replaced from left to right.
+Values are converted to strings; failed conversions use an empty string.
 If the target or replacement strings contain spaces, use an arrow '->' to separate them:|replace {target} -> {replacement}
 ```
 
@@ -3492,14 +3510,17 @@ Usage: |sort numerically -> {sorted array}
 ```
 Splits the current JSON string value into an array of substrings based on a specified character delimiter.
 Usage: |split {delimiter} -> {array}
-{delimiter}: Delimiter to split the string by. If left empty, it splits by whitespace.
-Delimiter must be a single character.
+{delimiter}: One-byte delimiter; defaults to a space if omitted. Empty or multi-byte arguments fail.
+Keeps empty tokens between or after delimiters; empty input yields an empty array.
+Values are converted to strings; failed conversions use an empty string.
 ```
 
 #### `splitNewlines`
 
 ```
 Splits the current JSON string value into an array of substrings at newline characters.
+Treats CRLF as one newline; preserves empty tokens and standalone CR. Empty input yields an empty array.
+Values are converted to strings; failed conversions use an empty string.
 Usage: |splitNewlines -> {array}
 ```
 
@@ -3543,6 +3564,7 @@ Available Functions
 
 ```
 Checks if the current JSON string value contains a specified substring.
+Values are converted to strings; failed conversions use an empty string.
 Usage: |strCompare contains {string} -> {bool}
 Checks for whitespaces if no substring is given
 {string}: Substring to check for
@@ -3552,6 +3574,7 @@ Checks for whitespaces if no substring is given
 
 ```
 Checks if the current JSON string value ends with a specified substring.
+Values are converted to strings; failed conversions use an empty string.
 Usage: |strCompare endsWith {string} -> {bool}
 {string}: Substring to check for. If left empty, it checks for a whitespace.
 ```
@@ -3560,6 +3583,7 @@ Usage: |strCompare endsWith {string} -> {bool}
 
 ```
 Compares the current JSON string value with a specified string for equality.
+Values are converted to strings; failed conversions use an empty string.
 Usage: |strCompare equals {string} -> {bool}
 Checks if the string is empty if no argument is given
 {string}: String to compare with
@@ -3570,13 +3594,14 @@ Checks if the string is empty if no argument is given
 ```
 Compare multiple member string values.
 Usage: |strCompareMembers {key1} {key2} ... {keyN} -> {bool}
-Checks if all specified member keys have the same string value.
+Checks if all specified member keys have the same string value; failed conversions make the comparison false.
 ```
 
 ##### `strCompare startsWith`
 
 ```
 Checks if the current JSON string value starts with a specified substring.
+Values are converted to strings; failed conversions use an empty string.
 Usage: |strCompare startsWith {string} -> {bool}
 {string}: Substring to check for. If left empty, it checks for a whitespace.
 ```
@@ -3585,6 +3610,7 @@ Usage: |strCompare startsWith {string} -> {bool}
 
 ```
 Counts the number of occurrences of a specified substring in the current JSON string value.
+Values are converted to strings; failed conversions use an empty string.
 Usage: |strCountAppearance {substring} -> {number}
 Counts whitespaces if no substring is given
 {substring}: Substring to count
@@ -3594,6 +3620,7 @@ Counts whitespaces if no substring is given
 
 ```
 Calculates the length of the current JSON string value.
+Length is measured in bytes, not UTF-8 characters. Values are converted to strings; failed conversions use an empty string.
 Usage: |strLen -> {int}
 ```
 
@@ -3608,7 +3635,8 @@ Usage: |stride <size> -> {array}
 
 ```
 Strips whitespace from both ends of the current JSON string value.
-Usage: |trim -> {string}
+Values are converted to strings; failed conversions use an empty string.
+Usage: |strip -> {string}
 ```
 
 #### `sub`
@@ -3631,8 +3659,9 @@ Usage: |subspan <start> [<length>] -> {array}
 ```
 Extracts a substring from the current JSON string value.
 Usage: |substring {start} [length] -> {string}
-{start}: Starting index (0-based)
-[length]: Length of the substring. Optional
+{start}: Non-negative byte index (0-based); out-of-range starts yield an empty string.
+[length]: Non-negative byte count; omitted means to the end and oversized counts are clamped.
+All arguments are validated before slicing. UTF-8 characters may be split; failed string conversions use an empty string.
 ```
 
 #### `sum`
@@ -3688,6 +3717,7 @@ Non-numeric values default to 0, but fails if the value is null.
 
 ```
 Converts the current JSON string value to lowercase.
+Operates on bytes, not Unicode characters. Failed string conversions use an empty string.
 Usage: |toLower -> {string}
 ```
 
@@ -3703,6 +3733,7 @@ Either the value as string, or '[array]' or '{object}' or 'null'
 
 ```
 Converts the current JSON string value to uppercase.
+Operates on bytes, not Unicode characters. Failed string conversions use an empty string.
 Usage: |toUpper -> {string}
 ```
 
