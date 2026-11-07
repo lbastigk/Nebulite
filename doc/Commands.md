@@ -2,7 +2,7 @@
 
 This documentation is automatically generated.
 
-Generated on: Sun Nov  1 16:32:48 CET 2026
+Generated on: Sat Nov  7 13:52:49 CET 2026
 
 ## Table of Contents
 
@@ -2251,6 +2251,7 @@ Available Functions
 | `mul` | Multiplies the current JSON value by a numeric value. |
 | `nand` | Logical nand operation on the current JSON array values. |
 | `neq` | Checks if the current JSON value is not equal to the specified value. |
+| `nop` | Does nothing and leaves the current JSON value unchanged. |
 | `nor` | Logical nor operation on the current JSON array values. |
 | `not` | Logical NOT operation on the current JSON value. |
 | `numberToComplex` | Converts a given number to a complex number. |
@@ -3018,6 +3019,13 @@ Usage: |nand -> {value:bool}
 ```
 Checks if the current JSON value is not equal to the specified value.
 Usage: |neq <value> -> {bool}
+```
+
+#### `nop`
+
+```
+Does nothing and leaves the current JSON value unchanged.
+Usage: |nop -> {unchanged-json}
 ```
 
 #### `nor`
