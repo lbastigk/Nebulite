@@ -1,0 +1,27 @@
+# The mapping transformation used to have a large overhead
+# due to the construction of internally managed scopes.
+# This caused a ballooning of the managedScopes hashmap.
+# The new implementation is about 5x faster
+
+set-fps 10000
+wait 1
+
+# Settings
+assign self:benchmark.N = $i(1000000)
+
+# Construct array
+assign self:benchmark.largeArray = {|iota 0 {self:benchmark.N}}
+
+echo ""
+echo ""
+echo "------------------------------------"
+wait 1
+eval set benchmark.start {self:time.runtime.t}
+assign self:result = {self:benchmark.largeArray|map nop}
+wait 1
+eval set benchmark.end {self:time.runtime.t}
+eval echo "Benchmark took $i(1000*({self:benchmark.end} - {self:benchmark.start})) ms for N = {self:benchmark.N}"
+
+assert $(eq({self:result|length},{self:benchmark.N}))
+
+exit

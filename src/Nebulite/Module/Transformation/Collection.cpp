@@ -44,13 +44,8 @@ bool Collection::map(Utility::Args::SegmentedStringView const& args, Data::JsonS
 
     auto const arraySize = jsonDoc.memberSize(rootKey);
     for (std::uint32_t idx = 0; idx < arraySize; ++idx) {
-        // Set temp document with current element
-        auto const elementKey = rootKey.addIndex(idx);
-
-        // Parse transformation command
-        if (auto& scope = jsonDoc.shareScope(elementKey); !scope.transform(args)) {
-            jsonDoc.removeMember(elementKey);
-            return false; // If parsing fails for any element, we remove it and return false
+        if (!jsonDoc.onNarrowScope(idx, [&](Data::JsonScope& narrowed) { return narrowed.transform(args); })) {
+            return false;
         }
     }
     return true;
