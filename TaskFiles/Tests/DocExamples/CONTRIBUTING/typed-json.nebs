@@ -1,0 +1,10 @@
+# CONTRIBUTING.md: Testing Skills and Techniques, typed JSON values.
+set nullText null
+set arrayText []
+eval nop {global:nullText|deserialize|assert empty}
+assign global:emptyArray = {global:arrayText|deserialize}
+eval nop {global:emptyArray|typeAsString|assert equals string array:0}
+
+eval nop {global:nullText|deserialize|typeAsSimpleString|assert equals string null}
+eval nop {global:emptyArray|exists|assert true}
+exit

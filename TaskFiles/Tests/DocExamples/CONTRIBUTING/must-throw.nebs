@@ -1,0 +1,5 @@
+# CONTRIBUTING.md: Testing Skills and Techniques, expected exception.
+must-throw eval nop {|unreachable}
+
+eval nop {|require nonEmpty|unreachable}
+exit

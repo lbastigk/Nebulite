@@ -1,0 +1,9 @@
+# CONTRIBUTING.md: Testing Skills and Techniques, delayed evaluation.
+set workspace.arr[0] one
+set workspace.arr[1] two
+assign global:result = {global:workspace|assign self:arraySize = {1!self:arr|length|toInt}}
+eval nop {global:result.arraySize|assert equals int 2}
+
+eval nop {global:result.arr[0]|assert equals string one}
+eval nop {global:workspace.arraySize|assert empty}
+exit

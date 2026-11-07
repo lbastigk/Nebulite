@@ -1,0 +1,4 @@
+# CONTRIBUTING.md: Testing Skills and Techniques, inline escaped JSON example.
+set input {!\"hello\"}
+eval nop {global:input|deserialize|assert equals string hello}
+exit

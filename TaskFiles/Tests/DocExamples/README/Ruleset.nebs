@@ -1,0 +1,24 @@
+# README.md: Ruleset System. The documented JSON ruleset is also stored at
+# Resources/Rulesets/Physics/gravity.jsonc, used by these classic objects.
+# Verify that the self/other/global expression produces opposite forces.
+set-res 500 500
+cam set 375 375 c
+set-fps 100
+set physics.G 10
+time set-fixed-dt 1000
+
+eval spawn ./Resources/Renderobjects/Planets/obj2_classic.jsonc|set posX 375|set posY 250|set physics.vX 0|set physics.vY 0
+eval spawn ./Resources/Renderobjects/Planets/obj1_classic.jsonc|set posX 375|set posY 500|set physics.vX 0|set physics.vY 0
+wait 1
+selected-object get 1
+selected-object parse mirror on
+selected-object get 2
+selected-object parse mirror on
+wait 100
+
+eval nop {global:providedScope.module.domain.renderObject.mirror.renderObject.idx1.physics.aY|gt 0|assert true}
+eval nop {global:providedScope.module.domain.renderObject.mirror.renderObject.idx2.physics.aY|lt 0|assert true}
+assign global:acceleration.first = {global:providedScope.module.domain.renderObject.mirror.renderObject.idx1.physics.aY}
+assign global:acceleration.second = {global:providedScope.module.domain.renderObject.mirror.renderObject.idx2.physics.aY}
+assert $(eq({global:acceleration.first},-{global:acceleration.second}))
+exit

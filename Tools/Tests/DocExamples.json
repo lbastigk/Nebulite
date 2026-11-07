@@ -1,0 +1,45 @@
+[
+    {
+        "command": "task TaskFiles/Tests/DocExamples/README/Domains.nebs",
+        "expected": { "cout": null, "cerr": [] }
+    },
+    {
+        "command": "task TaskFiles/Tests/DocExamples/README/Expressions.nebs",
+        "expected": {
+            "cout": ["[", "    \"1\",", "    \"2\"", "]"],
+            "cerr": []
+        }
+    },
+    {
+        "command": "task TaskFiles/Tests/DocExamples/README/Ruleset.nebs",
+        "expected": { "cout": [], "cerr": [] }
+    },
+    {
+        "command": "task TaskFiles/Tests/DocExamples/CONTRIBUTING/bundle.nebs",
+        "expected": { "cout": [], "cerr": [] }
+    },
+    {
+        "command": "task TaskFiles/Tests/DocExamples/CONTRIBUTING/assertions.nebs",
+        "expected": { "cout": [], "cerr": [] }
+    },
+    {
+        "command": "task TaskFiles/Tests/DocExamples/CONTRIBUTING/typed-json.nebs",
+        "expected": { "cout": [], "cerr": [] }
+    },
+    {
+        "command": "task TaskFiles/Tests/DocExamples/CONTRIBUTING/stopped-chain.nebs",
+        "expected": { "cout": [], "cerr": [] }
+    },
+    {
+        "command": "task TaskFiles/Tests/DocExamples/CONTRIBUTING/must-throw.nebs",
+        "expected": { "cout": [], "cerr": [] }
+    },
+    {
+        "command": "task TaskFiles/Tests/DocExamples/CONTRIBUTING/evaluation-delay.nebs",
+        "expected": { "cout": [], "cerr": [] }
+    },
+    {
+        "command": "task TaskFiles/Tests/DocExamples/CONTRIBUTING/escaped-json.nebs",
+        "expected": { "cout": [], "cerr": [] }
+    }
+]

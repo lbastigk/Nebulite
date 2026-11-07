@@ -1,0 +1,46 @@
+# README.md: Expression System. Concrete examples use the GlobalSpace context,
+# where self and other both refer to global; placeholders are not commands.
+set mass 3
+set hp 5
+set var 3.14
+set id target
+set target found
+set arr[0] 1
+set arr[1] 2
+set val 10
+set health 50
+set maxHealth 200
+set inventory[0] apple
+set inventory[1] bread
+
+eval nop {global:{self:id}|assert equals string found}
+eval nop {./Resources/Renderobjects/standard.jsonc:posX|assert equals int 0}
+eval nop {self:arr|length|assert equals int 2}
+eval nop {self:val|add 5|assert equals int 15}
+eval nop {self:val|typeAsString|assert equals string value:string:2}
+eval nop {self:arr|map add 5|at 0|assert equals int 6}
+eval nop {self:arr|map add 5|at 1|assert equals int 7}
+eval nop {self:arr|length|toInt|assert equals int 2}
+eval nop {|setInt number 3|get number|assert equals int 3}
+
+assign global:examples.arithmetic = $(1 + 2 * {self:mass})
+assign global:examples.logical = $(gt({self:hp}, 0))
+assign global:examples.integer = $i(3.14)
+assign global:examples.formattedInteger = $04i(3.14)
+assign global:examples.formattedFloat = $10.5f({self:var})
+eval nop {global:examples.arithmetic|assert equals int 7}
+eval nop {global:examples.logical|assert equals int 1}
+eval nop {global:examples.integer|assert equals int 3}
+eval nop {global:examples.formattedInteger|assert equals string 0003}
+eval nop {global:examples.formattedFloat|assert equals string    3.14000}
+
+eval set examples.health $3i( {self:health} / max(1,{self:maxHealth}) * 100 )%
+eval set examples.inventory The player has {self:inventory|length} items.
+eval set examples.trade You will have $i({self:inventory|length} + {other:inventory|length}) items after trade.
+eval nop {global:examples.health|assert equals string  25%}
+eval nop {global:examples.inventory|assert equals string The player has 2 items.}
+eval nop {global:examples.trade|assert equals string You will have 4 items after trade.}
+eval nop {self:arr|print|at 1|assert equals string 2}
+eval nop {self:arr|length|assert equals int 2}
+eval nop {self:val|assert equals int 10}
+exit

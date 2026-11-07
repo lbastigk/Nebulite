@@ -1,0 +1,7 @@
+# CONTRIBUTING.md: Testing Skills and Techniques, stopped chain.
+set invalid [1,
+eval nop {global:invalid|deserialize|unreachable}
+
+set valid [1]
+eval nop {global:valid|deserialize|at 0|assert equals int 1}
+exit

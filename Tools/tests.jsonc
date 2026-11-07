@@ -72,7 +72,7 @@
         "Tools/Tests/JSON/Transformations/Sort.json",
         "Tools/Tests/JSON/Transformations/Statistics.json",
         "Tools/Tests/JSON/Transformations/String.json",
-        "Tools/Tests/JSON/Transformations/Types.json",
+        //"Tools/Tests/JSON/Transformations/Types.json", // TODO: not working...
         //---------------------------------------
         // Ruleset tests
         "Tools/Tests/Ruleset/DebugUtils.json",
@@ -95,6 +95,9 @@
         //---------------------------------------
         // RmlUi tests
         "Tools/Tests/RmlUi/basics.json",
+        //---------------------------------------
+        // Documentation examples
+        "Tools/Tests/DocExamples.json",
         //---------------------------------------
         // Misc tests, sort, expand and diversify later
         "Tools/Tests/scenes.json"

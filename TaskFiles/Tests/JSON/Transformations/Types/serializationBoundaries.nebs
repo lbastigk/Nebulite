@@ -1,0 +1,74 @@
+# Exercise JSON/JSONC parsing, failure paths, ordering, and round trips.
+# {!...} protects the quoted JSON scalar from expression evaluation, while \"
+# supplies its literal JSON quotes. JSONC objects are built from serialized data
+# and modified to insert comments and trailing commas without escaping braces.
+# Ordering checks inspect lines of the pretty-printed output. The literal
+# \u0000 sequence is JSON text: parsing turns it into a NUL in an object key,
+# which serialization must escape again without truncating the key.
+
+# Scalar JSON roots.
+set input.number 42
+set input.fraction -3.25
+set input.boolean true
+set input.null null
+set input.string {!\"hello\"}
+eval nop {global:input.number|deserialize|typeAsSimpleString|assert equals string value}
+eval nop {global:input.number|deserialize|assert equals int 42}
+eval nop {global:input.fraction|deserialize|serialize|assert equals string -3.25}
+eval nop {global:input.boolean|deserialize|assert true}
+eval nop {global:input.null|deserialize|assert empty}
+eval nop {global:input.string|deserialize|assert equals string hello}
+
+# JSONC accepts comments and trailing commas.
+set input.jsonc [1,/*comment*/2,]
+assign global:jsoncSource.z = $i(2)
+assign global:jsoncSource.a[0] = $i(3)
+assign global:jsoncSource.a[1] = $i(4)
+assign global:input.jsoncObject = {global:jsoncSource|serialize|replace 4 4,/*comment*/|replace 2 2,/*comment*/}
+assign global:parsed = {global:input.jsonc|deserialize}
+assign global:parsedObject = {global:input.jsoncObject|deserialize}
+eval nop {global:parsed|assert type array|length|assert equals int 2}
+eval nop {global:parsed[0]|assert equals int 1}
+eval nop {global:parsed[1]|assert equals int 2}
+eval nop {global:parsedObject.z|assert equals int 2}
+eval nop {global:parsedObject.a[1]|assert equals int 4}
+
+# Invalid and empty text fail rather than continuing the chain.
+set input.invalid [1,
+set input.empty
+eval nop {global:input.invalid|deserialize|unreachable}
+eval nop {global:input.empty|deserialize|unreachable}
+
+# Object key sorting is recursive; array order remains significant.
+set first.z 1
+set first.a.z 2
+set first.a.a 3
+set first.array[0].z last
+set first.array[0].a first
+set first.array[1] second
+set second.array[0].a first
+set second.array[0].z last
+set second.array[1] second
+set second.a.a 3
+set second.a.z 2
+set second.z 1
+assign global:serialized.first = {global:first|serialize}
+assign global:serialized.second = {global:second|serialize}
+eval nop {global:serialized|strCompare members first second|assert true}
+eval nop {global:serialized.first|splitNewlines|at 1|strip|substring 1 1|assert equals string a}
+eval nop {global:serialized.first|splitNewlines|at 2|strip|substring 1 1|assert equals string a}
+eval nop {global:serialized.first|splitNewlines|at 3|strip|substring 1 1|assert equals string z}
+eval nop {global:serialized.first|splitNewlines|at 7|strip|substring 1 1|assert equals string a}
+eval nop {global:serialized.first|splitNewlines|at 8|strip|substring 1 1|assert equals string z}
+assign global:roundTrip = {global:serialized.first|deserialize}
+eval nop {global:roundTrip.array[0].a|assert equals string first}
+eval nop {global:roundTrip.array[1]|assert equals string second}
+
+# Key sorting must preserve embedded NUL characters in JSON object names.
+set nulSource.abc value
+assign global:nulKey.expected = {global:nulSource|serialize|replace abc ab\u0000c}
+assign global:nulDocument = {global:nulKey.expected|deserialize}
+assign global:nulKey.actual = {global:nulDocument|serialize}
+eval nop {global:nulKey|strCompare members expected actual|assert true}
+
+exit

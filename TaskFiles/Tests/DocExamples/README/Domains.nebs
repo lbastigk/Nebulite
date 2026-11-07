@@ -1,0 +1,9 @@
+# README.md: Domains & DomainModules. Keep the documented commands in sync.
+# The two always commands run during wait; check the resulting state before exit.
+set myVar 5               # Common function, available in all domains
+set-fps 60                # As GlobalSpace is a parent domain of Renderer, it is able to call its functions
+always eval echo {self:myVar}
+always eval set myVar $({self:myVar} + 1)
+wait 100
+assert $(gt({self:myVar},5))
+exit
