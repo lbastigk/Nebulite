@@ -417,12 +417,12 @@ rapidjson::Value sortRecursive(rapidjson::Value const& value, rapidjson::Documen
         // Sort object keys
         std::vector<std::pair<std::string, rapidjson::Value const*>> members;
         for (auto itr = value.MemberBegin(); itr != value.MemberEnd(); ++itr) {
-            members.emplace_back(itr->name.GetString(), &itr->value);
+            members.emplace_back(std::string(itr->name.GetString(), itr->name.GetStringLength()), &itr->value);
         }
         std::ranges::sort(members, [](auto const& a, auto const& b) { return a.first < b.first; });
         rapidjson::Value sortedObj(rapidjson::kObjectType);
         for (auto const& [key, unsortedValue] : members) {
-            rapidjson::Value name(key.c_str(), allocator);
+            rapidjson::Value name(key.data(), static_cast<rapidjson::SizeType>(key.size()), allocator);
             rapidjson::Value sortedVal = sortRecursive(*unsortedValue, allocator);
             sortedObj.AddMember(name, sortedVal, allocator);
         }

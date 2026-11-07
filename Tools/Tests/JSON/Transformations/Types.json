@@ -10,5 +10,13 @@
     {
         "command": "task TaskFiles/Tests/JSON/Transformations/Types/exists.nebs",
         "expected": { "cout": [], "cerr": [] }
+    },
+    {
+        "command": "task TaskFiles/Tests/JSON/Transformations/Types/default.nebs",
+        "expected": { "cout": [], "cerr": [] }
+    },
+    {
+        "command": "task TaskFiles/Tests/JSON/Transformations/Types/serializationBoundaries.nebs",
+        "expected": { "cout": [], "cerr": [] }
     }
 ]

@@ -37,8 +37,9 @@ public:
 
     static bool defaultToString(Utility::Args::SegmentedStringView const& args, Data::JsonScope& jsonDoc);
     static auto constexpr defaultToStringName = "default";
-    static auto constexpr defaultToStringDesc = "If the current value is null, default to a given String\n"
-        "Usage: |default -> {currentValue/string}\n";
+    static auto constexpr defaultToStringDesc = "Replaces a null or missing value with the given string.\n"
+        "Non-null values are unchanged. Omitting the string defaults to an empty string.\n"
+        "Usage: |default [string] -> {currentValue/string}\n";
 
     static bool typeAsNumber(Data::JsonScope& jsonDoc);
     static auto constexpr typeAsNumberName = "typeAsNumber";
@@ -59,18 +60,20 @@ public:
     static bool serialize(Data::JsonScope& jsonDoc);
     static auto constexpr serializeName = "serialize";
     static auto constexpr serializeDesc = "Serializes the current JSON value to a string.\n"
+        "Object keys are sorted recursively and array order is preserved; the output is not canonical JSON.\n"
         "Usage: |serialize -> {string}\n";
 
     static bool deserialize(Data::JsonScope& jsonDoc);
     static auto constexpr deserializeName = "deserialize";
     static auto constexpr deserializeDesc = "Deserializes the current JSON string value stored in root.\n"
+        "Accepts JSON and JSONC, including scalar values. Invalid or empty input fails.\n"
         "Usage: |deserialize -> {value}\n";
 
     static bool exists(Utility::Args::SegmentedStringView const& args, Data::JsonScope& jsonDoc);
     static auto constexpr existsName = "exists";
-    static auto constexpr existsDesc = "Checks if a specified key exists in the current JSON object.\n"
-        "If no key is provided, checks if the current JSON value is not null.\n"
-        "Usage: |exists  [key] -> {bool}\n";
+    static auto constexpr existsDesc = "Checks whether the current value or a specified key is non-null.\n"
+        "Missing and null values do not exist; empty strings, arrays, and objects do.\n"
+        "Usage: |exists [key] -> {bool}\n";
 };
 } // namespace Nebulite::Module::Transformation
 #endif // NEBULITE_MODULE_TRANSFORMATION_TYPES_HPP
