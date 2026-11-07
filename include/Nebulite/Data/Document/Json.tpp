@@ -5,7 +5,6 @@
 // Includes
 
 // Standard library
-#include <cstddef>
 #include <expected>
 #include <mutex>
 #include <optional>
@@ -22,7 +21,6 @@
 // Nebulite
 #include "Nebulite/Data/Document/JsonCache.hpp"
 #include "Nebulite/Data/Document/JsonTransformer.hpp"
-#include "Nebulite/Data/Document/KeyType.hpp"
 #include "Nebulite/Data/Document/RjDirectAccess.hpp"
 #include "Nebulite/Data/Document/SimpleValueError.hpp"
 #include "Nebulite/Module/Base/TransformationModule.hpp"

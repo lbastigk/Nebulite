@@ -15,6 +15,7 @@
 #include <string>
 #include <tuple>
 #include <type_traits>
+#include <vector>
 
 // Nebulite
 #include "Nebulite/Data/Document/Json.hpp"
@@ -46,6 +47,16 @@ std::optional<std::string> JsonScope::generateScopePrefix(DocType const& doc, st
     }
     // No prefix provided
     return std::nullopt;
+}
+
+template<typename F>
+bool JsonScope::onNarrowScope(std::size_t const index, F&& f) {
+    static_assert(std::is_invocable_v<F, JsonScope&>, "F must be invocable with a scope as parameter");
+    static_assert(std::is_same_v<std::invoke_result_t<F, JsonScope&>, bool>, "F must return a bool");
+    auto indexKey = "[" + std::to_string(index) + "]";
+    auto fullKey = ScopedKey(indexKey).view().full(*this);
+    auto scope = JsonScope(*baseDocument, fullKey);
+    return std::invoke<F>(std::forward<F>(f), scope);
 }
 
 template<typename T, typename... Keys>

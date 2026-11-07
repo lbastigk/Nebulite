@@ -154,7 +154,10 @@ public:
     [[nodiscard]] ScopedKeyView getRootScope() const ;
 
     //------------------------------------------
-    // Sharing a scope (Base only, no Domain Functionality)
+    // Scope sharing
+
+    template<typename F>
+    bool onNarrowScope(std::size_t index, F&& f);
 
     // When requesting a scope to share, we always assume its relative to our current scope
     // So we can pass a key as string and generate the full key internally based on our scopePrefix
