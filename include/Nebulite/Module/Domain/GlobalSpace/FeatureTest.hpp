@@ -45,7 +45,8 @@ public:
 
     [[nodiscard]] static Constants::Event stringTransformationArguments();
     static auto constexpr stringTransformationArgumentsName = "feature-test string-transformation-arguments";
-    static auto constexpr stringTransformationArgumentsDesc = "Tests string transformations with explicitly empty argument segments.\n";
+    static auto constexpr stringTransformationArgumentsDesc = "Tests string transformations with explicitly empty argument segments.\n"
+        "Usage: feature-test string-transformation-arguments\n";
 
     // Keys
 
