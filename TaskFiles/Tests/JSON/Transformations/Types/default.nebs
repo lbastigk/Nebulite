@@ -1,0 +1,31 @@
+# Exercise defaulting for null, missing, and non-null values of different types.
+# JSON text is deserialized to construct typed null, Boolean, and empty array values;
+# the direct deserialize chains also exercise null before assignment.
+
+# Null and missing values are replaced, including with an omitted default.
+set nullText null
+assign global:explicitNull = {global:nullText|deserialize}
+eval nop {global:missing|default fallback text|assert equals string fallback text}
+eval nop {global:explicitNull|default fallback|assert equals string fallback}
+eval nop {global:nullText|deserialize|default fallback|assert equals string fallback}
+eval nop {global:missing|default|assert equals string}
+eval nop {global:nullText|deserialize|default|assert equals string}
+eval nop {global:missing|default|typeAsSimpleString|assert equals string value}
+
+# Non-null values keep their original type and content.
+set text hello
+set emptyText
+assign global:number = $i(42)
+set falseText false
+set arrayText []
+assign global:boolean = {global:falseText|deserialize}
+assign global:emptyArray = {global:arrayText|deserialize}
+assign global:emptyObject = {|setString member value|removeMember member}
+eval nop {global:text|default fallback|assert equals string hello}
+eval nop {global:emptyText|default fallback|assert equals string}
+eval nop {global:number|default fallback|typeAsString|assert equals string value:int:64}
+eval nop {global:boolean|default fallback|assert false}
+eval nop {global:emptyArray|default fallback|assert type array|length|assert equals int 0}
+eval nop {global:emptyObject|default fallback|typeAsString|assert equals string object:0}
+
+exit

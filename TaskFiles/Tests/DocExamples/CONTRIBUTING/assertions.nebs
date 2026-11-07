@@ -1,0 +1,7 @@
+# CONTRIBUTING.md: Testing Skills and Techniques, transformation assertions.
+assign global:number = $i(42)
+eval nop {global:number|typeAsString|assert equals string value:int:64}
+eval nop {global:number|assert equals int 42}
+
+eval nop {global:number|serialize|assert equals string 42}
+exit
