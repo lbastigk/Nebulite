@@ -8,6 +8,7 @@ in separate files and barely touching existing ones.
 - [Development Setup](#development-setup)
    * [Prerequisites](#prerequisites)
 - [Testing](#testing)
+   * [Testing Skills and Techniques](#testing-skills-and-techniques)
    * [Quick Expression Testing](#quick-expression-testing)
 - [Adding Features](#adding-features)
    * [Function Collision Prevention](#function-collision-prevention)
@@ -81,6 +82,102 @@ eval nop {global:workspace.result[0]|typeAsString|assert equals string value:str
 eval nop {global:workspace.result[1]|typeAsString|assert equals string array:3}
 eval nop {global:workspace.result[2]|typeAsString|assert equals string object:3}
 ```
+
+<!-- TOC --><a name="testing-skills-and-techniques"></a>
+### Testing Skills and Techniques
+
+The scripts under `TaskFiles/Tests/` contain useful patterns for testing behavior
+that is awkward to express through ordinary `set` commands:
+Runnable README and contribution-guide examples are also covered by
+[`TaskFiles/Tests/DocExamples`](TaskFiles/Tests/DocExamples); keep the examples
+and their tests in sync when changing either. Give each runnable Nebulite code
+block its own test. Illustrative placeholders such
+as `<function>` are not executable; tests use concrete equivalents. The
+frame-based README example intentionally leaves stdout unchecked because it
+prints every frame; its script asserts that the variable changes during the wait.
+
+- **Assert in a transformation chain.** `eval nop` evaluates the expression
+  without needing a command that consumes its result. Assertions throw if they
+  fail. Check the type as well as the value when conversion could hide a type
+  error:
+  ```nebs
+  assign global:number = $i(42)
+  eval nop {global:number|typeAsString|assert equals string value:int:64}
+  eval nop {global:number|assert equals int 42}
+  ```
+- **Construct typed JSON values.** `set` can provide JSON *text*, which
+  `deserialize` turns into a typed value. This is especially useful for null,
+  booleans, empty arrays, and scalar roots:
+  ```nebs
+  set nullText null
+  set arrayText []
+  eval nop {global:nullText|deserialize|assert empty}
+  assign global:emptyArray = {global:arrayText|deserialize}
+  eval nop {global:emptyArray|typeAsString|assert equals string array:0}
+  ```
+  `assert empty` checks for null, not an empty string or container. Missing
+  values and null are treated alike by `exists` and `default`; use a direct
+  `deserialize` chain or verify a serialized member when a test needs an
+  explicit JSON null. See
+  [`Types/exists.nebs`](TaskFiles/Tests/JSON/Transformations/Types/exists.nebs).
+
+
+- **Distinguish a stopped chain from an exception.** Append `|unreachable` to
+  a transformation that should return failure. It throws if execution reaches
+  it, so no `must-throw` is needed:
+  ```nebs
+  set invalid [1,
+  eval nop {global:invalid|deserialize|unreachable}
+  ```
+  This proves the chain stopped before `unreachable`, not which preceding
+  operation stopped it; keep the chain short. Conversely, use `must-throw`
+  when the command itself is expected to throw, as in
+  [`Debug/unreachable.nebs`](TaskFiles/Tests/JSON/Transformations/Debug/unreachable.nebs):
+  ```nebs
+  must-throw eval nop {|unreachable}
+  ```
+  A failed transformation retrieved into a subdocument can also yield null;
+  `assert empty` alone cannot distinguish that from a successful null result.
+
+
+- **Delay nested evaluations until the right context is available.** An inner
+  expression would normally be evaluated before the outer transformation.
+  Prefix it with `1!` to pass it through one evaluation step as an expression
+  for the transformation to evaluate later:
+  ```nebs
+  set workspace.arr[0] one
+  set workspace.arr[1] two
+  assign global:result = {global:workspace|assign self:arraySize = {1!self:arr|length|toInt}}
+  eval nop {global:result.arraySize|assert equals int 2}
+  ```
+  Here `self:arr` must be resolved against the transformed workspace, not the
+  outer context. Use `{n!...}` to delay by more steps: each evaluation reduces
+  the count, and `{1!...}` becomes `{...}` for a later evaluation. Nested
+  expressions and contexts can require different delays; see
+  [Evaluation-delay](doc/Glossary.md#evaluation-delay),
+  [`evaluationDelay.nebs`](TaskFiles/Tests/Expression/evaluationDelay.nebs),
+  and [`sortCustom.nebs`](TaskFiles/Tests/JSON/Transformations/Sort/sortCustom.nebs).
+- **Handle JSON text and escaping deliberately.** `{!...}` can protect literal
+  text when supplying arguments; it is not the same as the numbered delay
+  used to pass an expression for later evaluation. For example,
+  `set input {!\"hello\"}` supplies the JSON text `"hello"` for deserializing
+  a string scalar. For more complex
+  inputs, serialize a constructed object and modify the resulting text instead
+  of nesting JSON braces in an expression. The
+  [`serialization boundary tests`](TaskFiles/Tests/JSON/Transformations/Types/serializationBoundaries.nebs)
+  use this to insert JSONC comments and trailing commas, and use the literal
+  JSON escape `\u0000` to exercise an embedded NUL in an object key.
+- **Check ordering and round trips separately.** Serialize objects built in
+  different insertion orders and compare the resulting strings with
+  `strCompare members`. Inspect the output when the expected ordering itself
+  matters, then deserialize and assert array elements and nested values. Avoid
+  assuming that all JSON serialization is canonical.
+- **Test output without relying on the console.** `capture` stores command
+  output in a document for assertions; see
+  [`capture.nebs`](TaskFiles/Tests/Domain/General/capture.nebs). When output
+  itself is the contract, list expected `cout` and `cerr` lines in the JSON
+  test manifest instead. The runner compares those lines after the global
+  ignore filters and checks for a successful exit by default.
 
 <!-- TOC --><a name="adding-features"></a>
 ## Adding Features
