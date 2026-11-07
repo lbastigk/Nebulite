@@ -9,6 +9,7 @@ in separate files and barely touching existing ones.
    * [Prerequisites](#prerequisites)
 - [Testing](#testing)
    * [Testing Skills and Techniques](#testing-skills-and-techniques)
+   * [Developer Tips: Validation Scripts](#developer-tips-validation-scripts)
    * [Quick Expression Testing](#quick-expression-testing)
 - [Adding Features](#adding-features)
    * [Function Collision Prevention](#function-collision-prevention)
@@ -178,6 +179,36 @@ prints every frame; its script asserts that the variable changes during the wait
   itself is the contract, list expected `cout` and `cerr` lines in the JSON
   test manifest instead. The runner compares those lines after the global
   ignore filters and checks for a successful exit by default.
+
+<!-- TOC --><a name="developer-tips-validation-scripts"></a>
+### Developer Tips: Validation Scripts
+
+Run these from the repository root. They supplement the test suite rather than
+replacing it:
+
+- **Resource JSON and references:** `python3 Scripts/Validation/json_syntax_and_references.py`
+  checks JSON/JSONC syntax under `Resources` and checks recognized
+  `./Resources/...` file references. Add `-v` or `--verbose` to see discovery,
+  file, and reference progress. It uses simple comment stripping and checks
+  only the path formats and extensions recognized by the script; it is not a
+  complete JSONC parser or reference checker.
+- **Transformation argument usage:** `python3 Scripts/Validation/segmented_string_view_argument_validator.py`
+  conservatively looks for accepted `SegmentedStringView` arguments that are
+  never consumed. It defaults to `src/Nebulite`; pass files or directories to
+  narrow the scan and `-v` to see scanned files. It requires the Python
+  `tree-sitter` and `tree-sitter-cpp` packages and reports skipped functions;
+  review findings manually rather than treating the analysis as exhaustive.
+- **C++ linting:** `bash Scripts/Validation/clangCheck.sh --changed-files` runs
+  `clang-tidy` on staged and unstaged changed C++ files. Use `--main-diff` for
+  changes against the merge base with `origin/main`, or omit the option to scan
+  all source and header files. Append `--list-only` as the second argument to
+  preview a changed-file selection. The script expects `clang-tidy`, the
+  external include directories, and the Linux debug build configuration.
+- **Conditional build and tests:** `bash Scripts/Validation/runTestsIfFilesChanged.sh`
+  runs `make build-and-test-native` when it detects newer files under `src`,
+  `Scripts`, `TaskFiles`, or `include`. It stores timestamps in `tmp`; this
+  timestamp-based check does not detect deleted files and does not watch every
+  repository directory.
 
 <!-- TOC --><a name="adding-features"></a>
 ## Adding Features
