@@ -7,6 +7,11 @@ if ! $ROOT_DIR/Scripts/Validation/clangCheck.sh --changed-files ; then
     exit 1
 fi
 
+if ! $ROOT_DIR/Scripts/Validation/segmented_string_view_argument_validator.py ; then
+    echo "Error: A transformation function isn't consuming all of its supported arguments. Aborting commit."
+    exit 1
+fi
+
 if ! $ROOT_DIR/Scripts/Validation/runTestsIfFilesChanged.sh ; then
     echo "Error: Tests failed. Aborting commit."
     exit 1
