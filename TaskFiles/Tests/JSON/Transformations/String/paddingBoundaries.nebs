@@ -1,0 +1,61 @@
+# Check both padding directions, conditional no-ops, conversion fallback, and
+# argument validation. `unreachable` throws only if an invalid call succeeds;
+# the must-throw cases prove valid calls continue through the chain.
+set numeric 12
+set text abc
+set empty
+set nullText null
+assign global:array = {global:nullText|deserialize|ensureArray}
+set object.member value
+
+# Explicit pad bytes and the omitted-byte default, which must be spaces.
+# Inspect and strip the padding separately so argument whitespace is not lost.
+eval nop {global:numeric|lPad 4 0|assert equals string 0012}
+eval nop {global:numeric|rPad 4 0|assert equals string 1200}
+eval nop {global:numeric|lPad 4|substring 0 2|strCompare equals|assert false}
+eval nop {global:numeric|lPad 4|substring 0 2|strip|assert equals string}
+eval nop {global:numeric|lPad 4|substring 2|assert equals string 12}
+eval nop {global:numeric|rPad 4|substring 2|strip|assert equals string}
+eval nop {global:numeric|rPad 4|substring 0 2|assert equals string 12}
+
+# Conditional variants pad only matching inputs and leave non-matches unchanged.
+eval nop {global:numeric|lPadNumeric 4 0|assert equals string 0012}
+eval nop {global:numeric|rPadNumeric 4 0|assert equals string 1200}
+eval nop {global:text|lPadNonNumeric 5 x|assert equals string xxabc}
+eval nop {global:text|rPadNonNumeric 5 x|assert equals string abcxx}
+eval nop {global:text|lPadNumeric 5 x|assert equals string abc}
+eval nop {global:text|rPadNumeric 5 x|assert equals string abc}
+eval nop {global:numeric|lPadNonNumeric 5 x|assert equals string 12}
+eval nop {global:numeric|rPadNonNumeric 5 x|assert equals string 12}
+
+# Missing, null, and unconvertible containers use the empty-string fallback.
+eval nop {global:empty|lPadNonNumeric 2 x|assert equals string xx}
+eval nop {global:missing|rPadNonNumeric 2 x|assert equals string xx}
+eval nop {global:nullText|deserialize|lPadNonNumeric 2 x|assert equals string xx}
+eval nop {global:array|lPadNonNumeric 2 x|assert equals string xx}
+eval nop {global:object|rPadNonNumeric 2 x|assert equals string xx}
+
+# Reject malformed sizes and pad bytes even when the condition does not match.
+eval nop {global:text|lPad|unreachable}
+eval nop {global:text|rPad -1|unreachable}
+eval nop {global:text|lPad 2 xx|unreachable}
+eval nop {global:text|rPad 2 x extra|unreachable}
+eval nop {global:text|lPadNumeric invalid|unreachable}
+eval nop {global:text|rPadNumeric 2 xx|unreachable}
+eval nop {global:numeric|lPadNonNumeric -1|unreachable}
+eval nop {global:numeric|rPadNonNumeric 2 xx|unreachable}
+eval nop {global:text|lPad true|unreachable}
+eval nop {global:text|rPad 184467440737095516160|unreachable}
+
+# Valid calls must reach unreachable, including matching and non-matching cases.
+must-throw eval nop {global:text|lPad 5|unreachable}
+must-throw eval nop {global:text|rPad 5|unreachable}
+must-throw eval nop {global:numeric|lPadNumeric 5|unreachable}
+must-throw eval nop {global:numeric|rPadNumeric 5|unreachable}
+must-throw eval nop {global:text|lPadNonNumeric 5|unreachable}
+must-throw eval nop {global:text|rPadNonNumeric 5|unreachable}
+must-throw eval nop {global:text|lPadNumeric 5|unreachable}
+must-throw eval nop {global:text|rPadNumeric 5|unreachable}
+must-throw eval nop {global:numeric|lPadNonNumeric 5|unreachable}
+must-throw eval nop {global:numeric|rPadNonNumeric 5|unreachable}
+exit

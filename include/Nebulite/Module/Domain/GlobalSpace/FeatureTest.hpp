@@ -43,6 +43,10 @@ public:
     static auto constexpr selfOtherGlobalEvaluationDesc = "Tests evaluation of self and other global variable access in one expression\n"
         "Usage: feature-test context-evaluation\n";
 
+    [[nodiscard]] static Constants::Event stringTransformationArguments();
+    static auto constexpr stringTransformationArgumentsName = "feature-test string-transformation-arguments";
+    static auto constexpr stringTransformationArgumentsDesc = "Tests string transformations with explicitly empty argument segments.\n";
+
     // Keys
 
     [[nodiscard]] Constants::Event keyCombination(Utility::Args::SegmentedStringView const& args) const ;
@@ -108,6 +112,7 @@ public:
         // General
         bindFunction(&FeatureTest::testFuncTree, testFuncTreeName, testFuncTreeDesc);
         bindFunction(&FeatureTest::selfOtherGlobalEvaluation, selfOtherGlobalEvaluationName, selfOtherGlobalEvaluationDesc);
+        bindFunction(&FeatureTest::stringTransformationArguments, stringTransformationArgumentsName, stringTransformationArgumentsDesc);
 
         // Keys
         bindFunction(&FeatureTest::keyCombination, keyCombinationName, keyCombinationDesc);

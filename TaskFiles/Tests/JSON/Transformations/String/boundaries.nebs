@@ -1,0 +1,72 @@
+# Verify substring boundaries, byte-oriented UTF-8 handling, conversion fallback,
+# replacement, and splitting. `unreachable` catches unexpected success.
+
+# Oversized and omitted lengths are allowed; all supplied arguments are validated
+# even when the start is already outside the string.
+set text abcdef
+eval nop {global:text|substring 2|assert equals string cdef}
+eval nop {global:text|substring 2 0|assert equals string}
+eval nop {global:text|substring 2 100|assert equals string cdef}
+eval nop {global:text|substring 100|assert equals string}
+eval nop {global:text|substring|unreachable}
+eval nop {global:text|substring -1|unreachable}
+eval nop {global:text|substring 100 invalid|unreachable}
+eval nop {global:text|substring 100 -1|unreachable}
+eval nop {global:text|substring 100 184467440737095516160|unreachable}
+eval nop {global:text|substring true|unreachable}
+eval nop {global:text|substring 1 1 extra|unreachable}
+
+# The final UTF-8 character occupies two bytes; a one-byte substring can split it.
+set unicode café
+eval nop {global:unicode|strLen|assert equals int 5}
+eval nop {global:unicode|substring 3 2|assert equals string é}
+eval nop {global:unicode|substring 3 1|strLen|assert equals int 1}
+
+# Null and containers fall back to empty strings; scalar values are converted.
+# Deserialize the JSON text to construct typed null, Boolean, and empty array values.
+set nullText null
+assign global:number = $i(42)
+assign global:boolean = {global:nullText|replace null true|deserialize}
+assign global:array = {global:nullText|deserialize|ensureArray}
+set object.member value
+eval nop {global:missing|strLen|assert equals int 0}
+eval nop {global:nullText|deserialize|strLen|assert equals int 0}
+eval nop {global:array|strLen|assert equals int 0}
+eval nop {global:object|toUpper|assert equals string}
+eval nop {global:number|strLen|assert equals int 2}
+eval nop {global:boolean|toUpper|assert equals string TRUE}
+
+# Replacements are non-overlapping and can delete matches.
+set repeated aaaaa
+eval nop {global:repeated|replace aa X|assert equals string XXa}
+eval nop {global:repeated|replace aa|assert equals string a}
+eval nop {global:repeated|replace|unreachable}
+
+# Repeated and trailing delimiters produce empty tokens.
+set tokens a,,b,
+assign global:splitResult = {global:tokens|split ,}
+eval nop {global:splitResult|length|assert equals int 4}
+eval nop {global:splitResult[0]|assert equals string a}
+eval nop {global:splitResult[1]|assert equals string}
+eval nop {global:splitResult[2]|assert equals string b}
+eval nop {global:splitResult[3]|assert equals string}
+eval nop {global:tokens|split ,,|unreachable}
+eval nop {global:tokens|split , extra|unreachable}
+
+# Construct CRLF and LF through JSON escapes so the script has no literal CR.
+# A standalone final CR is retained, while consecutive CRLFs leave empty tokens.
+set source first
+assign global:lineJson = {global:source|serialize|replace first first\r\nsecond\nthird\r}
+assign global:lines = {global:lineJson|deserialize|splitNewlines}
+eval nop {global:lines|length|assert equals int 3}
+eval nop {global:lines[0]|assert equals string first}
+eval nop {global:lines[1]|assert equals string second}
+eval nop {global:lines[2]|strLen|assert equals int 6}
+set lineSource value
+assign global:lineJson2 = {global:lineSource|serialize|replace value a\r\n\r\n}
+assign global:lines2 = {global:lineJson2|deserialize|splitNewlines}
+eval nop {global:lines2|length|assert equals int 3}
+eval nop {global:lines2[0]|assert equals string a}
+eval nop {global:lines2[1]|assert equals string}
+eval nop {global:lines2[2]|assert equals string}
+exit

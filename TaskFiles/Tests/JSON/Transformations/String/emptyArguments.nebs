@@ -1,0 +1,5 @@
+# The feature-test helper calls the transformations with explicit empty argument
+# segments, which command parsing does not preserve. It checks all padding
+# variants, split and replace, including invalid arguments on conditional no-ops.
+feature-test string-transformation-arguments
+exit

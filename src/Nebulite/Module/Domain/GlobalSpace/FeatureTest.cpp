@@ -21,6 +21,7 @@
 #include "Nebulite/Interaction/Logic/Expression.hpp"
 #include "Nebulite/Math/FFT.hpp"
 #include "Nebulite/Module/Domain/GlobalSpace/FeatureTest.hpp"
+#include "Nebulite/Module/Transformation/String.hpp"
 #include "Nebulite/Utility/Args/FuncTree.hpp"
 #include "Nebulite/Utility/Args/SegmentedStringView.hpp"
 #include "Nebulite/Utility/Convert/Cast.hpp"
@@ -36,6 +37,38 @@ Constants::Event FeatureTest::updateHook() {
 }
 
 // General
+
+Constants::Event FeatureTest::stringTransformationArguments() {
+    // Construct empty segments directly: command parsing does not preserve them.
+    Data::JsonScope scope;
+    scope.set(Data::ScopedKey(""), "abc");
+    using Transform = Module::Transformation::String;
+    using Args = Utility::Args::SegmentedStringView;
+    std::array<std::string_view, 3> const padArgs{"pad", "2", ""};
+    std::array<std::string_view, 2> const emptyArg{"name", ""};
+    std::array<std::string_view, 3> const replaceArgs{"replace", "", "x"};
+    for (auto const fn : {&Transform::lPad, &Transform::rPad, &Transform::lPadNumeric,
+                          &Transform::rPadNumeric, &Transform::lPadNonNumeric, &Transform::rPadNonNumeric}) {
+        if (fn(Args(padArgs.data(), padArgs.size()), scope)) {
+            throw std::logic_error("Padding accepted an explicitly empty character");
+        }
+    }
+    if (Transform::split(Args(emptyArg.data(), emptyArg.size()), scope)
+        || Transform::replace(Args(emptyArg.data(), emptyArg.size()), scope)
+        || Transform::replace(Args(replaceArgs.data(), replaceArgs.size()), scope)) {
+        throw std::logic_error("String transformation accepted an explicitly empty target or delimiter");
+    }
+    if (scope.get<std::string>(Data::ScopedKey("")) != "abc") {
+        throw std::logic_error("Invalid string transformation changed the input");
+    }
+    // Non-numeric padding must reject invalid arguments even for numeric input.
+    scope.set(Data::ScopedKey(""), "12");
+    if (Transform::lPadNonNumeric(Args(padArgs.data(), padArgs.size()), scope)
+        || Transform::rPadNonNumeric(Args(padArgs.data(), padArgs.size()), scope)) {
+        throw std::logic_error("Conditional padding accepted an empty character on a no-op");
+    }
+    return Constants::Event::success;
+}
 
 namespace {
 class MathModifier {

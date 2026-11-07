@@ -38,5 +38,17 @@
     {
         "command": "task TaskFiles/Tests/JSON/Transformations/String/split.nebs",
         "expected": { "cout": [], "cerr": [] }
+    },
+    {
+        "command": "task TaskFiles/Tests/JSON/Transformations/String/paddingBoundaries.nebs",
+        "expected": { "cout": [], "cerr": [] }
+    },
+    {
+        "command": "task TaskFiles/Tests/JSON/Transformations/String/boundaries.nebs",
+        "expected": { "cout": [], "cerr": [] }
+    },
+    {
+        "command": "task TaskFiles/Tests/JSON/Transformations/String/emptyArguments.nebs",
+        "expected": { "cout": [], "cerr": [] }
     }
 ]

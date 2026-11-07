@@ -4,14 +4,18 @@
 // Standard library
 #include <algorithm>
 #include <cctype>
+#include <charconv>
 #include <cstddef>
 #include <iterator>
 #include <optional>
 #include <ranges>
 #include <string>
+#include <string_view>
+#include <system_error> // NOLINT
 
 // Nebulite
 #include "Nebulite/Data/Document/JsonScope.hpp"
+#include "Nebulite/Module/Base/TransformationModule.hpp"
 #include "Nebulite/Module/Transformation/String.hpp"
 #include "Nebulite/Utility/Args/SegmentedStringView.hpp"
 #include "Nebulite/Utility/Ranges.hpp"
@@ -19,6 +23,56 @@
 
 //------------------------------------------
 namespace Nebulite::Module::Transformation {
+
+namespace {
+
+std::optional<std::size_t> parseSize(std::string_view const value) {
+    if (value.empty()) {
+        return std::nullopt;
+    }
+    std::size_t result{};
+    auto const [end, error] = std::from_chars(value.data(), value.data() + value.size(), result);
+    if (error != std::errc{} || end != value.data() + value.size()) {
+        return std::nullopt;
+    }
+    return result;
+}
+
+struct PadArguments {
+    std::size_t size;
+    char character;
+};
+
+std::optional<PadArguments> parsePadArguments(Utility::Args::SegmentedStringView const& args) {
+    if (args.size() < 2 || args.size() > 3 || (args.size() == 3 && args[2].size() != 1)) {
+        return std::nullopt;
+    }
+    auto const size = parseSize(args[1]);
+    if (!size) {
+        return std::nullopt;
+    }
+    return PadArguments{.size = *size, .character = args.size() == 3 ? args[2][0] : ' '};
+}
+
+bool pad(Utility::Args::SegmentedStringView const& args, Data::JsonScope& jsonDoc, bool const left,
+         std::optional<bool> const numericCondition = std::nullopt) {
+    auto const options = parsePadArguments(args);
+    if (!options) {
+        return false;
+    }
+    auto str = jsonDoc.get<std::string>(Base::TransformationModule::rootKey).value_or("");
+    if (numericCondition && Utility::StringHandler::isNumber(str) != *numericCondition) {
+        return true;
+    }
+    if (str.size() >= options->size) {
+        return true;
+    }
+    std::string const padding(options->size - str.size(), options->character);
+    jsonDoc.set(Base::TransformationModule::rootKey, left ? padding + str : str + padding);
+    return true;
+}
+
+} // namespace
 
 void String::bindTransformations() {
     bindTransformation(&strLen, strLenName, strLenDesc);
@@ -93,79 +147,27 @@ bool String::toLower(Data::JsonScope& jsonDoc) {
 }
 
 bool String::lPad(Utility::Args::SegmentedStringView const& args, Data::JsonScope& jsonDoc){
-    if (args.size() < 2) {
-        return false;
-    }
-    if (args.size() > 3) {
-        return false;
-    }
-    if (args[2].size() != 1) {
-        return false;
-    }
-    auto const size = args.tryGetAs<std::size_t>(1);
-    if (!size) {
-        return false;
-    }
-    auto const padChar = args.size() >= 3 ? args[2][0] : ' ';
-    auto str = jsonDoc.get<std::string>(rootKey).value_or("");
-    if (str.size() >= size.value()) {
-        return true; // No padding needed
-    }
-    str = std::string(size.value() - str.size(), padChar) + str;
-    jsonDoc.set(rootKey, str);
-    return true;
+    return pad(args, jsonDoc, true);
 }
 
 bool String::rPad(Utility::Args::SegmentedStringView const& args, Data::JsonScope& jsonDoc) {
-    if (args.size() < 2) {
-        return false;
-    }
-    if (args.size() > 3) {
-        return false;
-    }
-    if (args[2].size() != 1) {
-        return false;
-    }
-    auto const size = args.tryGetAs<std::size_t>(1);
-    if (!size) {
-        return false;
-    }
-    auto const padChar = args.size() >= 3 ? args[2][0] : ' ';
-    auto str = jsonDoc.get<std::string>(rootKey).value_or("");
-    if (str.size() >= size.value()) {
-        return true; // No padding needed
-    }
-    str = str + std::string(size.value() - str.size(), padChar);
-    jsonDoc.set(rootKey, str);
-    return true;
+    return pad(args, jsonDoc, false);
 }
 
 bool String::lPadNumeric(Utility::Args::SegmentedStringView const& args, Data::JsonScope& jsonDoc){
-    if (Utility::StringHandler::isNumber(jsonDoc.get<std::string>(rootKey).value_or(""))) {
-        return lPad(args, jsonDoc);
-    }
-    return true; // Not numeric, but not an error either, so we return true without modifying the string
+    return pad(args, jsonDoc, true, true);
 }
 
 bool String::rPadNumeric(Utility::Args::SegmentedStringView const& args, Data::JsonScope& jsonDoc){
-    if (Utility::StringHandler::isNumber(jsonDoc.get<std::string>(rootKey).value_or(""))) {
-        return rPad(args, jsonDoc);
-    }
-    return true; // Not numeric, but not an error either, so we return true without modifying the string
+    return pad(args, jsonDoc, false, true);
 }
 
 bool String::lPadNonNumeric(Utility::Args::SegmentedStringView const& args, Data::JsonScope& jsonDoc){
-    if (!Utility::StringHandler::isNumber(jsonDoc.get<std::string>(rootKey).value_or(""))) {
-        return lPad(args, jsonDoc);
-    }
-    return true; // numeric, but not an error either, so we return true without modifying the string
+    return pad(args, jsonDoc, true, false);
 }
 
 bool String::rPadNonNumeric(Utility::Args::SegmentedStringView const& args, Data::JsonScope& jsonDoc){
-    if (!Utility::StringHandler::isNumber(jsonDoc.get<std::string>(rootKey).value_or(""))) {
-        return rPad(args, jsonDoc);
-    }
-    return true; // numeric, but not an error either, so we return true without modifying the string
+    return pad(args, jsonDoc, false, false);
 }
 
 bool String::strip(Data::JsonScope& jsonDoc) {
@@ -200,22 +202,22 @@ bool String::substring(Utility::Args::SegmentedStringView const& args, Data::Jso
         return false;
     }
 
-    auto const start = args.tryGetAs<size_t>(1);
+    auto const start = parseSize(args[1]);
     if (!start) {
         return false;
     }
 
+    auto const count = args.size() == 3 ? parseSize(args[2]) : std::optional<std::size_t>{};
+    if (args.size() == 3 && !count) {
+        return false;
+    }
     auto const str = jsonDoc.get<std::string>(rootKey).value_or("");
     if (start.value() >= str.size()) {
         jsonDoc.set(rootKey, "");
         return true;
     }
-    if (args.size() == 3) {
-        auto const count = args.tryGetAs<size_t>(2);
-        if (!count) {
-            return false;
-        }
-        jsonDoc.set(rootKey, str.substr(start.value(), count.value()));
+    if (count) {
+        jsonDoc.set(rootKey, str.substr(start.value(), *count));
         return true;
     }
     auto const substr = str.substr(start.value());
@@ -230,7 +232,7 @@ bool String::replace(Utility::Args::SegmentedStringView const& args, Data::JsonS
         jsonDoc.set(rootKey, replacedStr);
     };
 
-    if (args.size() < 2) return false;
+    if (args.size() < 2 || args[1].empty()) return false;
     if (args.size() == 2){
         replacer(args[1], "");
     }
@@ -274,7 +276,7 @@ bool String::split(Utility::Args::SegmentedStringView const& args, Data::JsonSco
     if (args.size() > 2) {
         return false;
     }
-    if (args.size() == 2 && args[1].size() > 1) {
+    if (args.size() == 2 && args[1].size() != 1) {
         return false;
     }
     auto const delimiter = args.size() == 2 ? args[1].front() : ' ';
@@ -290,8 +292,11 @@ bool String::split(Utility::Args::SegmentedStringView const& args, Data::JsonSco
 bool String::splitNewlines(Data::JsonScope& jsonDoc) {
     auto const str = jsonDoc.get<std::string>(rootKey).value_or("");
     jsonDoc.setEmptyArray(rootKey);
-    for (auto [index, line] : Utility::StringHandler::split(str, '\n') | Utility::Ranges::enumerate) {
-        jsonDoc.set(rootKey.addIndex(index), line);
+    auto const lines = Utility::StringHandler::split(str, '\n');
+    for (auto [index, line] : lines | Utility::Ranges::enumerate) {
+        bool const needsNormalizing = line.ends_with('\r') && index + 1 < lines.size();
+        auto const normalized = needsNormalizing ? line.substr(0, line.size() - 1) : line;
+        jsonDoc.set(rootKey.addIndex(index), normalized);
     }
     return true;
 }
