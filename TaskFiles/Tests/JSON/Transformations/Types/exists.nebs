@@ -1,3 +1,7 @@
+# Exercise existence at the root and nested paths, including null and empty values.
+# Deserialization constructs typed null and empty arrays; serializing the nested
+# object confirms the null member is present before checking its existence.
+
 # Setup workspace values
 set workspace.valueMember value
 set workspace.arrayMember[0] 0
@@ -12,5 +16,32 @@ eval nop {global:workspace|exists valueMember|assert equals int 1}
 eval nop {global:workspace|exists arrayMember|assert equals int 1}
 eval nop {global:workspace|exists objectMember|assert equals int 1}
 eval nop {global:workspace|exists missingMember|assert equals int 0}
+
+# Root values, empty values, and nested paths.
+set emptyText
+set arrayText []
+assign global:emptyArray = {global:arrayText|deserialize}
+assign global:emptyObject = {|setString member value|removeMember member}
+set nullText null
+assign global:explicitNull = {global:nullText|deserialize}
+set workspace.nested.child value
+assign global:workspace.nested.emptyArray = {global:emptyArray}
+assign global:workspace.nested.null = {global:nullText|deserialize}
+eval nop {global:workspace.nested|serialize|strCompare contains null|assert true}
+eval nop {global:emptyArray|typeAsString|assert equals string array:0}
+eval nop {global:emptyObject|typeAsString|assert equals string object:0}
+eval nop {global:missing|exists|assert false}
+eval nop {global:explicitNull|exists|assert false}
+eval nop {global:nullText|deserialize|exists|assert false}
+eval nop {global:emptyText|exists|assert true}
+eval nop {global:emptyArray|exists|assert true}
+eval nop {global:emptyObject|exists|assert true}
+eval nop {global:workspace|exists nested.child|assert true}
+eval nop {global:workspace|exists nested.emptyArray|assert true}
+eval nop {global:workspace|exists nested.null|assert false}
+eval nop {global:workspace|exists nested.missing|assert false}
+eval nop {global:workspace|exists missing.child|assert false}
+eval nop {global:workspace|exists valueMember.child|assert false}
+eval nop {global:workspace|exists nested.child extra|unreachable}
 
 exit
