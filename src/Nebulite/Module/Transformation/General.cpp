@@ -15,6 +15,7 @@
 namespace Nebulite::Module::Transformation {
 
 void General::bindTransformations() {
+    bindTransformation(&General::nop, nopName, nopDesc);
     bindTransformation(&General::setString, setStringName, setStringDesc);
     bindTransformation(&General::setInt, setIntName, setIntDesc);
     bindTransformation(&General::setDouble, setDoubleName, setDoubleDesc);
@@ -23,6 +24,10 @@ void General::bindTransformations() {
     bindTransformation(&General::assign, assignName, assignDesc);
     bindTransformation(&General::copyMember, copyMemberName, copyMemberDesc);
     bindTransformation(&General::moveMember, moveMemberName, moveMemberDesc);
+}
+
+bool General::nop(Data::JsonScope& /*unused*/) {
+    return true;
 }
 
 bool General::setString(Utility::Args::SegmentedStringView const& args, Data::JsonScope& jsonDoc) {

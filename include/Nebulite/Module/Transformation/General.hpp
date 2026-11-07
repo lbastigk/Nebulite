@@ -35,6 +35,11 @@ public:
     //------------------------------------------
     // Available Transformations
 
+    static bool nop(Data::JsonScope& jsonDoc);
+    static auto constexpr nopName = "nop";
+    static auto constexpr nopDesc = "Does nothing and leaves the current JSON value unchanged.\n"
+        "Usage: |nop -> {unchanged-json}\n";
+
     static bool setString(Utility::Args::SegmentedStringView const& args, Data::JsonScope& jsonDoc);
     static auto constexpr setStringName = "setString";
     static auto constexpr setStringDesc = "Sets a string value at the specified key in the JSON document.\n"

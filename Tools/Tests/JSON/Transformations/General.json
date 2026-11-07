@@ -1,5 +1,9 @@
 [
     {
+        "command": "task TaskFiles/Tests/JSON/Transformations/General/nop.nebs",
+        "expected": { "cout": [], "cerr": [] }
+    },
+    {
         "command": "task TaskFiles/Tests/JSON/Transformations/General/setType.nebs",
         "expected": { "cout": [], "cerr": [] }
     },

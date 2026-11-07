@@ -1,0 +1,6 @@
+set original.value unchanged
+set original.nested.number 42
+assign global:result = {global:original|nop}
+
+eval nop {global:result.value|assert equals string unchanged}
+eval nop {global:result.nested.number|assert equals int 42}
