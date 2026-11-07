@@ -72,7 +72,7 @@
         "Tools/Tests/JSON/Transformations/Sort.json",
         "Tools/Tests/JSON/Transformations/Statistics.json",
         "Tools/Tests/JSON/Transformations/String.json",
-        //"Tools/Tests/JSON/Transformations/Types.json", // TODO: not working...
+        "Tools/Tests/JSON/Transformations/Types.json",
         //---------------------------------------
         // Ruleset tests
         "Tools/Tests/Ruleset/DebugUtils.json",
