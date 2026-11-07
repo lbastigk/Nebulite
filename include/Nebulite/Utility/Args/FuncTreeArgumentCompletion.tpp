@@ -7,7 +7,6 @@
 // Standard library
 #include <algorithm>
 #include <cstddef>
-#include <cstdint> // NOLINT
 #include <iterator>
 #include <optional>
 #include <ranges>
@@ -111,9 +110,18 @@ void FuncTree<ReturnValue, AdditionalArgs...>::specificHelp(std::string_view fun
 
 template <typename ReturnValue, typename... AdditionalArgs>
 void FuncTree<ReturnValue, AdditionalArgs...>::generalHelp() {
-    // Padding size for names
-    // '<name padded> - <description>'
-    std::uint16_t constexpr namePaddingSize = 25;
+    // All info: [name, description]
+    auto allFunctions = getAllFunctions(); // includes categories
+    auto allVariables = getAllVariables();
+
+    // Keep the existing minimum width and align both sections to the longest name.
+    std::size_t namePaddingSize = 25;
+    for (auto const& [name, description] : allFunctions) {
+        namePaddingSize = std::max(namePaddingSize, name.size());
+    }
+    for (auto const& [name, description] : allVariables) {
+        namePaddingSize = std::max(namePaddingSize, name.size());
+    }
 
     // Define a lambda to process each member
     auto displayMember = [&](std::string_view const name, std::string_view description) -> void {
@@ -126,10 +134,6 @@ void FuncTree<ReturnValue, AdditionalArgs...>::generalHelp() {
         paddedName.resize(namePaddingSize, ' ');
         capture.log.println("  ", paddedName, " - ", descriptionFirstLine);
     };
-
-    // All info: [name, description]
-    auto allFunctions = getAllFunctions(); // includes categories
-    auto allVariables = getAllVariables();
 
     // Sort
     std::ranges::sort(allFunctions, {}, &std::pair<std::string, std::string_view>::first);
