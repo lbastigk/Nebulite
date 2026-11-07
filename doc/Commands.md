@@ -2,7 +2,7 @@
 
 This documentation is automatically generated.
 
-Generated on: Sat Nov  7 13:52:49 CET 2026
+Generated on: Sat Nov  7 22:19:22 CET 2026
 
 ## Table of Contents
 
@@ -2198,7 +2198,7 @@ Available Functions
 | `complexToString` | Formats the contained complex number object to a string. |
 | `copyMember` | Copys a value based on the result of an expression. |
 | `dedupe` | Removes duplicate elements from the array in the current JSON value. |
-| `default` | If the current value is null, default to a given String |
+| `default` | Replaces a null or missing value with the given string. |
 | `deserialize` | Deserializes the current JSON string value stored in root. |
 | `div` | Divides the current JSON value by a numeric value. |
 | `echo` | Echoes the provided arguments to the console, with newline. |
@@ -2207,7 +2207,7 @@ Available Functions
 | `enumerateInline` | Enumerates the array in the current JSON value using a provided key. |
 | `eq` | Checks if the current JSON value is equal to the specified value. |
 | `error` | Echoes the provided arguments to the console as an error message, with newline. |
-| `exists` | Checks if a specified key exists in the current JSON object. |
+| `exists` | Checks whether the current value or a specified key is non-null. |
 | `fft` | Stores the fft of a given real-number series as complex numbers |
 | `filterCustom` | Filters values in the current JSON array based on a custom filter expression |
 | `filterGlob` | Filters members in the current JSON array/object based on a glob pattern. |
@@ -2610,14 +2610,16 @@ Usage: |dedupe -> {array}
 #### `default`
 
 ```
-If the current value is null, default to a given String
-Usage: |default -> {currentValue/string}
+Replaces a null or missing value with the given string.
+Non-null values are unchanged. Omitting the string defaults to an empty string.
+Usage: |default [string] -> {currentValue/string}
 ```
 
 #### `deserialize`
 
 ```
 Deserializes the current JSON string value stored in root.
+Accepts JSON and JSONC, including scalar values. Invalid or empty input fails.
 Usage: |deserialize -> {value}
 ```
 
@@ -2680,9 +2682,9 @@ Usage: |error <arg1> <arg2> -> {unchanged-json}
 #### `exists`
 
 ```
-Checks if a specified key exists in the current JSON object.
-If no key is provided, checks if the current JSON value is not null.
-Usage: |exists  [key] -> {bool}
+Checks whether the current value or a specified key is non-null.
+Missing and null values do not exist; empty strings, arrays, and objects do.
+Usage: |exists [key] -> {bool}
 ```
 
 #### `fft`
@@ -3395,6 +3397,7 @@ Non-numeric values default to 0.
 
 ```
 Serializes the current JSON value to a string.
+Object keys are sorted recursively and array order is preserved; the output is not canonical JSON.
 Usage: |serialize -> {string}
 ```
 
