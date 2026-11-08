@@ -146,6 +146,8 @@ match
 max
 mean
 median
+medianLower
+medianUpper
 member
 members
 min

@@ -2,7 +2,7 @@
 
 This documentation is automatically generated.
 
-Generated on: Sat Nov  7 23:36:53 CET 2026
+Generated on: Sun Nov  8 10:48:51 CET 2026
 
 ## Table of Contents
 
@@ -2252,6 +2252,8 @@ Available Functions
 | `max` | Finds the maximum value among the elements of the array in the current JSON value. |
 | `mean` | Calculates the mean of the elements of the array in the current JSON value. |
 | `median` | Calculates the median of the elements of the array in the current JSON value. |
+| `medianLower` | Finds the lower median of the elements of the array in the current JSON value. |
+| `medianUpper` | Finds the upper median of the elements of the array in the current JSON value. |
 | `min` | Finds the minimum value among the elements of the array in the current JSON value. |
 | `mod` | Calculates the modulo of the current JSON value by a numeric value. |
 | `mode` | Finds the most frequent value in the array in the current JSON value. |
@@ -2518,7 +2520,7 @@ Usage: |at <index> -> {value}
 ```
 Calculates the mean of the elements of the array in the current JSON value.
 Input must be an array of numbers. If any element is not a number, the current value is not an array or the array is empty, the transformation fails.
-Usage: |average -> {number}
+Usage: |mean -> {number} (alias: |average)
 ```
 
 #### `batch`
@@ -2969,15 +2971,34 @@ Usage: |max -> {number}
 ```
 Calculates the mean of the elements of the array in the current JSON value.
 Input must be an array of numbers. If any element is not a number, the current value is not an array or the array is empty, the transformation fails.
-Usage: |average -> {number}
+Usage: |mean -> {number} (alias: |average)
 ```
 
 #### `median`
 
 ```
 Calculates the median of the elements of the array in the current JSON value.
+For an even-sized array, the median is the average of the two middle values.
 Input must be an array of numbers. If any element is not a number, the current value is not an array or the array is empty, the transformation fails.
 Usage: |median -> {number}
+```
+
+#### `medianLower`
+
+```
+Finds the lower median of the elements of the array in the current JSON value.
+For an even-sized array, this is the lower of the two middle values; otherwise it is the middle value.
+Input must be a non-empty array of numbers.
+Usage: |medianLower -> {number}
+```
+
+#### `medianUpper`
+
+```
+Finds the upper median of the elements of the array in the current JSON value.
+For an even-sized array, this is the upper of the two middle values; otherwise it is the middle value.
+Input must be a non-empty array of numbers.
+Usage: |medianUpper -> {number}
 ```
 
 #### `min`
