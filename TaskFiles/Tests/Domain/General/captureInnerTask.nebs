@@ -1,3 +1,4 @@
+#NOLINT(test-registration) Executed by capture.nebs.
 # Inner task that is executed by the outer capture
 
 # Forwarded to outer task:
