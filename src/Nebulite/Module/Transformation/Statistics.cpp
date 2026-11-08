@@ -9,6 +9,8 @@
 #include <functional>
 #include <limits>
 #include <map>
+#include <ranges>
+#include <utility>
 #include <vector>
 
 // Nebulite
@@ -24,7 +26,8 @@ namespace {
 
 enum class MedianKind : std::uint8_t { conventional, lower, upper };
 
-bool calculateMedian(Data::JsonScope& jsonDoc, MedianKind const kind) {
+template<MedianKind kind>
+bool calculateMedian(Data::JsonScope& jsonDoc) {
     if (jsonDoc.memberType(Base::TransformationModule::rootKey) != Data::KeyType::array) {
         return false;
     }
@@ -44,15 +47,24 @@ bool calculateMedian(Data::JsonScope& jsonDoc, MedianKind const kind) {
         values.push_back(value);
     }
 
-    std::ranges::sort(values.begin(), values.end());
+    std::ranges::sort(values);
     double medianValue = 0.0;
-    if (size % 2 == 0 && kind == MedianKind::conventional) {
-        medianValue = (values[size / 2 - 1] + values[size / 2]) / 2.0;
-    } else if (size % 2 == 0 && kind == MedianKind::lower) {
-        medianValue = values[size / 2 - 1];
-    } else {
+
+    if (size % 2 == 0) {
+        if constexpr (kind == MedianKind::conventional) {
+            medianValue = (values[size / 2 - 1] + values[size / 2]) / 2.0;
+        } else if constexpr (kind == MedianKind::lower) {
+            medianValue = values[size / 2 - 1];
+        } else if constexpr (kind == MedianKind::upper) {
+            medianValue = values[size / 2];
+        } else {
+            std::unreachable();
+        }
+    }
+    else {
         medianValue = values[size / 2];
     }
+
     jsonDoc.set(Base::TransformationModule::rootKey, medianValue);
     return true;
 }
@@ -66,27 +78,33 @@ bool calculateMedian(Data::JsonScope& jsonDoc, MedianKind const kind) {
  */
 template <typename F>
 double accumulate(Data::JsonScope const& jsonDoc, F&& func, double const initialValue = 0.0) {
-    static_assert(std::is_invocable_r_v<double, F, double, double>);
+    static_assert(std::is_invocable_r_v<double, F&, double, double>);
 
     if (jsonDoc.memberType(Base::TransformationModule::rootKey) != Data::KeyType::array) {
         return std::numeric_limits<double>::quiet_NaN();
     }
 
-    double result = initialValue;
     std::size_t const size = jsonDoc.memberSize(Base::TransformationModule::rootKey);
 
     if (size == 0) {
         return std::numeric_limits<double>::quiet_NaN();
     }
 
-    for (auto itemKey : Base::TransformationModule::rootKey.getArrayKeys(size)) {
-        double const value = jsonDoc.get<double>(itemKey).value_or(std::numeric_limits<double>::quiet_NaN());
-        if (std::isnan(value)) {
-            return std::numeric_limits<double>::quiet_NaN();
-        }
-        result = std::invoke<F>(std::forward<F>(func), result, value); // NOLINT
-    }
-    return result;
+    auto values = Base::TransformationModule::rootKey.getArrayKeys(size)
+        | std::views::transform([&](auto const& itemKey) {
+              return jsonDoc.get<double>(itemKey)
+                  .value_or(std::numeric_limits<double>::quiet_NaN());
+          });
+
+    return std::ranges::fold_left(
+        values,
+        initialValue,
+        [&](double result, double value) {
+            if (std::isnan(result) || std::isnan(value)) {
+                return std::numeric_limits<double>::quiet_NaN();
+            }
+            return std::invoke(std::forward<F>(func), result, value);
+        });
 }
 
 } // anonymous namespace
@@ -152,15 +170,15 @@ bool Statistics::mean(Data::JsonScope& jsonDoc){
 }
 
 bool Statistics::median(Data::JsonScope& jsonDoc) {
-    return calculateMedian(jsonDoc, MedianKind::conventional);
+    return calculateMedian<MedianKind::conventional>(jsonDoc);
 }
 
 bool Statistics::medianLower(Data::JsonScope& jsonDoc) {
-    return calculateMedian(jsonDoc, MedianKind::lower);
+    return calculateMedian<MedianKind::lower>(jsonDoc);
 }
 
 bool Statistics::medianUpper(Data::JsonScope& jsonDoc) {
-    return calculateMedian(jsonDoc, MedianKind::upper);
+    return calculateMedian<MedianKind::upper>(jsonDoc);
 }
 
 bool Statistics::stddev(Data::JsonScope& jsonDoc) {
