@@ -235,6 +235,7 @@ public:
      * @brief Gets an array whose elements must all be convertible to T.
      * @return The converted array, or std::nullopt if the value is not an array
      *         or any element cannot be converted.
+     * @todo Allow for getArrayOf<JSON>. Returns nullopt if key is not an array
      */
     template <typename T>
     std::optional<std::vector<T>> getArrayOf(std::string_view key) const;
