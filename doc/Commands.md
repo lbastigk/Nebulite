@@ -2,7 +2,7 @@
 
 This documentation is automatically generated.
 
-Generated on: Sun Nov  8 10:48:51 CET 2026
+Generated on: Sun Nov  8 12:27:06 CET 2026
 
 ## Table of Contents
 
@@ -3496,8 +3496,9 @@ Available Functions
 
 ```
 Sorts the array in the current JSON value case-insensitive.
+Sorting is stable; values that cannot be converted to strings are placed last in their original order.
 If the current value is not an array, the transformation fails.
-Usage: |sort alphabetically -> {sorted array}
+Usage: |sort case-insensitive -> {sorted array}
 ```
 
 ##### `sort case-sensitive`
@@ -3505,6 +3506,7 @@ Usage: |sort alphabetically -> {sorted array}
 ```
 Sorts the array in the current JSON value case-sensitive.
 Upper case letters first.
+Sorting is stable; values that cannot be converted to strings are placed last in their original order.
 If the current value is not an array, the transformation fails.
 Usage: |sort case-sensitive -> {sorted array}
 ```
@@ -3514,7 +3516,12 @@ Usage: |sort case-sensitive -> {sorted array}
 ```
 Sorts the array in the current JSON value using a custom comparator expression.
 The comparator function uses the context self for the first element and other for the second element.
-Provide a sort expression without the evaluation key '$'!For example: ( gt({self:|length},{other:|length}) )
+The comparator must define a strict weak ordering; sorting is stable.
+Invalid expressions, failed numeric retrievals and final NaN results cause the transformation to fail.
+Intermediate NaN values may be masked by functions such as lt(0/0, 1) and are not detected.
+If the current value is not an array, the transformation fails.
+Provide a sort expression without the evaluation key '$'!
+For example: ( gt({self:|length},{other:|length}) )
 Usage: |sort custom <expression> -> {sorted array}
 ```
 
@@ -3522,6 +3529,8 @@ Usage: |sort custom <expression> -> {sorted array}
 
 ```
 Sorts the array in the current JSON value numerically.
+Numeric strings are converted for comparison; NaN and unconvertible values are placed last in their original order.
+Sorting is stable and preserves the original values and types.
 If the current value is not an array, the transformation fails.
 Usage: |sort numerically -> {sorted array}
 ```
