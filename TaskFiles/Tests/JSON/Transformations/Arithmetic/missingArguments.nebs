@@ -1,4 +1,4 @@
-# Testing invalid numeric values in arithmetic transformations",
+# Testing invalid numeric values in arithmetic transformations
 set test.val 3
 
 # Testing zero division and modulus

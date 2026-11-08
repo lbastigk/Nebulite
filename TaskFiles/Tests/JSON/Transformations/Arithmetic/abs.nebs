@@ -1,0 +1,42 @@
+# Numeric strings and typed numbers are both accepted.
+set positive 12
+set negative -12
+set fraction -3.25
+set zero 0
+assign global:typed = $i(-42)
+eval nop {global:positive|abs|assert equals int 12}
+eval nop {global:negative|abs|assert equals int 12}
+eval nop {global:fraction|abs|formatNumber .2f|assert equals string 3.25}
+eval nop {global:zero|abs|assert equals int 0}
+eval nop {global:typed|abs|assert equals int 42}
+
+# Mapping abs applies it independently to each array element.
+set values[0] -2
+set values[1] 0
+set values[2] 3
+assign global:magnitudes = {global:values|map abs}
+eval nop {global:magnitudes|length|assert equals int 3}
+eval nop {global:magnitudes[0]|assert equals int 2}
+eval nop {global:magnitudes[1]|assert equals int 0}
+eval nop {global:magnitudes[2]|assert equals int 3}
+
+# Missing, null, non-numeric and composite inputs propagate NaN.
+set text not-a-number
+set nullText null
+set arrayText []
+assign global:null = {global:nullText|deserialize}
+assign global:emptyArray = {global:arrayText|deserialize}
+set object.member 1
+eval nop {global:missing|abs|toString|assert equals string nan}
+eval nop {global:null|abs|toString|assert equals string nan}
+eval nop {global:text|abs|toString|assert equals string nan}
+eval nop {global:emptyArray|abs|toString|assert equals string nan}
+eval nop {global:object|abs|toString|assert equals string nan}
+eval nop {global:text|add 1|abs|toString|assert equals string nan}
+
+# Any supplied argument fails; the positive control confirms a valid call continues.
+eval nop {global:negative|abs 1|unreachable}
+eval nop {global:negative|abs 1 2|unreachable}
+must-throw eval nop {global:negative|abs|unreachable}
+
+exit

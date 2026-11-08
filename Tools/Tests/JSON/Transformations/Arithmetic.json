@@ -22,5 +22,13 @@
     {
         "command": "task TaskFiles/Tests/JSON/Transformations/Arithmetic/invalidArgumentCount.nebs",
         "expected": { "cout": [], "cerr": [] }
+    },
+    {
+        "command": "task TaskFiles/Tests/JSON/Transformations/Arithmetic/boundaries.nebs",
+        "expected": { "cout": [], "cerr": [] }
+    },
+    {
+        "command": "task TaskFiles/Tests/JSON/Transformations/Arithmetic/abs.nebs",
+        "expected": { "cout": [], "cerr": [] }
     }
 ]

@@ -5,18 +5,19 @@
 // Includes
 
 // Standard library
-#include <algorithm>
 #include <cmath>
+#include <cstddef>
 #include <functional>
+#include <limits>
 #include <memory>
-#include <ranges>
+#include <optional>
+#include <vector>
 
 // Nebulite
-#include "Nebulite/Data/Document/ScopedKeyView.hpp"
+#include "Nebulite/Data/Document/JsonScope.hpp"
 #include "Nebulite/Module/Base/TransformationModule.hpp"
 #include "Nebulite/Utility/Args/FuncTree.hpp"
 #include "Nebulite/Utility/Args/SegmentedStringView.hpp"
-#include "Nebulite/Utility/Ranges.hpp"
 
 //------------------------------------------
 // Forward declarations
@@ -33,7 +34,7 @@ namespace Nebulite::Module::Transformation {
  * @details These transformations perform basic arithmetic operations on the current JSON value.
  *          Invalid existing values propagate as NaN; provided arguments must be valid numbers.
  *          The transformations can take one or more numeric arguments, and the result is either a single number (if one argument is provided)
- *          or an array of numbers (if multiple arguments are provided).
+ *          or an array of results computed independently from the original value (if multiple arguments are provided).
  */
 class Arithmetic final : public Base::TransformationModule {
 public:
@@ -48,75 +49,95 @@ public:
     static bool add(Utility::Args::SegmentedStringView const& args, Data::JsonScope& jsonDoc);
     static auto constexpr addName = "add";
     static auto constexpr addDesc = "Adds a numeric value to the current JSON value.\n"
-        "If multiple numbers are provided, the result is an array, one element for each provided argument.\n"
+        "Each argument is applied independently to the original value; multiple arguments produce an array.\n"
+        "Arguments must be finite numbers; an unusable input produces NaN.\n"
         "Usage: |add <number1> <number2> ... -> {number/array}\n";
 
     static bool mod(Utility::Args::SegmentedStringView const& args, Data::JsonScope& jsonDoc);
     static auto constexpr modName = "mod";
     static auto constexpr modDesc = "Calculates the modulo of the current JSON value by a numeric value.\n"
-        "If multiple numbers are provided, the result is an array, one element for each provided argument.\n"
+        "Each argument is applied independently to the original value; multiple arguments produce an array.\n"
+        "Arguments must be finite numbers; an unusable input produces NaN.\n"
+        "Moduli with magnitude below double epsilon are rejected.\n"
         "Usage: |mod <number1> <number2> ... -> {number/array}\n";
 
     static bool multiply(Utility::Args::SegmentedStringView const& args, Data::JsonScope& jsonDoc);
     static auto constexpr multiplyName = "mul";
     static auto constexpr multiplyDesc = "Multiplies the current JSON value by a numeric value.\n"
-        "If multiple numbers are provided, the result is an array, one element for each provided argument.\n"
+        "Each argument is applied independently to the original value; multiple arguments produce an array.\n"
+        "Arguments must be finite numbers; an unusable input produces NaN.\n"
         "Usage: |mul <number1> <number2> ... -> {number/array}\n";
 
     static bool pow(Utility::Args::SegmentedStringView const& args, Data::JsonScope& jsonDoc);
     static auto constexpr powName = "pow";
     static auto constexpr powDesc = "Raises the current JSON value to the power of a numeric value.\n"
-        "If multiple numbers are provided, the result is an array, one element for each provided argument.\n"
+        "Each argument is applied independently to the original value; multiple arguments produce an array.\n"
+        "Arguments must be finite numbers; an unusable input produces NaN.\n"
         "Usage: |pow <exponent1> <exponent2> ... -> {number/array}\n";
 
     static bool subtract(Utility::Args::SegmentedStringView const& args, Data::JsonScope& jsonDoc);
     static auto constexpr subtractName = "sub";
     static auto constexpr subtractDesc = "Subtracts a numeric value from the current JSON value.\n"
-        "If multiple numbers are provided, the result is an array, one element for each provided argument.\n"
+        "Each argument is applied independently to the original value; multiple arguments produce an array.\n"
+        "Arguments must be finite numbers; an unusable input produces NaN.\n"
         "Usage: |sub <number1> <number2> ... -> {number/array}\n";
 
     static bool divide(Utility::Args::SegmentedStringView const& args, Data::JsonScope& jsonDoc);
     static auto constexpr divideName = "div";
     static auto constexpr divideDesc = "Divides the current JSON value by a numeric value.\n"
-        "If multiple numbers are provided, the result is an array, one element for each provided argument.\n"
+        "Each argument is applied independently to the original value; multiple arguments produce an array.\n"
+        "Arguments must be finite numbers; an unusable input produces NaN.\n"
+        "Divisors with magnitude below double epsilon are rejected.\n"
         "Usage: |div <number1> <number2> ... -> {number/array}\n";
 
     static bool root(Utility::Args::SegmentedStringView const& args, Data::JsonScope& jsonDoc);
     static auto constexpr rootName = "root";
     static auto constexpr rootDesc = "Calculates the n-th root of the current JSON value.\n"
-        "If multiple numbers are provided, the result is an array, one element for each provided argument.\n"
+        "Each argument is applied independently to the original value; multiple arguments produce an array.\n"
+        "Orders must be finite, with magnitude at least double epsilon; an unusable input produces NaN.\n"
+        "For negative inputs, only odd integer orders are supported (including negative orders).\n"
         "Usage: |root <number1> <number2> ... -> {number/array}\n";
+
+    static bool abs(Utility::Args::SegmentedStringView const& args, Data::JsonScope& jsonDoc);
+    static auto constexpr absName = "abs";
+    static auto constexpr absDesc = "Calculates the absolute value of the current JSON value.\n"
+        "No arguments are allowed, as it's an operator with a single operand (the current JSON value).\n"
+        "An unusable input produces NaN.\n"
+        "Usage: |abs -> {number}\n";
 
     static bool sqrt(Utility::Args::SegmentedStringView const& args, Data::JsonScope& jsonDoc);
     static auto constexpr sqrtName = "sqrt";
     static auto constexpr sqrtDesc = "Calculates the square root of the current JSON value.\n"
         "No arguments are allowed, as it's an operator with a single operand (the current JSON value).\n"
+        "Negative or unusable inputs produce NaN.\n"
         "Usage: |sqrt -> {number}\n";
 
 private:
     template<typename F>
-    static bool forall(Utility::Args::SegmentedStringView const& args, F&& f) {
-        static_assert(std::is_invocable_v<F, double, Data::ScopedKeyView>, "f must be invocable with f(double, Data::ScopedKeyView)");
-
+    static bool forall(Utility::Args::SegmentedStringView const& args, Data::JsonScope& jsonDoc, F const& f) {
         if (args.size() < 2) {
             return false;
         }
-        if (args.size() == 2) {
-            auto const arg = args.tryGetAs<double>(1);
-            return arg.has_value() && std::isfinite(arg.value())
-                && std::invoke(std::forward<F>(f), arg.value(), rootKey);
-        }
-
-        return std::ranges::all_of(args | std::views::drop(1) | Utility::Ranges::enumerate,
-            [&](auto const& item) {
-                auto const index = item.first;
-                auto const arg = args.tryGetAs<double>(index + 1);
-                if (!arg || !std::isfinite(arg.value())) {
-                    return false;
-                }
-                return std::invoke(std::forward<F>(f), arg.value(), rootKey.addIndex(index).view());
+        double const input = jsonDoc.get<double>(rootKey).value_or(std::numeric_limits<double>::quiet_NaN());
+        std::vector<double> results;
+        results.reserve(args.size() - 1);
+        for (std::size_t index = 1; index < args.size(); ++index) {
+            auto const argument = args.tryGetAs<double>(index);
+            if (args[index] == "true" || args[index] == "false" || !argument || !std::isfinite(*argument)) {
+                return false;
             }
-        );
+            auto const result = std::invoke(f, input, *argument);
+            if (!result) {
+                return false;
+            }
+            results.push_back(*result);
+        }
+        if (results.size() == 1) {
+            jsonDoc.set<double>(rootKey, results.front());
+        } else {
+            jsonDoc.insertArray(rootKey, results);
+        }
+        return true;
     }
 };
 } // namespace Nebulite::Module::Transformation

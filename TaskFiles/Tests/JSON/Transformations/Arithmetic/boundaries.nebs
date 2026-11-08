@@ -1,0 +1,113 @@
+# Multiple arguments are independent operations on one original number.
+set value 8
+
+# 8 -> add 1 2 3 -> [9, 10, 11]
+assign global:add = {global:value|add 1 2 3}
+eval nop {global:add[0]|assert equals int 9}
+eval nop {global:add[1]|assert equals int 10}
+eval nop {global:add[2]|assert equals int 11}
+eval nop {global:add|length|assert equals int 3}
+
+# 8 -> sub 1 2 3 -> [7, 6, 5]
+assign global:sub = {global:value|sub 1 2 3}
+eval nop {global:sub[0]|assert equals int 7}
+eval nop {global:sub[1]|assert equals int 6}
+eval nop {global:sub[2]|assert equals int 5}
+eval nop {global:sub|length|assert equals int 3}
+
+# 8 -> mul 1 2 3 -> [8, 16, 24]
+assign global:mul = {global:value|mul 1 2 3}
+eval nop {global:mul[0]|assert equals int 8}
+eval nop {global:mul[1]|assert equals int 16}
+eval nop {global:mul[2]|assert equals int 24}
+eval nop {global:mul|length|assert equals int 3}
+
+# 8 -> div 1 2 4 -> [8, 4, 2]
+assign global:div = {global:value|div 1 2 4}
+eval nop {global:div[0]|assert equals int 8}
+eval nop {global:div[1]|assert equals int 4}
+eval nop {global:div[2]|assert equals int 2}
+eval nop {global:div|length|assert equals int 3}
+
+# 8 -> mod 3 5 -> [2, 3]
+assign global:mod = {global:value|mod 3 5}
+eval nop {global:mod[0]|assert equals int 2}
+eval nop {global:mod[1]|assert equals int 3}
+eval nop {global:mod|length|assert equals int 2}
+
+# 8 -> pow 0 1 2 -> [1, 8, 64]
+assign global:pow = {global:value|pow 0 1 2}
+eval nop {global:pow[0]|assert equals int 1}
+eval nop {global:pow[1]|assert equals int 8}
+eval nop {global:pow[2]|assert equals int 64}
+eval nop {global:pow|length|assert equals int 3}
+
+# 8 -> root 1 3 -> [8, 2]
+assign global:root = {global:value|root 1 3}
+eval nop {global:root[0]|assert equals int 8}
+eval nop {global:root[1]|formatNumber .2f|assert equals string 2.00}
+eval nop {global:root|length|assert equals int 2}
+
+# [2, 3] -> map mul 5 7 -> [[10, 14], [15, 21]]
+set vector[0] 2
+set vector[1] 3
+assign global:matrix = {global:vector|map mul 5 7}
+eval nop {global:matrix|length|assert equals int 2}
+eval nop {global:matrix[0]|length|assert equals int 2}
+eval nop {global:matrix[1]|length|assert equals int 2}
+eval nop {global:matrix[0][0]|assert equals int 10}
+eval nop {global:matrix[0][1]|assert equals int 14}
+eval nop {global:matrix[1][0]|assert equals int 15}
+eval nop {global:matrix[1][1]|assert equals int 21}
+
+# Missing, null, non-numeric and array inputs produce NaN, including pow 0.
+set nullText null
+assign global:null = {global:nullText|deserialize}
+set emptyText []
+assign global:empty = {global:emptyText|deserialize}
+set text not-a-number
+eval nop {global:missing|add 1|toString|assert equals string nan}
+eval nop {global:null|sub 1|toString|assert equals string nan}
+eval nop {global:empty|mul 1|toString|assert equals string nan}
+eval nop {global:text|mod 2|toString|assert equals string nan}
+eval nop {global:text|div 2|toString|assert equals string nan}
+eval nop {global:text|pow 0|toString|assert equals string nan}
+eval nop {global:text|root 2|toString|assert equals string nan}
+eval nop {global:text|sqrt|toString|assert equals string nan}
+# "not-a-number" -> add 1 2 -> [NaN, NaN]
+assign global:invalidMany = {global:text|add 1 2}
+eval nop {global:invalidMany[0]|toString|assert equals string nan}
+eval nop {global:invalidMany[1]|toString|assert equals string nan}
+eval nop {global:invalidMany|length|assert equals int 2}
+
+# Bad arguments must fail, including after an earlier valid argument.
+eval nop {global:value|add true|unreachable}
+eval nop {global:value|sub false|unreachable}
+eval nop {global:value|mul 2x|unreachable}
+eval nop {global:value|pow 1e9999|unreachable}
+eval nop {global:value|root nan|unreachable}
+eval nop {global:value|div inf|unreachable}
+eval nop {global:value|mod 2 bad|unreachable}
+eval nop {global:value|add 1 bad|unreachable}
+eval nop {global:value|div 1 0|unreachable}
+eval nop {global:value|div 1e-17|unreachable}
+eval nop {global:value|mod -1e-17|unreachable}
+eval nop {global:value|root 0|unreachable}
+must-throw eval nop {global:value|add 1 2|unreachable}
+
+# Negative odd roots are real; negative even and fractional orders fail.
+set negative -8
+eval nop {global:negative|root 3|formatNumber .2f|assert equals string -2.00}
+eval nop {global:negative|root -3|formatNumber .2f|assert equals string -0.50}
+eval nop {global:negative|root 2|unreachable}
+eval nop {global:negative|root -2|unreachable}
+eval nop {global:negative|root 1.5|unreachable}
+eval nop {global:negative|sqrt|toString|strCompare contains nan|assert true}
+eval nop {global:value|root 0.5|assert equals int 64}
+eval nop {global:value|root -1|formatNumber .3f|assert equals string 0.125}
+eval nop {global:value|div 2.220446049250313e-16|typeAsSimpleString|assert equals string value}
+eval nop {global:value|mod 2.220446049250313e-16|typeAsSimpleString|assert equals string value}
+eval nop {global:value|div 1e-15|typeAsSimpleString|assert equals string value}
+eval nop {global:value|mod 1e-15|typeAsSimpleString|assert equals string value}
+
+exit
