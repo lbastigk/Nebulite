@@ -355,7 +355,6 @@ public:
 
     /**
      * @brief Replaces the value at a key with an array containing the supplied range.
-     * @details Existing values and cached child entries at the key are discarded.
      * @tparam R The type of the range to insert.
      * @param key The key of the array to replace.
      * @param values The values to insert into the new array.

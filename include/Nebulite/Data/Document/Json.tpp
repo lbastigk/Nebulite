@@ -5,6 +5,7 @@
 // Includes
 
 // Standard library
+#include <concepts>
 #include <expected>
 #include <mutex>
 #include <optional>
@@ -17,6 +18,7 @@
 
 // External
 #include <rapidjson/document.h>
+#include <rapidjson/rapidjson.h>
 
 // Nebulite
 #include "Nebulite/Data/Document/JsonCache.hpp"
@@ -60,16 +62,38 @@ void Json::set(std::string_view const key, T const& val){
 
 template <std::ranges::viewable_range R>
 void Json::insertArray(std::string_view const key, R const& values) {
-    std::scoped_lock const lockGuard(mtx);
-    helperNonConstVar++;
-    flush(key);
-    auto* const value = RjDirectAccess::ensurePath(key, doc, doc.GetAllocator());
-    if (value == nullptr) {
-        throw std::runtime_error("Failed to create or access path: " + std::string(key));
+    // Stage documents before modifying the destination, which may also be a source.
+    if constexpr (std::same_as<std::remove_cvref_t<std::ranges::range_reference_t<R const>>, Json>) {
+        rapidjson::Document staged(rapidjson::kArrayType);
+        for (auto const& source : values) {
+            std::scoped_lock const sourceLock(source.mtx);
+            source.flush("");
+            rapidjson::Value copy;
+            copy.CopyFrom(source.doc, staged.GetAllocator());
+            staged.PushBack(copy, staged.GetAllocator());
+        }
+        std::scoped_lock const lockGuard(mtx);
+        helperNonConstVar++;
+        flush(key);
+        auto* const value = RjDirectAccess::ensurePath(key, doc, doc.GetAllocator());
+        if (value == nullptr) {
+            throw std::runtime_error("Failed to create or access path: " + std::string(key));
+        }
+        value->CopyFrom(staged, doc.GetAllocator());
+        cache.deleteEntry(key);
+        synchronizeChildren(key);
+    } else {
+        std::scoped_lock const lockGuard(mtx);
+        helperNonConstVar++;
+        flush(key);
+        auto* const value = RjDirectAccess::ensurePath(key, doc, doc.GetAllocator());
+        if (value == nullptr) {
+            throw std::runtime_error("Failed to create or access path: " + std::string(key));
+        }
+        RjDirectAccess::insertArray(value, values, doc.GetAllocator());
+        cache.deleteEntry(key);
+        synchronizeChildren(key);
     }
-    RjDirectAccess::insertArray(value, values, doc.GetAllocator());
-    cache.deleteEntry(key);
-    synchronizeChildren(key);
 }
 
 template <std::ranges::viewable_range R>
