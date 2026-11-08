@@ -14,5 +14,9 @@
     {
         "command": "task TaskFiles/Tests/JSON/Transformations/Sort/sortCustom.nebs",
         "expected": { "cout": [], "cerr": [] }
+    },
+    {
+        "command": "task TaskFiles/Tests/JSON/Transformations/Sort/boundaries.nebs",
+        "expected": { "cout": [], "cerr": [] }
     }
 ]

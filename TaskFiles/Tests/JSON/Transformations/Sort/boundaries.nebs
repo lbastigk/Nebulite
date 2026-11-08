@@ -1,0 +1,141 @@
+# Generate numeric data
+# Input: ["2", 2, "invalid", -1, NaN, "1", "2.0", {"marker": "object"}, "bad", NaN]
+# NaN denotes a numeric non-finite value; it is not valid serialized JSON.
+set values[0] 2
+assign global:values[1] = $i(2)
+set values[2] invalid
+assign global:values[3] = $i(-1)
+set invalidNumeric nope
+assign global:values[4] = {global:invalidNumeric|add 1}
+set values[5] 1
+set values[6] 2.0
+set values[7].marker object
+set values[8] bad
+assign global:values[9] = {global:invalidNumeric|add 1}
+
+# Sort numeric data
+assign global:numbers = {global:values|sort numerically}
+
+# Validate: keys may be strings, but original types and stable order remain intact.
+# Expected: [-1, "1", "2", 2, "2.0", "invalid", NaN, {"marker": "object"}, "bad", NaN]
+eval nop {global:numbers|length|assert equals int 10}
+eval nop {global:numbers[0]|assert equals int -1}
+eval nop {global:numbers[1]|assert equals string 1}
+eval nop {global:numbers[2]|assert equals string 2}
+eval nop {global:numbers[2]|typeAsString|assert equals string value:string:1}
+eval nop {global:numbers[3]|typeAsString|assert equals string value:int:64}
+eval nop {global:numbers[4]|assert equals string 2.0}
+eval nop {global:numbers[4]|typeAsString|assert equals string value:string:3}
+eval nop {global:numbers[5]|assert equals string invalid}
+eval nop {global:numbers[6]|toString|assert equals string nan}
+eval nop {global:numbers[7].marker|assert equals string object}
+eval nop {global:numbers[8]|assert equals string bad}
+eval nop {global:numbers[9]|toString|assert equals string nan}
+
+# Generate string data
+# Input: ["B", "a", {"marker": "object"}, "A", "b", null, "AA"]
+set words[0] B
+set words[1] a
+set words[2].marker object
+set words[3] A
+set words[4] b
+set nullText null
+assign global:words[5] = {global:nullText|deserialize}
+set words[6] AA
+
+# Sort string data
+assign global:insensitive = {global:words|sort case-insensitive}
+assign global:sensitive = {global:words|sort case-sensitive}
+
+# Validate: case-insensitive ties are stable; complex and null values sort last.
+# Case-insensitive expected: ["a", "A", "AA", "B", "b", {"marker": "object"}, null]
+eval nop {global:insensitive[0]|assert equals string a}
+eval nop {global:insensitive[1]|assert equals string A}
+eval nop {global:insensitive[2]|assert equals string AA}
+eval nop {global:insensitive[3]|assert equals string B}
+eval nop {global:insensitive[4]|assert equals string b}
+eval nop {global:insensitive[5].marker|assert equals string object}
+eval nop {global:insensitive[6]|assert empty}
+# Case-sensitive expected: ["A", "AA", "B", "a", "b", {"marker": "object"}, null]
+eval nop {global:sensitive[0]|assert equals string A}
+eval nop {global:sensitive[1]|assert equals string AA}
+eval nop {global:sensitive[2]|assert equals string B}
+eval nop {global:sensitive[3]|assert equals string a}
+eval nop {global:sensitive[4]|assert equals string b}
+eval nop {global:sensitive[5].marker|assert equals string object}
+eval nop {global:sensitive[6]|assert empty}
+
+# Generate equal-key data
+# Input: ["2", 2, "2"]
+set equal[0] 2
+assign global:equal[1] = $i(2)
+set equal[2] 2
+
+# Sort equal-key data
+assign global:equalStrings = {global:equal|sort case-sensitive}
+
+# Validate: equal string keys retain their original types and relative order.
+# Expected: ["2", 2, "2"]
+eval nop {global:equalStrings[0]|typeAsString|assert equals string value:string:1}
+eval nop {global:equalStrings[1]|typeAsString|assert equals string value:int:64}
+eval nop {global:equalStrings[2]|typeAsString|assert equals string value:string:1}
+
+# Generate empty, singleton, and non-array data
+# Inputs: [], ["only"], "value"
+set emptyText []
+assign global:empty = {global:emptyText|deserialize}
+set singleton[0] only
+set scalar value
+
+# Validate: empty and singleton arrays are unchanged; scalars fail in every mode.
+# Expected: [], ["only"], and failure respectively.
+eval nop {global:empty|sort numerically|assert type array|length|assert equals int 0}
+eval nop {global:empty|sort case-sensitive|assert type array|length|assert equals int 0}
+eval nop {global:empty|sort case-insensitive|assert type array|length|assert equals int 0}
+eval nop {global:empty|sort custom (0)|assert type array|length|assert equals int 0}
+eval nop {global:singleton|sort numerically|at 0|assert equals string only}
+eval nop {global:singleton|sort case-sensitive|at 0|assert equals string only}
+eval nop {global:singleton|sort case-insensitive|at 0|assert equals string only}
+eval nop {global:singleton|sort custom (0)|at 0|assert equals string only}
+eval nop {global:scalar|sort numerically|unreachable}
+eval nop {global:scalar|sort case-sensitive|unreachable}
+eval nop {global:scalar|sort case-insensitive|unreachable}
+eval nop {global:scalar|sort custom (0)|unreachable}
+
+# Generate custom comparator data
+# Input: [{"id": "first", "key": "2", "nested": ["first-child"]},
+#         {"id": "middle", "key": "1"},
+#         {"id": "last", "key": "2", "nested": ["last-child"]}]
+set records[0].key 2
+set records[0].id first
+set records[1].key 1
+set records[1].id middle
+set records[2].key 2
+set records[2].id last
+set records[0].nested[0] first-child
+set records[2].nested[0] last-child
+
+# Sort by key with delayed evaluation of each element's context.
+assign global:custom = {global:records|sort custom (lt({1!self:key},{1!other:key}))}
+
+# Validate: ties keep their original order and nested data.
+# Expected: [{"id": "middle", "key": "1"},
+#            {"id": "first", "key": "2", "nested": ["first-child"]},
+#            {"id": "last", "key": "2", "nested": ["last-child"]}]
+eval nop {global:custom[0].id|assert equals string middle}
+eval nop {global:custom[1].id|assert equals string first}
+eval nop {global:custom[2].id|assert equals string last}
+eval nop {global:custom[1].nested[0]|assert equals string first-child}
+eval nop {global:custom[2].nested[0]|assert equals string last-child}
+
+# Comparator evaluation failures must not become false comparisons.
+eval nop {global:records|sort custom (lt({1!self:|toDouble},{1!other:key}))|unreachable}
+eval nop {global:records|sort custom (0/0)|unreachable}
+eval nop {global:records|sort custom (lt({1!self:missing},{1!other:key}))|unreachable}
+eval nop {global:records|sort custom (1)|unreachable}
+eval nop {global:empty|sort custom (badfunction(1))|unreachable}
+eval nop {global:singleton|sort custom (badfunction(1))|unreachable}
+eval nop {global:records|sort custom|unreachable}
+must-throw eval nop {global:records|sort custom (0)|unreachable}
+
+exit
