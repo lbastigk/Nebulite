@@ -149,6 +149,7 @@ public:
      * @param cmd Command string to parse
      * @param addArgs Additional arguments to pass to the executed function
      * @return The return value of the executed function, or the standard/error value.
+     * @todo Return a special value if a category was called instead of a function
      */
     ReturnValue parseStr(std::string_view cmd, AdditionalArgs... addArgs);
     ReturnValue parse(SegmentedStringView const& args, AdditionalArgs... addArgs);
