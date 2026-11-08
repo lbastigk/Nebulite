@@ -2187,6 +2187,7 @@ Available Functions
 
 | Function | Description |
 |----------|-------------|
+| `abs` | Calculates the absolute value of the current JSON value. |
 | `add` | Adds a numeric value to the current JSON value. |
 | `and` | Logical and operation on the current JSON array values. |
 | `applyTfDomainF` | Stores the result of applying a transfer function on the frequency domain to a given real-number series |
@@ -2325,11 +2326,21 @@ Available Functions
 | `xnor` | Logical xnor operation on the current JSON array values. |
 | `xor` | Logical xor operation on the current JSON array values. |
 
+#### `abs`
+
+```
+Calculates the absolute value of the current JSON value.
+No arguments are allowed, as it's an operator with a single operand (the current JSON value).
+An unusable input produces NaN.
+Usage: |abs -> {number}
+```
+
 #### `add`
 
 ```
 Adds a numeric value to the current JSON value.
-If multiple numbers are provided, the result is an array, one element for each provided argument.
+Each argument is applied independently to the original value; multiple arguments produce an array.
+Arguments must be finite numbers; an unusable input produces NaN.
 Usage: |add <number1> <number2> ... -> {number/array}
 ```
 
@@ -2637,7 +2648,9 @@ Usage: |deserialize -> {value}
 
 ```
 Divides the current JSON value by a numeric value.
-If multiple numbers are provided, the result is an array, one element for each provided argument.
+Each argument is applied independently to the original value; multiple arguments produce an array.
+Arguments must be finite numbers; an unusable input produces NaN.
+Divisors with magnitude below double epsilon are rejected.
 Usage: |div <number1> <number2> ... -> {number/array}
 ```
 
@@ -3013,7 +3026,9 @@ Usage: |min -> {number}
 
 ```
 Calculates the modulo of the current JSON value by a numeric value.
-If multiple numbers are provided, the result is an array, one element for each provided argument.
+Each argument is applied independently to the original value; multiple arguments produce an array.
+Arguments must be finite numbers; an unusable input produces NaN.
+Moduli with magnitude below double epsilon are rejected.
 Usage: |mod <number1> <number2> ... -> {number/array}
 ```
 
@@ -3037,7 +3052,8 @@ Usage: |moveMember <source> <destination> -> {json}
 
 ```
 Multiplies the current JSON value by a numeric value.
-If multiple numbers are provided, the result is an array, one element for each provided argument.
+Each argument is applied independently to the original value; multiple arguments produce an array.
+Arguments must be finite numbers; an unusable input produces NaN.
 Usage: |mul <number1> <number2> ... -> {number/array}
 ```
 
@@ -3111,7 +3127,8 @@ Usage: |pad <length> -> {array}
 
 ```
 Raises the current JSON value to the power of a numeric value.
-If multiple numbers are provided, the result is an array, one element for each provided argument.
+Each argument is applied independently to the original value; multiple arguments produce an array.
+Arguments must be finite numbers; an unusable input produces NaN.
 Usage: |pow <exponent1> <exponent2> ... -> {number/array}
 ```
 
@@ -3404,7 +3421,9 @@ Usage: |reverse -> {array}
 
 ```
 Calculates the n-th root of the current JSON value.
-If multiple numbers are provided, the result is an array, one element for each provided argument.
+Each argument is applied independently to the original value; multiple arguments produce an array.
+Orders must be finite, with magnitude at least double epsilon; an unusable input produces NaN.
+For negative inputs, only odd integer orders are supported (including negative orders).
 Usage: |root <number1> <number2> ... -> {number/array}
 ```
 
@@ -3559,6 +3578,7 @@ Usage: |splitNewlines -> {array}
 ```
 Calculates the square root of the current JSON value.
 No arguments are allowed, as it's an operator with a single operand (the current JSON value).
+Negative or unusable inputs produce NaN.
 Usage: |sqrt -> {number}
 ```
 
@@ -3673,7 +3693,8 @@ Usage: |strip -> {string}
 
 ```
 Subtracts a numeric value from the current JSON value.
-If multiple numbers are provided, the result is an array, one element for each provided argument.
+Each argument is applied independently to the original value; multiple arguments produce an array.
+Arguments must be finite numbers; an unusable input produces NaN.
 Usage: |sub <number1> <number2> ... -> {number/array}
 ```
 
@@ -4076,4 +4097,3 @@ Returns 1 if exactly one of a or b is logically true, otherwise returns 0.
 Uses epsilon threshold to determine logical truthiness.
 Usage: xor(a, b)
 ```
-
