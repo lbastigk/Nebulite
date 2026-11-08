@@ -1,3 +1,4 @@
+#NOLINT(test-registration) Used by injectScript.nebs.
 # This script is called during script injection
 
 # Delete obj, modify arr, and assign a new variable to var

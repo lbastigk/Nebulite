@@ -1,2 +1,3 @@
+#NOLINT(test-registration) Used by injectScript.nebs.
 # This script is called during script injection but does not modify the domain in any way
 # Leave empty!

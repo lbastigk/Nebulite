@@ -186,6 +186,12 @@ prints every frame; its script asserts that the variable changes during the wait
 Run these from the repository root. They supplement the test suite rather than
 replacing it:
 
+- **Test registration:** `python3 Scripts/Validation/nebs_test_registration.py`
+  reports `.nebs` files under `TaskFiles/Tests` without a direct `task` command
+  in `Tools/tests.jsonc` or a manifest it references. For an intentionally
+  unregistered file, add a standalone `#NOLINT(test-registration)` comment,
+  optionally followed by a reason. The script exits nonzero for unregistered
+  files without that comment or invalid suite configuration.
 - **Resource JSON and references:** `python3 Scripts/Validation/json_syntax_and_references.py`
   checks JSON/JSONC syntax under `Resources` and checks recognized
   `./Resources/...` file references. Add `-v` or `--verbose` to see discovery,
