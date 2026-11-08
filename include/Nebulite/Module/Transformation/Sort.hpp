@@ -5,20 +5,13 @@
 // Includes
 
 // Standard library
-#include <algorithm>
-#include <cstddef>
-#include <functional>
 #include <memory>
-#include <ranges>
-#include <utility>
-#include <vector>
 
 // Nebulite
 #include "Nebulite/Data/Document/JsonScope.hpp"
 #include "Nebulite/Module/Base/TransformationModule.hpp"
 #include "Nebulite/Utility/Args/FuncTree.hpp"
 #include "Nebulite/Utility/Args/SegmentedStringView.hpp"
-#include "Nebulite/Utility/Ranges.hpp"
 
 //------------------------------------------
 // Forward declarations
@@ -75,28 +68,6 @@ public:
         "Provide a sort expression without the evaluation key '$'!"
         "For example: ( gt({self:|length},{other:|length}) )\n"
         "Usage: |sort custom <expression> -> {sorted array}\n";
-
-private:
-    /**
-     * @brief Custom JSON sort function
-     * @tparam T The value to compare
-     * @param jsonDoc The scope to sort. Must be an array at scope root!
-     * @param fallbackValue Fallback value for the get call
-     * @param comparator The custom comparator function, taking both T and the JSON as possible value.
-     */
-    template <typename T>
-    static void arraySort(Data::JsonScope& jsonDoc, T const& fallbackValue, std::function<bool(std::pair<T, Data::Json>&, std::pair<T, Data::Json>&)> const& comparator) {
-        std::vector<std::pair<T, Data::Json>> values;
-        for (auto const idx : std::views::iota(std::size_t{0}, jsonDoc.memberSize(rootKey))) {
-            auto const key = rootKey.addIndex(idx);
-            values.emplace_back(jsonDoc.get<T>(key).value_or(fallbackValue), jsonDoc.getSubDoc(key));
-        }
-        std::ranges::sort(values.begin(), values.end(), comparator);
-        for (auto [idx, value] : values | Utility::Ranges::enumerate) {
-            auto const key = rootKey.addIndex(idx);
-            jsonDoc.setSubDoc(key, value.second);
-        }
-    }
 };
 
 } // namespace Nebulite::Module::Transformation

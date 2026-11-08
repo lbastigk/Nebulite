@@ -109,7 +109,7 @@ void drawFilledPolygon(SDL_Renderer* renderer, SDL_Texture* texture, SDL_Color c
         }
 
         // Sort x intersections
-        std::ranges::sort(intersections.begin(), intersections.end());
+        std::ranges::sort(intersections);
 
         // Fill between pairs
         for (std::size_t i = 0; i + 1 < intersections.size(); i += 2) {
