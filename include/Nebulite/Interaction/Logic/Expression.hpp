@@ -10,6 +10,7 @@
 #include <cstdint> // NOLINT
 #include <cstring>
 #include <memory>
+#include <optional>
 #include <stdexcept>
 #include <string>
 #include <string_view>
@@ -95,6 +96,17 @@ public:
     bool isReturnableAsBool() const noexcept { return evaluationInfo.simpleExpression; }
 
     /**
+     * @brief Checks whether all parsed evaluation components compiled successfully.
+     * @details A failed TinyExpr compilation is replaced with a NaN-producing expression for
+     *          normal evaluation, but this method still reports the original failure.
+     *          Text and variable components do not require TinyExpr compilation.
+     *          Success does not guarantee a particular return type or successful runtime evaluation;
+     *          use the returnability checks and, where needed, tryEvalAsBool separately.
+     * @return True if no parsed evaluation component reported a compilation error; false otherwise.
+     */
+    bool isCompiled() const noexcept { return compilationSuccessful; }
+
+    /**
      * @brief Checks if the expression can be returned as an integer without loss of information.
      * @details Not true if the expression is a simple expression with padding, e.g. $05i(...) would be a string, not an int.
      *          Only true for simple expressions with an int cast: $i(...)
@@ -169,6 +181,13 @@ public:
      */
     [[nodiscard]] bool evalAsBool(ContextScope const& context, Utility::Promise<Utility::PromiseType::FunctionVerified, &Expression::isReturnableAsBool> promise) const ;
 
+    /**
+     * @brief Evaluates a simple boolean expression without numeric-value fallbacks.
+     * @param context The context to evaluate the expression against.
+     * @return The boolean result, or std::nullopt on compilation, retrieval, or NaN evaluation failure.
+     */
+    [[nodiscard]] std::optional<bool> tryEvalAsBool(ContextScope const& context) const ;
+
     //------------------------------------------
     // Static functions for one-time evaluation
 
@@ -234,6 +253,7 @@ private:
     [[nodiscard]] bool calculateIsAlwaysTrue() const ;
 
     EvaluationInfo evaluationInfo;
+    bool compilationSuccessful = true;
 
     //------------------------------------------
     // Caching

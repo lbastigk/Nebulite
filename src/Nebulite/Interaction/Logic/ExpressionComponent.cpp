@@ -228,7 +228,8 @@ int ExpressionComponent::compile(std::vector<te_variable> const& teVariables) {
         expression = te_compile(stringRepresentation.c_str(), teVariables.data(), static_cast<int>(teVariables.size()), &error);
         if (error) {
             te_free(expression);
-            expression = te_compile("abs(0/0)", teVariables.data(), static_cast<int>(teVariables.size()), &error);
+            int fallbackError{};
+            expression = te_compile("abs(0/0)", teVariables.data(), static_cast<int>(teVariables.size()), &fallbackError);
         }
     }
     return error;

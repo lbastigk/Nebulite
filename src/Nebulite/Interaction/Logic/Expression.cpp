@@ -9,6 +9,7 @@
 #include <cstdint> // NOLINT
 #include <iterator>
 #include <memory>
+#include <optional>
 #include <ranges>
 #include <sstream>
 #include <string>
@@ -248,6 +249,56 @@ bool Expression::evalAsBool(ContextScope const& context, Utility::Promise<Utilit
     return !Math::isZero(result);
 }
 
+std::optional<bool> Expression::tryEvalAsBool(ContextScope const& context) const {
+    if (!compilationSuccessful || !isReturnableAsBool()) {
+        return std::nullopt;
+    }
+
+    auto updateFromJson = [&]<typename DataType>(DataType const& jsonScope, auto const& values) {
+        for (auto const& value : values) {
+            auto const key = eval(value->getKey(), context);
+            auto const retrieved = [&] {
+                if constexpr (requires { jsonScope.template get<double>(Data::ScopedKey(key)); }) {
+                    return jsonScope.template get<double>(Data::ScopedKey(key));
+                } else {
+                    return jsonScope.template get<double>(key);
+                }
+            }();
+            if (!retrieved || std::isnan(*retrieved)) {
+                return false;
+            }
+            value->setDirect(*retrieved);
+        }
+        return true;
+    };
+
+    if (!updateFromJson(context.self, linkedNumericValues.stable.self)
+        || !updateFromJson(context.other, linkedNumericValues.stable.other)
+        || !updateFromJson(context.global, linkedNumericValues.stable.global)
+        || !updateFromJson(context.self, linkedNumericValues.unstable.self)
+        || !updateFromJson(context.other, linkedNumericValues.unstable.other)
+        || !updateFromJson(context.global, linkedNumericValues.unstable.global)
+        || !updateFromJson(Global::instance().getDocCache(), linkedNumericValues.unstable.resource)
+        || !updateFromJson(emptyDoc(), linkedNumericValues.unstable.none)) {
+        return std::nullopt;
+    }
+    if (!linkedNumericValues.unstable.local.empty()) {
+        Data::JsonScope merged;
+        context.combineLocal(merged);
+        if (!updateFromJson(merged, linkedNumericValues.unstable.local)) return std::nullopt;
+    }
+    if (!linkedNumericValues.unstable.full.empty()) {
+        Data::JsonScope merged;
+        context.combineAll(merged);
+        if (!updateFromJson(merged, linkedNumericValues.unstable.full)) return std::nullopt;
+    }
+    double const result = components[0].evalAsDouble([] {});
+    if (std::isnan(result)) {
+        return std::nullopt;
+    }
+    return !Math::isZero(result);
+}
+
 //------------------------------------------
 // Static functions for one-time evaluation
 
@@ -442,7 +493,9 @@ void Expression::reset() {
 void Expression::parseFullExpression() {
     parseIntoComponents();
     for (auto& component : components) {
-        component.compile(teVariables);
+        if (component.compile(teVariables) != 0) {
+            compilationSuccessful = false;
+        }
     }
     recalculateEvaluationInfo();
 }
