@@ -35,5 +35,9 @@
     {
         "command": "task TaskFiles/Tests/JSON/Transformations/Statistics/mode.nebs",
         "expected": { "cout": [], "cerr": [] }
+    },
+    {
+        "command": "task TaskFiles/Tests/JSON/Transformations/Statistics/boundaries.nebs",
+        "expected": { "cout": [], "cerr": [] }
     }
 ]

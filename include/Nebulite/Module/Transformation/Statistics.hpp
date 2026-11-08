@@ -5,7 +5,6 @@
 // Includes
 
 // Standard library
-#include <functional>
 #include <memory>
 
 // Nebulite
@@ -64,13 +63,28 @@ public:
     static auto constexpr meanName2 = "average";
     static auto constexpr meanDesc = "Calculates the mean of the elements of the array in the current JSON value.\n"
         "Input must be an array of numbers. If any element is not a number, the current value is not an array or the array is empty, the transformation fails.\n"
-        "Usage: |average -> {number}\n";
+        "Usage: |mean -> {number} (alias: |average)\n";
 
     static bool median(Data::JsonScope& jsonDoc);
     static auto constexpr medianName = "median";
     static auto constexpr medianDesc = "Calculates the median of the elements of the array in the current JSON value.\n"
+        "For an even-sized array, the median is the average of the two middle values.\n"
         "Input must be an array of numbers. If any element is not a number, the current value is not an array or the array is empty, the transformation fails.\n"
         "Usage: |median -> {number}\n";
+
+    static bool medianLower(Data::JsonScope& jsonDoc);
+    static auto constexpr medianLowerName = "medianLower";
+    static auto constexpr medianLowerDesc = "Finds the lower median of the elements of the array in the current JSON value.\n"
+        "For an even-sized array, this is the lower of the two middle values; otherwise it is the middle value.\n"
+        "Input must be a non-empty array of numbers.\n"
+        "Usage: |medianLower -> {number}\n";
+
+    static bool medianUpper(Data::JsonScope& jsonDoc);
+    static auto constexpr medianUpperName = "medianUpper";
+    static auto constexpr medianUpperDesc = "Finds the upper median of the elements of the array in the current JSON value.\n"
+        "For an even-sized array, this is the upper of the two middle values; otherwise it is the middle value.\n"
+        "Input must be a non-empty array of numbers.\n"
+        "Usage: |medianUpper -> {number}\n";
 
     static bool stddev(Data::JsonScope& jsonDoc);
     static auto constexpr stddevName = "stddev";
@@ -91,16 +105,6 @@ public:
         "If multiple values are tied, the first value in the array is returned.\n"
         "Input must be a non-empty array of numbers.\n"
         "Usage: |mode -> {number}\n";
-
-private:
-    /**
-     * @brief Helper function to accumulate values in an array using a provided (double, double) -> double function.
-     * @param jsonDoc The JSON scope containing the array to accumulate over.
-     * @param func The binary function to apply for accumulation (e.g., addition for sum, multiplication for product).
-     * @param initialValue The initial value for the accumulation (default is 0.0, but can be set to 1.0 for product or +-infinity for min/max).
-     * @return The accumulated result, or NaN if the input is invalid (not an array or contains non-numeric values).
-     */
-    static double accumulate(Data::JsonScope const& jsonDoc, std::function<double(double, double)> const& func, double initialValue = 0.0);
 };
 } // namespace Nebulite::Module::Transformation
 #endif // NEBULITE_MODULE_TRANSFORMATION_STATISTICS_HPP

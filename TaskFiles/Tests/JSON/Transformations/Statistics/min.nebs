@@ -19,4 +19,4 @@ set arr3[3] 3
 
 eval nop {global:arr1|min|assert equals int 1}
 eval nop {global:arr2|min|assert equals string 1.1}
-eval nop {global:arr3|product|unreachable} # Fails because of the non-numeric value "a"
+eval nop {global:arr3|min|unreachable} # Fails because of the non-numeric value "a"

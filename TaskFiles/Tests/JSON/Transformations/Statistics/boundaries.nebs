@@ -1,0 +1,69 @@
+# JSON parsing produces typed arrays, including a genuinely empty array.
+set input.empty []
+set input.even [9,1,7,3]
+set input.odd [9,1,5]
+set input.singleton [8]
+set input.repeated [4,2,2,4]
+set input.fractional [-2.5,1,4,8]
+set invalid[0] 1
+set invalid[1] bad
+set invalid[2] 3
+assign global:empty = {global:input.empty|deserialize}
+assign global:even = {global:input.even|deserialize}
+assign global:odd = {global:input.odd|deserialize}
+assign global:singleton = {global:input.singleton|deserialize}
+assign global:repeated = {global:input.repeated|deserialize}
+assign global:fractional = {global:input.fractional|deserialize}
+set scalar 42
+eval nop {global:empty|assert type array|length|assert equals int 0}
+eval nop {global:invalid|assert type array|length|assert equals int 3}
+eval nop {global:invalid[1]|assert equals string bad}
+
+# All statistics reject empty arrays, invalid elements and scalar roots.
+eval nop {global:empty|sum|unreachable}
+eval nop {global:empty|product|unreachable}
+eval nop {global:empty|min|unreachable}
+eval nop {global:empty|max|unreachable}
+eval nop {global:empty|mean|unreachable}
+eval nop {global:empty|average|unreachable}
+eval nop {global:empty|median|unreachable}
+eval nop {global:empty|medianLower|unreachable}
+eval nop {global:empty|medianUpper|unreachable}
+eval nop {global:empty|stddev|unreachable}
+eval nop {global:empty|range|unreachable}
+eval nop {global:empty|mode|unreachable}
+eval nop {global:invalid|medianLower|unreachable}
+eval nop {global:invalid|medianUpper|unreachable}
+eval nop {global:scalar|medianLower|unreachable}
+eval nop {global:scalar|medianUpper|unreachable}
+
+# For even-sized input, conventional median averages the two middle samples.
+eval nop {global:even|median|assert equals int 5}
+eval nop {global:even|medianLower|assert equals int 3}
+eval nop {global:even|medianUpper|assert equals int 7}
+eval nop {global:odd|median|assert equals int 5}
+eval nop {global:odd|medianLower|assert equals int 5}
+eval nop {global:odd|medianUpper|assert equals int 5}
+eval nop {global:singleton|median|assert equals int 8}
+eval nop {global:singleton|medianLower|assert equals int 8}
+eval nop {global:singleton|medianUpper|assert equals int 8}
+eval nop {global:repeated|medianLower|assert equals int 2}
+eval nop {global:repeated|medianUpper|assert equals int 4}
+eval nop {global:repeated|median|assert equals int 3}
+eval nop {global:fractional|median|formatNumber .2f|assert equals string 2.50}
+eval nop {global:fractional|medianLower|assert equals int 1}
+eval nop {global:fractional|medianUpper|assert equals int 4}
+
+# Both mean names are aliases, and mode resolves ties by original input order.
+eval nop {global:even|mean|assert equals int 5}
+eval nop {global:even|average|assert equals int 5}
+eval nop {global:singleton|mean|assert equals int 8}
+eval nop {global:singleton|average|assert equals int 8}
+eval nop {global:fractional|mean|formatNumber .3f|assert equals string 2.625}
+eval nop {global:fractional|average|formatNumber .3f|assert equals string 2.625}
+eval nop {global:repeated|mode|assert equals int 4}
+must-throw eval nop {global:even|mean|unreachable}
+must-throw eval nop {global:even|medianLower|unreachable}
+must-throw eval nop {global:even|medianUpper|unreachable}
+
+exit
