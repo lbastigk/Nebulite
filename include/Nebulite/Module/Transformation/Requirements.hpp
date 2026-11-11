@@ -38,7 +38,7 @@ public:
     // Categories
 
     static auto constexpr requireName = "require";
-    static auto constexpr requireDesc = "Requirement transformations that validate JSON values and return false on failure (fallback to default value in get-call, usually 'null' or 0.0).";
+    static auto constexpr requireDesc = "Requirement transformations validate JSON values. If a requirement is not met, the transformation fails.";
 
     static auto constexpr requireTypeName = "require type";
     static auto constexpr requireTypeDesc = "Requirement transformations that validate JSON value types";
@@ -109,14 +109,14 @@ public:
 
     static bool requireTypeNumeric(Utility::Args::SegmentedStringView const& args, Data::JsonScope const& jsonDoc);
     static auto constexpr requireTypeNumericName = "require type numeric";
-    static auto constexpr requireTypeNumericDesc = "Requires that the current JSON value is numeric.\n"
+    static auto constexpr requireTypeNumericDesc = "Requires a JSON number (not a boolean or string).\n"
         "If the value is not numeric, the transformation fails.\n"
         "Accepts an optional user-defined error message as additional arguments.\n"
         "Usage: |requireTypeNumeric -> {value,<Returns false if not numeric>}\n";
 
     static bool requireTypeNumericOrNumericString(Utility::Args::SegmentedStringView const& args, Data::JsonScope const& jsonDoc);
     static auto constexpr requireTypeNumericOrNumericStringName = "require type numericOrNumericString";
-    static auto constexpr requireTypeNumericOrNumericStringDesc = "Requires that the current JSON value is numeric, or a string of a numeric.\n"
+    static auto constexpr requireTypeNumericOrNumericStringDesc = "Requires a JSON number or a numeric string; booleans and boolean strings are rejected.\n"
         "If the value is not numeric or a string of a numeric, the transformation fails.\n"
         "Accepts an optional user-defined error message as additional arguments.\n"
         "Usage: |requireTypeNumericOrNumericString -> {value,<Returns false if not numeric or numeric string>}\n";
@@ -126,7 +126,7 @@ public:
     static bool requireMatchRegex(Utility::Args::SegmentedStringView const& args, Data::JsonScope const& jsonDoc);
     static auto constexpr requireMatchRegexName = "require match regex";
     static auto constexpr requireMatchRegexDesc = "Requires that the current JSON string value matches a provided regular expression.\n"
-        "If the value does not match the regular expression, the transformation fails.\n"
+        "If the pattern is missing or invalid, or the value does not match it, the transformation fails.\n"
         "Usage: |require match regex <regex> -> {value,<Returns false if no match>}\n";
 
     // [EQUALS]
@@ -134,22 +134,16 @@ public:
     static bool requireEqualsString(Utility::Args::SegmentedStringView const& args, Data::JsonScope const& jsonDoc);
     static auto constexpr requireEqualsStringName = "require equals string";
     static auto constexpr requireEqualsStringDesc = "Requires that the current JSON value is equal to the specified string.\n"
-        "If the value is not equal to the specified string, the transformation fails and the program exits.\n"
+        "If the value is not equal to the specified string, the transformation fails. An omitted expected string is empty.\n"
         "Usage: |require equals string <expected> -> {value,<Returns false if not equal>}\n";
 
     static bool requireEqualsInt(Utility::Args::SegmentedStringView const& args, Data::JsonScope const& jsonDoc);
     static auto constexpr requireEqualsIntName = "require equals int";
-    static auto constexpr requireEqualsIntDesc = "Requires that the current JSON value is an integer.\n"
-        "If the value is not an integer, the transformation fails and the program exits.\n"
+    static auto constexpr requireEqualsIntDesc = "Requires that the current JSON value equals the specified integer.\n"
+        "One expected integer is required; leading whitespace and a leading plus or minus are accepted, but boolean strings are not.\n"
+        "Invalid, partially parsed, or out-of-range arguments and failed value conversions cause the transformation to fail.\n"
         "Usage: |require equals int <expected> -> {value,<Returns false if not equal>}\n";
 
-private:
-    /**
-     * @brief Prints the message inside its arguments.
-     * @details Assumes the first arg is the caller function name.
-     * @param args Arguments containing the message parts.
-     */
-    static void printUserDefinedMessage(Utility::Args::SegmentedStringView const& args);
 };
 } // namespace Nebulite::Module::Transformation
 #endif // NEBULITE_MODULE_TRANSFORMATION_REQUIREMENTS_HPP

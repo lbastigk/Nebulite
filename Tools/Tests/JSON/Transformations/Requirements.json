@@ -1,5 +1,13 @@
 [
     {
+        "command": "task TaskFiles/Tests/JSON/Transformations/Requirements/boundaries.nebs",
+        "expected": { "cout": [], "cerr": [] }
+    },
+    {
+        "command": "task TaskFiles/Tests/JSON/Transformations/Requirements/numeric.nebs",
+        "expected": { "cout": [], "cerr": [] }
+    },
+    {
         "command": "task TaskFiles/Tests/JSON/Transformations/Requirements/empty.nebs",
         "expected": { "cout": [], "cerr": [] }
     },
@@ -16,7 +24,7 @@
         "expected": { "cout": [], "cerr": [] }
     },
     {
-        "command": "task TaskFiles/Tests/JSON/Transformations/Requirements/nonEmpty.nebs",
+        "command": "task TaskFiles/Tests/JSON/Transformations/Requirements/truefalse.nebs",
         "expected": { "cout": [], "cerr": [] }
     },
     {

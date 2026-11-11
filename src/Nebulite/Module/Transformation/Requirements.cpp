@@ -2,12 +2,12 @@
 // Includes
 
 // Standard library
+#include <stdexcept>
 
 // Nebulite
 #include "Nebulite/Data/Document/JsonScope.hpp"
 #include "Nebulite/Module/Transformation/Assertions.hpp"
 #include "Nebulite/Module/Transformation/Requirements.hpp"
-#include "Nebulite/Nebulite.hpp"
 #include "Nebulite/Utility/Args/SegmentedStringView.hpp"
 
 //------------------------------------------
@@ -35,18 +35,11 @@ void Requirements::bindTransformations() {
     bindTransformation(&Requirements::requireEqualsInt, requireEqualsIntName, requireEqualsIntDesc);
 }
 
-void Requirements::printUserDefinedMessage(Utility::Args::SegmentedStringView const& args){
-    if (args.size() < 2) {
-        return; // No message provided
-    }
-    Global::capture().error.println(args.recombineSubspan(1));
-}
-
 bool Requirements::requireTrue(Utility::Args::SegmentedStringView const& args, Data::JsonScope const& jsonDoc){
     try {
         Assertions::assertTrue(args, jsonDoc);
     }
-    catch (...) {
+    catch (std::runtime_error const&) {
         return false;
     }
     return true;
@@ -56,7 +49,7 @@ bool Requirements::requireFalse(Utility::Args::SegmentedStringView const& args, 
     try {
         Assertions::assertFalse(args, jsonDoc);
     }
-    catch (...) {
+    catch (std::runtime_error const&) {
         return false;
     }
     return true;
@@ -66,7 +59,7 @@ bool Requirements::requireNonEmpty(Utility::Args::SegmentedStringView const& arg
     try {
         Assertions::assertNonEmpty(args, jsonDoc);
     }
-    catch (...) {
+    catch (std::runtime_error const&) {
         return false;
     }
     return true;
@@ -76,7 +69,7 @@ bool Requirements::requireEmpty(Utility::Args::SegmentedStringView const& args, 
     try {
         Assertions::assertEmpty(args, jsonDoc);
     }
-    catch (...) {
+    catch (std::runtime_error const&) {
         return false;
     }
     return true;
@@ -86,7 +79,7 @@ bool Requirements::requireTypeObject(Utility::Args::SegmentedStringView const& a
     try {
         Assertions::assertTypeObject(args, jsonDoc);
     }
-    catch (...) {
+    catch (std::runtime_error const&) {
         return false;
     }
     return true;
@@ -96,7 +89,7 @@ bool Requirements::requireTypeArray(Utility::Args::SegmentedStringView const& ar
     try {
         Assertions::assertTypeArray(args, jsonDoc);
     }
-    catch (...) {
+    catch (std::runtime_error const&) {
         return false;
     }
     return true;
@@ -106,7 +99,7 @@ bool Requirements::requireTypeBasicValue(Utility::Args::SegmentedStringView cons
     try {
         Assertions::assertTypeBasicValue(args, jsonDoc);
     }
-    catch (...) {
+    catch (std::runtime_error const&) {
         return false;
     }
     return true;
@@ -116,7 +109,7 @@ bool Requirements::requireTypeNumeric(Utility::Args::SegmentedStringView const& 
     try {
         Assertions::assertTypeNumeric(args, jsonDoc);
     }
-    catch (...) {
+    catch (std::runtime_error const&) {
         return false;
     }
     return true;
@@ -126,17 +119,18 @@ bool Requirements::requireTypeNumericOrNumericString(Utility::Args::SegmentedStr
     try {
         Assertions::assertTypeNumericOrNumericString(args, jsonDoc);
     }
-    catch (...) {
+    catch (std::runtime_error const&) {
         return false;
     }
     return true;
 }
 
 bool Requirements::requireMatchRegex(Utility::Args::SegmentedStringView const& args, Data::JsonScope const& jsonDoc){
+    if (args.size() < 2) return false;
     try {
         Assertions::assertMatchRegex(args, jsonDoc);
     }
-    catch (...) {
+    catch (std::runtime_error const&) {
         return false;
     }
     return true;
@@ -146,7 +140,7 @@ bool Requirements::requireEqualsString(Utility::Args::SegmentedStringView const&
     try {
         Assertions::assertEqualsString(args, jsonDoc);
     }
-    catch (...) {
+    catch (std::runtime_error const&) {
         return false;
     }
     return true;
@@ -156,7 +150,7 @@ bool Requirements::requireEqualsInt(Utility::Args::SegmentedStringView const& ar
     try {
         Assertions::assertEqualsInt(args, jsonDoc);
     }
-    catch (...) {
+    catch (std::runtime_error const&) {
         return false;
     }
     return true;

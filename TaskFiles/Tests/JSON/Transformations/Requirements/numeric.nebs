@@ -1,0 +1,47 @@
+# Numeric JSON values and numeric strings have different requirement semantics.
+assign global:values.integer = $i(42)
+assign global:values.fraction = $(2.5)
+assign global:values.true = {|not}
+assign global:values.false = {|not|not}
+set values.numericString -12.5
+set values.trueString true
+set values.falseString false
+set values.invalid 12x
+set values.empty
+set values.object.key 1
+set values.array[0] 1
+
+# JSON numbers pass both requirements; numeric strings pass only the second.
+eval nop {global:values.integer|require type numeric|assert equals int 42}
+eval nop {global:values.fraction|require type numeric|assert type numeric}
+eval nop {global:values.integer|require type numericOrNumericString|assert type numeric}
+eval nop {global:values.fraction|require type numericOrNumericString|assert type numeric}
+eval nop {global:values.numericString|require type numericOrNumericString|assert equals string -12.5}
+eval nop {global:values.numericString|require type numeric|unreachable}
+
+# Neither requirement accepts booleans, boolean strings, invalid strings, or containers.
+eval nop {global:values.true|require type numeric|unreachable}
+eval nop {global:values.false|require type numeric|unreachable}
+eval nop {global:values.trueString|require type numeric|unreachable}
+eval nop {global:values.falseString|require type numeric|unreachable}
+eval nop {global:values.invalid|require type numeric|unreachable}
+eval nop {global:values.empty|require type numeric|unreachable}
+eval nop {global:values.object|require type numeric|unreachable}
+eval nop {global:values.array|require type numeric|unreachable}
+eval nop {global:values.missing|require type numeric|unreachable}
+eval nop {global:values.true|require type numericOrNumericString|unreachable}
+eval nop {global:values.false|require type numericOrNumericString|unreachable}
+eval nop {global:values.trueString|require type numericOrNumericString|unreachable}
+eval nop {global:values.falseString|require type numericOrNumericString|unreachable}
+eval nop {global:values.invalid|require type numericOrNumericString|unreachable}
+eval nop {global:values.empty|require type numericOrNumericString|unreachable}
+eval nop {global:values.object|require type numericOrNumericString|unreachable}
+eval nop {global:values.array|require type numericOrNumericString|unreachable}
+eval nop {global:values.missing|require type numericOrNumericString|unreachable}
+
+# Assertions share the same numeric type definitions.
+must-throw eval nop {global:values.true|assert type numeric}
+must-throw eval nop {global:values.trueString|assert type numericOrNumericString}
+eval nop {global:values.numericString|assert type numericOrNumericString}
+
+exit

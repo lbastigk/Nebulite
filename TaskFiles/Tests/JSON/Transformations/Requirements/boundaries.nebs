@@ -1,0 +1,43 @@
+# Invalid arguments stop the transformation chain without throwing.
+set value 123
+set empty
+set text hello
+eval nop {global:value|require equals int|unreachable}
+eval nop {global:value|require equals int nope|unreachable}
+eval nop {global:value|require equals int 123extra|unreachable}
+eval nop {global:value|require equals int 123 456|unreachable}
+eval nop {global:value|require equals int 123 extra|unreachable}
+eval nop {global:value|require equals int 999999999999999999999999999|unreachable}
+eval nop {global:value|require equals int  123|assert equals int 123}
+eval nop {global:value|require equals int +123|assert equals int 123}
+set one 1
+set zero 0
+eval nop {global:one|require equals int true|unreachable}
+eval nop {global:zero|require equals int false|unreachable}
+eval nop {global:text|require equals int 0|unreachable}
+eval nop {global:text|require match regex|unreachable}
+eval nop {global:text|require match regex [|unreachable}
+
+# Omitting the expected string checks for an empty string.
+eval nop {global:empty|require equals string|assert equals string}
+eval nop {global:text|require equals string|unreachable}
+
+# Typed expression retrieval reports transformation failure; assignment retrieves
+# a subdocument and stores null. These policies are chosen by the callers.
+eval set typedFailure {global:value|require equals int 456}
+eval nop {global:typedFailure|assert equals string [TRANSFORMATION_FAILURE]}
+assign global:result.equals = {global:value|require equals int 456}
+assign global:result.regex = {global:text|require match regex z+}
+assign global:result.type = {global:text|require type array}
+assign global:result.boolean = {global:text|require true}
+assign global:result.empty = {global:value|require empty}
+assign global:result.nonEmpty = {global:missing|require nonEmpty}
+eval nop {global:result|listMembers|length|assert equals int 6}
+eval nop {global:result.equals|assert empty}
+eval nop {global:result.regex|assert empty}
+eval nop {global:result.type|assert empty}
+eval nop {global:result.boolean|assert empty}
+eval nop {global:result.empty|assert empty}
+eval nop {global:result.nonEmpty|assert empty}
+
+exit
