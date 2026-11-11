@@ -11,12 +11,29 @@ set myArray[2] 789
 must-throw eval nop {global:myInt|assert equals int 456}
 must-throw eval nop {global:myObject|assert equals int 123}
 must-throw eval nop {global:myArray|assert equals int 123}
+must-throw eval nop {global:myInt|assert equals int}
+must-throw eval nop {global:myInt|assert equals int nope}
+must-throw eval nop {global:myInt|assert equals int 123extra}
+must-throw eval nop {global:myInt|assert equals int 123 456}
+must-throw eval nop {global:myInt|assert equals int 123 extra}
+must-throw eval nop {global:myInt|assert equals int 999999999999999999999999999}
+set nonNumeric hello
+must-throw eval nop {global:nonNumeric|assert equals int 0}
+set one 1
+set zero 0
+must-throw eval nop {global:one|assert equals int true}
+must-throw eval nop {global:zero|assert equals int false}
 
 # Scenario 2: success
 eval nop {global:myInt|assert equals int 123}
+eval nop {global:myInt|assert equals int  123}
+eval nop {global:myInt|assert equals int +123}
 eval nop {global:myObject.value1|assert equals int 123}
 eval nop {global:myObject.value2|assert equals int 456}
 eval nop {global:myObject.value3|assert equals int 789}
 eval nop {global:myArray[0]|assert equals int 123}
 eval nop {global:myArray[1]|assert equals int 456}
 eval nop {global:myArray[2]|assert equals int 789}
+eval nop {global:zero|assert equals int 0}
+set negative -123
+eval nop {global:negative|assert equals int -123}
