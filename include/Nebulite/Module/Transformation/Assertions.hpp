@@ -107,12 +107,12 @@ public:
 
     static bool assertTypeNumeric(Utility::Args::SegmentedStringView const& args, Data::JsonScope const& jsonDoc);
     static auto constexpr assertTypeNumericName = "assert type numeric";
-    static auto constexpr assertTypeNumericDesc = "Asserts that the current JSON value is numeric\n"
+    static auto constexpr assertTypeNumericDesc = "Asserts that the current JSON value is a number, excluding booleans.\n"
         "Usage: |assert type numeric -> {value,<Exception thrown if not numeric>}\n";
 
     static bool assertTypeNumericOrNumericString(Utility::Args::SegmentedStringView const& args, Data::JsonScope const& jsonDoc);
     static auto constexpr assertTypeNumericOrNumericStringName = "assert type numericOrNumericString";
-    static auto constexpr assertTypeNumericOrNumericStringDesc = "Asserts that the current JSON value is numeric, or a string of a numeric\n"
+    static auto constexpr assertTypeNumericOrNumericStringDesc = "Asserts that the current JSON value is a number or numeric string, excluding booleans and boolean strings.\n"
         "Usage: |assert type numericOrNumericString -> {value,<Exception thrown if not numeric or numeric string>}\n";
 
     // [MATCH]
@@ -133,8 +133,9 @@ public:
 
     static bool assertEqualsInt(Utility::Args::SegmentedStringView const& args, Data::JsonScope const& jsonDoc);
     static auto constexpr assertEqualsIntName = "assert equals int";
-    static auto constexpr assertEqualsIntDesc = "Asserts that the current JSON value is an integer.\n"
-        "If the value is not an integer, the transformation fails and the program exits.\n"
+    static auto constexpr assertEqualsIntDesc = "Asserts that the current JSON value converts to the specified integer.\n"
+        "One expected integer is required; leading whitespace and a leading plus or minus are accepted, but boolean strings are not.\n"
+        "Invalid, partially parsed, or out-of-range arguments and failed value conversions throw an exception.\n"
         "Usage: |assert equals int <expected> -> {value,<Exception thrown if not equal>}\n";
 
 private:

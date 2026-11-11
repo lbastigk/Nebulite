@@ -2,7 +2,7 @@
 // Includes
 
 // Standard library
-#include <exception>
+#include <cstddef>
 #include <regex>
 #include <stdexcept>
 #include <string>
@@ -143,17 +143,17 @@ namespace {
 template <typename Value>
 bool isNumeric(Value const& v){
     return std::visit([]<typename T>(T const&) {
-        return std::is_arithmetic_v<T>;
+        return std::is_arithmetic_v<T> && !std::is_same_v<T, bool>;
     }, v);
 }
 template <typename Value>
 bool isNumericOrNumericString(Value const& v){
     return std::visit([]<typename T>(T const& t) {
         if constexpr (std::is_same_v<T, std::string>) {
-            return Utility::Convert::Cast::String::to<double>(t).has_value();
+            return t != "true" && t != "false" && Utility::Convert::Cast::String::to<double>(t).has_value();
         }
         else {
-            return std::is_arithmetic_v<T>;
+            return std::is_arithmetic_v<T> && !std::is_same_v<T, bool>;
         }
     }, v);
 }
@@ -205,23 +205,32 @@ bool Assertions::assertEqualsInt(Utility::Args::SegmentedStringView const& args,
     if (args.size() < 2) {
         throw std::runtime_error(std::string(assertEqualsIntName) + ": No expected integer provided");
     }
+    auto const expected = args.recombineSubspan(1);
+    std::size_t parsed = 0;
+    int expectedInt{};
     try {
-        auto const expected = args.recombineSubspan(1);
-        auto const expectedInt = std::stoi(expected);
-        if (jsonDoc.memberType(rootKey) != Data::KeyType::value) {
-            throw std::runtime_error(
-                std::string(assertEqualsIntName) + ": Current JSON value is not a basic value, expected integer: " + expected +
-                ". Value is: " + jsonDoc.serialize(rootKey));
-        }
-        if (auto const actual = jsonDoc.get<int>(rootKey).value_or(0); actual != expectedInt) {
-            throw std::runtime_error(
-                std::string(assertEqualsIntName) + ": JSON value '" + std::to_string(actual) +
-                "' does not equal expected integer '" + std::to_string(expectedInt) +
-                "' (Converted from: '" + expected + "')");
-        }
+        expectedInt = std::stoi(expected, &parsed);
     }
-    catch (std::exception const& e) {
-        throw std::runtime_error(std::string(assertEqualsIntName) + ": Invalid expected integer argument: " + args[1] + ". Error: " + e.what());
+    catch (std::logic_error const& e) {
+        throw std::runtime_error(std::string(assertEqualsIntName) + ": Invalid expected integer argument: " + expected + ". Error: " + e.what());
+    }
+    if (parsed != expected.size()) {
+        throw std::runtime_error(std::string(assertEqualsIntName) + ": Invalid expected integer argument: " + expected);
+    }
+    if (jsonDoc.memberType(rootKey) != Data::KeyType::value) {
+        throw std::runtime_error(
+            std::string(assertEqualsIntName) + ": Current JSON value is not a basic value, expected integer: " + expected +
+            ". Value is: " + jsonDoc.serialize(rootKey));
+    }
+    auto const actual = jsonDoc.get<int>(rootKey);
+    if (!actual) {
+        throw std::runtime_error(std::string(assertEqualsIntName) + ": JSON value cannot be converted to an integer. Value is: " + jsonDoc.serialize(rootKey));
+    }
+    if (*actual != expectedInt) {
+        throw std::runtime_error(
+            std::string(assertEqualsIntName) + ": JSON value '" + std::to_string(*actual) +
+            "' does not equal expected integer '" + std::to_string(expectedInt) +
+            "' (Converted from: '" + expected + "')");
     }
     return true;
 }
