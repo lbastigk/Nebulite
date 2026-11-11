@@ -2,7 +2,7 @@
 
 This documentation is automatically generated.
 
-Generated on: Sun Nov  8 12:27:06 CET 2026
+Generated on: Wed Nov 11 20:44:24 CET 2026
 
 ## Table of Contents
 
@@ -2283,7 +2283,7 @@ Available Functions
 | `removeMember` | Removes the member at the specified key from the JSON document. |
 | `repeat` | Repeats a sequence of elements. |
 | `replace` | Replaces all occurrences of a target substring with a replacement substring in the current JSON string value. |
-| `require` | Requirement transformations that validate JSON values and return false on failure (fallback to default value in get-call, usually 'null' or 0.0). |
+| `require` | Requirement transformations validate JSON values. If a requirement is not met, the transformation fails. |
 | `reverse` | Reverses the array in the current JSON value. |
 | `root` | Calculates the n-th root of the current JSON value. |
 | `round` | Rounds the current JSON numeric value to the nearest integer. |
@@ -2392,14 +2392,15 @@ Available Functions
 | Function | Description |
 |----------|-------------|
 | `help` | Show available commands and their descriptions |
-| `int` | Asserts that the current JSON value is an integer. |
+| `int` | Asserts that the current JSON value converts to the specified integer. |
 | `string` | Asserts that the current JSON value is equal to the specified string. |
 
 ###### `assert equals int`
 
 ```
-Asserts that the current JSON value is an integer.
-If the value is not an integer, the transformation fails and the program exits.
+Asserts that the current JSON value converts to the specified integer.
+One expected integer is required; leading whitespace and a leading plus or minus are accepted, but boolean strings are not.
+Invalid, partially parsed, or out-of-range arguments and failed value conversions throw an exception.
 Usage: |assert equals int <expected> -> {value,<Exception thrown if not equal>}
 ```
 
@@ -2464,8 +2465,8 @@ Available Functions
 | `array` | Asserts that the current JSON value is of type array. |
 | `basicValue` | Asserts that the current JSON value is a basic value (not object or array or null). |
 | `help` | Show available commands and their descriptions |
-| `numeric` | Asserts that the current JSON value is numeric |
-| `numericOrNumericString` | Asserts that the current JSON value is numeric, or a string of a numeric |
+| `numeric` | Asserts that the current JSON value is a number, excluding booleans. |
+| `numericOrNumericString` | Asserts that the current JSON value is a number or numeric string, excluding booleans and boolean strings. |
 | `object` | Asserts that the current JSON value is of type object. |
 
 ###### `assert type array`
@@ -2489,14 +2490,14 @@ Usage: |assert type value -> {value,<Exception thrown if not value>}
 ###### `assert type numeric`
 
 ```
-Asserts that the current JSON value is numeric
+Asserts that the current JSON value is a number, excluding booleans.
 Usage: |assert type numeric -> {value,<Exception thrown if not numeric>}
 ```
 
 ###### `assert type numericOrNumericString`
 
 ```
-Asserts that the current JSON value is numeric, or a string of a numeric
+Asserts that the current JSON value is a number or numeric string, excluding booleans and boolean strings.
 Usage: |assert type numericOrNumericString -> {value,<Exception thrown if not numeric or numeric string>}
 ```
 
@@ -3288,14 +3289,15 @@ Available Functions
 | Function | Description |
 |----------|-------------|
 | `help` | Show available commands and their descriptions |
-| `int` | Requires that the current JSON value is an integer. |
+| `int` | Requires that the current JSON value equals the specified integer. |
 | `string` | Requires that the current JSON value is equal to the specified string. |
 
 ###### `require equals int`
 
 ```
-Requires that the current JSON value is an integer.
-If the value is not an integer, the transformation fails and the program exits.
+Requires that the current JSON value equals the specified integer.
+One expected integer is required; leading whitespace and a leading plus or minus are accepted, but boolean strings are not.
+Invalid, partially parsed, or out-of-range arguments and failed value conversions cause the transformation to fail.
 Usage: |require equals int <expected> -> {value,<Returns false if not equal>}
 ```
 
@@ -3303,7 +3305,7 @@ Usage: |require equals int <expected> -> {value,<Returns false if not equal>}
 
 ```
 Requires that the current JSON value is equal to the specified string.
-If the value is not equal to the specified string, the transformation fails and the program exits.
+If the value is not equal to the specified string, the transformation fails. An omitted expected string is empty.
 Usage: |require equals string <expected> -> {value,<Returns false if not equal>}
 ```
 
@@ -3329,7 +3331,7 @@ Available Functions
 
 ```
 Requires that the current JSON string value matches a provided regular expression.
-If the value does not match the regular expression, the transformation fails.
+If the pattern is missing or invalid, or the value does not match it, the transformation fails.
 Usage: |require match regex <regex> -> {value,<Returns false if no match>}
 ```
 
@@ -3360,8 +3362,8 @@ Available Functions
 | `array` | Requires that the current JSON value is of type array. |
 | `basicValue` | Requires that the current JSON value is a basic value (not object or array or null). |
 | `help` | Show available commands and their descriptions |
-| `numeric` | Requires that the current JSON value is numeric. |
-| `numericOrNumericString` | Requires that the current JSON value is numeric, or a string of a numeric. |
+| `numeric` | Requires a JSON number (not a boolean or string). |
+| `numericOrNumericString` | Requires a JSON number or a numeric string; booleans and boolean strings are rejected. |
 | `object` | Requires that the current JSON value is of type object. |
 
 ###### `require type array`
@@ -3385,7 +3387,7 @@ Usage: |requireTypeValue -> {value,<Returns false if not value>}
 ###### `require type numeric`
 
 ```
-Requires that the current JSON value is numeric.
+Requires a JSON number (not a boolean or string).
 If the value is not numeric, the transformation fails.
 Accepts an optional user-defined error message as additional arguments.
 Usage: |requireTypeNumeric -> {value,<Returns false if not numeric>}
@@ -3394,7 +3396,7 @@ Usage: |requireTypeNumeric -> {value,<Returns false if not numeric>}
 ###### `require type numericOrNumericString`
 
 ```
-Requires that the current JSON value is numeric, or a string of a numeric.
+Requires a JSON number or a numeric string; booleans and boolean strings are rejected.
 If the value is not numeric or a string of a numeric, the transformation fails.
 Accepts an optional user-defined error message as additional arguments.
 Usage: |requireTypeNumericOrNumericString -> {value,<Returns false if not numeric or numeric string>}
@@ -4097,3 +4099,4 @@ Returns 1 if exactly one of a or b is logically true, otherwise returns 0.
 Uses epsilon threshold to determine logical truthiness.
 Usage: xor(a, b)
 ```
+
