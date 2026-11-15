@@ -33,7 +33,7 @@ Constants::Event SimpleData::updateHook() {
 // General set/get/remove functions
 
 Constants::Event SimpleData::set(Utility::Args::SegmentedStringView const& args, Interaction::Context const& ctx, Interaction::ContextScope const& ctxScope) {
-    auto lock = ctxScope.self.lock(); // Lock the domain for thread-safe access
+    auto const lock = ctxScope.self.lock(); // Lock the domain for thread-safe access
     if (args.size() < 2) {
         return Constants::StandardCapture::Warning::Functional::tooFewArgs(ctx.self.capture);
     }
@@ -44,7 +44,7 @@ Constants::Event SimpleData::set(Utility::Args::SegmentedStringView const& args,
 }
 
 Constants::Event SimpleData::assign(Utility::Args::SegmentedStringView const& args, Interaction::Context const& ctx, Interaction::ContextScope const& ctxScope){
-    auto lock = ctxScope.self.lock(); // Lock the domain for thread-safe access
+    auto const lock = ctxScope.self.lock(); // Lock the domain for thread-safe access
     if (args.size() < 2) {
         return Constants::StandardCapture::Warning::Functional::tooFewArgs(ctx.self.capture);
     }
@@ -59,7 +59,7 @@ Constants::Event SimpleData::assign(Utility::Args::SegmentedStringView const& ar
 }
 
 Constants::Event SimpleData::move(Utility::Args::SegmentedStringView const& args, Interaction::Context const& ctx, Interaction::ContextScope const& ctxScope) {
-    auto lock = ctxScope.self.lock(); // Lock the domain for thread-safe access
+    auto const lock = ctxScope.self.lock(); // Lock the domain for thread-safe access
     if (args.size() < 3) {
         return Constants::StandardCapture::Warning::Functional::tooFewArgs(ctx.self.capture);
     }
@@ -73,7 +73,7 @@ Constants::Event SimpleData::move(Utility::Args::SegmentedStringView const& args
 }
 
 Constants::Event SimpleData::copy(Utility::Args::SegmentedStringView const& args, Interaction::Context const& ctx, Interaction::ContextScope const& ctxScope) {
-    auto lock = ctxScope.self.lock(); // Lock the domain for thread-safe access
+    auto const lock = ctxScope.self.lock(); // Lock the domain for thread-safe access
     if (args.size() < 3) {
         return Constants::StandardCapture::Warning::Functional::tooFewArgs(ctx.self.capture);
     }
@@ -87,7 +87,7 @@ Constants::Event SimpleData::copy(Utility::Args::SegmentedStringView const& args
 }
 
 Constants::Event SimpleData::keyDelete(Utility::Args::SegmentedStringView const& args, Interaction::Context const& ctx, Interaction::ContextScope const& ctxScope) {
-    auto lock = ctxScope.self.lock(); // Lock the domain for thread-safe access
+    auto const lock = ctxScope.self.lock(); // Lock the domain for thread-safe access
     if (args.size() < 2) {
         return Constants::StandardCapture::Warning::Functional::tooFewArgs(ctx.self.capture);
     }
@@ -103,7 +103,7 @@ Constants::Event SimpleData::keyDelete(Utility::Args::SegmentedStringView const&
 // Array manipulation functions
 
 Constants::Event SimpleData::ensureArray(Utility::Args::SegmentedStringView const& args, Interaction::Context const& ctx, Interaction::ContextScope const& ctxScope) {
-    auto lock = ctxScope.self.lock(); // Lock the domain for thread-safe access
+    auto const lock = ctxScope.self.lock(); // Lock the domain for thread-safe access
     if (args.size() < 2) {
         return Constants::StandardCapture::Warning::Functional::tooFewArgs(ctx.self.capture);
     }
@@ -118,7 +118,7 @@ Constants::Event SimpleData::ensureArray(Utility::Args::SegmentedStringView cons
 }
 
 Constants::Event SimpleData::pushBack(Utility::Args::SegmentedStringView const& args, Interaction::Context& ctx, Interaction::ContextScope& ctxScope){
-    auto lock = ctxScope.self.lock(); // Lock the domain for thread-safe access
+    auto const lock = ctxScope.self.lock(); // Lock the domain for thread-safe access
     if (args.size() > 3) {
         return Constants::StandardCapture::Warning::Functional::tooManyArgs(ctx.self.capture);
     }
@@ -149,7 +149,7 @@ Constants::Event SimpleData::pushBack(Utility::Args::SegmentedStringView const& 
 }
 
 Constants::Event SimpleData::popBack(Utility::Args::SegmentedStringView const& args, Interaction::Context const& ctx, Interaction::ContextScope const& ctxScope) {
-    auto lock = ctxScope.self.lock(); // Lock the domain for thread-safe access
+    auto const lock = ctxScope.self.lock(); // Lock the domain for thread-safe access
     if (args.size() < 2) {
         return Constants::StandardCapture::Warning::Functional::tooFewArgs(ctx.self.capture);
     }
@@ -179,7 +179,7 @@ Constants::Event SimpleData::popBack(Utility::Args::SegmentedStringView const& a
 }
 
 Constants::Event SimpleData::pushFront(Utility::Args::SegmentedStringView const& args, Interaction::Context& ctx, Interaction::ContextScope& ctxScope) {
-    auto lock = ctxScope.self.lock(); // Lock the domain for thread-safe access
+    auto const lock = ctxScope.self.lock(); // Lock the domain for thread-safe access
     if (args.size() > 3) {
         return Constants::StandardCapture::Warning::Functional::tooManyArgs(ctx.self.capture);
     }
@@ -208,7 +208,7 @@ Constants::Event SimpleData::pushFront(Utility::Args::SegmentedStringView const&
     // Security check:
     // if any array item is a document, throw error
     // This feature is yet to be implemented!
-    for (auto itemKey : key.getArrayKeys(size)) {
+    for (auto const itemKey : key.getArrayKeys(size)) {
         if (Data::KeyType const itemType = ctxScope.self.memberType(itemKey); itemType == Data::KeyType::object) {
             ctx.self.capture.error.println("Error: Cannot pushFront into an array containing documents.");
             return Constants::StandardCapture::Error::Functional::functionNotImplemented(ctx.self.capture);
@@ -218,9 +218,9 @@ Constants::Event SimpleData::pushFront(Utility::Args::SegmentedStringView const&
     //------------------------------------------
     // Move all existing items one step forward
     for (std::size_t i = size; i > 0; --i) {
-        auto itemKey = key.addIndex(i - 1);
-        auto itemValue = ctxScope.self.get<std::string>(itemKey).value_or("");
-        auto newItemKey = key.addIndex(i);
+        auto const itemKey = key.addIndex(i - 1);
+        auto const itemValue = ctxScope.self.get<std::string>(itemKey).value_or("");
+        auto const newItemKey = key.addIndex(i);
         ctxScope.self.set(newItemKey, itemValue);
     }
     auto const itemKey = key.addIndex(0);
@@ -229,7 +229,7 @@ Constants::Event SimpleData::pushFront(Utility::Args::SegmentedStringView const&
 }
 
 Constants::Event SimpleData::popFront(Utility::Args::SegmentedStringView const& args, Interaction::Context& ctx, Interaction::ContextScope& ctxScope) {
-    auto lock = ctxScope.self.lock(); // Lock the domain for thread-safe access
+    auto const lock = ctxScope.self.lock(); // Lock the domain for thread-safe access
     if (args.size() < 2) {
         return Constants::StandardCapture::Warning::Functional::tooFewArgs(ctx.self.capture);
     }
@@ -254,7 +254,7 @@ Constants::Event SimpleData::popFront(Utility::Args::SegmentedStringView const& 
     // Security check:
     // if any array item is a document, throw error
     // This feature is yet to be implemented!
-    for (auto itemKey : key.getArrayKeys(size)) {
+    for (auto const itemKey : key.getArrayKeys(size)) {
         if (ctxScope.self.memberType(itemKey) == Data::KeyType::object) {
             ctx.self.capture.error.println("Error: Cannot pushFront into an array containing documents.");
             return Constants::StandardCapture::Error::Functional::functionNotImplemented(ctx.self.capture);
@@ -264,7 +264,7 @@ Constants::Event SimpleData::popFront(Utility::Args::SegmentedStringView const& 
     //------------------------------------------
     // Move all existing items one step back
     for (auto const [newItemKey, itemKey] : key.getArrayKeys(size) | std::views::adjacent<2>) {
-        auto itemValue = ctxScope.self.get<std::string>(itemKey).value_or("");
+        auto const itemValue = ctxScope.self.get<std::string>(itemKey).value_or("");
         ctxScope.self.set(newItemKey, itemValue);
     }
     // Remove the last item

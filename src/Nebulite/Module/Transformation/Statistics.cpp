@@ -43,7 +43,7 @@ double Statistics::accumulate(Data::JsonScope const& jsonDoc, std::function<doub
         return result;
     }
 
-    for (auto itemKey : rootKey.getArrayKeys(size)) {
+    for (auto const itemKey : rootKey.getArrayKeys(size)) {
         double const value = jsonDoc.get<double>(itemKey).value_or(std::numeric_limits<double>::quiet_NaN());
         if (std::isnan(value)) {
             return std::numeric_limits<double>::quiet_NaN();
@@ -120,13 +120,13 @@ bool Statistics::median(Data::JsonScope& jsonDoc) {
     }
 
     std::ranges::sort(values.begin(), values.end());
-    double medianValue = 0.0;
     if (size % 2 == 0) {
-        medianValue = (values[size / 2 - 1] + values[size / 2]) / 2.0;
+        auto const medianValue = (values[size / 2 - 1] + values[size / 2]) / 2.0;
+        jsonDoc.set(rootKey, medianValue);
     } else {
-        medianValue = values[size / 2];
+        auto const medianValue = values[size / 2];
+        jsonDoc.set(rootKey, medianValue);
     }
-    jsonDoc.set(rootKey, medianValue);
     return true;
 }
 

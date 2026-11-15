@@ -45,9 +45,9 @@ namespace Nebulite::Module::Domain::Renderer {
                         moduleScope.removeMember(Key::visibleTiles);
                     }
                     for (auto [idx, tile] : visibleTiles | Utility::Ranges::enumerate) {
-                        auto key = Key::visibleTiles.addIndex(idx);
-                        auto keyX = key.addMember("x");
-                        auto keyY = key.addMember("y");
+                        auto const key = Key::visibleTiles.addIndex(idx);
+                        auto const keyX = key.addMember("x");
+                        auto const keyY = key.addMember("y");
                         moduleScope.set<int>(keyX, tile.x);
                         moduleScope.set<int>(keyY, tile.y);
                     }
@@ -77,7 +77,7 @@ namespace Nebulite::Module::Domain::Renderer {
                 rect.y = static_cast<float>(tilePosition.y * hTile - y);
                 rect.w = wTile;
                 rect.h = hTile;
-                auto scaledRect = domain.scaleRectFromLogicalSize(rect);
+                auto const scaledRect = domain.scaleRectFromLogicalSize(rect);
                 SDL_SetRenderDrawColor(renderer, 255, 0, 255, 255); // Magenta for tile borders
                 SDL_RenderRect(renderer, &scaledRect);
 

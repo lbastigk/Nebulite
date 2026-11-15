@@ -156,7 +156,7 @@ void FuncTree<ReturnValue, AdditionalArgs...>::bindFunction(WrappedFunction cons
                     return true; // signal: exit outer function
                 }
 
-                auto conflictIt = std::find_if(
+                auto const conflictIt = std::find_if(
                     inheritedTrees.begin(), inheritedTrees.end(),
                     [&](auto const& inheritedTree) {
                         return inheritedTree && inheritedTree->hasFunction(name);
@@ -339,7 +339,7 @@ FuncTree<ReturnValue, AdditionalArgs...>::makeFunctionPtr(Func functionPtr) {
     }
     else {
         static_assert(CompileTimeEvaluate::alwaysFalse(), "makeFunctionPtr(func) could not deduce a supported function shape");
-        std::unreachable();
+        std::unreachable(); // NOLINT
     }
 }
 
@@ -404,7 +404,7 @@ FuncTree<ReturnValue, AdditionalArgs...>::makeFunctionPtr(Obj* objectPtr, MemFun
     }
     else {
         static_assert(CompileTimeEvaluate::alwaysFalse(), "makeFunctionPtr(Obj, MemFunc) received an unsupported member function pointer type");
-        std::unreachable();
+        std::unreachable(); // NOLINT
     }
 }
 
@@ -420,7 +420,7 @@ std::vector<std::pair<std::string, std::string_view>> FuncTree<ReturnValue, Addi
     }
 
     // Get functions from inherited FuncTrees
-    for (auto& inheritedTree : inheritedTrees) {
+    for (auto const& inheritedTree : inheritedTrees) {
         for (auto const& [name, description] : inheritedTree->getAllFunctions()) {
             if (bindingContainer.functions.find(name) == bindingContainer.functions.end()) {
                 allFunctions.emplace_back(name, description);
@@ -446,7 +446,7 @@ std::vector<std::pair<std::string, std::string_view>> FuncTree<ReturnValue, Addi
     }
 
     // Get from inherited FuncTree
-    for (auto& inheritedTree : inheritedTrees) {
+    for (auto const& inheritedTree : inheritedTrees) {
         // Case by case, making sure we do not have duplicates
         for (auto const& [name, description] : inheritedTree->getAllVariables()) {
             if (bindingContainer.variables.find(name) == bindingContainer.variables.end()) {

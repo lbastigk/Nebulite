@@ -26,7 +26,7 @@ std::string StringHandler::createPaddedTable(std::vector<std::string> const& wor
     if (words.empty()) {
         return {};
     }
-    auto maxSize = std::ranges::max_element(words, [](std::string_view const a, std::string_view const b) {
+    auto const maxSize = std::ranges::max_element(words, [](std::string_view const a, std::string_view const b) {
         return a.size() < b.size();
     })->length();
     return std::ranges::fold_left(words, std::string{}, [maxSize, rowSize](std::string_view const acc, std::string_view const a) {

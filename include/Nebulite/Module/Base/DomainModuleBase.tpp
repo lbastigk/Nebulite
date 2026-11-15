@@ -32,8 +32,8 @@ void DomainModuleBase::bindFunctionStatic(
     std::string_view helpDescription
 ) {
     // Delegate to FuncTree helper to construct FunctionPtr and bind
-    auto fp = FuncTreeType::makeFunctionPtr(functionPtr);
-    auto fpIdentity = Utility::FunctionIdentity(functionPtr);
+    auto const fp = FuncTreeType::makeFunctionPtr(functionPtr);
+    auto const fpIdentity = Utility::FunctionIdentity(functionPtr);
     if (helpDescription.ends_with('\n')) {
         tree->bindFunction({fp, fpIdentity}, name, helpDescription);
     }
@@ -55,8 +55,8 @@ void DomainModuleBase::bindFunctionStatic(
     static_assert(std::is_member_function_pointer_v<Func>, "This overload requires a member function pointer.");
 
     // Delegate to FuncTree helper that binds the member pointer to the object
-    auto fp = FuncTreeType::makeFunctionPtr(objectPtr, functionPtr);
-    auto fpIdentity = Utility::FunctionIdentity(objectPtr, functionPtr);
+    auto const fp = FuncTreeType::makeFunctionPtr(objectPtr, functionPtr);
+    auto const fpIdentity = Utility::FunctionIdentity(objectPtr, functionPtr);
     if (helpDescription.ends_with('\n')) {
         tree->bindFunction({fp, fpIdentity}, name, helpDescription);
     }
