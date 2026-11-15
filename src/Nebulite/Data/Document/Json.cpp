@@ -291,8 +291,7 @@ std::optional<std::complex<double>> Json::getComplex(std::string_view const key)
     auto const realKey = memberKey(RjDirectAccess::complexRealMember);
     auto const imaginaryKey = memberKey(RjDirectAccess::complexImaginaryMember);
     auto const realPart = get<double>(realKey);
-    auto const imaginaryPart = get<double>(imaginaryKey);
-    if (realPart.has_value() && imaginaryPart.has_value()) {
+    if (auto const imaginaryPart = get<double>(imaginaryKey); realPart.has_value() && imaginaryPart.has_value()) {
         return std::complex(realPart.value(), imaginaryPart.value());
     }
     return std::nullopt;

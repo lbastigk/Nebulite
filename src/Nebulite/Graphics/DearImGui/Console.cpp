@@ -186,7 +186,7 @@ void completionCallback(ImGuiInputTextCallbackData* data, ConsoleState const* st
 
     // Finish completions
     std::ranges::sort(completions, Utility::Sort::caseInsensitiveLess);
-    auto v = std::ranges::unique(completions);
+    auto const v = std::ranges::unique(completions);
     completions.erase(v.begin(), v.end());
     auto const commonPrefixFound = completions.size() != 1 && checkCompletionsForCommonPrefix(state->command, completions);
 
@@ -210,7 +210,7 @@ void completionCallback(ImGuiInputTextCallbackData* data, ConsoleState const* st
         data->InsertChars(data->CursorPos, toInsert.c_str());
 
         // Insert additional whitespace under certain conditions:
-        static auto endCharsToIgnore = {
+        static auto const endCharsToIgnore = {
             Utility::Io::FileManagement::preferredSeparator(), // Directory Path
             Data::Json::SpecialCharacter::dot, // JSON indexing
             Data::Json::SpecialCharacter::arrayClose, // JSON array indexing

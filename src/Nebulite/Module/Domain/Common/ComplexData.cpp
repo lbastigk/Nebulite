@@ -38,7 +38,7 @@ Constants::Event ComplexData::querySet() {
 }
 
 Constants::Event ComplexData::jsonSet(Utility::Args::SegmentedStringView const& args, Interaction::Context const& ctx, Interaction::ContextScope const& ctxScope) {
-    auto lock = ctxScope.self.lock(); // Lock the domain for thread-safe access
+    auto const lock = ctxScope.self.lock(); // Lock the domain for thread-safe access
     if (args.size() < 3) {
         return Constants::StandardCapture::Warning::Functional::tooFewArgs(ctx.self.capture);
     }
@@ -54,7 +54,7 @@ Constants::Event ComplexData::jsonSet(Utility::Args::SegmentedStringView const& 
 }
 
 Constants::Event ComplexData::evaluateMember(Utility::Args::SegmentedStringView const& args, Interaction::Context const& ctx, Interaction::ContextScope const& ctxScope) {
-    auto lock = ctxScope.self.lock(); // Lock the domain for thread-safe access
+    auto const lock = ctxScope.self.lock(); // Lock the domain for thread-safe access
     if (args.size() < 2) {
         return Constants::StandardCapture::Warning::Functional::tooFewArgs(ctx.self.capture);
     }
@@ -103,7 +103,7 @@ Constants::Event ComplexData::evaluateRecursive(Utility::Args::SegmentedStringVi
         }
     };
 
-    auto lock = ctxScope.self.lock(); // Lock the domain for thread-safe access
+    auto const lock = ctxScope.self.lock(); // Lock the domain for thread-safe access
     if (args.size() < 2) {
         return Constants::StandardCapture::Warning::Functional::tooFewArgs(ctx.self.capture);
     }

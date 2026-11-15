@@ -51,7 +51,7 @@ ExpressionComponent ExpressionComponent::parseEval(std::string_view token, Varia
     for (auto const& subToken : Utility::StringHandler::splitOnSameDepthOf(expression, Utility::StringHandler::Delimiter::brace)) {
         if (subToken.starts_with('{')) {
             auto const teName = varNameGen.getUniqueName(subToken);
-            auto key = ContextDeriver::stripContext(subToken.substr(1, subToken.length() - 2));
+            auto const key = ContextDeriver::stripContext(subToken.substr(1, subToken.length() - 2));
             auto const contextType = ContextDeriver::getTypeFromString(subToken.substr(1, subToken.length() - 2));
             registerVariableCallback(teName, key, contextType);
             currentComponent.stringRepresentation += teName;
@@ -128,7 +128,7 @@ std::string getStringValue(DocumentType const& doc, KeyType const& k) {
 
 void setToken(std::string& token, std::string const& evaluatedKey, ContextScope const& context, ContextDeriver::TargetType const source) {
     auto const scopedKey = Data::ScopedKey(evaluatedKey);
-    auto keyView = scopedKey.view();
+    auto const keyView = scopedKey.view();
     switch (source) {
     case ContextDeriver::TargetType::self: // {self:<key><transformations>}
         token = getStringValue(context.self, scopedKey.view());

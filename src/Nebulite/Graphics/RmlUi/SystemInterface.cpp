@@ -27,7 +27,7 @@ class Cursor {
     Nebulite::Utility::TimeKeeper usageTracker;
 
 public:
-    explicit Cursor(SDL_SystemCursor const& id, auto&& condition) : data(SDL_CreateSystemCursor(id)), enableCondition(condition) {
+    explicit Cursor(SDL_SystemCursor const& id, auto&& condition) : data(SDL_CreateSystemCursor(id)), enableCondition(std::forward<decltype(condition)>(condition)) {
         usageTracker.start();
         usageTracker.update();
     }

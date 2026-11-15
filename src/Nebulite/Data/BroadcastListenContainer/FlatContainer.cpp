@@ -58,7 +58,7 @@ class ThreadIdGenerator {
 
 public:
     static std::size_t getThreadId() {
-        static auto threadSpreader = Utility::Coordination::IdGenerator::atomicIncrementIdGenerator();
+        static auto const threadSpreader = Utility::Coordination::IdGenerator::atomicIncrementIdGenerator();
         thread_local std::size_t const threadId = threadSpreader();
 
         // Sanity check: cannot have more threads than workerCount
@@ -76,13 +76,13 @@ public:
 } // namespace
 
 void FlatContainerBase::broadcast(std::shared_ptr<Interaction::Rules::Ruleset>&& entry) {
-    thread_local auto threadId = ThreadIdGenerator::getThreadId();
+    thread_local auto const threadId = ThreadIdGenerator::getThreadId();
     assert(threadId < activeWorkerCount); // Too many threads trying to broadcast/listen, increase FlatContainerBase::activeWorkerCount
     broadcasters[threadId][entry->getTopic()].push_back(std::move(entry));
 }
 
 void FlatContainerBase::listen(std::shared_ptr<Interaction::Rules::Listener>&& listener) {
-    thread_local auto threadId = ThreadIdGenerator::getThreadId();
+    thread_local auto const threadId = ThreadIdGenerator::getThreadId();
     assert(threadId < activeWorkerCount); // Too many threads trying to broadcast/listen, increase FlatContainerBase::activeWorkerCount
     listeners[threadId][listener->topic].push_back(std::move(listener));
 }
@@ -97,9 +97,9 @@ namespace {
  */
 template <std::ranges::viewable_range R>
 auto rotate(R&& r, double percent) {
-    auto view = std::views::all(std::forward<R>(r));
+    auto const view = std::views::all(std::forward<R>(r));
 
-    auto size = std::ranges::size(view);
+    auto const size = std::ranges::size(view);
 
     if (size == 0) {
         percent = 0.0;

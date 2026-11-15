@@ -162,7 +162,7 @@ std::optional<std::pair<RenderObject*, Data::JsonScope*>> Environment::getObject
 // Container Management
 
 Data::Tile& Environment::getContainerAt(Data::TileCoordinate const& pos, Layer layer) {
-    return roc[static_cast<uint8_t>(layer)].getContainerAt(pos);
+    return roc[std::to_underlying(layer)].getContainerAt(pos);
 }
 
 bool Environment::isValidPosition(Data::TileCoordinate const& pos, Layer layer) const {

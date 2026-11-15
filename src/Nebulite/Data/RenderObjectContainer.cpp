@@ -39,7 +39,7 @@ std::string RenderObjectContainer::serialize() {
     //------------------------------------------
     // Get all objects in container
     std::size_t i = 0;
-    for (auto& tile : std::views::values(objectContainer)) {
+    for (auto const& tile : std::views::values(objectContainer)) {
         for (auto const& objects : tile.getBatchedObjects()) {
             for (auto const& obj : objects) {
                 Json objSerial;
@@ -63,7 +63,7 @@ void RenderObjectContainer::deserialize(std::string const& serialOrLink, TilingI
     doc.deserialize(serialOrLink);
     if (doc.memberType(objectsArrayKey) == KeyType::array) {
         for (std::size_t i = 0; i < doc.memberSize(objectsArrayKey); i++) {
-            auto objectKey = objectsArrayKey.addIndex(i);
+            auto const objectKey = objectsArrayKey.addIndex(i);
 
             // Check if serial or not:
             auto roSerial = doc.get<std::string>(objectKey);
@@ -123,7 +123,7 @@ void RenderObjectContainer::update(std::vector<TileCoordinate> const& viewport, 
     // Update only tiles that might be visible
 
     std::size_t workerIdx = 0;
-    for (auto tilePosition : viewport) {
+    for (auto const tilePosition : viewport) {
         // Check if container has tile at position, if not, skip
         auto const it = objectContainer.find(tilePosition);
         if (it == objectContainer.end()) {
@@ -168,7 +168,7 @@ Tile& RenderObjectContainer::getContainerAt(TileCoordinate const& position) [[cl
 
 Core::RenderObject* RenderObjectContainer::getObjectFromId(std::size_t const domainId) {
     // Go through all batches
-    for (auto& tile : std::views::values(objectContainer)) {
+    for (auto const& tile : std::views::values(objectContainer)) {
         for (auto const& objects : tile.getBatchedObjects()) {
             for (auto const& object : objects) {
                 if (object->getId() == domainId) {
@@ -183,7 +183,7 @@ Core::RenderObject* RenderObjectContainer::getObjectFromId(std::size_t const dom
 void RenderObjectContainer::reinsertAllObjects(TilingInformation const& tilingInformation) {
     // Collect all objects
     std::vector<Core::RenderObject*> toReinsert;
-    for (auto& tile : std::views::values(objectContainer)) {
+    for (auto const& tile : std::views::values(objectContainer)) {
         for (auto const& objects : tile.getBatchedObjects()) {
             // Collect all objects from the batch
             std::ranges::copy(objects.begin(), objects.end(), std::back_inserter(toReinsert));

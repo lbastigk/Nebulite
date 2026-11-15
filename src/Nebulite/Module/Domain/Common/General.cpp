@@ -71,7 +71,7 @@ Constants::Event General::ifFunc(Utility::Args::SegmentedStringView const& args,
     }
 
     // See if any arg is "then", if so, only evaluate until then, and execute the rest as commands if the condition is true
-    auto commandStartFinder = [&]-> std::pair<size_t, std::size_t> {
+    auto const commandStartFinder = [&]-> std::pair<size_t, std::size_t> {
         if (auto const it = std::ranges::find(args, std::string("then")); it != args.end()) {
             auto const commandStart = static_cast<size_t>(std::distance(args.begin(), it));
 
@@ -342,7 +342,7 @@ Constants::Event General::capture(Utility::Args::SegmentedStringView const& args
     auto const key = ctxScope.self.getRootScope().addMember(args[1]);
     ctxScope.self.setEmptyArray(key);
     for (auto const [i, line] : history | Utility::Ranges::enumerate) {
-        auto indexedKey = key.addIndex(i);
+        auto const indexedKey = key.addIndex(i);
         ctxScope.self.set<std::string>(indexedKey, line.content);
     }
     return result;

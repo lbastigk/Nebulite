@@ -19,7 +19,7 @@ MappedOrderedCacheList::MappedOrderedCacheList([[clang::lifetimebound]] JsonScop
     : reference(ownerReference) {}
 
 std::size_t MappedOrderedCacheList::generateUniqueId(std::string_view const identifier, std::string_view const context) {
-    static auto generator = Utility::Coordination::IdGenerator::twoStringsToRollingIdGenerator();
+    static auto const generator = Utility::Coordination::IdGenerator::twoStringsToRollingIdGenerator();
     return generator(identifier, context);
 }
 

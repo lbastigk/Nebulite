@@ -45,7 +45,7 @@ void ReadOnlyDocs::update() const {
     }
 
     // Randomly select a document to check for unloading
-    auto lock = std::scoped_lock{docsMutex};
+    auto const lock = std::scoped_lock{docsMutex};
     auto it = docs.begin();
     thread_local std::mt19937_64 rng{std::random_device{}()};
     std::uniform_int_distribution<std::size_t> dist(0, docs.size() - 1);
@@ -64,7 +64,7 @@ ReadOnlyDoc* ReadOnlyDocs::getDocument(std::string_view const doc) const {
         return nullptr;
     }
     // Check if the document exists in the cache
-    auto lock = std::scoped_lock{docsMutex};
+    auto const lock = std::scoped_lock{docsMutex};
     auto it = docs.find(doc);
     if (it == docs.end()){
         // Load the document if it doesn't exist

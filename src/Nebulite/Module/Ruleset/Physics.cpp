@@ -101,7 +101,7 @@ void Physics::elasticCollision(Interaction::Context const& context, double** slf
                 double const v2NewX = ((m2 - m1) * v2X + 2 * m1 * v1X) / (m1 + m2);
 
                 // Lock and write
-                auto slfLock = context.other.lockDocument();
+                auto const slfLock = context.other.lockDocument();
                 if (baseVal(otr, Key::physicsLastCollisionX) < global.t) {
                     baseVal(otr, Key::physicsCorrectionVelocityX) += v2NewX - v2X;
                     baseVal(otr, Key::physicsLastCollisionX) = global.t;
@@ -116,7 +116,7 @@ void Physics::elasticCollision(Interaction::Context const& context, double** slf
                 double const v2NewY = ((m2 - m1) * v2Y + 2 * m1 * v1Y) / (m1 + m2);
 
                 // Lock and write
-                auto slfLock = context.other.lockDocument();
+                auto const slfLock = context.other.lockDocument();
                 if (baseVal(otr, Key::physicsLastCollisionY) < global.t) {
                     baseVal(otr, Key::physicsCorrectionVelocityY) += v2NewY - v2Y;
                     baseVal(otr, Key::physicsLastCollisionY) = global.t;
@@ -134,7 +134,7 @@ void Physics::gravity(Interaction::Context const& context, double** slf, double*
     double const invR3 = invR * invR * invR;
     double const coeff = global.gravitationalConstant * baseVal(slf, Key::physicsMass) * baseVal(otr, Key::physicsMass) * invR3;
 
-    auto otrLock = context.other.lockDocument();
+    auto const otrLock = context.other.lockDocument();
     baseVal(otr, Key::physicsForceX) += dx * coeff;
     baseVal(otr, Key::physicsForceY) += dy * coeff;
 }
@@ -171,7 +171,7 @@ void Physics::applyCorrection(Interaction::Context const& context, double** slf,
     // Check if any corrections are significant enough to apply (greater than a small epsilon)
     if (anyCorrectionValueNonZero(slf)) {
         // Lock and apply corrections
-        auto slfLock = context.self.lockDocument();
+        auto const slfLock = context.self.lockDocument();
         baseVal(slf, Key::posX) += baseVal(slf, Key::physicsCorrectionX);
         baseVal(slf, Key::posY) += baseVal(slf, Key::physicsCorrectionY);
         baseVal(slf, Key::physicsVelocityX) += baseVal(slf, Key::physicsCorrectionVelocityX);
@@ -196,7 +196,7 @@ void Physics::drag(Interaction::Context const& context, double** slf, double** /
     double const dragForceY = -dragCoefficient * vY;
 
     // Lock and apply drag forces
-    auto slfLock = context.self.lockDocument();
+    auto const slfLock = context.self.lockDocument();
     baseVal(slf, Key::physicsForceX) += dragForceX;
     baseVal(slf, Key::physicsForceY) += dragForceY;
 }

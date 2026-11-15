@@ -32,7 +32,7 @@ bool Types::defaultToString(Utility::Args::SegmentedStringView const& args, Data
 }
 
 bool Types::typeAsNumber(Data::JsonScope& jsonDoc) {
-    jsonDoc.set<int>(rootKey, static_cast<int>(jsonDoc.memberType(rootKey)));
+    jsonDoc.set<int>(rootKey, std::to_underlying(jsonDoc.memberType(rootKey)));
     return true;
 }
 

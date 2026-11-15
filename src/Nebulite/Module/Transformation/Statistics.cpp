@@ -208,8 +208,7 @@ bool Statistics::mode(Data::JsonScope& jsonDoc) {
     double modeValue = 0.0;
     std::size_t modeFrequency = 0;
     for (auto const key : rootKey.getArrayKeys(size)) {
-        double const value = jsonDoc.get<double>(key).value();
-        if (frequencies[value] > modeFrequency) {
+        if (double const value = jsonDoc.get<double>(key).value(); frequencies[value] > modeFrequency) {
             modeValue = value;
             modeFrequency = frequencies[value];
         }

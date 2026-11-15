@@ -47,7 +47,7 @@ void Reflection::update() {
 void Reflection::OnElementCreate(Rml::Element* element) {
     if (!element) return;
 
-    auto addToList = [&](std::string const& attribute, std::vector<std::pair<Rml::Element*, std::unique_ptr<ReflectionEntry>>>& list) {
+    auto const addToList = [&](std::string const& attribute, std::vector<std::pair<Rml::Element*, std::unique_ptr<ReflectionEntry>>>& list) {
         if (element->GetAttribute(attribute)) {
             auto const expression = std::string(element->GetAttribute(attribute)->Get<Rml::String>());
             if (expression.empty()) {

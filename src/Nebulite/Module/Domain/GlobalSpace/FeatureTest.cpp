@@ -249,7 +249,7 @@ Constants::Event FeatureTest::segmentedStringViewCompare() const {
         // Use test data
         for (auto const* strRaw : strings) {
             auto str = std::string_view(strRaw);
-            auto args = Utility::StringHandler::split(str, ' ');
+            auto const args = Utility::StringHandler::split(str, ' ');
             auto const ssv = Utility::Args::SegmentedStringView(args);
 
             Utility::Testing::assume(ssv.characterCount() == str.size(), "Expected character count to match the source string for '", str, "'");
@@ -274,8 +274,8 @@ Constants::Event FeatureTest::segmentedStringViewCompare() const {
             for (size_t i = 0; i < str.size(); ++i) {
                 auto const left = str.substr(0, i);
                 auto const right = str.substr(i);
-                auto argsLeft = Utility::StringHandler::split(left, ' ');
-                auto argsRight = Utility::StringHandler::split(right, ' ');
+                auto const argsLeft = Utility::StringHandler::split(left, ' ');
+                auto const argsRight = Utility::StringHandler::split(right, ' ');
 
                 // Compare against substrings
                 Utility::Testing::assume(ssv.beginsWith(left), "Expected segmented string view '", str, "' to start with '", left, "'");
@@ -318,7 +318,7 @@ Constants::Event FeatureTest::segmentedStringViewContains() const {
     try {
         for (auto const* strRaw : strings) {
             auto str = std::string_view(strRaw);
-            auto args = Utility::StringHandler::split(str, ' ');
+            auto const args = Utility::StringHandler::split(str, ' ');
             auto const ssv = Utility::Args::SegmentedStringView(args);
 
             // Check for contains values
@@ -331,8 +331,8 @@ Constants::Event FeatureTest::segmentedStringViewContains() const {
                 );
 
                 // ssv-ssv compare
-                auto valArgs = Utility::StringHandler::split(val, ' ');
-                auto ssvVal = Utility::Args::SegmentedStringView(valArgs);
+                auto const valArgs = Utility::StringHandler::split(val, ' ');
+                auto const ssvVal = Utility::Args::SegmentedStringView(valArgs);
                 Utility::Testing::assume(
                     ssv.contains(ssvVal) == str.contains(val),
                     "Mismatch between contains methods ssv-ssv for value: '", val, "'. String is: '", str, "'"
@@ -343,8 +343,8 @@ Constants::Event FeatureTest::segmentedStringViewContains() const {
             for (size_t i = 0; i < str.size(); ++i) {
                 auto left = str.substr(0, i);
                 auto right = str.substr(i);
-                auto argsLeft = Utility::StringHandler::split(left, ' ');
-                auto argsRight = Utility::StringHandler::split(right, ' ');
+                auto const argsLeft = Utility::StringHandler::split(left, ' ');
+                auto const argsRight = Utility::StringHandler::split(right, ' ');
 
                 // Compare against substrings
                 Utility::Testing::assume(ssv.contains(left), "Expected segmented string view to contain '", left, "'");

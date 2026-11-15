@@ -231,8 +231,7 @@ bool Array::dedupe(Data::JsonScope& jsonDoc){
     std::vector<std::string> seenValues;
 
     for (auto const key : jsonDoc.arrayKeys(rootKey)) {
-        auto const value = jsonDoc.serialize(key);
-        if (std::ranges::find(seenValues, value) == seenValues.end()) {
+        if (auto const value = jsonDoc.serialize(key); std::ranges::find(seenValues, value) == seenValues.end()) {
             seenValues.push_back(value);
         }
     }
@@ -346,7 +345,7 @@ bool Array::batch(Utility::Args::SegmentedStringView const& args, Data::JsonScop
     if (!size.has_value()) return false;
     if (size.value() == 0) return false;
     if (jsonDoc.memberType(rootKey) != Data::KeyType::array) return false;
-    auto arraySize = jsonDoc.memberSize(rootKey);
+    auto const arraySize = jsonDoc.memberSize(rootKey);
 
     // Edge case: do not modify empty arrays
     if (arraySize == 0) return true;
@@ -425,8 +424,8 @@ bool Array::slide(Utility::Args::SegmentedStringView const& args, Data::JsonScop
 
 bool Array::iota(Utility::Args::SegmentedStringView const& args, Data::JsonScope& jsonDoc){
     if (args.size() < 3) return false;
-    auto start = std::stoll(std::string(args.at(1)));
-    auto end = std::stoll(std::string(args.at(2)));
+    auto const start = std::stoll(std::string(args.at(1)));
+    auto const end = std::stoll(std::string(args.at(2)));
     if (start >= end) {
         jsonDoc.setEmptyArray(rootKey);
         return true;

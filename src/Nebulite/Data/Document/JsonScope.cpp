@@ -243,7 +243,7 @@ std::unique_lock<std::recursive_mutex> JsonScope::lock() const {
 // Ordered cache list related
 
 std::size_t JsonScope::assignCacheLookupIndex() {
-    static auto indexCounter = Utility::Coordination::IdGenerator::atomicIncrementIdGenerator();
+    static auto const indexCounter = Utility::Coordination::IdGenerator::atomicIncrementIdGenerator();
     thread_local std::size_t const threadIndex = indexCounter();
     return threadIndex;
 }

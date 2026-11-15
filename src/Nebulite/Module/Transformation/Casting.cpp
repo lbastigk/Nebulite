@@ -80,8 +80,8 @@ bool Casting::toBool(Data::JsonScope& jsonDoc) {
     }
 
     // Try to interpret the current value as string first
-    static auto supportedTrueValues = std::set<std::string>{"true", "1", "yes", "on"};
-    static auto supportedFalseValues = std::set<std::string>{"false", "0", "no", "off"};
+    static auto const supportedTrueValues = std::set<std::string>{"true", "1", "yes", "on"};
+    static auto const supportedFalseValues = std::set<std::string>{"false", "0", "no", "off"};
 
     auto const currentValueStr = jsonDoc.get<std::string>(rootKey).value_or("");
     std::string valueLower;

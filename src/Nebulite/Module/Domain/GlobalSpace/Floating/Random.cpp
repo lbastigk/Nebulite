@@ -77,7 +77,7 @@ void Random::updateRng() {
     for (auto& [key, rng] : rngMap) {
         auto const seed = key + std::to_string(rng.get());
         rng.update(seed);
-        auto scopedKey = Key::root().addMember(key);
+        auto const scopedKey = Key::root().addMember(key);
         moduleScope.set<RngSize>(scopedKey, rng.get());
     }
 }

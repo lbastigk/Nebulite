@@ -86,8 +86,8 @@ void Input::mapKeyNames() {
                 keyboardState.keyNames[scancode] = keyName;
 
                 // Paths
-                auto currentPath = Key::keyboardCurrent.addMember(keyboardState.keyNames[scancode]);
-                auto deltaPath = Key::keyboardDelta.addMember(keyboardState.keyNames[scancode]);
+                auto const currentPath = Key::keyboardCurrent.addMember(keyboardState.keyNames[scancode]);
+                auto const deltaPath = Key::keyboardDelta.addMember(keyboardState.keyNames[scancode]);
                 keyboardState.deltaKey[scancode] = moduleScope.getStableDoublePointer(deltaPath);
                 keyboardState.currentKey[scancode] = moduleScope.getStableDoublePointer(currentPath);
             }
