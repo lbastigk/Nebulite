@@ -39,16 +39,16 @@ std::string ScopedKeyView::combineKeys(std::string_view const key1, std::string_
         key2.remove_prefix(1);
     }
 
-    // remove trailing dot from key1
     if (!fullKey.empty()) {
+        // remove trailing dot from key1
         if (key2.empty() || key2.front() == Json::SpecialCharacter::arrayOpen) {
             fullKey.pop_back();
         }
-    }
 
-    // Remove dot at the beginning
-    if (fullKey.starts_with(Json::SpecialCharacter::dot)) {
-        fullKey.erase(0, 1);
+        // Remove dot at the beginning
+        if (fullKey.starts_with(Json::SpecialCharacter::dot)) {
+            fullKey.erase(0, 1);
+        }
     }
 
     // Append second key
