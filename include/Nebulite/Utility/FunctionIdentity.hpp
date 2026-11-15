@@ -44,7 +44,7 @@ struct FunctionIdentity {
         );
 
         // std::function is not allowed
-        static_assert(!std::is_same_v<std::remove_cv_t<std::remove_reference_t<Fn>>, std::function<void()>>,
+        static_assert(!std::is_same_v<std::remove_cvref_t<Fn>, std::function<void()>>,
             "std::function objects are not allowed. Use a raw function pointer instead."
         );
 
