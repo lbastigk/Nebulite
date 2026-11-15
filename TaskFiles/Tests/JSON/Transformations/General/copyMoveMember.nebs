@@ -28,5 +28,51 @@ eval nop {global:moveResult.name|assert empty}
 # Invalid argument counts fail
 eval nop {global:source|copyMember text|unreachable}
 eval nop {global:source|moveMember text destination extra|unreachable}
+eval nop {global:source|copyMember text destination extra|unreachable}
+eval nop {global:source|moveMember text|unreachable}
+
+# Existing destinations are replaced, and same-path operations are no-ops.
+assign global:copyReplacement = {global:source|copyMember items text|copyMember items items}
+eval nop {global:copyReplacement.text|assert type array|length|assert equals int 2}
+eval nop {global:copyReplacement.items[0]|assert equals string first}
+eval nop {global:copyReplacement.items[1]|assert equals string second}
+assign global:moveReplacement = {global:source|moveMember items text|moveMember text text}
+eval nop {global:moveReplacement.text|assert type array|length|assert equals int 2}
+eval nop {global:moveReplacement.text[1]|assert equals string second}
+eval nop {global:moveReplacement.items|assert empty}
+
+# Copying an ancestor into its child copies the original before inserting it.
+set overlap.parent.child leaf
+set overlap.parent.other sibling
+assign global:copyIntoChild = {global:overlap|copyMember parent parent.nested}
+eval nop {global:copyIntoChild.parent.child|assert equals string leaf}
+eval nop {global:copyIntoChild.parent.nested.child|assert equals string leaf}
+eval nop {global:copyIntoChild.parent.nested.other|assert equals string sibling}
+assign global:moveIntoObjectChild = {global:overlap|moveMember parent parent.nested}
+eval nop {global:moveIntoObjectChild.parent.child|assert equals string leaf}
+eval nop {global:moveIntoObjectChild.parent.nested.child|assert equals string leaf}
+eval nop {global:moveIntoObjectChild.parent.nested.other|assert equals string sibling}
+
+# Copying or moving a child into its ancestor replaces the ancestor.
+assign global:copyToAncestor = {global:overlap|copyMember parent.child parent}
+eval nop {global:copyToAncestor.parent|assert equals string leaf}
+assign global:moveToAncestor = {global:overlap|moveMember parent.child parent}
+eval nop {global:moveToAncestor.parent|assert equals string leaf}
+
+# Moving a scalar into its own child converts the ancestor into an object.
+set scalar.parent leaf
+assign global:copyIntoScalarChild = {global:scalar|copyMember parent parent.child}
+eval nop {global:copyIntoScalarChild.parent|assert type object}
+eval nop {global:copyIntoScalarChild.parent.child|assert equals string leaf}
+assign global:moveIntoChild = {global:scalar|moveMember parent parent.child}
+eval nop {global:moveIntoChild.parent|assert type object}
+eval nop {global:moveIntoChild.parent.child|assert equals string leaf}
+
+# A missing source removes the destination, following JSON document semantics.
+assign global:copyMissing = {global:source|copyMember missing text}
+assign global:moveMissing = {global:source|moveMember missing text}
+eval nop {global:copyMissing.text|assert empty}
+eval nop {global:moveMissing.text|assert empty}
+eval nop {global:source.text|assert equals string copied}
 
 exit

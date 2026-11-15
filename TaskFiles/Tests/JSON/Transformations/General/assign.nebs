@@ -13,4 +13,22 @@ eval nop {global:result.arr|assert type array}
 eval nop {global:result.arr|length|assert equals int 3}
 eval nop {global:result.arraySize|assert equals int 3}
 
+# All three context names refer to the transformed document.
+set workspace.value 5
+assign global:contexts = {global:workspace|assign other:fromOther = {1!global:value}|assign global:fromGlobal = {1!self:value}|assign self:fromSelf = {1!other:value}}
+eval nop {global:contexts.fromOther|assert equals int 5}
+eval nop {global:contexts.fromGlobal|assert equals int 5}
+eval nop {global:contexts.fromSelf|assert equals int 5}
+eval nop {global:workspace.fromGlobal|assert empty}
+
+# Missing or malformed assignments stop the chain.
+eval nop {global:workspace|assign|unreachable}
+eval nop {global:workspace|assign self:broken|unreachable}
+eval nop {global:workspace|assign resource:file = 1|unreachable}
+
+# Failed retrieval discards the working copy even if earlier steps changed it.
+assign global:failed = {global:workspace|setString value changed|assign self:broken}
+eval nop {global:failed|assert empty}
+eval nop {global:workspace.value|assert equals int 5}
+
 exit

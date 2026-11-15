@@ -44,47 +44,59 @@ public:
     static auto constexpr setStringName = "setString";
     static auto constexpr setStringDesc = "Sets a string value at the specified key in the JSON document.\n"
         "Expects two arguments: <key> and <value>.\n"
+        "Missing intermediate objects and arrays are created; incompatible parents are replaced.\n"
         "Usage: |setString <key> <value> -> {json}\n";
 
     static bool setInt(Utility::Args::SegmentedStringView const& args, Data::JsonScope& jsonDoc);
     static auto constexpr setIntName = "setInt";
     static auto constexpr setIntDesc = "Sets an integer value at the specified key in the JSON document.\n"
         "Expects two arguments: <key> and <value>.\n"
+        "The value must convert to an integer; true and false convert to 1 and 0.\n"
+        "Missing intermediate objects and arrays are created; incompatible parents are replaced.\n"
         "Usage: |setInt <key> <value> -> {json}\n";
 
     static bool setDouble(Utility::Args::SegmentedStringView const& args, Data::JsonScope& jsonDoc);
     static auto constexpr setDoubleName = "setDouble";
     static auto constexpr setDoubleDesc = "Sets a double value at the specified key in the JSON document.\n"
         "Expects two arguments: <key> and <value>.\n"
+        "The value must convert to a double; true and false convert to 1 and 0.\n"
+        "Missing intermediate objects and arrays are created; incompatible parents are replaced.\n"
         "Usage: |setDouble <key> <value> -> {json}\n";
 
     static bool setBool(Utility::Args::SegmentedStringView const& args, Data::JsonScope& jsonDoc);
     static auto constexpr setBoolName = "setBool";
     static auto constexpr setBoolDesc = "Sets a boolean value at the specified key in the JSON document.\n"
         "Expects two arguments: <key> and <value> (true/false).\n"
-        "Any other value will be considered false.\n"
+        "Only true and false are accepted; other values fail the transformation.\n"
+        "Missing intermediate objects and arrays are created; incompatible parents are replaced.\n"
         "Usage: |setBool <key> <value> -> {json}\n";
 
     static bool removeMember(Utility::Args::SegmentedStringView const& args, Data::JsonScope& jsonDoc);
     static auto constexpr removeMemberName = "removeMember";
     static auto constexpr removeMemberDesc = "Removes the member at the specified key from the JSON document.\n"
-            "Usage: |removeMember <key1> <key2> ... -> {json}\n";
+        "Supports multiple keys.\n"
+        "Usage: |removeMember <key1> <key2> ... -> {json}\n";
 
     static bool assign(Utility::Args::SegmentedStringView const& args, Data::JsonScope& jsonDoc);
     static auto constexpr assignName = "assign";
     static auto constexpr assignDesc = "Assigns a value based on the result of an expression.\n"
         "Usage: |assign <context>:<key> <assign-operator> <expression> -> {json}\n"
         "The expression is evaluated in the current scope, and the result is assigned to the given key.\n"
-        "The entire context is local, meaning self, other, global are all the same and refer to the current scope.\n";
+        "The entire context is local, meaning self, other, global are all the same and refer to the current scope.\n"
+        "Missing assignment operators and resource targets fail; modifications are not rolled back on failure.\n";
 
     static bool copyMember(Utility::Args::SegmentedStringView const& args, Data::JsonScope& jsonDoc);
     static auto constexpr copyMemberName = "copyMember";
-    static auto constexpr copyMemberDesc = "Copys a value based on the result of an expression.\n"
+    static auto constexpr copyMemberDesc = "Copies a JSON value from the source key to the destination key.\n"
+        "An existing destination is replaced; the source is preserved. Identical keys leave the value unchanged.\n"
+        "Overlapping paths follow JSON document copy behavior. A missing source removes the destination.\n"
         "Usage: |copyMember <source> <destination> -> {json}\n";
 
     static bool moveMember(Utility::Args::SegmentedStringView const& args, Data::JsonScope& jsonDoc);
     static auto constexpr moveMemberName = "moveMember";
-    static auto constexpr moveMemberDesc = "Moves a value based on the result of an expression.\n"
+    static auto constexpr moveMemberDesc = "Moves a JSON value from the source key to the destination key.\n"
+        "An existing destination is replaced. Identical keys leave the value unchanged.\n"
+        "Overlapping paths follow JSON document move behavior. A missing source removes the destination.\n"
         "Usage: |moveMember <source> <destination> -> {json}\n";
 };
 } // namespace Nebulite::Module::Transformation

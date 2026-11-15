@@ -4,3 +4,16 @@ assign global:result = {global:original|nop}
 
 eval nop {global:result.value|assert equals string unchanged}
 eval nop {global:result.nested.number|assert equals int 42}
+
+# Nop-transformation preserves scalar, array, and null roots, not just objects.
+# Always passthrough
+eval nop {|setInt . 42|nop|serialize|assert equals string 42}
+eval nop {|setBool . true|nop|assert true}
+eval nop {|setString . hello|nop|assert equals string hello}
+eval nop {global:missing|nop|assert empty}
+assign global:array[0] = $i(1)
+assign global:array[1] = $i(2)
+eval nop {global:array|nop|assert type array|length|assert equals int 2}
+eval nop {global:array|nop|at 1|assert equals int 2}
+
+exit

@@ -59,7 +59,7 @@ public:
      * @param str The string containing the assignment
      * @return true on success, false on failure
      */
-    bool parse(std::string_view str);
+    [[nodiscard]] bool parse(std::string_view str);
 
     /**
      * @brief Tries to optimize the assignment by assuming the provided context self and global are constant.

@@ -9,3 +9,47 @@ eval nop {global:result.string.key|assert equals string value}
 eval nop {global:result.int.key|serialize   |assert equals string 123}
 eval nop {global:result.double.key|serialize|assert equals string 3.14}
 eval nop {global:result.bool.key|serialize  |assert equals string true}
+
+# Missing nested object and array paths are created.
+assign global:nested = {|setString obj.items[0].name first|setInt obj.items[1].count -12|setDouble obj.value 3.5|setBool obj.enabled false}
+eval nop {global:nested.obj.items|length|assert equals int 2}
+eval nop {global:nested.obj.items[0].name|assert equals string first}
+eval nop {global:nested.obj.items[1].count|serialize|assert equals string -12}
+eval nop {global:nested.obj.value|serialize|assert equals string 3.5}
+eval nop {global:nested.obj.enabled|assert false}
+
+# Incompatible parents are replaced with containers required by the path.
+assign global:replaced = {|setString parent old|setString parent.child new|setInt array 10|setBool array[0].flag true}
+eval nop {global:replaced.parent|assert type object}
+eval nop {global:replaced.parent.child|assert equals string new}
+eval nop {global:replaced.array|assert type array|length|assert equals int 1}
+eval nop {global:replaced.array[0].flag|assert true}
+
+# Root assignment replaces the current document and preserves the chosen type.
+eval nop {|setString . hello|assert equals string hello}
+eval nop {|setInt . -42|serialize|assert equals string -42}
+eval nop {|setDouble . 1.5|serialize|assert equals string 1.5}
+eval nop {|setBool . false|assert false}
+
+# Numeric setters also accept boolean strings as 1 and 0.
+eval nop {|setInt . true|serialize|assert equals string 1}
+eval nop {|setInt . false|serialize|assert equals string 0}
+eval nop {|setDouble . true|assert equals int 1}
+eval nop {|setDouble . false|assert equals int 0}
+
+# Invalid values and argument counts stop the transformation chain.
+eval nop {|setBool flag True|unreachable}
+eval nop {|setBool flag 1|unreachable}
+eval nop {|setBool flag invalid|unreachable}
+eval nop {|setInt number invalid|unreachable}
+eval nop {|setInt number 1.5|unreachable}
+eval nop {|setInt number 999999999999999999999999|unreachable}
+eval nop {|setDouble number invalid|unreachable}
+eval nop {|setString key|unreachable}
+eval nop {|setInt key 1 extra|unreachable}
+eval nop {|setDouble key|unreachable}
+eval nop {|setBool key true extra|unreachable}
+eval nop {|setBool key|unreachable}
+eval nop {|setString key value extra|unreachable}
+
+exit

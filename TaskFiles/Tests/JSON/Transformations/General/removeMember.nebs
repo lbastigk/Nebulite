@@ -21,3 +21,16 @@ eval nop {global:result.noArr.obj|assert type object}
 eval nop {global:result.noObj.var|assert type basicValue}
 eval nop {global:result.noObj.arr|assert type array}
 eval nop {global:result.noObj.obj|assert empty}
+
+# Several keys, including a missing key, can be removed in one transformation.
+assign global:multiple = {global:test|removeMember var obj.var1 missing}
+eval nop {global:multiple.var|assert empty}
+eval nop {global:multiple.obj.var1|assert empty}
+eval nop {global:multiple.obj.var2|assert equals int 34}
+eval nop {global:multiple.arr|length|assert equals int 2}
+eval nop {global:test.var|assert equals int 42}
+
+# At least one key is required.
+eval nop {global:test|removeMember|unreachable}
+
+exit

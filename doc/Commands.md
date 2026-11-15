@@ -2,7 +2,7 @@
 
 This documentation is automatically generated.
 
-Generated on: Wed Nov 11 20:44:24 CET 2026
+Generated on: Sun Nov 15 10:31:14 CET 2026
 
 ## Table of Contents
 
@@ -2205,7 +2205,7 @@ Available Functions
 | `complexAbs` | Calculates the absolute value (magnitude) of a complex number. |
 | `complexArg` | Calculates the argument (phase angle) of a complex number in radians. |
 | `complexToString` | Formats the contained complex number object to a string. |
-| `copyMember` | Copys a value based on the result of an expression. |
+| `copyMember` | Copies a JSON value from the source key to the destination key. |
 | `dedupe` | Removes duplicate elements from the array in the current JSON value. |
 | `default` | Replaces a null or missing value with the given string. |
 | `deserialize` | Deserializes the current JSON string value stored in root. |
@@ -2258,7 +2258,7 @@ Available Functions
 | `min` | Finds the minimum value among the elements of the array in the current JSON value. |
 | `mod` | Calculates the modulo of the current JSON value by a numeric value. |
 | `mode` | Finds the most frequent value in the array in the current JSON value. |
-| `moveMember` | Moves a value based on the result of an expression. |
+| `moveMember` | Moves a JSON value from the source key to the destination key. |
 | `mul` | Multiplies the current JSON value by a numeric value. |
 | `nand` | Logical nand operation on the current JSON array values. |
 | `neq` | Checks if the current JSON value is not equal to the specified value. |
@@ -2517,6 +2517,7 @@ Assigns a value based on the result of an expression.
 Usage: |assign <context>:<key> <assign-operator> <expression> -> {json}
 The expression is evaluated in the current scope, and the result is assigned to the given key.
 The entire context is local, meaning self, other, global are all the same and refer to the current scope.
+Missing assignment operators and resource targets fail; modifications are not rolled back on failure.
 ```
 
 #### `at`
@@ -2618,7 +2619,9 @@ Usage: |complexToString [formatter] -> {string}
 #### `copyMember`
 
 ```
-Copys a value based on the result of an expression.
+Copies a JSON value from the source key to the destination key.
+An existing destination is replaced; the source is preserved. Identical keys leave the value unchanged.
+Overlapping paths follow JSON document copy behavior. A missing source removes the destination.
 Usage: |copyMember <source> <destination> -> {json}
 ```
 
@@ -3045,7 +3048,9 @@ Usage: |mode -> {number}
 #### `moveMember`
 
 ```
-Moves a value based on the result of an expression.
+Moves a JSON value from the source key to the destination key.
+An existing destination is replaced. Identical keys leave the value unchanged.
+Overlapping paths follow JSON document move behavior. A missing source removes the destination.
 Usage: |moveMember <source> <destination> -> {json}
 ```
 
@@ -3232,6 +3237,7 @@ Usage: |recombineLines -> {string}
 
 ```
 Removes the member at the specified key from the JSON document.
+Supports multiple keys.
 Usage: |removeMember <key1> <key2> ... -> {json}
 ```
 
@@ -3466,7 +3472,8 @@ Usage: |serialize -> {string}
 ```
 Sets a boolean value at the specified key in the JSON document.
 Expects two arguments: <key> and <value> (true/false).
-Any other value will be considered false.
+Only true and false are accepted; other values fail the transformation.
+Missing intermediate objects and arrays are created; incompatible parents are replaced.
 Usage: |setBool <key> <value> -> {json}
 ```
 
@@ -3475,6 +3482,8 @@ Usage: |setBool <key> <value> -> {json}
 ```
 Sets a double value at the specified key in the JSON document.
 Expects two arguments: <key> and <value>.
+The value must convert to a double; true and false convert to 1 and 0.
+Missing intermediate objects and arrays are created; incompatible parents are replaced.
 Usage: |setDouble <key> <value> -> {json}
 ```
 
@@ -3483,6 +3492,8 @@ Usage: |setDouble <key> <value> -> {json}
 ```
 Sets an integer value at the specified key in the JSON document.
 Expects two arguments: <key> and <value>.
+The value must convert to an integer; true and false convert to 1 and 0.
+Missing intermediate objects and arrays are created; incompatible parents are replaced.
 Usage: |setInt <key> <value> -> {json}
 ```
 
@@ -3491,6 +3502,7 @@ Usage: |setInt <key> <value> -> {json}
 ```
 Sets a string value at the specified key in the JSON document.
 Expects two arguments: <key> and <value>.
+Missing intermediate objects and arrays are created; incompatible parents are replaced.
 Usage: |setString <key> <value> -> {json}
 ```
 

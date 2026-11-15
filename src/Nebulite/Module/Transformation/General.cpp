@@ -68,10 +68,9 @@ bool General::setDouble(Utility::Args::SegmentedStringView const& args, Data::Js
 
 bool General::setBool(Utility::Args::SegmentedStringView const& args, Data::JsonScope& jsonDoc) {
     if (args.size() != 3) return false;
+    if (args[2] != "true" && args[2] != "false") return false;
     auto const key = rootKey.addMember(args[1]);
-    auto const& valStr = args[2];
-    bool const value = valStr == "true";
-    jsonDoc.set<bool>(key, value);
+    jsonDoc.set<bool>(key, args[2] == "true");
     return true;
 }
 
@@ -87,7 +86,7 @@ bool General::removeMember(Utility::Args::SegmentedStringView const& args, Data:
 bool General::assign(Utility::Args::SegmentedStringView const& args, Data::JsonScope& jsonDoc) {
     if (args.size() < 2) return false;
     Interaction::Logic::Assignment ass;
-    ass.parse(args.recombineSubspan(1));
+    if (!ass.parse(args.recombineSubspan(1))) return false;
     Interaction::ContextScope const context{jsonDoc, jsonDoc, jsonDoc};
     ass.apply(context);
     return true;
