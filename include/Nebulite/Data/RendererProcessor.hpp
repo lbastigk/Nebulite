@@ -7,7 +7,7 @@
 // Standard library
 #include <array>
 #include <atomic>
-#include <cstddef>
+#include <cstddef> // NOLINT
 #include <mutex>
 #include <optional>
 #include <vector>

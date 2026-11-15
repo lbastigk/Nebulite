@@ -19,6 +19,7 @@
 #include <vector>
 
 // Nebulite
+#include "Nebulite/Utility/Args/SegmentedStringView.hpp"
 #include "Nebulite/Utility/Ranges.hpp"
 #include "Nebulite/Utility/StringHandler.hpp"
 
@@ -155,7 +156,7 @@ template <typename ReturnValue, typename... AdditionalArgs>
 FuncTree<ReturnValue, AdditionalArgs...>::BindingSearchResult
 FuncTree<ReturnValue, AdditionalArgs...>::find(std::string_view name) {
     // Helper lambda to search in inherited trees
-    auto searchInInherited = [&](auto mapMember, auto& iteratorMember) -> bool {
+    auto const searchInInherited = [&](auto mapMember, auto& iteratorMember) -> bool {
         for (auto const& inheritedTree : inheritedTrees) {
             if (inheritedTree) {
                 iteratorMember = (inheritedTree->bindingContainer.*mapMember).find(name);
@@ -258,12 +259,12 @@ ReturnValue FuncTree<ReturnValue, AdditionalArgs...>::complete(SegmentedStringVi
 template <typename ReturnValue, typename ... AdditionalArgs>
 FuncTree<ReturnValue, AdditionalArgs...>* FuncTree<ReturnValue, AdditionalArgs...>::traverseIntoCategory(std::string_view categoryName, FuncTree const* ftree) {
     // Check direct categories first
-    if (auto catIt = ftree->bindingContainer.categories.find(categoryName); catIt != ftree->bindingContainer.categories.end()) {
+    if (auto const catIt = ftree->bindingContainer.categories.find(categoryName); catIt != ftree->bindingContainer.categories.end()) {
         return catIt->second.tree.get();
     }
 
     // Category not found, check inherited trees
-    auto it = std::ranges::find_if(ftree->inheritedTrees, [&](auto const& inheritedTree) {
+    auto const it = std::ranges::find_if(ftree->inheritedTrees, [&](auto const& inheritedTree) {
         return inheritedTree && inheritedTree->bindingContainer.categories.contains(categoryName);
     });
     if (it != ftree->inheritedTrees.end()) {
@@ -333,7 +334,7 @@ template <typename ReturnValue, typename ... AdditionalArgs>
 std::vector<std::string> FuncTree<ReturnValue, AdditionalArgs...>::findCompletions(std::string_view pattern) {
     StringHandler::strip(pattern); // Remove leading and trailing whitespace
     std::vector<std::string> completions;
-    auto collect = [&](auto const& map, std::string_view const prefix = "") {
+    auto const collect = [&](auto const& map, std::string_view const prefix = "") {
         for (auto const& name : map | std::views::keys) {
             if (prefix.empty()) {
                 if (name.starts_with(pattern)) {
