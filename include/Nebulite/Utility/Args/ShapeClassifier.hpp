@@ -140,7 +140,7 @@ public:
             return classifyFreeFunction<FunctionPointer, ReturnValue, AdditionalArgs...>();
         } else {
             static_assert(CompileTimeEvaluate::alwaysFalse(), "classifyFunction received an unsupported function pointer type.");
-            return FunctionShape::unknown;
+            std::unreachable(); // NOLINT
         }
     }
 };
