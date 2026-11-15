@@ -24,333 +24,343 @@
  * @brief Provides direct access and manipulation of RapidJSON values.
  */
 namespace Nebulite::Data::RjDirectAccess {
-    static auto constexpr complexRealMember = "re";
-    static auto constexpr complexImaginaryMember = "im";
+static auto constexpr complexRealMember = "re";
+static auto constexpr complexImaginaryMember = "im";
 
-    /**
-     * @brief Used flags for rapidjson parsing, allowing comments and trailing commas in JSON.
-     */
-    static auto constexpr rapidjsonParseFlags = rapidjson::kParseCommentsFlag | rapidjson::kParseTrailingCommasFlag;
+/**
+ * @brief Used flags for rapidjson parsing, allowing comments and trailing commas in JSON.
+ */
+static auto constexpr rapidjsonParseFlags = rapidjson::kParseCommentsFlag | rapidjson::kParseTrailingCommasFlag;
 
-    /**
-     * @brief Definition of a simple value variant type.
-     *        All of these types are supported for direct access.
-     */
-    using SimpleValue = std::variant<
-        std::int32_t,
-        std::int64_t,
-        std::uint32_t,
-        std::uint64_t,
-        double,
-        std::string,
-        bool
-    >;
+/**
+ * @brief Definition of a simple value variant type.
+ *        All of these types are supported for direct access.
+ */
+using SimpleValue = std::variant<
+    std::int32_t,
+    std::int64_t,
+    std::uint32_t,
+    std::uint64_t,
+    double,
+    std::string,
+    bool
+>;
 
-    template <typename NewType>
-    std::optional<NewType> convertSimpleValue(SimpleValue const& simpleValue);
+template <typename NewType>
+std::optional<NewType> convertSimpleValue(SimpleValue const& simpleValue);
 
-    /**
-     * @brief Getting a simple value from a rapidjson value, using the right type stored in the document.
-     * @param val Pointer to the rapidjson value to get the value from.
-     * @return An optional SimpleValue containing the value if successful, or std::nullopt if the type is unsupported.
-     */
-    std::optional<SimpleValue> getSimpleValue(rapidjson::Value const* val);
+/**
+ * @brief Getting a simple value from a rapidjson value, using the right type stored in the document.
+ * @param val Pointer to the rapidjson value to get the value from.
+ * @return An optional SimpleValue containing the value if successful, or std::nullopt if the type is unsupported.
+ */
+std::optional<SimpleValue> getSimpleValue(rapidjson::Value const* val);
 
-    /**
-     * @brief Getting a simple value from a rapidjson value, using the right type stored in the document.
-     * @tparam RjValType The type of the rapidjson value, should be a rapidjson::Document to ensure correct key traversal.
-     * @param key The key to traverse in the document to find the value.
-     * @param doc The rapidjson document to search within.
-     * @return An optional SimpleValue containing the value if successful, or std::nullopt if the type is unsupported.
-     */
-    template<typename RjValType>
-    std::optional<SimpleValue> getSimpleValue(std::string_view key, RjValType& doc);
+/**
+ * @brief Getting a simple value from a rapidjson value, using the right type stored in the document.
+ * @tparam RjValType The type of the rapidjson value, should be a rapidjson::Document to ensure correct key traversal.
+ * @param key The key to traverse in the document to find the value.
+ * @param doc The rapidjson document to search within.
+ * @return An optional SimpleValue containing the value if successful, or std::nullopt if the type is unsupported.
+ */
+template<typename RjValType>
+std::optional<SimpleValue> getSimpleValue(std::string_view key, RjValType& doc);
 
-    //------------------------------------------
-    // Getter, Setter
+//------------------------------------------
+// Getter, Setter
 
-    /**
-     * @brief Fallback to direct rapidjson access for getting values.
-     * @param key The key of the value to retrieve.
-     * @param defaultValue The default value to return if the key is not found.
-     * @param val The rapidjson value to search within.
-     * @return The retrieved value or the default value.
-     */
-    template <typename T> requires (std::is_trivially_copyable_v<T>)
-    T get(std::string_view key, T defaultValue, rapidjson::Value& val);
+/**
+ * @brief Fallback to direct rapidjson access for getting values.
+ * @param key The key of the value to retrieve.
+ * @param defaultValue The default value to return if the key is not found.
+ * @param val The rapidjson value to search within.
+ * @return The retrieved value or the default value.
+ */
+template <typename T> requires (std::is_trivially_copyable_v<T>)
+T get(std::string_view key, T defaultValue, rapidjson::Value& val);
 
-    /**
-     * @brief Fallback to direct rapidjson access for getting values.
-     * @param key The key of the value to retrieve.
-     * @param defaultValue The default value to return if the key is not found.
-     * @param val The rapidjson value to search within.
-     * @return The retrieved value or the default value.
-     */
-    template <typename T> requires (!std::is_trivially_copyable_v<T>)
-    T get(std::string_view key, T const& defaultValue, rapidjson::Value& val);
+/**
+ * @brief Fallback to direct rapidjson access for getting values.
+ * @param key The key of the value to retrieve.
+ * @param defaultValue The default value to return if the key is not found.
+ * @param val The rapidjson value to search within.
+ * @return The retrieved value or the default value.
+ */
+template <typename T> requires (!std::is_trivially_copyable_v<T>)
+T get(std::string_view key, T const& defaultValue, rapidjson::Value& val);
 
-    /**
-     * @brief Fallback to direct rapidjson access for setting values.
-     *        This function sets a value in the rapidjson document, ensuring that the key exists.
-     *        If the key does not exist, it is created.
-     * @param key The key of the value to set.
-     * @param value The value to set.
-     * @param val The rapidjson value to modify.
-     * @param allocator The allocator to use for creating new rapidjson values.
-     * @return true if the value was set successfully, false otherwise.
-     */
-    template <typename T> requires (std::is_trivially_copyable_v<T>)
-    bool set(std::string_view key, T value, rapidjson::Value& val, rapidjson::Document::AllocatorType& allocator);
+/**
+ * @brief Fallback to direct rapidjson access for setting values.
+ *        This function sets a value in the rapidjson document, ensuring that the key exists.
+ *        If the key does not exist, it is created.
+ * @param key The key of the value to set.
+ * @param value The value to set.
+ * @param val The rapidjson value to modify.
+ * @param allocator The allocator to use for creating new rapidjson values.
+ * @return true if the value was set successfully, false otherwise.
+ */
+template <typename T> requires (std::is_trivially_copyable_v<T>)
+bool set(std::string_view key, T value, rapidjson::Value& val, rapidjson::Document::AllocatorType& allocator);
 
-    /**
-     * @brief Fallback to direct rapidjson access for setting values.
-     *        This function sets a value in the rapidjson document, ensuring that the key exists.
-     *        If the key does not exist, it is created.
-     * @param key The key of the value to set.
-     * @param value The value to set.
-     * @param val The rapidjson value to modify.
-     * @param allocator The allocator to use for creating new rapidjson values.
-     * @return true if the value was set successfully, false otherwise.
-     */
-    template <typename T> requires (!std::is_trivially_copyable_v<T>)
-    bool set(std::string_view key, T const& value, rapidjson::Value& val, rapidjson::Document::AllocatorType& allocator);
+/**
+ * @brief Fallback to direct rapidjson access for setting values.
+ *        This function sets a value in the rapidjson document, ensuring that the key exists.
+ *        If the key does not exist, it is created.
+ * @param key The key of the value to set.
+ * @param value The value to set.
+ * @param val The rapidjson value to modify.
+ * @param allocator The allocator to use for creating new rapidjson values.
+ * @return true if the value was set successfully, false otherwise.
+ */
+template <typename T> requires (!std::is_trivially_copyable_v<T>)
+bool set(std::string_view key, T const& value, rapidjson::Value& val, rapidjson::Document::AllocatorType& allocator);
 
-    /**
-     * @brief Sets a rapidjson value to the object representation of a complex number.
-     * @param val The rapidjson value to modify.
-     * @param value The complex number to store.
-     * @param allocator The allocator to use for creating object members.
-     */
-    void setComplex(rapidjson::Value* val, std::complex<double> const& value, rapidjson::Document::AllocatorType& allocator);
+/**
+ * @brief Sets a rapidjson value to the object representation of a complex number.
+ * @param val The rapidjson value to modify.
+ * @param value The complex number to store.
+ * @param allocator The allocator to use for creating object members.
+ */
+void setComplex(rapidjson::Value* val, std::complex<double> const& value, rapidjson::Document::AllocatorType& allocator);
 
-    //------------------------------------------
-    // Array
+//------------------------------------------
+// Array
 
-    /**
-     * @brief Ensures that a rapidjson value is an array.
-     * @param val The rapidjson value to modify.
-     * @param allocator The allocator to use when moving the value into the array.
-     */
-    void ensureArray(rapidjson::Value* val, rapidjson::Document::AllocatorType& allocator);
+/**
+ * @brief Ensures that a rapidjson value is an array.
+ * @param val The rapidjson value to modify.
+ * @param allocator The allocator to use when moving the value into the array.
+ */
+void ensureArray(rapidjson::Value* val, rapidjson::Document::AllocatorType& allocator);
 
-    /**
-     * @brief Replaces a rapidjson value with an empty array.
-     * @param val The rapidjson value to modify.
-     */
-    void setEmptyArray(rapidjson::Value* val);
+/**
+ * @brief Replaces a rapidjson value with an empty array.
+ * @param val The rapidjson value to modify.
+ */
+void setEmptyArray(rapidjson::Value* val);
 
-    /**
-     * @brief Replaces a value with an array containing the supplied range.
-     * @details Any existing value is discarded, including an existing array.
-     * @tparam R The type of the range to insert.
-     * @param val The rapidjson value to replace.
-     * @param values The values to insert into the new array.
-     * @param allocator The allocator to use when adding values to the array.
-     */
-    template<std::ranges::viewable_range R>
-    void insertArray(rapidjson::Value* val, R const& values, rapidjson::Document::AllocatorType& allocator);
+/**
+ * @brief Appends a given value to a rapidjson array.
+ * @tparam T The type of the value to append.
+ * @param val The rapidjson value to modify (must be an array!).
+ * @param value The value to append.
+ * @param allocator The allocator to use when adding the value to the array.
+ */
+template <typename T>
+void appendArrayValue(rapidjson::Value* val, T const& value, rapidjson::Document::AllocatorType& allocator);
 
-    /**
-     * @brief Appends a range of values to a rapidjson array.
-     * @details A non-array value is first converted to an array with ensureArray,
-     * preserving it as the first element. A null value becomes an empty array.
-     * @tparam R The type of the range to append.
-     * @param val The rapidjson value to append to.
-     * @param values The values to append to the array.
-     * @param allocator The allocator to use when adding values to the array.
-     */
-    template<std::ranges::viewable_range R>
-    void appendArray(rapidjson::Value* val, R const& values, rapidjson::Document::AllocatorType& allocator);
+/**
+ * @brief Replaces a value with an array containing the supplied range.
+ * @details Any existing value is discarded, including an existing array.
+ * @tparam R The type of the range to insert.
+ * @param val The rapidjson value to replace.
+ * @param values The values to insert into the new array.
+ * @param allocator The allocator to use when adding values to the array.
+ */
+template<std::ranges::viewable_range R>
+void insertArray(rapidjson::Value* val, R const& values, rapidjson::Document::AllocatorType& allocator);
 
-    //------------------------------------------
-    // Conversion
+/**
+ * @brief Appends a range of values to a rapidjson array.
+ * @details A non-array value is first converted to an array with ensureArray,
+ * preserving it as the first element. A null value becomes an empty array.
+ * @tparam R The type of the range to append.
+ * @param val The rapidjson value to append to.
+ * @param values The values to append to the array.
+ * @param allocator The allocator to use when adding values to the array.
+ */
+template<std::ranges::viewable_range R>
+void appendArray(rapidjson::Value* val, R const& values, rapidjson::Document::AllocatorType& allocator);
 
-    /**
-     * @brief Converts a rapidjson value to a given type.
-     * @tparam T The type to convert to.
-     * @param jsonValue The rapidjson value to convert.
-     * @param result The variable to store the result of.
-     * @param defaultValue The default value to use if conversion fails.
-     */
-    template <typename T> requires (!std::is_trivially_copyable_v<T>)
-    void convertFromJsonValue(rapidjson::Value const& jsonValue, T& result, T const& defaultValue = T());
+//------------------------------------------
+// Conversion
 
-    /**
-     * @brief Converts a rapidjson value to a given type.
-     * @tparam T The type to convert to.
-     * @param jsonValue The rapidjson value to convert.
-     * @param result The variable to store the result of.
-     * @param defaultValue The default value to use if conversion fails.
-     */
-    template <typename T> requires std::is_trivially_copyable_v<T>
-    void convertFromJsonValue(rapidjson::Value const& jsonValue, T& result, T defaultValue = T());
+/**
+ * @brief Converts a rapidjson value to a given type.
+ * @tparam T The type to convert to.
+ * @param jsonValue The rapidjson value to convert.
+ * @param result The variable to store the result of.
+ * @param defaultValue The default value to use if conversion fails.
+ */
+template <typename T> requires (!std::is_trivially_copyable_v<T>)
+void convertFromJsonValue(rapidjson::Value const& jsonValue, T& result, T const& defaultValue = T());
 
-    /**
-     * @brief Converts a given type to a rapidjson value.
-     * @tparam T The type to convert from.
-     * @param data The variable to convert.
-     * @param jsonValue The rapidjson value to store the result.
-     * @param allocator The allocator to use for creating new rapidjson values.
-     */
-    template <typename T> requires (!std::is_trivially_copyable_v<T>)
-    void convertToJsonValue(T const& data, rapidjson::Value& jsonValue, rapidjson::Document::AllocatorType& allocator);
+/**
+ * @brief Converts a rapidjson value to a given type.
+ * @tparam T The type to convert to.
+ * @param jsonValue The rapidjson value to convert.
+ * @param result The variable to store the result of.
+ * @param defaultValue The default value to use if conversion fails.
+ */
+template <typename T> requires std::is_trivially_copyable_v<T>
+void convertFromJsonValue(rapidjson::Value const& jsonValue, T& result, T defaultValue = T());
 
-    /**
-     * @brief Converts a given type to a rapidjson value.
-     * @tparam T The type to convert from.
-     * @param data The variable to convert.
-     * @param jsonValue The rapidjson value to store the result.
-     * @param allocator The allocator to use for creating new rapidjson values.
-     */
-    template <typename T> requires std::is_trivially_copyable_v<T>
-    void convertToJsonValue(T data, rapidjson::Value& jsonValue, rapidjson::Document::AllocatorType& allocator);
+/**
+ * @brief Converts a given type to a rapidjson value.
+ * @tparam T The type to convert from.
+ * @param data The variable to convert.
+ * @param jsonValue The rapidjson value to store the result.
+ * @param allocator The allocator to use for creating new rapidjson values.
+ */
+template <typename T> requires (!std::is_trivially_copyable_v<T>)
+void convertToJsonValue(T const& data, rapidjson::Value& jsonValue, rapidjson::Document::AllocatorType& allocator);
 
-    //------------------------------------------
-    // Document traversal
+/**
+ * @brief Converts a given type to a rapidjson value.
+ * @tparam T The type to convert from.
+ * @param data The variable to convert.
+ * @param jsonValue The rapidjson value to store the result.
+ * @param allocator The allocator to use for creating new rapidjson values.
+ */
+template <typename T> requires std::is_trivially_copyable_v<T>
+void convertToJsonValue(T data, rapidjson::Value& jsonValue, rapidjson::Document::AllocatorType& allocator);
 
-    /**
-     * @brief Traverses rapidjson value to find a value within identified by its key.
-     * @param key The key to search for.
-     * @param val The rapidjson value to search within.
-     * @return A pointer to the found rapidjson value, or nullptr if not found.
-     */
-    rapidjson::Value* traversePath(std::string_view key, rapidjson::Value& val);
+//------------------------------------------
+// Document traversal
 
-    /**
-     * @brief Structure to hold the result of traversing a rapidjson value to find the parent of a value identified by its key.
-     */
-    struct TraverseResult {
-        rapidjson::Value* parent;
-        std::string_view poppedMember;
-        int poppedIndex;
-    };
+/**
+ * @brief Traverses rapidjson value to find a value within identified by its key.
+ * @param key The key to search for.
+ * @param val The rapidjson value to search within.
+ * @return A pointer to the found rapidjson value, or nullptr if not found.
+ */
+rapidjson::Value* traversePath(std::string_view key, rapidjson::Value& val);
 
-    /**
-     * @brief Traverses a rapidjson value to find the parent of a value identified by its key.
-     *        - `parent.child`           -> returns `parent`,       poppedMember = `child`,   poppedIndex = -1
-     *        - `parent.child[index]`    -> returns `parent.child`, poppedMember = `child`,   poppedIndex = index
-     *        - `parent[index]`          -> returns `parent`,       poppedMember = "",        poppedIndex = index
-     * @param keyStr The child key
-     * @param root The rapidjson value to search within.
-     * @return A traverseResult containing the parent value and traversal information.
-     */
-    TraverseResult traverseToParent(std::string_view keyStr, rapidjson::Value& root);
+/**
+ * @brief Structure to hold the result of traversing a rapidjson value to find the parent of a value identified by its key.
+ */
+struct TraverseResult {
+    rapidjson::Value* parent;
+    std::string_view poppedMember;
+    int poppedIndex;
+};
 
-    /**
-     * @brief Traverses a rapidjson value to find or create a value within identified by its key.
-     *
-     * @param key The key to search for.
-     * @param val The rapidjson value to search within.
-     * @param allocator The allocator to use for creating new values.
-     * @return A pointer to the found or created rapidjson value.
-     *         Note that the returned value may be nullptr if the given key is invalid
-     *         (e.g., trying to index into a non-array or using a malformed index).
-     */
-    rapidjson::Value* ensurePath(std::string_view key, rapidjson::Value& val, rapidjson::Document::AllocatorType& allocator);
+/**
+ * @brief Traverses a rapidjson value to find the parent of a value identified by its key.
+ *        - `parent.child`           -> returns `parent`,       poppedMember = `child`,   poppedIndex = -1
+ *        - `parent.child[index]`    -> returns `parent.child`, poppedMember = `child`,   poppedIndex = index
+ *        - `parent[index]`          -> returns `parent`,       poppedMember = "",        poppedIndex = index
+ * @param keyStr The child key
+ * @param root The rapidjson value to search within.
+ * @return A traverseResult containing the parent value and traversal information.
+ */
+TraverseResult traverseToParent(std::string_view keyStr, rapidjson::Value& root);
 
-    //------------------------------------------
-    // Serialization/Deserialization
+/**
+ * @brief Traverses a rapidjson value to find or create a value within identified by its key.
+ *
+ * @param key The key to search for.
+ * @param val The rapidjson value to search within.
+ * @param allocator The allocator to use for creating new values.
+ * @return A pointer to the found or created rapidjson value.
+ *         Note that the returned value may be nullptr if the given key is invalid
+ *         (e.g., trying to index into a non-array or using a malformed index).
+ */
+rapidjson::Value* ensurePath(std::string_view key, rapidjson::Value& val, rapidjson::Document::AllocatorType& allocator);
 
-    /**
-     * @brief Enum representing the type of serialization for JSON output.
-     *        - compact: No extra whitespace or indentation.
-     *        - pretty: Indented and formatted for readability.
-     */
-    enum class SerializationType : bool {
-        compact,
-        pretty,
-    };
+//------------------------------------------
+// Serialization/Deserialization
 
-    /**
-     * @brief Serializes a rapidjson document to a string.
-     * @param doc The rapidjson document to serialize.
-     * @param type Type of serialization. Defaults to pretty printing.
-     * @return The serialized JSON string.
-     */
-    std::string serialize(rapidjson::Document const& doc, SerializationType type = SerializationType::pretty);
+/**
+ * @brief Enum representing the type of serialization for JSON output.
+ *        - compact: No extra whitespace or indentation.
+ *        - pretty: Indented and formatted for readability.
+ */
+enum class SerializationType : bool {
+    compact,
+    pretty,
+};
 
-    std::string serialize(rapidjson::Value const& val, SerializationType type = SerializationType::pretty);
+/**
+ * @brief Serializes a rapidjson document to a string.
+ * @param doc The rapidjson document to serialize.
+ * @param type Type of serialization. Defaults to pretty printing.
+ * @return The serialized JSON string.
+ */
+std::string serialize(rapidjson::Document const& doc, SerializationType type = SerializationType::pretty);
 
-    /**
-     * @brief Deserializes a JSON string into a rapidjson document.
-     * @param doc The rapidjson document to populate.
-     * @param serialOrLink The JSON string to deserialize.
-     */
-    void deserialize(rapidjson::Document& doc, std::string_view serialOrLink);
+std::string serialize(rapidjson::Value const& val, SerializationType type = SerializationType::pretty);
 
-    /**
-     * @brief Deserializes a JSON string into a rapidjson document.
-     * @details Only use if the given string is guaranteed to be a valid JSON string!
-     */
-    void deserializeFromJson(rapidjson::Document& doc, std::string_view json);
+/**
+ * @brief Deserializes a JSON string into a rapidjson document.
+ * @param doc The rapidjson document to populate.
+ * @param serialOrLink The JSON string to deserialize.
+ */
+void deserialize(rapidjson::Document& doc, std::string_view serialOrLink);
 
-    //------------------------------------------
-    // Helper functions
+/**
+ * @brief Deserializes a JSON string into a rapidjson document.
+ * @details Only use if the given string is guaranteed to be a valid JSON string!
+ */
+void deserializeFromJson(rapidjson::Document& doc, std::string_view json);
 
-    /**
-     * @brief Sorts a rapidjson value, including all its sub-values.
-     * @param value The rapidjson value to sort.
-     * @param allocator The allocator to use for creating new rapidjson values.
-     * @return A new rapidjson value representing the sorted input.
-     */
-    rapidjson::Value sortRecursive(rapidjson::Value const& value, rapidjson::Document::AllocatorType& allocator);
+//------------------------------------------
+// Helper functions
 
-    /**
-     * @brief Strips comments from a JSONC string for a JSON-compatible output.
-     * @param jsonc The JSONC string to process.
-     * @return The JSON-compatible string.
-     */
-    std::string stripComments(std::string_view jsonc);
+/**
+ * @brief Sorts a rapidjson value, including all its sub-values.
+ * @param value The rapidjson value to sort.
+ * @param allocator The allocator to use for creating new rapidjson values.
+ * @return A new rapidjson value representing the sorted input.
+ */
+rapidjson::Value sortRecursive(rapidjson::Value const& value, rapidjson::Document::AllocatorType& allocator);
 
-    /**
-     * @brief Checks if a string is in JSON or JSONC format.
-     * @param str The string to check.
-     * @return true if the string is JSON or JSONC, false otherwise.
-     */
-    bool isJsonOrJsonc(std::string_view str);
+/**
+ * @brief Strips comments from a JSONC string for a JSON-compatible output.
+ * @param jsonc The JSONC string to process.
+ * @return The JSON-compatible string.
+ */
+std::string stripComments(std::string_view jsonc);
 
-    //------------------------------------------
-    // Member management
+/**
+ * @brief Checks if a string is in JSON or JSONC format.
+ * @param str The string to check.
+ * @return true if the string is JSON or JSONC, false otherwise.
+ */
+bool isJsonOrJsonc(std::string_view str);
 
-    /**
-     * @brief Empties a rapidjson document.
-     * @param doc The rapidjson document to empty.
-     */
-    void empty(rapidjson::Document& doc);
+//------------------------------------------
+// Member management
 
-    /**
-     * @brief Removes a member from a rapidjson object by key.
-     * @param key The key of the member to remove.
-     * @param val The rapidjson object to remove the member from.
-     */
-    void removeMember(std::string_view key, rapidjson::Value& val);
+/**
+ * @brief Empties a rapidjson document.
+ * @param doc The rapidjson document to empty.
+ */
+void empty(rapidjson::Document& doc);
 
-    /**
-     * @brief Validates if a key string is valid for traversal.
-     * @param key The key string to validate.
-     * @return true if the key is valid, false otherwise.
-     */
-    bool isValidKey(std::string_view key);
+/**
+ * @brief Removes a member from a rapidjson object by key.
+ * @param key The key of the member to remove.
+ * @param val The rapidjson object to remove the member from.
+ */
+void removeMember(std::string_view key, rapidjson::Value& val);
 
-    /**
-     * @brief Lists all available keys in a rapidjson object.
-     * @param val The rapidjson object to list keys from.
-     * @return A vector of strings containing all available keys.
-     *         - For objects, returns member names.
-     *         - For arrays, returns indices in bracket notation (e.g., "[0]", "[1]", ...).
-     *         - For any other type, returns an empty vector.
-     */
-    std::vector<std::string> listAvailableMembers(rapidjson::Value const& val);
+/**
+ * @brief Validates if a key string is valid for traversal.
+ * @param key The key string to validate.
+ * @return true if the key is valid, false otherwise.
+ */
+bool isValidKey(std::string_view key);
 
-    // Special characters for key parsing
-    struct SpecialCharacter {
-        static auto constexpr arrayOpen = '[';
-        static auto constexpr arrayClose = ']';
-        static auto constexpr dot = '.';
+/**
+ * @brief Lists all available keys in a rapidjson object.
+ * @param val The rapidjson object to list keys from.
+ * @return A vector of strings containing all available keys.
+ *         - For objects, returns member names.
+ *         - For arrays, returns indices in bracket notation (e.g., "[0]", "[1]", ...).
+ *         - For any other type, returns an empty vector.
+ */
+std::vector<std::string> listAvailableMembers(rapidjson::Value const& val);
 
-        static auto constexpr arrayOpenAndClose = "[]";
-        static auto constexpr dotAndArrayOpen = ".[";
-    };
+// Special characters for key parsing
+struct SpecialCharacter {
+    static auto constexpr arrayOpen = '[';
+    static auto constexpr arrayClose = ']';
+    static auto constexpr dot = '.';
+
+    static auto constexpr arrayOpenAndClose = "[]";
+    static auto constexpr dotAndArrayOpen = ".[";
+};
 } // namespace Nebulite::Data::RjDirectAccess
 #include "Nebulite/Data/Document/RjDirectAccess.tpp" // NOLINT(misc-include-cleaner)
 #endif // NEBULITE_DATA_DOCUMENT_RJDIRECTACCESS_HPP

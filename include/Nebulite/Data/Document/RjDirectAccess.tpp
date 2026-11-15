@@ -159,9 +159,10 @@ bool set(std::string_view const key, T const& value, rapidjson::Value& val, rapi
 //------------------------------------------
 // Array
 
-namespace {
 template <typename T>
 void appendArrayValue(rapidjson::Value* val, T const& value, rapidjson::Document::AllocatorType& allocator) {
+    assert(val->IsArray());
+
     using ValueT = std::remove_cvref_t<T>;
     if constexpr (std::is_same_v<ValueT, std::string> || std::is_same_v<ValueT, std::string_view>) {
         rapidjson::Value stringValue(
@@ -200,7 +201,6 @@ void appendArrayValue(rapidjson::Value* val, T const& value, rapidjson::Document
         val->PushBack(value, allocator);
     }
 }
-} // anonymous namespace
 
 template<std::ranges::viewable_range R>
 void insertArray(rapidjson::Value* val, R const& values, rapidjson::Document::AllocatorType& allocator) {
