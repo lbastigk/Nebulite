@@ -9,8 +9,6 @@ Checks:
   - 'cppcoreguidelines-*'
   - 'google-default-arguments'
   - 'google-runtime-operator'
-  - 'hicpp-exception-baseclass'
-  - 'hicpp-multiway-paths-covered'
   - 'llvm-*'
   - 'misc-*'
   - 'modernize-*'
@@ -20,6 +18,9 @@ Checks:
   - 'performance-*'
   - 'portability-simd-intrinsics'
   - 'readability-*'
+  # This is being triggered on so many instances where a static_assert just wouldn't work...
+  - '-cert-dcl03-c'
+  - '-misc-static-assert'
   # Disable some checks that are too strict, annoying or irrelevant
   - '-cert-env33-c'                         # Calling system is not necessarily a security risk, and this check is too strict
   - '-clang-analyzer-security.ArrayBound'   # false positives with Rml::Variant::Get
