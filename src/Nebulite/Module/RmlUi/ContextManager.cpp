@@ -13,7 +13,13 @@
 #include "Nebulite/Module/RmlUi/EventBridge.hpp"
 #include "Nebulite/Module/RmlUi/ExpressionManager.hpp"
 #include "Nebulite/Module/RmlUi/Reflection.hpp"
-#include "Nebulite/Utility/Io/Capture.hpp"
+
+//------------------------------------------
+// Forward declarations
+
+namespace Nebulite::Utility::Io {
+class Capture;
+} // namespace Nebulite::Utility::Io
 
 //------------------------------------------
 namespace Nebulite::Module::RmlUi {

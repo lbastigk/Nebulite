@@ -20,7 +20,13 @@
 #include "Nebulite/Math/Equality.hpp"
 #include "Nebulite/Module/Base/RmlUiModule.hpp"
 #include "Nebulite/Module/RmlUi/Conditional.hpp"
-#include "Nebulite/Utility/Io/Capture.hpp"
+
+//------------------------------------------
+// Forward declarations
+
+namespace Nebulite::Utility::Io {
+class Capture;
+} // namespace Nebulite::Utility::Io
 
 //------------------------------------------
 namespace Nebulite::Module::RmlUi {
@@ -28,7 +34,7 @@ namespace Nebulite::Module::RmlUi {
 Conditional::Conditional(Utility::Io::Capture& c, Graphics::RmlUi::Interface& i) : RmlUiModule(c,i) {}
 
 void Conditional::update() {
-    for (auto& entry : registeredEntries | std::views::values) {
+    for (auto const& entry : registeredEntries | std::views::values) {
         entry.resolve(interface);
     }
 }
