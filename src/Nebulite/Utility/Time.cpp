@@ -9,6 +9,7 @@
 #include <ctime>
 #include <string>
 #include <thread>
+#include <utility>
 
 // Nebulite
 #include "Nebulite/Utility/Time.hpp"
@@ -26,28 +27,24 @@ std::string Time::timeIso8601(Iso8601Format const format, bool const local) {
     // Write into buffer
     // Using a switch so that the compiler sees a format literal at compile time,
     // meaning its format type is checked properly.
-    std::array<char, 32> buffer{};
-    std::size_t constexpr maxLen = 32; // maximum length of the buffer
-    std::size_t written = 0;
-    switch (format) {
-    case Iso8601Format::YYYY:
-        written = std::strftime(buffer.data(), sizeof(buffer), "%Y", &timeInfo);
-        break;
-    case Iso8601Format::YYYY_MM:
-        written = std::strftime(buffer.data(), sizeof(buffer), "%Y-%m", &timeInfo);
-        break;
-    case Iso8601Format::YYYY_MM_DD:
-        written = std::strftime(buffer.data(), sizeof(buffer), "%Y-%m-%d", &timeInfo);
-        break;
-    case Iso8601Format::YYYY_MM_DD_HH_MM_SS:
-        written = std::strftime(buffer.data(), sizeof(buffer), "%Y-%m-%dT%H:%M:%S", &timeInfo);
-        break;
-    case Iso8601Format::YYYY_MM_DD_HH_MM_SS_TZ:
-        written = std::strftime(buffer.data(), sizeof(buffer), "%Y-%m-%dT%H:%M:%SZ", &timeInfo);
-        break;
-    default:
-        return {};
-    }
+    auto constexpr maxLen = 32; // maximum length of the buffer
+    std::array<char, maxLen> buffer{};
+    std::size_t const written = [&] {
+        switch (format) {
+        case Iso8601Format::YYYY:
+            return std::strftime(buffer.data(), sizeof(buffer), "%Y", &timeInfo);
+        case Iso8601Format::YYYY_MM:
+            return std::strftime(buffer.data(), sizeof(buffer), "%Y-%m", &timeInfo);
+        case Iso8601Format::YYYY_MM_DD:
+            return std::strftime(buffer.data(), sizeof(buffer), "%Y-%m-%d", &timeInfo);
+        case Iso8601Format::YYYY_MM_DD_HH_MM_SS:
+            return std::strftime(buffer.data(), sizeof(buffer), "%Y-%m-%dT%H:%M:%S", &timeInfo);
+        case Iso8601Format::YYYY_MM_DD_HH_MM_SS_TZ:
+            return std::strftime(buffer.data(), sizeof(buffer), "%Y-%m-%dT%H:%M:%SZ", &timeInfo);
+        default:
+            std::unreachable();
+        }
+    }();
 
     // Defensive: if strftime fails, return empty string
     if (written == 0)
