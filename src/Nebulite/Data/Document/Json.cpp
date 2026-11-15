@@ -66,7 +66,7 @@ namespace Nebulite::Data {
 // Cache System
 
 void Json::synchronizeChildren(std::string_view const parentKey) const {
-    auto cacheToSync = cache
+    auto cacheToSync = cache // NOLINT
         | std::views::filter([&](auto& pair) {
             auto const& [entryKey, entry] = pair;
             return isRelatedToKey(entryKey, parentKey);
@@ -86,7 +86,7 @@ void Json::synchronizeChildren(std::string_view const parentKey) const {
 void Json::flush(std::string_view const key) const {
     auto const parentKey = findParentKey(key);
 
-    auto cacheToSync = cache
+    auto cacheToSync = cache // NOLINT
         | std::views::filter([&](auto& pair) {
             auto const& [entryKey, entry] = pair;
             return entry->state != CacheEntry::State::malformed
@@ -435,7 +435,7 @@ void Json::setSubDoc(std::string_view const key, Json const& child, std::string_
     }
 
     // Sync cache entry with root value
-    if (auto entry = cache.find(key); entry.has_value()) {
+    if (auto const entry = cache.find(key); entry.has_value()) {
         if (auto const val = child.getVariant(""); val.has_value()) {
             entry->setValueClean(val.value());
         }
@@ -763,7 +763,7 @@ void Json::copyMember(std::string_view const fromKey, std::string_view const toK
     setSubDoc(toKey, *this, fromKey);
 }
 
-void Json::ensureArray(std::string_view key){
+void Json::ensureArray(std::string_view const key){
     // TODO: use key for flush and synchronizeChildren?
     std::scoped_lock const lockGuard(mtx);
     helperNonConstVar++; // Signal non-const operation
@@ -830,7 +830,7 @@ std::expected<RjDirectAccess::SimpleValue, SimpleValueRetrievalError> Json::getS
         // Check for simple value
         if (auto v = RjDirectAccess::getSimpleValue(val); v.has_value()) {
             // Since we already have a value, load it into the cache/update existing entry
-            if (auto entry = cache.find(key); !entry.has_value()) {
+            if (auto const entry = cache.find(key); !entry.has_value()) {
                 cache.insert(key, [v](CacheEntry& newEntry) {
                     newEntry.setValueClean(v.value());
                 });
